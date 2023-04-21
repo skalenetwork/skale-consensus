@@ -30,38 +30,34 @@
 #include "CommittedBlockHeader.h"
 
 
+CommittedBlockHeader::CommittedBlockHeader( CommittedBlock& _block )
+    : BlockProposalHeader( _block ),
+      thresholdSig( _block.getThresholdSig() ),
+      daSig( _block.getDaSig() ){ CHECK_ARGUMENT( !thresholdSig.empty() ) }
 
-CommittedBlockHeader::CommittedBlockHeader(CommittedBlock &_block) : BlockProposalHeader(
-        _block), thresholdSig(_block.getThresholdSig()), daSig(_block.getDaSig()) {
-    CHECK_ARGUMENT(!thresholdSig.empty())
+      CommittedBlockHeader::CommittedBlockHeader( nlohmann::json & _json )
+    : BlockProposalHeader( _json ) {
+    thresholdSig = Header::getString( _json, "thrSig" );
+    CHECK_STATE( !thresholdSig.empty() )
+    daSig = Header::maybeGetString( _json, "daSig" );
 }
 
-CommittedBlockHeader::CommittedBlockHeader(nlohmann::json &_json) : BlockProposalHeader(_json) {
-    thresholdSig = Header::getString(_json, "thrSig");
-    CHECK_STATE(!thresholdSig.empty())
-    daSig = Header::maybeGetString(_json, "daSig");
-}
-
-const string &CommittedBlockHeader::getThresholdSig() const {
-    CHECK_STATE(!thresholdSig.empty())
+const string& CommittedBlockHeader::getThresholdSig() const {
+    CHECK_STATE( !thresholdSig.empty() )
     return thresholdSig;
 }
 
-const string &CommittedBlockHeader::getDaSig() const {
+const string& CommittedBlockHeader::getDaSig() const {
     return daSig;
 }
 
 
-
-void CommittedBlockHeader::addFields(nlohmann::basic_json<> &_j) {
-    BlockProposalHeader::addFields(_j);
+void CommittedBlockHeader::addFields( nlohmann::basic_json<>& _j ) {
+    BlockProposalHeader::addFields( _j );
 
     _j["thrSig"] = thresholdSig;
 
-    if (!daSig.empty()) {
+    if ( !daSig.empty() ) {
         _j["daSig"] = daSig;
     }
-
 }
-
-

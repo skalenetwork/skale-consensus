@@ -28,7 +28,7 @@
 
 #include "thirdparty/rapidjson/document.h"
 #include "thirdparty/json.hpp"
-#include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
+#include "thirdparty/rapidjson/prettywriter.h"  // for stringify JSON
 
 #include "Message.h"
 
@@ -53,9 +53,7 @@ class CryptoManager;
 class ThresholdSignature;
 
 
-
 class NetworkMessage : public Message, public BasicHeader {
-
 protected:
     uint64_t timeMs = 0;
     string printPrefix = "n";
@@ -85,12 +83,11 @@ protected:
 
     void addFields( nlohmann::json& j ) override;
 
-    virtual void updateWithChildHash(blake3_hasher &hasher);
+    virtual void updateWithChildHash( blake3_hasher& hasher );
 
-    virtual void serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer>& _writer);
+    virtual void serializeToStringChild( rapidjson::Writer< rapidjson::StringBuffer >& _writer );
 
 public:
-
     [[nodiscard]] uint64_t getTimeMs() const;
 
     void sign( const ptr< CryptoManager >& _mgr );
@@ -105,7 +102,8 @@ public:
 
     [[nodiscard]] ptr< ThresholdSigShare > getSigShare() const;
 
-    static ptr< NetworkMessage > parseMessage( const string& _header, Schain* _sChain, bool _lite = false);
+    static ptr< NetworkMessage > parseMessage(
+        const string& _header, Schain* _sChain, bool _lite = false );
 
     static const char* getTypeString( MsgType _type );
 
@@ -115,10 +113,9 @@ public:
 
     string serializeToString() override;
 
-    [[nodiscard]] const string & getECDSASig() const;
-    [[nodiscard]] const string & getPublicKey() const;
-    [[nodiscard]] const string & getPkSig() const;
+    [[nodiscard]] const string& getECDSASig() const;
+    [[nodiscard]] const string& getPublicKey() const;
+    [[nodiscard]] const string& getPkSig() const;
 
     string serializeToStringLite();
-
 };

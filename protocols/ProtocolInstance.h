@@ -21,8 +21,7 @@
     @date 2018
 */
 
-#pragma  once
-
+#pragma once
 
 
 class Node;
@@ -39,24 +38,20 @@ class BlockConsensusAgent;
 class BinConsensusInstance;
 
 
-enum ProtocolType { BLOCK_SIGN, BIN_CONSENSUS, ORACLE};
+enum ProtocolType { BLOCK_SIGN, BIN_CONSENSUS, ORACLE };
 
-enum ProtocolStatus { STATUS_ACTIVE, STATUS_COMPLETED};
-enum ProtocolOutcome { OUTCOME_UNKNOWN, OUTCOME_SUCCESS, OUTCOME_FAILURE, OUTCOME_KILLED};
+enum ProtocolStatus { STATUS_ACTIVE, STATUS_COMPLETED };
+enum ProtocolOutcome { OUTCOME_UNKNOWN, OUTCOME_SUCCESS, OUTCOME_FAILURE, OUTCOME_KILLED };
 
 
 class ProtocolInstance {
+    static atomic< int64_t > totalObjects;
 
+    Schain* sChain = nullptr;
 
-    static atomic<int64_t>  totalObjects;
-
-    Schain*  sChain = nullptr;
-
-    const ProtocolType protocolType; // unused
+    const ProtocolType protocolType;  // unused
 
 protected:
-
-
     /**
      * Instance ID
      */
@@ -68,13 +63,11 @@ protected:
     msg_id messageCounter = 0;
 
 public:
+    ProtocolInstance( ProtocolType _protocolType, Schain& _schain );
 
+    msg_id createNetworkMessageID();
 
-    ProtocolInstance(ProtocolType _protocolType, Schain& _schain);
-
-    msg_id  createNetworkMessageID();
-
-    Schain *getSchain() const;
+    Schain* getSchain() const;
 
     ProtocolOutcome getOutcome() const;
 
@@ -82,9 +75,5 @@ public:
     virtual ~ProtocolInstance();
 
 
-    static int64_t getTotalObjects() {
-        return totalObjects;
-    }
+    static int64_t getTotalObjects() { return totalObjects; }
 };
-
-

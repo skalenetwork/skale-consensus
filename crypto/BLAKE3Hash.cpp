@@ -35,87 +35,83 @@
 #include "BLAKE3Hash.h"
 
 void BLAKE3Hash::print() {
-    for (size_t i = 0; i < HASH_LEN; i++) {
-        cerr << to_string(hash.at(i));
+    for ( size_t i = 0; i < HASH_LEN; i++ ) {
+        cerr << to_string( hash.at( i ) );
     }
 }
 
 
-uint8_t BLAKE3Hash::at(uint32_t _position) {
-    return hash.at(_position);
+uint8_t BLAKE3Hash::at( uint32_t _position ) {
+    return hash.at( _position );
 }
 
 
-BLAKE3Hash BLAKE3Hash::fromHex(const string& _hex) {
-    CHECK_ARGUMENT(_hex != "");
+BLAKE3Hash BLAKE3Hash::fromHex( const string& _hex ) {
+    CHECK_ARGUMENT( _hex != "" );
     BLAKE3Hash result;
-    Utils::cArrayFromHex(_hex, result.data(), HASH_LEN);
+    Utils::cArrayFromHex( _hex, result.data(), HASH_LEN );
     return result;
 }
 
 string BLAKE3Hash::toHex() {
-    auto result = Utils::carray2Hex(hash.data(), HASH_LEN);
-    CHECK_STATE(result != "");
+    auto result = Utils::carray2Hex( hash.data(), HASH_LEN );
+    CHECK_STATE( result != "" );
     return result;
 }
 
 
-int BLAKE3Hash::compare(BLAKE3Hash& _hash2 ) {
-
-
-    for (size_t i = 0; i < HASH_LEN; i++) {
-        if (hash.at(i) < _hash2.at(i))
+int BLAKE3Hash::compare( BLAKE3Hash& _hash2 ) {
+    for ( size_t i = 0; i < HASH_LEN; i++ ) {
+        if ( hash.at( i ) < _hash2.at( i ) )
             return -1;
-        if (hash.at(i) > _hash2.at(i))
+        if ( hash.at( i ) > _hash2.at( i ) )
             return 1;
     }
     return 0;
 }
 
 
-BLAKE3Hash BLAKE3Hash::calculateHash(const ptr<vector<uint8_t>>& _data) {
-    CHECK_ARGUMENT(_data);
+BLAKE3Hash BLAKE3Hash::calculateHash( const ptr< vector< uint8_t > >& _data ) {
+    CHECK_ARGUMENT( _data );
     // Initialize the hasher.
 
     blake3_hasher hasher;
-    blake3_hasher_init(&hasher);
-    blake3_hasher_update(&hasher, _data->data(), _data->size());
+    blake3_hasher_init( &hasher );
+    blake3_hasher_update( &hasher, _data->data(), _data->size() );
     BLAKE3Hash hash;
-    blake3_hasher_finalize(&hasher, hash.data(), BLAKE3_OUT_LEN);
+    blake3_hasher_finalize( &hasher, hash.data(), BLAKE3_OUT_LEN );
     return hash;
 }
 
-BLAKE3Hash BLAKE3Hash::merkleTreeMerge(const BLAKE3Hash & _left, const BLAKE3Hash& _right) {
-
-
-    auto concatenation = make_shared<vector<uint8_t>>();
-    concatenation->reserve(2 * HASH_LEN);
+BLAKE3Hash BLAKE3Hash::merkleTreeMerge( const BLAKE3Hash& _left, const BLAKE3Hash& _right ) {
+    auto concatenation = make_shared< vector< uint8_t > >();
+    concatenation->reserve( 2 * HASH_LEN );
 
     auto leftHash = _left.getHash();
 
-    concatenation->insert(concatenation->end(), leftHash.begin(), leftHash.end());
+    concatenation->insert( concatenation->end(), leftHash.begin(), leftHash.end() );
 
     auto rightHash = _right.getHash();
 
-    concatenation->insert(concatenation->end(), rightHash.begin(), rightHash.end());
+    concatenation->insert( concatenation->end(), rightHash.begin(), rightHash.end() );
 
-    return calculateHash(concatenation);
+    return calculateHash( concatenation );
 }
 
-const array<uint8_t, HASH_LEN>& BLAKE3Hash::getHash() const {
+const array< uint8_t, HASH_LEN >& BLAKE3Hash::getHash() const {
     return hash;
 }
 
 
-
-BLAKE3Hash BLAKE3Hash::getConsensusHash(uint64_t _blockProposerIndex, uint64_t _blockId, uint64_t _schainId) {
+BLAKE3Hash BLAKE3Hash::getConsensusHash(
+    uint64_t _blockProposerIndex, uint64_t _blockId, uint64_t _schainId ) {
     uint32_t msgType = MSG_BLOCK_SIGN_BROADCAST;
     BLAKE3Hash _hash;
-    HASH_INIT(hashObj)
-    HASH_UPDATE(hashObj, _blockProposerIndex)
-    HASH_UPDATE(hashObj, _blockId)
-    HASH_UPDATE(hashObj, _schainId)
-    HASH_UPDATE(hashObj, msgType);
-    HASH_FINAL(hashObj, _hash.data());
+    HASH_INIT( hashObj )
+    HASH_UPDATE( hashObj, _blockProposerIndex )
+    HASH_UPDATE( hashObj, _blockId )
+    HASH_UPDATE( hashObj, _schainId )
+    HASH_UPDATE( hashObj, msgType );
+    HASH_FINAL( hashObj, _hash.data() );
     return _hash;
 }

@@ -28,7 +28,6 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 
-
 #include "thirdparty/catch.hpp"
 
 
@@ -41,143 +40,125 @@
 #include "Transaction.h"
 
 
-
 BLAKE3Hash Transaction::getHash() {
-
-    LOCK(m)
+    LOCK( m )
 
     if ( haveHash )
         return hash;
 
-    hash = BLAKE3Hash::calculateHash(data);
+    hash = BLAKE3Hash::calculateHash( data );
     haveHash = true;
     return hash;
 }
 
 
 ptr< partial_sha_hash > Transaction::getPartialHash() {
-
-    LOCK(m)
+    LOCK( m )
 
     if ( partialHash ) {
         return partialHash;
     }
 
-    partialHash = make_shared<partial_sha_hash >();
+    partialHash = make_shared< partial_sha_hash >();
 
     getHash();
 
-    for (size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
+    for ( size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
         partialHash->at( i ) = hash.at( i );
     }
 
     return partialHash;
 }
 
-Transaction::Transaction( const ptr<vector<uint8_t>>& _trx, bool _includesPartialHash ) {
-
-
-    CHECK_ARGUMENT(_trx != nullptr);
+Transaction::Transaction( const ptr< vector< uint8_t > >& _trx, bool _includesPartialHash ) {
+    CHECK_ARGUMENT( _trx != nullptr );
 
 
     array< uint8_t, PARTIAL_HASH_LEN > incomingHash;
 
-    if (_includesPartialHash) {
-        CHECK_ARGUMENT(_trx->size() > PARTIAL_HASH_LEN);
+    if ( _includesPartialHash ) {
+        CHECK_ARGUMENT( _trx->size() > PARTIAL_HASH_LEN );
 
-        std::copy(_trx->begin() + +_trx->size() - PARTIAL_HASH_LEN, _trx->end(),
-                  incomingHash.begin() );
+        std::copy(
+            _trx->begin() + +_trx->size() - PARTIAL_HASH_LEN, _trx->end(), incomingHash.begin() );
 
 
-        _trx->resize(_trx->size() - PARTIAL_HASH_LEN );
+        _trx->resize( _trx->size() - PARTIAL_HASH_LEN );
     } else {
-        CHECK_ARGUMENT(_trx->size() > 0);
+        CHECK_ARGUMENT( _trx->size() > 0 );
     };
-
 
 
     data = _trx;
 
 
-
-
-    if (_includesPartialHash) {
+    if ( _includesPartialHash ) {
         auto h = getPartialHash();
 
-        CHECK_ARGUMENT2(*h == incomingHash, "Transaction partial hash does not match");
-
+        CHECK_ARGUMENT2( *h == incomingHash, "Transaction partial hash does not match" );
     }
 
-    CHECK_STATE(data != nullptr);
-    CHECK_STATE(data->size() > 0);
+    CHECK_STATE( data != nullptr );
+    CHECK_STATE( data->size() > 0 );
 
     totalObjects++;
 };
 
 
-ptr<vector<uint8_t>> Transaction::getData() const {
-    CHECK_STATE(data);
-    CHECK_STATE(data->size() > 0);
+ptr< vector< uint8_t > > Transaction::getData() const {
+    CHECK_STATE( data );
+    CHECK_STATE( data->size() > 0 );
     return data;
 }
 
 
-
-atomic<int64_t>  Transaction::totalObjects(0);
+atomic< int64_t > Transaction::totalObjects( 0 );
 
 
 Transaction::~Transaction() {
     totalObjects--;
 }
-uint64_t Transaction::getSerializedSize(bool _writePartialHash) {
+uint64_t Transaction::getSerializedSize( bool _writePartialHash ) {
+    CHECK_STATE( data->size() > 0 );
 
-    CHECK_STATE(data->size() > 0);
-
-    if (_writePartialHash)
+    if ( _writePartialHash )
         return data->size() + PARTIAL_HASH_LEN;
     return data->size();
 }
 
-void Transaction::serializeInto(const ptr<vector<uint8_t>>& _out, bool _writePartialHash ) {
-
-    LOCK(m)
-    CHECK_ARGUMENT( _out)
+void Transaction::serializeInto( const ptr< vector< uint8_t > >& _out, bool _writePartialHash ) {
+    LOCK( m )
+    CHECK_ARGUMENT( _out )
 
     _out->insert( _out->end(), data->begin(), data->end() );
 
-    if (_writePartialHash) {
+    if ( _writePartialHash ) {
         auto h = getPartialHash();
         _out->insert( _out->end(), h->begin(), h->end() );
     }
 }
 
 
-
-
-ptr<Transaction > Transaction::deserialize(
-    const ptr<vector<uint8_t>>& _data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes ) {
-
+ptr< Transaction > Transaction::deserialize( const ptr< vector< uint8_t > >& _data,
+    uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes ) {
     CHECK_ARGUMENT( _data );
 
-    CHECK_ARGUMENT2(_startIndex + _len <= _data->size(),
-                    to_string(_startIndex) + " " + to_string(_len) + " " +
-                    to_string( _data->size()))
+    CHECK_ARGUMENT2( _startIndex + _len <= _data->size(),
+        to_string( _startIndex ) + " " + to_string( _len ) + " " + to_string( _data->size() ) )
 
-    CHECK_ARGUMENT(_len > 0);
+    CHECK_ARGUMENT( _len > 0 );
 
-    auto transactionData = make_shared<vector<uint8_t>>(
-        _data->begin() + _startIndex, _data->begin() + _startIndex + _len);
-
+    auto transactionData = make_shared< vector< uint8_t > >(
+        _data->begin() + _startIndex, _data->begin() + _startIndex + _len );
 
 
-    return make_shared<Transaction>(transactionData, _verifyPartialHashes);
-
+    return make_shared< Transaction >( transactionData, _verifyPartialHashes );
 }
 
 
 ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
-                                                    boost::random::uniform_int_distribution<>& _ubyte ) {
-    auto sample = make_shared<vector< uint8_t > >( _size, 0 );
+    boost::random::uniform_int_distribution<>& _ubyte ) {
+    auto sample = make_shared< vector< uint8_t > >( _size, 0 );
 
 
     for ( uint32_t j = 0; j < sample->size(); j++ ) {

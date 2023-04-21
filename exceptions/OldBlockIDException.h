@@ -21,30 +21,27 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 class Header;
 class ServerConnection;
 
 #include "ProposalProtocolException.h"
 
-class OldBlockIDException : public ProposalProtocolException{
+class OldBlockIDException : public ProposalProtocolException {
+    ptr< Header > responseHeader;
 
-   ptr<Header> responseHeader;
 public:
+    ptr< Header > getResponseHeader() const { return responseHeader; }
 
-    ptr<Header> getResponseHeader() const {
-        return responseHeader;
-    }
-
-    ptr<ServerConnection> getConnection() const {
-        return connection;
-    }
+    ptr< ServerConnection > getConnection() const { return connection; }
 
 private:
-    ptr<ServerConnection> connection;
+    ptr< ServerConnection > connection;
 
 public:
-    OldBlockIDException(const string &_message, const ptr<Header> &responseHeader, const ptr<ServerConnection> &connection,
-                        const string& _className)
-            : ProposalProtocolException(_message, _className), responseHeader(responseHeader), connection(connection) {}
+    OldBlockIDException( const string& _message, const ptr< Header >& responseHeader,
+        const ptr< ServerConnection >& connection, const string& _className )
+        : ProposalProtocolException( _message, _className ),
+          responseHeader( responseHeader ),
+          connection( connection ) {}
 };

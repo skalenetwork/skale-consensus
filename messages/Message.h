@@ -24,37 +24,47 @@
 #pragma once
 
 
-enum MsgType {CHILD_COMPLETED = 0, PARENT_COMPLETED = 1,
-    MSG_BVB_BROADCAST = 2, MSG_AUX_BROADCAST = 3, BIN_CONSENSUS_COMMIT = 4, BIN_CONSENSUS_HISTORY_DECIDE = 5,
-    BIN_CONSENSUS_HISTORY_CC = 6, BIN_CONSENSUS_HISTORY_BVSELF = 7,
-    BIN_CONSENSUS_HISTORY_AUXSELF = 8, BIN_CONSENSUS_HISTORY_NEW_ROUND = 9,
-    MSG_BLOCK_CONSENSUS_INIT = 10, MSG_CONSENSUS_PROPOSAL = 11, MSG_BLOCK_SIGN_BROADCAST = 12,
-    MSG_BLOCK_PROPOSAL = 13, MSG_BLOCK_COMMIT = 14, MSG_DA_PROOF = 15,
-    MSG_ORACLE_REQ_BROADCAST = 16, MSG_ORACLE_RSP = 17};
+enum MsgType {
+    CHILD_COMPLETED = 0,
+    PARENT_COMPLETED = 1,
+    MSG_BVB_BROADCAST = 2,
+    MSG_AUX_BROADCAST = 3,
+    BIN_CONSENSUS_COMMIT = 4,
+    BIN_CONSENSUS_HISTORY_DECIDE = 5,
+    BIN_CONSENSUS_HISTORY_CC = 6,
+    BIN_CONSENSUS_HISTORY_BVSELF = 7,
+    BIN_CONSENSUS_HISTORY_AUXSELF = 8,
+    BIN_CONSENSUS_HISTORY_NEW_ROUND = 9,
+    MSG_BLOCK_CONSENSUS_INIT = 10,
+    MSG_CONSENSUS_PROPOSAL = 11,
+    MSG_BLOCK_SIGN_BROADCAST = 12,
+    MSG_BLOCK_PROPOSAL = 13,
+    MSG_BLOCK_COMMIT = 14,
+    MSG_DA_PROOF = 15,
+    MSG_ORACLE_REQ_BROADCAST = 16,
+    MSG_ORACLE_RSP = 17
+};
 
 class ProtocolInstance;
 class ProtocolKey;
 
 class Message {
-
 private:
-
-    static atomic<int64_t>  totalObjects;
+    static atomic< int64_t > totalObjects;
 
 protected:
-
     schain_id schainID = 0;
-    block_id  blockID = 0;
+    block_id blockID = 0;
     schain_index blockProposerIndex = 0;
     MsgType msgType;
     msg_id msgID = 0;
     node_id srcNodeID = 0;
 
-    ptr<ProtocolKey> protocolKey;
+    ptr< ProtocolKey > protocolKey;
 
 public:
-    Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
-            const block_id &blockID, const schain_index &blockProposerIndex);
+    Message( const schain_id& schainID, MsgType msgType, const msg_id& msgID,
+        const node_id& srcNodeID, const block_id& blockID, const schain_index& blockProposerIndex );
 
     [[nodiscard]] node_id getSrcNodeID() const;
 
@@ -63,11 +73,11 @@ public:
 
     [[nodiscard]] const block_id getBlockId() const;
 
-    [[nodiscard]] schain_index getBlockProposerIndex() const ;
+    [[nodiscard]] schain_index getBlockProposerIndex() const;
 
     [[nodiscard]] schain_id getSchainID() const;
 
-    ptr<ProtocolKey> createProtocolKey();
+    ptr< ProtocolKey > createProtocolKey();
 
     block_id getBlockID();
 
@@ -77,8 +87,5 @@ public:
 
     virtual ~Message();
 
-    static int64_t getTotalObjects() {
-        return totalObjects;
-    }
-
+    static int64_t getTotalObjects() { return totalObjects; }
 };

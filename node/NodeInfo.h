@@ -21,10 +21,9 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 class NodeInfo {
-
     node_id nodeID = 0;
 
     string ipAddress;
@@ -35,11 +34,9 @@ class NodeInfo {
 
     schain_index schainIndex = 0;
 
-    ptr<sockaddr_in> socketaddr;
+    ptr< sockaddr_in > socketaddr;
 
 public:
-
-
     node_id getNodeID() const;
 
     schain_index getSchainIndex() const;
@@ -48,10 +45,10 @@ public:
 
     schain_id getSchainID() const;
 
-    NodeInfo(node_id nodeID, const string &ip, network_port port, schain_id schainID, schain_index schainIndex);
+    NodeInfo( node_id nodeID, const string& ip, network_port port, schain_id schainID,
+        schain_index schainIndex );
 
-    ptr<sockaddr_in> getSocketaddr();
+    ptr< sockaddr_in > getSocketaddr();
 
     string getBaseIP();
 };
-

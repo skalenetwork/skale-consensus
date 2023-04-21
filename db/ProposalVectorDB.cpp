@@ -32,75 +32,62 @@
 #include "ProposalVectorDB.h"
 
 
-ProposalVectorDB::ProposalVectorDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-    uint64_t _maxDBSize) : CacheLevelDB(_sChain, _dirName, _prefix,
-                       _nodeId, _maxDBSize, LevelDBOptions::getProposalVectorDBOptions(), false) {
-}
-
+ProposalVectorDB::ProposalVectorDB(
+    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getProposalVectorDBOptions(), false ) {}
 
 
 // Proposal vector may already be saved in DB and consensus may already be started
 // Then do not save
 // Return if it was saved.
-bool
-ProposalVectorDB::trySavingProposalVector(block_id _proposalBlockID, const ptr<BooleanProposalVector>& _proposalVector) {
+bool ProposalVectorDB::trySavingProposalVector(
+    block_id _proposalBlockID, const ptr< BooleanProposalVector >& _proposalVector ) {
+    CHECK_ARGUMENT( _proposalVector )
 
-    CHECK_ARGUMENT(_proposalVector)
-
-    lock_guard<recursive_mutex> lock(m);
+    lock_guard< recursive_mutex > lock( m );
 
     auto proposalString = _proposalVector->toString();
 
-    CHECK_STATE(!proposalString.empty())
+    CHECK_STATE( !proposalString.empty() )
 
     try {
+        auto key = createKey( _proposalBlockID );
+        CHECK_STATE( !key.empty() )
 
-        auto key = createKey(_proposalBlockID);
-        CHECK_STATE(!key.empty())
+        auto previous = readString( key );
 
-        auto previous = readString(key);
-
-        if (previous.empty()) {
-            writeString(key, proposalString);
+        if ( previous.empty() ) {
+            writeString( key, proposalString );
             return true;
         } else {
             return false;
         }
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
-ptr<BooleanProposalVector>
-ProposalVectorDB::getVector(block_id _blockID) {
-
-    lock_guard<recursive_mutex> lock(m);
+ptr< BooleanProposalVector > ProposalVectorDB::getVector( block_id _blockID ) {
+    lock_guard< recursive_mutex > lock( m );
 
     try {
+        auto key = createKey( _blockID );
+        CHECK_STATE( !key.empty() )
 
-        auto key = createKey(_blockID);
-        CHECK_STATE(!key.empty())
+        auto value = readString( key );
 
-        auto value = readString(key);
-
-        if (value.empty()) {
+        if ( value.empty() ) {
             return nullptr;
         }
-        return make_shared<BooleanProposalVector>(getSchain()->getNodeCount(), value);
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        return make_shared< BooleanProposalVector >( getSchain()->getNodeCount(), value );
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 const string& ProposalVectorDB::getFormatVersion() {
     static const string version = "1.0";
     return version;
 }
-
-
-
-
-

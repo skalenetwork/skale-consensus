@@ -121,7 +121,8 @@ void OracleClient::sendTestRequestAndWaitForResult( ptr< OracleRequestSpec > _sp
 };
 
 
-pair<uint64_t,string> OracleClient::submitOracleRequest( const string& _spec, string& _receipt ) {
+pair< uint64_t, string > OracleClient::submitOracleRequest(
+    const string& _spec, string& _receipt ) {
     ptr< OracleRequestBroadcastMessage > msg = nullptr;
 
     try {
@@ -134,71 +135,71 @@ pair<uint64_t,string> OracleClient::submitOracleRequest( const string& _spec, st
         if ( !spec ) {
             auto message = "Null spec in submitOracleRequest";
             LOG( err, message );
-            return { ORACLE_INTERNAL_SERVER_ERROR, message};
+            return { ORACLE_INTERNAL_SERVER_ERROR, message };
         }
 
         if ( msg->getParsedSpec()->getChainId() != this->getSchain()->getSchainID() ) {
             auto message = string( "Invalid schain id in oracle spec:" +
                                    to_string( msg->getParsedSpec()->getChainId() ) );
             LOG( err, message );
-            return { ORACLE_INVALID_CHAIN_ID, message};
+            return { ORACLE_INVALID_CHAIN_ID, message };
         }
 
         if ( spec->getTime() + ORACLE_REQUEST_AGE_ON_RECEIPT_MS < Time::getCurrentTimeMs() ) {
             auto message = string( "Received old request with age:" ) +
                            to_string( Time::getCurrentTimeMs() - spec->getTime() );
             LOG( err, message );
-            return { ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD, message};
+            return { ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD, message };
         }
 
         if ( spec->getTime() > Time::getCurrentTimeMs() + ORACLE_REQUEST_FUTURE_JITTER_MS ) {
             auto message = string( "Received oracle request with time in the future age:" ) +
-            to_string( spec->getTime() - Time::getCurrentTimeMs() );
+                           to_string( spec->getTime() - Time::getCurrentTimeMs() );
             LOG( err, message );
-            return {ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE, message};
+            return { ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE, message };
         }
 
-    } catch (OracleException& e) {
+    } catch ( OracleException& e ) {
         auto message = string( "Invalid oracle spec in submitOracleRequest " ) + e.what();
         LOG( err, message );
-        return {e.getError(), message};
+        return { e.getError(), message };
     } catch ( exception& e ) {
         auto message = string( "Invalid oracle spec in submitOracleRequest " ) + e.what();
         LOG( err, message );
-        return {ORACLE_INVALID_JSON_REQUEST, message};
+        return { ORACLE_INVALID_JSON_REQUEST, message };
     } catch ( ... ) {
-        auto message = string( "Unknown exception in " ) + __FUNCTION__ ;
-        LOG( err, message);
-        return { ORACLE_INTERNAL_SERVER_ERROR, message};
+        auto message = string( "Unknown exception in " ) + __FUNCTION__;
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
     }
 
     try {
         _receipt = msg->getParsedSpec()->getReceipt();
         if ( _receipt.empty() ) {
             auto message = "Could not compute oracle receipt ";
-            LOG( err, message);
-            return {ORACLE_INTERNAL_SERVER_ERROR, message};
+            LOG( err, message );
+            return { ORACLE_INTERNAL_SERVER_ERROR, message };
         }
     } catch ( exception& e ) {
         auto message = string( "Exception computing receipt " ) + e.what();
-        LOG( err, message);
-        return {ORACLE_INTERNAL_SERVER_ERROR, message};
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
     } catch ( ... ) {
         auto message = string( "Unknown Exception computing receipt " );
-        LOG( err, message);
-        return {ORACLE_INTERNAL_SERVER_ERROR, message};
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
     }
 
     try {
-        return {broadcastRequest( msg ), ""};
+        return { broadcastRequest( msg ), "" };
     } catch ( exception& e ) {
         auto message = string( "Exception broadcasting message " ) + e.what();
-        LOG( err, message);
-        return {ORACLE_INTERNAL_SERVER_ERROR, message};
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
     } catch ( ... ) {
         auto message = "Internal server error in submitOracleRequest ";
-        LOG( err, message);
-        return {ORACLE_INTERNAL_SERVER_ERROR, message};
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
     }
 }
 

@@ -23,7 +23,7 @@
 
 #include "thirdparty/rapidjson/document.h"
 #include "thirdparty/json.hpp"
-#include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
+#include "thirdparty/rapidjson/prettywriter.h"  // for stringify JSON
 
 #include "SkaleCommon.h"
 
@@ -39,60 +39,56 @@
 #include "OracleRequestSpec.h"
 #include "OracleRequestBroadcastMessage.h"
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string &_requestSpec, block_id _blockID,
-                                                             uint64_t _timeMs,
-                                                             OracleClient &sourceProtocolInstance)
-        : NetworkMessage(MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs,
-                         sourceProtocolInstance), requestSpec(_requestSpec) {
-
-    requestSpec.erase(std::remove_if(requestSpec.begin(), requestSpec.end(), ::isspace), requestSpec.end());
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage( const string& _requestSpec,
+    block_id _blockID, uint64_t _timeMs, OracleClient& sourceProtocolInstance )
+    : NetworkMessage(
+          MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs, sourceProtocolInstance ),
+      requestSpec( _requestSpec ) {
+    requestSpec.erase(
+        std::remove_if( requestSpec.begin(), requestSpec.end(), ::isspace ), requestSpec.end() );
 
     printPrefix = "o";
 
     parsedSpec = OracleRequestSpec::parseSpec( requestSpec );
-
 }
 
 
-OracleRequestBroadcastMessage::OracleRequestBroadcastMessage(const string &_requestSpec, node_id _srcNodeID,
-                                                             block_id _blockID,
-                                                             uint64_t _timeMs,
-                                                             schain_id _schainId, msg_id _msgID,
-                                                             schain_index _srcSchainIndex,
-                                                             const string &_ecdsaSig, const string &_publicKey,
-                                                             const string &_pkSig, Schain *_sChain)
-        : NetworkMessage(
-        MSG_ORACLE_REQ_BROADCAST, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID,
-        "", _ecdsaSig, _publicKey, _pkSig,
-        _srcSchainIndex, _sChain->getCryptoManager()), requestSpec(_requestSpec) {
-    CHECK_STATE(_requestSpec.front() == '{' && _requestSpec.back() == '}')
+OracleRequestBroadcastMessage::OracleRequestBroadcastMessage( const string& _requestSpec,
+    node_id _srcNodeID, block_id _blockID, uint64_t _timeMs, schain_id _schainId, msg_id _msgID,
+    schain_index _srcSchainIndex, const string& _ecdsaSig, const string& _publicKey,
+    const string& _pkSig, Schain* _sChain )
+    : NetworkMessage( MSG_ORACLE_REQ_BROADCAST, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId,
+          _msgID, "", _ecdsaSig, _publicKey, _pkSig, _srcSchainIndex, _sChain->getCryptoManager() ),
+      requestSpec( _requestSpec ) {
+    CHECK_STATE( _requestSpec.front() == '{' && _requestSpec.back() == '}' )
     printPrefix = "o";
 
-    requestSpec.erase(std::remove_if(requestSpec.begin(), requestSpec.end(), ::isspace), requestSpec.end());
+    requestSpec.erase(
+        std::remove_if( requestSpec.begin(), requestSpec.end(), ::isspace ), requestSpec.end() );
 
     parsedSpec = OracleRequestSpec::parseSpec( requestSpec );
-
 }
 
-void OracleRequestBroadcastMessage::updateWithChildHash(blake3_hasher &_hasher) {
+void OracleRequestBroadcastMessage::updateWithChildHash( blake3_hasher& _hasher ) {
     uint32_t requestLen = requestSpec.size();
-    HASH_UPDATE(_hasher, requestLen)
-    if (requestLen > 0) {
-        blake3_hasher_update(&_hasher, (unsigned char *) requestSpec.data(), requestLen);
+    HASH_UPDATE( _hasher, requestLen )
+    if ( requestLen > 0 ) {
+        blake3_hasher_update( &_hasher, ( unsigned char* ) requestSpec.data(), requestLen );
     }
 }
 
 
-void OracleRequestBroadcastMessage::serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer> &_writer) {
-    _writer.String("spec");
-    _writer.String(requestSpec.data(), requestSpec.size());
+void OracleRequestBroadcastMessage::serializeToStringChild(
+    rapidjson::Writer< rapidjson::StringBuffer >& _writer ) {
+    _writer.String( "spec" );
+    _writer.String( requestSpec.data(), requestSpec.size() );
 }
 
-const ptr<OracleRequestSpec> &OracleRequestBroadcastMessage::getParsedSpec() const {
-    CHECK_STATE(parsedSpec);
+const ptr< OracleRequestSpec >& OracleRequestBroadcastMessage::getParsedSpec() const {
+    CHECK_STATE( parsedSpec );
     return parsedSpec;
 }
 
-const string &OracleRequestBroadcastMessage::getRequestSpec() const {
+const string& OracleRequestBroadcastMessage::getRequestSpec() const {
     return requestSpec;
 }

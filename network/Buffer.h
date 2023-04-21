@@ -24,24 +24,22 @@
 #pragma once
 
 class Buffer {
-
     size_t size = 0;
 
     uint64_t counter = 0;
 
-    ptr<vector<uint8_t>> buf;
+    ptr< vector< uint8_t > > buf;
 
 public:
+    void write( void* data, size_t dataLen );
 
-    void write(void *data, size_t dataLen);
+    explicit Buffer( size_t size );
 
-    explicit Buffer(size_t size);
+    [[nodiscard]] ptr< vector< uint8_t > > getBuf() const;
 
-    [[nodiscard]] ptr<vector<uint8_t>> getBuf() const;
+    void read( void* data, size_t dataLen );
 
-    void read(void *data, size_t dataLen);
-
-    void consume(char c);
+    void consume( char c );
 
     [[nodiscard]] uint64_t getCounter() const;
 

@@ -30,12 +30,11 @@ bool TestConfig::isFinalizationDownloadOnly() const {
     return finalizationDownloadOnly;
 }
 
-TestConfig::TestConfig(nlohmann::json /*cgf */) {
-    auto option = std::getenv("TEST_FINALIZATION_DOWNLOAD_ONLY");
-    finalizationDownloadOnly = (option != nullptr);
+TestConfig::TestConfig( nlohmann::json /*cgf */ ) {
+    auto option = std::getenv( "TEST_FINALIZATION_DOWNLOAD_ONLY" );
+    finalizationDownloadOnly = ( option != nullptr );
 
-    if (finalizationDownloadOnly) {
-        LOG(info, "Testing the case of only finalization download");
+    if ( finalizationDownloadOnly ) {
+        LOG( info, "Testing the case of only finalization download" );
     }
-
 }

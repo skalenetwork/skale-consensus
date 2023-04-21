@@ -32,44 +32,36 @@ class ClientSocket;
 class Schain;
 
 class IO {
-
-    Schain *sChain = nullptr;
+    Schain* sChain = nullptr;
 
 public:
+    IO( Schain* _sChain );
 
-    IO(Schain *_sChain);
+    void readBytes( const ptr< ServerConnection >& _env, const ptr< vector< uint8_t > >& _buffer,
+        msg_len _len, uint32_t _timeoutSec );
 
-    void readBytes(const ptr<ServerConnection>& _env, const ptr<vector<uint8_t>>& _buffer,
-        msg_len _len, uint32_t  _timeoutSec);
+    void readBytes( file_descriptor _descriptor, const ptr< vector< uint8_t > >& _buffer,
+        msg_len _len, uint32_t _timeoutSec );
 
-    void readBytes(file_descriptor _descriptor, const ptr<vector<uint8_t>>& _buffer, msg_len _len,
-        uint32_t _timeoutSec);
+    void readBuf( file_descriptor _descriptor, const ptr< Buffer >& _buf, msg_len _len,
+        uint32_t _timeoutSec );
 
-    void readBuf(file_descriptor _descriptor, const ptr<Buffer>& _buf, msg_len _len,
-                 uint32_t  _timeoutSec);
+    void writeBytes(
+        file_descriptor descriptor, const ptr< vector< uint8_t > >& _buffer, msg_len len );
 
-    void writeBytes(file_descriptor descriptor, const ptr<vector<uint8_t>>& _buffer, msg_len len);
+    void writeBuf( file_descriptor _descriptor, const ptr< Buffer >& _buf );
 
-    void writeBuf(file_descriptor _descriptor, const ptr<Buffer>& _buf);
+    void writeHeader( const ptr< ClientSocket >& _socket, const ptr< Header >& _header );
 
-    void writeHeader(const ptr<ClientSocket>& _socket, const ptr<Header>& _header);
+    void writeMagic( const ptr< ClientSocket >& _socket, bool _isPing = false );
 
-    void writeMagic(const ptr<ClientSocket>& _socket, bool _isPing = false);
+    void writeBytesVector( file_descriptor _socket, const ptr< vector< uint8_t > >& _bytes );
 
-    void writeBytesVector(file_descriptor _socket, const ptr<vector<uint8_t>>& _bytes );
+    void writePartialHashes(
+        file_descriptor _socket, const ptr< map< uint64_t, ptr< partial_sha_hash > > >& _hashes );
 
-    void writePartialHashes(file_descriptor _socket, const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _hashes );
+    void readMagic( file_descriptor descriptor );
 
-    void readMagic(file_descriptor descriptor);
-
-    nlohmann::json readJsonHeader(file_descriptor descriptor, const char* _errorString,
-        uint32_t _timeout,
-        string _ip,
-        uint64_t _maxHeaderLen = MAX_HEADER_SIZE);
-
+    nlohmann::json readJsonHeader( file_descriptor descriptor, const char* _errorString,
+        uint32_t _timeout, string _ip, uint64_t _maxHeaderLen = MAX_HEADER_SIZE );
 };
-
-
-
-
-

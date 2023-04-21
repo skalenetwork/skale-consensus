@@ -45,16 +45,15 @@
 
 using namespace std;
 
-void IO::readBytes(
-    const ptr< ServerConnection >& _env, const ptr< vector< uint8_t > >& _buffer, msg_len len,
-    uint32_t  _timeoutSec) {
+void IO::readBytes( const ptr< ServerConnection >& _env, const ptr< vector< uint8_t > >& _buffer,
+    msg_len len, uint32_t _timeoutSec ) {
     CHECK_ARGUMENT( _env );
     CHECK_ARGUMENT( _buffer );
     return readBytes( _env->getDescriptor(), _buffer, len, _timeoutSec );
 }
 
-void IO::readBuf( file_descriptor descriptor, const ptr< Buffer >& _buf, msg_len len,
-                  uint32_t  _timeoutSec) {
+void IO::readBuf(
+    file_descriptor descriptor, const ptr< Buffer >& _buf, msg_len len, uint32_t _timeoutSec ) {
     CHECK_ARGUMENT( _buf );
     CHECK_ARGUMENT( len > 0 );
     CHECK_ARGUMENT( _buf->getSize() >= len );
@@ -62,10 +61,8 @@ void IO::readBuf( file_descriptor descriptor, const ptr< Buffer >& _buf, msg_len
 }
 
 
-void IO::readBytes(
-    file_descriptor _descriptor, const ptr< vector< uint8_t > >& _buffer, msg_len _len ,
-    uint32_t _timeoutSec) {
-
+void IO::readBytes( file_descriptor _descriptor, const ptr< vector< uint8_t > >& _buffer,
+    msg_len _len, uint32_t _timeoutSec ) {
     CHECK_ARGUMENT( _buffer )
     CHECK_ARGUMENT( _len > 0 )
     CHECK_ARGUMENT( _buffer->size() >= _len )
@@ -75,7 +72,7 @@ void IO::readBytes(
     int64_t result;
 
     struct timeval tv;
-    tv.tv_sec =  _timeoutSec;
+    tv.tv_sec = _timeoutSec;
     tv.tv_usec = 0;
     setsockopt( int( _descriptor ), SOL_SOCKET, SO_RCVTIMEO, ( const char* ) &tv, sizeof tv );
 
@@ -96,8 +93,8 @@ void IO::readBytes(
         if ( result == 0 ) {
             BOOST_THROW_EXCEPTION(
                 NetworkProtocolException( "The peer shut down the socket, bytes to read:" +
-                                          to_string( uint64_t( _len ) - bytesRead ),
-                                          __CLASS_NAME__ ) );
+                                              to_string( uint64_t( _len ) - bytesRead ),
+                    __CLASS_NAME__ ) );
         }
 
         if ( result < 0 && errno == EAGAIN ) {
@@ -112,7 +109,7 @@ void IO::readBytes(
 
         bytesRead += result;
 
-        if (result <= 0) {
+        if ( result <= 0 ) {
             timeoutCounter++;
         }
     }
@@ -137,26 +134,25 @@ void IO::writeBytes(
     uint64_t bytesWritten = 0;
 
     struct timeval tv;
-    tv.tv_sec =  30;
+    tv.tv_sec = 30;
     tv.tv_usec = 0;
     setsockopt( int( descriptor ), SOL_SOCKET, SO_SNDTIMEO, ( const char* ) &tv, sizeof tv );
 
     while ( msg_len( bytesWritten ) < len ) {
-        int64_t result = send(
-            ( int ) descriptor, _buffer->data() + bytesWritten, ( uint64_t ) len - bytesWritten,
-            MSG_NOSIGNAL);
+        int64_t result = send( ( int ) descriptor, _buffer->data() + bytesWritten,
+            ( uint64_t ) len - bytesWritten, MSG_NOSIGNAL );
 
         if ( sChain->getNode()->isExitRequested() )
             BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
 
-        if ( result < 1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+        if ( result < 1 && ( errno == EAGAIN || errno == EWOULDBLOCK ) ) {
             BOOST_THROW_EXCEPTION(
                 NetworkProtocolException( "Peer write timeout", __CLASS_NAME__ ) );
         }
 
-        if (result < 1 && (errno == EPIPE || errno == ECONNRESET)) {
-            BOOST_THROW_EXCEPTION(
-                NetworkProtocolException( "Destination unexpectedly closed connection", __CLASS_NAME__ ) );
+        if ( result < 1 && ( errno == EPIPE || errno == ECONNRESET ) ) {
+            BOOST_THROW_EXCEPTION( NetworkProtocolException(
+                "Destination unexpectedly closed connection", __CLASS_NAME__ ) );
         }
 
         if ( result < 1 ) {
@@ -242,7 +238,7 @@ void IO::readMagic( file_descriptor descriptor ) {
     auto readBuffer = make_shared< vector< uint8_t > >( sizeof( magic ) );
 
     try {
-        readBytes( descriptor, readBuffer, sizeof( magic ) , 3);
+        readBytes( descriptor, readBuffer, sizeof( magic ), 3 );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -261,21 +257,19 @@ void IO::readMagic( file_descriptor descriptor ) {
     }
 }
 
-nlohmann::json IO::readJsonHeader(
-    file_descriptor descriptor, const char* _errorString, uint32_t _timeout,
-    string _ip, uint64_t _maxHeaderLen ) {
+nlohmann::json IO::readJsonHeader( file_descriptor descriptor, const char* _errorString,
+    uint32_t _timeout, string _ip, uint64_t _maxHeaderLen ) {
     CHECK_ARGUMENT( _errorString );
 
     auto buf2 = make_shared< vector< uint8_t > >( sizeof( uint64_t ) );
 
     try {
-        readBytes( descriptor, buf2, msg_len( sizeof( uint64_t ) ) , 6);
+        readBytes( descriptor, buf2, msg_len( sizeof( uint64_t ) ), 6 );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
         throw_with_nested( NetworkProtocolException(
-            _errorString + string( ":Could not read header len from:" +
-                               _ip), __CLASS_NAME__ ) );
+            _errorString + string( ":Could not read header len from:" + _ip ), __CLASS_NAME__ ) );
     }
 
 
@@ -283,10 +277,10 @@ nlohmann::json IO::readJsonHeader(
 
     if ( headerLen < 2 || headerLen > _maxHeaderLen ) {
         LOG( err, "Total Len:" + to_string( headerLen ) );
-        BOOST_THROW_EXCEPTION( ParsingException(
-            _errorString + string( ":Invalid Header len from:" )
-                + _ip + ":" + to_string( headerLen ),
-            __CLASS_NAME__ ) );
+        BOOST_THROW_EXCEPTION(
+            ParsingException( _errorString + string( ":Invalid Header len from:" ) + _ip + ":" +
+                                  to_string( headerLen ),
+                __CLASS_NAME__ ) );
     }
 
     ptr< Buffer > buf = make_shared< Buffer >( headerLen );
@@ -297,8 +291,7 @@ nlohmann::json IO::readJsonHeader(
         throw;
     } catch ( ... ) {
         throw_with_nested( NetworkProtocolException(
-            _errorString + string( ":Could not read headerLen bytes from :" )
-                + _ip + ":" +
+            _errorString + string( ":Could not read headerLen bytes from :" ) + _ip + ":" +
                 to_string( headerLen ),
             __CLASS_NAME__ ) );
     }
@@ -316,8 +309,8 @@ nlohmann::json IO::readJsonHeader(
         throw;
     } catch ( ... ) {
         BOOST_THROW_EXCEPTION( ParsingException(
-            string( _errorString ) + ":Could not parse request from"
-                + _ip + ":" + *s, __CLASS_NAME__ ) );
+            string( _errorString ) + ":Could not parse request from" + _ip + ":" + *s,
+            __CLASS_NAME__ ) );
     }
 
     return js;

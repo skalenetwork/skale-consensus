@@ -51,7 +51,6 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 
 
 ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
-
     ptr< BLSSignature > blsSig = nullptr;
 
     {
@@ -68,7 +67,7 @@ ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
 
 bool ConsensusSigShareSet::isEnough() {
     {
-        LOCK(blsSetLock);
+        LOCK( blsSetLock );
         return blsSet.isEnough();
     }
 }
@@ -80,7 +79,7 @@ bool ConsensusSigShareSet::addSigShare( const ptr< ThresholdSigShare >& _sigShar
     CHECK_STATE( s );
 
     {
-        LOCK( blsSetLock);
+        LOCK( blsSetLock );
         return blsSet.addSigShare( s->getBlsSigShare() );
     }
 }

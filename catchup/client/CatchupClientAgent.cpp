@@ -225,7 +225,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks( ptr< ClientSock
 
     auto blockSizes = make_shared< vector< uint64_t > >();
 
-    auto totalSize = parseBlockSizes( _responseHeader, blockSizes , _requestHeader);
+    auto totalSize = parseBlockSizes( _responseHeader, blockSizes, _requestHeader );
 
     auto serializedBlocks = make_shared< vector< uint8_t > >( totalSize );
 

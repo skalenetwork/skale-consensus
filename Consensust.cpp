@@ -53,38 +53,29 @@
 #endif
 
 
-
-ConsensusEngine *engine;
+ConsensusEngine* engine;
 
 
 class DontCleanup {
 public:
-    DontCleanup() {
+    DontCleanup() { Consensust::setConfigDirPath( boost::filesystem::system_complete( "." ) ); };
 
-        Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
-
-    };
-
-    ~DontCleanup() {
-    }
+    ~DontCleanup() {}
 };
-
 
 
 class StartFromScratch {
 public:
     StartFromScratch() {
-
-        int i = system("rm -rf /tmp/*.db.*");
-        i = system("rm -rf /tmp/*.db");
-        i++; // make compiler happy
-        Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
+        int i = system( "rm -rf /tmp/*.db.*" );
+        i = system( "rm -rf /tmp/*.db" );
+        i++;  // make compiler happy
+        Consensust::setConfigDirPath( boost::filesystem::system_complete( "." ) );
 
 #ifdef GOOGLE_PROFILE
-        HeapProfilerStart("/tmp/consensusd.profile");
-        HeapProfilerStart("/tmp/consensusd.profile");
+        HeapProfilerStart( "/tmp/consensusd.profile" );
+        HeapProfilerStart( "/tmp/consensusd.profile" );
 #endif
-
     };
 
     ~StartFromScratch() {
@@ -95,13 +86,11 @@ public:
 };
 
 uint64_t Consensust::getRunningTimeS() {
+    if ( runningTimeS == 0 ) {
+        auto env = getenv( "TEST_TIME_S" );
 
-    if (runningTimeS == 0) {
-
-        auto env = getenv("TEST_TIME_S");
-
-        if (env != NULL) {
-            runningTimeS = strtoul(env, NULL, 10);
+        if ( env != NULL ) {
+            runningTimeS = strtoul( env, NULL, 10 );
         } else {
             runningTimeS = DEFAULT_RUNNING_TIME_S;
         }
@@ -114,12 +103,12 @@ uint64_t Consensust::runningTimeS = 0;
 
 fs_path Consensust::configDirPath;
 
-const fs_path &Consensust::getConfigDirPath() {
+const fs_path& Consensust::getConfigDirPath() {
     return configDirPath;
 }
 
 
-void Consensust::setConfigDirPath(const fs_path &_configDirPath) {
+void Consensust::setConfigDirPath( const fs_path& _configDirPath ) {
     Consensust::configDirPath = _configDirPath;
 }
 
@@ -128,16 +117,15 @@ void Consensust::useCorruptConfigs() {
 }
 
 
-void testLog(const char *message) {
-    printf("TEST_LOG: %s\n", message);
+void testLog( const char* message ) {
+    printf( "TEST_LOG: %s\n", message );
 }
 
-block_id basicRun(int64_t _lastId = 0) {
+block_id basicRun( int64_t _lastId = 0 ) {
     try {
+        REQUIRE( ConsensusEngine::getEngineVersion().size() > 0 );
 
-        REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
-
-        engine = new ConsensusEngine(_lastId, 1000000000);
+        engine = new ConsensusEngine( _lastId, 1000000000 );
 
 
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath(), _lastId == -1 );
@@ -150,30 +138,31 @@ block_id basicRun(int64_t _lastId = 0) {
         auto currentTime = Time::getCurrentTimeSec();
         auto finishTime = testRunningTimeS + currentTime;
 
-        while (true) {
+        while ( true ) {
             try {
                 currentTime = Time::getCurrentTimeSec();
-                usleep((finishTime - currentTime) * 1000 * 1000 );
-            } catch ( ... ) {};
+                usleep( ( finishTime - currentTime ) * 1000 * 1000 );
+            } catch ( ... ) {
+            };
         }
 
-        REQUIRE(engine->nodesCount() > 0);
+        REQUIRE( engine->nodesCount() > 0 );
         auto lastId = engine->getLargestCommittedBlockID();
-        REQUIRE(lastId > 0);
+        REQUIRE( lastId > 0 );
 
-        auto [transactions, timestampS, timeStampMs, price, stateRoot]  = engine->getBlock(1);
+        auto [transactions, timestampS, timeStampMs, price, stateRoot] = engine->getBlock( 1 );
 
 
-        REQUIRE(transactions);
-        REQUIRE(timestampS > 0);
-        REQUIRE(timeStampMs > 0);
+        REQUIRE( transactions );
+        REQUIRE( timestampS > 0 );
+        REQUIRE( timeStampMs > 0 );
 
         cerr << price << ":" << stateRoot << endl;
         engine->exitGracefullyBlocking();
         delete engine;
         return lastId;
-    } catch (SkaleException &e) {
-        SkaleException::logNested(e);
+    } catch ( SkaleException& e ) {
+        SkaleException::logNested( e );
         throw;
     }
 }
@@ -182,15 +171,10 @@ block_id basicRun(int64_t _lastId = 0) {
 bool success = false;
 
 void exit_check() {
-    sleep(STUCK_TEST_TIME);
+    sleep( STUCK_TEST_TIME );
     engine->exitGracefullyBlocking();
 }
 
 
-
-
 #include "unittests/consensus_tests.cpp"
 #include "unittests/sgx_tests.cpp"
-
-
-

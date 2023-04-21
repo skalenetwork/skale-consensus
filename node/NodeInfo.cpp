@@ -37,23 +37,23 @@ node_id NodeInfo::getNodeID() const {
 
 
 schain_index NodeInfo::getSchainIndex() const {
-    CHECK_STATE(schainIndex > 0);
+    CHECK_STATE( schainIndex > 0 );
     return schainIndex;
 }
 
 network_port NodeInfo::getPort() const {
-    CHECK_STATE(port > 0);
+    CHECK_STATE( port > 0 );
     return port;
 }
 
 
-ptr<sockaddr_in> NodeInfo::getSocketaddr() {
-    CHECK_STATE(socketaddr);
+ptr< sockaddr_in > NodeInfo::getSocketaddr() {
+    CHECK_STATE( socketaddr );
     return socketaddr;
 }
 
 string NodeInfo::getBaseIP() {
-    CHECK_STATE(!ipAddress.empty() )
+    CHECK_STATE( !ipAddress.empty() )
     return ipAddress;
 }
 
@@ -63,15 +63,14 @@ schain_id NodeInfo::getSchainID() const {
 }
 
 
-NodeInfo::NodeInfo(node_id nodeID, const string &ip, network_port port, schain_id schainID, schain_index schainIndex) :
-        nodeID(nodeID),
-      ipAddress(ip),
-        port(port),
-        schainID(
-                schainID),
-        schainIndex(
-                schainIndex) {
-    CHECK_STATE(schainIndex > 0);
-    this->socketaddr = Sockets::createSocketAddress(ip, (uint16_t) port);
-    CHECK_STATE(socketaddr);
+NodeInfo::NodeInfo( node_id nodeID, const string& ip, network_port port, schain_id schainID,
+    schain_index schainIndex )
+    : nodeID( nodeID ),
+      ipAddress( ip ),
+      port( port ),
+      schainID( schainID ),
+      schainIndex( schainIndex ) {
+    CHECK_STATE( schainIndex > 0 );
+    this->socketaddr = Sockets::createSocketAddress( ip, ( uint16_t ) port );
+    CHECK_STATE( socketaddr );
 }

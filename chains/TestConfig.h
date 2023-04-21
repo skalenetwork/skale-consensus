@@ -25,15 +25,13 @@
 
 
 class TestConfig {
-
     bool finalizationDownloadOnly = false;
 
 public:
     bool isFinalizationDownloadOnly() const;
 
-    TestConfig( nlohmann::json cgf);
-
+    TestConfig( nlohmann::json cgf );
 };
 
 
-#endif //SKALED_TESTCONFIG_H
+#endif  // SKALED_TESTCONFIG_H

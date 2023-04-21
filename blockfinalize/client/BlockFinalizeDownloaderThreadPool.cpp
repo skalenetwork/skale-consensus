@@ -43,14 +43,12 @@
 #include "BlockFinalizeDownloaderThreadPool.h"
 
 BlockFinalizeDownloaderThreadPool::BlockFinalizeDownloaderThreadPool(
-        num_threads numThreads, Agent *_params) : WorkerThreadPool(numThreads,
-                                                                  _params, false) {
-}
+    num_threads numThreads, Agent* _params )
+    : WorkerThreadPool( numThreads, _params, false ) {}
 
 
-void BlockFinalizeDownloaderThreadPool::createThread(uint64_t threadIndex ) {
-
-    auto downloader = (BlockFinalizeDownloader*)agent;
+void BlockFinalizeDownloaderThreadPool::createThread( uint64_t threadIndex ) {
+    auto downloader = ( BlockFinalizeDownloader* ) agent;
 
     CHECK_STATE( downloader );
 
@@ -58,31 +56,26 @@ void BlockFinalizeDownloaderThreadPool::createThread(uint64_t threadIndex ) {
     uint64_t destinationIndex = threadIndex + 1;
 
     // the node does not download from itself
-    if ( destinationIndex == downloader->getSchain()->getSchainIndex())
+    if ( destinationIndex == downloader->getSchain()->getSchainIndex() )
         return;
 
-    LOCK(threadPoolLock);
-    this->threadpool.push_back(make_shared<thread>(
-            BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, downloader, destinationIndex ));
-
+    LOCK( threadPoolLock );
+    this->threadpool.push_back( make_shared< thread >(
+        BlockFinalizeDownloader::workerThreadFragmentDownloadLoop, downloader, destinationIndex ) );
 }
 
 
 void BlockFinalizeDownloaderThreadPool::startService() {
-
-    for (uint64_t i = 0; i < (uint64_t )numThreads; i++) {
-        createThread(i);
+    for ( uint64_t i = 0; i < ( uint64_t ) numThreads; i++ ) {
+        createThread( i );
     }
-
 }
 
 BlockFinalizeDownloaderThreadPool::~BlockFinalizeDownloaderThreadPool() {
-
-    if (!joined) {
-        cerr << "Destroying non-joined BlockFinalizeDownloaderThreadPool" << "/n";
+    if ( !joined ) {
+        cerr << "Destroying non-joined BlockFinalizeDownloaderThreadPool"
+             << "/n";
     }
 
     threadpool.clear();
-
 }
-

@@ -25,7 +25,8 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
-InvalidArgumentException::InvalidArgumentException(const std::string &_message, const string& _className) :
-                     SkaleException(_message, _className) {
+InvalidArgumentException::InvalidArgumentException(
+    const std::string& _message, const string& _className )
+    : SkaleException( _message, _className ) {
     fatal = false;
 }

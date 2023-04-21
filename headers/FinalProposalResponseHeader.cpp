@@ -31,28 +31,31 @@
 
 using namespace std;
 
-FinalProposalResponseHeader::FinalProposalResponseHeader(const string& _sigShare,
-    const string & _signature, const string &_publicKey, const string& _publicKeySig)
-        : Header(SIG_SHARE_RSP) , sigShare(_sigShare), signature(_signature),
-          publicKey(_publicKey), publicKeySig(_publicKeySig)  {
-    CHECK_ARGUMENT(!_sigShare.empty())
-    setStatusSubStatus(CONNECTION_SUCCESS, CONNECTION_OK);
+FinalProposalResponseHeader::FinalProposalResponseHeader( const string& _sigShare,
+    const string& _signature, const string& _publicKey, const string& _publicKeySig )
+    : Header( SIG_SHARE_RSP ),
+      sigShare( _sigShare ),
+      signature( _signature ),
+      publicKey( _publicKey ),
+      publicKeySig( _publicKeySig ) {
+    CHECK_ARGUMENT( !_sigShare.empty() )
+    setStatusSubStatus( CONNECTION_SUCCESS, CONNECTION_OK );
     complete = true;
 }
 
-void FinalProposalResponseHeader::addFields(nlohmann::basic_json<> &_j) {
-    Header::addFields(_j);
+void FinalProposalResponseHeader::addFields( nlohmann::basic_json<>& _j ) {
+    Header::addFields( _j );
     _j["sss"] = sigShare;
     _j["sig"] = signature;
     _j["pk"] = publicKey;
     _j["pks"] = publicKeySig;
-
 }
 
-FinalProposalResponseHeader::FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus)
-        : Header(SIG_SHARE_RSP) {
-    CHECK_ARGUMENT(_status != CONNECTION_SUCCESS)
-    this->setStatusSubStatus(_status, _substatus);
+FinalProposalResponseHeader::FinalProposalResponseHeader(
+    ConnectionStatus _status, ConnectionSubStatus _substatus )
+    : Header( SIG_SHARE_RSP ) {
+    CHECK_ARGUMENT( _status != CONNECTION_SUCCESS )
+    this->setStatusSubStatus( _status, _substatus );
 }
 const string& FinalProposalResponseHeader::getSignature() const {
     return signature;
@@ -60,7 +63,7 @@ const string& FinalProposalResponseHeader::getSignature() const {
 
 
 const string& FinalProposalResponseHeader::getSigShare() const {
-    CHECK_STATE(!sigShare.empty())
+    CHECK_STATE( !sigShare.empty() )
     return sigShare;
 }
 const string& FinalProposalResponseHeader::getPublicKey() const {

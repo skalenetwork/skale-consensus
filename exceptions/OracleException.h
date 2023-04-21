@@ -25,12 +25,11 @@
 #include "SkaleException.h"
 #include "Log.h"
 
-class OracleException : public SkaleException  {
-
+class OracleException : public SkaleException {
     int64_t error;
 
 public:
-    OracleException(const std::string &_message,  const string& _className, int64_t _error);
+    OracleException( const std::string& _message, const string& _className, int64_t _error );
 
     int64_t getError() const;
 };

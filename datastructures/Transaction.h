@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 
 #define BOOST_PENDING_INTEGER_LOG2_HPP
@@ -33,57 +33,47 @@
 
 #include "datastructures/DataStructure.h"
 
-class  BLAKE3Hash;
+class BLAKE3Hash;
 
 
 class Transaction : public DataStructure {
-
     bool haveHash = false;
 
-    static atomic<int64_t>  totalObjects;
+    static atomic< int64_t > totalObjects;
 
-    ptr<vector<uint8_t >> data = nullptr;
+    ptr< vector< uint8_t > > data = nullptr;
 
     BLAKE3Hash hash;
 
-    ptr<partial_sha_hash> partialHash = nullptr;
+    ptr< partial_sha_hash > partialHash = nullptr;
 
 
 public:
-
-    Transaction(const ptr<vector<uint8_t>>& _data, bool _includesPartialHash);
-
-
-    uint64_t  getSerializedSize(bool _writePartialHash);
+    Transaction( const ptr< vector< uint8_t > >& _data, bool _includesPartialHash );
 
 
-    ptr<vector<uint8_t>> getData() const;
+    uint64_t getSerializedSize( bool _writePartialHash );
 
 
-    void serializeInto(const ptr<vector<uint8_t>>& _out, bool _writePartialHash );
+    ptr< vector< uint8_t > > getData() const;
+
+
+    void serializeInto( const ptr< vector< uint8_t > >& _out, bool _writePartialHash );
 
 
     BLAKE3Hash getHash();
 
-    ptr<partial_sha_hash> getPartialHash();
+    ptr< partial_sha_hash > getPartialHash();
 
     virtual ~Transaction();
 
 
-    static ptr<Transaction > deserialize(
-            const ptr<vector<uint8_t>>& _data, uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes );
+    static ptr< Transaction > deserialize( const ptr< vector< uint8_t > >& _data,
+        uint64_t _startIndex, uint64_t _len, bool _verifyPartialHashes );
 
 
-
-    static int64_t getTotalObjects() {
-        return totalObjects;
-    };
+    static int64_t getTotalObjects() { return totalObjects; };
 
     static ptr< Transaction > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
-                                                  boost::random::uniform_int_distribution<>& _ubyte );
-
-
+        boost::random::uniform_int_distribution<>& _ubyte );
 };
-
-
-

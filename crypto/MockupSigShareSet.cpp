@@ -33,11 +33,11 @@
 
 using namespace std;
 
-MockupSigShareSet::MockupSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners)
-        : ThresholdSigShareSet(_blockId, _totalSigners, _requiredSigners){
-
-    CHECK_ARGUMENT(_requiredSigners > 0);
-    CHECK_ARGUMENT(_requiredSigners <= totalSigners);
+MockupSigShareSet::MockupSigShareSet(
+    block_id _blockId, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSigShareSet( _blockId, _totalSigners, _requiredSigners ) {
+    CHECK_ARGUMENT( _requiredSigners > 0 );
+    CHECK_ARGUMENT( _requiredSigners <= totalSigners );
 
     totalObjects++;
 }
@@ -46,49 +46,45 @@ MockupSigShareSet::~MockupSigShareSet() {
     totalObjects--;
 }
 
-ptr<ThresholdSignature> MockupSigShareSet::mergeSignature() {
-
-    string h("");
+ptr< ThresholdSignature > MockupSigShareSet::mergeSignature() {
+    string h( "" );
 
     LOCK( sigSharesLock )
 
-    for (auto&& item : sigShares) {
-        CHECK_STATE(item.second);
-        if (h.empty()) {
+    for ( auto&& item : sigShares ) {
+        CHECK_STATE( item.second );
+        if ( h.empty() ) {
             h = item.second->toString();
         }
     }
-    CHECK_STATE(!h.empty());
+    CHECK_STATE( !h.empty() );
 
-    return make_shared<MockupSignature>(h, blockId,
-                                        totalSigners, requiredSigners);
+    return make_shared< MockupSignature >( h, blockId, totalSigners, requiredSigners );
 }
 
 bool MockupSigShareSet::isEnough() {
     LOCK( sigSharesLock )
-    return (sigShares.size() >= requiredSigners);
+    return ( sigShares.size() >= requiredSigners );
 }
 
 
-bool MockupSigShareSet::addSigShare(const ptr<ThresholdSigShare>& _sigShare) {
-
-    CHECK_ARGUMENT(_sigShare);
+bool MockupSigShareSet::addSigShare( const ptr< ThresholdSigShare >& _sigShare ) {
+    CHECK_ARGUMENT( _sigShare );
 
     LOCK( sigSharesLock )
 
-    if (isEnough())
-       return false;
+    if ( isEnough() )
+        return false;
 
-    if (sigShares.count((uint64_t )_sigShare->getSignerIndex()) > 0) {
-         return false;
+    if ( sigShares.count( ( uint64_t ) _sigShare->getSignerIndex() ) > 0 ) {
+        return false;
     }
 
-    ptr<MockupSigShare> mss = dynamic_pointer_cast<MockupSigShare>(_sigShare);
+    ptr< MockupSigShare > mss = dynamic_pointer_cast< MockupSigShare >( _sigShare );
 
-    CHECK_STATE(mss);
+    CHECK_STATE( mss );
 
-    sigShares[(uint64_t )_sigShare->getSignerIndex()] = mss;
+    sigShares[( uint64_t ) _sigShare->getSignerIndex()] = mss;
 
     return true;
 }
-

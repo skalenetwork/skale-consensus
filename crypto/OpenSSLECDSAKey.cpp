@@ -44,14 +44,13 @@
 
 OpenSSLECDSAKey::OpenSSLECDSAKey( EC_KEY* _ecKey, bool _isPrivate, bool _isFast )
     : isPrivate( _isPrivate ), isFast( _isFast ) {
-    CHECK_STATE( _ecKey);
+    CHECK_STATE( _ecKey );
     this->ecKey = _ecKey;
 }
 OpenSSLECDSAKey::~OpenSSLECDSAKey() {
     if ( ecKey )
         EC_KEY_free( ecKey );
 }
-
 
 
 ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
@@ -63,7 +62,7 @@ ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::generateKey() {
 
     eckey = generateECDSAKeyImpl( nid );
 
-    return make_shared< OpenSSLECDSAKey >( eckey,true, true);
+    return make_shared< OpenSSLECDSAKey >( eckey, true, true );
 }
 
 
@@ -192,14 +191,14 @@ clean:
             BN_free( sBN );
     }
 
-    CHECK_STATE2(returnValue, "ECDSA signature did not verify");
+    CHECK_STATE2( returnValue, "ECDSA signature did not verify" );
 }
 
 void OpenSSLECDSAKey::verifySig( const string& _signature, const char* _hash ) {
     CHECK_ARGUMENT( _signature != "" );
     CHECK_ARGUMENT( _hash );
 
-    CHECK_STATE( _signature.size() % 2 == 0);
+    CHECK_STATE( _signature.size() % 2 == 0 );
 
     vector< unsigned char > derSig( _signature.size() / 2 );
 
@@ -209,14 +208,14 @@ void OpenSSLECDSAKey::verifySig( const string& _signature, const char* _hash ) {
 
     ECDSA_SIG* sig = d2i_ECDSA_SIG( nullptr, &p, ( long ) derSig.size() );
 
-    CHECK_STATE2(sig, "ECDSA sig did not verify: d2i_ECDSA_SIG failed");
+    CHECK_STATE2( sig, "ECDSA sig did not verify: d2i_ECDSA_SIG failed" );
 
     auto status = ECDSA_do_verify( ( const unsigned char* ) _hash, 32, sig, ecKey );
 
     if ( sig )
         ECDSA_SIG_free( sig );
 
-    CHECK_STATE2(status == 1, "ECDSA sig did not verify");
+    CHECK_STATE2( status == 1, "ECDSA sig did not verify" );
 }
 
 
@@ -229,7 +228,7 @@ string OpenSSLECDSAKey::sign( const char* _hash ) {
 }
 
 
-string OpenSSLECDSAKey::ecdsaSignImpl( const char* _hash) const {
+string OpenSSLECDSAKey::ecdsaSignImpl( const char* _hash ) const {
     ECDSA_SIG* signature = nullptr;
 
     string hexSig;
@@ -256,8 +255,7 @@ string OpenSSLECDSAKey::ecdsaSignImpl( const char* _hash) const {
 }
 
 
-
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importSGXPubKey( const string& _publicKey) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importSGXPubKey( const string& _publicKey ) {
     EC_KEY* pubKey = deserializeSGXPubKey( _publicKey );
 
     return make_shared< OpenSSLECDSAKey >( pubKey, false, false );
@@ -272,16 +270,15 @@ EC_KEY* OpenSSLECDSAKey::deserializeSGXPubKey( const string& _publicKey ) {
     EC_POINT* point = nullptr;
 
     try {
-
-            pubKey = EC_KEY_new_by_curve_name( NID_ETH );
-            CHECK_STATE( pubKey );
-            auto x = _publicKey.substr( 0, 64 );
-            auto y = _publicKey.substr( 64, 128 );
-            xBN = BN_new();
-            yBN = BN_new();
-            CHECK_STATE( BN_hex2bn( &xBN, x.c_str() ) != 0 );
-            CHECK_STATE( BN_hex2bn( &yBN, y.c_str() ) != 0 );
-            CHECK_STATE( EC_KEY_set_public_key_affine_coordinates( pubKey, xBN, yBN ) == 1 );
+        pubKey = EC_KEY_new_by_curve_name( NID_ETH );
+        CHECK_STATE( pubKey );
+        auto x = _publicKey.substr( 0, 64 );
+        auto y = _publicKey.substr( 64, 128 );
+        xBN = BN_new();
+        yBN = BN_new();
+        CHECK_STATE( BN_hex2bn( &xBN, x.c_str() ) != 0 );
+        CHECK_STATE( BN_hex2bn( &yBN, y.c_str() ) != 0 );
+        CHECK_STATE( EC_KEY_set_public_key_affine_coordinates( pubKey, xBN, yBN ) == 1 );
 
     } catch ( ... ) {
         if ( pubKey )
@@ -305,25 +302,25 @@ EC_KEY* OpenSSLECDSAKey::deserializeSGXPubKey( const string& _publicKey ) {
 }
 
 
-ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey) {
+ptr< OpenSSLECDSAKey > OpenSSLECDSAKey::importPubKey( const string& _publicKey ) {
     EC_KEY* pubKey = deserializeECDSAPubKey( _publicKey );
-    return make_shared< OpenSSLECDSAKey >( pubKey,  false, true );
+    return make_shared< OpenSSLECDSAKey >( pubKey, false, true );
 }
 
 
 EC_KEY* OpenSSLECDSAKey::deserializeECDSAPubKey( const string& _publicKey ) {
-    CHECK_ARGUMENT( !_publicKey.empty());
+    CHECK_ARGUMENT( !_publicKey.empty() );
     initGroupsIfNeeded();
 
     EC_KEY* pubKey = nullptr;
     EC_POINT* point = nullptr;
 
     try {
-            pubKey = EC_KEY_new_by_curve_name( NID_FAST );
-            CHECK_STATE( pubKey );
-            point = EC_POINT_hex2point( ecgroupFast, _publicKey.c_str(), nullptr, nullptr );
-            CHECK_STATE( point );
-            CHECK_STATE( EC_KEY_set_public_key( pubKey, point ) == 1 );
+        pubKey = EC_KEY_new_by_curve_name( NID_FAST );
+        CHECK_STATE( pubKey );
+        point = EC_POINT_hex2point( ecgroupFast, _publicKey.c_str(), nullptr, nullptr );
+        CHECK_STATE( point );
+        CHECK_STATE( EC_KEY_set_public_key( pubKey, point ) == 1 );
     } catch ( ... ) {
         if ( pubKey )
             EC_KEY_free( pubKey );

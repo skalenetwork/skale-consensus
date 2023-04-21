@@ -33,18 +33,15 @@ class ConsensusBLSSignature;
 class ThresholdSignature;
 
 class SigDB : public CacheLevelDB {
-
     node_id nodeId = 0;
 
     const string& getFormatVersion() override;
 
 public:
+    SigDB(
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    SigDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
-
-    void addSignature(block_id _blockId, const ptr<ThresholdSignature>& _sig);
-
-
+    void addSignature( block_id _blockId, const ptr< ThresholdSignature >& _sig );
 };
 
 

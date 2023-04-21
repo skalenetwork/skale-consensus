@@ -32,26 +32,21 @@
 
 using namespace std;
 
-MissingTransactionsResponseHeader::MissingTransactionsResponseHeader() : Header(MISSING_TRANSACTIONS_RSP) {
+MissingTransactionsResponseHeader::MissingTransactionsResponseHeader()
+    : Header( MISSING_TRANSACTIONS_RSP ) {}
 
-}
-
-MissingTransactionsResponseHeader::MissingTransactionsResponseHeader(const ptr<vector<uint64_t>>& _missingTransactionSizes)
-        : MissingTransactionsResponseHeader() {
-    CHECK_ARGUMENT(_missingTransactionSizes);
+MissingTransactionsResponseHeader::MissingTransactionsResponseHeader(
+    const ptr< vector< uint64_t > >& _missingTransactionSizes )
+    : MissingTransactionsResponseHeader() {
+    CHECK_ARGUMENT( _missingTransactionSizes );
     missingTransactionSizes = _missingTransactionSizes;
     complete = true;
 }
 
-void MissingTransactionsResponseHeader::addFields(nlohmann::basic_json<> &_j) {
+void MissingTransactionsResponseHeader::addFields( nlohmann::basic_json<>& _j ) {
+    Header::addFields( _j );
 
-    Header::addFields(_j);
-
-    list<uint64_t> l(missingTransactionSizes->begin(), missingTransactionSizes->end());
+    list< uint64_t > l( missingTransactionSizes->begin(), missingTransactionSizes->end() );
 
     _j["sizes"] = l;
-
 }
-
-
-

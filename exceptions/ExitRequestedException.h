@@ -21,11 +21,11 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 #include "SkaleException.h"
 
 class ExitRequestedException : public SkaleException {
 public:
-
-    ExitRequestedException(const std::string& _className ) :SkaleException("Exit requested", _className){};
+    ExitRequestedException( const std::string& _className )
+        : SkaleException( "Exit requested", _className ){};
 };

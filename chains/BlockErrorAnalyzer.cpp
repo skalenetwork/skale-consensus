@@ -32,7 +32,7 @@ void BlockErrorAnalyzer::analyze( ptr< CommittedBlock > _block ) {
     // for now just print block up to 100 chars
     auto serializedBlock = _block->serialize();
     auto bytesToPrint = serializedBlock->size() > 100 ? 100 : serializedBlock->size();
-    LOG(err, string("Error in block:").append(string((const char*) serializedBlock->data(),
-        bytesToPrint)));
+    LOG( err, string( "Error in block:" )
+                  .append( string( ( const char* ) serializedBlock->data(), bytesToPrint ) ) );
 }
 BlockErrorAnalyzer::BlockErrorAnalyzer() {}

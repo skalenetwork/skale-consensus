@@ -36,59 +36,56 @@
 void Agent::notifyAllConditionVariables() {
     messageCond.notify_all();
 
-    for (auto &&item : queueCond) {
+    for ( auto&& item : queueCond ) {
         item.second->notify_all();
     }
 }
 
 
-Schain *Agent::getSchain() const {
-    CHECK_STATE(sChain);
+Schain* Agent::getSchain() const {
+    CHECK_STATE( sChain );
     return sChain;
 }
 
 
-Agent::Agent(Schain &_sChain, bool _isServer, bool _dontRegister) : isServer(_isServer), sChain(&_sChain) {
-
-    if (_dontRegister)
+Agent::Agent( Schain& _sChain, bool _isServer, bool _dontRegister )
+    : isServer( _isServer ), sChain( &_sChain ) {
+    if ( _dontRegister )
         return;
-    sChain->getNode()->registerAgent(this);
+    sChain->getNode()->registerAgent( this );
 }
 
-Agent::Agent() {}// empty constructor is used by tests}
+Agent::Agent() {}  // empty constructor is used by tests}
 
 
-
-ptr<Node> Agent::getNode() {
+ptr< Node > Agent::getNode() {
     return getSchain()->getNode();
 }
 
 void Agent::waitOnGlobalStartBarrier() {
-    if (isServer)
-        getSchain()->getNode()->waitOnGlobalServerStartBarrier(this);
+    if ( isServer )
+        getSchain()->getNode()->waitOnGlobalServerStartBarrier( this );
     else
         getSchain()->getNode()->waitOnGlobalClientStartBarrier();
 }
 
-Agent::~Agent() {
-}
+Agent::~Agent() {}
 
-ptr<GlobalThreadRegistry> Agent::getThreadRegistry() {
+ptr< GlobalThreadRegistry > Agent::getThreadRegistry() {
     return sChain->getNode()->getConsensusEngine()->getThreadRegistry();
 }
 
 
-
-void Agent::logConnectionRefused(ConnectionRefusedException &_e, schain_index _index) {
+void Agent::logConnectionRefused( ConnectionRefusedException& _e, schain_index _index ) {
     auto logException = true;
     auto currentTime = Time::getCurrentTimeMs();
 
-    LOCK(lastConnectionRefusedLogTimeLock);
+    LOCK( lastConnectionRefusedLogTimeLock );
 
-    if (lastConnectionRefusedLogTime.find(_index) != lastConnectionRefusedLogTime.end()) {
+    if ( lastConnectionRefusedLogTime.find( _index ) != lastConnectionRefusedLogTime.end() ) {
         auto time = lastConnectionRefusedLogTime[_index];
 
-        if ((currentTime - time) > CONNECTION_REFUSED_LOG_INTERVAL_MS) {
+        if ( ( currentTime - time ) > CONNECTION_REFUSED_LOG_INTERVAL_MS ) {
             lastConnectionRefusedLogTime[_index] = currentTime;
         } else {
             logException = false;
@@ -97,7 +94,7 @@ void Agent::logConnectionRefused(ConnectionRefusedException &_e, schain_index _i
         lastConnectionRefusedLogTime[_index] = currentTime;
     }
 
-    if (logException) {
-        SkaleException::logNested((const exception&)_e);
+    if ( logException ) {
+        SkaleException::logNested( ( const exception& ) _e );
     }
 }

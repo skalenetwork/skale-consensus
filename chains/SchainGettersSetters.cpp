@@ -64,20 +64,20 @@
 #include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
 
-const ptr<IO> Schain::getIo() const {
-    CHECK_STATE(io);
+const ptr< IO > Schain::getIo() const {
+    CHECK_STATE( io );
     return io;
 }
 
 
-ptr<PendingTransactionsAgent> Schain::getPendingTransactionsAgent() const {
-    CHECK_STATE(pendingTransactionsAgent)
+ptr< PendingTransactionsAgent > Schain::getPendingTransactionsAgent() const {
+    CHECK_STATE( pendingTransactionsAgent )
     return pendingTransactionsAgent;
 }
 
 
-ptr<MonitoringAgent> Schain::getMonitoringAgent() const {
-    CHECK_STATE(monitoringAgent)
+ptr< MonitoringAgent > Schain::getMonitoringAgent() const {
+    CHECK_STATE( monitoringAgent )
     return monitoringAgent;
 }
 
@@ -89,24 +89,22 @@ block_id Schain::getLastCommittedBlockID() const {
     return lastCommittedBlockID.load();
 }
 
-ptr<BlockProposal> Schain::getBlockProposal(block_id _blockID, schain_index _schainIndex) {
+ptr< BlockProposal > Schain::getBlockProposal( block_id _blockID, schain_index _schainIndex ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
-
-    return getNode()->getBlockProposalDB()->getBlockProposal(_blockID, _schainIndex);
-
+    return getNode()->getBlockProposalDB()->getBlockProposal( _blockID, _schainIndex );
 }
 
 
-
-ptr<CommittedBlock> Schain::getBlock(block_id _blockID) {
-
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+ptr< CommittedBlock > Schain::getBlock( block_id _blockID ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-        return getNode()->getBlockDB()->getBlock(_blockID, getCryptoManager());
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        return getNode()->getBlockDB()->getBlock( _blockID, getCryptoManager() );
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
@@ -116,30 +114,29 @@ schain_index Schain::getSchainIndex() const {
 }
 
 
-ptr<Node> Schain::getNode() const {
-    auto  ret = node.lock();
-    if (ret == nullptr) {
-        throw ExitRequestedException(__CLASS_NAME__);
+ptr< Node > Schain::getNode() const {
+    auto ret = node.lock();
+    if ( ret == nullptr ) {
+        throw ExitRequestedException( __CLASS_NAME__ );
     }
     return ret;
 }
 
 
 node_count Schain::getNodeCount() {
-
-    auto count = node_count(getNode()->getNodeInfosByIndex()->size());
-    CHECK_STATE(count > 0);
+    auto count = node_count( getNode()->getNodeInfosByIndex()->size() );
+    CHECK_STATE( count > 0 );
     return count;
 }
 
 
 transaction_count Schain::getMessagesCount() {
     size_t cntMessages = 0;
-    { // block
-        lock_guard<mutex> lock(messageMutex);
+    {  // block
+        lock_guard< mutex > lock( messageMutex );
         cntMessages = messageQueue.size();
-    } // block
-    return transaction_count(cntMessages);
+    }  // block
+    return transaction_count( cntMessages );
 }
 
 
@@ -147,40 +144,41 @@ schain_id Schain::getSchainID() {
     return schainID;
 }
 
-node_id Schain::getNodeIDByIndex(schain_index _index) {
-    if (((uint64_t) _index) > (uint64_t) this->getNodeCount()) {
-        BOOST_THROW_EXCEPTION(InvalidArgumentException("Index exceeds node count", __CLASS_NAME__));
+node_id Schain::getNodeIDByIndex( schain_index _index ) {
+    if ( ( ( uint64_t ) _index ) > ( uint64_t ) this->getNodeCount() ) {
+        BOOST_THROW_EXCEPTION(
+            InvalidArgumentException( "Index exceeds node count", __CLASS_NAME__ ) );
     }
 
-    auto nodeInfo = this->getNode()->getNodeInfoByIndex(_index);
+    auto nodeInfo = this->getNode()->getNodeInfoByIndex( _index );
 
     return nodeInfo->getNodeID();
 }
 
 
-ptr<BlockConsensusAgent> Schain::getBlockConsensusInstance() {
-    CHECK_STATE(blockConsensusInstance != nullptr)
+ptr< BlockConsensusAgent > Schain::getBlockConsensusInstance() {
+    CHECK_STATE( blockConsensusInstance != nullptr )
     return blockConsensusInstance;
 }
 
-ptr<OracleServerAgent> Schain::getOracleInstance() {
-    CHECK_STATE(oracleServer != nullptr)
+ptr< OracleServerAgent > Schain::getOracleInstance() {
+    CHECK_STATE( oracleServer != nullptr )
     return oracleServer;
 }
 
 
-ptr<NodeInfo> Schain::getThisNodeInfo() const {
-    CHECK_STATE(thisNodeInfo)
+ptr< NodeInfo > Schain::getThisNodeInfo() const {
+    CHECK_STATE( thisNodeInfo )
     return thisNodeInfo;
 }
 
 
-ptr<TestMessageGeneratorAgent> Schain::getTestMessageGeneratorAgent() const {
-    CHECK_STATE(testMessageGeneratorAgent)
+ptr< TestMessageGeneratorAgent > Schain::getTestMessageGeneratorAgent() const {
+    CHECK_STATE( testMessageGeneratorAgent )
     return testMessageGeneratorAgent;
 }
 
-void Schain::setBlockProposerTest(const string &_blockProposerTest) {
+void Schain::setBlockProposerTest( const string& _blockProposerTest ) {
     Schain::blockProposerTest = _blockProposerTest;
 }
 
@@ -189,8 +187,8 @@ uint64_t Schain::getTotalTransactions() const {
     return totalTransactions;
 }
 
-TimeStamp  Schain::getLastCommittedBlockTimeStamp() {
-    lock_guard<mutex> l(lastCommittedBlockInfoMutex);
+TimeStamp Schain::getLastCommittedBlockTimeStamp() {
+    lock_guard< mutex > l( lastCommittedBlockInfoMutex );
     return lastCommittedBlockTimeStamp;
 }
 
@@ -200,40 +198,40 @@ block_id Schain::getBootstrapBlockID() const {
 }
 
 
-void Schain::setHealthCheckFile(uint64_t status) {
+void Schain::setHealthCheckFile( uint64_t status ) {
     auto engine = getNode()->getConsensusEngine();
-    CHECK_STATE(engine);
+    CHECK_STATE( engine );
     string fileName = engine->getHealthCheckDir() + "/HEALTH_CHECK";
     auto id = engine->getEngineID();
-    if (id > 1) {
-        fileName.append("." + to_string(id));
+    if ( id > 1 ) {
+        fileName.append( "." + to_string( id ) );
     }
 
     ofstream f;
-    f.open(fileName, ios::trunc);
+    f.open( fileName, ios::trunc );
     f << status;
     f.close();
 }
 
 
 uint64_t Schain::getTotalSigners() {
-    return (uint64_t) getNodeCount();
+    return ( uint64_t ) getNodeCount();
 }
 
 
 uint64_t Schain::getRequiredSigners() {
     auto count = getNodeCount();
-    if (count <= 2) {
-        return (uint64_t) count;
+    if ( count <= 2 ) {
+        return ( uint64_t ) count;
     } else {
-        return 2 * (uint64_t) count / 3 + 1;
+        return 2 * ( uint64_t ) count / 3 + 1;
     }
 }
 
 
-u256 Schain::getPriceForBlockId(uint64_t _blockId) {
-    CHECK_STATE(pricingAgent);
-    return pricingAgent->readPrice(_blockId);
+u256 Schain::getPriceForBlockId( uint64_t _blockId ) {
+    CHECK_STATE( pricingAgent );
+    return pricingAgent->readPrice( _blockId );
 }
 
 
@@ -241,46 +239,47 @@ string Schain::getBlockProposerTest() const {
     return blockProposerTest;
 }
 
-void Schain::setBlockProposerTest(const char *_blockProposerTest) {
-    CHECK_ARGUMENT(_blockProposerTest);
+void Schain::setBlockProposerTest( const char* _blockProposerTest ) {
+    CHECK_ARGUMENT( _blockProposerTest );
     blockProposerTest = _blockProposerTest;
 }
 
-ConsensusExtFace *Schain::getExtFace() const {
+ConsensusExtFace* Schain::getExtFace() const {
     return extFace;
 }
 
 
 uint64_t Schain::getMaxExternalBlockProcessingTime() const {
-    return maxExternalBlockProcessingTime;;
+    return maxExternalBlockProcessingTime;
+    ;
 }
 
 void Schain::joinMonitorAndTimeoutThreads() {
-    CHECK_STATE(monitoringAgent);
+    CHECK_STATE( monitoringAgent );
     monitoringAgent->join();
 
-    if (getNode()->isSyncOnlyNode())
+    if ( getNode()->isSyncOnlyNode() )
         return;
-    CHECK_STATE(timeoutAgent);
-    CHECK_STATE(stuckDetectionAgent);
+    CHECK_STATE( timeoutAgent );
+    CHECK_STATE( stuckDetectionAgent );
 
     timeoutAgent->join();
     stuckDetectionAgent->join();
 }
 
- ptr<CryptoManager> Schain::getCryptoManager() const {
-    if (!cryptoManager) {
-        CHECK_STATE(cryptoManager);
+ptr< CryptoManager > Schain::getCryptoManager() const {
+    if ( !cryptoManager ) {
+        CHECK_STATE( cryptoManager );
     }
     return cryptoManager;
 }
 
 void Schain::createBlockConsensusInstance() {
-    blockConsensusInstance = make_shared<BlockConsensusAgent>(*this);
+    blockConsensusInstance = make_shared< BlockConsensusAgent >( *this );
 }
 
 void Schain::createOracleInstance() {
-    oracleServer = make_shared<OracleServerAgent>(*this);
+    oracleServer = make_shared< OracleServerAgent >( *this );
 }
 
 uint64_t Schain::getLastCommitTimeMs() {
@@ -288,47 +287,46 @@ uint64_t Schain::getLastCommitTimeMs() {
 }
 
 
-void Schain::initLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-                                           TimeStamp& _lastCommittedBlockTimeStamp ){
-
-    lock_guard<mutex> l(lastCommittedBlockInfoMutex);
+void Schain::initLastCommittedBlockInfo(
+    uint64_t _lastCommittedBlockID, TimeStamp& _lastCommittedBlockTimeStamp ) {
+    lock_guard< mutex > l( lastCommittedBlockInfoMutex );
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = Time::getCurrentTimeMs();
 
-    if (getSchain()->getNode()->isSyncOnlyNode())
+    if ( getSchain()->getNode()->isSyncOnlyNode() )
         return;
 }
 
 
-
 void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
-                                   TimeStamp& _lastCommittedBlockTimeStamp,
-                                   uint64_t _blockSize, uint64_t _lastCommittedBlockProcessingTimeMs){
-    lock_guard<mutex> lock(lastCommittedBlockInfoMutex);
-    CHECK_STATE(
-                _lastCommittedBlockID == lastCommittedBlockID + 1)
-    if (_lastCommittedBlockTimeStamp < lastCommittedBlockTimeStamp) {
-        LOG(err, "TimeStamp in the past:"+ lastCommittedBlockTimeStamp.toString() +
-            ":"+ _lastCommittedBlockTimeStamp.toString());
+    TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize,
+    uint64_t _lastCommittedBlockProcessingTimeMs ) {
+    lock_guard< mutex > lock( lastCommittedBlockInfoMutex );
+    CHECK_STATE( _lastCommittedBlockID == lastCommittedBlockID + 1 )
+    if ( _lastCommittedBlockTimeStamp < lastCommittedBlockTimeStamp ) {
+        LOG( err, "TimeStamp in the past:" + lastCommittedBlockTimeStamp.toString() + ":" +
+                      _lastCommittedBlockTimeStamp.toString() );
     }
-    CHECK_STATE(lastCommittedBlockTimeStamp < _lastCommittedBlockTimeStamp);
+    CHECK_STATE( lastCommittedBlockTimeStamp < _lastCommittedBlockTimeStamp );
     auto currentTime = Time::getCurrentTimeMs();
-    CHECK_STATE(currentTime >= lastCommitTimeMs);
+    CHECK_STATE( currentTime >= lastCommitTimeMs );
 
     lastCommittedBlockID = _lastCommittedBlockID;
     lastCommittedBlockTimeStamp = _lastCommittedBlockTimeStamp;
     lastCommitTimeMs = currentTime;
     lastCommittedBlockEvmProcessingTimeMs = _lastCommittedBlockProcessingTimeMs;
 
-    blockSizeAverage = (blockSizeAverage * (_lastCommittedBlockID - 1) + _blockSize) / _lastCommittedBlockID;
-    blockTimeAverageMs = (currentTime - this->startTimeMs) / (_lastCommittedBlockID - this->bootstrapBlockID);
-    if (blockTimeAverageMs == 0)
+    blockSizeAverage =
+        ( blockSizeAverage * ( _lastCommittedBlockID - 1 ) + _blockSize ) / _lastCommittedBlockID;
+    blockTimeAverageMs =
+        ( currentTime - this->startTimeMs ) / ( _lastCommittedBlockID - this->bootstrapBlockID );
+    if ( blockTimeAverageMs == 0 )
         blockTimeAverageMs = 1;
-    tpsAverage = (blockSizeAverage * 1000 ) / blockTimeAverageMs;
-    getRandomForBlockId((uint64_t) lastCommittedBlockID);
+    tpsAverage = ( blockSizeAverage * 1000 ) / blockTimeAverageMs;
+    getRandomForBlockId( ( uint64_t ) lastCommittedBlockID );
 
-    if (getNode()->isSyncOnlyNode())
+    if ( getNode()->isSyncOnlyNode() )
         return;
 }
 
@@ -337,6 +335,6 @@ void Schain::setLastCommittedBlockId( uint64_t _lastCommittedBlockId ) {
     lastCommittedBlockID = _lastCommittedBlockId;
 }
 
-const ptr<OracleClient> Schain::getOracleClient() const {
+const ptr< OracleClient > Schain::getOracleClient() const {
     return oracleClient;
 }

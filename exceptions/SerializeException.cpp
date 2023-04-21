@@ -26,8 +26,5 @@
 #include "Log.h"
 #include "exceptions/FatalError.h"
 
-SerializeException::SerializeException(const std::string &_message,  const string& _className)
-                                                                                    :SkaleException(_message, _className) {
-
-
-}
+SerializeException::SerializeException( const std::string& _message, const string& _className )
+    : SkaleException( _message, _className ) {}

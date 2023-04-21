@@ -39,45 +39,36 @@
 
 
 bin_consensus_round BlockSignBroadcastMessage::getRound() const {
-    CHECK_STATE(false);
+    CHECK_STATE( false );
 }
 
 bin_consensus_value BlockSignBroadcastMessage::getValue() const {
-    CHECK_STATE(false);
+    CHECK_STATE( false );
 }
 
 
-
-
-BlockSignBroadcastMessage::BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex,
-                                                     uint64_t _time,
-                                                     ProtocolInstance &_sourceProtocolInstance)
-        : NetworkMessage(MSG_BLOCK_SIGN_BROADCAST, _blockID, _blockProposerIndex, 4, 0, _time,
-                         _sourceProtocolInstance) {
+BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
+    schain_index _blockProposerIndex, uint64_t _time, ProtocolInstance& _sourceProtocolInstance )
+    : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _blockID, _blockProposerIndex, 4, 0, _time,
+          _sourceProtocolInstance ) {
     printPrefix = "f";
 
     auto schain = _sourceProtocolInstance.getSchain();
-    auto hash = BLAKE3Hash::getConsensusHash(
-            (uint64_t) getBlockProposerIndex(),
-            (uint64_t) _blockID,
-            (uint64_t) schain->getSchainID());
+    auto hash = BLAKE3Hash::getConsensusHash( ( uint64_t ) getBlockProposerIndex(),
+        ( uint64_t ) _blockID, ( uint64_t ) schain->getSchainID() );
 
-    this->sigShare = schain->getCryptoManager()->signBlockSigShare(hash, _blockID);
+    this->sigShare = schain->getCryptoManager()->signBlockSigShare( hash, _blockID );
     this->sigShareString = sigShare->toString();
 }
 
 
-BlockSignBroadcastMessage::BlockSignBroadcastMessage(node_id _srcNodeID, block_id _blockID,
-                                                     schain_index _blockProposerIndex,uint64_t _time, schain_id _schainId,
-                                                     msg_id _msgID, const string& _sigShare,
-                                                     schain_index _srcSchainIndex, const string& _ecdsaSig,
-                                                     const string& _pubKey, const string& _pkSig,
-                                                     Schain *_sChain)
-    : NetworkMessage(
-        MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 4, 0, _time, _schainId, _msgID, _sigShare,
-        _ecdsaSig, _pubKey, _pkSig,
-        _srcSchainIndex, _sChain->getCryptoManager()) {
-    CHECK_ARGUMENT(!_sigShare.empty());
+BlockSignBroadcastMessage::BlockSignBroadcastMessage( node_id _srcNodeID, block_id _blockID,
+    schain_index _blockProposerIndex, uint64_t _time, schain_id _schainId, msg_id _msgID,
+    const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
+    const string& _pubKey, const string& _pkSig, Schain* _sChain )
+    : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 4, 0,
+          _time, _schainId, _msgID, _sigShare, _ecdsaSig, _pubKey, _pkSig, _srcSchainIndex,
+          _sChain->getCryptoManager() ) {
+    CHECK_ARGUMENT( !_sigShare.empty() );
     printPrefix = "F";
 };
-

@@ -56,7 +56,6 @@
 using namespace leveldb;
 
 
-
 string CacheLevelDB::index2Path( uint64_t index ) {
     return dirname + "/db." + to_string( index );
 }
@@ -730,8 +729,8 @@ uint64_t CacheLevelDB::getMemoryUsed() {
     for ( int i = LEVELDB_SHARDS - 1; i >= 0; i-- ) {
         CHECK_STATE( db.at( i ) )
         string usage;
-        db.at( i )->GetProperty("leveldb.approximate-memory-usage", &usage);
-        totalMemory += boost::lexical_cast<uint64_t>(usage);
+        db.at( i )->GetProperty( "leveldb.approximate-memory-usage", &usage );
+        totalMemory += boost::lexical_cast< uint64_t >( usage );
     }
     return totalMemory;
 }

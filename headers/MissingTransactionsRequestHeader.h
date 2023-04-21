@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "Header.h"
 
@@ -29,23 +29,18 @@ class NodeInfo;
 class BlockProposal;
 class Schain;
 
-class MissingTransactionsRequestHeader : public Header{
-
+class MissingTransactionsRequestHeader : public Header {
     uint64_t missingTransactionsCount;
 
 public:
-
     MissingTransactionsRequestHeader();
 
-    explicit MissingTransactionsRequestHeader(const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _missingMessages);
+    explicit MissingTransactionsRequestHeader(
+        const ptr< map< uint64_t, ptr< partial_sha_hash > > >& _missingMessages );
 
-    void addFields(nlohmann::basic_json<> &j_) override;
+    void addFields( nlohmann::basic_json<>& j_ ) override;
 
     [[nodiscard]] uint64_t getMissingTransactionsCount() const;
 
-    void setMissingTransactionsCount(uint64_t _missingTransactionsCount);
-
+    void setMissingTransactionsCount( uint64_t _missingTransactionsCount );
 };
-
-
-

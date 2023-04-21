@@ -25,8 +25,7 @@
 #include "SkaleException.h"
 #include "Log.h"
 
-class SerializeException : public SkaleException  {
+class SerializeException : public SkaleException {
 public:
-    SerializeException(const std::string &_message,  const string& _className);
-
+    SerializeException( const std::string& _message, const string& _className );
 };

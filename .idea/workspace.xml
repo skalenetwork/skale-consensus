@@ -44,11 +44,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="oracle doc">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" afterDir="false" />
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/clang-format-check.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/clang-format-check.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,28 +127,28 @@
     <option name="showMembers" value="true" />
     <option name="showVisibilityIcons" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Git.Branch.Popup.ShowAllRemotes": "true",
-    "Git.Branch.Popup.ShowAllRepositories": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "cf.advertisement.text.has.clang-format": "true",
-    "cf.advertisement.text.overridden": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "last_opened_file_path": "/d/skale",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Git.Branch.Popup.ShowAllRemotes&quot;: &quot;true&quot;,
+    &quot;Git.Branch.Popup.ShowAllRepositories&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.advertisement.text.has.clang-format&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/d/skale&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/test/seven_one_catchup" />
@@ -231,6 +228,11 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -504,55 +506,6 @@
       <workItem from="1680171967918" duration="4000" />
       <workItem from="1680172553777" duration="4927000" />
       <workItem from="1680282100830" duration="3952000" />
-    </task>
-    <task id="LOCAL-00110" summary="bug/SKALE-4352">
-      <created>1634640228201</created>
-      <option name="number" value="00110" />
-      <option name="presentableId" value="LOCAL-00110" />
-      <option name="project" value="LOCAL" />
-      <updated>1634640228201</updated>
-    </task>
-    <task id="LOCAL-00111" summary="bug/SKALE-4352">
-      <created>1634641434523</created>
-      <option name="number" value="00111" />
-      <option name="presentableId" value="LOCAL-00111" />
-      <option name="project" value="LOCAL" />
-      <updated>1634641434523</updated>
-    </task>
-    <task id="LOCAL-00112" summary="bug/SKALE-2983-sgx-down">
-      <created>1634824187936</created>
-      <option name="number" value="00112" />
-      <option name="presentableId" value="LOCAL-00112" />
-      <option name="project" value="LOCAL" />
-      <updated>1634824187936</updated>
-    </task>
-    <task id="LOCAL-00113" summary="bug/SKALE-4699">
-      <created>1634836843425</created>
-      <option name="number" value="00113" />
-      <option name="presentableId" value="LOCAL-00113" />
-      <option name="project" value="LOCAL" />
-      <updated>1634836843425</updated>
-    </task>
-    <task id="LOCAL-00114" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1639477540365</created>
-      <option name="number" value="00114" />
-      <option name="presentableId" value="LOCAL-00114" />
-      <option name="project" value="LOCAL" />
-      <updated>1639477540366</updated>
-    </task>
-    <task id="LOCAL-00115" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1639483636185</created>
-      <option name="number" value="00115" />
-      <option name="presentableId" value="LOCAL-00115" />
-      <option name="project" value="LOCAL" />
-      <updated>1639483636185</updated>
-    </task>
-    <task id="LOCAL-00116" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1639486510023</created>
-      <option name="number" value="00116" />
-      <option name="presentableId" value="LOCAL-00116" />
-      <option name="project" value="LOCAL" />
-      <updated>1639486510024</updated>
     </task>
     <task id="LOCAL-00117" summary="bug/SKALE-4616-oracle-mvp">
       <created>1639486754611</created>
@@ -848,7 +801,56 @@
       <option name="project" value="LOCAL" />
       <updated>1681494238813</updated>
     </task>
-    <option name="localTasksCounter" value="159" />
+    <task id="LOCAL-00159" summary="oracle doc">
+      <created>1682088485769</created>
+      <option name="number" value="00159" />
+      <option name="presentableId" value="LOCAL-00159" />
+      <option name="project" value="LOCAL" />
+      <updated>1682088485770</updated>
+    </task>
+    <task id="LOCAL-00160" summary="769 Clang-format">
+      <created>1682088740214</created>
+      <option name="number" value="00160" />
+      <option name="presentableId" value="LOCAL-00160" />
+      <option name="project" value="LOCAL" />
+      <updated>1682088740214</updated>
+    </task>
+    <task id="LOCAL-00161" summary="769 Clang-format">
+      <created>1682088838034</created>
+      <option name="number" value="00161" />
+      <option name="presentableId" value="LOCAL-00161" />
+      <option name="project" value="LOCAL" />
+      <updated>1682088838034</updated>
+    </task>
+    <task id="LOCAL-00162" summary="769 Clang-format">
+      <created>1682089096150</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
+      <option name="project" value="LOCAL" />
+      <updated>1682089096150</updated>
+    </task>
+    <task id="LOCAL-00163" summary="769 Clang-format">
+      <created>1682089170957</created>
+      <option name="number" value="00163" />
+      <option name="presentableId" value="LOCAL-00163" />
+      <option name="project" value="LOCAL" />
+      <updated>1682089170957</updated>
+    </task>
+    <task id="LOCAL-00164" summary="769 Clang-format">
+      <created>1682089268995</created>
+      <option name="number" value="00164" />
+      <option name="presentableId" value="LOCAL-00164" />
+      <option name="project" value="LOCAL" />
+      <updated>1682089268996</updated>
+    </task>
+    <task id="LOCAL-00165" summary="769 Clang-format">
+      <created>1682089371147</created>
+      <option name="number" value="00165" />
+      <option name="presentableId" value="LOCAL-00165" />
+      <option name="project" value="LOCAL" />
+      <updated>1682089371147</updated>
+    </task>
+    <option name="localTasksCounter" value="166" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -895,7 +897,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="bug/SKALE-4440-sgx" />
     <MESSAGE value="bug/SKALE-4440-sgx cherrypick" />
     <MESSAGE value="bug/SKALE-4400&#10;Added basic stuck detection classes." />
     <MESSAGE value="bug/SKALE-4502-RAM-grows" />
@@ -920,7 +921,8 @@
     <MESSAGE value="Oracle doc impovements" />
     <MESSAGE value="#636 skaled stuck" />
     <MESSAGE value="oracle doc" />
-    <option name="LAST_COMMIT_MESSAGE" value="oracle doc" />
+    <MESSAGE value="769 Clang-format" />
+    <option name="LAST_COMMIT_MESSAGE" value="769 Clang-format" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -937,12 +939,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/oracle/OracleReceivedResults.cpp</url>
-          <line>122</line>
+          <line>116</line>
           <option name="timeStamp" value="37" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/node/ConsensusInterface.h</url>
-          <line>64</line>
+          <line>63</line>
           <option name="timeStamp" value="38" />
         </line-breakpoint>
       </breakpoints>

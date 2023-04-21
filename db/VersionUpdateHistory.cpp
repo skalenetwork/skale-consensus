@@ -30,29 +30,27 @@
 /*
  * Version update history recorded in DB as a list of comma separated values
  */
-VersionUpdateHistory::VersionUpdateHistory(string &_serializedHistory) {
+VersionUpdateHistory::VersionUpdateHistory( string& _serializedHistory ) {
     using namespace boost;
-    if (_serializedHistory.empty())
+    if ( _serializedHistory.empty() )
         return;
-    char_separator<char> sep{","};
-    tokenizer tok{_serializedHistory, sep};
-    for (const auto &version : tok) {
-        history.push_back(version);
+    char_separator< char > sep{ "," };
+    tokenizer tok{ _serializedHistory, sep };
+    for ( const auto& version : tok ) {
+        history.push_back( version );
     }
 }
 
-const vector<string> &VersionUpdateHistory::getHistory() const {
+const vector< string >& VersionUpdateHistory::getHistory() const {
     return history;
 }
 
 const string VersionUpdateHistory::serialize() {
     string serializedVersion = "";
-    for (uint64_t i = 0; i < serializedVersion.size(); i++) {
-        serializedVersion.append(history.at(i));
-        if (i < serializedVersion.size() - 1)
-            serializedVersion.append(",");
+    for ( uint64_t i = 0; i < serializedVersion.size(); i++ ) {
+        serializedVersion.append( history.at( i ) );
+        if ( i < serializedVersion.size() - 1 )
+            serializedVersion.append( "," );
     }
     return serializedVersion;
 }
-
-

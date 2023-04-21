@@ -26,6 +26,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
-FatalError::FatalError(const std::string &_message, const string& _className) :SkaleException(_message, _className) {
+FatalError::FatalError( const std::string& _message, const string& _className )
+    : SkaleException( _message, _className ) {
     fatal = true;
 }

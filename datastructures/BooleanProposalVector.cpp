@@ -28,47 +28,46 @@
 #include "BooleanProposalVector.h"
 
 
-BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, const ptr<map<schain_index, string>>&
-_receivedDAProofs) : nodeCount(_nodeCount) {
+BooleanProposalVector::BooleanProposalVector(
+    node_count _nodeCount, const ptr< map< schain_index, string > >& _receivedDAProofs )
+    : nodeCount( _nodeCount ) {
+    CHECK_ARGUMENT( _receivedDAProofs );
 
-    CHECK_ARGUMENT(_receivedDAProofs);
+    proposals.push_back( false );
 
-    proposals.push_back(false);
-
-    for (uint64_t i = 1; i <= _nodeCount; i++) {
-        proposals.push_back(_receivedDAProofs->count(schain_index(i)) > 0);
+    for ( uint64_t i = 1; i <= _nodeCount; i++ ) {
+        proposals.push_back( _receivedDAProofs->count( schain_index( i ) ) > 0 );
     }
 
     trueCount = proposals.size();
 }
 
-BooleanProposalVector::BooleanProposalVector(node_count _nodeCount, const string& _vectorStr)
-        : nodeCount(_nodeCount) {
-    CHECK_ARGUMENT(_vectorStr != "");
-    CHECK_ARGUMENT(_vectorStr.size() == _nodeCount);
-    proposals.push_back(false);
+BooleanProposalVector::BooleanProposalVector( node_count _nodeCount, const string& _vectorStr )
+    : nodeCount( _nodeCount ) {
+    CHECK_ARGUMENT( _vectorStr != "" );
+    CHECK_ARGUMENT( _vectorStr.size() == _nodeCount );
+    proposals.push_back( false );
 
-    for (uint64_t i = 1; i <= _nodeCount; i++) {
-        auto value = _vectorStr.at(i - 1);
-        if (value == '1') {
-            proposals.push_back(true);
+    for ( uint64_t i = 1; i <= _nodeCount; i++ ) {
+        auto value = _vectorStr.at( i - 1 );
+        if ( value == '1' ) {
+            proposals.push_back( true );
             trueCount++;
-        } else if (value == '0') {
-            proposals.push_back(false);
+        } else if ( value == '0' ) {
+            proposals.push_back( false );
         } else {
-            BOOST_THROW_EXCEPTION(InvalidArgumentException("Corrupt char in vector:" + to_string(value),
-                                                           __CLASS_NAME__));
-
+            BOOST_THROW_EXCEPTION( InvalidArgumentException(
+                "Corrupt char in vector:" + to_string( value ), __CLASS_NAME__ ) );
         }
     }
 }
 
 
-bool BooleanProposalVector::getProposalValue(schain_index _index) {
-    CHECK_STATE(proposals.size() == nodeCount + 1);
-    CHECK_STATE(_index <= (uint64_t) nodeCount);
-    CHECK_STATE(_index > 0);
-    return proposals.at((uint64_t) _index);
+bool BooleanProposalVector::getProposalValue( schain_index _index ) {
+    CHECK_STATE( proposals.size() == nodeCount + 1 );
+    CHECK_STATE( _index <= ( uint64_t ) nodeCount );
+    CHECK_STATE( _index > 0 );
+    return proposals.at( ( uint64_t ) _index );
 }
 
 uint64_t BooleanProposalVector::getTrueCount() const {
@@ -77,9 +76,9 @@ uint64_t BooleanProposalVector::getTrueCount() const {
 
 string BooleanProposalVector::toString() {
     string vectorStr;
-    for (uint64_t i = 1; i <= nodeCount; i++) {
-        auto value = (proposals.at(i) ? "1" : "0");
-        vectorStr.append(value);
+    for ( uint64_t i = 1; i <= nodeCount; i++ ) {
+        auto value = ( proposals.at( i ) ? "1" : "0" );
+        vectorStr.append( value );
     }
     return vectorStr;
 }

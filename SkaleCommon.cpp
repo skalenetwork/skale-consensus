@@ -34,32 +34,30 @@
 #include "node/Node.h"
 
 
-
 // TODO Fix microiprofile linkage
 #if MICROPROFILE_ENABLED
-    extern "C" void MicroProfileOnThreadCreate( const char* );
+extern "C" void MicroProfileOnThreadCreate( const char* );
 #endif
 
-void setThreadName( std::string const& _n,  ConsensusEngine* _engine ) {
-
+void setThreadName( std::string const& _n, ConsensusEngine* _engine ) {
     string prefix;
 
     CHECK_STATE( _engine );
 
 
-    if ( _engine->getNodeIDs().size() > 1) {
-        prefix = to_string(logThreadLocal_->getNodeID());
+    if ( _engine->getNodeIDs().size() > 1 ) {
+        prefix = to_string( logThreadLocal_->getNodeID() );
     } else {
         prefix = "";
     }
 
-    string name = (prefix + _n).substr(0, 15);
+    string name = ( prefix + _n ).substr( 0, 15 );
 
 
 #if defined( __GLIBC__ )
     pthread_setname_np( pthread_self(), name.c_str() );
 #elif defined( __APPLE__ )
-    pthread_setname_np(name.c_str() );
+    pthread_setname_np( name.c_str() );
 #else
 #error "error: setThreadName: we're not in Linux nor in apple?!"
 #endif
@@ -68,11 +66,11 @@ void setThreadName( std::string const& _n,  ConsensusEngine* _engine ) {
 #endif
 }
 
-std::string getThreadName(){
+std::string getThreadName() {
     char buf[32];
-    int ok = pthread_getname_np(pthread_self(), buf, sizeof(buf));
-    CHECK_STATE(ok == 0);
-    return std::string(buf);
+    int ok = pthread_getname_np( pthread_self(), buf, sizeof( buf ) );
+    CHECK_STATE( ok == 0 );
+    return std::string( buf );
 }
 
 thread_local ptr< SkaleLog > logThreadLocal_ = nullptr;

@@ -30,13 +30,9 @@
 class CatchupServerAgent;
 
 class CatchupWorkerThreadPool : public WorkerThreadPool {
-
 public:
+    CatchupWorkerThreadPool( num_threads _numThreads, Agent* _agent );
 
-    CatchupWorkerThreadPool(num_threads _numThreads, Agent* _agent);
-
-    void createThread(uint64_t threadNumber) override;
+    void createThread( uint64_t threadNumber ) override;
 };
 #endif
-
-

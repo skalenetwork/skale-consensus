@@ -35,80 +35,66 @@
 #include "CacheLevelDB.h"
 
 
-MsgDB::MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-    uint64_t _maxDBSize)
-        : CacheLevelDB(_sChain, _dirName, _prefix,
-                       _nodeId, _maxDBSize, LevelDBOptions::getMsgDBOptions(), false) {
-}
+MsgDB::MsgDB(
+    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getMsgDBOptions(), false ) {}
 
 
-bool
-MsgDB::saveMsg(const ptr<NetworkMessage>& _msg) {
+bool MsgDB::saveMsg( const ptr< NetworkMessage >& _msg ) {
+    static atomic< uint64_t > msgCounter = 0;
 
-    static atomic<uint64_t> msgCounter = 0;
-
-    CHECK_ARGUMENT(_msg)
+    CHECK_ARGUMENT( _msg )
 
     try {
-
         auto serialized = _msg->serializeToString();
 
-        CHECK_STATE(!serialized.empty())
+        CHECK_STATE( !serialized.empty() )
 
         auto currentCounter = msgCounter++;
 
-        auto key = createKey(_msg->getBlockID(), currentCounter);
+        auto key = createKey( _msg->getBlockID(), currentCounter );
 
-        CHECK_STATE(!key.empty())
+        CHECK_STATE( !key.empty() )
 
-        auto previous = readString(key);
+        auto previous = readString( key );
 
-        if (previous.empty()) {
-            writeString(key, serialized );
+        if ( previous.empty() ) {
+            writeString( key, serialized );
             return true;
         }
 
-        return (previous == serialized );
+        return ( previous == serialized );
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
-ptr<vector<ptr<NetworkMessage>>> MsgDB::getMessages(block_id _blockID) {
-
-    auto result = make_shared<vector<ptr<NetworkMessage>>>();
+ptr< vector< ptr< NetworkMessage > > > MsgDB::getMessages( block_id _blockID ) {
+    auto result = make_shared< vector< ptr< NetworkMessage > > >();
 
 
     try {
+        string prefix = getFormatVersion() + ":" + to_string( _blockID );
 
+        auto messages = readPrefixRange( prefix );
 
-        string prefix = getFormatVersion() + ":" + to_string(_blockID);
-
-        auto messages = readPrefixRange(prefix);
-
-        if (!messages)
+        if ( !messages )
             return result;
 
-        for (auto&& message : *messages) {
-            result->push_back(NetworkMessage::parseMessage(message.second, getSchain()));
+        for ( auto&& message : *messages ) {
+            result->push_back( NetworkMessage::parseMessage( message.second, getSchain() ) );
         }
 
         return result;
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 const string& MsgDB::getFormatVersion() {
     static const string version = "1.0";
-    return  version;
+    return version;
 }
-
-
-
-
-

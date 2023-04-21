@@ -26,14 +26,12 @@
 
 #include "PricingStrategy.h"
 
-class ZeroPricingStrategy : public PricingStrategy{
-
+class ZeroPricingStrategy : public PricingStrategy {
 public:
-
-    u256 calculatePrice(u256 previousPrice, const ConsensusExtFace::transactions_vector &_approvedTransactions,
-                        uint64_t _timeStamp, uint32_t _timeStampMs, block_id _blockID) override;
-
+    u256 calculatePrice( u256 previousPrice,
+        const ConsensusExtFace::transactions_vector& _approvedTransactions, uint64_t _timeStamp,
+        uint32_t _timeStampMs, block_id _blockID ) override;
 };
 
 
-#endif //SKALED_ZEROPRICESTRATEGY_H
+#endif  // SKALED_ZEROPRICESTRATEGY_H

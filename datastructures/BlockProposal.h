@@ -48,11 +48,9 @@ class BlockProposalFragmentList;
 #define SERIALIZE_AS_PROPOSAL 1
 
 class BlockProposal : public SendableItem {
-
-
     uint64_t creationTime;
 
-    ptr< BlockProposalRequestHeader > cachedProposalRequestHeader = nullptr; // tsafe
+    ptr< BlockProposalRequestHeader > cachedProposalRequestHeader = nullptr;  // tsafe
 
     ptr< vector< uint8_t > > cachedSerializedProposal = nullptr;  // tsafe
 
@@ -70,15 +68,15 @@ protected:
 
     ptr< TransactionList > transactionList = nullptr;  // tsafe
 
-    BLAKE3Hash hash; // tsafe
+    BLAKE3Hash hash;  // tsafe
 
     string signature;
 
     void calculateHash();
 
 
-    ptr<vector<uint8_t>>
-    serializeTransactionsAndCompleteSerialization(ptr<BasicHeader>  _blockHeader);
+    ptr< vector< uint8_t > > serializeTransactionsAndCompleteSerialization(
+        ptr< BasicHeader > _blockHeader );
 
     static ptr< TransactionList > deserializeTransactions(
         const ptr< BlockProposalHeader >& _header, const string& _headerString,
@@ -96,15 +94,15 @@ public:
         uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
         const ptr< CryptoManager >& _cryptoManager );
 
-    [[nodiscard]]  uint64_t getTimeStampS() const;
+    [[nodiscard]] uint64_t getTimeStampS() const;
 
-    [[nodiscard]]  uint32_t getTimeStampMs() const;
+    [[nodiscard]] uint32_t getTimeStampMs() const;
 
     [[nodiscard]] TimeStamp getTimeStamp() const;
 
-    [[nodiscard]]  schain_index getProposerIndex() const;
+    [[nodiscard]] schain_index getProposerIndex() const;
 
-    [[nodiscard]]   node_id getProposerNodeID() const;
+    [[nodiscard]] node_id getProposerNodeID() const;
 
     BLAKE3Hash getHash();
 
@@ -112,13 +110,13 @@ public:
 
     ptr< TransactionList > getTransactionList();
 
-    [[nodiscard]]  block_id getBlockID() const;
+    [[nodiscard]] block_id getBlockID() const;
 
     ~BlockProposal() override;
 
-    [[nodiscard]]  schain_id getSchainID() const;
+    [[nodiscard]] schain_id getSchainID() const;
 
-    [[nodiscard]]  transaction_count getTransactionCount() const;
+    [[nodiscard]] transaction_count getTransactionCount() const;
 
     void addSignature( const string& _signature );
 
@@ -128,17 +126,15 @@ public:
 
     ptr< BlockProposalFragment > getFragment( uint64_t _totalFragments, fragment_index _index );
 
-    [[nodiscard]]  u256 getStateRoot() const;
+    [[nodiscard]] u256 getStateRoot() const;
 
-    ptr< BlockProposalRequestHeader > createProposalRequestHeader(
-        Schain* _sChain);
+    ptr< BlockProposalRequestHeader > createProposalRequestHeader( Schain* _sChain );
 
-    static ptr< BlockProposal > deserialize(
-        const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager, bool _verifySig );
+    static ptr< BlockProposal > deserialize( const ptr< vector< uint8_t > >& _serializedProposal,
+        const ptr< CryptoManager >& _manager, bool _verifySig );
 
     static ptr< BlockProposal > defragment( const ptr< BlockProposalFragmentList >& _fragmentList,
         const ptr< CryptoManager >& _cryptoManager );
 
     uint64_t getCreationTime() const;
-
 };

@@ -33,12 +33,11 @@ class BooleanProposalVector;
 class DAProof;
 
 class BlockProposalSet : public DataStructure {
+    map< uint64_t, ptr< BlockProposal > > proposals;  // tsafe
 
-    map< uint64_t, ptr< BlockProposal > > proposals; // tsafe
+    node_count nodeCount = 0;
 
-    node_count nodeCount  = 0;
-
-    block_id blockId  = 0;
+    block_id blockId = 0;
 
     static atomic< int64_t > totalObjects;
 
@@ -52,5 +51,4 @@ public:
     static int64_t getTotalObjects() { return totalObjects; }
 
     ~BlockProposalSet() override;
-
 };

@@ -28,20 +28,17 @@
 #include "CatchupServerAgent.h"
 
 
-
-CatchupWorkerThreadPool::CatchupWorkerThreadPool(
-        num_threads _numThreads, Agent *_agent) :
-        WorkerThreadPool(_numThreads, _agent, false) {
-}
+CatchupWorkerThreadPool::CatchupWorkerThreadPool( num_threads _numThreads, Agent* _agent )
+    : WorkerThreadPool( _numThreads, _agent, false ) {}
 
 
-void CatchupWorkerThreadPool::createThread(uint64_t threadNumber) {
-
-    auto func = [threadNumber, this](){
-        setThreadName("CtchpSrvAg" + to_string(threadNumber), this->agent->getNode()->getConsensusEngine());
-        AbstractServerAgent::workerThreadConnectionProcessingLoop((CatchupServerAgent *) agent);
+void CatchupWorkerThreadPool::createThread( uint64_t threadNumber ) {
+    auto func = [threadNumber, this]() {
+        setThreadName( "CtchpSrvAg" + to_string( threadNumber ),
+            this->agent->getNode()->getConsensusEngine() );
+        AbstractServerAgent::workerThreadConnectionProcessingLoop( ( CatchupServerAgent* ) agent );
     };
 
-    LOCK(threadPoolLock);
-    this->threadpool.push_back(make_shared<thread>(func));
+    LOCK( threadPoolLock );
+    this->threadpool.push_back( make_shared< thread >( func ) );
 }

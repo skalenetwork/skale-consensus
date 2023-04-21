@@ -48,10 +48,10 @@
 using namespace std;
 
 
-DAProofDB::DAProofDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-            uint64_t _maxDBSize) :
-        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, LevelDBOptions::getDAProofDBOptions(), false) {
-}
+DAProofDB::DAProofDB(
+    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getDAProofDBOptions(), false ) {}
 
 const string& DAProofDB::getFormatVersion() {
     static const string version = "1.0";
@@ -59,59 +59,53 @@ const string& DAProofDB::getFormatVersion() {
 }
 
 
-
-bool DAProofDB::haveDAProof(const ptr<BlockProposal>& _proposal) {
-    CHECK_ARGUMENT(_proposal)
-    return keyExistsInSet(_proposal->getBlockID(), _proposal->getProposerIndex());
+bool DAProofDB::haveDAProof( const ptr< BlockProposal >& _proposal ) {
+    CHECK_ARGUMENT( _proposal )
+    return keyExistsInSet( _proposal->getBlockID(), _proposal->getProposerIndex() );
 }
 
 
-string DAProofDB::getDASig(block_id _blockId, schain_index _proposerIndex) {
-    return readStringFromSet(_blockId, _proposerIndex);
+string DAProofDB::getDASig( block_id _blockId, schain_index _proposerIndex ) {
+    return readStringFromSet( _blockId, _proposerIndex );
 }
 
 
 // return not-null if _daProof completes set, null otherwise (both if not enough and too much)
-ptr<BooleanProposalVector> DAProofDB::addDAProof(const ptr<DAProof>& _daProof) {
+ptr< BooleanProposalVector > DAProofDB::addDAProof( const ptr< DAProof >& _daProof ) {
+    CHECK_ARGUMENT( _daProof )
 
-    CHECK_ARGUMENT(_daProof)
+    LOG( trace, "Adding daProof" );
 
-    LOG(trace, "Adding daProof");
+    auto daProofSet = this->writeStringToSet( _daProof->getThresholdSig()->toString(),
+        _daProof->getBlockId(), _daProof->getProposerIndex() );
 
-    auto daProofSet = this->writeStringToSet(_daProof->getThresholdSig()->toString(),
-                                             _daProof->getBlockId(), _daProof->getProposerIndex());
-
-    if (daProofSet == nullptr) {
+    if ( daProofSet == nullptr ) {
         return nullptr;
     }
 
-    CHECK_STATE(daProofSet->size() == requiredSigners)
+    CHECK_STATE( daProofSet->size() == requiredSigners )
 
-    auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners), daProofSet);
-    LOG(trace, "Created proposal vector");
+    auto proposalVector =
+        make_shared< BooleanProposalVector >( node_count( totalSigners ), daProofSet );
+    LOG( trace, "Created proposal vector" );
 
     return proposalVector;
 }
 
 
-ptr<BooleanProposalVector> DAProofDB::getCurrentProposalVector(block_id _blockID) {
+ptr< BooleanProposalVector > DAProofDB::getCurrentProposalVector( block_id _blockID ) {
+    LOG( trace, "Getting current proposal vector" );
 
-    LOG(trace, "Getting current proposal vector");
+    auto daProofSet = this->readSet( _blockID );
 
-    auto daProofSet = this->readSet(_blockID);
+    CHECK_STATE( daProofSet )
 
-    CHECK_STATE(daProofSet)
-
-    auto proposalVector = make_shared<BooleanProposalVector>(node_count(totalSigners), daProofSet);
-    LOG(trace, "Created proposal vector");
+    auto proposalVector =
+        make_shared< BooleanProposalVector >( node_count( totalSigners ), daProofSet );
+    LOG( trace, "Created proposal vector" );
     return proposalVector;
 }
 
-bool DAProofDB::isEnoughProofs(block_id _blockID) {
-    return isEnough(_blockID);
+bool DAProofDB::isEnoughProofs( block_id _blockID ) {
+    return isEnough( _blockID );
 }
-
-
-
-
-

@@ -29,13 +29,12 @@
 
 class SkaleException : public std::exception, public boost::exception {
 public:
-
     std::string message;
 
     bool fatal = false;
 
     SkaleException( const std::string& _message, const std::string& _className ) {
-        if  ( !_className.empty() ) {
+        if ( !_className.empty() ) {
             message = _className + ":" + _message;
         } else {
             message = _message;

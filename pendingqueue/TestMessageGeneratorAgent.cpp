@@ -36,7 +36,6 @@
 #include "pendingqueue/TestMessageGeneratorAgent.h"
 
 
-
 TestMessageGeneratorAgent::TestMessageGeneratorAgent( Schain& _sChain_ )
     : Agent( _sChain_, false ) {
     CHECK_STATE( _sChain_.getNodeCount() > 0 );
@@ -78,7 +77,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     static atomic< uint64_t > iterations = 0;
     // send oracle test once from schain index 1
 
-    if (getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
+    if ( getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
         if ( iterations.fetch_add( 1 ) == 2 ) {
             LOG( info, "Sending Oracle test eth_call " );
             sendTestRequestEthCall();
@@ -97,9 +96,9 @@ void TestMessageGeneratorAgent::sendTestRequestGet() {
     string post = "";
     string encoding = "json";
 
-    auto cid = (uint64_t) getSchain()->getSchainID();
+    auto cid = ( uint64_t ) getSchain()->getSchainID();
     auto time = Time::getCurrentTimeMs();
-    auto os = OracleRequestSpec::makeWebSpec(cid, uri, jsps, trims, post, encoding, time);
+    auto os = OracleRequestSpec::makeWebSpec( cid, uri, jsps, trims, post, encoding, time );
 
     getSchain()->getOracleClient()->sendTestRequestAndWaitForResult( os );
 }
@@ -107,16 +106,14 @@ void TestMessageGeneratorAgent::sendTestRequestGet() {
 
 void TestMessageGeneratorAgent::sendTestRequestPost() {
     try {
-
-
         string _receipt;
         string uri = "https://reqres.in/api/users";
         vector< string > jsps = { "/id" };
         string post = "haha";
         string encoding = "json";
-        auto cid = (uint64_t) getSchain()->getSchainID();
+        auto cid = ( uint64_t ) getSchain()->getSchainID();
         auto time = Time::getCurrentTimeMs();
-        auto os = OracleRequestSpec::makeWebSpec(cid, uri, jsps, {}, post, encoding, time);
+        auto os = OracleRequestSpec::makeWebSpec( cid, uri, jsps, {}, post, encoding, time );
 
         getSchain()->getOracleClient()->sendTestRequestAndWaitForResult( os );
 
@@ -128,7 +125,6 @@ void TestMessageGeneratorAgent::sendTestRequestPost() {
 
 void TestMessageGeneratorAgent::sendTestRequestEthCall() {
     try {
-
         string _receipt;
         string uri = "http://127.0.0.1:8545/";
         string from = "0x9876543210987654321098765432109876543210";
@@ -138,12 +134,12 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
         string block = "latest";
         string encoding = "json";
 
-        auto _cid = (uint64_t) getSchain()->getSchainID();
+        auto _cid = ( uint64_t ) getSchain()->getSchainID();
 
         auto time = Time::getCurrentTimeMs();
 
-        auto os = OracleRequestSpec::makeEthCallSpec(_cid, uri, from, to, data, gas, block,
-            encoding, time);
+        auto os = OracleRequestSpec::makeEthCallSpec(
+            _cid, uri, from, to, data, gas, block, encoding, time );
 
         getSchain()->getOracleClient()->sendTestRequestAndWaitForResult( os );
 

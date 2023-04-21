@@ -30,25 +30,23 @@ class ConsensusEdDSASigShareSet;
 class CryptoManager;
 
 class ConsensusEdDSASignature : public ThresholdSignature {
-
     string mergedSig;
 
-    map<uint64_t, ptr<ConsensusEdDSASigShare>> shares;
+    map< uint64_t, ptr< ConsensusEdDSASigShare > > shares;
 
     uint64_t timestamp;
 
 public:
-
-    ConsensusEdDSASignature(
-        const string& _sig, schain_id _schainId, block_id _blockID, uint64_t timestamp, size_t _totalSigners, size_t _requiredSigners );
+    ConsensusEdDSASignature( const string& _sig, schain_id _schainId, block_id _blockID,
+        uint64_t timestamp, size_t _totalSigners, size_t _requiredSigners );
 
     string toString() override;
 
     uint64_t getRandom() override {
-        assert(false); // not implemented
+        assert( false );  // not implemented
     }
 
-    void verify( CryptoManager& _cryptoManager, BLAKE3Hash& _hash);
+    void verify( CryptoManager& _cryptoManager, BLAKE3Hash& _hash );
 };
 
 #endif  // SKALED_CONSENSUSEDDSASIGNATURE_H

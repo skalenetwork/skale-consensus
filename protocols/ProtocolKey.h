@@ -21,31 +21,26 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 class NetworkMessage;
 
 
 class ProtocolKey {
-
     const block_id blockID = 0;
 
-    const schain_index  blockProposerIndex = 0;
+    const schain_index blockProposerIndex = 0;
 
 public:
+    [[nodiscard]] block_id getBlockID() const;
 
-    [[nodiscard ]] block_id getBlockID() const;
+    [[nodiscard]] schain_index getBlockProposerIndex() const;
 
-    [[nodiscard ]]  schain_index getBlockProposerIndex() const;
+    ProtocolKey( block_id _blockId, schain_index _blockProposerIndex );
 
-    ProtocolKey(block_id _blockId, schain_index _blockProposerIndex);
+    ProtocolKey( const ProtocolKey& key );
 
-    ProtocolKey(const ProtocolKey& key);
-
-    virtual ~ProtocolKey()  = default;
-
+    virtual ~ProtocolKey() = default;
 };
 
-bool operator<(const ProtocolKey &l, const ProtocolKey &r);
-
-
+bool operator<( const ProtocolKey& l, const ProtocolKey& r );

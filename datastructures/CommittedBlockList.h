@@ -37,15 +37,13 @@
 class CommittedBlock;
 
 class CommittedBlockList : public DataStructure {
-
-    ptr< vector< ptr< CommittedBlock > > > blocks; // tsafe
+    ptr< vector< ptr< CommittedBlock > > > blocks;  // tsafe
 
     CommittedBlockList( const ptr< CryptoManager >& _cryptoManager,
         const ptr< vector< uint64_t > >& _blockSizes,
         const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t offset = 0 );
 
 public:
-
     explicit CommittedBlockList( const ptr< vector< ptr< CommittedBlock > > >& _blocks );
 
 

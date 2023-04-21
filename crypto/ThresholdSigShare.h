@@ -23,24 +23,22 @@
 #ifndef SKALED_THRESHOLDSIGSHARE_H
 #define SKALED_THRESHOLDSIGSHARE_H
 
-class  BLAKE3Hash;
+class BLAKE3Hash;
 
 #include "BLSSigShare.h"
 #include "SkaleCommon.h"
 
 class ThresholdSigShare {
-
 protected:
-
     schain_id schainId = 0;
     block_id blockId = 0;
     schain_index signerIndex = 0;
 
 public:
-
     [[nodiscard]] block_id getBlockId() const;
 
-    ThresholdSigShare(const schain_id &schainId, const block_id &blockId, const schain_index &_signerIndex);
+    ThresholdSigShare(
+        const schain_id& schainId, const block_id& blockId, const schain_index& _signerIndex );
 
     virtual string toString() = 0;
 
@@ -48,8 +46,7 @@ public:
 
     [[nodiscard]] schain_index getSignerIndex() const;
     BLAKE3Hash computeHash();
-
 };
 
 
-#endif //SKALED_THRESHOLDSIGSHARE_H
+#endif  // SKALED_THRESHOLDSIGSHARE_H

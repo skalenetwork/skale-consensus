@@ -30,6 +30,6 @@
 #include "InternalMessageEnvelope.h"
 
 
-InternalMessageEnvelope::InternalMessageEnvelope(MessageOrigin _origin, const ptr<Message> _message, Schain& _sChain): MessageEnvelope(
-        _origin, _message, _sChain.getThisNodeInfo()->getSchainIndex()) {
-}
+InternalMessageEnvelope::InternalMessageEnvelope(
+    MessageOrigin _origin, const ptr< Message > _message, Schain& _sChain )
+    : MessageEnvelope( _origin, _message, _sChain.getThisNodeInfo()->getSchainIndex() ) {}

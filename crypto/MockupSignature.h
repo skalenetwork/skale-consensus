@@ -28,11 +28,9 @@
 #include "ThresholdSignature.h"
 
 class MockupSignature : public ThresholdSignature {
-
     string s;
 
 public:
-
     MockupSignature(
         const string& _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 

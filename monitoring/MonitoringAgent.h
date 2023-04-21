@@ -27,15 +27,13 @@ class Schain;
 class MonitoringThreadPool;
 class LivelinessMonitor;
 
-class MonitoringAgent : public Agent  {
-
-    map<uint64_t, weak_ptr<LivelinessMonitor>> activeMonitors; // tsafe
+class MonitoringAgent : public Agent {
+    map< uint64_t, weak_ptr< LivelinessMonitor > > activeMonitors;  // tsafe
     recursive_mutex monitorsMutex;
 
     ptr< MonitoringThreadPool > monitoringThreadPool = nullptr;
 
 public:
-
     explicit MonitoringAgent( Schain& _sChain );
 
     static void monitoringLoop( MonitoringAgent* agent );
@@ -45,8 +43,7 @@ public:
     void join();
 
 
-    void registerMonitor(const ptr<LivelinessMonitor>& _m);
+    void registerMonitor( const ptr< LivelinessMonitor >& _m );
 
-    void unregisterMonitor(uint64_t _id);
-
+    void unregisterMonitor( uint64_t _id );
 };

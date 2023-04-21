@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 class Schain;
 class WorkerThreadPool;
@@ -29,9 +29,7 @@ class WorkerThreadPool;
 
 class SchainMessageThreadPool : public WorkerThreadPool {
 public:
+    SchainMessageThreadPool( Agent* _agent );
 
-    SchainMessageThreadPool(Agent *_agent);
-
-    virtual void createThread(uint64_t _numThreads);
+    virtual void createThread( uint64_t _numThreads );
 };
-

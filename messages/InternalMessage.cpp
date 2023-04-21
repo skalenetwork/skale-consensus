@@ -35,14 +35,14 @@
 using namespace std;
 
 
-InternalMessage::InternalMessage(MsgType _msgType,
-                                 ProtocolInstance & _srcProtocolInstance,
-                                 const ptr<ProtocolKey> & _protocolKey ) :
+InternalMessage::InternalMessage( MsgType _msgType, ProtocolInstance& _srcProtocolInstance,
+    const ptr< ProtocolKey >& _protocolKey )
+    :
 
-        Message( _srcProtocolInstance.getSchain()->getSchainID(), _msgType,
+      Message( _srcProtocolInstance.getSchain()->getSchainID(), _msgType,
           _srcProtocolInstance.createNetworkMessageID(),
           _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _protocolKey->getBlockID(),
-          _protocolKey->getBlockProposerIndex()) {
-    CHECK_ARGUMENT( _protocolKey);
-    CHECK_ARGUMENT(_protocolKey->getBlockID() != 0);
+          _protocolKey->getBlockProposerIndex() ) {
+    CHECK_ARGUMENT( _protocolKey );
+    CHECK_ARGUMENT( _protocolKey->getBlockID() != 0 );
 }

@@ -50,7 +50,7 @@ file_descriptor ClientSocket::getDescriptor() {
 }
 
 string& ClientSocket::getIP() {
-    CHECK_STATE(!remoteIP.empty() )
+    CHECK_STATE( !remoteIP.empty() )
     return remoteIP;
 }
 
@@ -67,17 +67,17 @@ int ClientSocket::createTCPSocket() {
     }
 
     int synRetries = 1;
-    setsockopt(s, IPPROTO_TCP, TCP_SYNCNT, &synRetries, sizeof(synRetries));
+    setsockopt( s, IPPROTO_TCP, TCP_SYNCNT, &synRetries, sizeof( synRetries ) );
 
 
     // Init the connection
-    CHECK_STATE(remoteAddr)
+    CHECK_STATE( remoteAddr )
 
     if ( connect( s, ( sockaddr* ) remoteAddr.get(), sizeof( remoteAddr ) ) < 0 ) {
         close( s );
         BOOST_THROW_EXCEPTION( ConnectionRefusedException(
-            "Couldnt connect to:" + getIP() + ":" + to_string( getPort() ),
-            errno, __CLASS_NAME__ ) );
+            "Couldnt connect to:" + getIP() + ":" + to_string( getPort() ), errno,
+            __CLASS_NAME__ ) );
     }
 
     return s;
@@ -85,32 +85,31 @@ int ClientSocket::createTCPSocket() {
 
 
 ClientSocket::ClientSocket( Schain& _sChain, schain_index _destinationIndex, port_type portType ) {
-
     if ( _sChain.getNode()->getNodeInfoByIndex( _destinationIndex ) == nullptr ) {
         BOOST_THROW_EXCEPTION( FatalError( "Could not find node with destination index " ) );
     }
 
     ptr< NodeInfo > ni = _sChain.getNode()->getNodeInfoByIndex( _destinationIndex );
 
-    CHECK_STATE(ni)
+    CHECK_STATE( ni )
 
     remoteIP = ni->getBaseIP();
 
-    CHECK_STATE(!remoteIP.empty())
+    CHECK_STATE( !remoteIP.empty() )
 
     remotePort = ni->getPort() + portType;
 
     this->remoteAddr = Sockets::createSocketAddress( remoteIP, ( uint16_t ) remotePort );
-    CHECK_STATE(remoteAddr)
+    CHECK_STATE( remoteAddr )
 
     try {
         descriptor = createTCPSocket();
-    } catch (ConnectionRefusedException& e) {
-        _sChain.addDeadNode((uint64_t ) _destinationIndex, Time::getCurrentTimeMs());
+    } catch ( ConnectionRefusedException& e ) {
+        _sChain.addDeadNode( ( uint64_t ) _destinationIndex, Time::getCurrentTimeMs() );
         throw;
     }
 
-    _sChain.markAliveNode((uint64_t) _destinationIndex);
+    _sChain.markAliveNode( ( uint64_t ) _destinationIndex );
 
     CHECK_STATE( descriptor != 0 )
 

@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "Header.h"
 
@@ -32,26 +32,21 @@ class Transaction;
 
 
 class FinalProposalResponseHeader : public Header {
-
     string sigShare;
     string signature;
     string publicKey;
     string publicKeySig;
 
 public:
+    FinalProposalResponseHeader( const string& _sigShare, const string& _signature,
+        const string& _publicKey, const string& _publicKeySig );
 
-    FinalProposalResponseHeader(const string& _sigShare, const string& _signature,
-        const string &_publicKey, const string& _publicKeySig);
+    FinalProposalResponseHeader( ConnectionStatus _status, ConnectionSubStatus _substatus );
 
-    FinalProposalResponseHeader(ConnectionStatus _status, ConnectionSubStatus _substatus);
-
-    void addFields(nlohmann::json &_j) override;
+    void addFields( nlohmann::json& _j ) override;
 
     [[nodiscard]] const string& getSigShare() const;
     [[nodiscard]] const string& getSignature() const;
     [[nodiscard]] const string& getPublicKey() const;
     [[nodiscard]] const string& getPublicKeySig() const;
 };
-
-
-

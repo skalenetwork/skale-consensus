@@ -35,17 +35,17 @@
 
 MockupSignature::MockupSignature(
     const string& _s, block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners) {
+    : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {
     s = _s;
 }
 
 
 string MockupSignature::toString() {
-    CHECK_STATE(s != "");
+    CHECK_STATE( s != "" );
     return s;
 };
 
 uint64_t MockupSignature::getRandom() {
-    uint64_t  bi = (uint64_t ) blockId;
-    return (bi * bi ) % 3 + bi;
+    uint64_t bi = ( uint64_t ) blockId;
+    return ( bi * bi ) % 3 + bi;
 }
