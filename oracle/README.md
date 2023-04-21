@@ -61,6 +61,10 @@ data to different SKL nodes, so no consensus could be reached on the data
 ```OracleRequestSpec``` is a JSON string that is used by the client to 
 initiate an Oracle request to a SKL node.
 
+Note: for efficiency, empty spaces and carriage returns are not allowed in OracleRequestSpec.  We do it to simplify
+Solidity code that handles Oracle data.
+
+
 There are two types of request specs. 
 
 * Web spec is used to retrieve info from
@@ -168,14 +172,7 @@ HTTP get request that obtains current unix time and
 day of the year from worldtimeapi.org.
 
 ```json
-{
-    "cid": 1, "uri": "http://worldtimeapi.org/api/timezone/Europe/Kiev",
-    "jsps":["/unixtime", "/day_of_year", "/xxx"],
-    "trims":[1,1,1],
-    "time":9234567,
-    "encoding":"json",
-    "pow":53458
-}
+{"cid": 1, "uri": "http://worldtimeapi.org/api/timezone/Europe/Kiev","jsps":["/unixtime", "/day_of_year", "/xxx"],"trims":[1,1,1],"time":9234567,"encoding":"json","pow":53458}
 ```
 
 Description:
@@ -191,14 +188,7 @@ Description:
 HTTP post request that posts some data to endpoint
 
 ```json
-{
-    "cid": 1, "uri": "https://reqres.in/api/users", 
-    "jsps":["/id"],   
-    "time":9234567, 
-     "post":"some data",
-     "encoding":"json",
-     "pow":1735
-}
+{"cid": 1, "uri": "https://reqres.in/api/users", "jsps":["/id"],"time":9234567,"post":"some data","encoding":"json","pow":1735}
 ```
 
 
@@ -207,19 +197,7 @@ HTTP post request that posts some data to endpoint
 EthApi request doing ```eth_call``` on a smart contract
 
 ```json
-{
-   "cid":1,
-   "uri":"https://mygeth.com:1234",
-   "ethApi":"eth_call",
-   "params":[{"from":"0x9876543210987654321098765432109876543210",
-              "to":"0x5FbDB2315678afecb367f032d93F642f64180aa3",
-              "data":"0x893d20e8",
-              "gas":"0x100000"},
-              "latest"],
-    "encoding":"json",
-    "time":1681494451895,
-    "pow":61535
-}
+{"cid":1,"uri":"https://mygeth.com:1234","ethApi":"eth_call","params":[{"from":"0x9876543210987654321098765432109876543210","to":"0x5FbDB2315678afecb367f032d93F642f64180aa3","data":"0x893d20e8","gas":"0x100000"},"latest"],"encoding":"json","time":1681494451895,"pow":61535}
 ```    
 
 
@@ -246,6 +224,10 @@ specStr is the full JSON spec string, starting from ```{``` and ending with
 OracleResult copies JSON elements from the corresponding
 OracleRequestSpec, stripping away the ```pow``` element.
 
+Note: for efficiency, empty spaces and carriage returns are not present in OracleResult.  We do it to simplify
+Solidity code that handles Oracle data.
+
+
 It then appends to the following elements
 
 1. ```rslts ``` - array of string results. Note for EthAPI ```results``` is a single element array that includes
@@ -260,45 +242,12 @@ Max size of OracleResult is 3072 bytes.
 An example of Oracle result is provided below
 
 ```json
-{
-  "cid":1, 
-  "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev",
-  "jsps":["/unixtime", "/day_of_year", "/xxx"],
-  "trims":[1,1,1],"time":1642521456593, "encoding":"json",
-  "rslts":["164252145","1",null],
-   "sigs":["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-           "6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-          null,null,null,null,null,null,null,null,null,null]
-}
+{"cid":1, "uri":"http://worldtimeapi.org/api/timezone/Europe/Kiev","jsps":["/unixtime", "/day_of_year", "/xxx"],"trims":[1,1,1],"time":1642521456593, "encoding":"json","rslts":["164252145","1",null],"sigs":["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",null,null,null,null,null,null,null,null,null,null]}
 ```
 
 ### 7.1 OracleResult example for EthApi request.
 ```JSON
-{
-  "cid":1,
-  "uri":"https://mygeth.com:1234",,
-  "ethApi":"eth_call",
-  "params":[
-    { "from":"0x9876543210987654321098765432109876543210",
-      "to":"0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      "data":"0x893d20e8",
-      "gas":"0x100000"},
-    "latest"],
-  "encoding":"json",
-  "time":1681494451895, 
-  "rslts":["0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"],
-  "sigs":["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-    "7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-    "8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-    "9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-    "1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-    "6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",
-    null,null,null,null,null,null,null,null,null,null]
-}
+{"cid":1,"uri":"https://mygeth.com:1234",,"ethApi":"eth_call","params":[{ "from":"0x9876543210987654321098765432109876543210","to":"0x5FbDB2315678afecb367f032d93F642f64180aa3","data":"0x893d20e8","gas":"0x100000"},"latest"],"encoding":"json","time":1681494451895, "rslts":["0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"],"sigs"["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",null,null,null,null,null,null,null,null,null,null]}
 ```
 # Appendix A: list of Oracle error codes.
 
