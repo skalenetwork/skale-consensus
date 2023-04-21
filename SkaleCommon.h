@@ -111,18 +111,10 @@ class SkaleLog;
         D( D&& ) = default;                                                              \
         D& operator=( const D& rhs ) = default;                                          \
         D& operator=( D&& ) = default;                                                   \
-        explicit operator T&() {                                                         \
-            return t;                                                                    \
-        }                                                                                \
-        explicit operator const T&() const {                                             \
-            return t;                                                                    \
-        }                                                                                \
-        bool operator==( const D& rhs ) const {                                          \
-            return t == rhs.t;                                                           \
-        }                                                                                \
-        bool operator<( const D& rhs ) const {                                           \
-            return t < rhs.t;                                                            \
-        }                                                                                \
+        explicit operator T&() { return t; }                                             \
+        explicit operator const T&() const { return t; }                                 \
+        bool operator==( const D& rhs ) const { return t == rhs.t; }                     \
+        bool operator<( const D& rhs ) const { return t < rhs.t; }                       \
                                                                                          \
         D& operator+=( const T& rhs ) {                                                  \
             t += rhs;                                                                    \
@@ -137,19 +129,11 @@ class SkaleLog;
             return *this;                                                                \
         }                                                                                \
                                                                                          \
-        explicit operator bool() const {                                                 \
-            return t != 0;                                                               \
-        }                                                                                \
+        explicit operator bool() const { return t != 0; }                                \
                                                                                          \
-        friend const char* operator+( const char* s, const D& d ) {                      \
-            return s + d.t;                                                              \
-        }                                                                                \
-        operator std::string() const {                                                   \
-            return to_string( t );                                                       \
-        }                                                                                \
-        friend std::string to_string( const D& d ) {                                     \
-            return to_string( d.t );                                                     \
-        }                                                                                \
+        friend const char* operator+( const char* s, const D& d ) { return s + d.t; }    \
+        operator std::string() const { return to_string( t ); }                          \
+        friend std::string to_string( const D& d ) { return to_string( d.t ); }          \
         friend std::istream& operator>>( std::istream& s, D& d ) {                       \
             s >> d.t;                                                                    \
             return s;                                                                    \
