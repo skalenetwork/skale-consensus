@@ -86,7 +86,7 @@ void BlockProposalDB::addBlockProposal( const ptr< BlockProposal > _proposal ) {
 void BlockProposalDB::addProposalToCacheIfDoesNotExist( const ptr< BlockProposal > _proposal ) {
     auto key = createKey( _proposal->getBlockID(), _proposal->getProposerIndex() );
 
-    auto proposerIndex = (uint64_t ) _proposal->getProposerIndex();
+    auto proposerIndex = ( uint64_t ) _proposal->getProposerIndex();
 
     CHECK_STATE( proposalCaches )
     CHECK_STATE( proposerIndex > 0 );
@@ -200,4 +200,27 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
 const string& BlockProposalDB::getFormatVersion() {
     static const string version = "1.0";
     return version;
+}
+
+void BlockProposalDB::cleanupUnneededMemoryBeforePushingToEvm(
+    const ptr< CommittedBlock > _block ) {
+    CHECK_STATE( _block )
+    WRITE_LOCK( proposalCacheMutex )
+
+
+    auto proposerIndex = _block->getProposerIndex();
+    auto blockId = _block->getBlockID();
+
+    // keep only the winning proposal in cache since
+    // the noone will ask for losers
+
+    for ( uint64_t i = 0; i < proposalCaches->size(); i++ ) {
+        auto cachedProposal = proposalCaches->at( i );
+        if ( cachedProposal ) {
+            if ( ( cachedProposal->getProposerIndex() != proposerIndex ) ||
+                 ( cachedProposal->getBlockID() <= blockId ) ) {
+                proposalCaches->at( i ) = nullptr;
+            }
+        }
+    }
 }

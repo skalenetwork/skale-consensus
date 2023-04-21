@@ -193,6 +193,8 @@ class Schain : public Agent {
 
     void saveBlock( const ptr< CommittedBlock >& _block );
 
+    void cleanupUnneededMemoryBeforePushingToEvm( const ptr< CommittedBlock > _block );
+
     void pushBlockToExtFace( const ptr< CommittedBlock >& _block );
 
     ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );

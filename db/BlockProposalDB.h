@@ -55,4 +55,6 @@ public:
     void addBlockProposal( const ptr< BlockProposal > _proposal );
 
     const string& getFormatVersion() override;
+
+    void cleanupUnneededMemoryBeforePushingToEvm( const ptr< CommittedBlock > _block );
 };

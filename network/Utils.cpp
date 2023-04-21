@@ -20,7 +20,8 @@
     @author Stan Kladko
     @date 2018
 */
-
+#include <iostream>
+#include <sys/resource.h>
 #include "thirdparty/json.hpp"
 
 #include "SkaleCommon.h"
@@ -167,4 +168,16 @@ void Utils::cArrayFromHex( const string& _hex, uint8_t* _data, size_t len ) {
         _data[i] =
             Utils::char2int( _hex.at( 2 * i ) ) * 16 + Utils::char2int( _hex.at( 2 * i + 1 ) );
     }
+}
+
+string Utils::getRusage() {
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    stringstream result;
+    result << "RUSAGE:";
+    result << "USER_CPU:" << usage.ru_utime.tv_sec << ":"
+              << usage.ru_utime.tv_usec << ":";
+    result << "PROCESS_RSS:" << usage.ru_maxrss << ":";
+    result << "SWAPPED_MEM:" << usage.ru_isrss;
+    return result.str();
 }
