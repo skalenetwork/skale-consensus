@@ -245,10 +245,6 @@ void Node::initParamsFromConfig() {
     stuckRestartIntervalMs = getParamUint64( "stuckRestartIntervalMs", STUCK_RESTART_INTERVAL_MS );
     waitAfterNetworkErrorMs =
         getParamUint64( "waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS );
-    blockProposalHistorySize =
-        getParamUint64( "blockProposalHistorySize", BLOCK_PROPOSAL_HISTORY_SIZE );
-    committedTransactionsHistory =
-        getParamUint64( "committedTransactionsHistory", COMMITTED_TRANSACTIONS_HISTORY );
     maxCatchupDownloadBytes =
         getParamUint64( "maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES );
     maxTransactionsPerBlock =
