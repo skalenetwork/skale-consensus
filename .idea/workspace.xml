@@ -44,7 +44,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="" />
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/clang-format-check.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/clang-format-check.yml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -505,20 +507,6 @@
       <workItem from="1680172553777" duration="4927000" />
       <workItem from="1680282100830" duration="3952000" />
     </task>
-    <task id="LOCAL-00111" summary="bug/SKALE-4352">
-      <created>1634641434523</created>
-      <option name="number" value="00111" />
-      <option name="presentableId" value="LOCAL-00111" />
-      <option name="project" value="LOCAL" />
-      <updated>1634641434523</updated>
-    </task>
-    <task id="LOCAL-00112" summary="bug/SKALE-2983-sgx-down">
-      <created>1634824187936</created>
-      <option name="number" value="00112" />
-      <option name="presentableId" value="LOCAL-00112" />
-      <option name="project" value="LOCAL" />
-      <updated>1634824187936</updated>
-    </task>
     <task id="LOCAL-00113" summary="bug/SKALE-4699">
       <created>1634836843425</created>
       <option name="number" value="00113" />
@@ -848,7 +836,21 @@
       <option name="project" value="LOCAL" />
       <updated>1682088485770</updated>
     </task>
-    <option name="localTasksCounter" value="160" />
+    <task id="LOCAL-00160" summary="769 Clang-format">
+      <created>1682088740214</created>
+      <option name="number" value="00160" />
+      <option name="presentableId" value="LOCAL-00160" />
+      <option name="project" value="LOCAL" />
+      <updated>1682088740214</updated>
+    </task>
+    <task id="LOCAL-00161" summary="769 Clang-format">
+      <created>1682088838034</created>
+      <option name="number" value="00161" />
+      <option name="presentableId" value="LOCAL-00161" />
+      <option name="project" value="LOCAL" />
+      <updated>1682088838034</updated>
+    </task>
+    <option name="localTasksCounter" value="162" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -895,7 +897,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="bug/SKALE-4440-sgx" />
     <MESSAGE value="bug/SKALE-4440-sgx cherrypick" />
     <MESSAGE value="bug/SKALE-4400&#10;Added basic stuck detection classes." />
     <MESSAGE value="bug/SKALE-4502-RAM-grows" />
@@ -920,7 +921,8 @@
     <MESSAGE value="Oracle doc impovements" />
     <MESSAGE value="#636 skaled stuck" />
     <MESSAGE value="oracle doc" />
-    <option name="LAST_COMMIT_MESSAGE" value="oracle doc" />
+    <MESSAGE value="769 Clang-format" />
+    <option name="LAST_COMMIT_MESSAGE" value="769 Clang-format" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
