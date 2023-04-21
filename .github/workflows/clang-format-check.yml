@@ -10,6 +10,6 @@ jobs:
       with:
         source: '.'
         exclude: './CMakeFiles ./cmake cppzmq cget deps docs jsoncpp libBLS libjson-rpc-cpp 
-        spdlog  sgxwallet scripts run_sgx_test libzmq'
+        spdlog  sgxwallet scripts run_sgx_test libzmq thirdparty'
         extensions: 'h,hpp,hxx,cpp,cxx,cc,ipp'
         clangFormatVersion: 10
