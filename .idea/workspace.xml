@@ -45,7 +45,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/clang-format-check.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/clang-format-check.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -507,13 +509,6 @@
       <workItem from="1680172553777" duration="4927000" />
       <workItem from="1680282100830" duration="3952000" />
     </task>
-    <task id="LOCAL-00117" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1639486754611</created>
-      <option name="number" value="00117" />
-      <option name="presentableId" value="LOCAL-00117" />
-      <option name="project" value="LOCAL" />
-      <updated>1639486754611</updated>
-    </task>
     <task id="LOCAL-00118" summary="bug/SKALE-4616-oracle-mvp">
       <created>1641836230369</created>
       <option name="number" value="00118" />
@@ -850,7 +845,14 @@
       <option name="project" value="LOCAL" />
       <updated>1682089371147</updated>
     </task>
-    <option name="localTasksCounter" value="166" />
+    <task id="LOCAL-00166" summary="769 Clang-format">
+      <created>1682089532041</created>
+      <option name="number" value="00166" />
+      <option name="presentableId" value="LOCAL-00166" />
+      <option name="project" value="LOCAL" />
+      <updated>1682089532041</updated>
+    </task>
+    <option name="localTasksCounter" value="167" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

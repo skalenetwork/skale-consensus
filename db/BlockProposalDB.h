@@ -36,6 +36,11 @@ class BlockProposalDB : public CacheLevelDB {
     ptr< vector< ptr< cache::lru_cache< string, ptr< BlockProposal > > > > >
         proposalCaches;  // tsafe
 
+    ptr< vector< uint8_t > > getMyProposalFromLevelDB(
+        block_id _blockID, schain_index _proposerIndex );
+
+    void serializeProposalAndSaveItToLevelDB( const ptr< BlockProposal > _proposal );
+
 public:
     bool proposalExists( block_id _blockId, schain_index _index );
 
@@ -48,6 +53,6 @@ public:
 
     const string& getFormatVersion() override;
 
-    ptr< vector< uint8_t > > getMyProposalFromLevelDB(
-        block_id _blockID, schain_index _proposerIndex );
+    void addProposalToCacheIfDoesNotExist(
+        const ptr< BlockProposal >& _proposal, const schain_index& proposerIndex );
 };
