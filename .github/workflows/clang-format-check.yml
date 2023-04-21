@@ -9,7 +9,6 @@ jobs:
     - uses: DoozyX/clang-format-lint-action@v0.14
       with:
         source: '.'
-        exclude: './CMakeFiles ./cmake cppzmq cget deps docs jsoncpp libBLS libjson-rpc-cpp 
-        spdlog  sgxwallet scripts run_sgx_test libzmq thirdparty cppzmq'
+        exclude: './CMakeFiles ./cmake cppzmq cget deps docs jsoncpp libBLS libjson-rpc-cpp spdlog  sgxwallet scripts run_sgx_test libzmq thirdparty cppzmq'
         extensions: 'h,hpp,hxx,cpp,cxx,cc,ipp'
         clangFormatVersion: 10
