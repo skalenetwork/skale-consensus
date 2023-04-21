@@ -287,24 +287,24 @@ struct mz_internal_state;
 
 /* Compression/decompression stream struct. */
 typedef struct mz_stream_s {
-    const unsigned char* next_in;    /* pointer to next byte to read */
-    unsigned int avail_in;           /* number of bytes available at next_in */
-    mz_ulong total_in;               /* total number of bytes consumed so far */
+    const unsigned char* next_in; /* pointer to next byte to read */
+    unsigned int avail_in;        /* number of bytes available at next_in */
+    mz_ulong total_in;            /* total number of bytes consumed so far */
 
-    unsigned char* next_out;         /* pointer to next byte to write */
-    unsigned int avail_out;          /* number of bytes that can be written to next_out */
-    mz_ulong total_out;              /* total number of bytes produced so far */
+    unsigned char* next_out; /* pointer to next byte to write */
+    unsigned int avail_out;  /* number of bytes that can be written to next_out */
+    mz_ulong total_out;      /* total number of bytes produced so far */
 
     char* msg;                       /* error msg (unused) */
     struct mz_internal_state* state; /* internal state, allocated by zalloc/zfree */
 
-    mz_alloc_func zalloc;            /* optional heap allocation function (defaults to malloc) */
-    mz_free_func zfree;              /* optional heap free function (defaults to free) */
-    void* opaque;                    /* heap alloc function user pointer */
+    mz_alloc_func zalloc; /* optional heap allocation function (defaults to malloc) */
+    mz_free_func zfree;   /* optional heap free function (defaults to free) */
+    void* opaque;         /* heap alloc function user pointer */
 
-    int data_type;                   /* data_type (unused) */
-    mz_ulong adler;                  /* adler32 of the source or uncompressed data */
-    mz_ulong reserved;               /* not used */
+    int data_type;     /* data_type (unused) */
+    mz_ulong adler;    /* adler32 of the source or uncompressed data */
+    mz_ulong reserved; /* not used */
 } mz_stream;
 
 typedef mz_stream* mz_streamp;
@@ -569,14 +569,14 @@ typedef struct mz_dummy_time_t_tag {
 #define MZ_READ_LE16( p ) *( ( const mz_uint16* ) ( p ) )
 #define MZ_READ_LE32( p ) *( ( const mz_uint32* ) ( p ) )
 #else
-#define MZ_READ_LE16( p )                                  \
-    ( ( mz_uint32 ) ( ( ( const mz_uint8* ) ( p ) )[0] ) | \
-        ( ( mz_uint32 ) ( ( ( const mz_uint8* ) ( p ) )[1] ) << 8U ) )
-#define MZ_READ_LE32( p )                                               \
-    ( ( mz_uint32 ) ( ( ( const mz_uint8* ) ( p ) )[0] ) |              \
-        ( ( mz_uint32 ) ( ( ( const mz_uint8* ) ( p ) )[1] ) << 8U ) |  \
-        ( ( mz_uint32 ) ( ( ( const mz_uint8* ) ( p ) )[2] ) << 16U ) | \
-        ( ( mz_uint32 ) ( ( ( const mz_uint8* ) ( p ) )[3] ) << 24U ) )
+#define MZ_READ_LE16( p )                                 \
+    ( ( mz_uint32 )( ( ( const mz_uint8* ) ( p ) )[0] ) | \
+        ( ( mz_uint32 )( ( ( const mz_uint8* ) ( p ) )[1] ) << 8U ) )
+#define MZ_READ_LE32( p )                                              \
+    ( ( mz_uint32 )( ( ( const mz_uint8* ) ( p ) )[0] ) |              \
+        ( ( mz_uint32 )( ( ( const mz_uint8* ) ( p ) )[1] ) << 8U ) |  \
+        ( ( mz_uint32 )( ( ( const mz_uint8* ) ( p ) )[2] ) << 16U ) | \
+        ( ( mz_uint32 )( ( ( const mz_uint8* ) ( p ) )[3] ) << 24U ) )
 #endif
 
 #define MZ_READ_LE64( p )                                                                   \
@@ -858,7 +858,7 @@ void* tinfl_decompress_mem_to_heap(
 /* tinfl_decompress_mem_to_mem() decompresses a block in memory to another block in memory. */
 /* Returns TINFL_DECOMPRESS_MEM_TO_MEM_FAILED on failure, or the number of bytes written on success.
  */
-#define TINFL_DECOMPRESS_MEM_TO_MEM_FAILED ( ( size_t ) ( -1 ) )
+#define TINFL_DECOMPRESS_MEM_TO_MEM_FAILED ( ( size_t )( -1 ) )
 size_t tinfl_decompress_mem_to_mem(
     void* pOut_buf, size_t out_buf_len, const void* pSrc_buf, size_t src_buf_len, int flags );
 
