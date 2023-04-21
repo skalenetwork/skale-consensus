@@ -340,20 +340,18 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
             if ( !testFinalizationDownloadOnly ) {
                 // take into account that the block can
                 //  be in parallel committed through catchup
+                // then we need to stop working
                 if ( sChain->getLastCommittedBlockID() >= blockId ) {
                     return;
                 }
 
                 // take into account that the proposal and da proof can arrive through
                 // BlockproposalServerAgent
-
-                if ( proposalDB->proposalExists( blockId, proposerIndex ) ) {
-                    auto proposal =
-                        proposalDB->getBlockProposal( _agent->blockId, _agent->proposerIndex );
-                    CHECK_STATE( proposal )
-                    if ( daProofDB->haveDAProof( proposal ) ) {
+                // then we need to stop working
+                auto proposal =
+                    proposalDB->getBlockProposal( blockId, proposerIndex );
+                if ( proposal && daProofDB->haveDAProof( proposal ) ) {
                         return;
-                    }
                 }
             }
 

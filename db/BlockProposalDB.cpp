@@ -68,14 +68,14 @@ BlockProposalDB::BlockProposalDB(
  * this is done to be able to re-propose the same thing in case of a crash
  */
 
-void BlockProposalDB::addBlockProposal( const ptr< BlockProposal >& _proposal ) {
+void BlockProposalDB::addBlockProposal( const ptr< BlockProposal > _proposal ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
 
     CHECK_ARGUMENT( _proposal );
     CHECK_ARGUMENT( _proposal->getSignature() != "" );
     auto proposerIndex = _proposal->getProposerIndex();
     CHECK_STATE( ( uint64_t ) proposerIndex <= getSchain()->getNodeCount() );
-    CHECK_STATE(proposerIndex > 0);
+    CHECK_STATE( proposerIndex > 0 );
 
     LOG( trace, "addBlockProposal blockID_=" + to_string( _proposal->getBlockID() ) +
                     " proposerIndex=" + to_string( _proposal->getProposerIndex() ) );
@@ -88,15 +88,16 @@ void BlockProposalDB::addBlockProposal( const ptr< BlockProposal >& _proposal ) 
     }
 }
 void BlockProposalDB::addProposalToCacheIfDoesNotExist(
-    const ptr< BlockProposal >& _proposal, const schain_index& proposerIndex ) {
+    const ptr< BlockProposal > _proposal, const schain_index proposerIndex ) {
     auto key = createKey( _proposal->getBlockID(), _proposal->getProposerIndex() );
 
+    CHECK_STATE( proposalCaches )
     auto cache = proposalCaches->at( ( uint64_t ) proposerIndex - 1 );
     CHECK_STATE( cache );
     cache->putIfDoesNotExist( key, _proposal );
 }
 void BlockProposalDB::serializeProposalAndSaveItToLevelDB( const ptr< BlockProposal > _proposal ) {
-    CHECK_STATE(_proposal);
+    CHECK_STATE( _proposal );
 
     try {
         ptr< vector< uint8_t > > serialized;
@@ -142,17 +143,16 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
     ptr< BlockProposal > p = nullptr;
 
     auto key = createKey( _blockID, _proposerIndex );
-    CHECK_STATE( !key.empty() );
 
+    CHECK_STATE( proposalCaches )
     auto cache = proposalCaches->at( ( uint64_t ) _proposerIndex - 1 );
-
     CHECK_STATE( cache );
 
     if ( auto result = cache->getIfExists( key ); result.has_value() ) {
-        p =  any_cast< ptr< BlockProposal > >( result );
+        p = any_cast< ptr< BlockProposal > >( result );
     }
 
-    if (p) {
+    if ( p ) {
         return p;
     }
 
@@ -171,11 +171,9 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
     auto proposal =
         BlockProposal::deserialize( serializedProposal, getSchain()->getCryptoManager(), false );
 
-    if ( proposal == nullptr )
+    if (!proposal)
         return nullptr;
 
-
-    CHECK_STATE( proposalCaches )
 
     cache->putIfDoesNotExist( key, proposal );
 
@@ -188,8 +186,4 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
 const string& BlockProposalDB::getFormatVersion() {
     static const string version = "1.0";
     return version;
-}
-
-bool BlockProposalDB::proposalExists( block_id _blockId, schain_index _index ) {
-    return keyExistsInSet( _blockId, _index );
 }

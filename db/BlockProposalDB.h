@@ -41,18 +41,17 @@ class BlockProposalDB : public CacheLevelDB {
 
     void serializeProposalAndSaveItToLevelDB( const ptr< BlockProposal > _proposal );
 
+    void addProposalToCacheIfDoesNotExist(
+        const ptr< BlockProposal > _proposal, const schain_index proposerIndex );
+
 public:
-    bool proposalExists( block_id _blockId, schain_index _index );
 
     ptr< BlockProposal > getBlockProposal( block_id _blockID, schain_index _proposerIndex );
 
     BlockProposalDB(
         Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    void addBlockProposal( const ptr< BlockProposal >& _proposal );
+    void addBlockProposal( const ptr< BlockProposal > _proposal );
 
     const string& getFormatVersion() override;
-
-    void addProposalToCacheIfDoesNotExist(
-        const ptr< BlockProposal >& _proposal, const schain_index& proposerIndex );
 };
