@@ -46,8 +46,9 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/thirdparty/lru_ordered_cache.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/thirdparty/lru_ordered_cache.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/thirdparty/lrucache.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/thirdparty/lrucache.hpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -509,13 +510,6 @@
       <workItem from="1680172553777" duration="4927000" />
       <workItem from="1680282100830" duration="3952000" />
     </task>
-    <task id="LOCAL-00118" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1641836230369</created>
-      <option name="number" value="00118" />
-      <option name="presentableId" value="LOCAL-00118" />
-      <option name="project" value="LOCAL" />
-      <updated>1641836230369</updated>
-    </task>
     <task id="LOCAL-00119" summary="bug/SKALE-4616-oracle-mvp">
       <created>1641837034260</created>
       <option name="number" value="00119" />
@@ -852,7 +846,14 @@
       <option name="project" value="LOCAL" />
       <updated>1682089532041</updated>
     </task>
-    <option name="localTasksCounter" value="167" />
+    <task id="LOCAL-00167" summary="709 memory leak in skaled">
+      <created>1682091667339</created>
+      <option name="number" value="00167" />
+      <option name="presentableId" value="LOCAL-00167" />
+      <option name="project" value="LOCAL" />
+      <updated>1682091667339</updated>
+    </task>
+    <option name="localTasksCounter" value="168" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -899,7 +900,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="bug/SKALE-4440-sgx cherrypick" />
     <MESSAGE value="bug/SKALE-4400&#10;Added basic stuck detection classes." />
     <MESSAGE value="bug/SKALE-4502-RAM-grows" />
     <MESSAGE value="bug/SKALE-4502-RAM-grows&#10;Removed empty space" />
@@ -924,7 +924,8 @@
     <MESSAGE value="#636 skaled stuck" />
     <MESSAGE value="oracle doc" />
     <MESSAGE value="769 Clang-format" />
-    <option name="LAST_COMMIT_MESSAGE" value="769 Clang-format" />
+    <MESSAGE value="709 memory leak in skaled" />
+    <option name="LAST_COMMIT_MESSAGE" value="709 memory leak in skaled" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
