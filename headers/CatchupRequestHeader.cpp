@@ -31,45 +31,34 @@
 #include "CatchupRequestHeader.h"
 
 
-
-
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "chains/Schain.h"
 
 
-
 using namespace std;
 
-CatchupRequestHeader::CatchupRequestHeader() : Header(Header::BLOCK_CATCHUP_REQ) {
-}
+CatchupRequestHeader::CatchupRequestHeader() : Header( Header::BLOCK_CATCHUP_REQ ) {}
 
-CatchupRequestHeader::CatchupRequestHeader(Schain &_sChain, schain_index _dstIndex) :
-        CatchupRequestHeader() {
-
-
+CatchupRequestHeader::CatchupRequestHeader( Schain& _sChain, schain_index _dstIndex )
+    : CatchupRequestHeader() {
     this->schainID = _sChain.getSchainID();
     this->blockID = _sChain.getLastCommittedBlockID();
     this->nodeID = _sChain.getNode()->getNodeID();
 
-    CHECK_STATE(_sChain.getNode()->getNodeInfoByIndex(_dstIndex));
+    CHECK_STATE( _sChain.getNode()->getNodeInfoByIndex( _dstIndex ) );
 
     complete = true;
-
 }
 
-void CatchupRequestHeader::addFields(nlohmann::json& _j) {
+void CatchupRequestHeader::addFields( nlohmann::json& _j ) {
+    Header::addFields( _j );
 
-    Header::addFields(_j);
-
-    _j["schainID"] = (uint64_t ) schainID;
-    _j["blockID"] = (uint64_t ) blockID;
-    _j["nodeID"] = (uint64_t) nodeID;
-
+    _j["schainID"] = ( uint64_t ) schainID;
+    _j["blockID"] = ( uint64_t ) blockID;
+    _j["nodeID"] = ( uint64_t ) nodeID;
 }
 
-const node_id &CatchupRequestHeader::getNodeId() const {
+const node_id& CatchupRequestHeader::getNodeId() const {
     return nodeID;
 }
-
-

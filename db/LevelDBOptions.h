@@ -122,7 +122,6 @@ public:
     static leveldb::Options getInternalInfoDBOptions() { return getSmallDBOptions(); }
 
     static leveldb::Options getSmallDBOptions() {
-
         leveldb::Options options;
 
         options.max_open_files = 16;

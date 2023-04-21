@@ -45,16 +45,13 @@
 using namespace std;
 
 
-BlockFinalizeRequestHeader::BlockFinalizeRequestHeader(Schain &_sChain, block_id _blockID,
-                                                           schain_index _proposerIndex,
-                                                           node_id _nodeID,
-                                                           fragment_index _fragmentIndex) :
-        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _blockID,
-                Header::BLOCK_FINALIZE_REQ, _proposerIndex) {
+BlockFinalizeRequestHeader::BlockFinalizeRequestHeader( Schain& _sChain, block_id _blockID,
+    schain_index _proposerIndex, node_id _nodeID, fragment_index _fragmentIndex )
+    : AbstractBlockRequestHeader( _sChain.getNodeCount(), _sChain.getSchainID(), _blockID,
+          Header::BLOCK_FINALIZE_REQ, _proposerIndex ) {
+    CHECK_ARGUMENT( _fragmentIndex > 0 );
 
-    CHECK_ARGUMENT(_fragmentIndex > 0);
-
-    CHECK_ARGUMENT((uint64_t ) _fragmentIndex <= _sChain.getNodeCount() - 1)
+    CHECK_ARGUMENT( ( uint64_t ) _fragmentIndex <= _sChain.getNodeCount() - 1 )
 
     this->fragmentIndex = _fragmentIndex;
     this->nodeID = _nodeID;
@@ -63,17 +60,13 @@ BlockFinalizeRequestHeader::BlockFinalizeRequestHeader(Schain &_sChain, block_id
     complete = true;
 }
 
-void BlockFinalizeRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
+void BlockFinalizeRequestHeader::addFields( nlohmann::basic_json<>& jsonRequest ) {
+    AbstractBlockRequestHeader::addFields( jsonRequest );
 
-    AbstractBlockRequestHeader::addFields(jsonRequest);
-
-    jsonRequest["fragmentIndex"] = (uint64_t ) fragmentIndex;
-    jsonRequest["nodeID"] = (uint64_t ) nodeID;
-
+    jsonRequest["fragmentIndex"] = ( uint64_t ) fragmentIndex;
+    jsonRequest["nodeID"] = ( uint64_t ) nodeID;
 }
 
-const node_id &BlockFinalizeRequestHeader::getNodeId() const {
+const node_id& BlockFinalizeRequestHeader::getNodeId() const {
     return nodeID;
 }
-
-

@@ -26,28 +26,28 @@
 
 
 #include "MonitoringAgent.h"
-#define MONITOR2(_C_, _F_, _T_) \
-       auto __L__ = make_shared<LivelinessMonitor>(getSchain()->getMonitoringAgent(), _C_, _F_, _T_); \
-       getSchain()->getMonitoringAgent()->registerMonitor(__L__);
+#define MONITOR2( _C_, _F_, _T_ )                                                             \
+    auto __L__ =                                                                              \
+        make_shared< LivelinessMonitor >( getSchain()->getMonitoringAgent(), _C_, _F_, _T_ ); \
+    getSchain()->getMonitoringAgent()->registerMonitor( __L__ );
 
-#define MONITOR(_C_, _F_) auto __L__ = \
-   make_shared<LivelinessMonitor>(getSchain()->getMonitoringAgent(), _C_, _F_, 2000);\
-   getSchain()->getMonitoringAgent()->registerMonitor(__L__);
+#define MONITOR( _C_, _F_ )                                                                    \
+    auto __L__ =                                                                               \
+        make_shared< LivelinessMonitor >( getSchain()->getMonitoringAgent(), _C_, _F_, 2000 ); \
+    getSchain()->getMonitoringAgent()->registerMonitor( __L__ );
 
 
 class LivelinessMonitor {
-
     string cl;
     string function;
-    pthread_t  threadId = 0;
+    pthread_t threadId = 0;
     uint64_t id = 0;
     uint64_t startTime = 0;
     uint64_t expiryTime = 0;
-    static atomic<uint64_t> counter;
-    weak_ptr<MonitoringAgent> agent;
+    static atomic< uint64_t > counter;
+    weak_ptr< MonitoringAgent > agent;
 
 public:
-
     [[nodiscard]] uint64_t getId() const;
 
     [[nodiscard]] uint64_t getStartTime() const;
@@ -58,9 +58,9 @@ public:
 
     virtual ~LivelinessMonitor();
 
-    LivelinessMonitor(const ptr<MonitoringAgent>& _agent, const string& _class, const string& _function, uint64_t _maxTime);
-
+    LivelinessMonitor( const ptr< MonitoringAgent >& _agent, const string& _class,
+        const string& _function, uint64_t _maxTime );
 };
 
 
-#endif //SKALED_LIVELINESSMONITOR_H
+#endif  // SKALED_LIVELINESSMONITOR_H

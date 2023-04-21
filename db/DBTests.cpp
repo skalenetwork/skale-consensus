@@ -22,7 +22,6 @@
 */
 
 
-
 #include "SkaleCommon.h"
 #include "exceptions/ParsingException.h"
 #include "crypto/CryptoManager.h"
@@ -44,40 +43,35 @@
 
 
 void test_committed_block_save() {
-
-    auto sChain = make_shared<Schain>();
+    auto sChain = make_shared< Schain >();
     static string dirName = "/tmp";
     static string fileName = "test_committed_block_save";
     boost::random::mt19937 gen;
-    auto cryptoManager = make_shared<CryptoManager>(*sChain);
+    auto cryptoManager = make_shared< CryptoManager >( *sChain );
 
-    boost::random::uniform_int_distribution<> ubyte(0, 255);
+    boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
-    if (std::system(("rm -rf " + fileName).c_str()) != 0) {
-        BOOST_THROW_EXCEPTION(runtime_error("Remove failed"));
+    if ( std::system( ( "rm -rf " + fileName ).c_str() ) != 0 ) {
+        BOOST_THROW_EXCEPTION( runtime_error( "Remove failed" ) );
     }
 
 
+    auto db = make_shared< BlockDB >( sChain.get(), dirName, fileName, node_id( 1 ), 5000000 );
 
-    auto db = make_shared<BlockDB>(sChain.get(), dirName, fileName, node_id(1), 5000000);
+    for ( int i = 1; i < 500; i++ ) {
+        auto t = CommittedBlock::createRandomSample( cryptoManager, i, gen, ubyte );
 
-    for (int i = 1; i < 500; i++) {
-        auto t = CommittedBlock::createRandomSample(cryptoManager, i, gen, ubyte);
+        db->saveBlock( t );
 
-        db->saveBlock(t);
+        auto bb = db->getBlock( t->getBlockID(), cryptoManager );
 
-        auto bb = db->getBlock(t->getBlockID(), cryptoManager);
-
-        REQUIRE(bb != nullptr);
-
-
+        REQUIRE( bb != nullptr );
     }
 
-    REQUIRE(db->findMaxMinDBIndex().first > 10);
+    REQUIRE( db->findMaxMinDBIndex().first > 10 );
 }
 
-TEST_CASE("Save/read block", "[block-save-read-db]") {
-    SECTION("Test successful save/read")
-        test_committed_block_save();
+TEST_CASE( "Save/read block", "[block-save-read-db]" ) {
+    SECTION( "Test successful save/read" )
+    test_committed_block_save();
 }
-

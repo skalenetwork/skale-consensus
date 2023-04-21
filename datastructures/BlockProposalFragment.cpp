@@ -26,29 +26,35 @@
 
 #include "BlockProposalFragment.h"
 
-BlockProposalFragment::BlockProposalFragment(const block_id & _blockId, const uint64_t _totalFragments,
-                                               const fragment_index &_fragmentIndex, const ptr<vector<uint8_t>> & _data,
-                                               uint64_t _blockSize, const string& _blockHash) :
-    data( _data ), blockId( _blockId ), blockSize(_blockSize),blockHash(_blockHash),  totalFragments( _totalFragments ), fragmentIndex(_fragmentIndex) {
-
-    CHECK_ARGUMENT(!_blockHash.empty());
+BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
+    const uint64_t _totalFragments, const fragment_index& _fragmentIndex,
+    const ptr< vector< uint8_t > >& _data, uint64_t _blockSize, const string& _blockHash )
+    : data( _data ),
+      blockId( _blockId ),
+      blockSize( _blockSize ),
+      blockHash( _blockHash ),
+      totalFragments( _totalFragments ),
+      fragmentIndex( _fragmentIndex ) {
+    CHECK_ARGUMENT( !_blockHash.empty() );
     CHECK_ARGUMENT( _data );
-    CHECK_ARGUMENT( _totalFragments > 0);
-    CHECK_ARGUMENT(_fragmentIndex <= _totalFragments );
-    CHECK_ARGUMENT( _blockId > 0);
-    CHECK_ARGUMENT( _data->size() > 0);
+    CHECK_ARGUMENT( _totalFragments > 0 );
+    CHECK_ARGUMENT( _fragmentIndex <= _totalFragments );
+    CHECK_ARGUMENT( _blockId > 0 );
+    CHECK_ARGUMENT( _data->size() > 0 );
 
-    if ( _data->size() < 3) {
-        BOOST_THROW_EXCEPTION(ParsingException("Data fragment too short:" +
-         to_string( _data->size()), __CLASS_NAME__));
+    if ( _data->size() < 3 ) {
+        BOOST_THROW_EXCEPTION( ParsingException(
+            "Data fragment too short:" + to_string( _data->size() ), __CLASS_NAME__ ) );
     }
 
-    if( _data->front() != '<') {
-        BOOST_THROW_EXCEPTION(ParsingException("Data fragment does not start with <", __CLASS_NAME__));
+    if ( _data->front() != '<' ) {
+        BOOST_THROW_EXCEPTION(
+            ParsingException( "Data fragment does not start with <", __CLASS_NAME__ ) );
     }
 
-    if( _data->back() != '>') {
-        BOOST_THROW_EXCEPTION(ParsingException("Data fragment does not end with >", __CLASS_NAME__));
+    if ( _data->back() != '>' ) {
+        BOOST_THROW_EXCEPTION(
+            ParsingException( "Data fragment does not end with >", __CLASS_NAME__ ) );
     }
 }
 
@@ -57,7 +63,7 @@ uint64_t BlockProposalFragment::getBlockSize() const {
 }
 
 string BlockProposalFragment::getBlockHash() const {
-    CHECK_STATE(!blockHash.empty());
+    CHECK_STATE( !blockHash.empty() );
     return blockHash;
 }
 
@@ -74,7 +80,7 @@ fragment_index BlockProposalFragment::getIndex() const {
     return fragmentIndex;
 }
 
-ptr<vector<uint8_t>> BlockProposalFragment::serialize() const {
-    CHECK_STATE(data);
+ptr< vector< uint8_t > > BlockProposalFragment::serialize() const {
+    CHECK_STATE( data );
     return data;
 }

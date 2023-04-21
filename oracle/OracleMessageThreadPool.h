@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 class Agent;
 
@@ -32,9 +32,7 @@ class WorkerThreadPool;
 
 class OracleMessageThreadPool : public WorkerThreadPool {
 public:
+    OracleMessageThreadPool( Agent* _agent );
 
-    OracleMessageThreadPool(Agent *_agent);
-
-    virtual void createThread(uint64_t _numThreads);
+    virtual void createThread( uint64_t _numThreads );
 };
-

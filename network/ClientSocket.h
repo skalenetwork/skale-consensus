@@ -21,10 +21,7 @@
     @date 2018
 */
 
-#pragma  once
-
-
-
+#pragma once
 
 
 class Node;
@@ -32,10 +29,9 @@ class NodeInfo;
 class Schain;
 
 class ClientSocket {
-
     recursive_mutex m;
 
-    static atomic<int64_t> totalSockets;
+    static atomic< int64_t > totalSockets;
 
     file_descriptor descriptor = 0;
 
@@ -43,7 +39,7 @@ class ClientSocket {
 
     network_port remotePort = 0;
 
-    ptr<sockaddr_in> remoteAddr = nullptr;
+    ptr< sockaddr_in > remoteAddr = nullptr;
 
     void closeSocket();
 
@@ -52,10 +48,9 @@ class ClientSocket {
 
 
 public:
+    file_descriptor getDescriptor();
 
-    file_descriptor getDescriptor() ;
-
-    string& getIP() ;
+    string& getIP();
 
     network_port getPort();
 
@@ -66,6 +61,5 @@ public:
         totalSockets--;
     }
 
-    ClientSocket(Schain &_sChain, schain_index _destinationIndex, port_type portType);
-
+    ClientSocket( Schain& _sChain, schain_index _destinationIndex, port_type portType );
 };

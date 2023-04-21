@@ -32,24 +32,20 @@ class PartialHashesList;
 class Schain;
 class MockupSigShare;
 class MockupSignature;
-class  BLAKE3Hash;
+class BLAKE3Hash;
 
 class MockupSigShareSet : public ThresholdSigShareSet {
-
-
-    std::map<size_t, ptr<MockupSigShare> > sigShares; //tsafe
+    std::map< size_t, ptr< MockupSigShare > > sigShares;  // tsafe
     recursive_mutex sigSharesLock;
 
 public:
-    MockupSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
+    MockupSigShareSet( block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    ptr<ThresholdSignature> mergeSignature();
+    ptr< ThresholdSignature > mergeSignature();
 
-    bool addSigShare(const ptr<ThresholdSigShare>& _sigShare);
+    bool addSigShare( const ptr< ThresholdSigShare >& _sigShare );
 
     bool isEnough();
 
     virtual ~MockupSigShareSet();
-
-
 };

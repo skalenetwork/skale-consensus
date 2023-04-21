@@ -48,130 +48,123 @@ using namespace std;
 
 #define PROPOSAL_CACHE_SIZE 3
 
-BlockProposalDB::BlockProposalDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-                                 uint64_t _maxDBSize) :
-        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize,
-          LevelDBOptions::getBlockProposalDBOptions(), true) {
-    proposalCaches = make_shared<vector<ptr<cache::lru_cache<string, ptr<BlockProposal>>>>>();
+BlockProposalDB::BlockProposalDB(
+    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getBlockProposalDBOptions(), true ) {
+    proposalCaches =
+        make_shared< vector< ptr< cache::lru_cache< string, ptr< BlockProposal > > > > >();
 
-    for (int i = 0; i < _sChain->getNodeCount(); i++) {
+    for ( int i = 0; i < _sChain->getNodeCount(); i++ ) {
+        auto emptyCache =
+            make_shared< cache::lru_cache< string, ptr< BlockProposal > > >( PROPOSAL_CACHE_SIZE );
 
-
-        auto emptyCache = make_shared<cache::lru_cache<string, ptr<BlockProposal>>>(PROPOSAL_CACHE_SIZE);
-
-        proposalCaches->push_back(emptyCache);
-
+        proposalCaches->push_back( emptyCache );
     }
-
-
-
 };
 
-void BlockProposalDB::addBlockProposal(const ptr<BlockProposal>& _proposal) {
+void BlockProposalDB::addBlockProposal( const ptr< BlockProposal >& _proposal ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ );
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__);
+    CHECK_ARGUMENT( _proposal );
+    CHECK_ARGUMENT( _proposal->getSignature() != "" );
 
-    CHECK_ARGUMENT(_proposal);
-    CHECK_ARGUMENT(_proposal->getSignature() != "");
-
-    auto proposerIndex =  _proposal->getProposerIndex();
-
+    auto proposerIndex = _proposal->getProposerIndex();
 
 
-    CHECK_STATE((uint64_t) proposerIndex <= getSchain()->getNodeCount() );
+    CHECK_STATE( ( uint64_t ) proposerIndex <= getSchain()->getNodeCount() );
 
-    LOG(trace, "addBlockProposal blockID_=" + to_string(_proposal->getBlockID()) + " proposerIndex=" +
-               to_string(_proposal->getProposerIndex()));
+    LOG( trace, "addBlockProposal blockID_=" + to_string( _proposal->getBlockID() ) +
+                    " proposerIndex=" + to_string( _proposal->getProposerIndex() ) );
 
-    auto key = createKey(_proposal->getBlockID(), _proposal->getProposerIndex());
-    CHECK_STATE(key != "");
+    auto key = createKey( _proposal->getBlockID(), _proposal->getProposerIndex() );
+    CHECK_STATE( key != "" );
 
 
-    auto cache = proposalCaches->at((uint64_t) proposerIndex - 1);
-    CHECK_STATE(cache);
-    cache->putIfDoesNotExist(key, _proposal);
+    auto cache = proposalCaches->at( ( uint64_t ) proposerIndex - 1 );
+    CHECK_STATE( cache );
+    cache->putIfDoesNotExist( key, _proposal );
 
     // dont save non-own proposals
-    if (_proposal->getProposerIndex() !=  getSchain()->getSchainIndex())
+    if ( _proposal->getProposerIndex() != getSchain()->getSchainIndex() )
         return;
 
     try {
-
-        ptr<vector<uint8_t> > serialized;
+        ptr< vector< uint8_t > > serialized;
 
         serialized = _proposal->serializeProposal();
-        CHECK_STATE(serialized);
+        CHECK_STATE( serialized );
 
-        this->writeByteArrayToSet((const char *) serialized->data(), serialized->size(), _proposal->getBlockID(),
-                                  _proposal->getProposerIndex());
+        this->writeByteArrayToSet( ( const char* ) serialized->data(), serialized->size(),
+            _proposal->getBlockID(), _proposal->getProposerIndex() );
 
-    } catch (ExitRequestedException &e) { throw; }
-    catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ExitRequestedException& e ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
-ptr<vector<uint8_t> >
-BlockProposalDB::getMyProposalFromLevelDB(block_id _blockID, schain_index _proposerIndex) {
-
+ptr< vector< uint8_t > > BlockProposalDB::getMyProposalFromLevelDB(
+    block_id _blockID, schain_index _proposerIndex ) {
     try {
+        auto value = readStringFromSet( _blockID, _proposerIndex );
 
-        auto value = readStringFromSet(_blockID, _proposerIndex);
-
-        if (value != "") {
-            auto serializedBlock = make_shared<vector<uint8_t>>();
-            serializedBlock->insert(serializedBlock->begin(), value.data(), value.data() + value.size());
-            CommittedBlock::serializedSanityCheck(serializedBlock);
+        if ( value != "" ) {
+            auto serializedBlock = make_shared< vector< uint8_t > >();
+            serializedBlock->insert(
+                serializedBlock->begin(), value.data(), value.data() + value.size() );
+            CommittedBlock::serializedSanityCheck( serializedBlock );
             return serializedBlock;
         } else {
             return nullptr;
         }
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
 
-ptr<BlockProposal> BlockProposalDB::getBlockProposal(block_id _blockID, schain_index _proposerIndex) {
+ptr< BlockProposal > BlockProposalDB::getBlockProposal(
+    block_id _blockID, schain_index _proposerIndex ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    MONITOR( __CLASS_NAME__, __FUNCTION__)
+    auto key = createKey( _blockID, _proposerIndex );
+    CHECK_STATE( !key.empty() );
 
-    auto key = createKey(_blockID, _proposerIndex);
-    CHECK_STATE(!key.empty());
+    auto cache = proposalCaches->at( ( uint64_t ) _proposerIndex - 1 );
 
-    auto cache = proposalCaches->at((uint64_t) _proposerIndex - 1);
+    CHECK_STATE( cache );
 
-    CHECK_STATE(cache);
-
-    if (auto result = cache->getIfExists(key); result.has_value()) {
-            return any_cast<ptr<BlockProposal>>(result);
+    if ( auto result = cache->getIfExists( key ); result.has_value() ) {
+        return any_cast< ptr< BlockProposal > >( result );
     }
 
-    if (getSchain()->getSchainIndex() != _proposerIndex) {
+    if ( getSchain()->getSchainIndex() != _proposerIndex ) {
         // non-owned proposals are never saved in DB
         return nullptr;
     }
 
     auto serializedProposal = getMyProposalFromLevelDB( _blockID, _proposerIndex );
 
-    if (serializedProposal == nullptr)
+    if ( serializedProposal == nullptr )
         return nullptr;
 
 
     // dont check signatures on proposals stored in the db since they have already been verified
-    auto proposal = BlockProposal::deserialize(serializedProposal, getSchain()->getCryptoManager(), false);
+    auto proposal =
+        BlockProposal::deserialize( serializedProposal, getSchain()->getCryptoManager(), false );
 
-    if (proposal == nullptr)
+    if ( proposal == nullptr )
         return nullptr;
 
 
     CHECK_STATE( proposalCaches )
 
-    cache->putIfDoesNotExist(key, proposal);
+    cache->putIfDoesNotExist( key, proposal );
 
-    CHECK_STATE(!proposal->getSignature().empty());
+    CHECK_STATE( !proposal->getSignature().empty() );
 
     return proposal;
 }
@@ -182,8 +175,6 @@ const string& BlockProposalDB::getFormatVersion() {
     return version;
 }
 
-bool BlockProposalDB::proposalExists(block_id _blockId, schain_index _index) {
-    return keyExistsInSet(_blockId, _index);
+bool BlockProposalDB::proposalExists( block_id _blockId, schain_index _index ) {
+    return keyExistsInSet( _blockId, _index );
 }
-
-

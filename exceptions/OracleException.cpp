@@ -26,13 +26,12 @@
 #include "Log.h"
 #include "OracleException.h"
 
-OracleException::OracleException(const std::string &_message,  const string& _className, int64_t _error)
-    : SkaleException(_message, _className), error(_error)   {
-    CHECK_STATE(error != ORACLE_SUCCESS)
-}
+OracleException::OracleException(
+    const std::string& _message, const string& _className, int64_t _error )
+    : SkaleException( _message, _className ),
+      error( _error ){ CHECK_STATE( error != ORACLE_SUCCESS ) }
 
 
-
-int64_t OracleException::getError() const {
+      int64_t OracleException::getError() const {
     return error;
 }

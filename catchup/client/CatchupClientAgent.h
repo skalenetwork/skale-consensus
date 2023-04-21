@@ -32,11 +32,9 @@ class CatchupRequestHeader;
 class CatchupResponseHeader;
 
 class CatchupClientAgent : public Agent {
-
     ptr< CatchupClientThreadPool > catchupClientThreadPool = nullptr;
 
 public:
-
     explicit CatchupClientAgent( Schain& _sChain );
 
 
@@ -45,17 +43,16 @@ public:
 
     static void workerThreadItemSendLoop( CatchupClientAgent* _agent );
 
-    nlohmann::json readCatchupResponseHeader(const ptr< ClientSocket >& _socket,
-        ptr<CatchupRequestHeader> _requestHeader);
+    nlohmann::json readCatchupResponseHeader(
+        const ptr< ClientSocket >& _socket, ptr< CatchupRequestHeader > _requestHeader );
 
 
-    ptr< CommittedBlockList > readMissingBlocks(
-        ptr< ClientSocket >& _socket, nlohmann::json& _responseHeader,
-                                      ptr<CatchupRequestHeader> _requestHeader);
+    ptr< CommittedBlockList > readMissingBlocks( ptr< ClientSocket >& _socket,
+        nlohmann::json& _responseHeader, ptr< CatchupRequestHeader > _requestHeader );
 
 
-    size_t parseBlockSizes( nlohmann::json _responseHeader, const ptr<vector<uint64_t>>& _blockSizes,
-        ptr<CatchupRequestHeader> _requestHeader);
+    size_t parseBlockSizes( nlohmann::json _responseHeader,
+        const ptr< vector< uint64_t > >& _blockSizes, ptr< CatchupRequestHeader > _requestHeader );
 
     static schain_index nextSyncNodeIndex(
         const CatchupClientAgent* _agent, schain_index _destinationSchainIndex );

@@ -21,30 +21,27 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "AbstractBlockRequestHeader.h"
 
 
-
-class BlockProposalRequestHeader : public AbstractBlockRequestHeader{
-
+class BlockProposalRequestHeader : public AbstractBlockRequestHeader {
     node_id proposerNodeID{};
     string hash;
     string signature;
 
     uint64_t txCount;
-    uint64_t  timeStamp = 0;
-    uint32_t  timeStampMs = 0;
+    uint64_t timeStamp = 0;
+    uint32_t timeStampMs = 0;
     u256 stateRoot;
 
 public:
+    BlockProposalRequestHeader( Schain& _sChain, BlockProposal& proposal );
 
-    BlockProposalRequestHeader(Schain &_sChain, BlockProposal& proposal);
+    BlockProposalRequestHeader( nlohmann::json _proposalRequest, node_count _nodeCount );
 
-    BlockProposalRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
-
-    void addFields(nlohmann::basic_json<> &jsonRequest) override;
+    void addFields( nlohmann::basic_json<>& jsonRequest ) override;
 
     node_id getProposerNodeId();
 
@@ -59,8 +56,4 @@ public:
     string getSignature();
 
     u256 getStateRoot();
-
 };
-
-
-

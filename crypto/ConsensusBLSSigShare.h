@@ -33,17 +33,14 @@ class alt_bn128_G1;
 }
 
 class ConsensusBLSSigShare : public ThresholdSigShare {
-
-
-    ptr<BLSSigShare> blsSigShare;
+    ptr< BLSSigShare > blsSigShare;
 
 public:
+    ConsensusBLSSigShare( const ptr< BLSSigShare >& _sig, schain_id _schainId, block_id _blockID );
 
-    ConsensusBLSSigShare(const ptr<BLSSigShare>& _sig, schain_id _schainId, block_id _blockID);
 
-
-    ConsensusBLSSigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-                         uint64_t _totalSigners, uint64_t _requiredSigners);
+    ConsensusBLSSigShare( const string& _sigShare, schain_id _schainID, block_id _blockID,
+        schain_index _signerIndex, uint64_t _totalSigners, uint64_t _requiredSigners );
 
 
     [[nodiscard]] ptr< BLSSigShare > getBlsSigShare() const;

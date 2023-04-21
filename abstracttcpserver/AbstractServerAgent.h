@@ -35,49 +35,46 @@ class PartialHashesList;
 
 
 class AbstractServerAgent : public Agent {
-
 protected:
-
-
     const string name;
 
-    ptr<ServerSocket> socket;
+    ptr< ServerSocket > socket;
 
-    ptr<thread> networkReadThread;
+    ptr< thread > networkReadThread;
 
     mutex incomingTCPConnectionsMutex;
 
     condition_variable incomingTCPConnectionsCond;
 
-    queue<ptr<ServerConnection>> incomingTCPConnections; // thread safe
+    queue< ptr< ServerConnection > > incomingTCPConnections;  // thread safe
 
-    void send(const ptr<ServerConnection>& _connectionEnvelope, const ptr<Header>& _header);
+    void send( const ptr< ServerConnection >& _connectionEnvelope, const ptr< Header >& _header );
 
 
 public:
-
-    AbstractServerAgent(const string &_name, Schain &_schain, const ptr<TCPServerSocket>& _socket);
+    AbstractServerAgent(
+        const string& _name, Schain& _schain, const ptr< TCPServerSocket >& _socket );
 
     ~AbstractServerAgent() override;
 
 
-    void pushToQueueAndNotifyWorkers(const ptr<ServerConnection>& _connectionEnvelope );
+    void pushToQueueAndNotifyWorkers( const ptr< ServerConnection >& _connectionEnvelope );
 
-    ptr<ServerConnection> workerThreadWaitandPopConnection();
+    ptr< ServerConnection > workerThreadWaitandPopConnection();
 
-    static void workerThreadConnectionProcessingLoop(void* _params);
+    static void workerThreadConnectionProcessingLoop( void* _params );
 
 
     void notifyAllConditionVariables() override;
 
-// to be implemented by subclasses
+    // to be implemented by subclasses
 
 
-    virtual void processNextAvailableConnection(const ptr<ServerConnection>& _connection) = 0;
+    virtual void processNextAvailableConnection( const ptr< ServerConnection >& _connection ) = 0;
 
 
-    virtual ptr<PartialHashesList> readPartialHashes(const ptr<ServerConnection>& _connectionEnvelope, transaction_count _txCount);
-
+    virtual ptr< PartialHashesList > readPartialHashes(
+        const ptr< ServerConnection >& _connectionEnvelope, transaction_count _txCount );
 
 
     void acceptTCPConnectionsLoop();
@@ -85,9 +82,3 @@ public:
 
     void createNetworkReadThread();
 };
-
-
-
-
-
-

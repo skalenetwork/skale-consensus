@@ -30,19 +30,17 @@
 #include "Message.h"
 
 
-ptr<ProtocolKey> Message::createProtocolKey()  {
-    CHECK_STATE(msgType == PARENT_COMPLETED || msgType == MSG_BVB_BROADCAST ||
-           msgType == MSG_AUX_BROADCAST || msgType == BIN_CONSENSUS_COMMIT ||
-           msgType == MSG_BLOCK_SIGN_BROADCAST ||
-           msgType == MSG_ORACLE_REQ_BROADCAST ||
-           msgType == MSG_ORACLE_RSP);
-    CHECK_STATE(blockID > 0);
-    if (protocolKey == nullptr) {
-        protocolKey = make_shared<ProtocolKey>(blockID, blockProposerIndex);
+ptr< ProtocolKey > Message::createProtocolKey() {
+    CHECK_STATE( msgType == PARENT_COMPLETED || msgType == MSG_BVB_BROADCAST ||
+                 msgType == MSG_AUX_BROADCAST || msgType == BIN_CONSENSUS_COMMIT ||
+                 msgType == MSG_BLOCK_SIGN_BROADCAST || msgType == MSG_ORACLE_REQ_BROADCAST ||
+                 msgType == MSG_ORACLE_RSP );
+    CHECK_STATE( blockID > 0 );
+    if ( protocolKey == nullptr ) {
+        protocolKey = make_shared< ProtocolKey >( blockID, blockProposerIndex );
     }
     return protocolKey;
 }
-
 
 
 schain_id Message::getSchainID() const {
@@ -63,18 +61,20 @@ schain_index Message::getBlockProposerIndex() const {
     return blockProposerIndex;
 }
 
-Message::Message(const schain_id &schainID, MsgType msgType, const msg_id &msgID, const node_id &srcNodeID,
-                 const block_id &blockID, const schain_index &blockProposerIndex) : schainID(schainID),
-                                                                                    blockID(blockID),
-                                                                                    blockProposerIndex(blockProposerIndex),
-                                                                                    msgType(msgType), msgID(msgID),
-                                                                                    srcNodeID(srcNodeID) {
-    CHECK_STATE((uint64_t)blockID != 0);
+Message::Message( const schain_id& schainID, MsgType msgType, const msg_id& msgID,
+    const node_id& srcNodeID, const block_id& blockID, const schain_index& blockProposerIndex )
+    : schainID( schainID ),
+      blockID( blockID ),
+      blockProposerIndex( blockProposerIndex ),
+      msgType( msgType ),
+      msgID( msgID ),
+      srcNodeID( srcNodeID ) {
+    CHECK_STATE( ( uint64_t ) blockID != 0 );
     totalObjects++;
 }
 
 
-block_id Message::getBlockID()  {
+block_id Message::getBlockID() {
     return blockID;
 }
 
@@ -90,4 +90,4 @@ Message::~Message() {
     totalObjects--;
 }
 
-atomic<int64_t>  Message::totalObjects(0);
+atomic< int64_t > Message::totalObjects( 0 );

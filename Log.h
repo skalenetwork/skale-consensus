@@ -42,7 +42,6 @@
 using namespace std;
 
 
-
 class SkaleException;
 
 
@@ -57,8 +56,6 @@ class logger;
 
 
 class SkaleLog {
-
-
     ConsensusEngine* engine;
 
     string prefix = "";
@@ -69,10 +66,9 @@ class SkaleLog {
         netLogger, dataStructuresLogger, pendingQueueLogger;
 
 public:
+    ConsensusEngine* getEngine() const;
 
-    ConsensusEngine *getEngine() const;
-
-    SkaleLog( node_id _nodeID, ConsensusEngine* _engine);
+    SkaleLog( node_id _nodeID, ConsensusEngine* _engine );
 
     const node_id getNodeID() const;
 
@@ -87,6 +83,6 @@ public:
     shared_ptr< spdlog::logger > loggerForClass( const char* _className );
 
 
-    static level_enum logLevelFromString(string &_s);
+    static level_enum logLevelFromString( string& _s );
 };
 #endif

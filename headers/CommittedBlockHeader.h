@@ -27,22 +27,21 @@
 #include "BlockProposalHeader.h"
 
 class CommittedBlockHeader : public BlockProposalHeader {
-
     string thresholdSig;
     string daSig;
 
 public:
-    CommittedBlockHeader(CommittedBlock &block);
+    CommittedBlockHeader( CommittedBlock& block );
 
-    explicit CommittedBlockHeader(nlohmann::json &json);
+    explicit CommittedBlockHeader( nlohmann::json& json );
 
-    [[nodiscard]] const string &getThresholdSig() const;
+    [[nodiscard]] const string& getThresholdSig() const;
 
 
-    [[nodiscard]] const string &getDaSig() const;
+    [[nodiscard]] const string& getDaSig() const;
 
-    void addFields(nlohmann::basic_json<> &j) override;
+    void addFields( nlohmann::basic_json<>& j ) override;
 };
 
 
-#endif //SKALED_COMMITTEDBLOCKHEADER_H
+#endif  // SKALED_COMMITTEDBLOCKHEADER_H

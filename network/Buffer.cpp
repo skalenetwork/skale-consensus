@@ -30,7 +30,7 @@
 #include "Buffer.h"
 
 void Buffer::write( void* data, size_t dataLen ) {
-    CHECK_ARGUMENT(data);
+    CHECK_ARGUMENT( data );
     CHECK_STATE( counter + dataLen <= size );
     memcpy( buf.get()->data() + counter, data, dataLen );
     counter += dataLen;
@@ -65,5 +65,5 @@ ptr< vector< uint8_t > > Buffer::getBuf() const {
 void Buffer::consume( char c ) {
     char dummy;
     read( &dummy, sizeof( char ) );
-    CHECK_STATE(dummy == c );
+    CHECK_STATE( dummy == c );
 }

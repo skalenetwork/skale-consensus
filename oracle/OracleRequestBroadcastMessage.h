@@ -32,30 +32,27 @@ class OracleRequestSpec;
 
 
 class OracleRequestBroadcastMessage : public NetworkMessage {
-
     string requestSpec;
-    ptr<OracleRequestSpec> parsedSpec = nullptr;
+    ptr< OracleRequestSpec > parsedSpec = nullptr;
 
 protected:
 public:
-    const string &getRequestSpec() const;
+    const string& getRequestSpec() const;
 
 protected:
+    void updateWithChildHash( blake3_hasher& _hasher ) override;
 
-    void updateWithChildHash(blake3_hasher &_hasher) override;
-
-    void serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer> &_writer) override;
+    void serializeToStringChild( rapidjson::Writer< rapidjson::StringBuffer >& _writer ) override;
 
 
 public:
+    OracleRequestBroadcastMessage( const string& _requestSpec, block_id _blockID, uint64_t _timeMs,
+        OracleClient& sourceProtocolInstance );
 
-    OracleRequestBroadcastMessage(const string &_requestSpec, block_id _blockID, uint64_t _timeMs,
-                                  OracleClient &sourceProtocolInstance);
+    const ptr< OracleRequestSpec >& getParsedSpec() const;
 
-    const ptr<OracleRequestSpec> &getParsedSpec() const;
-
-    OracleRequestBroadcastMessage(const string &_requestSpec, node_id _srcNodeID, block_id _blockID, uint64_t _timeMs,
-                                  schain_id _schainId,
-                                  msg_id _msgID, schain_index _srcSchainIndex, const string &_ecdsaSig,
-                                  const string &_publicKey, const string &_pkSig, Schain *_sChain);
+    OracleRequestBroadcastMessage( const string& _requestSpec, node_id _srcNodeID,
+        block_id _blockID, uint64_t _timeMs, schain_id _schainId, msg_id _msgID,
+        schain_index _srcSchainIndex, const string& _ecdsaSig, const string& _publicKey,
+        const string& _pkSig, Schain* _sChain );
 };

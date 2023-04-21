@@ -45,10 +45,371 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="oracle doc">
+      <change beforePath="$PROJECT_DIR$/.clang-format" beforeDir="false" afterPath="$PROJECT_DIR$/.clang-format" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oracle/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Agent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Agent.h" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Consensusd.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Consensusd.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Consensusd.h" beforeDir="false" afterPath="$PROJECT_DIR$/Consensusd.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Consensust.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Consensust.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Consensust.h" beforeDir="false" afterPath="$PROJECT_DIR$/Consensust.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JsonStubClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/JsonStubClient.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Log.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/Log.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Log.h" beforeDir="false" afterPath="$PROJECT_DIR$/Log.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SkaleCommon.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpserver/AbstractServerAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/abstracttcpserver/ConnectionStatus.h" beforeDir="false" afterPath="$PROJECT_DIR$/abstracttcpserver/ConnectionStatus.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloaderThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloaderThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloaderThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloaderThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalPusherThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalPusherThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/server/BlockProposalWorkerThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/server/BlockProposalWorkerThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupWorkerThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupWorkerThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupWorkerThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupWorkerThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/BlockErrorAnalyzer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/BlockErrorAnalyzer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/BlockErrorAnalyzer.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/BlockErrorAnalyzer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainMessageThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainMessageThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainMessageThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainMessageThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainTest.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainTest.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/SchainTest.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/SchainTest.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/TestConfig.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/TestConfig.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/TestConfig.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/TestConfig.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/BLAKE3Hash.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/BLAKE3Hash.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusBLSSigShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusBLSSigShare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusBLSSigShare.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusBLSSigShare.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusBLSSignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusBLSSignature.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusBLSSignature.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusBLSSignature.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShare.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShareSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShareSet.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShareSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASigShareSet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusEdDSASignature.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusSigShareSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusSigShareSet.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ConsensusSigShareSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusSigShareSet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ECDSAVerify.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ECDSAVerify.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ECDSAVerify.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ECDSAVerify.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/MockupSigShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSigShare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/MockupSigShare.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSigShare.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/MockupSigShareSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSigShareSet.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/MockupSigShareSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSigShareSet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/MockupSignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSignature.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/MockupSignature.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/MockupSignature.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/OpenSSLECDSAKey.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/OpenSSLECDSAKey.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/OpenSSLECDSAKey.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/OpenSSLECDSAKey.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/OpenSSLEdDSAKey.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/OpenSSLEdDSAKey.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/OpenSSLEdDSAKey.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/OpenSSLEdDSAKey.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSigShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSigShare.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSigShare.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSigShare.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSigShareSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSigShareSet.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSigShareSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSigShareSet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSignature.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/ThresholdSignature.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ThresholdSignature.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/TrivialSignature.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/TrivialSignature.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/TrivialSignature.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/TrivialSignature.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/bls_include.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/bls_include.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalFragment.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalFragment.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalFragment.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalFragment.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalFragmentList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalFragmentList.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalFragmentList.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalFragmentList.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalSet.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalSet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BooleanProposalVector.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BooleanProposalVector.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BooleanProposalVector.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BooleanProposalVector.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/DAProof.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/DAProof.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/DAProof.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/DAProof.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/DataStructure.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/DataStructure.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/DataStructure.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/DataStructure.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/ListOfHashes.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ListOfHashes.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/ListOfHashes.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ListOfHashes.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/MyBlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/MyBlockProposal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/MyBlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/MyBlockProposal.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/PartialHashesList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/PartialHashesList.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/PartialHashesList.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/PartialHashesList.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/ReceivedBlockProposal.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/SerializationTests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/SerializationTests.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/TimeStamp.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/TimeStamp.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/TimeStamp.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/TimeStamp.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/TransactionList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/TransactionList.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/TransactionList.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/TransactionList.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/BlockSigShareDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockSigShareDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CacheLevelDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CacheLevelDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/CommittedTransactionDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/CommittedTransactionDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ConsensusStateDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ConsensusStateDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ConsensusStateDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ConsensusStateDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DAProofDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DAProofDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/DAProofDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DBTests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DBTests.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/InternalInfoDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/InternalInfoDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/InternalInfoDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/InternalInfoDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/LevelDBOptions.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDBOptions.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/MsgDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/MsgDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/MsgDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/MsgDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/PriceDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/PriceDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/PriceDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalHashDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalHashDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalVectorDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalVectorDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/ProposalVectorDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/ProposalVectorDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/RandomDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/RandomDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/RandomDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/SigDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/SigDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/SigDB.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/StorageLimits.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/StorageLimits.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/StorageLimits.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/StorageLimits.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/VersionUpdateHistory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/VersionUpdateHistory.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/VersionUpdateHistory.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/ConnectionRefusedException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ConnectionRefusedException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/ConnectionRefusedException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ConnectionRefusedException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/CouldNotReadPartialDataHashesException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/CouldNotReadPartialDataHashesException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/CouldNotReadPartialDataHashesException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/CouldNotReadPartialDataHashesException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/CouldNotSendMessageException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/CouldNotSendMessageException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/CouldNotSendMessageException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/CouldNotSendMessageException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/EngineInitException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/EngineInitException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/EngineInitException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/EngineInitException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/ExitRequestedException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ExitRequestedException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/FatalError.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/FatalError.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/IOException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/IOException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/IOException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/IOException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidArgumentException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidArgumentException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidHashException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidHashException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidHashException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidHashException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidMessageFormatException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidMessageFormatException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidNodeIDException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidNodeIDException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidSchainException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidSchainException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidSchainIndexException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidSchainIndexException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidSignatureException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidSignatureException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidSourceIPException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidSourceIPException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/InvalidStateException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/InvalidStateException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/LevelDBException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/LevelDBException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/LevelDBException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/LevelDBException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/NetworkProtocolException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/NetworkProtocolException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/NetworkProtocolException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/NetworkProtocolException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/OldBlockIDException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/OldBlockIDException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/OldBlockIDException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/OldBlockIDException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/OracleException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/OracleException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/OracleException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/OracleException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/ParsingException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ParsingException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/ParsingException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ParsingException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/PingException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/PingException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/PingException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/PingException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/ProposalProtocolException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ProposalProtocolException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/ProposalProtocolException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/ProposalProtocolException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/SerializeException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/SerializeException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/SerializeException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/SerializeException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/SkaleException.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/SkaleException.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/exceptions/SkaleException.h" beforeDir="false" afterPath="$PROJECT_DIR$/exceptions/SkaleException.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/AbstractBlockRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/AbstractBlockRequestHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/AbstractBlockRequestHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/AbstractBlockRequestHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BasicHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BasicHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BasicHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BasicHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeRequestHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeRequestHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeRequestHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockProposalHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockProposalHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockProposalRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalRequestHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockProposalRequestHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalRequestHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockProposalResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalResponseHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/BlockProposalResponseHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockProposalResponseHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/CatchupRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CatchupRequestHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/CatchupRequestHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CatchupRequestHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/CatchupResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CatchupResponseHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/CatchupResponseHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CatchupResponseHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/CommittedBlockHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CommittedBlockHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/CommittedBlockHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/CommittedBlockHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/FinalProposalResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/FinalProposalResponseHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/FinalProposalResponseHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/FinalProposalResponseHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/Header.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/Header.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/Header.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/Header.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/MissingTransactionsRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/MissingTransactionsRequestHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/MissingTransactionsRequestHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/MissingTransactionsRequestHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/MissingTransactionsResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/MissingTransactionsResponseHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/MissingTransactionsResponseHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/MissingTransactionsResponseHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/SubmitDAProofRequestHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/SubmitDAProofRequestHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/SubmitDAProofRequestHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/SubmitDAProofRequestHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/SubmitDAProofResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/SubmitDAProofResponseHeader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/headers/SubmitDAProofResponseHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/SubmitDAProofResponseHeader.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/JSONFactory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/json/JSONFactory.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/JSONFactory.h" beforeDir="false" afterPath="$PROJECT_DIR$/json/JSONFactory.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ChildMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ChildMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ChildMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ChildMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ConsensusProposalMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ConsensusProposalMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/HistoryMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/HistoryMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/HistoryMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/HistoryMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/InternalMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/InternalMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/InternalMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/InternalMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/InternalMessageEnvelope.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/InternalMessageEnvelope.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/InternalMessageEnvelope.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/InternalMessageEnvelope.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/Message.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/Message.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/Message.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/Message.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/MessageEnvelope.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/MessageEnvelope.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/MessageEnvelope.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/MessageEnvelope.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/NetworkMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/NetworkMessageEnvelope.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/NetworkMessageEnvelope.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/messages/ParentMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/messages/ParentMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/microprofile.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/microprofile.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/microprofile.h" beforeDir="false" afterPath="$PROJECT_DIR$/microprofile.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/microprofile_html.h" beforeDir="false" afterPath="$PROJECT_DIR$/microprofile_html.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniz.c" beforeDir="false" afterPath="$PROJECT_DIR$/miniz.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/miniz.h" beforeDir="false" afterPath="$PROJECT_DIR$/miniz.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/LivelinessMonitor.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/LivelinessMonitor.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/LivelinessMonitor.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/LivelinessMonitor.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/MonitoringThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/MonitoringThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/StuckDetectionAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/StuckDetectionAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/StuckDetectionAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/StuckDetectionAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/StuckDetectionThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/StuckDetectionThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/StuckDetectionThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/StuckDetectionThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/TimeoutAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/TimeoutAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/TimeoutThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/TimeoutThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Buffer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Buffer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Buffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/Buffer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ClientSocket.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ClientSocket.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ClientSocket.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/ClientSocket.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/IO.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/IO.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/IO.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/NTPClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/NTPClient.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Network.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Network.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Network.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/Network.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ServerConnection.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ServerConnection.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ServerConnection.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/ServerConnection.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ServerSocket.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ServerSocket.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ServerSocket.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/ServerSocket.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Sockets.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Sockets.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Sockets.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/Sockets.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TCPServerSocket.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/TCPServerSocket.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/TCPServerSocket.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/TCPServerSocket.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Utils.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Utils.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/Utils.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/Utils.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ZMQNetwork.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQNetwork.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ZMQNetwork.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQNetwork.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ZMQSockets.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQSockets.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network/ZMQSockets.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQSockets.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/ConsensusInterface.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusInterface.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeInfo.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeInfo.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeInfo.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeInfo.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleClient.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleErrors.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleErrors.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleMessageThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleMessageThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleMessageThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleMessageThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleReceivedResults.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestSpec.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResponseMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResponseMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResponseMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResponseMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResult.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResult.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResultAssemblyAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResultAssemblyAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleResultAssemblyAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleResultAssemblyAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleServerAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleServerAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pricing/DynamicPricingStrategy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/DynamicPricingStrategy.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pricing/DynamicPricingStrategy.h" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/DynamicPricingStrategy.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pricing/PricingAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/PricingAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pricing/PricingAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/PricingAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pricing/PricingStrategy.h" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/PricingStrategy.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pricing/ZeroPricingStrategy.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/ZeroPricingStrategy.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pricing/ZeroPricingStrategy.h" beforeDir="false" afterPath="$PROJECT_DIR$/pricing/ZeroPricingStrategy.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/ProtocolInstance.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/ProtocolInstance.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/ProtocolInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/ProtocolInstance.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/ProtocolKey.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/ProtocolKey.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/ProtocolKey.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/ProtocolKey.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/AUXBroadcastMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BVBroadcastMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/BinConsensusInstance.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/binconsensus/ChildBVDecidedMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/binconsensus/ChildBVDecidedMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusParentConsensusInitMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockConsensusParentConsensusInitMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/BlockSignBroadcastMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" beforeDir="false" afterPath="$PROJECT_DIR$/protocols/blockconsensus/FastMessageLedger.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rlp/RLP.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/rlp/RLP.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rlp/RLP.h" beforeDir="false" afterPath="$PROJECT_DIR$/rlp/RLP.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rlp/vector_ref.h" beforeDir="false" afterPath="$PROJECT_DIR$/rlp/vector_ref.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/BLSSignReqMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/BLSSignReqMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/BLSSignReqMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/BLSSignReqMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/BLSSignRspMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/BLSSignRspMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/BLSSignRspMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/BLSSignRspMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/ECDSASignReqMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/ECDSASignReqMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/ECDSASignReqMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/ECDSASignReqMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/ECDSASignRspMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/ECDSASignRspMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/ECDSASignRspMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/ECDSASignRspMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqMessage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/statusserver/StatusServer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/statusserver/StatusServer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/statusserver/abstractstatusserver.h" beforeDir="false" afterPath="$PROJECT_DIR$/statusserver/abstractstatusserver.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/statusserver/statusclient.h" beforeDir="false" afterPath="$PROJECT_DIR$/statusserver/statusclient.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/threads/GlobalThreadRegistry.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/threads/GlobalThreadRegistry.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/threads/GlobalThreadRegistry.h" beforeDir="false" afterPath="$PROJECT_DIR$/threads/GlobalThreadRegistry.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/threads/WorkerThreadPool.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/threads/WorkerThreadPool.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/threads/WorkerThreadPool.h" beforeDir="false" afterPath="$PROJECT_DIR$/threads/WorkerThreadPool.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unittests/consensus_tests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/unittests/consensus_tests.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/unittests/sgx_tests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/unittests/sgx_tests.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Time.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Time.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/Time.h" beforeDir="false" afterPath="$PROJECT_DIR$/utils/Time.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -130,28 +491,28 @@
     <option name="showMembers" value="true" />
     <option name="showVisibilityIcons" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Git.Branch.Popup.ShowAllRemotes": "true",
-    "Git.Branch.Popup.ShowAllRepositories": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.cidr.known.project.marker": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "cf.advertisement.text.has.clang-format": "true",
-    "cf.advertisement.text.overridden": "true",
-    "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true",
-    "last_opened_file_path": "/d/skale",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Git.Branch.Popup.ShowAllRemotes&quot;: &quot;true&quot;,
+    &quot;Git.Branch.Popup.ShowAllRepositories&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;cf.advertisement.text.has.clang-format&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
+    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/d/skale&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/test/seven_one_catchup" />
@@ -231,6 +592,11 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -937,12 +1303,12 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/oracle/OracleReceivedResults.cpp</url>
-          <line>122</line>
+          <line>116</line>
           <option name="timeStamp" value="37" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/node/ConsensusInterface.h</url>
-          <line>64</line>
+          <line>63</line>
           <option name="timeStamp" value="38" />
         </line-breakpoint>
       </breakpoints>

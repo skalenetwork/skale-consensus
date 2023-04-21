@@ -31,16 +31,13 @@ class CommittedBlock;
  * happened during block execution
  */
 class BlockErrorAnalyzer {
-
 public:
-
     // this function will typically print analysis into error log
     // should not throw any exceptionsw
 
-    virtual void analyze(ptr<CommittedBlock> _block);
+    virtual void analyze( ptr< CommittedBlock > _block );
 
     BlockErrorAnalyzer();
-
 };
 
 #endif

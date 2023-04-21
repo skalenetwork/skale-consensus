@@ -28,23 +28,21 @@
 
 
 class ZMQSockets : public ServerSocket {
+    atomic< bool > terminated = false;
 
-    atomic<bool> terminated = false;
+    void* context = nullptr;
 
-    void *context = nullptr;
+    map< schain_index, void* > sendSockets;
 
-    map<schain_index, void *> sendSockets;
-
-    void *receiveSocket = nullptr;
+    void* receiveSocket = nullptr;
 
 public:
+    ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _portType );
 
-    ZMQSockets(const string &_bindIP, uint16_t _basePort, port_type _portType);
 
+    void* getReceiveSocket();
 
-    void *getReceiveSocket();
-
-    void* getDestinationSocket(const ptr< NodeInfo >& _remoteNodeInfo );
+    void* getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo );
 
 
     void closeReceive();
@@ -54,7 +52,4 @@ public:
     void closeAndCleanupAll();
 
     virtual ~ZMQSockets();
-
-
 };
-

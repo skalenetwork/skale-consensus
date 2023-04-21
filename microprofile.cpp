@@ -756,10 +756,10 @@ inline uint16_t MicroProfileGetTimerIndex( MicroProfileToken t ) {
     return ( t & 0xffff );
 }
 inline uint32_t MicroProfileGetGroupMask( MicroProfileToken t ) {
-    return ( uint32_t )( ( t >> 16 ) & MICROPROFILE_GROUP_MASK_ALL );
+    return ( uint32_t ) ( ( t >> 16 ) & MICROPROFILE_GROUP_MASK_ALL );
 }
 inline uint32_t MicroProfileGetGroupMaskIndex( MicroProfileToken t ) {
-    return ( uint32_t )( t >> 48 );
+    return ( uint32_t ) ( t >> 48 );
 }
 
 
@@ -783,7 +783,7 @@ T MicroProfileClamp( T a, T min_, T max_ ) {
 }
 
 inline int64_t MicroProfileMsToTick( float fMs, int64_t nTicksPerSecond ) {
-    return ( int64_t )( fMs * 0.001f * nTicksPerSecond );
+    return ( int64_t ) ( fMs * 0.001f * nTicksPerSecond );
 }
 
 inline float MicroProfileTickToMsMultiplier( int64_t nTicksPerSecond ) {
@@ -847,7 +847,7 @@ void MicroProfileThreadJoin( MicroProfileThread* pThread ) {
 typedef HANDLE MicroProfileThread;
 DWORD _stdcall ThreadTrampoline( void* pFunc ) {
     MicroProfileThreadFunc F = ( MicroProfileThreadFunc ) pFunc;
-    return ( uint32_t )( uintptr_t ) F( 0 );
+    return ( uint32_t ) ( uintptr_t ) F( 0 );
 }
 
 void MicroProfileThreadStart( MicroProfileThread* pThread, MicroProfileThreadFunc Func ) {
@@ -984,7 +984,7 @@ void MicroProfileInit() {
     if ( bOnce ) {
         S.nMemUsage += sizeof( S );
         bOnce = false;
-        memset( (void*) &S, 0, sizeof( S ) );
+        memset( ( void* ) &S, 0, sizeof( S ) );
         for ( int i = 0; i < MICROPROFILE_MAX_GROUPS; ++i ) {
             S.GroupInfo[i].pName[0] = '\0';
         }
@@ -1134,7 +1134,7 @@ MicroProfileThreadLog* MicroProfileCreateThreadLog( const char* pName ) {
         MICROPROFILE_COUNTER_ADD(
             "MicroProfile/ThreadLog/Memory", sizeof( MicroProfileThreadLog ) );
         pLog = MP_ALLOC_OBJECT( MicroProfileThreadLog );
-        memset( (void*) pLog, 0, sizeof( *pLog ) );
+        memset( ( void* ) pLog, 0, sizeof( *pLog ) );
         S.nMemUsage += sizeof( MicroProfileThreadLog );
         pLog->nLogIndex = S.nNumLogs;
         MP_ASSERT( S.nNumLogs < MICROPROFILE_MAX_THREADS );
@@ -1368,7 +1368,7 @@ MicroProfileToken MicroProfileGetToken(
     if ( ret != MICROPROFILE_INVALID_TOKEN )
         return ret;
     uint16_t nGroupIndex = MicroProfileGetGroup( pGroup, Type );
-    uint16_t nTimerIndex = ( uint16_t )( S.nTotalTimers++ );
+    uint16_t nTimerIndex = ( uint16_t ) ( S.nTotalTimers++ );
     MP_ASSERT( nTimerIndex < MICROPROFILE_MAX_TIMERS );
 
     uint32_t nBitIndex = nGroupIndex / 32;
@@ -1453,7 +1453,7 @@ const char* MicroProfileCounterFullName( int nCounter ) {
     int nOffset = 0;
     while ( nIndex >= 0 && nOffset < ( int ) sizeof( Buffer ) - 2 ) {
         uint32_t nLen = S.CounterInfo[nNodes[nIndex]].nNameLen + nOffset;  // < sizeof(Buffer)-1
-        nLen = MicroProfileMin( ( uint32_t )( sizeof( Buffer ) - 2 - nOffset ), nLen );
+        nLen = MicroProfileMin( ( uint32_t ) ( sizeof( Buffer ) - 2 - nOffset ), nLen );
         memcpy( &Buffer[nOffset], S.CounterInfo[nNodes[nIndex]].pName, nLen );
 
         nOffset += S.CounterInfo[nNodes[nIndex]].nNameLen + 1;
@@ -2254,14 +2254,14 @@ void MicroProfileFlip( void* pContext ) {
                         continue;
 
                     uint8_t* pGroupStackPos = &pLog->nGroupStackPos[0];
-                    int64_t nGroupTicks[MICROPROFILE_MAX_GROUPS] = {0};
+                    int64_t nGroupTicks[MICROPROFILE_MAX_GROUPS] = { 0 };
 
 
                     uint32_t nPut = pFrameNext->nLogStart[i];
                     uint32_t nGet = pFrameCurrent->nLogStart[i];
                     uint32_t nRange[2][2] = {
-                        {0, 0},
-                        {0, 0},
+                        { 0, 0 },
+                        { 0, 0 },
                     };
                     MicroProfileGetRange( nPut, nGet, nRange );
 
@@ -2727,7 +2727,7 @@ int MicroProfileFormatCounter( int eFormat, int64_t nCounter, char* pOut, uint32
         }
     } break;
     case MICROPROFILE_COUNTER_FORMAT_BYTES: {
-        const char* pExt[] = {"b", "kb", "mb", "gb", "tb", "pb", "eb", "zb", "yb"};
+        const char* pExt[] = { "b", "kb", "mb", "gb", "tb", "pb", "eb", "zb", "yb" };
         size_t nNumExt = sizeof( pExt ) / sizeof( pExt[0] );
         int64_t nShift = 0;
         int64_t nDivisor = 1;
@@ -5476,7 +5476,7 @@ void MicroProfileStopContextSwitchTrace() {
 
 
 static GUID g_MicroProfileThreadClassGuid = {
-    0x3d6fa8d1, 0xfe05, 0x11d0, 0x9d, 0xda, 0x00, 0xc0, 0x4f, 0xd7, 0xba, 0x7c};
+    0x3d6fa8d1, 0xfe05, 0x11d0, 0x9d, 0xda, 0x00, 0xc0, 0x4f, 0xd7, 0xba, 0x7c };
 
 struct MicroProfileSCSwitch {
     uint32_t NewThreadId;
@@ -5664,7 +5664,7 @@ const char* MicroProfileWin32ThreadInfoAddString( const char* pString ) {
         if ( 0 == g_ThreadInfo.pStrings[idx] ) {
             g_ThreadInfo.pStrings[idx] = &g_ThreadInfo.StringData[g_ThreadInfo.nStringOffset];
             memcpy( &g_ThreadInfo.StringData[g_ThreadInfo.nStringOffset], pString, nLen + 1 );
-            g_ThreadInfo.nStringOffset += ( uint32_t )( nLen + 1 );
+            g_ThreadInfo.nStringOffset += ( uint32_t ) ( nLen + 1 );
             return g_ThreadInfo.pStrings[idx];
         }
         if ( 0 == strcmp( g_ThreadInfo.pStrings[idx], pString ) ) {
@@ -5997,9 +5997,9 @@ void* MicroProfileTraceThread( void* unused ) {
     gettimeofday( &tv, NULL );
 
     uint64_t nsSinceEpoch =
-        ( ( uint64_t )( tv.tv_sec ) * 1000000 + ( uint64_t )( tv.tv_usec ) ) * 1000;
+        ( ( uint64_t ) ( tv.tv_sec ) * 1000000 + ( uint64_t ) ( tv.tv_usec ) ) * 1000;
     uint64_t nTickEpoch = MP_TICK();
-    uint32_t nLastThread[MICROPROFILE_MAX_CONTEXT_SWITCH_THREADS] = {0};
+    uint32_t nLastThread[MICROPROFILE_MAX_CONTEXT_SWITCH_THREADS] = { 0 };
     mach_timebase_info_data_t sTimebaseInfo;
     mach_timebase_info( &sTimebaseInfo );
     S.bContextSwitchRunning = true;
@@ -6294,7 +6294,7 @@ void MicroProfileGpuFetchRange(
         return;
     void* pData = 0;
     // uprintf("fetch [%d-%d]\n", nBegin, nBegin + nCount);
-    D3D12_RANGE Range = {sizeof( uint64_t ) * nBegin, sizeof( uint64_t ) * ( nBegin + nCount )};
+    D3D12_RANGE Range = { sizeof( uint64_t ) * nBegin, sizeof( uint64_t ) * ( nBegin + nCount ) };
     S.pGPU->pBuffer->Map( 0, &Range, &pData );
     memcpy( &S.pGPU->nResults[nBegin], nBegin + ( uint64_t* ) pData, nCount * sizeof( uint64_t ) );
     for ( int i = 0; i < nCount; ++i ) {
@@ -6307,7 +6307,7 @@ void MicroProfileGpuWaitFence( uint32_t nNode, uint64_t nFence ) {
     uint64_t nCompletedFrame = S.pGPU->NodeState[nNode].pFence->GetCompletedValue();
     // while(nCompletedFrame < nPending)
     // while(0 < nPending - nCompletedFrame)
-    while ( 0 < ( int64_t )( nFence - nCompletedFrame ) ) {
+    while ( 0 < ( int64_t ) ( nFence - nCompletedFrame ) ) {
         MICROPROFILE_SCOPEI( "Microprofile", "gpu-wait", MP_GREEN4 );
         Sleep( 20 );  // todo: use event.
         nCompletedFrame = S.pGPU->NodeState[nNode].pFence->GetCompletedValue();
@@ -6318,7 +6318,7 @@ void MicroProfileGpuFetchResults( uint64_t nFrame ) {
     uint64_t nPending = S.pGPU->nPendingFrame;
     // while(nPending <= nFrame)
     // while(0 <= nFrame - nPending)
-    while ( 0 <= ( int64_t )( nFrame - nPending ) ) {
+    while ( 0 <= ( int64_t ) ( nFrame - nPending ) ) {
         uint32_t nInternal = nPending % MICROPROFILE_D3D_INTERNAL_DELAY;
         uint32_t nNode = S.pGPU->Frames[nInternal].nNode;
         MicroProfileGpuWaitFence( nNode, nPending );
@@ -6611,7 +6611,7 @@ void MicroProfileGpuFetchResults( VkCommandBuffer Buffer, uint64_t nFrame ) {
     uint64_t nPending = S.pGPU->nPendingFrame;
     // while(nPending <= nFrame)
     // while(0 <= nFrame - nPending)
-    while ( 0 <= ( int64_t )( nFrame - nPending ) ) {
+    while ( 0 <= ( int64_t ) ( nFrame - nPending ) ) {
         uint32_t nInternal = nPending % MICROPROFILE_VULKAN_INTERNAL_DELAY;
         uint32_t nNode = S.pGPU->Frames[nInternal].nNode;
         MicroProfileGpuWaitFence( nNode, nInternal );
@@ -6923,7 +6923,7 @@ void MicroProfileGpuShutdown() {
 #include "microprofile_xboxone.h"
 #endif
 
-#endif  //#if MICROPROFILE_ENABLED
+#endif  // #if MICROPROFILE_ENABLED
 
 #include "microprofile_html.h"
 

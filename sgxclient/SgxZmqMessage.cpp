@@ -36,94 +36,88 @@
 #include "SgxZmqClient.h"
 #include "sgxclient/SgxZmqMessage.h"
 
-SgxZmqMessage::SgxZmqMessage(shared_ptr<rapidjson::Document> &_d) : d(_d) {
-        if (d->HasMember("warn")) {
-            CHECK_STATE((*d)["warn"].IsString());
-            warning = make_shared<string>((*d)["warn"].GetString());
-        }
+SgxZmqMessage::SgxZmqMessage( shared_ptr< rapidjson::Document >& _d ) : d( _d ) {
+    if ( d->HasMember( "warn" ) ) {
+        CHECK_STATE( ( *d )["warn"].IsString() );
+        warning = make_shared< string >( ( *d )["warn"].GetString() );
+    }
 };
 
-uint64_t SgxZmqMessage::getUint64Rapid(const char *_name) {
-    CHECK_STATE(_name);
-    CHECK_STATE(d->HasMember(_name));
-    const rapidjson::Value &a = (*d)[_name];
-    CHECK_STATE(a.IsUint64());
+uint64_t SgxZmqMessage::getUint64Rapid( const char* _name ) {
+    CHECK_STATE( _name );
+    CHECK_STATE( d->HasMember( _name ) );
+    const rapidjson::Value& a = ( *d )[_name];
+    CHECK_STATE( a.IsUint64() );
     return a.GetUint64();
 };
 
-string SgxZmqMessage::getStringRapid(const char *_name) {
-    CHECK_STATE(_name);
-    CHECK_STATE(d->HasMember(_name));
-    CHECK_STATE((*d)[_name].IsString());
-    return (*d)[_name].GetString();
+string SgxZmqMessage::getStringRapid( const char* _name ) {
+    CHECK_STATE( _name );
+    CHECK_STATE( d->HasMember( _name ) );
+    CHECK_STATE( ( *d )[_name].IsString() );
+    return ( *d )[_name].GetString();
 };
 
 
+shared_ptr< SgxZmqMessage > SgxZmqMessage::parse(
+    const char* _msg, size_t _size, bool _isRequest ) {
+    CHECK_STATE( _msg );
 
-
-shared_ptr < SgxZmqMessage > SgxZmqMessage::parse(const char *_msg,
-                                          size_t _size, bool _isRequest) {
-
-    CHECK_STATE(_msg);
-
-    CHECK_STATE(_size > 5);
+    CHECK_STATE( _size > 5 );
     // CHECK NULL TERMINATED
-    CHECK_STATE(_msg[_size] == 0);
-    CHECK_STATE(_msg[_size - 1] == '}');
-    CHECK_STATE(_msg[0] == '{');
+    CHECK_STATE( _msg[_size] == 0 );
+    CHECK_STATE( _msg[_size - 1] == '}' );
+    CHECK_STATE( _msg[0] == '{' );
 
-    auto d = make_shared<rapidjson::Document>();
+    auto d = make_shared< rapidjson::Document >();
 
-    d->Parse(_msg);
+    d->Parse( _msg );
 
-    CHECK_STATE(!d->HasParseError());
-    CHECK_STATE(d->IsObject());
+    CHECK_STATE( !d->HasParseError() );
+    CHECK_STATE( d->IsObject() );
 
-    CHECK_STATE(d->HasMember("status"))
+    CHECK_STATE( d->HasMember( "status" ) )
 
-    CHECK_STATE((*d)["status"].IsNumber())
-    uint64_t status = (*d)["status"].GetInt64();
-    CHECK_STATE(status == 0);
+    CHECK_STATE( ( *d )["status"].IsNumber() )
+    uint64_t status = ( *d )["status"].GetInt64();
+    CHECK_STATE( status == 0 );
 
-    CHECK_STATE(d->HasMember("type"));
-    CHECK_STATE((*d)["type"].IsString());
-    string type = (*d)["type"].GetString();
+    CHECK_STATE( d->HasMember( "type" ) );
+    CHECK_STATE( ( *d )["type"].IsString() );
+    string type = ( *d )["type"].GetString();
 
-    if (_isRequest) {
-        return buildRequest(type, d);
+    if ( _isRequest ) {
+        return buildRequest( type, d );
     } else {
-        return buildResponse(type, d);
+        return buildResponse( type, d );
     }
 }
 
-shared_ptr < SgxZmqMessage > SgxZmqMessage::buildRequest(string &_type, shared_ptr <rapidjson::Document> _d) {
-    if (_type == SgxZmqMessage::BLS_SIGN_REQ) {
-        return make_shared<BLSSignReqMessage>(_d);
-    } else if (_type == SgxZmqMessage::ECDSA_SIGN_REQ) {
-        return
-                make_shared<ECDSASignReqMessage>(_d);
+shared_ptr< SgxZmqMessage > SgxZmqMessage::buildRequest(
+    string& _type, shared_ptr< rapidjson::Document > _d ) {
+    if ( _type == SgxZmqMessage::BLS_SIGN_REQ ) {
+        return make_shared< BLSSignReqMessage >( _d );
+    } else if ( _type == SgxZmqMessage::ECDSA_SIGN_REQ ) {
+        return make_shared< ECDSASignReqMessage >( _d );
     } else {
-        CHECK_STATE2(false, "Incorrect zmq message type: " +
-                                                 string(_type));
+        CHECK_STATE2( false, "Incorrect zmq message type: " + string( _type ) );
     }
 }
 
-shared_ptr < SgxZmqMessage > SgxZmqMessage::buildResponse(string &_type, shared_ptr <rapidjson::Document> _d) {
-    if (_type == SgxZmqMessage::BLS_SIGN_RSP) {
-        return
-                make_shared<BLSSignRspMessage>(_d);
-    } else if (_type == SgxZmqMessage::ECDSA_SIGN_RSP) {
-        return
-                make_shared<ECDSASignRspMessage>(_d);
+shared_ptr< SgxZmqMessage > SgxZmqMessage::buildResponse(
+    string& _type, shared_ptr< rapidjson::Document > _d ) {
+    if ( _type == SgxZmqMessage::BLS_SIGN_RSP ) {
+        return make_shared< BLSSignRspMessage >( _d );
+    } else if ( _type == SgxZmqMessage::ECDSA_SIGN_RSP ) {
+        return make_shared< ECDSASignRspMessage >( _d );
     } else {
-        BOOST_THROW_EXCEPTION(InvalidStateException("Incorrect zmq message request type: " + string(_type),
-                                                    __CLASS_NAME__)
-        );
+        BOOST_THROW_EXCEPTION( InvalidStateException(
+            "Incorrect zmq message request type: " + string( _type ), __CLASS_NAME__ ) );
     }
 }
 
 SgxZmqMessage::~SgxZmqMessage() {}
 
-const shared_ptr<string> &SgxZmqMessage::getWarning() const {
+const shared_ptr< string >& SgxZmqMessage::getWarning() const {
     return warning;
 }

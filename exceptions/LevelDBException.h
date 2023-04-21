@@ -21,11 +21,10 @@
     @date 2019
 */
 
-#pragma  once
+#pragma once
 #include "SkaleException.h"
 
 class LevelDBException : public SkaleException {
 public:
-    LevelDBException(const std::string &_message, const string& _className);
-
+    LevelDBException( const std::string& _message, const string& _className );
 };

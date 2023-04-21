@@ -27,26 +27,17 @@
 #include "BlockProposal.h"
 
 
-
-
 class MyBlockProposal : public BlockProposal {
-
-
 private:
-    static atomic<int64_t>  totalObjects;
+    static atomic< int64_t > totalObjects;
 
 public:
+    MyBlockProposal( Schain& _sChain, const block_id& _blockID, const schain_index& _proposerIndex,
+        const ptr< TransactionList >& _transactions, u256 _stateRoot, uint64_t _timeStamp,
+        uint32_t _timeStampMs, const ptr< CryptoManager >& _cryptoManager );
 
-    MyBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
-                    const ptr<TransactionList>& _transactions, u256 _stateRoot, uint64_t _timeStamp,
-                    uint32_t _timeStampMs, const ptr<CryptoManager>& _cryptoManager);
 
-
-    static int64_t getTotalObjects() {
-        return totalObjects;
-    }
+    static int64_t getTotalObjects() { return totalObjects; }
 
     ~MyBlockProposal() override;
-
 };
-

@@ -685,7 +685,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
         // the last thing is to run analyzers to log any errors that happened during
         // block processing
 
-        analyzeErrors(_block);
+        analyzeErrors( _block );
 
     } catch ( ExitRequestedException& e ) {
         throw;
@@ -1351,16 +1351,15 @@ const ptr< OracleResultAssemblyAgent >& Schain::getOracleResultAssemblyAgent() c
     return oracleResultAssemblyAgent;
 }
 
-void Schain::addBlockErrorAnalyzer( ptr<BlockErrorAnalyzer> _blockErrorAnalyzer ) {
+void Schain::addBlockErrorAnalyzer( ptr< BlockErrorAnalyzer > _blockErrorAnalyzer ) {
     {
         LOCK( blockErrorAnalyzersMutex )
-        blockErrorAnalyzers.push_back(_blockErrorAnalyzer);
+        blockErrorAnalyzers.push_back( _blockErrorAnalyzer );
     }
 }
 
 
 void Schain::analyzeErrors( ptr< CommittedBlock > _block ) {
-
     vector< ptr< BlockErrorAnalyzer > > analyzers;
 
     {
@@ -1369,10 +1368,9 @@ void Schain::analyzeErrors( ptr< CommittedBlock > _block ) {
         blockErrorAnalyzers = vector< ptr< BlockErrorAnalyzer > >();
     }
 
-    for (auto&& analyzer : analyzers) {
-        analyzer->analyze(_block);
+    for ( auto&& analyzer : analyzers ) {
+        analyzer->analyze( _block );
     }
-
 }
 uint64_t Schain::getVerifyDaSigsPatchTimestampS() const {
     return verifyDaSigsPatchTimestampS;

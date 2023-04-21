@@ -84,12 +84,12 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
         CHECK_STATE( resultStr.front() == '{' )
         CHECK_STATE( resultStr.back() == '}' )
 
-        auto result =  SgxZmqMessage::parse( resultStr.c_str(), resultStr.size(), false );
+        auto result = SgxZmqMessage::parse( resultStr.c_str(), resultStr.size(), false );
 
         CHECK_STATE2( result->getStatus() == 0, "SGX server returned error:" + resultStr );
-  
-        if (result->getWarning()) {
-            LOG(warn, "SGX server reported warning:" + *result->getWarning());
+
+        if ( result->getWarning() ) {
+            LOG( warn, "SGX server reported warning:" + *result->getWarning() );
         }
         return result;
 
@@ -104,8 +104,8 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
 }
 
 
-string SgxZmqClient::doZmqRequestReply( string& _req,  string& _description, bool _throwExceptionOnTimeout ) {
-
+string SgxZmqClient::doZmqRequestReply(
+    string& _req, string& _description, bool _throwExceptionOnTimeout ) {
     stringstream request;
 
 
@@ -146,8 +146,8 @@ string SgxZmqClient::doZmqRequestReply( string& _req,  string& _description, boo
                 LOG( err, "No response from sgx server for:" + _description );
                 CHECK_STATE( false );
             }
-            LOG( err, "No response from SGX server for " +  _description + ". Retrying..." );
-            usleep(SGX_REQUEST_TIMEOUT_MS * 1000);
+            LOG( err, "No response from SGX server for " + _description + ". Retrying..." );
+            usleep( SGX_REQUEST_TIMEOUT_MS * 1000 );
             reconnect();
 
             //  Send request again, on new socket
@@ -285,7 +285,7 @@ void SgxZmqClient::reconnect() {
     LOCK( socketMutex )
 
 
-    if (clientSocket)
+    if ( clientSocket )
         clientSocket->close();
     clientSocket = nullptr;
 
@@ -333,9 +333,9 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
     p["messageHash"] = messageHash;
     p["n"] = n;
     p["t"] = t;
-    static string description("BLS sign");
-    auto result =
-        dynamic_pointer_cast< BLSSignRspMessage >( doRequestReply( p, description, _throwExceptionOnTimeout ) );
+    static string description( "BLS sign" );
+    auto result = dynamic_pointer_cast< BLSSignRspMessage >(
+        doRequestReply( p, description, _throwExceptionOnTimeout ) );
     CHECK_STATE( result );
 
     return result->getSigShare();
@@ -348,7 +348,7 @@ string SgxZmqClient::ecdsaSignMessageHash( int base, const std::string& keyName,
     p["base"] = base;
     p["keyName"] = keyName;
     p["messageHash"] = messageHash;
-    static string description("ECDSA sign");
+    static string description( "ECDSA sign" );
 
     auto result = dynamic_pointer_cast< ECDSASignRspMessage >(
         doRequestReply( p, description, _throwExceptionOnTimeout ) );
@@ -373,7 +373,7 @@ void SgxZmqClient::exit() {
     this->ctx.shutdown();
     LOG( info, "Shut down SgxZmq context" );
     LOG( info, "Closing SgxZmq client sockets" );
-    if (clientSocket)
+    if ( clientSocket )
         clientSocket->close();
     exited = true;
     LOG( info, "Exited SgxZmqClient" );
@@ -477,17 +477,15 @@ Schain* SgxZmqClient::getSchain() const {
 }
 
 
-
 bool SgxZmqClient::isServerDown() const {
     return serverDown;
 }
-
 
 
 SgxZmqClient::zmq_status SgxZmqClient::getZMQStatus() const {
     return zmqStatus;
 }
 
-void SgxZmqClient::setZmqStatus(SgxZmqClient::zmq_status _status) {
+void SgxZmqClient::setZmqStatus( SgxZmqClient::zmq_status _status ) {
     zmqStatus = _status;
 }

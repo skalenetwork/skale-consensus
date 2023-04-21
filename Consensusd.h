@@ -21,9 +21,4 @@
     @date 2018
 */
 
-#pragma  once
-
-
-
-
-
+#pragma once

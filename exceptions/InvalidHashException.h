@@ -21,10 +21,10 @@
     @date 2019
 */
 
-#pragma  once
+#pragma once
 #include "SkaleException.h"
 
 class InvalidHashException : public SkaleException {
 public:
-    InvalidHashException(const std::string &_message, const string& _className);
+    InvalidHashException( const std::string& _message, const string& _className );
 };

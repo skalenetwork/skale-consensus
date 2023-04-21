@@ -22,7 +22,6 @@
 */
 
 
-
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "utils/Time.h"
@@ -60,7 +59,7 @@ TimeStamp TimeStamp::getCurrentTimeStamp() {
     return TimeStamp( timeS, timeMS );
 }
 
-TimeStamp  TimeStamp::incrementByMs() {
+TimeStamp TimeStamp::incrementByMs() {
     uint64_t sec = this->s;
     uint64_t msec = this->ms;
 
@@ -72,7 +71,7 @@ TimeStamp  TimeStamp::incrementByMs() {
         msec++;
     }
 
-    return TimeStamp ( sec, msec );
+    return TimeStamp( sec, msec );
 }
 
 uint64_t TimeStamp::getLinuxTimeMs() const {

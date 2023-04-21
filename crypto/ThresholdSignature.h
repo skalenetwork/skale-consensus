@@ -28,18 +28,14 @@
 #include "BLSSignature.h"
 
 class ThresholdSignature {
-
 protected:
-
-
     block_id blockId = 0;
 
-    uint64_t  totalSigners = 0;
-    uint64_t  requiredSigners = 0;
+    uint64_t totalSigners = 0;
+    uint64_t requiredSigners = 0;
 
 public:
-
-    ThresholdSignature(const block_id &blockId, uint64_t totalSigners, uint64_t requiredSigners);
+    ThresholdSignature( const block_id& blockId, uint64_t totalSigners, uint64_t requiredSigners );
 
     [[nodiscard]] block_id getBlockId() const;
 
@@ -48,8 +44,7 @@ public:
     virtual uint64_t getRandom() = 0;
 
     virtual ~ThresholdSignature();
-
 };
 
 
-#endif //SKALED_THRESHOLDSIGNATURE_H
+#endif  // SKALED_THRESHOLDSIGNATURE_H

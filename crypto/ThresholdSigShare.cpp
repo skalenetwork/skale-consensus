@@ -26,19 +26,15 @@
 #include "SkaleCommon.h"
 
 
-
 block_id ThresholdSigShare::getBlockId() const {
     return blockId;
 }
 
-ThresholdSigShare::ThresholdSigShare(const schain_id &schainId, const block_id &blockId,
-                                     const schain_index &_signerIndex)
-        : schainId(schainId), blockId(blockId),
-          signerIndex(_signerIndex){}
+ThresholdSigShare::ThresholdSigShare(
+    const schain_id& schainId, const block_id& blockId, const schain_index& _signerIndex )
+    : schainId( schainId ), blockId( blockId ), signerIndex( _signerIndex ) {}
 
-ThresholdSigShare::~ThresholdSigShare() {
-
-}
+ThresholdSigShare::~ThresholdSigShare() {}
 
 schain_index ThresholdSigShare::getSignerIndex() const {
     return signerIndex;
@@ -47,7 +43,7 @@ schain_index ThresholdSigShare::getSignerIndex() const {
 
 BLAKE3Hash ThresholdSigShare::computeHash() {
     auto str = this->toString();
-    auto v = make_shared<vector<uint8_t>>(str.size());
-    copy(str.begin(), str.end(), v->begin());
-    return BLAKE3Hash::calculateHash(v);
+    auto v = make_shared< vector< uint8_t > >( str.size() );
+    copy( str.begin(), str.end(), v->begin() );
+    return BLAKE3Hash::calculateHash( v );
 }

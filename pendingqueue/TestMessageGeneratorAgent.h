@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 
 #include "Agent.h"
@@ -31,16 +31,15 @@ class Schain;
 
 class TestMessageGeneratorAgent : Agent {
     uint64_t counter = 0;
+
 public:
+    explicit TestMessageGeneratorAgent( Schain& _sChain );
 
-    explicit TestMessageGeneratorAgent(Schain& _sChain);
-
-    ConsensusExtFace::transactions_vector pendingTransactions( size_t _limit);
+    ConsensusExtFace::transactions_vector pendingTransactions( size_t _limit );
 
     void sendTestRequestGet();
 
     void sendTestRequestPost();
 
     void sendTestRequestEthCall();
-
 };

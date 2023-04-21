@@ -33,23 +33,20 @@ class PartialHashesList;
 class Schain;
 class ConsensusBLSSigShare;
 class ConsensusBLSSignature;
-class  BLAKE3Hash;
+class BLAKE3Hash;
 
 class ConsensusSigShareSet : public ThresholdSigShareSet {
-
-    BLSSigShareSet blsSet; //tsafe
+    BLSSigShareSet blsSet;  // tsafe
     recursive_mutex blsSetLock;
 
 public:
-    ConsensusSigShareSet(block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
+    ConsensusSigShareSet( block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
 
-    ptr<ThresholdSignature> mergeSignature() override;
+    ptr< ThresholdSignature > mergeSignature() override;
 
-    bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) override;
+    bool addSigShare( const ptr< ThresholdSigShare >& _sigShare ) override;
 
     bool isEnough() override;
 
     ~ConsensusSigShareSet() override;
-
-
 };

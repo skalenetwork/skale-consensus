@@ -60,49 +60,49 @@
 TransportType Network::transport = TransportType::ZMQ;
 
 
-void Network::addToDeferredMessageQueue(const ptr<NetworkMessageEnvelope> &_me) {
-    CHECK_ARGUMENT(_me);
+void Network::addToDeferredMessageQueue( const ptr< NetworkMessageEnvelope >& _me ) {
+    CHECK_ARGUMENT( _me );
 
-    auto msg = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
+    auto msg = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
 
 
     auto _blockID = _me->getMessage()->getBlockID();
 
-    ptr<list<ptr<NetworkMessageEnvelope> > > messageList;
+    ptr< list< ptr< NetworkMessageEnvelope > > > messageList;
 
     {
-        LOCK(deferredMessageMutex);
+        LOCK( deferredMessageMutex );
 
-        if (deferredMessageQueue.count(_blockID) == 0) {
-            messageList = make_shared<list<ptr<NetworkMessageEnvelope> > >();
+        if ( deferredMessageQueue.count( _blockID ) == 0 ) {
+            messageList = make_shared< list< ptr< NetworkMessageEnvelope > > >();
             deferredMessageQueue[_blockID] = messageList;
         } else {
             messageList = deferredMessageQueue[_blockID];
         };
 
-        messageList->push_back(_me);
+        messageList->push_back( _me );
 
-        if (messageList->size() > MAX_DEFERRED_QUEUE_SIZE_FOR_BLOCK)
+        if ( messageList->size() > MAX_DEFERRED_QUEUE_SIZE_FOR_BLOCK )
             messageList->pop_front();
     }
 }
 
-ptr<vector<ptr<NetworkMessageEnvelope> > > Network::pullMessagesForCurrentBlockID() {
+ptr< vector< ptr< NetworkMessageEnvelope > > > Network::pullMessagesForCurrentBlockID() {
     block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
-    auto returnList = make_shared<vector<ptr<NetworkMessageEnvelope> > >();
+    auto returnList = make_shared< vector< ptr< NetworkMessageEnvelope > > >();
 
-    LOCK(deferredMessageMutex);
+    LOCK( deferredMessageMutex );
 
-    for (auto it = deferredMessageQueue.cbegin();
-         it != deferredMessageQueue.cend() /* not hoisted */;
+    for ( auto it = deferredMessageQueue.cbegin();
+          it != deferredMessageQueue.cend() /* not hoisted */;
         /* no increment */ ) {
-        if (it->first <= currentBlockID) {
-            for (auto &&msg: *(it->second)) {
-                returnList->push_back(msg);
+        if ( it->first <= currentBlockID ) {
+            for ( auto&& msg : *( it->second ) ) {
+                returnList->push_back( msg );
             }
 
-            it = deferredMessageQueue.erase(it);
+            it = deferredMessageQueue.erase( it );
         } else {
             ++it;
         }
@@ -112,186 +112,185 @@ ptr<vector<ptr<NetworkMessageEnvelope> > > Network::pullMessagesForCurrentBlockI
 }
 
 void Network::addToDelayedSends(
-        const ptr<NetworkMessage> &_m, const ptr<NodeInfo> &_dstNodeInfo) {
-    CHECK_ARGUMENT(_m);
-    CHECK_ARGUMENT(_dstNodeInfo);
-    auto dstIndex = (uint64_t) _dstNodeInfo->getSchainIndex();
-    LOCK(delayedSendsLocks.at(dstIndex - 1));
-    delayedSends.at(dstIndex - 1).push_back({_m, _dstNodeInfo});
-    if (delayedSends.at(dstIndex - 1).size() > MAX_DELAYED_MESSAGE_SENDS) {
-        delayedSends.at(dstIndex - 1).pop_front();
+    const ptr< NetworkMessage >& _m, const ptr< NodeInfo >& _dstNodeInfo ) {
+    CHECK_ARGUMENT( _m );
+    CHECK_ARGUMENT( _dstNodeInfo );
+    auto dstIndex = ( uint64_t ) _dstNodeInfo->getSchainIndex();
+    LOCK( delayedSendsLocks.at( dstIndex - 1 ) );
+    delayedSends.at( dstIndex - 1 ).push_back( { _m, _dstNodeInfo } );
+    if ( delayedSends.at( dstIndex - 1 ).size() > MAX_DELAYED_MESSAGE_SENDS ) {
+        delayedSends.at( dstIndex - 1 ).pop_front();
     }
 }
 
-void Network::broadcastMessage(const ptr<NetworkMessage> &_msg) {
-    broadcastMessageImpl(_msg, true);
+void Network::broadcastMessage( const ptr< NetworkMessage >& _msg ) {
+    broadcastMessageImpl( _msg, true );
 }
 
-void Network::rebroadcastMessage(const ptr<NetworkMessage> &_msg) {
-    broadcastMessageImpl(_msg, false);
+void Network::rebroadcastMessage( const ptr< NetworkMessage >& _msg ) {
+    broadcastMessageImpl( _msg, false );
 }
 
-void Network::broadcastMessageImpl(const ptr<NetworkMessage> &_msg, bool _isFirstBroadcast) {
-    CHECK_ARGUMENT(_msg);
+void Network::broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isFirstBroadcast ) {
+    CHECK_ARGUMENT( _msg );
 
     // used for testing
-    if (_msg->getBlockID() <= this->catchupBlocks) {
+    if ( _msg->getBlockID() <= this->catchupBlocks ) {
         return;
     }
 
 
-    if (_msg->getBlockID() == 5
-        && getSchain()->getBlockProposerTest() == "BAD_NETWORK") {
+    if ( _msg->getBlockID() == 5 && getSchain()->getBlockProposerTest() == "BAD_NETWORK" ) {
         return;
     }
 
     try {
-        if (_isFirstBroadcast) {
+        if ( _isFirstBroadcast ) {
             // sign message before sending
-            _msg->sign(getSchain()->getCryptoManager());
+            _msg->sign( getSchain()->getCryptoManager() );
             try {
-                getSchain()->getNode()->getOutgoingMsgDB()->saveMsg(_msg);
-            } catch (exception &e) {
-                LOG(err, "Could not save outgoing message:" +  string(e.what()));
+                getSchain()->getNode()->getOutgoingMsgDB()->saveMsg( _msg );
+            } catch ( exception& e ) {
+                LOG( err, "Could not save outgoing message:" + string( e.what() ) );
             }
         }
 
 
-        unordered_set<uint64_t> sent;
+        unordered_set< uint64_t > sent;
 
         // wait until we send to at least 2/3 of participants
-        while (3 * (sent.size() + 1) < getSchain()->getNodeCount() * 2) {
-            for (auto const &it: *getSchain()->getNode()->getNodeInfosByIndex()) {
+        while ( 3 * ( sent.size() + 1 ) < getSchain()->getNodeCount() * 2 ) {
+            for ( auto const& it : *getSchain()->getNode()->getNodeInfosByIndex() ) {
                 auto dstNodeInfo = it.second;
-                auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
+                auto dstIndex = ( uint64_t ) dstNodeInfo->getSchainIndex();
 
-                if (dstIndex != (getSchain()->getSchainIndex()) && !sent.count(dstIndex)) {
-                    if (sendMessage(it.second, _msg)) {
-                        sent.insert(dstIndex);
+                if ( dstIndex != ( getSchain()->getSchainIndex() ) && !sent.count( dstIndex ) ) {
+                    if ( sendMessage( it.second, _msg ) ) {
+                        sent.insert( dstIndex );
                     }
                 }
             }
-            sleep(0);
+            sleep( 0 );
         }
 
         // messages that could not be sent because the receiving nodes were not online are
         // queued to delayed sends to be tried later. The delayed sends queue for
         // each destination can have MAX_DELAYED_MESSAGE_SENDS.
 
-        for (auto const &it: *getSchain()->getNode()->getNodeInfosByIndex()) {
+        for ( auto const& it : *getSchain()->getNode()->getNodeInfosByIndex() ) {
             auto dstNodeInfo = it.second;
-            CHECK_STATE(dstNodeInfo);
-            auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
-            if (dstIndex != (getSchain()->getSchainIndex()) && !sent.count(dstIndex)) {
-                addToDelayedSends(_msg, dstNodeInfo);
+            CHECK_STATE( dstNodeInfo );
+            auto dstIndex = ( uint64_t ) dstNodeInfo->getSchainIndex();
+            if ( dstIndex != ( getSchain()->getSchainIndex() ) && !sent.count( dstIndex ) ) {
+                addToDelayedSends( _msg, dstNodeInfo );
             }
         }
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
 
-void Network::broadcastOracleRequestMessage(const ptr<OracleRequestBroadcastMessage> &_msg) {
+void Network::broadcastOracleRequestMessage( const ptr< OracleRequestBroadcastMessage >& _msg ) {
     // Oracle messages are simply broadcast without resends
-    CHECK_ARGUMENT(_msg);
+    CHECK_ARGUMENT( _msg );
 
 
     try {
+        _msg->sign( getSchain()->getCryptoManager() );
 
-        _msg->sign(getSchain()->getCryptoManager());
-
-        for (auto const &it: *getSchain()->getNode()->getNodeInfosByIndex()) {
+        for ( auto const& it : *getSchain()->getNode()->getNodeInfosByIndex() ) {
             auto dstNodeInfo = it.second;
-            auto dstIndex = (uint64_t) dstNodeInfo->getSchainIndex();
+            auto dstIndex = ( uint64_t ) dstNodeInfo->getSchainIndex();
 
-            if (dstIndex != (getSchain()->getSchainIndex())) {
-                sendMessage(it.second, _msg);
+            if ( dstIndex != ( getSchain()->getSchainIndex() ) ) {
+                sendMessage( it.second, _msg );
             } else {
                 getSchain()->getOracleResultAssemblyAgent()->postMessage(
-                        make_shared<NetworkMessageEnvelope>(_msg, dstIndex));
+                    make_shared< NetworkMessageEnvelope >( _msg, dstIndex ) );
             }
         }
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
-void Network::sendOracleResponseMessage(const ptr<OracleResponseMessage> &_msg, schain_index _dstIndex) {
+void Network::sendOracleResponseMessage(
+    const ptr< OracleResponseMessage >& _msg, schain_index _dstIndex ) {
     // Oracle messages are simply sent without resends
-    CHECK_ARGUMENT(_msg);
+    CHECK_ARGUMENT( _msg );
 
     try {
+        _msg->sign( getSchain()->getCryptoManager() );
 
-        _msg->sign(getSchain()->getCryptoManager());
 
-
-        if (_dstIndex != (getSchain()->getSchainIndex())) {
-            auto dstNodeInfo = getSchain()->getNode()->getNodeInfoByIndex(_dstIndex);
-            CHECK_STATE(dstNodeInfo);
-            sendMessage(dstNodeInfo, _msg);
+        if ( _dstIndex != ( getSchain()->getSchainIndex() ) ) {
+            auto dstNodeInfo = getSchain()->getNode()->getNodeInfoByIndex( _dstIndex );
+            CHECK_STATE( dstNodeInfo );
+            sendMessage( dstNodeInfo, _msg );
         } else {
-            getSchain()->getOracleResultAssemblyAgent()->postMessage(make_shared<NetworkMessageEnvelope>(_msg, _dstIndex));
+            getSchain()->getOracleResultAssemblyAgent()->postMessage(
+                make_shared< NetworkMessageEnvelope >( _msg, _dstIndex ) );
         }
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
 void Network::networkReadLoop() {
-    setThreadName("NtwkRdLoop", getSchain()->getNode()->getConsensusEngine());
+    setThreadName( "NtwkRdLoop", getSchain()->getNode()->getConsensusEngine() );
 
 
     waitOnGlobalStartBarrier();
 
     try {
-        while (!sChain->getNode()->isExitRequested()) {
+        while ( !sChain->getNode()->isExitRequested() ) {
             try {
-                ptr<NetworkMessageEnvelope> m = receiveMessage();
+                ptr< NetworkMessageEnvelope > m = receiveMessage();
 
-                if (!m)
+                if ( !m )
                     continue;  // check exit again
 
-                auto msg = dynamic_pointer_cast<NetworkMessage>(m->getMessage());
+                auto msg = dynamic_pointer_cast< NetworkMessage >( m->getMessage() );
 
 
-                if (msg->getBlockID() <= catchupBlocks) {
+                if ( msg->getBlockID() <= catchupBlocks ) {
                     continue;
                 }
 
 
-                if (!knownMsgHashes.putIfDoesNotExist(msg->getHash().toHex(), true)) {
+                if ( !knownMsgHashes.putIfDoesNotExist( msg->getHash().toHex(), true ) ) {
                     // already seen this message, dropping
                     continue;
                 }
 
-                if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST  || msg->getMsgType() == MSG_ORACLE_RSP) {
-                    sChain->getOracleResultAssemblyAgent()->postMessage(m);
+                if ( msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
+                     msg->getMsgType() == MSG_ORACLE_RSP ) {
+                    sChain->getOracleResultAssemblyAgent()->postMessage( m );
                     continue;
                 }
 
-                CHECK_STATE(sChain);
+                CHECK_STATE( sChain );
 
-                postDeferOrDrop(m);
-            } catch (ExitRequestedException &) {
+                postDeferOrDrop( m );
+            } catch ( ExitRequestedException& ) {
                 return;
-            } catch (FatalError &) {
+            } catch ( FatalError& ) {
                 throw;
-            } catch (exception &e) {
-                if (sChain->getNode()->isExitRequested()) {
+            } catch ( exception& e ) {
+                if ( sChain->getNode()->isExitRequested() ) {
                     sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();
                     return;
                 }
-                SkaleException::logNested(e);
+                SkaleException::logNested( e );
             }
 
         }  // while
-    } catch (FatalError &e) {
-        SkaleException::logNested(e);
-        sChain->getNode()->exitOnFatalError(e.what());
+    } catch ( FatalError& e ) {
+        SkaleException::logNested( e );
+        sChain->getNode()->exitOnFatalError( e.what() );
     }
 
     sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();
@@ -306,37 +305,37 @@ void Network::networkReadLoop() {
  */
 
 
-void Network::postDeferOrDrop(const ptr<NetworkMessageEnvelope> &_me) {
-    CHECK_ARGUMENT(_me);
+void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
+    CHECK_ARGUMENT( _me );
 
     block_id currentBlockID = sChain->getLastCommittedBlockID() + 1;
 
     auto bid = _me->getMessage()->getBlockID();
 
 
-    if (bid > currentBlockID) {
+    if ( bid > currentBlockID ) {
         // block id is in the future, defer
-        addToDeferredMessageQueue(_me);
+        addToDeferredMessageQueue( _me );
         return;
     }
 
-    if (bid + MAX_ACTIVE_CONSENSUSES <= currentBlockID) {
+    if ( bid + MAX_ACTIVE_CONSENSUSES <= currentBlockID ) {
         // too old, drop
         return;
     }
 
     // ask consensus whether to defer
 
-    auto msg = dynamic_pointer_cast<NetworkMessage>(_me->getMessage());
+    auto msg = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
 
-    CHECK_STATE(msg);
+    CHECK_STATE( msg );
 
-    if (msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST || msg->getMsgType() == MSG_ORACLE_RSP) {
-        sChain->getOracleResultAssemblyAgent()->postMessage(_me);
-    } else if (sChain->getBlockConsensusInstance()->shouldPost(msg)) {
-        sChain->postMessage(_me);
+    if ( msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST || msg->getMsgType() == MSG_ORACLE_RSP ) {
+        sChain->getOracleResultAssemblyAgent()->postMessage( _me );
+    } else if ( sChain->getBlockConsensusInstance()->shouldPost( msg ) ) {
+        sChain->postMessage( _me );
     } else {
-        addToDeferredMessageQueue(_me);
+        addToDeferredMessageQueue( _me );
     }
 }
 
@@ -344,28 +343,28 @@ void Network::trySendingDelayedSends() {
     auto nodeCount = getSchain()->getNodeCount();
     auto schainIndex = getSchain()->getSchainIndex();
 
-    for (int i = 0; i < nodeCount; i++) {
-        if (i != (schainIndex - 1)) {
-            ptr<NetworkMessage> msg = nullptr;
-            ptr<NodeInfo> dstNodeInfo = nullptr;
+    for ( int i = 0; i < nodeCount; i++ ) {
+        if ( i != ( schainIndex - 1 ) ) {
+            ptr< NetworkMessage > msg = nullptr;
+            ptr< NodeInfo > dstNodeInfo = nullptr;
 
-            while (true) {
+            while ( true ) {
                 {
-                    LOCK(delayedSendsLocks.at(i));
+                    LOCK( delayedSendsLocks.at( i ) );
 
-                    if (delayedSends.at(i).size() == 0) {
+                    if ( delayedSends.at( i ).size() == 0 ) {
                         break;
                     }
-                    msg = delayedSends.at(i).front().first;
-                    dstNodeInfo = delayedSends.at(i).front().second;
-                    CHECK_STATE(dstNodeInfo);
-                    CHECK_STATE(msg);
+                    msg = delayedSends.at( i ).front().first;
+                    dstNodeInfo = delayedSends.at( i ).front().second;
+                    CHECK_STATE( dstNodeInfo );
+                    CHECK_STATE( msg );
                 }
-                if (sendMessage(dstNodeInfo, msg)) {
+                if ( sendMessage( dstNodeInfo, msg ) ) {
                     // successfully sent a delayed message, remove it from the list
                     {
-                        LOCK(delayedSendsLocks.at(i));
-                        delayedSends.at(i).pop_front();
+                        LOCK( delayedSendsLocks.at( i ) );
+                        delayedSends.at( i ).pop_front();
                     }
                 }
                 {
@@ -379,103 +378,103 @@ void Network::trySendingDelayedSends() {
 }
 
 void Network::deferredMessagesLoop() {
-    setThreadName("DeferMsgLoop", getSchain()->getNode()->getConsensusEngine());
+    setThreadName( "DeferMsgLoop", getSchain()->getNode()->getConsensusEngine() );
 
     waitOnGlobalStartBarrier();
 
-    while (!getSchain()->getNode()->isExitRequested()) {
+    while ( !getSchain()->getNode()->isExitRequested() ) {
         try {
-            ptr<vector<ptr<NetworkMessageEnvelope> > > deferredMessages;
+            ptr< vector< ptr< NetworkMessageEnvelope > > > deferredMessages;
 
             // Get messages for the current block id
             deferredMessages = pullMessagesForCurrentBlockID();
 
-            CHECK_STATE(deferredMessages);
+            CHECK_STATE( deferredMessages );
 
-            for (auto message: *deferredMessages) {
-                if (getSchain()->getNode()->isExitRequested())
+            for ( auto message : *deferredMessages ) {
+                if ( getSchain()->getNode()->isExitRequested() )
                     return;
-                postDeferOrDrop(message);
+                postDeferOrDrop( message );
             }
 
             trySendingDelayedSends();
-        } catch (ExitRequestedException &) {
+        } catch ( ExitRequestedException& ) {
             // exit
-            LOG(info, "Exit requested, exiting deferred messages loop");
+            LOG( info, "Exit requested, exiting deferred messages loop" );
             return;
-        } catch (SkaleException &e) {
+        } catch ( SkaleException& e ) {
             // print the error and continue the loop
-            SkaleException::logNested(e);
+            SkaleException::logNested( e );
         }
-        usleep(1000000);
+        usleep( 1000000 );
     }
 }
 
 
 void Network::startThreads() {
-    networkReadThread = make_shared<thread>(std::bind(&Network::networkReadLoop, this));
+    networkReadThread = make_shared< thread >( std::bind( &Network::networkReadLoop, this ) );
     deferredMessageThread =
-            make_shared<thread>(std::bind(&Network::deferredMessagesLoop, this));
+        make_shared< thread >( std::bind( &Network::deferredMessagesLoop, this ) );
 
     auto reg = getSchain()->getNode()->getConsensusEngine()->getThreadRegistry();
 
-    reg->add(networkReadThread);
-    reg->add(deferredMessageThread);
+    reg->add( networkReadThread );
+    reg->add( deferredMessageThread );
 }
 
-bool Network::validateIpAddress(const string &_ip) {
-    CHECK_ARGUMENT(!_ip.empty())
+bool Network::validateIpAddress( const string& _ip ) {
+    CHECK_ARGUMENT( !_ip.empty() )
     struct sockaddr_in sa;
-    int result = inet_pton(AF_INET, _ip.c_str(), &(sa.sin_addr));
+    int result = inet_pton( AF_INET, _ip.c_str(), &( sa.sin_addr ) );
     return result != 0;
 }
 
-string Network::ipToString(uint32_t _ip) {
-    char *ip = (char *) &_ip;
-    return string(to_string((uint8_t) ip[0]) + "." + to_string((uint8_t) ip[1]) + "." +
-                  to_string((uint8_t) ip[2]) + "." + to_string((uint8_t) ip[3]));
+string Network::ipToString( uint32_t _ip ) {
+    char* ip = ( char* ) &_ip;
+    return string( to_string( ( uint8_t ) ip[0] ) + "." + to_string( ( uint8_t ) ip[1] ) + "." +
+                   to_string( ( uint8_t ) ip[2] ) + "." + to_string( ( uint8_t ) ip[3] ) );
 }
 
-ptr<NetworkMessageEnvelope> Network::receiveMessage() {
-    auto buf = make_shared<Buffer>(MAX_CONSENSUS_MESSAGE_LEN);
+ptr< NetworkMessageEnvelope > Network::receiveMessage() {
+    auto buf = make_shared< Buffer >( MAX_CONSENSUS_MESSAGE_LEN );
 
-    uint64_t readBytes = readMessageFromNetwork(buf);
+    uint64_t readBytes = readMessageFromNetwork( buf );
 
-    string msg((const char *) buf->getBuf()->data(), readBytes);
+    string msg( ( const char* ) buf->getBuf()->data(), readBytes );
 
-    auto mptr = NetworkMessage::parseMessage(msg, getSchain());
+    auto mptr = NetworkMessage::parseMessage( msg, getSchain() );
 
-    CHECK_STATE(mptr);
+    CHECK_STATE( mptr );
 
-    if (getSchain()->getNode()->getVisualizationType() > 0) {
-        saveToVisualization(mptr, getSchain()->getNode()->getVisualizationType());
+    if ( getSchain()->getNode()->getVisualizationType() > 0 ) {
+        saveToVisualization( mptr, getSchain()->getNode()->getVisualizationType() );
     }
 
 
-    mptr->verify(getSchain()->getCryptoManager());
+    mptr->verify( getSchain()->getCryptoManager() );
 
 
-    ptr<NodeInfo> realSender = sChain->getNode()->getNodeInfoByIndex(mptr->getSrcSchainIndex());
+    ptr< NodeInfo > realSender = sChain->getNode()->getNodeInfoByIndex( mptr->getSrcSchainIndex() );
 
-    if (realSender == nullptr) {
-        BOOST_THROW_EXCEPTION(InvalidStateException(
-                                      "NetworkMessage from unknown sender schain index", __CLASS_NAME__ ));
+    if ( realSender == nullptr ) {
+        BOOST_THROW_EXCEPTION( InvalidStateException(
+            "NetworkMessage from unknown sender schain index", __CLASS_NAME__ ) );
     }
 
-    ptr<ProtocolKey> key = mptr->createProtocolKey();
+    ptr< ProtocolKey > key = mptr->createProtocolKey();
 
-    CHECK_STATE(key);
+    CHECK_STATE( key );
 
-    if (key == nullptr) {
-        BOOST_THROW_EXCEPTION(InvalidMessageFormatException(
-                                      "Network Message with corrupt protocol key", __CLASS_NAME__ ));
+    if ( key == nullptr ) {
+        BOOST_THROW_EXCEPTION( InvalidMessageFormatException(
+            "Network Message with corrupt protocol key", __CLASS_NAME__ ) );
     };
 
-    return make_shared<NetworkMessageEnvelope>(mptr, realSender->getSchainIndex());
+    return make_shared< NetworkMessageEnvelope >( mptr, realSender->getSchainIndex() );
 };
 
 
-void Network::setTransport(TransportType _transport) {
+void Network::setTransport( TransportType _transport ) {
     Network::transport = _transport;
 }
 
@@ -483,80 +482,74 @@ TransportType Network::getTransport() {
     return transport;
 }
 
-void Network::setPacketLoss(uint32_t _packetLoss) {
+void Network::setPacketLoss( uint32_t _packetLoss ) {
     Network::packetLoss = _packetLoss;
 }
 
-void Network::setCatchupBlocks(uint64_t _catchupBlocks) {
+void Network::setCatchupBlocks( uint64_t _catchupBlocks ) {
     Network::catchupBlocks = _catchupBlocks;
 }
 
 uint64_t Network::computeTotalDelayedSends() {
     uint64_t total = 0;
-    for (uint64_t i = 0; i < delayedSends.size(); i++) {
+    for ( uint64_t i = 0; i < delayedSends.size(); i++ ) {
         {
-            LOCK(delayedSendsLocks.at(i))
-            total += delayedSends.at(i).size();
+            LOCK( delayedSendsLocks.at( i ) )
+            total += delayedSends.at( i ).size();
         }
     }
     return total;
 }
 
-Network::Network(Schain &_sChain)
-        : Agent(_sChain, false),
-          knownMsgHashes(KNOWN_MSG_HASHES_SIZE),
-          delayedSends((uint64_t) _sChain.getNodeCount()),
-          delayedSendsLocks((uint64_t) _sChain.getNodeCount()) {
-
+Network::Network( Schain& _sChain )
+    : Agent( _sChain, false ),
+      knownMsgHashes( KNOWN_MSG_HASHES_SIZE ),
+      delayedSends( ( uint64_t ) _sChain.getNodeCount() ),
+      delayedSendsLocks( ( uint64_t ) _sChain.getNodeCount() ) {
     // no network objects needed for sync nodes
-    CHECK_STATE(!getNode()->isSyncOnlyNode());
+    CHECK_STATE( !getNode()->isSyncOnlyNode() );
 
 
     auto cfg = _sChain.getNode()->getCfg();
 
 
-
-    if (cfg.find("catchupBlocks") != cfg.end()) {
-        uint64_t catchupBlock = cfg.at("catchupBlocks").get<uint64_t>();
-        setCatchupBlocks(catchupBlock);
+    if ( cfg.find( "catchupBlocks" ) != cfg.end() ) {
+        uint64_t catchupBlock = cfg.at( "catchupBlocks" ).get< uint64_t >();
+        setCatchupBlocks( catchupBlock );
     }
 
-    if (cfg.find("packetLoss") != cfg.end()) {
-        uint32_t pl = cfg.at("packetLoss").get<uint64_t>();
-        CHECK_STATE(pl <= 100);
-        setPacketLoss(pl);
+    if ( cfg.find( "packetLoss" ) != cfg.end() ) {
+        uint32_t pl = cfg.at( "packetLoss" ).get< uint64_t >();
+        CHECK_STATE( pl <= 100 );
+        setPacketLoss( pl );
     }
 }
 
 Network::~Network() {}
 
-void Network::saveToVisualization(ptr<NetworkMessage> _msg, uint64_t _visualizationType) {
-    CHECK_STATE(_msg);
+void Network::saveToVisualization( ptr< NetworkMessage > _msg, uint64_t _visualizationType ) {
+    CHECK_STATE( _msg );
 
     uint64_t round = 0;
     uint8_t value = 0;
 
-    if (_msg->getMsgType() != MSG_BLOCK_SIGN_BROADCAST) {
-        round = (uint64_t) _msg->getRound();
-        value = (uint8_t) _msg->getValue();
+    if ( _msg->getMsgType() != MSG_BLOCK_SIGN_BROADCAST ) {
+        round = ( uint64_t ) _msg->getRound();
+        value = ( uint8_t ) _msg->getValue();
     }
 
-    string info = string("{") +
-                  "\"t\":" + to_string(_msg->getMsgType()) + "," +
-                  "\"b\":" + to_string(_msg->getTimeMs() -
-                                       getSchain()->getStartTimeMs()) + "," +
-                  "\"f\":" + to_string(Time::getCurrentTimeMs()
-                                       - getSchain()->getStartTimeMs()) + "," +
-                  "\"s\":" + to_string(_msg->getSrcSchainIndex()) + "," +
-                  "\"d\":" + to_string(getSchain()->getSchainIndex()) + "," +
-                  "\"p\":" + to_string(_msg->getBlockProposerIndex()) + "," +
-                  "\"v\":" + to_string(value) + "," +
-                  "\"r\":" + to_string(round) + "," +
-                  "\"i\":" + to_string(_msg->getBlockID()) +
-                  "}\n";
+    string info = string( "{" ) + "\"t\":" + to_string( _msg->getMsgType() ) + "," +
+                  "\"b\":" + to_string( _msg->getTimeMs() - getSchain()->getStartTimeMs() ) + "," +
+                  "\"f\":" + to_string( Time::getCurrentTimeMs() - getSchain()->getStartTimeMs() ) +
+                  "," + "\"s\":" + to_string( _msg->getSrcSchainIndex() ) + "," +
+                  "\"d\":" + to_string( getSchain()->getSchainIndex() ) + "," +
+                  "\"p\":" + to_string( _msg->getBlockProposerIndex() ) + "," +
+                  "\"v\":" + to_string( value ) + "," + "\"r\":" + to_string( round ) + "," +
+                  "\"i\":" + to_string( _msg->getBlockID() ) + "}\n";
 
 
-    if (_visualizationType == 1 || (_msg->getBlockProposerIndex() == 2 && _msg->getBlockID() == 3)) {
-        Schain::writeToVisualizationStream(info);
+    if ( _visualizationType == 1 ||
+         ( _msg->getBlockProposerIndex() == 2 && _msg->getBlockID() == 3 ) ) {
+        Schain::writeToVisualizationStream( info );
     }
 }

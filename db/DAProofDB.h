@@ -24,7 +24,6 @@
 #pragma once
 
 
-
 #include "Agent.h"
 
 class ConsensusSigShareSet;
@@ -41,27 +40,22 @@ class BlockProposal;
 #include "CacheLevelDB.h"
 
 
-
-class DAProofDB : public  CacheLevelDB {
-
+class DAProofDB : public CacheLevelDB {
     recursive_mutex daProofMutex;
 
 public:
+    explicit DAProofDB(
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    explicit DAProofDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    ptr< BooleanProposalVector > addDAProof( const ptr< DAProof >& _daProof );
 
-    ptr<BooleanProposalVector> addDAProof(const ptr<DAProof>& _daProof);
-
-    ptr<BooleanProposalVector> getCurrentProposalVector(block_id _blockID);
+    ptr< BooleanProposalVector > getCurrentProposalVector( block_id _blockID );
 
     const string& getFormatVersion();
 
-    bool haveDAProof(const ptr<BlockProposal>& _proposal);
+    bool haveDAProof( const ptr< BlockProposal >& _proposal );
 
-    bool isEnoughProofs(block_id _blockID);
-    
-    string getDASig(block_id _blockId, schain_index _proposerIndex);
+    bool isEnoughProofs( block_id _blockID );
+
+    string getDASig( block_id _blockId, schain_index _proposerIndex );
 };
-
-
-

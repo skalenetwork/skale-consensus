@@ -26,5 +26,6 @@
 #include "Log.h"
 #include "exceptions/FatalError.h"
 
-CouldNotSendMessageException::CouldNotSendMessageException(const std::string &_message,  const string& _className) :
-ProposalProtocolException(_message, _className) {}
+CouldNotSendMessageException::CouldNotSendMessageException(
+    const std::string& _message, const string& _className )
+    : ProposalProtocolException( _message, _className ) {}

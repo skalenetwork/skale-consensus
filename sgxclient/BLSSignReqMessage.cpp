@@ -3,6 +3,3 @@
 //
 
 #include "BLSSignReqMessage.h"
-
-
-

@@ -21,9 +21,6 @@
     @date 2019
 */
 
-#pragma  once
+#pragma once
 
-class NTPClient {
-
-};
-
+class NTPClient {};

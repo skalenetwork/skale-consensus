@@ -49,13 +49,12 @@ public:
 
     uint64_t checkOracleResult( const string& _receipt, string& _result );
 
-    pair<uint64_t, string> submitOracleRequest( const string& _spec, string& _receipt );
-
+    pair< uint64_t, string > submitOracleRequest( const string& _spec, string& _receipt );
 
 
     void processResponseMessage( const ptr< MessageEnvelope >& _me );
 
-    void sendTestRequestAndWaitForResult(ptr<OracleRequestSpec> _spec);
+    void sendTestRequestAndWaitForResult( ptr< OracleRequestSpec > _spec );
 };
 
 

@@ -27,20 +27,19 @@
 #include "PricingStrategy.h"
 
 class DynamicPricingStrategy : public PricingStrategy {
-
     u256 minPrice = DEFAULT_MIN_PRICE;
-    u256 maxPrice = pow(u256(2), 200);
-    uint32_t  optimalLoadPercentage = 70;
-    uint32_t  adjustmentSpeed = 1000;
+    u256 maxPrice = pow( u256( 2 ), 200 );
+    uint32_t optimalLoadPercentage = 70;
+    uint32_t adjustmentSpeed = 1000;
 
 public:
     DynamicPricingStrategy( const u256& minPrice, const u256& maxPrice,
         uint32_t optimalLoadPercentage, uint32_t adjustmentSpeed );
 
-    u256 calculatePrice(u256 previousPrice, const ConsensusExtFace::transactions_vector &_approvedTransactions,
-                        uint64_t _timeStamp, uint32_t  _timeStampMs, block_id _blockID) override;
-
+    u256 calculatePrice( u256 previousPrice,
+        const ConsensusExtFace::transactions_vector& _approvedTransactions, uint64_t _timeStamp,
+        uint32_t _timeStampMs, block_id _blockID ) override;
 };
 
 
-#endif //SKALED_DYNAMICPRICINGSTRATEGY_H
+#endif  // SKALED_DYNAMICPRICINGSTRATEGY_H

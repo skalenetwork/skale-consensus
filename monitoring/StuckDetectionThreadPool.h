@@ -28,11 +28,8 @@
 #include "threads/WorkerThreadPool.h"
 
 class StuckDetectionThreadPool : public WorkerThreadPool {
-
 public:
+    StuckDetectionThreadPool( num_threads _numThreads, Agent* _agent );
 
-    StuckDetectionThreadPool(num_threads _numThreads, Agent* _agent);
-
-    void createThread(uint64_t _number) override;
-
+    void createThread( uint64_t _number ) override;
 };

@@ -18,8 +18,8 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
     jsonrpc::HttpClient client( "https://localhost:" + to_string( SGX_SSL_PORT ) );
     auto c = make_shared< StubClient >( client, jsonrpc::JSONRPC_CLIENT_V2 );
 
-    auto keyNames = make_shared<vector< string >>();
-    auto publicKeys = make_shared<vector< string >>();
+    auto keyNames = make_shared< vector< string > >();
+    auto publicKeys = make_shared< vector< string > >();
 
     using namespace CryptoPP;
 
@@ -36,29 +36,26 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
     }
 
 
-    CryptoManager cm( 4, 3, true, string ( "https://127.0.0.1:1026" ),
-        string ( keyFilePath ), string(certFilePath),
-        string(keyNames->at( 0 )), publicKeys );
+    CryptoManager cm( 4, 3, true, string( "https://127.0.0.1:1026" ), string( keyFilePath ),
+        string( certFilePath ), string( keyNames->at( 0 ) ), publicKeys );
 
     auto msg = make_shared< vector< uint8_t > >();
     msg->push_back( '1' );
     auto hash = BLAKE3Hash::calculateHash( msg );
-    auto sig = cm.sgxSignECDSA( hash, keyNames->at(0) );
+    auto sig = cm.sgxSignECDSA( hash, keyNames->at( 0 ) );
 
     cm.verifyECDSA( hash, sig, string( publicKeys->at( 0 ) ) );
 
-    auto key = CryptoManager::decodeSGXPublicKey( string(publicKeys->at(0)) );
+    auto key = CryptoManager::decodeSGXPublicKey( string( publicKeys->at( 0 ) ) );
 
     SUCCEED();
 }
 
 
-
-
 TEST_CASE( "Parse sgx keys", "[sgx-parse]" ) {
-    auto serverURL = string("http://localhost:1029");
-    auto eng = make_shared< ConsensusEngine >(0, 100000000);
-    eng->setTestKeys(serverURL, "run_sgx_test/sgx_data/4node.json", 4, 1 );
-    eng = make_shared< ConsensusEngine >(0, 100000000);
-    eng->setTestKeys(serverURL,  "run_sgx_test/sgx_data/16node.json", 16, 5 );
+    auto serverURL = string( "http://localhost:1029" );
+    auto eng = make_shared< ConsensusEngine >( 0, 100000000 );
+    eng->setTestKeys( serverURL, "run_sgx_test/sgx_data/4node.json", 4, 1 );
+    eng = make_shared< ConsensusEngine >( 0, 100000000 );
+    eng->setTestKeys( serverURL, "run_sgx_test/sgx_data/16node.json", 16, 5 );
 }

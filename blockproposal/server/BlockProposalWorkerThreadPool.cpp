@@ -26,7 +26,6 @@
 #include "Agent.h"
 
 
-
 #include "abstracttcpserver/AbstractServerAgent.h"
 #include "exceptions/FatalError.h"
 #include "thirdparty/json.hpp"
@@ -49,6 +48,6 @@ void BlockProposalWorkerThreadPool::createThread( uint64_t threadNumber ) {
             ( BlockProposalServerAgent* ) agent );
     };
 
-    LOCK(threadPoolLock);
+    LOCK( threadPoolLock );
     this->threadpool.push_back( make_shared< thread >( func ) );
 }

@@ -26,6 +26,6 @@
 #include "Log.h"
 #include "exceptions/FatalError.h"
 
-ProposalProtocolException::ProposalProtocolException(const std::string &_message, const string &_className) :
-        NetworkProtocolException(
-                _message, _className) {}
+ProposalProtocolException::ProposalProtocolException(
+    const std::string& _message, const string& _className )
+    : NetworkProtocolException( _message, _className ) {}

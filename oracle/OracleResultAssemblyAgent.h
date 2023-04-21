@@ -34,22 +34,19 @@ class OracleAssemblyThreadPool;
 class LivelinessMonitor;
 
 class OracleResultAssemblyAgent : public Agent {
+    queue< ptr< MessageEnvelope > > messageQueue;
 
-
-    queue<ptr<MessageEnvelope> > messageQueue;
-
-    ptr<OracleMessageThreadPool> oracleMessageThreadPool;
+    ptr< OracleMessageThreadPool > oracleMessageThreadPool;
 
 
 public:
+    queue< ptr< MessageEnvelope > >& getMessageQueue();
 
-    queue<ptr<MessageEnvelope>> &getMessageQueue();
-
-    OracleResultAssemblyAgent(Schain &_sChain);
-
-
-    static void messageThreadProcessingLoop(OracleResultAssemblyAgent *_agent);
+    OracleResultAssemblyAgent( Schain& _sChain );
 
 
-    void postMessage(const ptr<MessageEnvelope> &_me);
+    static void messageThreadProcessingLoop( OracleResultAssemblyAgent* _agent );
+
+
+    void postMessage( const ptr< MessageEnvelope >& _me );
 };

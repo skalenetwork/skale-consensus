@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 class NodeInfo;
 
@@ -33,14 +33,10 @@ class ProtocolKey;
 
 
 class NetworkMessageEnvelope : public MessageEnvelope {
-
     uint64_t arrivalTime = 0;
 
 public:
-    NetworkMessageEnvelope(const ptr <NetworkMessage> &message,
-                           schain_index _senderIndex);
+    NetworkMessageEnvelope( const ptr< NetworkMessage >& message, schain_index _senderIndex );
 
     [[nodiscard]] uint64_t getArrivalTime() const;
-
 };
-

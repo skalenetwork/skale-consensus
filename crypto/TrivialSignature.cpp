@@ -33,15 +33,15 @@
 #include "TrivialSignature.h"
 
 
-TrivialSignature::TrivialSignature(block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature(_blockID, _totalSigners, _requiredSigners) {
-}
+TrivialSignature::TrivialSignature(
+    block_id _blockID, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ) {}
 
 
 string TrivialSignature::toString() {
-    CHECK_STATE(false);
+    CHECK_STATE( false );
 };
 
 uint64_t TrivialSignature::getRandom() {
-    CHECK_STATE(false);
+    CHECK_STATE( false );
 }

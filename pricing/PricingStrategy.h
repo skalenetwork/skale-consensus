@@ -27,10 +27,11 @@
 
 class PricingStrategy {
 public:
-  virtual u256 calculatePrice(u256 previousPrice, const ConsensusExtFace::transactions_vector &_approvedTransactions,
-          uint64_t _timeStamp, uint32_t _timeStampMs,  block_id _blockID) = 0;
+    virtual u256 calculatePrice( u256 previousPrice,
+        const ConsensusExtFace::transactions_vector& _approvedTransactions, uint64_t _timeStamp,
+        uint32_t _timeStampMs, block_id _blockID ) = 0;
     virtual ~PricingStrategy() {}
 };
 
 
-#endif //SKALED_PRICINGSTRATEGY_H
+#endif  // SKALED_PRICINGSTRATEGY_H

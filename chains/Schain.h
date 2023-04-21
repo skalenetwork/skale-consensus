@@ -206,8 +206,7 @@ class Schain : public Agent {
 
 
 public:
-
-    void addBlockErrorAnalyzer( ptr<BlockErrorAnalyzer> _blockErrorAnalyzer );
+    void addBlockErrorAnalyzer( ptr< BlockErrorAnalyzer > _blockErrorAnalyzer );
 
     static void writeToVisualizationStream( string& _s );
 
@@ -346,7 +345,6 @@ public:
 
 
     uint64_t getVerifyDaSigsPatchTimestampS() const;
-
 
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,

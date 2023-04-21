@@ -21,27 +21,25 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "DataStructure.h"
 
 class BooleanProposalVector : public DataStructure {
-
-    vector<bool> proposals; // thread safe
+    vector< bool > proposals;  // thread safe
 
     uint64_t nodeCount = 0;
-    uint64_t  trueCount = 0;
+    uint64_t trueCount = 0;
 
 public:
+    BooleanProposalVector(
+        node_count _nodeCount, const ptr< map< schain_index, string > >& _receivedDAProofs );
 
-    BooleanProposalVector(node_count _nodeCount, const ptr<map<schain_index, string>>& _receivedDAProofs);
+    BooleanProposalVector( node_count _nodeCount, const string& _vectorStr );
 
-    BooleanProposalVector(node_count _nodeCount, const string& _vectorStr);
-
-    bool getProposalValue(schain_index _index);
+    bool getProposalValue( schain_index _index );
 
     [[nodiscard]] uint64_t getTrueCount() const;
 
     string toString();
 };
-

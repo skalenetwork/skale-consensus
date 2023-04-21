@@ -29,19 +29,17 @@ class Schain;
 class StuckDetectionThreadPool;
 class LivelinessMonitor;
 
-class StuckDetectionAgent : public Agent  {
-
+class StuckDetectionAgent : public Agent {
     ptr< StuckDetectionThreadPool > stuckDetectionThreadPool = nullptr;
 
 public:
-
     explicit StuckDetectionAgent( Schain& _sChain );
 
     static void StuckDetectionLoop( StuckDetectionAgent* agent );
 
     void join();
 
-    uint64_t checkForRestart(uint64_t _restartIteration);
+    uint64_t checkForRestart( uint64_t _restartIteration );
 
     void restart( uint64_t _baseRestartTimeMs, uint64_t _iteration );
 
@@ -49,10 +47,9 @@ public:
 
     void cleanupState();
 
-    string createStuckFileName(uint64_t _iteration);
+    string createStuckFileName( uint64_t _iteration );
 
     bool checkNodesAreOnline();
 
-    bool stuckCheck(uint64_t _restartIntervalMs,  uint64_t _timeStamp);
-
+    bool stuckCheck( uint64_t _restartIntervalMs, uint64_t _timeStamp );
 };

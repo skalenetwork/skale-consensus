@@ -225,12 +225,12 @@ ptr< OracleResponseMessage > OracleServerAgent::doEndpointRequestResponse(
     ptr< OracleResult > oracleResult = nullptr;
 
     try {
-        oracleResult = make_shared<OracleResult>(
-                _requestSpec, status, response, getSchain()->getCryptoManager());
-    } catch (OracleException& e) {
+        oracleResult = make_shared< OracleResult >(
+            _requestSpec, status, response, getSchain()->getCryptoManager() );
+    } catch ( OracleException& e ) {
         static string EMPTY = "";
-        oracleResult = make_shared<OracleResult>(
-                _requestSpec, e.getError(), EMPTY, getSchain()->getCryptoManager());
+        oracleResult = make_shared< OracleResult >(
+            _requestSpec, e.getError(), EMPTY, getSchain()->getCryptoManager() );
     }
 
     auto resultStr = oracleResult->toString();
@@ -253,7 +253,7 @@ uint64_t OracleServerAgent::curlHttp(
     struct MemoryStruct chunk;
     chunk.memory = ( char* ) malloc( 1 ); /* will be grown as needed by the realloc above */
     CHECK_STATE( chunk.memory );
-    chunk.size = 0;                       /* no data at this point */
+    chunk.size = 0; /* no data at this point */
 
     curl = curl_easy_init();
 

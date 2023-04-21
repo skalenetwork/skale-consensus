@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "Header.h"
 
@@ -31,15 +31,13 @@ class Schain;
 class CommittedBlock;
 
 class BlockProposalHeader : public BasicHeader {
-
-
     schain_id schainID{};
     schain_index proposerIndex{};
     node_id proposerNodeID{};
     block_id blockID{};
     string blockHash;
     string signature;
-    ptr<vector<uint64_t>> transactionSizes;
+    ptr< vector< uint64_t > > transactionSizes;
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
     u256 stateRoot = 0;
@@ -53,18 +51,18 @@ public:
 
     block_id getBlockID();
 
-    explicit BlockProposalHeader(nlohmann::json& _json);
+    explicit BlockProposalHeader( nlohmann::json& _json );
 
-    explicit BlockProposalHeader(BlockProposal & _block);
+    explicit BlockProposalHeader( BlockProposal& _block );
 
     string getBlockHash() {
-        CHECK_STATE(!blockHash.empty());
+        CHECK_STATE( !blockHash.empty() );
         return blockHash;
     }
 
-    void addFields(nlohmann::json &j) override;
+    void addFields( nlohmann::json& j ) override;
 
-    ptr<vector<uint64_t>> getTransactionSizes();
+    ptr< vector< uint64_t > > getTransactionSizes();
 
     schain_index getProposerIndex();
 
@@ -72,8 +70,5 @@ public:
 
     [[nodiscard]] uint64_t getTimeStamp() const;
 
-    [[nodiscard]] uint32_t getTimeStampMs() const ;
+    [[nodiscard]] uint32_t getTimeStampMs() const;
 };
-
-
-

@@ -31,5 +31,6 @@
 #include "ChildMessage.h"
 
 
-ChildMessage::ChildMessage(MsgType _msgType, ProtocolInstance &srcProtocolInstance,
-                           ptr<ProtocolKey> _key) : InternalMessage(_msgType, srcProtocolInstance, _key) {}
+ChildMessage::ChildMessage(
+    MsgType _msgType, ProtocolInstance& srcProtocolInstance, ptr< ProtocolKey > _key )
+    : InternalMessage( _msgType, srcProtocolInstance, _key ) {}

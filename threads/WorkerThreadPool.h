@@ -30,7 +30,6 @@ class GlobalThreadRegistry;
 
 
 class WorkerThreadPool {
-
     bool dontJoinGlobalRegistry = false;
 
     bool started = false;
@@ -38,20 +37,17 @@ class WorkerThreadPool {
     virtual void createThread( uint64_t threadNumber ) = 0;
 
 protected:
-
     bool joined = false;
 
-    vector<ptr<thread>> threadpool;
+    vector< ptr< thread > > threadpool;
     recursive_mutex threadPoolLock;
     num_threads numThreads = 0;
     Agent* agent = nullptr;
 
 protected:
-
-    WorkerThreadPool(num_threads _numThreads, Agent *_agent, bool _dontJoinGlobalRegistry);
+    WorkerThreadPool( num_threads _numThreads, Agent* _agent, bool _dontJoinGlobalRegistry );
 
 public:
-
     virtual ~WorkerThreadPool();
 
     virtual void startService();
@@ -59,6 +55,4 @@ public:
     void joinAll();
 
     bool isJoined() const;
-
-
 };

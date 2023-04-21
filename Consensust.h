@@ -27,14 +27,13 @@
 #define STUCK_TEST_TIME 5
 
 class Consensust {
-
     static uint64_t runningTimeS;
     static fs_path configDirPath;
 
 public:
-    static const fs_path &getConfigDirPath();
+    static const fs_path& getConfigDirPath();
 
-    static void setConfigDirPath(const fs_path &_configDirPath);
+    static void setConfigDirPath( const fs_path& _configDirPath );
 
     static void useCorruptConfigs();
 
@@ -44,12 +43,4 @@ public:
     static void testInit();
 
     static void testFinalize();
-
-
-
 };
-
-
-
-
-

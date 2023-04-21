@@ -27,17 +27,16 @@
 #include "openssl/ec.h"
 
 class OpenSSLECDSAKey {
-
     bool isPrivate = false;
 
-    EC_KEY *ecKey = nullptr;
+    EC_KEY* ecKey = nullptr;
 
-    static EC_GROUP *ecgroup;
-    static EC_GROUP *ecgroupFast;
+    static EC_GROUP* ecgroup;
+    static EC_GROUP* ecgroupFast;
 
     bool isFast = false;
 
-    string ecdsaSignImpl( const char* _hash) const;
+    string ecdsaSignImpl( const char* _hash ) const;
 
     static EC_KEY* deserializeECDSAPubKey( const string& _publicKey );
     static EC_KEY* deserializeSGXPubKey( const string& _publicKey );
@@ -47,20 +46,19 @@ class OpenSSLECDSAKey {
     static void initGroupsIfNeeded();
 
 public:
-
-    OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate, bool _isFast);
+    OpenSSLECDSAKey( EC_KEY* _eckey, bool _isPrivate, bool _isFast );
 
     virtual ~OpenSSLECDSAKey();
 
     string serializePubKey();
 
-    string sign(const char* hash);
+    string sign( const char* hash );
 
-    void verifySig(const string& _signature, const char* _hash );
-    void verifySGXSig(const string& _sig, const char* _hash);
+    void verifySig( const string& _signature, const char* _hash );
+    void verifySGXSig( const string& _sig, const char* _hash );
 
-    static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey);
-    static ptr< OpenSSLECDSAKey > importPubKey( const string& _publicKey);
+    static ptr< OpenSSLECDSAKey > importSGXPubKey( const string& _publicKey );
+    static ptr< OpenSSLECDSAKey > importPubKey( const string& _publicKey );
 
     static ptr< OpenSSLECDSAKey > generateKey();
 };

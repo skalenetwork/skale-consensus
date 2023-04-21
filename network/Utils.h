@@ -21,27 +21,24 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include <cstdint>
 #include "abstracttcpserver/ConnectionStatus.h"
 
 class Utils {
-
     static const uint64_t TIME_START = 2208988800;
 
 public:
-
-    static ptr<vector<uint8_t>> u256ToBigEndianArray(const u256 &_value);
+    static ptr< vector< uint8_t > > u256ToBigEndianArray( const u256& _value );
 
     static void checkTime();
 
-    static bool isValidIpAddress(const string& ipAddress);
+    static bool isValidIpAddress( const string& ipAddress );
 
-    static string carray2Hex(const uint8_t *d, size_t _len);
+    static string carray2Hex( const uint8_t* d, size_t _len );
 
     static uint char2int( char _input );
 
-    static void cArrayFromHex(const string &_hex, uint8_t *_data, size_t len);
+    static void cArrayFromHex( const string& _hex, uint8_t* _data, size_t len );
 };
-
