@@ -507,34 +507,6 @@
       <workItem from="1680172553777" duration="4927000" />
       <workItem from="1680282100830" duration="3952000" />
     </task>
-    <task id="LOCAL-00113" summary="bug/SKALE-4699">
-      <created>1634836843425</created>
-      <option name="number" value="00113" />
-      <option name="presentableId" value="LOCAL-00113" />
-      <option name="project" value="LOCAL" />
-      <updated>1634836843425</updated>
-    </task>
-    <task id="LOCAL-00114" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1639477540365</created>
-      <option name="number" value="00114" />
-      <option name="presentableId" value="LOCAL-00114" />
-      <option name="project" value="LOCAL" />
-      <updated>1639477540366</updated>
-    </task>
-    <task id="LOCAL-00115" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1639483636185</created>
-      <option name="number" value="00115" />
-      <option name="presentableId" value="LOCAL-00115" />
-      <option name="project" value="LOCAL" />
-      <updated>1639483636185</updated>
-    </task>
-    <task id="LOCAL-00116" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1639486510023</created>
-      <option name="number" value="00116" />
-      <option name="presentableId" value="LOCAL-00116" />
-      <option name="project" value="LOCAL" />
-      <updated>1639486510024</updated>
-    </task>
     <task id="LOCAL-00117" summary="bug/SKALE-4616-oracle-mvp">
       <created>1639486754611</created>
       <option name="number" value="00117" />
@@ -850,7 +822,35 @@
       <option name="project" value="LOCAL" />
       <updated>1682088838034</updated>
     </task>
-    <option name="localTasksCounter" value="162" />
+    <task id="LOCAL-00162" summary="769 Clang-format">
+      <created>1682089096150</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
+      <option name="project" value="LOCAL" />
+      <updated>1682089096150</updated>
+    </task>
+    <task id="LOCAL-00163" summary="769 Clang-format">
+      <created>1682089170957</created>
+      <option name="number" value="00163" />
+      <option name="presentableId" value="LOCAL-00163" />
+      <option name="project" value="LOCAL" />
+      <updated>1682089170957</updated>
+    </task>
+    <task id="LOCAL-00164" summary="769 Clang-format">
+      <created>1682089268995</created>
+      <option name="number" value="00164" />
+      <option name="presentableId" value="LOCAL-00164" />
+      <option name="project" value="LOCAL" />
+      <updated>1682089268996</updated>
+    </task>
+    <task id="LOCAL-00165" summary="769 Clang-format">
+      <created>1682089371147</created>
+      <option name="number" value="00165" />
+      <option name="presentableId" value="LOCAL-00165" />
+      <option name="project" value="LOCAL" />
+      <updated>1682089371147</updated>
+    </task>
+    <option name="localTasksCounter" value="166" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
