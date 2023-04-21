@@ -47,7 +47,6 @@
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockProposalDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockProposalDB.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -509,13 +508,6 @@
       <workItem from="1680172553777" duration="4927000" />
       <workItem from="1680282100830" duration="3952000" />
     </task>
-    <task id="LOCAL-00123" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1641905777419</created>
-      <option name="number" value="00123" />
-      <option name="presentableId" value="LOCAL-00123" />
-      <option name="project" value="LOCAL" />
-      <updated>1641905777419</updated>
-    </task>
     <task id="LOCAL-00124" summary="bug/SKALE-4616-oracle-mvp">
       <created>1641906031545</created>
       <option name="number" value="00124" />
@@ -852,7 +844,14 @@
       <option name="project" value="LOCAL" />
       <updated>1682099353248</updated>
     </task>
-    <option name="localTasksCounter" value="172" />
+    <task id="LOCAL-00172" summary="709 memory leak in skaled">
+      <created>1682100801512</created>
+      <option name="number" value="00172" />
+      <option name="presentableId" value="LOCAL-00172" />
+      <option name="project" value="LOCAL" />
+      <updated>1682100801512</updated>
+    </task>
+    <option name="localTasksCounter" value="173" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

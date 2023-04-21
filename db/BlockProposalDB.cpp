@@ -191,9 +191,6 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
     if ( !proposal )
         return nullptr;
 
-
-    addProposalToCacheIfDoesNotExist( proposal );
-
     CHECK_STATE( !proposal->getSignature().empty() );
 
     return proposal;
