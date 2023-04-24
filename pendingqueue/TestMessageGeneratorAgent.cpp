@@ -46,7 +46,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     size_t _limit ) {
     // test oracle for the first block
 
-    uint64_t messageSize = 10;
+    uint64_t messageSize = 500;
 
     ConsensusExtFace::transactions_vector result;
 

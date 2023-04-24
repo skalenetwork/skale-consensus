@@ -46,9 +46,9 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -510,13 +510,6 @@
       <workItem from="1680172553777" duration="4927000" />
       <workItem from="1680282100830" duration="3952000" />
     </task>
-    <task id="LOCAL-00127" summary="bug/SKALE-4616-oracle-mvp">
-      <created>1641916194806</created>
-      <option name="number" value="00127" />
-      <option name="presentableId" value="LOCAL-00127" />
-      <option name="project" value="LOCAL" />
-      <updated>1641916194806</updated>
-    </task>
     <task id="LOCAL-00128" summary="bug/SKALE-4616-oracle-mvp">
       <created>1641932112319</created>
       <option name="number" value="00128" />
@@ -853,7 +846,14 @@
       <option name="project" value="LOCAL" />
       <updated>1682108910632</updated>
     </task>
-    <option name="localTasksCounter" value="176" />
+    <task id="LOCAL-00176" summary="709 memory leak in skaled">
+      <created>1682350663161</created>
+      <option name="number" value="00176" />
+      <option name="presentableId" value="LOCAL-00176" />
+      <option name="project" value="LOCAL" />
+      <updated>1682350663161</updated>
+    </task>
+    <option name="localTasksCounter" value="177" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
