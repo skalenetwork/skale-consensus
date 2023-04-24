@@ -78,7 +78,7 @@ private:
     };
 
     unordered_map< ptr< partial_sha_hash >, ptr< Transaction >, Hasher, Equal > knownTransactions;
-    queue<ptr<Transaction>> knownTransactionsQueue;
+    queue< ptr< Transaction > > knownTransactionsQueue;
 
     uint64_t knownTransactionsTotalSize = 0;
 

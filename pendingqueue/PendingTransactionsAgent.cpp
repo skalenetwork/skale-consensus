@@ -177,16 +177,16 @@ void PendingTransactionsAgent::pushKnownTransaction( const ptr< Transaction >& _
     CHECK_STATE( partialHash );
 
     knownTransactions[partialHash] = _transaction;
-    knownTransactionsQueue.push(_transaction);
-    CHECK_STATE(knownTransactions.size() == knownTransactionsQueue.size());
+    knownTransactionsQueue.push( _transaction );
+    CHECK_STATE( knownTransactions.size() == knownTransactionsQueue.size() );
     knownTransactionsTotalSize += ( _transaction->getData()->size() + PARTIAL_HASH_LEN );
 
     while ( knownTransactions.size() > KNOWN_TRANSACTIONS_HISTORY ||
             knownTransactionsTotalSize > MAX_KNOWN_TRANSACTIONS_TOTAL_SIZE ) {
         auto tx = knownTransactionsQueue.front();
-        CHECK_STATE(tx);
+        CHECK_STATE( tx );
         knownTransactionsTotalSize -= ( tx->getData()->size() + PARTIAL_HASH_LEN );
-        CHECK_STATE(knownTransactions.count(tx->getPartialHash()) > 0);
+        CHECK_STATE( knownTransactions.count( tx->getPartialHash() ) > 0 );
         knownTransactions.erase( tx->getPartialHash() );
         knownTransactionsQueue.pop();
     }
@@ -195,6 +195,6 @@ void PendingTransactionsAgent::pushKnownTransaction( const ptr< Transaction >& _
 
 uint64_t PendingTransactionsAgent::getKnownTransactionsSize() {
     READ_LOCK( transactionsMutex );
-    CHECK_STATE(knownTransactions.size() == knownTransactionsQueue.size());
+    CHECK_STATE( knownTransactions.size() == knownTransactionsQueue.size() );
     return knownTransactions.size();
 }
