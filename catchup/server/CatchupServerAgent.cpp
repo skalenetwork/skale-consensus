@@ -59,10 +59,11 @@
 #include "network/ServerConnection.h"
 #include "network/Sockets.h"
 
-#include "CatchupServerAgent.h"
+
 #include "datastructures/BlockProposalFragment.h"
 #include "datastructures/CommittedBlock.h"
-
+#include "db/BlockProposalDB.h"
+#include "CatchupServerAgent.h"
 
 CatchupServerAgent::CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s )
     : AbstractServerAgent( "CatchupServer", _schain, _s ) {
@@ -313,38 +314,52 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
         }
 
 
-        auto proposal = getSchain()->getBlockProposal( _blockID, proposerIndex );
+        // We could have either a proposal or a committed block. Try proposal first.
 
-        if ( proposal == nullptr ) {
-            LOG( debug, "No proposal in finalization:" + to_string( proposerIndex ) );
+        auto proposal = getSchain()->getNode()->getBlockProposalDB()->getBlockProposal(
+            _blockID, proposerIndex );
+        string daSig;
 
+
+        // did not find the proposal or we do not have da proof from it
+        // try committed block
+        if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal ) ) {
+            // Could not find proposal with DA proof. Try committed block
 
             auto committedBlock = getSchain()->getBlock( _blockID );
 
-            if ( committedBlock &&
-                 committedBlock->getProposerIndex() == ( uint64_t ) proposerIndex ) {
+            // found committed block
+            if ( committedBlock ) {
+                // first check that the proposer index
+                // the client should not be asking for an incorrect proposer index
+                // since at this time we already not which index has been committed
+                if ( committedBlock->getProposerIndex() != ( uint64_t ) proposerIndex ) {
+                    _responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT,
+                        CONNECTION_FINALIZER_CLIENT_ASKING_FOR_INCORRECT_PROPOSER_INDEX );
+                    _responseHeader->setComplete();
+                    return nullptr;
+                }
                 proposal = committedBlock;
+                daSig = committedBlock->getDaSig();
             } else {
                 _responseHeader->setStatusSubStatus(
                     CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL );
                 _responseHeader->setComplete();
                 return nullptr;
             }
+        } else {
+            daSig = getNode()->getDaProofDB()->getDASig(
+                proposal->getBlockID(), proposal->getProposerIndex() );
         }
 
-        if ( !getNode()->getDaProofDB()->haveDAProof( proposal ) ) {
-            LOG( trace, "Dont have DA proof:" + to_string( proposerIndex ) );
-            _responseHeader->setStatusSubStatus(
-                CONNECTION_DISCONNECT, CONNECTION_DONT_HAVE_DA_PROOF_FOR_PROPOSAL );
-            _responseHeader->setComplete();
-            return nullptr;
-        }
+        CHECK_STATE( !daSig.empty() );
+
 
         auto fragment =
             proposal->getFragment( ( uint64_t ) getSchain()->getNodeCount() - 1, fragmentIndex );
 
 
-        CHECK_STATE( fragment != nullptr );
+        CHECK_STATE( fragment );
 
         _responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );
 
@@ -352,11 +367,8 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
 
         CHECK_STATE( serializedFragment );
 
-        auto daProofSig = getNode()->getDaProofDB()->getDASig(
-            proposal->getBlockID(), proposal->getProposerIndex() );
-
         _responseHeader->setFragmentParams( serializedFragment->size(),
-            proposal->serializeProposal()->size(), proposal->getHash().toHex(), daProofSig );
+            proposal->serializeProposal()->size(), proposal->getHash().toHex(), daSig );
 
         return serializedFragment;
     } catch ( ExitRequestedException& e ) {

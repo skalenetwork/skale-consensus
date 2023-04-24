@@ -149,9 +149,6 @@ using namespace std;
 
 static const uint64_t LEVELDB_SHARDS = 4;
 
-static const uint64_t BLOCK_PROPOSAL_HISTORY_SIZE = 1;
-
-static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1024 * 1024;
 
 static const uint64_t MAX_ACTIVE_CONSENSUSES = 5;
 
@@ -423,6 +420,9 @@ extern std::string getThreadName();
     };
 
 #define LOCK( _M_ ) lock_guard< recursive_mutex > _lock_( _M_ );
+
+#define READ_LOCK( _M_ ) shared_lock< shared_mutex > _read_lock_( _M_ );
+#define WRITE_LOCK( _M_ ) unique_lock< shared_mutex > _write_lock_( _M_ );
 
 #define RETURN_IF_PREVIOUSLY_CALLED( __BOOL__ )          \
     auto __previouslyCalled = __BOOL__.exchange( true ); \

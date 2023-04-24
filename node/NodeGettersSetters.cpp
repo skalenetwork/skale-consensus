@@ -304,10 +304,6 @@ uint64_t Node::getConsensusStateDBSize() const {
 }
 
 
-uint64_t Node::getCommittedTransactionHistoryLimit() const {
-    return committedTransactionsHistory;
-}
-
 void Node::setBasePort( const network_port& _basePort ) {
     CHECK_ARGUMENT( _basePort > 0 );
     basePort = _basePort;

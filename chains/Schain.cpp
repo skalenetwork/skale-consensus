@@ -581,6 +581,7 @@ void Schain::printBlockLog( const ptr< CommittedBlock >& _block ) {
            << ":BID: " << _block->getBlockID()
            << ":ROOT:" << _block->getStateRoot().convert_to< string >() << ":HASH:" << h
            << ":BLOCK_TXS:" << _block->getTransactionCount() << ":DMSG:" << getMessagesCount()
+           << ":TPRPS:" << BlockProposal::getTotalObjects()
            << ":MPRPS:" << MyBlockProposal::getTotalObjects()
            << ":RPRPS:" << ReceivedBlockProposal::getTotalObjects()
            << ":TXS:" << Transaction::getTotalObjects()
@@ -613,23 +614,8 @@ void Schain::printBlockLog( const ptr< CommittedBlock >& _block ) {
 
     // get periodic stats
     static atomic< uint64_t > counter = 1;
-    if ( counter % 1000 == 0 ) {
-        // Print heap stats every 1000 blocks
-        LOG( info, "HEAP_STATS" );
-        char* bp = nullptr;
-        size_t size = 0;
-        FILE* stream = open_memstream( &bp, &size );
-        CHECK_STATE( stream );
-        ;
-        CHECK_STATE( malloc_info( 0, stream ) == 0 );
-        fclose( stream );
-        CHECK_STATE( bp );
-        LOG( info, bp );
-        free( bp );
-        LOG( info, "END_HEAP_STATS" );
-    }
 
-    if ( counter % 100 == 0 ) {
+    if ( counter % 20 == 0 ) {
         output.str( "" );
         output << "LEVELDB_MEM_STATS:BLOCKS:" << getNode()->getBlockDB()->getMemoryUsed();
         ;
@@ -645,6 +631,7 @@ void Schain::printBlockLog( const ptr< CommittedBlock >& _block ) {
         output << ":IIN:" << getNode()->getInternalInfoDB()->getMemoryUsed();
         output << ":DAS:" << getNode()->getDaSigShareDB()->getMemoryUsed();
         LOG( info, output.str() );
+        LOG( info, Utils::getRusage() );
     }
 
     counter++;
@@ -673,7 +660,11 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         saveBlock( _block );
 
+        cleanupUnneededMemoryBeforePushingToEvm( _block );
+
         auto evmProcessingStartMs = Time::getCurrentTimeMs();
+
+
         pushBlockToExtFace( _block );
         auto evmProcessingTimeMs = Time::getCurrentTimeMs() - evmProcessingStartMs;
 
@@ -702,6 +693,20 @@ void Schain::saveBlock( const ptr< CommittedBlock >& _block ) {
     try {
         checkForExit();
         getNode()->getBlockDB()->saveBlock( _block );
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+    }
+}
+
+void Schain::cleanupUnneededMemoryBeforePushingToEvm( const ptr< CommittedBlock > _block ) {
+    CHECK_ARGUMENT( _block );
+
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
+    try {
+        getNode()->getBlockProposalDB()->cleanupUnneededMemoryBeforePushingToEvm( _block );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {

@@ -156,7 +156,7 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
 
 ptr< Transaction > PendingTransactionsAgent::getKnownTransactionByPartialHash(
     const ptr< partial_sha_hash > hash ) {
-    LOCK( transactionsMutex );
+    READ_LOCK( transactionsMutex );
     if ( knownTransactions.count( hash ) )
         return knownTransactions.at( hash );
     return nullptr;
@@ -165,7 +165,7 @@ ptr< Transaction > PendingTransactionsAgent::getKnownTransactionByPartialHash(
 void PendingTransactionsAgent::pushKnownTransaction( const ptr< Transaction >& _transaction ) {
     CHECK_ARGUMENT( _transaction );
 
-    LOCK( transactionsMutex );
+    WRITE_LOCK( transactionsMutex );
 
     if ( knownTransactions.count( _transaction->getPartialHash() ) ) {
         LOG( trace, "Duplicate transaction pushed to known transactions" );
@@ -177,20 +177,24 @@ void PendingTransactionsAgent::pushKnownTransaction( const ptr< Transaction >& _
     CHECK_STATE( partialHash );
 
     knownTransactions[partialHash] = _transaction;
+    knownTransactionsQueue.push( _transaction );
+    CHECK_STATE( knownTransactions.size() == knownTransactionsQueue.size() );
     knownTransactionsTotalSize += ( _transaction->getData()->size() + PARTIAL_HASH_LEN );
 
     while ( knownTransactions.size() > KNOWN_TRANSACTIONS_HISTORY ||
             knownTransactionsTotalSize > MAX_KNOWN_TRANSACTIONS_TOTAL_SIZE ) {
-        auto tx = knownTransactions.begin();
-        CHECK_STATE( tx->first );
-        CHECK_STATE( tx->second );
-        knownTransactionsTotalSize -= ( tx->second->getData()->size() + PARTIAL_HASH_LEN );
-        knownTransactions.erase( tx->first );
+        auto tx = knownTransactionsQueue.front();
+        CHECK_STATE( tx );
+        knownTransactionsTotalSize -= ( tx->getData()->size() + PARTIAL_HASH_LEN );
+        CHECK_STATE( knownTransactions.count( tx->getPartialHash() ) > 0 );
+        knownTransactions.erase( tx->getPartialHash() );
+        knownTransactionsQueue.pop();
     }
 }
 
 
 uint64_t PendingTransactionsAgent::getKnownTransactionsSize() {
-    LOCK( transactionsMutex );
+    READ_LOCK( transactionsMutex );
+    CHECK_STATE( knownTransactions.size() == knownTransactionsQueue.size() );
     return knownTransactions.size();
 }

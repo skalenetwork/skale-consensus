@@ -98,6 +98,7 @@ BlockProposal::BlockProposal( uint64_t _timeStamp, uint32_t _timeStampMs )
     : timeStamp( _timeStamp ), timeStampMs( _timeStampMs ) {
     proposerNodeID = 0;
     creationTime = Time::getCurrentTimeMs();
+    totalBlockProposalObjects++;
 };
 
 BlockProposal::BlockProposal( schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
@@ -132,6 +133,8 @@ BlockProposal::BlockProposal( schain_id _sChainId, node_id _proposerNodeId, bloc
         CHECK_ARGUMENT( _signature != "" );
         signature = _signature;
     }
+
+    totalBlockProposalObjects++;
 }
 
 
@@ -158,7 +161,9 @@ ptr< PartialHashesList > BlockProposal::createPartialHashesList() {
         ( transaction_count ) transactionCount, partialHashes );
 }
 
-BlockProposal::~BlockProposal() {}
+BlockProposal::~BlockProposal() {
+    totalBlockProposalObjects--;
+}
 
 block_id BlockProposal::getBlockID() const {
     return blockID;
@@ -476,4 +481,11 @@ TimeStamp BlockProposal::getTimeStamp() const {
 
 uint64_t BlockProposal::getCreationTime() const {
     return creationTime;
+}
+
+
+atomic< int64_t > BlockProposal::totalBlockProposalObjects( 0 );
+
+uint64_t BlockProposal::getTotalObjects() {
+    return totalBlockProposalObjects;
 }

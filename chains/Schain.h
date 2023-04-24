@@ -193,6 +193,8 @@ class Schain : public Agent {
 
     void saveBlock( const ptr< CommittedBlock >& _block );
 
+    void cleanupUnneededMemoryBeforePushingToEvm( const ptr< CommittedBlock > _block );
+
     void pushBlockToExtFace( const ptr< CommittedBlock >& _block );
 
     ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );
@@ -246,8 +248,6 @@ public:
     void createBlockConsensusInstance();
 
     void joinMonitorAndTimeoutThreads();
-
-    ptr< BlockProposal > getBlockProposal( block_id _blockID, schain_index _schainIndex );
 
     void constructServers( const ptr< Sockets >& _sockets );
 

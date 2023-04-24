@@ -89,12 +89,6 @@ block_id Schain::getLastCommittedBlockID() const {
     return lastCommittedBlockID.load();
 }
 
-ptr< BlockProposal > Schain::getBlockProposal( block_id _blockID, schain_index _schainIndex ) {
-    MONITOR( __CLASS_NAME__, __FUNCTION__ )
-
-    return getNode()->getBlockProposalDB()->getBlockProposal( _blockID, _schainIndex );
-}
-
 
 ptr< CommittedBlock > Schain::getBlock( block_id _blockID ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )

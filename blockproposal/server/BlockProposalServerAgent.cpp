@@ -492,8 +492,11 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
+
+    // We do not accept proposals from others until we did not yet propose
     if ( ( uint64_t ) sChain->getLastCommittedBlockID() + 1 < ( uint64_t ) blockIDInHeader ||
-         sChain->getBlockProposal( blockIDInHeader, sChain->getSchainIndex() ) == nullptr ) {
+         sChain->getNode()->getBlockProposalDB()->getBlockProposal(
+             blockIDInHeader, sChain->getSchainIndex() ) == nullptr ) {
         responseHeader->setStatusSubStatus(
             CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
         responseHeader->setComplete();
@@ -510,10 +513,11 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
 
 
     auto myBlockProposalForTheSameBlockID =
-        sChain->getBlockProposal( blockIDInHeader, sChain->getSchainIndex() );
+        sChain->getNode()->getBlockProposalDB()->getBlockProposal(
+            blockIDInHeader, sChain->getSchainIndex() );
 
 
-    if ( myBlockProposalForTheSameBlockID == nullptr ) {
+    if ( !myBlockProposalForTheSameBlockID ) {
         // did not create proposal yet, ask the client to retry later
         responseHeader->setStatusSubStatus(
             CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
@@ -527,27 +531,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         responseHeader->setStatusSubStatus(
             CONNECTION_ERROR, CONNECTION_PROPOSAL_STATE_ROOT_DOES_NOT_MATCH );
         responseHeader->setComplete();
-        LOG( err, "Proposal state root does not match: " );
-        LOG( err, " My schain index:" + to_string( getSchain()->getSchainIndex() ) +
-                      " My root:" + myBlockProposalForTheSameBlockID->getStateRoot().str() );
-
-        LOG( err, "Sender schain index:" + to_string( _header.getProposerIndex() ) +
-                      " Sender root:" + _header.getStateRoot().str() );
-
-
-        LOG( err, "State roots of other proposals:" );
-
-        auto proposalDB = getNode()->getBlockProposalDB();
-
-        for ( uint64_t i = 1; i <= getSchain()->getNodeCount(); i++ ) {
-            auto proposal = proposalDB->getBlockProposal( blockIDInHeader, i );
-            if ( proposal ) {
-                LOG( err, "schain_index:" + to_string( proposal->getProposerIndex() ) +
-                              " root:" + proposal->getStateRoot().str() );
-            }
-        }
-
-
+        logStateRootMismatchError( _header, blockIDInHeader, myBlockProposalForTheSameBlockID );
         return responseHeader;
     }
 
@@ -602,6 +586,28 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );
     responseHeader->setComplete();
     return responseHeader;
+}
+void BlockProposalServerAgent::logStateRootMismatchError( BlockProposalRequestHeader& _header,
+    block_id& blockIDInHeader, const ptr< BlockProposal >& myBlockProposalForTheSameBlockID ) {
+    LOG( err, "Proposal state root does not match: " );
+    LOG( err, " My schain index:" + to_string( getSchain()->getSchainIndex() ) +
+                  " My root:" + myBlockProposalForTheSameBlockID->getStateRoot().str() );
+
+    LOG( err, "Sender schain index:" + to_string( _header.getProposerIndex() ) +
+                  " Sender root:" + _header.getStateRoot().str() );
+
+
+    LOG( err, "State roots of other proposals:" );
+
+    auto proposalDB = getNode()->getBlockProposalDB();
+
+    for ( uint64_t i = 1; i <= getSchain()->getNodeCount(); i++ ) {
+        auto proposal = proposalDB->getBlockProposal( blockIDInHeader, i );
+        if ( proposal ) {
+            LOG( err, "schain_index:" + to_string( proposal->getProposerIndex() ) +
+                          " root:" + proposal->getStateRoot().str() );
+        }
+    }
 }
 
 ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
@@ -685,8 +691,8 @@ ptr< Header > BlockProposalServerAgent::createDAProofResponseHeader(
         return responseHeader;
     }
 
-    auto proposal =
-        getSchain()->getBlockProposal( _header->getBlockId(), _header->getProposerIndex() );
+    auto proposal = getSchain()->getNode()->getBlockProposalDB()->getBlockProposal(
+        _header->getBlockId(), _header->getProposerIndex() );
 
     if ( proposal == nullptr ) {
         responseHeader->setStatusSubStatus(

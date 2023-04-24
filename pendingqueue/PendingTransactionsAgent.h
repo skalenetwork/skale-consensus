@@ -78,10 +78,11 @@ private:
     };
 
     unordered_map< ptr< partial_sha_hash >, ptr< Transaction >, Hasher, Equal > knownTransactions;
+    queue< ptr< Transaction > > knownTransactionsQueue;
 
     uint64_t knownTransactionsTotalSize = 0;
 
-    recursive_mutex transactionsMutex;
+    shared_mutex transactionsMutex;
 
     transaction_count transactionCounter = 0;
 
