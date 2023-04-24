@@ -173,7 +173,7 @@ void Utils::cArrayFromHex( const string& _hex, uint8_t* _data, size_t len ) {
 
 string Utils::getRusage() {
     struct rusage usage;
-    getrusage(RUSAGE_SELF, &usage);
+    getrusage( RUSAGE_SELF, &usage );
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     struct mallinfo mi = mallinfo();
@@ -181,10 +181,10 @@ string Utils::getRusage() {
     int heap_size = mi.uordblks;
     stringstream result;
     result << "RUSAGE:";
-    result << "USER_CPU:" << usage.ru_utime.tv_sec << ":"
-              << usage.ru_utime.tv_usec << ":";
+    result << "USER_CPU:" << usage.ru_utime.tv_sec << ":" << usage.ru_utime.tv_usec << ":";
     result << "PROCESS_RSS:" << usage.ru_maxrss << ":";
-    result << "SWAPPED_MEM:" << usage.ru_isrss;
+    result << "SWAPPED_MEM:" << usage.ru_isrss << ":";
+    ;
     result << "HEAP_MEM:" << heap_size << ":";
     return result.str();
 }
