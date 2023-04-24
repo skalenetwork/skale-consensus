@@ -90,7 +90,6 @@ block_id Schain::getLastCommittedBlockID() const {
 }
 
 
-
 ptr< CommittedBlock > Schain::getBlock( block_id _blockID ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 

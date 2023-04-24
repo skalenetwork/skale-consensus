@@ -631,7 +631,7 @@ void Schain::printBlockLog( const ptr< CommittedBlock >& _block ) {
         output << ":IIN:" << getNode()->getInternalInfoDB()->getMemoryUsed();
         output << ":DAS:" << getNode()->getDaSigShareDB()->getMemoryUsed();
         LOG( info, output.str() );
-        LOG( info, Utils::getRusage());
+        LOG( info, Utils::getRusage() );
     }
 
     counter++;
@@ -660,7 +660,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         saveBlock( _block );
 
-        cleanupUnneededMemoryBeforePushingToEvm(_block);
+        cleanupUnneededMemoryBeforePushingToEvm( _block );
 
         auto evmProcessingStartMs = Time::getCurrentTimeMs();
 
@@ -706,7 +706,7 @@ void Schain::cleanupUnneededMemoryBeforePushingToEvm( const ptr< CommittedBlock 
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-        getNode()->getBlockProposalDB()->cleanupUnneededMemoryBeforePushingToEvm(_block);
+        getNode()->getBlockProposalDB()->cleanupUnneededMemoryBeforePushingToEvm( _block );
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
