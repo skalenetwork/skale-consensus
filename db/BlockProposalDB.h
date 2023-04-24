@@ -33,8 +33,7 @@ class BooleanProposalVector;
 #include "thirdparty/lrucache.hpp"
 
 class BlockProposalDB : public CacheLevelDB {
-    ptr< vector< ptr< BlockProposal > > >
-        proposalCaches;  // tsafe
+    ptr< vector< ptr< BlockProposal > > > proposalCaches;  // tsafe
 
     shared_mutex proposalCacheMutex;
 
@@ -46,7 +45,6 @@ class BlockProposalDB : public CacheLevelDB {
     void addProposalToCacheIfDoesNotExist( const ptr< BlockProposal > _proposal );
 
 public:
-
     ptr< BlockProposal > getBlockProposal( block_id _blockID, schain_index _proposerIndex );
 
     BlockProposalDB(
