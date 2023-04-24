@@ -329,13 +329,12 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
             auto committedBlock = getSchain()->getBlock( _blockID );
 
             // found committed block
-            if ( committedBlock) {
+            if ( committedBlock ) {
                 // first check that the proposer index
                 // the client should not be asking for an incorrect proposer index
                 // since at this time we already not which index has been committed
-                if (committedBlock->getProposerIndex() != ( uint64_t ) proposerIndex ) {
-                    _responseHeader->setStatusSubStatus(
-                        CONNECTION_DISCONNECT,
+                if ( committedBlock->getProposerIndex() != ( uint64_t ) proposerIndex ) {
+                    _responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT,
                         CONNECTION_FINALIZER_CLIENT_ASKING_FOR_INCORRECT_PROPOSER_INDEX );
                     _responseHeader->setComplete();
                     return nullptr;
@@ -353,14 +352,14 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
                 proposal->getBlockID(), proposal->getProposerIndex() );
         }
 
-        CHECK_STATE(!daSig.empty());
+        CHECK_STATE( !daSig.empty() );
 
 
         auto fragment =
             proposal->getFragment( ( uint64_t ) getSchain()->getNodeCount() - 1, fragmentIndex );
 
 
-        CHECK_STATE( fragment);
+        CHECK_STATE( fragment );
 
         _responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );
 
