@@ -56,6 +56,8 @@ class BlockProposal : public SendableItem {
 
     ptr< BasicHeader > createProposalHeader();
 
+    static atomic< int64_t > totalBlockProposalObjects;
+
 protected:
     schain_id schainID = 0;
     node_id proposerNodeID = 0;
@@ -137,4 +139,6 @@ public:
         const ptr< CryptoManager >& _cryptoManager );
 
     uint64_t getCreationTime() const;
+
+    static uint64_t getTotalObjects();
 };

@@ -581,6 +581,7 @@ void Schain::printBlockLog( const ptr< CommittedBlock >& _block ) {
            << ":BID: " << _block->getBlockID()
            << ":ROOT:" << _block->getStateRoot().convert_to< string >() << ":HASH:" << h
            << ":BLOCK_TXS:" << _block->getTransactionCount() << ":DMSG:" << getMessagesCount()
+           << ":TPRPS:" << BlockProposal::getTotalObjects()
            << ":MPRPS:" << MyBlockProposal::getTotalObjects()
            << ":RPRPS:" << ReceivedBlockProposal::getTotalObjects()
            << ":TXS:" << Transaction::getTotalObjects()
