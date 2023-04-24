@@ -517,7 +517,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
             blockIDInHeader, sChain->getSchainIndex() );
 
 
-    if (!myBlockProposalForTheSameBlockID) {
+    if ( !myBlockProposalForTheSameBlockID ) {
         // did not create proposal yet, ask the client to retry later
         responseHeader->setStatusSubStatus(
             CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE );
