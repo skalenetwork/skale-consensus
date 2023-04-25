@@ -86,11 +86,17 @@ class Node {
 
     atomic_bool startedClients;
 
-    atomic_bool exitRequested;
+    atomic_bool exitRequested = false;
 
-    atomic_bool fatalErrorOccured;
+    atomic_bool exitCalled = false;
 
-    atomic_bool exitOnBlockBoundary;
+public:
+    const atomic_bool& isExitOnBlockBoundary() const;
+
+private:
+    atomic_bool fatalErrorOccured = false;
+
+    atomic_bool exitOnBlockBoundary = false;
 
     ptr< SkaleLog > log = nullptr;
     string name = "";

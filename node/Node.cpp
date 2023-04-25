@@ -146,7 +146,7 @@ Node::Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool 
 
     this->startedServers = false;
     this->startedClients = false;
-    this->exitRequested = false;
+
     this->cfg = _cfg;
 
     try {
@@ -498,7 +498,8 @@ void Node::exit() {
     LOG( info, "Node::exit() requested" );
 
     // return if the procedure has been initiated already
-    RETURN_IF_PREVIOUSLY_CALLED( exitRequested );
+    if (exitCalled.exchange(true))
+        return;
 
     // this handles the case when exit is called very early
     // so that the start barriers were not released yet
@@ -520,6 +521,11 @@ void Node::exit() {
 
 }
 void Node::exitImmediately() {
+    // set exitRequested so everything will
+    // immediately start exiting
+    if (exitRequested.exchange(true))
+        return;
+
     getSchain()->stopStatusServer();
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 }
@@ -587,11 +593,14 @@ void Node::exitOnFatalError( const string& _message ) {
     if ( exitRequested )
         return;
 
-    //    consensusEngine->joinAll();
     auto extFace = consensusEngine->getExtFace();
 
     if ( extFace ) {
         extFace->terminateApplication();
+    } else {
+        // we are in a testing mode and there is no skaled
+        // force exit
+        exitImmediately();
     }
     LOG( critical, _message );
 }
@@ -645,4 +654,7 @@ bool Node::verifyRealSignatures() const {
 }
 const map< string, uint64_t >& Node::getPatchTimestamps() const {
     return patchTimestamps;
+}
+const atomic_bool& Node::isExitOnBlockBoundary() const {
+    return exitOnBlockBoundary;
 }

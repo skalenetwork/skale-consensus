@@ -44,11 +44,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="709 memory leak in skaled">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/ConsensusEngine.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusEngine.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
     </list>
@@ -66,7 +63,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="develop" />
+        <entry key="$PROJECT_DIR$" value="exit_gracefully" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -511,14 +508,7 @@
       <workItem from="1680171967918" duration="4000" />
       <workItem from="1680172553777" duration="4927000" />
       <workItem from="1680282100830" duration="3952000" />
-      <workItem from="1682425703373" duration="2248000" />
-    </task>
-    <task id="LOCAL-00132" summary="88: Tuning chains">
-      <created>1651239711920</created>
-      <option name="number" value="00132" />
-      <option name="presentableId" value="LOCAL-00132" />
-      <option name="project" value="LOCAL" />
-      <updated>1651239711921</updated>
+      <workItem from="1682425703373" duration="2972000" />
     </task>
     <task id="LOCAL-00133" summary="88: Tuning chains">
       <created>1651241760120</created>
@@ -856,7 +846,14 @@
       <option name="project" value="LOCAL" />
       <updated>1682361226542</updated>
     </task>
-    <option name="localTasksCounter" value="181" />
+    <task id="LOCAL-00181" summary="1425 threading rules">
+      <created>1682428115544</created>
+      <option name="number" value="00181" />
+      <option name="presentableId" value="LOCAL-00181" />
+      <option name="project" value="LOCAL" />
+      <updated>1682428115544</updated>
+    </task>
+    <option name="localTasksCounter" value="182" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -903,7 +900,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="bug/SKALE-4400&#10;Added basic stuck detection classes." />
     <MESSAGE value="bug/SKALE-4502-RAM-grows" />
     <MESSAGE value="bug/SKALE-4502-RAM-grows&#10;Removed empty space" />
     <MESSAGE value="bug/SKALE-4311-RSS-at-catchup" />
@@ -928,7 +924,8 @@
     <MESSAGE value="oracle doc" />
     <MESSAGE value="769 Clang-format" />
     <MESSAGE value="709 memory leak in skaled" />
-    <option name="LAST_COMMIT_MESSAGE" value="709 memory leak in skaled" />
+    <MESSAGE value="1425 threading rules" />
+    <option name="LAST_COMMIT_MESSAGE" value="1425 threading rules" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
