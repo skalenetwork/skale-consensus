@@ -366,7 +366,7 @@ public:
 
     block_id readLastCommittedBlockIDFromDb();
 
-    void checkForDeadLock( const char* _functionName );
+    void lockWithDeadLockCheck( const char* _functionName );
 
     void printBlockLog( const ptr< CommittedBlock >& _block );
 

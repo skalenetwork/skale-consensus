@@ -504,8 +504,7 @@ void Node::doSoftAndThenHardExit() {
     LOG( info, "Node::exit() requested" );
 
     // guaranteed to execute only once
-    if ( exitCalled.exchange( true ) )
-        return;
+    RETURN_IF_PREVIOUSLY_CALLED( exitCalled )
 
     // this handles the case when exit is called very early
     // so that the start barriers were not released yet
@@ -525,15 +524,20 @@ void Node::doSoftAndThenHardExit() {
 
     auto startTimeMs = Time::getCurrentTimeMs();
 
+    LOG( info, "Node::exit() will to exit on block boundary for " +
+                   to_string( CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS / 1000 ) + " seconds" );
+
     while ( Time::getCurrentTimeMs() < startTimeMs + CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS ) {
-        // If exit has been called by the thread that pushes blocks to skaled
+        usleep( 100 * 1000 );
+        // Wait until exit has been called by the thread that pushes blocks to skaled
         // then return.
-        usleep( 100 );
         if ( isExitRequested() )
             return;
     }
 
     // no luck exiting on block boundary - exit the hard way
+
+    LOG( info, "No luck exiting on block boundary. Exiting immediately" );
     exitImmediately();
 }
 
@@ -542,8 +546,7 @@ void Node::doSoftAndThenHardExit() {
  */
 void Node::exitImmediately() {
     // guaranteed to execute only once
-    if ( exitRequested.exchange( true ) )
-        return;
+    RETURN_IF_PREVIOUSLY_CALLED( exitRequested )
 
     LOG( info, __FUNCTION__ + string( " called" ) );
 
@@ -553,7 +556,7 @@ void Node::exitImmediately() {
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
-    LOG(info, __FUNCTION__ + string(" completed"));
+    LOG( info, __FUNCTION__ + string( " completed" ) );
 }
 
 /* this is called immediately after block is processed so we can exit
@@ -563,23 +566,21 @@ void Node::exitImmediately() {
 void Node::checkForExitOnBlockBoundaryAndExitIfNeeded() {
     if ( getSchain()->getNode()->isExitOnBlockBoundaryRequested() ) {
         // do immediate exit since we are at the safe point
-        getSchain()->getNode()->exitImmediately();
         auto msg = "Exiting on block boundary after processing block " +
                    to_string( getSchain()->getLastCommittedBlockID() );
-        LOG( info, msg );
-        throw ExitRequestedException( msg );
+        LOG(info, msg);
+        getSchain()->getNode()->exitImmediately();
+        throw ExitRequestedException( "Exit on block boundary successful" );
     }
 }
 
 
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
-
-
     LOG( info, "consensus engine exiting: close all sockets called" );
 
-    // guaranteed to execute only once
-    if (closeAllSocketsCalled.exchange( true ) )
-        return;
+    // guaranteed to run only once
+
+    RETURN_IF_PREVIOUSLY_CALLED( closeAllSocketsCalled );
 
     threadServerConditionVariable.notify_all();
 
@@ -633,10 +634,10 @@ void Node::exitCheck() {
  * Fatal exit happened in consensus. Tell skaled to exit.
  */
 void Node::initiateApplicationExitOnFatalConsensusError( const string& message ) {
-    // guaranteed to execute only once
-    if ( fatalErrorOccured.exchange( true ) )
-        return;
+    LOG( info, __FUNCTION__ + string( " called" ) );
 
+    // guaranteed to execute only once
+    RETURN_IF_PREVIOUSLY_CALLED( fatalErrorOccured )
     auto extFace = consensusEngine->getExtFace();
 
     if ( extFace ) {
@@ -656,11 +657,9 @@ bool Node::isExitOnBlockBoundaryRequested() const {
 
 void Node::registerAgent( Agent* _agent ) {
     CHECK_ARGUMENT( _agent );
-
     LOCK( agentsLock );
     agents.push_back( _agent );
 }
-
 
 
 bool Node::isSgxEnabled() {

@@ -133,15 +133,12 @@ block_id basicRun( int64_t _lastId = 0 ) {
 
         engine->slowStartBootStrapTest();
 
-        uint64_t testRunningTimeS = Consensust::getRunningTimeS();
 
-        auto currentTime = Time::getCurrentTimeSec();
-        auto finishTime = testRunningTimeS + currentTime;
+        auto startTime = Time::getCurrentTimeSec();
 
-        while ( true ) {
+        while ( Time::getCurrentTimeSec() < startTime + Consensust::getRunningTimeS() ) {
             try {
-                currentTime = Time::getCurrentTimeSec();
-                usleep( ( finishTime - currentTime ) * 1000 * 1000 );
+                usleep( 1000 * 1000 );
             } catch ( ... ) {
             };
         }

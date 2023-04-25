@@ -739,7 +739,7 @@ ConsensusExtFace* ConsensusEngine::getExtFace() const {
 void ConsensusEngine::exitGracefullyBlocking() {
     LOG( info, "Consensus engine exiting: exitGracefullyBlocking called by skaled" );
 
-    cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
+    cout << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
 
     cerr << boost::stacktrace::stacktrace() << endl;
 
@@ -748,21 +748,27 @@ void ConsensusEngine::exitGracefullyBlocking() {
     // will try to exit on deleted object!
 
 
-    if ( getStatus() != CONSENSUS_EXITED )
-        exitGracefully();
+    if ( getStatus() == CONSENSUS_EXITED )
+        return;
+
+    exitGracefully();
 
     while ( getStatus() != CONSENSUS_EXITED ) {
-        usleep( 100000 );
+        usleep( 100 * 1000 );
     }
 }
 
 
 void ConsensusEngine::exitGracefully() {
     LOG( info, "Consensus engine exiting: blocking exit exitGracefully called by skaled" );
-
     cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
-
     cerr << boost::stacktrace::stacktrace() << endl;
+
+    if ( getStatus() == CONSENSUS_EXITED )
+        return;
+
+    // guaranteedd to be called once
+    RETURN_IF_PREVIOUSLY_CALLED(exitGracefullyCalled)
 
 
     // run and forget
@@ -776,12 +782,12 @@ consensus_engine_status ConsensusEngine::getStatus() const {
 void ConsensusEngine::exitGracefullyAsync() {
     LOG( info, "Consensus engine exiting: exitGracefullyAsync called by skaled" );
 
-    try {
-        auto previouslyCalled = exitGracefullyAsyncCalled.exchange( true );
 
-        if ( previouslyCalled ) {
-            return;
-        }
+    // guaranteed to be executed once
+    RETURN_IF_PREVIOUSLY_CALLED(exitGracefullyAsyncCalled)
+
+
+    try {
 
         LOG( info, "exitGracefullyAsync running" );
 

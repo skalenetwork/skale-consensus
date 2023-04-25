@@ -119,7 +119,7 @@ void* ZMQSockets::getReceiveSocket() {
 
 void ZMQSockets::closeReceive() {
 
-    if (closeSendCalled.exchange(true))
+    if (closeReceiveCalled.exchange(true))
         return;
 
     LOCK( m );

@@ -179,8 +179,6 @@ void OracleServerAgent::workerThreadItemSendLoop( OracleServerAgent* _agent ) {
             LOG( err, "Error in Oracle loop, unknown object is thrown" );
         }
     }
-
-    LOG( info, "Exited Oracle worker thread " + to_string( threadNumber ) );
 }
 
 struct MemoryStruct {
