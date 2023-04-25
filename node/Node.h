@@ -103,7 +103,6 @@ class Node {
     bool isExitOnBlockBoundaryRequested() const;
 
 
-
     ptr< SkaleLog > log = nullptr;
     string name = "";
 
@@ -239,7 +238,6 @@ class Node {
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 public:
-
     void checkForExitOnBlockBoundaryAndExitIfNeeded();
 
 
@@ -340,7 +338,6 @@ public:
     void startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock );
 
 
-
     void setSchain( const ptr< Schain >& _schain );
 
     static void initSchain( const ptr< Node >& _node, schain_index _schainIndex,
@@ -432,5 +429,4 @@ public:
     bool isSyncOnlyNode() const;
 
     bool verifyRealSignatures() const;
-
 };

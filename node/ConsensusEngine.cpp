@@ -768,7 +768,7 @@ void ConsensusEngine::exitGracefully() {
         return;
 
     // guaranteedd to be called once
-    RETURN_IF_PREVIOUSLY_CALLED(exitGracefullyCalled)
+    RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyCalled )
 
 
     // run and forget
@@ -784,11 +784,10 @@ void ConsensusEngine::exitGracefullyAsync() {
 
 
     // guaranteed to be executed once
-    RETURN_IF_PREVIOUSLY_CALLED(exitGracefullyAsyncCalled)
+    RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyAsyncCalled )
 
 
     try {
-
         LOG( info, "exitGracefullyAsync running" );
 
 

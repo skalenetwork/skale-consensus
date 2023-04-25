@@ -28,13 +28,11 @@
 
 
 class ZMQSockets : public ServerSocket {
-
     atomic< bool > closeAndCleanupAllCalled = false;
 
     atomic< bool > closeSendCalled = false;
 
     atomic< bool > closeReceiveCalled = false;
-
 
 
     void* context = nullptr;

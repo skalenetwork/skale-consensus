@@ -112,7 +112,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     ptr< spdlog::sinks::sink > logRotatingFileSync;
 
-    atomic<bool> exitGracefullyCalled = false;
+    atomic< bool > exitGracefullyCalled = false;
 
 public:
     const map< string, uint64_t >& getPatchTimestamps() const;
