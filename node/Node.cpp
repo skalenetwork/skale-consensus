@@ -497,14 +497,30 @@ void Node::releaseGlobalClientBarrier() {
 void Node::exit() {
     LOG( info, "Node::exit() requested" );
 
-    getSchain()->stopStatusServer();
-
+    // return if the procedure has been initiated already
     RETURN_IF_PREVIOUSLY_CALLED( exitRequested );
 
+    // this handles the case when exit is called very early
+    // so that the start barriers were not released yet
+    // then they have to be released for system to start working
+    // so it can finish
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
 
+    // we try to wait until the next block is mined, unless the exit
+    // was initiated by a fatal error in consensus. In the latter case
+    // there is not point waiting since consensus will not finish
 
+    if (fatalErrorOccured)
+        exitImmediately();
+
+    exitOnBlockBoundary = true;
+
+
+
+}
+void Node::exitImmediately() {
+    getSchain()->stopStatusServer();
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 }
 
@@ -566,9 +582,10 @@ void Node::exitCheck() {
 }
 
 void Node::exitOnFatalError( const string& _message ) {
+    fatalErrorOccured = true;
+
     if ( exitRequested )
         return;
-    exit();
 
     //    consensusEngine->joinAll();
     auto extFace = consensusEngine->getExtFace();

@@ -663,7 +663,7 @@ void ConsensusEngine::init() {
 
 
 ConsensusEngine::ConsensusEngine( block_id _lastId, uint64_t _totalStorageLimitBytes )
-    : prices( 256 ), exitRequested( false ) {
+    : prices( 256 ) {
     cout << "Constructing consensus engine:LAST_BLOCK:" << ( uint64_t ) _lastId
          << ":TOTAL_STORAGE_LIMIT:" << _totalStorageLimitBytes << endl;
 
@@ -688,7 +688,7 @@ ConsensusEngine::ConsensusEngine( block_id _lastId, uint64_t _totalStorageLimitB
 ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
     uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
     map< string, uint64_t > _patchTimestamps, uint64_t _totalStorageLimitBytes )
-    : prices( 256 ), exitRequested( false ), patchTimestamps( _patchTimestamps ) {
+    : prices( 256 ), patchTimestamps( _patchTimestamps ) {
     std::time_t lastCommitedBlockTimestamp = _lastCommittedBlockTimeStamp;
     cout << "Constructing consensus engine: "
          << ""
@@ -777,7 +777,7 @@ void ConsensusEngine::exitGracefullyAsync() {
     LOG( info, "Consensus engine exiting: exitGracefullyAsync called by skaled" );
 
     try {
-        auto previouslyCalled = exitRequested.exchange( true );
+        auto previouslyCalled = exitGracefullyAsyncCalled.exchange( true );
 
         if ( previouslyCalled ) {
             return;

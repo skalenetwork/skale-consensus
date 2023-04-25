@@ -90,7 +90,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     recursive_mutex mutex;
 
-    atomic< bool > exitRequested = false;
+    atomic< bool > exitGracefullyAsyncCalled = false;
 
     string healthCheckDir;
     string dbDir;

@@ -88,6 +88,10 @@ class Node {
 
     atomic_bool exitRequested;
 
+    atomic_bool fatalErrorOccured;
+
+    atomic_bool exitOnBlockBoundary;
+
     ptr< SkaleLog > log = nullptr;
     string name = "";
 
@@ -409,4 +413,5 @@ public:
     bool isSyncOnlyNode() const;
 
     bool verifyRealSignatures() const;
+    void exitImmediately();
 };

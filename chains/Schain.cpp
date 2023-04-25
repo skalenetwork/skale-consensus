@@ -738,7 +738,10 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
                 ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
                 ( uint64_t ) _block->getProposerIndex() );
             // exit immediately if exit has been requested
-            getSchain()->getNode()->exitCheck();
+            // block boundary is the best place for exit
+            if (getSchain()->getNode()->isExitRequested()) {
+                getSchain()->getNode()->exitImmediately();
+            }
         }
 
     } catch ( ExitRequestedException& e ) {
