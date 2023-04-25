@@ -530,6 +530,16 @@ void Node::exitImmediately() {
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 }
 
+// this is called immediately after block is processed so we can exit
+// on block boundary
+void Node::checkForExitOnBlockBoundary() {
+    // this will initiate immediate exit and throw ExitRequestedException
+    if ( getSchain()->getNode()->isExitOnBlockBoundary() ) {
+        getSchain()->getNode()->exitImmediately();
+        throw ExitRequestedException( "Exiting on block boundary" );
+    }
+}
+
 
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     LOG( info, "consensus engine exiting: close all sockets called" );

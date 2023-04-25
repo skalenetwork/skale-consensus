@@ -420,4 +420,5 @@ public:
 
     bool verifyRealSignatures() const;
     void exitImmediately();
+    void checkForExitOnBlockBoundary();
 };
