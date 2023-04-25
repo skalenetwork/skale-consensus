@@ -114,7 +114,7 @@ void IO::readBytes( file_descriptor _descriptor, const ptr< vector< uint8_t > >&
         }
     }
 
-    CHECK_STATE( bytesRead == ( int64_t ) ( uint64_t ) _len );
+    CHECK_STATE( bytesRead == ( int64_t )( uint64_t ) _len );
 }
 
 
