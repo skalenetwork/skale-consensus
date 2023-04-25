@@ -526,7 +526,7 @@ void ConsensusEngine::startAll() {
         for ( auto&& it : nodes ) {
             CHECK_STATE( it.second );
             if ( !it.second->isExitRequested() ) {
-                it.second->exitOnFatalError( e.what() );
+                it.second->initiateApplicationExitOnFatalConsensusError( e.what() );
             }
         }
 
@@ -563,7 +563,7 @@ void ConsensusEngine::bootStrapAll() {
         for ( auto&& it : nodes ) {
             CHECK_STATE( it.second );
             if ( !it.second->isExitRequested() ) {
-                it.second->exitOnFatalError( e.what() );
+                it.second->initiateApplicationExitOnFatalConsensusError( e.what() );
             }
         }
 
@@ -798,7 +798,7 @@ void ConsensusEngine::exitGracefullyAsync() {
             thread( [node]() {
                 try {
                     LOG( info, "Node exit called" );
-                    node->exit();
+                    node->doSoftAndThenHardExit();
                     LOG( info, "Node exit completed" );
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );

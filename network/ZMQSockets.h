@@ -28,7 +28,14 @@
 
 
 class ZMQSockets : public ServerSocket {
-    atomic< bool > terminated = false;
+
+    atomic< bool > closeAndCleanupAllCalled = false;
+
+    atomic< bool > closeSendCalled = false;
+
+    atomic< bool > closeReceiveCalled = false;
+
+
 
     void* context = nullptr;
 
@@ -44,12 +51,11 @@ public:
 
     void* getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo );
 
-
-    void closeReceive();
+    void closeAndCleanupAll();
 
     void closeSend();
 
-    void closeAndCleanupAll();
+    void closeReceive();
 
     virtual ~ZMQSockets();
 };

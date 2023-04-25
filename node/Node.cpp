@@ -21,6 +21,8 @@
     @date 2018
 */
 
+
+#include <chrono>
 #include "leveldb/db.h"
 
 #include "SkaleCommon.h"
@@ -68,10 +70,10 @@
 #include "network/ZMQSockets.h"
 #include "json/JSONFactory.h"
 #include "db/StorageLimits.h"
+#include "utils/Time.h"
 #include "NodeInfo.h"
 #include "Node.h"
 
-#include <chrono>
 
 using namespace std;
 
@@ -494,11 +496,15 @@ void Node::releaseGlobalClientBarrier() {
     threadClientConditionVariable.notify_all();
 }
 
-void Node::exit() {
+/*
+ * This will attempt to exit on block boundary for CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS
+ * and then  if no luck do hard exit immediately
+ */
+void Node::doSoftAndThenHardExit() {
     LOG( info, "Node::exit() requested" );
 
-    // return if the procedure has been initiated already
-    if (exitCalled.exchange(true))
+    // guaranteed to execute only once
+    if ( exitCalled.exchange( true ) )
         return;
 
     // this handles the case when exit is called very early
@@ -512,39 +518,70 @@ void Node::exit() {
     // was initiated by a fatal error in consensus. In the latter case
     // there is not point waiting since consensus will not finish
 
-    if (fatalErrorOccured)
+    if ( fatalErrorOccured )
         exitImmediately();
 
-    exitOnBlockBoundary = true;
+    exitOnBlockBoundaryRequested = true;
 
+    auto startTimeMs = Time::getCurrentTimeMs();
 
+    while ( Time::getCurrentTimeMs() < startTimeMs + CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS ) {
+        // If exit has been called by the thread that pushes blocks to skaled
+        // then return.
+        usleep( 100 );
+        if ( isExitRequested() )
+            return;
+    }
 
+    // no luck exiting on block boundary - exit the hard way
+    exitImmediately();
 }
+
+/*
+ * This will set exitRequested flag so all threads will immediately start exiting
+ */
 void Node::exitImmediately() {
-    // set exitRequested so everything will
-    // immediately start exiting
-    if (exitRequested.exchange(true))
+    // guaranteed to execute only once
+    if ( exitRequested.exchange( true ) )
         return;
 
+    LOG( info, __FUNCTION__ + string( " called" ) );
+
     getSchain()->stopStatusServer();
+
+    LOG( info, "Status server stopped" );
+
     closeAllSocketsAndNotifyAllAgentsAndThreads();
+
+    LOG(info, __FUNCTION__ + string(" completed"));
 }
 
-// this is called immediately after block is processed so we can exit
-// on block boundary
-void Node::checkForExitOnBlockBoundary() {
-    // this will initiate immediate exit and throw ExitRequestedException
-    if ( getSchain()->getNode()->isExitOnBlockBoundary() ) {
+/* this is called immediately after block is processed so we can exit
+ on block boundary. It will initiate immediate exit of consensus and throw ExitRequestedException
+ so the current thread will exit.
+ */
+void Node::checkForExitOnBlockBoundaryAndExitIfNeeded() {
+    if ( getSchain()->getNode()->isExitOnBlockBoundaryRequested() ) {
+        // do immediate exit since we are at the safe point
         getSchain()->getNode()->exitImmediately();
-        throw ExitRequestedException( "Exiting on block boundary" );
+        auto msg = "Exiting on block boundary after processing block " +
+                   to_string( getSchain()->getLastCommittedBlockID() );
+        LOG( info, msg );
+        throw ExitRequestedException( msg );
     }
 }
 
 
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
+
+
     LOG( info, "consensus engine exiting: close all sockets called" );
 
-    getSchain()->getNode()->threadServerConditionVariable.notify_all();
+    // guaranteed to execute only once
+    if (closeAllSocketsCalled.exchange( true ) )
+        return;
+
+    threadServerConditionVariable.notify_all();
 
     LOG( info, "consensus engine exiting: server conditional vars notified" );
 
@@ -563,23 +600,57 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     if ( sockets && sockets->catchupSocket )
         sockets->catchupSocket->touch();
 
+    LOG( info, "consensus engine exiting: catchup socket touched" );
+
     if ( isSyncOnlyNode() )
         return;
 
-    if ( sockets && sockets->blockProposalSocket )
+    if ( sockets && sockets->blockProposalSocket ) {
         sockets->blockProposalSocket->touch();
+        LOG( info, "consensus engine exiting: block proposal socket touched" );
+    }
 
-    LOG( info, "consensus engine exiting: block proposal socket touched" );
-
-
-    LOG( info, "consensus engine exiting: catchup socket touched" );
 
     getSchain()->getCryptoManager()->exitZMQClient();
+    LOG( info, "consensus engine exiting: exitZMQClient called" );
 
-    LOG( info, "consensus engine exiting: closeAndCleanupAll consensus zmq sockets" );
-
-    if ( sockets )
+    if ( sockets ) {
         sockets->getConsensusZMQSockets()->closeAndCleanupAll();
+        LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
+    }
+}
+
+/*
+ * Throw exception is exitRequested is true;
+ */
+void Node::exitCheck() {
+    if ( exitRequested ) {
+        BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
+    }
+}
+
+/*
+ * Fatal exit happened in consensus. Tell skaled to exit.
+ */
+void Node::initiateApplicationExitOnFatalConsensusError( const string& message ) {
+    // guaranteed to execute only once
+    if ( fatalErrorOccured.exchange( true ) )
+        return;
+
+    auto extFace = consensusEngine->getExtFace();
+
+    if ( extFace ) {
+        extFace->terminateApplication();
+    } else {
+        // we are in a testing mode and there is no skaled
+        // just force consensus exit
+        exitImmediately();
+    }
+    LOG( critical, message );
+}
+
+bool Node::isExitOnBlockBoundaryRequested() const {
+    return exitOnBlockBoundaryRequested;
 }
 
 
@@ -591,29 +662,6 @@ void Node::registerAgent( Agent* _agent ) {
 }
 
 
-void Node::exitCheck() {
-    if ( exitRequested ) {
-        BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
-    }
-}
-
-void Node::exitOnFatalError( const string& _message ) {
-    fatalErrorOccured = true;
-
-    if ( exitRequested )
-        return;
-
-    auto extFace = consensusEngine->getExtFace();
-
-    if ( extFace ) {
-        extFace->terminateApplication();
-    } else {
-        // we are in a testing mode and there is no skaled
-        // force exit
-        exitImmediately();
-    }
-    LOG( critical, _message );
-}
 
 bool Node::isSgxEnabled() {
     return sgxEnabled;
@@ -664,7 +712,4 @@ bool Node::verifyRealSignatures() const {
 }
 const map< string, uint64_t >& Node::getPatchTimestamps() const {
     return patchTimestamps;
-}
-const atomic_bool& Node::isExitOnBlockBoundary() const {
-    return exitOnBlockBoundary;
 }

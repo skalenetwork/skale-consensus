@@ -214,7 +214,7 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
         _sChain->getNode()->getSockets()->consensusZMQSockets->closeSend();
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        _sChain->getNode()->exitOnFatalError( e.what() );
+        _sChain->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 
@@ -740,7 +740,7 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
             // block boundary is the best place for exit
             // exit immediately if exit has been requested
             // this will initiate immediate exit and throw ExitRequestedException
-            if ( getSchain()->getNode()->checkForExitOnBlockBoundary());
+            getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
         }
 
     } catch ( ExitRequestedException& e ) {

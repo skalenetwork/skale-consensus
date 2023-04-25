@@ -245,54 +245,50 @@ void Network::networkReadLoop() {
 
     waitOnGlobalStartBarrier();
 
-    try {
-        while ( !sChain->getNode()->isExitRequested() ) {
-            try {
-                ptr< NetworkMessageEnvelope > m = receiveMessage();
 
-                if ( !m )
-                    continue;  // check exit again
+    while ( !sChain->getNode()->isExitRequested() ) {
+        try {
+            ptr< NetworkMessageEnvelope > m = receiveMessage();
 
-                auto msg = dynamic_pointer_cast< NetworkMessage >( m->getMessage() );
+            if ( !m )
+                continue;  // check exit again
 
-
-                if ( msg->getBlockID() <= catchupBlocks ) {
-                    continue;
-                }
+            auto msg = dynamic_pointer_cast< NetworkMessage >( m->getMessage() );
 
 
-                if ( !knownMsgHashes.putIfDoesNotExist( msg->getHash().toHex(), true ) ) {
-                    // already seen this message, dropping
-                    continue;
-                }
-
-                if ( msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
-                     msg->getMsgType() == MSG_ORACLE_RSP ) {
-                    sChain->getOracleResultAssemblyAgent()->postMessage( m );
-                    continue;
-                }
-
-                CHECK_STATE( sChain );
-
-                postDeferOrDrop( m );
-            } catch ( ExitRequestedException& ) {
-                return;
-            } catch ( FatalError& ) {
-                throw;
-            } catch ( exception& e ) {
-                if ( sChain->getNode()->isExitRequested() ) {
-                    sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();
-                    return;
-                }
-                SkaleException::logNested( e );
+            if ( msg->getBlockID() <= catchupBlocks ) {
+                continue;
             }
 
-        }  // while
-    } catch ( FatalError& e ) {
-        SkaleException::logNested( e );
-        sChain->getNode()->exitOnFatalError( e.what() );
-    }
 
+            if ( !knownMsgHashes.putIfDoesNotExist( msg->getHash().toHex(), true ) ) {
+                // already seen this message, dropping
+                continue;
+            }
+
+            if ( msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
+                 msg->getMsgType() == MSG_ORACLE_RSP ) {
+                sChain->getOracleResultAssemblyAgent()->postMessage( m );
+                continue;
+            }
+
+            CHECK_STATE( sChain );
+
+            postDeferOrDrop( m );
+        } catch ( ExitRequestedException& ) {
+            break;
+        } catch ( FatalError& e ) {
+            SkaleException::logNested( e );
+            sChain->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
+            break;
+        } catch ( exception& e ) {
+            // not exit equested and not fatal error
+            // print exception and continue the network read loop
+            SkaleException::logNested( e );
+        }
+    }  // while
+
+    // we exited the network read loop so we do not need the receive sockets anymore
     sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();
 }
 

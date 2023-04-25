@@ -118,6 +118,10 @@ void* ZMQSockets::getReceiveSocket() {
 
 
 void ZMQSockets::closeReceive() {
+
+    if (closeSendCalled.exchange(true))
+        return;
+
     LOCK( m );
 
     LOG( info, "consensus engine exiting: closing receive sockets" );
@@ -129,6 +133,8 @@ void ZMQSockets::closeReceive() {
 
 
 void ZMQSockets::closeSend() {
+    if (closeSendCalled.exchange(true))
+        return;
     LOCK( m );
     LOG( info, "consensus engine exiting: closing ZMQ send sockets" );
     for ( auto&& item : sendSockets ) {
@@ -142,11 +148,12 @@ void ZMQSockets::closeSend() {
 
 
 void ZMQSockets::closeAndCleanupAll() {
-    LOCK( m );
 
-    if ( terminated.exchange( true ) ) {
+    if ( closeAndCleanupAllCalled.exchange( true ) ) {
         return;
     }
+
+    LOCK( m );
 
     LOG( info, "Cleaning up ZMQ sockets" );
 
