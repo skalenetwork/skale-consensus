@@ -45,6 +45,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/exit.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/exit.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -505,41 +506,6 @@
       <workItem from="1682443260840" duration="9000" />
       <workItem from="1682445113799" duration="7484000" />
     </task>
-    <task id="LOCAL-00150" summary="#636 skaled stuck">
-      <created>1681489591842</created>
-      <option name="number" value="00150" />
-      <option name="presentableId" value="LOCAL-00150" />
-      <option name="project" value="LOCAL" />
-      <updated>1681489591842</updated>
-    </task>
-    <task id="LOCAL-00151" summary="oracle doc">
-      <created>1681489737399</created>
-      <option name="number" value="00151" />
-      <option name="presentableId" value="LOCAL-00151" />
-      <option name="project" value="LOCAL" />
-      <updated>1681489737399</updated>
-    </task>
-    <task id="LOCAL-00152" summary="oracle doc">
-      <created>1681490282089</created>
-      <option name="number" value="00152" />
-      <option name="presentableId" value="LOCAL-00152" />
-      <option name="project" value="LOCAL" />
-      <updated>1681490282089</updated>
-    </task>
-    <task id="LOCAL-00153" summary="oracle doc">
-      <created>1681490493847</created>
-      <option name="number" value="00153" />
-      <option name="presentableId" value="LOCAL-00153" />
-      <option name="project" value="LOCAL" />
-      <updated>1681490493847</updated>
-    </task>
-    <task id="LOCAL-00154" summary="oracle doc">
-      <created>1681491548283</created>
-      <option name="number" value="00154" />
-      <option name="presentableId" value="LOCAL-00154" />
-      <option name="project" value="LOCAL" />
-      <updated>1681491548283</updated>
-    </task>
     <task id="LOCAL-00155" summary="oracle doc">
       <created>1681492168205</created>
       <option name="number" value="00155" />
@@ -848,7 +814,42 @@
       <option name="project" value="LOCAL" />
       <updated>1682511404637</updated>
     </task>
-    <option name="localTasksCounter" value="199" />
+    <task id="LOCAL-00199" summary="1425 threading rules">
+      <created>1682511529044</created>
+      <option name="number" value="00199" />
+      <option name="presentableId" value="LOCAL-00199" />
+      <option name="project" value="LOCAL" />
+      <updated>1682511529044</updated>
+    </task>
+    <task id="LOCAL-00200" summary="1425 threading rules">
+      <created>1682511663975</created>
+      <option name="number" value="00200" />
+      <option name="presentableId" value="LOCAL-00200" />
+      <option name="project" value="LOCAL" />
+      <updated>1682511663975</updated>
+    </task>
+    <task id="LOCAL-00201" summary="1425 threading rules">
+      <created>1682511723945</created>
+      <option name="number" value="00201" />
+      <option name="presentableId" value="LOCAL-00201" />
+      <option name="project" value="LOCAL" />
+      <updated>1682511723945</updated>
+    </task>
+    <task id="LOCAL-00202" summary="1425 threading rules">
+      <created>1682511976434</created>
+      <option name="number" value="00202" />
+      <option name="presentableId" value="LOCAL-00202" />
+      <option name="project" value="LOCAL" />
+      <updated>1682511976434</updated>
+    </task>
+    <task id="LOCAL-00203" summary="1425 threading rules">
+      <created>1682512043714</created>
+      <option name="number" value="00203" />
+      <option name="presentableId" value="LOCAL-00203" />
+      <option name="project" value="LOCAL" />
+      <updated>1682512043714</updated>
+    </task>
+    <option name="localTasksCounter" value="204" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

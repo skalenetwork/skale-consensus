@@ -115,3 +115,35 @@ At this point, if SkaledInteractionThread was stuck, it may get unstuck and fini
   ConsensusExtFace::killSkaledInteractionThread() and exit. 
 
 
+# Description of exitGracefully() internal operation.
+
+## Exit on block boundary
+
+When exitGracefully() is called on consensus, consensus try to exit on block boundary.
+
+To do this, 
+* consensus will set an internal flag
+* when pushBlockToExtFace() function returns, it will check this flag and call immediateExit if the 
+  flag  is true
+
+
+There are two exceptions, where exitGracefully() will call immediateExit instead waiting
+for block boundary
+
+* fatal error previously occured in consensus
+* consensus StuckMonitoringAgent says that consenus has been stuck
+* less then 2/3 of nodes are alive on the network
+
+Exit on block boundary guarantees exit of all consensus threads.
+
+## Hard exit
+
+If exit on block boundary is not triggered for
+CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS, which has default value of 30 seconds,
+consensusImmediateExit() is called
+
+## SkaledInteractionThread
+
+If during hard exit SkaledInteractionThread is stuck in skaled, it will not be killed.
+All other consensus threads are guaranteed to exit for hard exit.
+
