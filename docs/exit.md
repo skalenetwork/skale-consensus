@@ -84,7 +84,8 @@ functions
 * ConsensusExtFace::createBlock()
 * ConsensusExtFace::pendingTransactions
 
-When consensus does CONSENSUS_EXITED_HARD, it guarantees to terminate all consensus threads except
+When consensus status returns CONSENSUS_EXITED_HARD, it guarantees to terminate all consensus 
+threads except
 the SkaledInteractionThread. 
 
 If SkaledInteractionThread is stuck inside ConsensusExtFace::createBlock(), 
