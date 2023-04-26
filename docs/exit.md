@@ -3,17 +3,16 @@
 
 # Intro
 
-A graceful way to exit skaled is on a block boundary at the moment, when a block is processed by 
-skaled and ConsensusExtFace::createBlock() function returns.
+A graceful way to exit skaled is on a block boundary at the moment when a block is processed by skaled, 
+and the ConsensusExtFace::createBlock() function returns. Graceful exit guarantees that consensus will 
+not be corrupt, and blocks have been processed correctly by EVM. 
+The goal of this specification is to achieve graceful exit in most cases.
 
-Gracefull exit guarantees that consensus will not be corrupt and blocks
-have been processed correctly by EVM.
 
-The goal of this specification is to achieve gracefull exit in most cases. 
 # Exit procedure 
 ## Exit procedure state diagram
 
-The following diagram describes skaled exit procedure
+The following diagram describes the skaled exit procedure:
 
 ```mermaid
 graph TD;
@@ -42,13 +41,12 @@ graph TD;
 
 Exit procedure may be initiated by 
 
-* EXTERNAL_EXIT_REQUEST - external exit request, such a terminate signal
-* EXTERNAL_EXIT_REQUEST - node rotation exit, where skaled self-exits to reload the config
-* CONSENUS_FATAL_ERROR - a fatal error occurs in consensus, and consensus requests skaled 
-  to restart
-* CONSENUS_STUCK_RESTART - consensus determines that it is stuck and request skaled to restart
+* EXTERNAL_EXIT_REQUEST - an external exit request, such as a terminate signal
+* NODE_ROTATION_EXIT - a node rotation exit, where skaled self-exits to reload the config
+* CONSENUS_FATAL_ERROR - a fatal error occurs in consensus, and consensus requests skaled to restart
+* CONSENUS_STUCK_RESTART - consensus determines that it is stuck and requests skaled to restart
 
-Once the exit is initiated, skaled goes into INITIATE_SKALED_EXIT state.
+Once the exit is initiated, skaled goes into the INITIATE_SKALED_EXIT state.
 
 ## Exit procedure beginning steps
 
@@ -57,13 +55,13 @@ Once the exit procedure is initiated, the following steps must be performed by s
 * CREATE_EXIT_THREAD - create a separate detached SkaledExitThread. All further steps are 
 performed from this thread
 * STOP_ACCEPTING_JSON_RPC - stop accepting JSON-RPC requests except for the status calls.
-* CALL_CONSENSUS_EXIT - call exitGracefully() on consensus. The consensus will first try to
-  exit on block boundary, and then after a timeout will do the hard exit.
+* CALL_CONSENSUS_EXIT - call exitGracefully() on consensus.  The consensus will first try to exit 
+  on a block boundary and then after a timeout will do the hard exit.
 * CHECK_EXIT_STATUS_LOOP - after calling exitGraceFully(), SkaledExitThread must  keep 
   calling  ConsensusExtFace::getStatus()
 * When the status becomes CONSENSUS_EXITED_HARD or 
   CONSENSUS_EXITED_GRACEFULLY, the SkaledExitThread will perform steps described in the 
-  next sections
+  following sections
 
 ## Procedure after CONSENSUS_EXITED_GRACEFULLY
 
