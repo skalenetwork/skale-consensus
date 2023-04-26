@@ -52,8 +52,9 @@ Once the exit is initiated, skaled goes into INITIATE_SKALED_EXIT state.
 
 Once the exit procedure is initiated, the following steps are performed by skaled
 
+* CREATE_EXIT_THREAD - create a separate detached SkaledExitThread. All further steps are 
+performed from this thread
 * STOP_ACCEPTING_JSON_RPC - stop accepting JSON-RPC requests except for the status calls.
-* CREATE_EXIT_THREAD - create a separate detached SkaledExitThread to initiate the following steps 
 * CALL_CONSENSUS_EXIT - call exitGracefully() on consensus. 
 * The consensus will first try it exit gracefully on return of ConsensusExtFace::createBlock() , 
   and then after  timeout will do the hard exit.
