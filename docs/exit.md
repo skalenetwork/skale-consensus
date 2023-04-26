@@ -9,9 +9,9 @@ ConsensusExtFace::createBlock() function returns.
 
 # Exit Procedure Diagram
 
-## Diagram
+## Exit state diagram
 
-Here is a simple flow chart:
+Exit state diagram
 
 ```mermaid
 graph TD;
@@ -36,28 +36,43 @@ graph TD;
     KILL_INTERACTION_THREAD-->EXIT_THE_EXIT_THREAD
 ```
 
+## Exit procedure initiation 
 
+Exit procedure may be initiated by 
 
-## Standard exit procedure 
+* EXTERNAL_EXIT_REQUEST - external exit request, such a terminate signal
+* EXTERNAL_EXIT_REQUEST - node rotation exit, where a skaled self-exits to reload the config
+* CONSENUS_FATAL_ERROR - a fatal error occurs in consensus, and consensus requests skaled 
+  restart
+* CONSENUS_STUCK_RESTART - consensus determines that it is stuck and request skaled for a restart
 
-To initiate exit procedure, skaled need to do the following:
+Once the exit is initiated, skaled goes into INITIATE_SKALED_EXIT state.
 
-* Stop accepting JSON-RPC requests except for the status calls.
-* create a separate detached SkaledExitThread to initiate the following steps 
-* call exitGracefully() on consensus. 
+## Standard exit procedure
+
+Once the exit procedure is initiated, the following steps are performed by skaled
+
+* STOP_ACCEPTING_JSON_RPC - stop accepting JSON-RPC requests except for the status calls.
+* CREATE_EXIT_THREAD - create a separate detached SkaledExitThread to initiate the following steps 
+* CALL_CONSENSUS_EXIT - call exitGracefully() on consensus. 
 * The consensus will first try it exit gracefully on return of ConsensusExtFace::createBlock() , 
   and then after  timeout will do the hard exit.
-* After calling exitGraceFully(), SkaledExitThread will need to keep calling 
-  ConsensusExtFace::getStatus()
-* When the status becomes enum consensus_engine_status CONSENSUS_EXITED_HARD or 
-  CONSENSUS_EXITED_GRACEFULLY, the SkaledExitThread will:
+* CHECK_EXIT_STATUS_LOOP - after calling exitGraceFully(), SkaledExitThread will need to keep 
+  calling  ConsensusExtFace::getStatus()
+* When the status becomes CONSENSUS_EXITED_HARD or 
+  CONSENSUS_EXITED_GRACEFULLY, the SkaledExitThread will perform steps described in the 
+  next sections
 
-* If status is CONSENSUS_EXITED_GRACEFULLY, all consensus threads will terminate. ExitThread then needs to 
-  exit all other threads in skaled, and then exit itself.
-* If status is CONSENSUS_EXITED_HARD, skaled needs to use the procedure described in the next 
-  section
+# Steps after CONSENSUS_EXITED_GRACEFULLY
 
-## Hard exit
+If status is CONSENSUS_EXITED_GRACEFULLY, all consensus threads will terminate. 
+
+ExitThread will then do the following steps
+
+* EXIT_REST_OF_SKALED -  exit all other threads in skaled, and then exit itself.
+* EXIT_THE_EXIT_THREAD - ExitThread will exit iself as the last step. 
+
+# Steps after CONSENSUS_EXITED_HARD
 
 Consensus maintains a single detached thread, SkaledInteractionThread to call the following 
 functions 
@@ -65,7 +80,7 @@ functions
 * ConsensusExtFace::createBlock()
 * ConsensusExtFace::pendingTransactions
 
-When consensus does hard exit, it guarantees to terminate all consensus threads except
+When consensus does CONSENSUS_EXITED_HARD, it guarantees to terminate all consensus threads except
 the SkaledInteractionThread. 
 
 If SkaledInteractionThread is stuck inside ConsensusExtFace::createBlock(), 
@@ -76,15 +91,15 @@ To hard terminate SkaledInteractionThread, there is a separate function
 
 * ConsensusExtFace::killSkaledInteractionThread()
 
-* If after a calle to exitGraceFully CONSENSUS_EXITED_HARD, skaled needs to
-
 If after a call to exitGracefully() SkaledExitThread gets CONSENSUS_EXITED_HARD, then it needs 
-to do the following:
-* exit all other threads in skaled, including hard kill if needed   
-* When all other threads exit, the will stop using memory and CPU, as well as release lock
-* At this point, if SkaledInteractionThread was stuck, it may get unstuck and finish block 
+to do the following steps:
+
+* EXIT_REST_OF_SKALED_ - exit all other threads in skaled, including hard kill if needed   
+When all other threads exit, they will stop using memory and CPU, as well as release locks 
+At this point, if SkaledInteractionThread was stuck, it may get unstuck and finish block 
   processing.
-* SkaledExitThread should keep calling ConsensusExtFace::getSkaledInteractionThreadStatus()
+* CHECK_INTERACTION_THREAD_STATUS_LOOP - SkaledExitThread should keep calling 
+  ConsensusExtFace::getSkaledInteractionThreadStatus()
   for INTERACTION_THREAD_HARD_EXIT_TIME. If the status become EXITED, then SkaledExitThread should 
   exit.
 * After INTERACTION_THREAD_HARD_EXIT_TIME, SkaledExitThread should call
