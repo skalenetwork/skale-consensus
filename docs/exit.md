@@ -5,7 +5,7 @@
 
 A graceful way to exit skaled is on a block boundary at the moment when a block is processed by skaled, 
 and the ConsensusExtFace::createBlock() function returns. Graceful exit guarantees that consensus will 
-not be corrupt, and blocks have been processed correctly by EVM. 
+not be corrupt, and that blocks have been processed correctly by EVM. 
 The goal of this specification is to achieve graceful exit in most cases.
 
 
@@ -18,8 +18,8 @@ The following diagram describes the skaled exit procedure:
 graph TD;
     EXTERNAL_EXIT_REQUEST-->INITIATE_SKALED_EXIT
     NODE_ROTATION_EXIT-->INITIATE_SKALED_EXIT
-    CONSENUS_FATAL_ERROR-->INITIATE_SKALED_EXIT
-    CONSENUS_STUCK_RESTART-->INITIATE_SKALED_EXIT
+    CONSENSUS_FATAL_ERROR-->INITIATE_SKALED_EXIT
+    CONSENSUS_STUCK_RESTART-->INITIATE_SKALED_EXIT
     INITIATE_SKALED_EXIT-->STOP_ACCEPTING_JSON_RPC
     STOP_ACCEPTING_JSON_RPC-->CREATE_EXIT_THREAD;
     CREATE_EXIT_THREAD-->CALL_CONSENSUS_EXIT;
@@ -43,8 +43,8 @@ Exit procedure may be initiated by
 
 * EXTERNAL_EXIT_REQUEST - an external exit request, such as a terminate signal
 * NODE_ROTATION_EXIT - a node rotation exit, where skaled self-exits to reload the config
-* CONSENUS_FATAL_ERROR - a fatal error occurs in consensus, and consensus requests skaled to restart
-* CONSENUS_STUCK_RESTART - consensus determines that it is stuck and requests skaled to restart
+* CONSENSUS_FATAL_ERROR - a fatal error occurs in consensus, and consensus requests skaled to restart
+* CONSENSUS_STUCK_RESTART - consensus determines that it is stuck and requests skaled to restart
 
 Once the exit is initiated, skaled goes into the INITIATE_SKALED_EXIT state.
 
@@ -70,7 +70,7 @@ If status is CONSENSUS_EXITED_GRACEFULLY, all consensus threads will terminate.
 ExitThread will then do the following steps
 
 * EXIT_REST_OF_SKALED -  exit all other threads in skaled, and then exit itself.
-* EXIT_THE_EXIT_THREAD - ExitThread will exit iself as the last step. 
+* EXIT_THE_EXIT_THREAD - ExitThread will exit itself as the last step. 
 
 ## Procedure after CONSENSUS_EXITED_HARD
 
@@ -101,13 +101,13 @@ To hard terminate SkaledInteractionThread, there is a separate function
 If after a call to exitGracefully() SkaledExitThread gets CONSENSUS_EXITED_HARD, then it must 
 do the following steps:
 
-* EXIT_REST_OF_SKALED_ - exit all other threads in skaled, including hard killing them if needed   
+* EXIT_REST_OF_SKALED_ - exit all other threads in skaled, including hard-killing them if needed   
 When all other threads exit, they will stop using memory and CPU, as well as release locks. 
 At this point, if SkaledInteractionThread was stuck, it may get unstuck and finish block 
   processing.
 * CHECK_INTERACTION_THREAD_STATUS_LOOP - SkaledExitThread should keep calling 
   ConsensusExtFace::getSkaledInteractionThreadStatus()
-  for some time, to give SkaledInteractionThread a chance to complete blovk processing and 
+  for some time, to give SkaledInteractionThread a chance to complete block processing and 
 * exit nicely. If the  status become EXITED, 
   then  SkaledExitThread should exit.
 * If SkaledInteractiionThread is stuck and does not exit nicely, SkaledExitThread should call
@@ -132,7 +132,7 @@ There are two exceptions, where exitGracefully() will call immediateExit instead
 for block boundary
 
 * fatal error previously occured in consensus
-* consensus StuckMonitoringAgent says that consenus has been stuck
+* consensus StuckMonitoringAgent says that CONSENSUS has been stuck
 * consensus StuckMonitoringAgent says that less than 2/3 of nodes are alive on the network
 
 Exit on block boundary guarantees exit of all consensus threads.
