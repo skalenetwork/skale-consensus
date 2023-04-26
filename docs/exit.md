@@ -11,7 +11,7 @@ ConsensusExtFace::createBlock() function returns.
 
 ## Exit state diagram
 
-Exit state diagram
+The following diagram describes skaled exit procedure
 
 ```mermaid
 graph TD;
