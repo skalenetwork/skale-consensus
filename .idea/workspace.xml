@@ -45,7 +45,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/docs/exit.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/exit.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -139,7 +141,7 @@
     "cf.advertisement.text.overridden": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "last_opened_file_path": "/d/skale-consensus/docs",
+    "last_opened_file_path": "/d/skale-consensus/node",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -151,8 +153,8 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/docs" />
       <recent name="$PROJECT_DIR$/node" />
+      <recent name="$PROJECT_DIR$/docs" />
       <recent name="$PROJECT_DIR$/test/seven_one_catchup" />
       <recent name="$PROJECT_DIR$/test" />
       <recent name="$PROJECT_DIR$/rlp" />
@@ -162,6 +164,11 @@
     <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
     <configuration name="bls_test" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="bls_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="bls_test" TEST_MODE="SUITE_TEST">
@@ -505,41 +512,6 @@
       <workItem from="1682443260840" duration="9000" />
       <workItem from="1682445113799" duration="7484000" />
     </task>
-    <task id="LOCAL-00156" summary="oracle doc">
-      <created>1681492489011</created>
-      <option name="number" value="00156" />
-      <option name="presentableId" value="LOCAL-00156" />
-      <option name="project" value="LOCAL" />
-      <updated>1681492489011</updated>
-    </task>
-    <task id="LOCAL-00157" summary="oracle doc">
-      <created>1681493322993</created>
-      <option name="number" value="00157" />
-      <option name="presentableId" value="LOCAL-00157" />
-      <option name="project" value="LOCAL" />
-      <updated>1681493322993</updated>
-    </task>
-    <task id="LOCAL-00158" summary="oracle doc">
-      <created>1681494238813</created>
-      <option name="number" value="00158" />
-      <option name="presentableId" value="LOCAL-00158" />
-      <option name="project" value="LOCAL" />
-      <updated>1681494238813</updated>
-    </task>
-    <task id="LOCAL-00159" summary="oracle doc">
-      <created>1682088485769</created>
-      <option name="number" value="00159" />
-      <option name="presentableId" value="LOCAL-00159" />
-      <option name="project" value="LOCAL" />
-      <updated>1682088485770</updated>
-    </task>
-    <task id="LOCAL-00160" summary="769 Clang-format">
-      <created>1682088740214</created>
-      <option name="number" value="00160" />
-      <option name="presentableId" value="LOCAL-00160" />
-      <option name="project" value="LOCAL" />
-      <updated>1682088740214</updated>
-    </task>
     <task id="LOCAL-00161" summary="769 Clang-format">
       <created>1682088838034</created>
       <option name="number" value="00161" />
@@ -848,7 +820,42 @@
       <option name="project" value="LOCAL" />
       <updated>1682512629101</updated>
     </task>
-    <option name="localTasksCounter" value="205" />
+    <task id="LOCAL-00205" summary="1425 threading rules">
+      <created>1682513201191</created>
+      <option name="number" value="00205" />
+      <option name="presentableId" value="LOCAL-00205" />
+      <option name="project" value="LOCAL" />
+      <updated>1682513201191</updated>
+    </task>
+    <task id="LOCAL-00206" summary="1425 threading rules">
+      <created>1682513401894</created>
+      <option name="number" value="00206" />
+      <option name="presentableId" value="LOCAL-00206" />
+      <option name="project" value="LOCAL" />
+      <updated>1682513401894</updated>
+    </task>
+    <task id="LOCAL-00207" summary="1425 threading rules">
+      <created>1682513697754</created>
+      <option name="number" value="00207" />
+      <option name="presentableId" value="LOCAL-00207" />
+      <option name="project" value="LOCAL" />
+      <updated>1682513697754</updated>
+    </task>
+    <task id="LOCAL-00208" summary="1425 threading rules">
+      <created>1682513942917</created>
+      <option name="number" value="00208" />
+      <option name="presentableId" value="LOCAL-00208" />
+      <option name="project" value="LOCAL" />
+      <updated>1682513942917</updated>
+    </task>
+    <task id="LOCAL-00209" summary="1425 threading rules">
+      <created>1682514042025</created>
+      <option name="number" value="00209" />
+      <option name="presentableId" value="LOCAL-00209" />
+      <option name="project" value="LOCAL" />
+      <updated>1682514042025</updated>
+    </task>
+    <option name="localTasksCounter" value="210" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

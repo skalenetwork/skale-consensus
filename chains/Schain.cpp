@@ -475,6 +475,8 @@ void Schain::checkForExit() {
     }
 }
 
+
+// Note: this function must be called with blockProcessing mutex held
 void Schain::proposeNextBlock() {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
@@ -984,11 +986,13 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         if ( getNode()->isSyncOnlyNode() )
             return;
 
-        proposeNextBlock();
+        {
+            lock_guard< timed_mutex > lock( ( blockProcessMutex ) );
+            proposeNextBlock();
+        }
+
 
         ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCurrentBlock();
-
-
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         return;
