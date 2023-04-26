@@ -5,7 +5,23 @@
 
 The best way to exit skaled is at the moment when a block is processed by skaled and 
 ConsensusExtFace::createBlock() function returns.
- 
+
+
+# Exit Procedure Diagram
+
+## Diagram
+
+Here is a simple flow chart:
+
+```mermaid
+graph TD;
+    STOP_ACCEPTING_JSON_REQUESTS-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
+
 
 ## Standard exit procedure 
 
@@ -60,14 +76,3 @@ to do the following:
   ConsensusExtFace::killSkaledInteractionThread() and exit. 
 
 
-## Diagram
-
-Here is a simple flow chart:
-
-```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
-```
