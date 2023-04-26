@@ -45,7 +45,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/exit.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/exit.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -506,13 +505,6 @@
       <workItem from="1682443260840" duration="9000" />
       <workItem from="1682445113799" duration="7484000" />
     </task>
-    <task id="LOCAL-00155" summary="oracle doc">
-      <created>1681492168205</created>
-      <option name="number" value="00155" />
-      <option name="presentableId" value="LOCAL-00155" />
-      <option name="project" value="LOCAL" />
-      <updated>1681492168205</updated>
-    </task>
     <task id="LOCAL-00156" summary="oracle doc">
       <created>1681492489011</created>
       <option name="number" value="00156" />
@@ -849,7 +841,14 @@
       <option name="project" value="LOCAL" />
       <updated>1682512043714</updated>
     </task>
-    <option name="localTasksCounter" value="204" />
+    <task id="LOCAL-00204" summary="1425 threading rules">
+      <created>1682512629101</created>
+      <option name="number" value="00204" />
+      <option name="presentableId" value="LOCAL-00204" />
+      <option name="project" value="LOCAL" />
+      <updated>1682512629101</updated>
+    </task>
+    <option name="localTasksCounter" value="205" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

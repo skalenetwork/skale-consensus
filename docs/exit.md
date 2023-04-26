@@ -6,7 +6,7 @@
 A graceful way to exit skaled is on a block boundary at the moment, when a block is processed by 
 skaled and ConsensusExtFace::createBlock() function returns.
 
-Gracefull exit guarantees that consensus is will not be corrupt and blocks
+Gracefull exit guarantees that consensus will not be corrupt and blocks
 have been processed correctly by EVM.
 
 The goal of this specification is to achieve gracefull exit in most cases. 
