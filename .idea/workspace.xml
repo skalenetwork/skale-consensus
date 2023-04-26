@@ -505,41 +505,6 @@
       <workItem from="1682443260840" duration="9000" />
       <workItem from="1682445113799" duration="7484000" />
     </task>
-    <task id="LOCAL-00145" summary="709 Complete Oracle: add spec verification">
-      <created>1677070444371</created>
-      <option name="number" value="00145" />
-      <option name="presentableId" value="LOCAL-00145" />
-      <option name="project" value="LOCAL" />
-      <updated>1677070444371</updated>
-    </task>
-    <task id="LOCAL-00146" summary="709 Complete Oracle: add spec verification">
-      <created>1677070900038</created>
-      <option name="number" value="00146" />
-      <option name="presentableId" value="LOCAL-00146" />
-      <option name="project" value="LOCAL" />
-      <updated>1677070900038</updated>
-    </task>
-    <task id="LOCAL-00147" summary="709 Complete Oracle: add spec verification">
-      <created>1680174959938</created>
-      <option name="number" value="00147" />
-      <option name="presentableId" value="LOCAL-00147" />
-      <option name="project" value="LOCAL" />
-      <updated>1680174959938</updated>
-    </task>
-    <task id="LOCAL-00148" summary="709 Complete Oracle: add spec verification">
-      <created>1680285522171</created>
-      <option name="number" value="00148" />
-      <option name="presentableId" value="LOCAL-00148" />
-      <option name="project" value="LOCAL" />
-      <updated>1680285522172</updated>
-    </task>
-    <task id="LOCAL-00149" summary="Oracle doc impovements">
-      <created>1681488430569</created>
-      <option name="number" value="00149" />
-      <option name="presentableId" value="LOCAL-00149" />
-      <option name="project" value="LOCAL" />
-      <updated>1681488430569</updated>
-    </task>
     <task id="LOCAL-00150" summary="#636 skaled stuck">
       <created>1681489591842</created>
       <option name="number" value="00150" />
@@ -848,7 +813,42 @@
       <option name="project" value="LOCAL" />
       <updated>1682510281674</updated>
     </task>
-    <option name="localTasksCounter" value="194" />
+    <task id="LOCAL-00194" summary="1425 threading rules">
+      <created>1682511198781</created>
+      <option name="number" value="00194" />
+      <option name="presentableId" value="LOCAL-00194" />
+      <option name="project" value="LOCAL" />
+      <updated>1682511198781</updated>
+    </task>
+    <task id="LOCAL-00195" summary="1425 threading rules">
+      <created>1682511236486</created>
+      <option name="number" value="00195" />
+      <option name="presentableId" value="LOCAL-00195" />
+      <option name="project" value="LOCAL" />
+      <updated>1682511236486</updated>
+    </task>
+    <task id="LOCAL-00196" summary="1425 threading rules">
+      <created>1682511283571</created>
+      <option name="number" value="00196" />
+      <option name="presentableId" value="LOCAL-00196" />
+      <option name="project" value="LOCAL" />
+      <updated>1682511283571</updated>
+    </task>
+    <task id="LOCAL-00197" summary="1425 threading rules">
+      <created>1682511344043</created>
+      <option name="number" value="00197" />
+      <option name="presentableId" value="LOCAL-00197" />
+      <option name="project" value="LOCAL" />
+      <updated>1682511344043</updated>
+    </task>
+    <task id="LOCAL-00198" summary="1425 threading rules">
+      <created>1682511404637</created>
+      <option name="number" value="00198" />
+      <option name="presentableId" value="LOCAL-00198" />
+      <option name="project" value="LOCAL" />
+      <updated>1682511404637</updated>
+    </task>
+    <option name="localTasksCounter" value="199" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

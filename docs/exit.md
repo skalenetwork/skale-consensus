@@ -3,8 +3,13 @@
 
 # Intro
 
-The best way to exit skaled is on the blockboundary at the moment when a block is processed by 
+A graceful way to exit skaled is on the blockboundary at the moment when a block is processed by 
 skaled and ConsensusExtFace::createBlock() function returns.
+
+Gracefull exit guarantees that consensus is not not corrupt and there is no
+the block has been processed fully.
+
+The goal of this specification is to achieve gracefull exit in most cases. 
 
 # Exit state diagram
 
