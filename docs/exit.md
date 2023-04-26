@@ -98,7 +98,7 @@ To hard terminate SkaledInteractionThread, there is a separate function
 
 ### Steps after CONSENSUS_EXITED_HARD
 
-If after a call to exitGracefully() SkaledExitThread gets CONSENSUS_EXITED_HARD, then it must 
+If after a call to exitGracefully() SkaledExitThread receives CONSENSUS_EXITED_HARD, then it must 
 do the following steps:
 
 * EXIT_REST_OF_SKALED_ - exit all other threads in skaled, including hard-killing them if needed   
