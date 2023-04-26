@@ -48,7 +48,7 @@ Exit procedure may be initiated by
 
 Once the exit is initiated, skaled goes into INITIATE_SKALED_EXIT state.
 
-## Standard exit procedure
+## Exit procedure beginning steps
 
 Once the exit procedure is initiated, the following steps are performed by skaled
 
