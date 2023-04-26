@@ -65,7 +65,7 @@ performed from this thread
   CONSENSUS_EXITED_GRACEFULLY, the SkaledExitThread will perform steps described in the 
   next sections
 
-## Steps after CONSENSUS_EXITED_GRACEFULLY
+## Procedure after CONSENSUS_EXITED_GRACEFULLY
 
 If status is CONSENSUS_EXITED_GRACEFULLY, all consensus threads will terminate. 
 
@@ -74,7 +74,9 @@ ExitThread will then do the following steps
 * EXIT_REST_OF_SKALED -  exit all other threads in skaled, and then exit itself.
 * EXIT_THE_EXIT_THREAD - ExitThread will exit iself as the last step. 
 
-## Steps after CONSENSUS_EXITED_HARD
+## Procedure after CONSENSUS_EXITED_HARD
+
+### SkaledInteractionThread
 
 Consensus maintains a single detached thread, SkaledInteractionThread to call the following 
 functions 
@@ -89,9 +91,13 @@ If SkaledInteractionThread is stuck inside ConsensusExtFace::createBlock(),
 consensus will not hard kill it.  This is done in order to give EVM a chance to complete block 
 processing.
 
+### SkaledInteractionThread termination
+
 To hard terminate SkaledInteractionThread, there is a separate function
 
 * ConsensusExtFace::killSkaledInteractionThread()
+
+### Steps after CONSENSUS_EXITED_HARD
 
 If after a call to exitGracefully() SkaledExitThread gets CONSENSUS_EXITED_HARD, then it needs 
 to do the following steps:
