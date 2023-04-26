@@ -3,13 +3,10 @@
 
 # Intro
 
-The best way to exit skaled is at the moment when a block is processed by skaled and 
-ConsensusExtFace::createBlock() function returns.
+The best way to exit skaled is on the blockboundary at the moment when a block is processed by 
+skaled and ConsensusExtFace::createBlock() function returns.
 
-
-# Exit Procedure Diagram
-
-## Exit state diagram
+# Exit state diagram
 
 The following diagram describes skaled exit procedure
 
