@@ -10,8 +10,8 @@ Gracefull exit guarantees that consensus is not not corrupt and there is no
 the block has been processed fully.
 
 The goal of this specification is to achieve gracefull exit in most cases. 
-
-# Exit state diagram
+# Exit procedure 
+## Exit procedure state diagram
 
 The following diagram describes skaled exit procedure
 
@@ -65,7 +65,7 @@ performed from this thread
   CONSENSUS_EXITED_GRACEFULLY, the SkaledExitThread will perform steps described in the 
   next sections
 
-# Steps after CONSENSUS_EXITED_GRACEFULLY
+## Steps after CONSENSUS_EXITED_GRACEFULLY
 
 If status is CONSENSUS_EXITED_GRACEFULLY, all consensus threads will terminate. 
 
@@ -74,7 +74,7 @@ ExitThread will then do the following steps
 * EXIT_REST_OF_SKALED -  exit all other threads in skaled, and then exit itself.
 * EXIT_THE_EXIT_THREAD - ExitThread will exit iself as the last step. 
 
-# Steps after CONSENSUS_EXITED_HARD
+## Steps after CONSENSUS_EXITED_HARD
 
 Consensus maintains a single detached thread, SkaledInteractionThread to call the following 
 functions 
