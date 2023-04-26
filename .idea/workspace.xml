@@ -45,7 +45,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/docs/exit.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/exit.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/exit.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -505,20 +505,6 @@
       <workItem from="1682443260840" duration="9000" />
       <workItem from="1682445113799" duration="7484000" />
     </task>
-    <task id="LOCAL-00133" summary="88: Tuning chains">
-      <created>1651241760120</created>
-      <option name="number" value="00133" />
-      <option name="presentableId" value="LOCAL-00133" />
-      <option name="project" value="LOCAL" />
-      <updated>1651241760120</updated>
-    </task>
-    <task id="LOCAL-00134" summary="88: Tuning chains">
-      <created>1651242215379</created>
-      <option name="number" value="00134" />
-      <option name="presentableId" value="LOCAL-00134" />
-      <option name="project" value="LOCAL" />
-      <updated>1651242215379</updated>
-    </task>
     <task id="LOCAL-00135" summary="88: Tuning chains">
       <created>1651243713914</created>
       <option name="number" value="00135" />
@@ -848,7 +834,21 @@
       <option name="project" value="LOCAL" />
       <updated>1682428115544</updated>
     </task>
-    <option name="localTasksCounter" value="182" />
+    <task id="LOCAL-00182" summary="1425 threading rules">
+      <created>1682509113286</created>
+      <option name="number" value="00182" />
+      <option name="presentableId" value="LOCAL-00182" />
+      <option name="project" value="LOCAL" />
+      <updated>1682509113287</updated>
+    </task>
+    <task id="LOCAL-00183" summary="1425 threading rules">
+      <created>1682509216710</created>
+      <option name="number" value="00183" />
+      <option name="presentableId" value="LOCAL-00183" />
+      <option name="project" value="LOCAL" />
+      <updated>1682509216710</updated>
+    </task>
+    <option name="localTasksCounter" value="184" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
