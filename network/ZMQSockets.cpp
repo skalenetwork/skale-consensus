@@ -42,8 +42,8 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
     LOCK( m )
 
     // Exiting - throw exception
-    if (closeAndCleanupAllCalled) {
-        throw ExitRequestedException(__FUNCTION__ );
+    if ( closeAndCleanupAllCalled ) {
+        throw ExitRequestedException( __FUNCTION__ );
     }
 
 
