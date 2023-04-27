@@ -517,8 +517,10 @@ void Node::doSoftAndThenHardExit() {
     // was initiated by a fatal error in consensus. In the latter case
     // there is not point waiting since consensus will not finish
 
-    if ( fatalErrorOccured )
+    if ( fatalErrorOccured ) {
         exitImmediately();
+        return;
+    }
 
     exitOnBlockBoundaryRequested = true;
 

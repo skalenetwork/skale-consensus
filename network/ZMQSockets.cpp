@@ -28,6 +28,7 @@
 #include "ZMQSockets.h"
 #include "node/NodeInfo.h"
 #include "exceptions/FatalError.h"
+#include "exceptions/ExitRequestedException.h"
 #include "zmq.h"
 
 ZMQSockets::ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _portType )
@@ -39,6 +40,12 @@ ZMQSockets::ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _po
 void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo ) {
     CHECK_ARGUMENT( _remoteNodeInfo );
     LOCK( m )
+
+    // Exiting - throw exception
+    if (closeAndCleanupAllCalled) {
+        throw ExitRequestedException(__FUNCTION__ );
+    }
+
 
     auto ipAddress = _remoteNodeInfo->getBaseIP();
 
@@ -81,6 +88,11 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
 
 void* ZMQSockets::getReceiveSocket() {
     LOCK( m )
+
+    // Exiting - throw exception
+    if ( closeAndCleanupAllCalled ) {
+        throw ExitRequestedException( __FUNCTION__ );
+    }
 
     if ( !receiveSocket ) {
         receiveSocket = zmq_socket( context, ZMQ_SERVER );
@@ -160,7 +172,6 @@ void ZMQSockets::closeAndCleanupAll() {
         closeReceive();
     } catch ( const exception& e ) {
         LOG( err, "Exception in zmq socket close:" + string( e.what() ) );
-        throw;
     }
 
     LOG( info, "Closing ZMQ context" );

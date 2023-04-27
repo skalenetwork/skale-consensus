@@ -287,9 +287,6 @@ void Network::networkReadLoop() {
             SkaleException::logNested( e );
         }
     }  // while
-
-    // we exited the network read loop so we do not need the receive sockets anymore
-    sChain->getNode()->getSockets()->consensusZMQSockets->closeReceive();
 }
 
 

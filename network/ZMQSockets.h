@@ -41,6 +41,10 @@ class ZMQSockets : public ServerSocket {
 
     void* receiveSocket = nullptr;
 
+    void closeSend();
+
+    void closeReceive();
+
 public:
     ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _portType );
 
@@ -51,9 +55,7 @@ public:
 
     void closeAndCleanupAll();
 
-    void closeSend();
 
-    void closeReceive();
 
     virtual ~ZMQSockets();
 };
