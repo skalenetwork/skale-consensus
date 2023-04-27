@@ -114,7 +114,7 @@ void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
         };
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        _agent->getSchain()->getNode()->exitOnFatalError( e.what() );
+        _agent->getSchain()->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 

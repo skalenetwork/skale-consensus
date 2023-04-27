@@ -526,7 +526,7 @@ void ConsensusEngine::startAll() {
         for ( auto&& it : nodes ) {
             CHECK_STATE( it.second );
             if ( !it.second->isExitRequested() ) {
-                it.second->exitOnFatalError( e.what() );
+                it.second->initiateApplicationExitOnFatalConsensusError( e.what() );
             }
         }
 
@@ -563,7 +563,7 @@ void ConsensusEngine::bootStrapAll() {
         for ( auto&& it : nodes ) {
             CHECK_STATE( it.second );
             if ( !it.second->isExitRequested() ) {
-                it.second->exitOnFatalError( e.what() );
+                it.second->initiateApplicationExitOnFatalConsensusError( e.what() );
             }
         }
 
@@ -663,7 +663,7 @@ void ConsensusEngine::init() {
 
 
 ConsensusEngine::ConsensusEngine( block_id _lastId, uint64_t _totalStorageLimitBytes )
-    : prices( 256 ), exitRequested( false ) {
+    : prices( 256 ) {
     cout << "Constructing consensus engine:LAST_BLOCK:" << ( uint64_t ) _lastId
          << ":TOTAL_STORAGE_LIMIT:" << _totalStorageLimitBytes << endl;
 
@@ -688,7 +688,7 @@ ConsensusEngine::ConsensusEngine( block_id _lastId, uint64_t _totalStorageLimitB
 ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
     uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
     map< string, uint64_t > _patchTimestamps, uint64_t _totalStorageLimitBytes )
-    : prices( 256 ), exitRequested( false ), patchTimestamps( _patchTimestamps ) {
+    : prices( 256 ), patchTimestamps( _patchTimestamps ) {
     std::time_t lastCommitedBlockTimestamp = _lastCommittedBlockTimeStamp;
     cout << "Constructing consensus engine: "
          << ""
@@ -739,7 +739,7 @@ ConsensusExtFace* ConsensusEngine::getExtFace() const {
 void ConsensusEngine::exitGracefullyBlocking() {
     LOG( info, "Consensus engine exiting: exitGracefullyBlocking called by skaled" );
 
-    cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
+    cout << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
 
     cerr << boost::stacktrace::stacktrace() << endl;
 
@@ -748,21 +748,27 @@ void ConsensusEngine::exitGracefullyBlocking() {
     // will try to exit on deleted object!
 
 
-    if ( getStatus() != CONSENSUS_EXITED )
-        exitGracefully();
+    if ( getStatus() == CONSENSUS_EXITED )
+        return;
+
+    exitGracefully();
 
     while ( getStatus() != CONSENSUS_EXITED ) {
-        usleep( 100000 );
+        usleep( 100 * 1000 );
     }
 }
 
 
 void ConsensusEngine::exitGracefully() {
     LOG( info, "Consensus engine exiting: blocking exit exitGracefully called by skaled" );
-
     cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
-
     cerr << boost::stacktrace::stacktrace() << endl;
+
+    if ( getStatus() == CONSENSUS_EXITED )
+        return;
+
+    // guaranteedd to be called once
+    RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyCalled )
 
 
     // run and forget
@@ -776,13 +782,12 @@ consensus_engine_status ConsensusEngine::getStatus() const {
 void ConsensusEngine::exitGracefullyAsync() {
     LOG( info, "Consensus engine exiting: exitGracefullyAsync called by skaled" );
 
+
+    // guaranteed to be executed once
+    RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyAsyncCalled )
+
+
     try {
-        auto previouslyCalled = exitRequested.exchange( true );
-
-        if ( previouslyCalled ) {
-            return;
-        }
-
         LOG( info, "exitGracefullyAsync running" );
 
 
@@ -798,7 +803,7 @@ void ConsensusEngine::exitGracefullyAsync() {
             thread( [node]() {
                 try {
                     LOG( info, "Node exit called" );
-                    node->exit();
+                    node->doSoftAndThenHardExit();
                     LOG( info, "Node exit completed" );
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );

@@ -354,7 +354,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
         }
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        node->exitOnFatalError( e.what() );
+        node->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 

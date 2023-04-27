@@ -158,7 +158,7 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
         }
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        getNode()->exitOnFatalError( e.what() );
+        getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 

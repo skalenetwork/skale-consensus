@@ -86,7 +86,22 @@ class Node {
 
     atomic_bool startedClients;
 
-    atomic_bool exitRequested;
+    atomic_bool exitRequested = false;
+
+    atomic_bool exitCalled = false;
+
+    atomic_bool fatalErrorOccured = false;
+
+    atomic_bool exitOnBlockBoundaryRequested = false;
+
+    atomic_bool closeAllSocketsCalled = false;
+
+
+    void exitImmediately();
+
+
+    bool isExitOnBlockBoundaryRequested() const;
+
 
     ptr< SkaleLog > log = nullptr;
     string name = "";
@@ -223,6 +238,17 @@ class Node {
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 public:
+    void checkForExitOnBlockBoundaryAndExitIfNeeded();
+
+
+    void exitCheck();
+
+    bool isExitRequested();
+
+    void initiateApplicationExitOnFatalConsensusError( const string& message );
+
+    void doSoftAndThenHardExit();
+
     string getEcdsaKeyName();
 
     ptr< vector< string > > getEcdsaPublicKeys();
@@ -311,9 +337,6 @@ public:
     // coming from the snapshot. Normally we will pass nullptr
     void startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock );
 
-    void exit();
-
-    void exitOnFatalError( const string& message );
 
     void setSchain( const ptr< Schain >& _schain );
 
@@ -342,9 +365,6 @@ public:
 
     void registerAgent( Agent* _agent );
 
-    bool isExitRequested();
-
-    void exitCheck();
 
     ptr< NodeInfo > getNodeInfoByIndex( schain_index _index );
 

@@ -23,33 +23,22 @@
 
 #pragma once
 
-
 #include "ServerSocket.h"
 
-
 class ZMQSockets : public ServerSocket {
-    atomic< bool > terminated = false;
-
+    atomic< bool > closeAndCleanupAllCalled = false;
+    atomic< bool > closeSendCalled = false;
+    atomic< bool > closeReceiveCalled = false;
     void* context = nullptr;
-
     map< schain_index, void* > sendSockets;
-
     void* receiveSocket = nullptr;
+    void closeSend();
+    void closeReceive();
 
 public:
     ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _portType );
-
-
     void* getReceiveSocket();
-
     void* getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo );
-
-
-    void closeReceive();
-
-    void closeSend();
-
     void closeAndCleanupAll();
-
     virtual ~ZMQSockets();
 };

@@ -90,7 +90,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     recursive_mutex mutex;
 
-    atomic< bool > exitRequested = false;
+    atomic< bool > exitGracefullyAsyncCalled = false;
 
     string healthCheckDir;
     string dbDir;
@@ -111,6 +111,8 @@ class ConsensusEngine : public ConsensusInterface {
     string logFileNamePrefix;
 
     ptr< spdlog::sinks::sink > logRotatingFileSync;
+
+    atomic< bool > exitGracefullyCalled = false;
 
 public:
     const map< string, uint64_t >& getPatchTimestamps() const;
