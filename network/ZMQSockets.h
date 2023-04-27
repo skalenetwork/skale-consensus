@@ -23,9 +23,7 @@
 
 #pragma once
 
-
 #include "ServerSocket.h"
-
 
 class ZMQSockets : public ServerSocket {
     atomic< bool > closeAndCleanupAllCalled = false;
@@ -33,7 +31,6 @@ class ZMQSockets : public ServerSocket {
     atomic< bool > closeSendCalled = false;
 
     atomic< bool > closeReceiveCalled = false;
-
 
     void* context = nullptr;
 
@@ -46,16 +43,14 @@ class ZMQSockets : public ServerSocket {
     void closeReceive();
 
 public:
-    ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _portType );
 
+    ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _portType );
 
     void* getReceiveSocket();
 
     void* getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo );
 
     void closeAndCleanupAll();
-
-
 
     virtual ~ZMQSockets();
 };
