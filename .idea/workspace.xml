@@ -45,12 +45,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libjson-rpc-cpp" beforeDir="false" afterPath="$PROJECT_DIR$/libjson-rpc-cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/Network.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/Network.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/ZMQSockets.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQSockets.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/ZMQSockets.h" beforeDir="false" afterPath="$PROJECT_DIR$/network/ZMQSockets.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +61,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="exit_gracefully" />
+        <entry key="$PROJECT_DIR$" value="1425_threading_rules" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -515,20 +510,6 @@
       <workItem from="1682443260840" duration="9000" />
       <workItem from="1682445113799" duration="7484000" />
     </task>
-    <task id="LOCAL-00161" summary="769 Clang-format">
-      <created>1682088838034</created>
-      <option name="number" value="00161" />
-      <option name="presentableId" value="LOCAL-00161" />
-      <option name="project" value="LOCAL" />
-      <updated>1682088838034</updated>
-    </task>
-    <task id="LOCAL-00162" summary="769 Clang-format">
-      <created>1682089096150</created>
-      <option name="number" value="00162" />
-      <option name="presentableId" value="LOCAL-00162" />
-      <option name="project" value="LOCAL" />
-      <updated>1682089096150</updated>
-    </task>
     <task id="LOCAL-00163" summary="769 Clang-format">
       <created>1682089170957</created>
       <option name="number" value="00163" />
@@ -858,7 +839,21 @@
       <option name="project" value="LOCAL" />
       <updated>1682514042025</updated>
     </task>
-    <option name="localTasksCounter" value="210" />
+    <task id="LOCAL-00210" summary="1425 threading rules">
+      <created>1682624237070</created>
+      <option name="number" value="00210" />
+      <option name="presentableId" value="LOCAL-00210" />
+      <option name="project" value="LOCAL" />
+      <updated>1682624237071</updated>
+    </task>
+    <task id="LOCAL-00211" summary="1425 threading rules">
+      <created>1682624334898</created>
+      <option name="number" value="00211" />
+      <option name="presentableId" value="LOCAL-00211" />
+      <option name="project" value="LOCAL" />
+      <updated>1682624334898</updated>
+    </task>
+    <option name="localTasksCounter" value="212" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
