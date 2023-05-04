@@ -23,7 +23,12 @@
 
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+
 #include <boost/multiprecision/cpp_int.hpp>
+
+#pragma GCC diagnostic pop
 
 #include "SkaleCommon.h"
 
