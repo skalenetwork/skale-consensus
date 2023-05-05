@@ -26,7 +26,12 @@
 
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+
 #include <boost/multiprecision/cpp_int.hpp>
+
+#pragma GCC diagnostic pop
 
 #include <map>
 #include <string>
