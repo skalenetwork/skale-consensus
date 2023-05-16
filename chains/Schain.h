@@ -154,6 +154,7 @@ class Schain : public Agent {
     TimeStamp lastCommittedBlockTimeStamp;
     mutex lastCommittedBlockInfoMutex;
     atomic< uint64_t > proposalReceiptTime = 0;
+    atomic<bool> inCreateBlock = false;
 
 
     atomic< uint64_t > bootstrapBlockID = 0;
@@ -171,6 +172,7 @@ class Schain : public Agent {
     uint64_t tpsAverage = 0;
 
     atomic< bool > isStateInitialized = false;
+    atomic< bool > isSt = false;
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
@@ -345,6 +347,9 @@ public:
 
 
     uint64_t getVerifyDaSigsPatchTimestampS() const;
+
+
+    bool isInCreateBlock() const;
 
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
