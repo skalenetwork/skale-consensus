@@ -154,7 +154,7 @@ class Schain : public Agent {
     TimeStamp lastCommittedBlockTimeStamp;
     mutex lastCommittedBlockInfoMutex;
     atomic< uint64_t > proposalReceiptTime = 0;
-    atomic<bool> inCreateBlock = false;
+    atomic< bool > inCreateBlock = false;
 
 
     atomic< uint64_t > bootstrapBlockID = 0;
