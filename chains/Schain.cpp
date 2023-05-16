@@ -740,11 +740,10 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
                     ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
                     ( uint64_t ) _block->getProposerIndex() );
                 inCreateBlock = false;
-            } catch (...) {
-                inCreateBlock  = false;
+            } catch ( ... ) {
+                inCreateBlock = false;
                 throw;
             }
-
         }
 
         // block boundary is the safesf place for exit
