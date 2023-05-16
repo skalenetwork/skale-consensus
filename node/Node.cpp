@@ -524,9 +524,9 @@ void Node::doSoftAndThenHardExit() {
 
     exitOnBlockBoundaryRequested = true;
 
-    //wait until block completes EVM processing
-    while (getSchain()->isInCreateBlock()) {
-        usleep(100 * 1000);
+    // wait until block completes EVM processing
+    while ( getSchain()->isInCreateBlock() ) {
+        usleep( 100 * 1000 );
     }
 
     auto startTimeMs = Time::getCurrentTimeMs();
