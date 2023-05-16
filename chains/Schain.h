@@ -172,7 +172,6 @@ class Schain : public Agent {
     uint64_t tpsAverage = 0;
 
     atomic< bool > isStateInitialized = false;
-    atomic< bool > isSt = false;
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
