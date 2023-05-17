@@ -198,5 +198,4 @@ void ZMQSockets::closeAndCleanupAll() {
 }
 
 
-ZMQSockets::~ZMQSockets() {
-}
+ZMQSockets::~ZMQSockets() {}
