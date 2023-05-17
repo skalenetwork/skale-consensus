@@ -146,6 +146,7 @@ void ZMQSockets::closeReceive() {
         if ( zmq_close( receiveSocket ) != 0 ) {
             LOG( err, "zmq_close returned an error on receiveSocket;" );
         }
+        receiveSocket = nullptr;
     }
 }
 
