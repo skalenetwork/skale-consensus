@@ -59,7 +59,7 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
 
     void* requester = zmq_socket( context, ZMQ_CLIENT );
 
-    CHECK_STATE2(requester, "Could not create ZMQ send socket");
+    CHECK_STATE2( requester, "Could not create ZMQ send socket" );
 
     int val = CONSENSUS_ZMQ_HWM;
     auto rc = zmq_setsockopt( requester, ZMQ_RCVHWM, &val, sizeof( val ) );
@@ -99,7 +99,7 @@ void* ZMQSockets::getReceiveSocket() {
     if ( !receiveSocket ) {
         receiveSocket = zmq_socket( context, ZMQ_SERVER );
 
-        CHECK_STATE2(receiveSocket, "Could not create ZMQ receive socket");
+        CHECK_STATE2( receiveSocket, "Could not create ZMQ receive socket" );
 
         int val = CONSENSUS_ZMQ_HWM;
         auto rc = zmq_setsockopt( receiveSocket, ZMQ_RCVHWM, &val, sizeof( val ) );
@@ -143,8 +143,8 @@ void ZMQSockets::closeReceive() {
     LOG( info, "consensus engine exiting: closing receive sockets" );
 
     if ( receiveSocket ) {
-        if (zmq_close( receiveSocket ) != 0) {
-            LOG(err, "zmq_close returned an error on receiveSocket;");
+        if ( zmq_close( receiveSocket ) != 0 ) {
+            LOG( err, "zmq_close returned an error on receiveSocket;" );
         }
     }
 }
@@ -159,8 +159,8 @@ void ZMQSockets::closeSend() {
         if ( item.second ) {
             LOG( debug, getThreadName() + " zmq debug in closeSend(): closing " +
                             to_string( ( uint64_t ) item.second ) );
-            if (zmq_close( item.second ) != 0) {
-                LOG(err, "zmq_close returned an error on sendSocket;");
+            if ( zmq_close( item.second ) != 0 ) {
+                LOG( err, "zmq_close returned an error on sendSocket;" );
             }
         }
     }
@@ -199,6 +199,4 @@ void ZMQSockets::closeAndCleanupAll() {
 
 
 ZMQSockets::~ZMQSockets() {
-    // last resort
-    closeAndCleanupAll();
 }
