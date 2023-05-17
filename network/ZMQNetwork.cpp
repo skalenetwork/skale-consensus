@@ -68,20 +68,8 @@ bool ZMQNetwork::sendMessage(
 uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len ) {
     int rc;
 
-
-    /*
-
-        zmq_pollitem_t items[1];
-        items[0].socket = _socket;
-        items[0].events = ZMQ_POLLIN;
-
-        */
-
-
     for ( ;; ) {
         if ( this->getNode()->isExitRequested() ) {
-            LOG( debug,
-                getThreadName() + "zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
             BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
         }
 
@@ -89,8 +77,6 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
         rc = zmq_recv( _socket, _buf, _len, 0 );
 
         if ( this->getNode()->isExitRequested() ) {
-            LOG( debug,
-                getThreadName() + " zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
             BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
         }
 
