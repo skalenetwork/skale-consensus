@@ -23,6 +23,11 @@
 
 #define CATCH_CONFIG_MAIN
 
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
 #include <cryptopp/eccrypto.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha.h>
@@ -51,6 +56,8 @@
 #ifdef GOOGLE_PROFILE
 #include <gperftools/heap-profiler.h>
 #endif
+
+
 
 
 ConsensusEngine* engine;
@@ -121,6 +128,11 @@ void testLog( const char* message ) {
     printf( "TEST_LOG: %s\n", message );
 }
 
+void abort_handler(int signal) {
+    printf("cought SIGABRT, exiting.\n");
+    exit(0);
+}
+
 block_id basicRun( int64_t _lastId = 0 ) {
     try {
         REQUIRE( ConsensusEngine::getEngineVersion().size() > 0 );
@@ -154,6 +166,7 @@ block_id basicRun( int64_t _lastId = 0 ) {
         REQUIRE( timestampS > 0 );
 
         cerr << price << ":" << stateRoot << endl;
+        signal(SIGABRT, abort_handler);
         engine->exitGracefullyBlocking();
         delete engine;
         return lastId;
@@ -170,6 +183,8 @@ void exit_check() {
     sleep( STUCK_TEST_TIME );
     engine->exitGracefullyBlocking();
 }
+
+
 
 
 #include "unittests/consensus_tests.cpp"
