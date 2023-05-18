@@ -760,7 +760,7 @@ void ConsensusEngine::exitGracefullyBlocking() {
 
 
 void ConsensusEngine::exitGracefully() {
-    LOG( info, "Consensus engine exiting: blocking exit exitGracefully called by skaled" );
+    LOG( info, "Consensus engine exiting: asynchronous exit exitGracefully called by skaled" );
     cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
     cerr << boost::stacktrace::stacktrace() << endl;
 

@@ -531,7 +531,7 @@ void Node::doSoftAndThenHardExit() {
 
     auto startTimeMs = Time::getCurrentTimeMs();
 
-    LOG( info, "Node::exit() will to exit on block boundary for " +
+    LOG( info, "Node::exit() will try to exit on block boundary for " +
                    to_string( CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS / 1000 ) + " seconds" );
 
     while ( Time::getCurrentTimeMs() < startTimeMs + CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS ) {

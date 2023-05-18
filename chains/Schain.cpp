@@ -732,6 +732,10 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
 
         auto currentPrice = this->pricingAgent->readPrice( _block->getBlockID() - 1 );
 
+        // block boundary is the safesf place for exit
+        // exit immediately if exit has been requested
+        // this will initiate immediate exit and throw ExitRequestedException
+        getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
 
         if ( extFace ) {
             try {
