@@ -506,6 +506,8 @@ void Node::doSoftAndThenHardExit() {
     // guaranteed to execute only once
     RETURN_IF_PREVIOUSLY_CALLED( exitCalled )
 
+    exitOnBlockBoundaryRequested = true;
+
     // this handles the case when exit is called very early
     // so that the start barriers were not released yet
     // then they have to be released for system to start working
@@ -522,7 +524,6 @@ void Node::doSoftAndThenHardExit() {
         return;
     }
 
-    exitOnBlockBoundaryRequested = true;
 
     // wait until block completes EVM processing
     while ( getSchain()->isInCreateBlock() ) {
@@ -719,3 +720,5 @@ bool Node::verifyRealSignatures() const {
 const map< string, uint64_t >& Node::getPatchTimestamps() const {
     return patchTimestamps;
 }
+
+atomic_bool Node::exitOnBlockBoundaryRequested(false);

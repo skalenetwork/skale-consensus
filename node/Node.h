@@ -92,16 +92,11 @@ class Node {
 
     atomic_bool fatalErrorOccured = false;
 
-    atomic_bool exitOnBlockBoundaryRequested = false;
-
     atomic_bool closeAllSocketsCalled = false;
-
 
     void exitImmediately();
 
-
     bool isExitOnBlockBoundaryRequested() const;
-
 
     ptr< SkaleLog > log = nullptr;
     string name = "";
@@ -238,6 +233,9 @@ class Node {
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 public:
+
+    static atomic<bool> exitOnBlockBoundaryRequested;
+
     void checkForExitOnBlockBoundaryAndExitIfNeeded();
 
 

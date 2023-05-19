@@ -739,6 +739,8 @@ void ConsensusEngine::exitGracefully() {
     // guaranteed to be called only once
     RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyCalled )
 
+    Node::exitOnBlockBoundaryRequested = true;
+
     LOG( info, "Consensus exiting: exitGracefully called by skaled" );
     cerr << "Here is stack trace for your info:" << endl;
     cerr << boost::stacktrace::stacktrace() << endl;
