@@ -233,8 +233,7 @@ class Node {
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
 public:
-
-    static atomic<bool> exitOnBlockBoundaryRequested;
+    static atomic< bool > exitOnBlockBoundaryRequested;
 
     void checkForExitOnBlockBoundaryAndExitIfNeeded();
 
