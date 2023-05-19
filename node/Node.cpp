@@ -574,7 +574,7 @@ void Node::exitImmediately() {
 void Node::checkForExitOnBlockBoundaryAndExitIfNeeded() {
     if ( getSchain()->getNode()->isExitOnBlockBoundaryRequested() ) {
         // do immediate exit since we are at the safe point
-        auto msg = "Exiting on block boundary after processing block " +
+        auto msg = "Exiting on block boundary for block " +
                    to_string( getSchain()->getLastCommittedBlockID() );
         LOG( info, msg );
         getSchain()->getNode()->exitImmediately();
