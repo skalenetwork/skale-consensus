@@ -760,15 +760,18 @@ void ConsensusEngine::exitGracefullyBlocking() {
 
 
 void ConsensusEngine::exitGracefully() {
-    LOG( info, "Consensus engine exiting: asynchronous exit exitGracefully called by skaled" );
-    cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
+
+
+
+    // guaranteedd to be called once
+    RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyCalled )
+
+    LOG( info, "Consensus exiting: exitGracefully called by skaled" );
+    cerr << "Here is stack trace for your info:" << endl;
     cerr << boost::stacktrace::stacktrace() << endl;
 
     if ( getStatus() == CONSENSUS_EXITED )
         return;
-
-    // guaranteedd to be called once
-    RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyCalled )
 
 
     // run and forget
