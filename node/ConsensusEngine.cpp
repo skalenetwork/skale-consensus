@@ -735,64 +735,37 @@ ConsensusExtFace* ConsensusEngine::getExtFace() const {
     return extFace;
 }
 
-
-void ConsensusEngine::exitGracefullyBlocking() {
-    LOG( info, "Consensus engine exiting: exitGracefullyBlocking called by skaled" );
-
-    cout << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
-
-    cerr << boost::stacktrace::stacktrace() << endl;
-
-
-    // !! if we don't check this - exitGracefullyAsync()
-    // will try to exit on deleted object!
-
-
-    if ( getStatus() == CONSENSUS_EXITED )
-        return;
-
-    exitGracefully();
-
-    while ( getStatus() != CONSENSUS_EXITED ) {
-        usleep( 100 * 1000 );
-    }
-}
-
-
 void ConsensusEngine::exitGracefully() {
-
-
-
-    // guaranteedd to be called once
+    // guaranteed to be called only once
     RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyCalled )
 
     LOG( info, "Consensus exiting: exitGracefully called by skaled" );
     cerr << "Here is stack trace for your info:" << endl;
     cerr << boost::stacktrace::stacktrace() << endl;
 
-    if ( getStatus() == CONSENSUS_EXITED )
-        return;
-
-
     // run and forget
     thread( [this]() { exitGracefullyAsync(); } ).detach();
 }
 
+// used in tests only
+void ConsensusEngine::testExitGracefullyBlocking() {
+    exitGracefully();
+    while ( getStatus() != CONSENSUS_EXITED ) {
+        usleep( 100 * 1000 );
+    }
+}
 consensus_engine_status ConsensusEngine::getStatus() const {
     return status;
 }
 
 void ConsensusEngine::exitGracefullyAsync() {
-    LOG( info, "Consensus engine exiting: exitGracefullyAsync called by skaled" );
-
-
     // guaranteed to be executed once
     RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyAsyncCalled )
 
+    LOG( info, "Consensus engine exiting: exitGracefullyAsync called by skaled" );
 
     try {
         LOG( info, "exitGracefullyAsync running" );
-
 
         for ( auto&& it : nodes ) {
             // run and forget
@@ -830,13 +803,17 @@ void ConsensusEngine::exitGracefullyAsync() {
 }
 
 ConsensusEngine::~ConsensusEngine() {
-    exitGracefullyBlocking();
+    /* the time ConsensusEngine destructor is called, exitGracefully must have been
+    called. This is just precaution to make sure we do not destroy Consensus engine
+     and all of its fields before all consensus threads exited. */
 
-    nodes.clear();
+    exitGracefully();
+
+    while ( getStatus() != CONSENSUS_EXITED ) {
+        usleep( 100 * 1000 );
+    }
 
     curl_global_cleanup();
-
-    std::cerr << "ConsensusEngine terminated." << std::endl;
 }
 
 

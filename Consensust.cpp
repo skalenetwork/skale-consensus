@@ -165,7 +165,12 @@ block_id basicRun( int64_t _lastId = 0 ) {
 
         cerr << price << ":" << stateRoot << endl;
         signal( SIGABRT, abort_handler );
-        engine->exitGracefullyBlocking();
+        engine->exitGracefully();
+
+        while ( engine->getStatus() != CONSENSUS_EXITED ) {
+            usleep( 100 * 1000 );
+        }
+
         delete engine;
         return lastId;
     } catch ( SkaleException& e ) {
@@ -179,7 +184,11 @@ bool success = false;
 
 void exit_check() {
     sleep( STUCK_TEST_TIME );
-    engine->exitGracefullyBlocking();
+    engine->exitGracefully();
+
+    while ( engine->getStatus() != CONSENSUS_EXITED ) {
+        usleep( 100 * 1000 );
+    }
 }
 
 
