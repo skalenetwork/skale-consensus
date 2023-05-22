@@ -110,12 +110,15 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
         getSchain()->getNode()->exitCheck();
 
         if ( sChain->getExtFace() ) {
+            getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
             txVector = sChain->getExtFace()->pendingTransactions( needMax, stateRoot );
-            getSchain()->getNode()->exitCheck();
+            // block boundary is the safest place for exit
+            // exit immediately if exit has been requested
+            // this will initiate immediate exit and throw ExitRequestedException
+            getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
         } else {
             stateRootSample++;
             stateRoot = 7;
-
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions( needMax );
         }
 

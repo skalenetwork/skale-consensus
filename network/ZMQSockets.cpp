@@ -59,6 +59,8 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
 
     void* requester = zmq_socket( context, ZMQ_CLIENT );
 
+    CHECK_STATE2( requester, "Could not create ZMQ send socket" );
+
     int val = CONSENSUS_ZMQ_HWM;
     auto rc = zmq_setsockopt( requester, ZMQ_RCVHWM, &val, sizeof( val ) );
     CHECK_STATE( rc == 0 );
@@ -97,9 +99,12 @@ void* ZMQSockets::getReceiveSocket() {
     if ( !receiveSocket ) {
         receiveSocket = zmq_socket( context, ZMQ_SERVER );
 
+        CHECK_STATE2( receiveSocket, "Could not create ZMQ receive socket" );
+
         int val = CONSENSUS_ZMQ_HWM;
         auto rc = zmq_setsockopt( receiveSocket, ZMQ_RCVHWM, &val, sizeof( val ) );
         CHECK_STATE( rc == 0 );
+        val = CONSENSUS_ZMQ_HWM;
         val = CONSENSUS_ZMQ_HWM;
         rc = zmq_setsockopt( receiveSocket, ZMQ_SNDHWM, &val, sizeof( val ) );
         CHECK_STATE( rc == 0 );
@@ -138,7 +143,10 @@ void ZMQSockets::closeReceive() {
     LOG( info, "consensus engine exiting: closing receive sockets" );
 
     if ( receiveSocket ) {
-        zmq_close( receiveSocket );
+        if ( zmq_close( receiveSocket ) != 0 ) {
+            LOG( err, "zmq_close returned an error on receiveSocket;" );
+        }
+        receiveSocket = nullptr;
     }
 }
 
@@ -152,7 +160,9 @@ void ZMQSockets::closeSend() {
         if ( item.second ) {
             LOG( debug, getThreadName() + " zmq debug in closeSend(): closing " +
                             to_string( ( uint64_t ) item.second ) );
-            zmq_close( item.second );
+            if ( zmq_close( item.second ) != 0 ) {
+                LOG( err, "zmq_close returned an error on sendSocket;" );
+            }
         }
     }
 }
@@ -185,11 +195,8 @@ void ZMQSockets::closeAndCleanupAll() {
         LOG( err, "Unknown exception in zmq_ctx_term" );
     }
 
-    LOG( info, "Closed ZMQ" );
+    LOG( info, "Closed ZMQ context" );
 }
 
 
-ZMQSockets::~ZMQSockets() {
-    // last resort
-    closeAndCleanupAll();
-}
+ZMQSockets::~ZMQSockets() {}

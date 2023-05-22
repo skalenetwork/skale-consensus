@@ -46,7 +46,7 @@ TEST_CASE_METHOD(
 
     REQUIRE( engine->nodesCount() > 0 );
     REQUIRE( engine->getLargestCommittedBlockID() > 0 );
-    engine->exitGracefullyBlocking();
+    engine->testExitGracefullyBlocking();
     delete engine;
     SUCCEED();
 }
@@ -68,7 +68,7 @@ TEST_CASE_METHOD( StartFromScratch, "Get consensus to stuck", "[consensus-stuck]
     } catch ( ... ) {
         timer.join();
     }
-    engine->exitGracefullyBlocking();
+    engine->testExitGracefullyBlocking();
     delete engine;
     SUCCEED();
 }
@@ -85,7 +85,7 @@ TEST_CASE_METHOD(
 
         REQUIRE( engine->nodesCount() > 0 );
         REQUIRE( engine->getLargestCommittedBlockID() == 0 );
-        engine->exitGracefullyBlocking();
+        engine->testExitGracefullyBlocking();
         delete engine;
     } catch ( SkaleException& e ) {
         SkaleException::logNested( e );

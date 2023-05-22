@@ -65,9 +65,10 @@ int main( int argc, char** argv ) {
 
     engine.slowStartBootStrapTest();
 
-    sleep( 20 );
+    while ( engine.getStatus() != CONSENSUS_EXITED ) {
+        usleep( 100 * 1000 );
+    }
 
-    engine.exitGracefullyBlocking();
     cerr << "Exited" << endl;
 
 #ifdef GOOGLE_PROFILE
