@@ -788,7 +788,7 @@ void ConsensusEngine::exitGracefullyAsync() {
             counter++;
 
             if ( counter == nodes.size() ) {
-                // do the last node in the same thread
+                // run exit for the last node in the same thread
                 try {
                     LOG( info, "Node exit called" );
                     node->doSoftAndThenHardExit();
