@@ -819,7 +819,7 @@ void ConsensusEngine::exitGracefullyAsync() {
             it.second->getSchain()->joinMonitorAndTimeoutThreads();
         }
     } catch ( exception& e ) {
-        SkaleException::logNested( < e );
+        SkaleException::logNested( e );
         status = CONSENSUS_EXITED;
     } catch ( ... ) {
         status = CONSENSUS_EXITED;
