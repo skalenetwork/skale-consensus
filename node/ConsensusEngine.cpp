@@ -769,6 +769,13 @@ void ConsensusEngine::exitGracefullyAsync() {
     try {
         LOG( info, "exitGracefullyAsync running" );
 
+        // if there is onlu one node we can all
+        // doSoftAndHardExit in the same
+        // thread for tests, we have many node objects and
+        // need many threads
+
+        uint64_t counter = 0;
+
         for ( auto&& it : nodes ) {
             // run and forget
 
@@ -778,7 +785,10 @@ void ConsensusEngine::exitGracefullyAsync() {
 
             // run and forget
 
-            thread( [node]() {
+            counter++;
+
+            if ( counter == nodes.size() ) {
+                // do the last node in the same thread
                 try {
                     LOG( info, "Node exit called" );
                     node->doSoftAndThenHardExit();
@@ -787,7 +797,18 @@ void ConsensusEngine::exitGracefullyAsync() {
                     SkaleException::logNested( e );
                 } catch ( ... ) {
                 };
-            } ).detach();
+            } else {
+                thread( [node]() {
+                    try {
+                        LOG( info, "Node exit called" );
+                        node->doSoftAndThenHardExit();
+                    } catch ( exception& e ) {
+                        SkaleException::logNested( e );
+                        LOG( info, "Node exit completed" );
+                    } catch ( ... ) {
+                    };
+                } ).detach();
+            }
         }
 
         CHECK_STATE( threadRegistry );
@@ -798,7 +819,9 @@ void ConsensusEngine::exitGracefullyAsync() {
             it.second->getSchain()->joinMonitorAndTimeoutThreads();
         }
     } catch ( exception& e ) {
-        SkaleException::logNested( e );
+        SkaleException::logNested( < e );
+        status = CONSENSUS_EXITED;
+    } catch ( ... ) {
         status = CONSENSUS_EXITED;
     }
     status = CONSENSUS_EXITED;
@@ -886,16 +909,21 @@ map< string, uint64_t > ConsensusEngine::getConsensusDbUsage() const {
     //    map< string, uint64_t > ret;
     //    ret["blocks.db_disk_usage"] = node->getBlockDB()->getActiveDBSize();
     //    ret["block_proposal.db_disk_usage"] =
-    //    node->getBlockProposalDB()->getBlockProposalDBSize(); ret["block_sigshare.db_disk_usage"]
-    //    = node->getBlockSigShareDB()->getActiveDBSize(); ret["consensus_state.db_disk_usage"] =
-    //    node->getConsensusStateDB()->getActiveDBSize(); ret["da_proof.db_disk_usage"] =
-    //    node->getDaProofDB()->getDaProofDBSize(); ret["da_sigshare.db_disk_usage"] =
-    //    node->getDaSigShareDB()->getActiveDBSize(); ret["incoming_msg.db_disk_usage"] =
-    //    node->getIncomingMsgDB()->getActiveDBSize(); ret["interna_info.db_disk_usage"] =
-    //    node->getInternalInfoDB()->getActiveDBSize(); ret["outgoing_msg.db_disk_usage"] =
+    //    node->getBlockProposalDB()->getBlockProposalDBSize();
+    //    ret["block_sigshare.db_disk_usage"] =
+    //    node->getBlockSigShareDB()->getActiveDBSize();
+    //    ret["consensus_state.db_disk_usage"] =
+    //    node->getConsensusStateDB()->getActiveDBSize(); ret["da_proof.db_disk_usage"]
+    //    = node->getDaProofDB()->getDaProofDBSize(); ret["da_sigshare.db_disk_usage"] =
+    //    node->getDaSigShareDB()->getActiveDBSize(); ret["incoming_msg.db_disk_usage"]
+    //    = node->getIncomingMsgDB()->getActiveDBSize();
+    //    ret["interna_info.db_disk_usage"] =
+    //    node->getInternalInfoDB()->getActiveDBSize();
+    //    ret["outgoing_msg.db_disk_usage"] =
     //    node->getOutgoingMsgDB()->getActiveDBSize(); ret["price.db_disk_usage"] =
     //    node->getPriceDB()->getActiveDBSize(); ret["proposal_hash.db_disk_usage"] =
-    //    node->getProposalHashDB()->getProposalHashDBSize(); ret["proposal_vector.db_disk_usage"] =
+    //    node->getProposalHashDB()->getProposalHashDBSize();
+    //    ret["proposal_vector.db_disk_usage"] =
     //    node->getProposalVectorDB()->getActiveDBSize(); ret["random.db_disk_usage"] =
     //    node->getRandomDB()->getActiveDBSize();
 
