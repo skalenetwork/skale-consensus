@@ -802,9 +802,9 @@ void ConsensusEngine::exitGracefullyAsync() {
                     try {
                         LOG( info, "Node exit called" );
                         node->doSoftAndThenHardExit();
+                        LOG( info, "Node exit completed" );
                     } catch ( exception& e ) {
                         SkaleException::logNested( e );
-                        LOG( info, "Node exit completed" );
                     } catch ( ... ) {
                     };
                 } ).detach();
