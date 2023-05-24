@@ -3,14 +3,20 @@
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 ![Build and test skale-consensus](https://github.com/skalenetwork/skale-consensus/workflows/Build%20and%20test%20skale-consensus/badge.svg)
 
-SKALE consensus utilizes multiple block proposers.  Block proposers distribute proposals to nodes and collect a BLS-signature based data availability proofs. An Asynchronous Binary Byzantine Agreement is then executed for each block proposal to reach consensus on whether it is data-available.  If multiple block proposals are known to be data-available, a BLS-based common coin is used to select the winning proposal that is committed to the chain.
 
-SKALE Consensus uses an Asynchronous Binary Byzantine Agreement (ABBA) protocol. The current implementation uses ABBA from Mostefaoui _et al._ In general, any ABBA protocol can be used so long as it has the following properties:
+Skale-consensus  is an implementation of SKALE provable consensus spec as described here https://docs.skale.network/technology/consensus-spec
 
--   Network model: protocol assumes asynchronous network messaging model.
--   Byzantine nodes: protocol assumes less than 1/3 of nodes are Byzantine.
--   Initial vote: protocol assumes each node makes an initial _yes_ or _no_ vote.
--   Consensus vote: protocol terminates with consensus vote of either _yes_ or _no_. Where consensus vote is _yes_, it is guaranteed that at least one honest node voted _yes_.
+Key features of of SKALE consensus
+
+* provably secure 
+* forkless
+* single block finality - the block becomes immediately finalized once committed.
+* uses asynchronous network model and survives under arbitrarily long network distruptions and delays
+* multiple block proposers provide protocol stability even if some block proposers are down
+
+Read the spec for more exciting features. 
+
+The consensus is under active improvement and research.
 
 ## An important note about production readiness:
 
