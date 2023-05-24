@@ -8,7 +8,7 @@ Skale-consensus  is an **implementation of SKALE provable consensus spec** as de
 
 Key features of of SKALE consensus
 
-* **provably secure **
+* **provably secure**
 * **forkless**
 * **single block finality** - blocks become immediately finalized once committed.
 * **survives under arbitrarily long network distruptions and delays** by implementing asynchronous network model
