@@ -18,16 +18,12 @@ Read the spec for more exciting features.
 
 The consensus is under active improvement and research.
 
-## An important note about production readiness:
-
-The SKALE consensus is still in active development and contains bugs. This software should be regarded as _alpha software_. Development is still subject to competing the specification, security hardening, further testing, and breaking changes.  **This consensus engine has not yet been reviewed or audited for security.** Please see [SECURITY.md](SECURITY.md) for reporting policies.
-
 
 ## Installation Requirements
 
 SKALE consensus has been built and tested on Ubuntu 18.04 and later.
 
-The preferred build environment is currenty Ubuntu 22.04.
+The preferred build and execution environment is currenty Ubuntu 22.04.  
 
 Ensure that the required packages are installed by executing:
 
@@ -65,6 +61,12 @@ Navigate to the testing directories and run `./consensusd .`
 ## Libraries
 
 -   [libBLS](https://github.com/skalenetwork/libBLS) by [SKALE Labs](https://skalelabs.com/)
+
+
+## An important note about production readiness:
+
+The SKALE consensus is still in active development and contains bugs. This software should be regarded as _alpha software_. Development is still subject to competing the specification, security hardening, further testing, and breaking changes.  **This consensus engine has not yet been reviewed or audited for security.** Please see [SECURITY.md](SECURITY.md) for reporting policies.
+
 
 ## Contributing
 
