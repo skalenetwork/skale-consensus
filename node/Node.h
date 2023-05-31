@@ -235,7 +235,6 @@ class Node {
     atomic< bool > exitOnBlockBoundaryRequested = false;
 
 public:
-
     void checkForExitOnBlockBoundaryAndExitIfNeeded();
 
     void exitCheck();
