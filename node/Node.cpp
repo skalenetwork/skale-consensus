@@ -720,5 +720,3 @@ bool Node::verifyRealSignatures() const {
 const map< string, uint64_t >& Node::getPatchTimestamps() const {
     return patchTimestamps;
 }
-
-atomic_bool Node::exitOnBlockBoundaryRequested( false );

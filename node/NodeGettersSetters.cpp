@@ -416,3 +416,7 @@ uint64_t Node::getVisualizationType() const {
 bool Node::isTestNet() const {
     return testNet;
 }
+
+bool Node::setExitOnBlockBoundaryRequested() {
+    exitOnBlockBoundaryRequested = true;
+}
