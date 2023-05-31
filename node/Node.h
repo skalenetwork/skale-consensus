@@ -232,11 +232,11 @@ class Node {
 
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
+    atomic< bool > exitOnBlockBoundaryRequested = false;
+
 public:
-    static atomic< bool > exitOnBlockBoundaryRequested;
 
     void checkForExitOnBlockBoundaryAndExitIfNeeded();
-
 
     void exitCheck();
 
@@ -426,4 +426,6 @@ public:
     bool isSyncOnlyNode() const;
 
     bool verifyRealSignatures() const;
+
+    bool setExitOnBlockBoundaryRequested();
 };
