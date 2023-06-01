@@ -428,12 +428,18 @@ string CryptoManager::sgxSignECDSA( BLAKE3Hash& _hash, string& _keyName ) {
 
     // temporary solution to support old servers
     if ( zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
+        boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
         ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash.toHex(), false );
+        boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
+        sgxBlockTimeMs += ( t2 - t1 ).total_milliseconds();
     } else {
         Json::Value result;
         RETRY_BEGIN
         getSchain()->getNode()->exitCheck();
+        boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
         result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash.toHex() );
+        boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
+        sgxBlockTimeMs += ( t2 - t1 ).total_milliseconds();
         RETRY_END
         JSONFactory::checkSGXStatus( result );
 
@@ -824,13 +830,19 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
         checkZMQStatusIfUnknownBLS();
 
         if ( zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
+            boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
             ret = zmqClient->blsSignMessageHash(
                 getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners, false );
+            boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
+            sgxBlockTimeMs += ( t2 - t1 ).total_milliseconds();
         } else {
             RETRY_BEGIN
             getSchain()->getNode()->exitCheck();
+            boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
             jsonShare = getSgxClient()->blsSignMessageHash(
                 getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners );
+            boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
+            sgxBlockTimeMs += ( t2 - t1 ).total_milliseconds();
             RETRY_END
 
             JSONFactory::checkSGXStatus( jsonShare );
@@ -1405,4 +1417,10 @@ void CryptoManager::checkZMQStatusIfUnknownBLS() {
             LOG( warn, "Could not connect SGX ZMQ API. Will fallback to HTTP(S)" );
         };
     }
+}
+
+uint64_t CryptoManager::sgxBlockTime() {
+    uint64_t retVal = sgxBlockTimeMs;
+    sgxBlockTimeMs = 0;
+    return retVal;
 }

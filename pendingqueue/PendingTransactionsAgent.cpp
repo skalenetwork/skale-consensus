@@ -62,6 +62,7 @@ ptr< BlockProposal > PendingTransactionsAgent::buildBlockProposal(
     MICROPROFILE_LEAVE();
 
     auto result = createTransactionsListForProposal();
+    transactionListReceivedTimeMs = boost::posix_time::microsec_clock::local_time();
     auto transactions = result.first;
     CHECK_STATE( transactions );
     auto stateRoot = result.second;
@@ -142,6 +143,8 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
         }
 
     }  // while
+    boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
+    idleTimeMs = ( t2 - t1 ).total_milliseconds() << '\n';
 
     for ( const auto& e : txVector ) {
         ptr< Transaction > pt = Transaction::deserialize(

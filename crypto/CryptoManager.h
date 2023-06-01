@@ -157,6 +157,8 @@ class CryptoManager {
 
     uint64_t simulateBLSSigFailBlock = 0;
 
+    uint64_t sgxBlockTimeMs = 0;
+
     ptr< StubClient > getSgxClient();
 
     tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
@@ -316,6 +318,8 @@ public:
     string getECDSAHistoricPublicKeyForNodeId( uint64_t _nodeId, uint64_t _timeStamp );
 
     pair< node_id, node_id > getHistoricNodeIDByIndex( uint64_t schain_id, uint64_t _timeStamp );
+
+    uint64_t sgxBlockTime();
 };
 
 #define RETRY_BEGIN                           \
