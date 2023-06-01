@@ -144,7 +144,7 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
 
     }  // while
     boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
-    idleTimeMs = ( t2 - t1 ).total_milliseconds() << '\n';
+    idleTimeMs = ( t2 - t1 ).total_milliseconds();
 
     for ( const auto& e : txVector ) {
         ptr< Transaction > pt = Transaction::deserialize(
