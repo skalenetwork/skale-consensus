@@ -737,11 +737,18 @@ ConsensusExtFace* ConsensusEngine::getExtFace() const {
 
 void ConsensusEngine::exitGracefully() {
     // guaranteed to be called only once
+
+    LOG(info, "Running exitGracefully method");
+
     RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyCalled )
+
+    LOG(info, "Iterating over nodes");
 
     // first make sure that exitOnBlockBoundaryRequested flag set
     for ( auto&& it : nodes ) {
         // run and forget
+
+        LOG(info, "Processing a node exit");
 
         auto node = it.second;
 

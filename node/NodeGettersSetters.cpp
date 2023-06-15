@@ -417,6 +417,7 @@ bool Node::isTestNet() const {
     return testNet;
 }
 
-bool Node::setExitOnBlockBoundaryRequested() {
+void Node::setExitOnBlockBoundaryRequested() {
+    LOG( info, "Set exit on block boundary" );
     exitOnBlockBoundaryRequested = true;
 }
