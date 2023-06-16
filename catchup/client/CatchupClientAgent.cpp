@@ -319,7 +319,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
         }
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        _agent->getNode()->exitOnFatalError( e.what() );
+        _agent->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 

@@ -358,6 +358,8 @@ static const uint64_t TIME_BETWEEN_STARTUP_HEALTHCHECK_RETRIES_SEC = 1;
 
 static const uint64_t HEALTH_CHECK_TIME_TO_WAIT_FOR_ALL_NODES_SEC = 5;
 
+static const uint64_t CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS = 30000;
+
 extern void setThreadName( std::string const& _n, ConsensusEngine* _engine );
 
 extern std::string getThreadName();

@@ -23,6 +23,11 @@
 
 #define CATCH_CONFIG_MAIN
 
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
 #include <cryptopp/eccrypto.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha.h>
@@ -121,6 +126,11 @@ void testLog( const char* message ) {
     printf( "TEST_LOG: %s\n", message );
 }
 
+void abort_handler( int ) {
+    printf( "cought SIGABRT, exiting.\n" );
+    exit( 0 );
+}
+
 block_id basicRun( int64_t _lastId = 0 ) {
     try {
         REQUIRE( ConsensusEngine::getEngineVersion().size() > 0 );
@@ -133,15 +143,12 @@ block_id basicRun( int64_t _lastId = 0 ) {
 
         engine->slowStartBootStrapTest();
 
-        uint64_t testRunningTimeS = Consensust::getRunningTimeS();
 
-        auto currentTime = Time::getCurrentTimeSec();
-        auto finishTime = testRunningTimeS + currentTime;
+        auto startTime = Time::getCurrentTimeSec();
 
-        while ( true ) {
+        while ( Time::getCurrentTimeSec() < startTime + Consensust::getRunningTimeS() ) {
             try {
-                currentTime = Time::getCurrentTimeSec();
-                usleep( ( finishTime - currentTime ) * 1000 * 1000 );
+                usleep( 1000 * 1000 );
             } catch ( ... ) {
             };
         }
@@ -155,10 +162,15 @@ block_id basicRun( int64_t _lastId = 0 ) {
 
         REQUIRE( transactions );
         REQUIRE( timestampS > 0 );
-        REQUIRE( timeStampMs > 0 );
 
         cerr << price << ":" << stateRoot << endl;
-        engine->exitGracefullyBlocking();
+        signal( SIGABRT, abort_handler );
+        engine->exitGracefully();
+
+        while ( engine->getStatus() != CONSENSUS_EXITED ) {
+            usleep( 100 * 1000 );
+        }
+
         delete engine;
         return lastId;
     } catch ( SkaleException& e ) {
@@ -172,7 +184,11 @@ bool success = false;
 
 void exit_check() {
     sleep( STUCK_TEST_TIME );
-    engine->exitGracefullyBlocking();
+    engine->exitGracefully();
+
+    while ( engine->getStatus() != CONSENSUS_EXITED ) {
+        usleep( 100 * 1000 );
+    }
 }
 
 

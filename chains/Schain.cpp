@@ -209,12 +209,9 @@ void Schain::messageThreadProcessingLoop( Schain* _sChain ) {
                 newQueue.pop();
             }
         }
-
-
-        _sChain->getNode()->getSockets()->consensusZMQSockets->closeSend();
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        _sChain->getNode()->exitOnFatalError( e.what() );
+        _sChain->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 
@@ -333,14 +330,11 @@ void Schain::constructChildAgents() {
 }
 
 
-void Schain::checkForDeadLock( const char* _functionName ) {
+void Schain::lockWithDeadLockCheck( const char* _functionName ) {
     while ( !blockProcessMutex.try_lock_for( chrono::seconds( 60 ) ) ) {
-        if ( getNode()->isExitRequested() )
-            break;
-        LOG( err, "Deadlock detected in " + string( _functionName ) );
+        checkForExit();
+        LOG( err, "Trying to lock in:" + string( _functionName ) );
     }
-    blockProcessMutex.unlock();
-    checkForExit();
 }
 
 
@@ -356,46 +350,46 @@ void Schain::checkForDeadLock( const char* _functionName ) {
         return 0;
     }
 
+    try {
+        lockWithDeadLockCheck( __FUNCTION__ );
 
-    checkForDeadLock( __FUNCTION__ );
-    // lock_guard<timed_mutex> l( blockProcessMutex );
-    try_lock_timed_guard< std::timed_mutex > pauseLock( blockProcessMutex );
-    if ( !pauseLock.was_locked() )
-        return 0;
-    checkForExit();
+        bumpPriority();
 
-    bumpPriority();
+        atomic< uint64_t > committedIDOld = ( uint64_t ) getLastCommittedBlockID();
 
-    atomic< uint64_t > committedIDOld = ( uint64_t ) getLastCommittedBlockID();
+        CHECK_STATE( blocks->at( 0 )->getBlockID() <= ( uint64_t ) getLastCommittedBlockID() + 1 );
 
-    CHECK_STATE( blocks->at( 0 )->getBlockID() <= ( uint64_t ) getLastCommittedBlockID() + 1 );
+        for ( size_t i = 0; i < blocks->size(); i++ ) {
+            checkForExit();
 
-    for ( size_t i = 0; i < blocks->size(); i++ ) {
-        checkForExit();
+            auto block = blocks->at( i );
 
-        auto block = blocks->at( i );
+            CHECK_STATE( block );
 
-        CHECK_STATE( block );
-
-        if ( ( uint64_t ) block->getBlockID() == ( getLastCommittedBlockID() + 1 ) ) {
-            CHECK_STATE( getLastCommittedBlockTimeStamp() < block->getTimeStamp() );
-            processCommittedBlock( block );
+            if ( ( uint64_t ) block->getBlockID() == ( getLastCommittedBlockID() + 1 ) ) {
+                CHECK_STATE( getLastCommittedBlockTimeStamp() < block->getTimeStamp() );
+                processCommittedBlock( block );
+            }
         }
+
+        uint64_t result = 0;
+
+        if ( committedIDOld < getLastCommittedBlockID() ) {
+            LOG( info, "CATCHUP_PROCESSED_BLOCKS:COUNT: " +
+                           to_string( getLastCommittedBlockID() - committedIDOld ) );
+            result = ( ( uint64_t ) getLastCommittedBlockID() ) - committedIDOld;
+            if ( !getNode()->isSyncOnlyNode() )
+                proposeNextBlock();
+        }
+
+        unbumpPriority();
+
+        blockProcessMutex.unlock();
+        return result;
+    } catch ( ... ) {
+        blockProcessMutex.unlock();
+        throw;
     }
-
-    uint64_t result = 0;
-
-    if ( committedIDOld < getLastCommittedBlockID() ) {
-        LOG( info, "CATCHUP_PROCESSED_BLOCKS:COUNT: " +
-                       to_string( getLastCommittedBlockID() - committedIDOld ) );
-        result = ( ( uint64_t ) getLastCommittedBlockID() ) - committedIDOld;
-        if ( !getNode()->isSyncOnlyNode() )
-            proposeNextBlock();
-    }
-
-    unbumpPriority();
-
-    return result;
 }
 
 const atomic< bool >& Schain::getIsStateInitialized() const {
@@ -426,19 +420,20 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
     checkForExit();
 
-    checkForDeadLock( __FUNCTION__ );
-    lock_guard< timed_mutex > l( blockProcessMutex );
-
-    if ( _committedBlockID <= getLastCommittedBlockID() )
-        return;
-
-
-    CHECK_STATE(
-        _committedBlockID == ( getLastCommittedBlockID() + 1 ) || getLastCommittedBlockID() == 0 );
-
-    bumpPriority();
-
     try {
+        lockWithDeadLockCheck( __FUNCTION__ );
+
+
+        if ( _committedBlockID <= getLastCommittedBlockID() )
+            return;
+
+
+        CHECK_STATE( _committedBlockID == ( getLastCommittedBlockID() + 1 ) ||
+                     getLastCommittedBlockID() == 0 );
+
+        bumpPriority();
+
+
         ptr< BlockProposal > committedProposal = nullptr;
 
         if ( _proposerIndex > 0 ) {
@@ -462,10 +457,13 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
         unbumpPriority();
 
+        blockProcessMutex.unlock();
 
     } catch ( ExitRequestedException& e ) {
+        blockProcessMutex.unlock();
         throw;
     } catch ( ... ) {
+        blockProcessMutex.unlock();
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
@@ -477,6 +475,8 @@ void Schain::checkForExit() {
     }
 }
 
+
+// Note: this function must be called with blockProcessing mutex held
 void Schain::proposeNextBlock() {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
@@ -732,14 +732,28 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
 
         auto currentPrice = this->pricingAgent->readPrice( _block->getBlockID() - 1 );
 
+        // block boundary is the safesf place for exit
+        // exit immediately if exit has been requested
+        // this will initiate immediate exit and throw ExitRequestedException
+        getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
 
         if ( extFace ) {
-            extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
-                ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
-                ( uint64_t ) _block->getProposerIndex() );
-            // exit immediately if exit has been requested
-            getSchain()->getNode()->exitCheck();
+            try {
+                inCreateBlock = true;
+                extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
+                    ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
+                    ( uint64_t ) _block->getProposerIndex() );
+                inCreateBlock = false;
+            } catch ( ... ) {
+                inCreateBlock = false;
+                throw;
+            }
         }
+
+        // block boundary is the safesf place for exit
+        // exit immediately if exit has been requested
+        // this will initiate immediate exit and throw ExitRequestedException
+        getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
 
     } catch ( ExitRequestedException& e ) {
         throw;
@@ -838,7 +852,8 @@ void Schain::daProofArrived( const ptr< DAProof >& _daProof ) {
     }
 }
 
-// Consensus is started after 2/3 N + 1 proposals are received, or BlockProposalTimeout is reached
+// Consensus is started after 2/3 N + 1 proposals are received, or BlockProposalTimeout is
+// reached
 void Schain::tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid ) {
     auto needToStartConsensus =
         getNode()->getProposalVectorDB()->trySavingProposalVector( bid, pv );
@@ -897,7 +912,8 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
     if ( lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128 ) {
         LOG( critical,
-            "CRITICAL ERROR: consensus has way more blocks than skaled. This should never happen,"
+            "CRITICAL ERROR: consensus has way more blocks than skaled. This should never "
+            "happen,"
             "since consensus passes blocks to skaled." );
         BOOST_THROW_EXCEPTION( InvalidStateException(
             "_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128", __CLASS_NAME__ ) );
@@ -981,11 +997,13 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         if ( getNode()->isSyncOnlyNode() )
             return;
 
-        proposeNextBlock();
+        {
+            lock_guard< timed_mutex > lock( ( blockProcessMutex ) );
+            proposeNextBlock();
+        }
+
 
         ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCurrentBlock();
-
-
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         return;
@@ -1040,8 +1058,8 @@ void Schain::healthCheck() {
             }
         }
 
-        // If the health check has been runnning for a long time and one could not connect to 2/3
-        // nodes skaled will restart
+        // If the health check has been runnning for a long time and one could not connect to
+        // 2/3 nodes skaled will restart
         if ( Time::getCurrentTimeSec() - beginTime > HEALTHCHECK_ON_START_RETRY_TIME_SEC ) {
             setHealthCheckFile( 0 );
             LOG( err, "Coult not connect to 2/3 of peers" );
@@ -1198,8 +1216,8 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
              // downloaded from others this switch is for testing only
              getNode()->getTestConfig()->isFinalizationDownloadOnly() ) {
             // did not receive proposal from the proposer, pull it in parallel from other hosts
-            // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are guaranteed
-            // to posess the proposal
+            // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
+            // guaranteed to posess the proposal
 
             LOG( info, "FINALIZING_BLOCK:BID:" + to_string( _blockId ) );
 
