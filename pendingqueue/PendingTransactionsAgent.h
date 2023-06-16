@@ -105,7 +105,9 @@ public:
 
     uint64_t idleTime() const { return idleTimeMs; };
 
-    boost::posix_time::ptime transactionListReceivedTime() const { return transactionListReceivedTimeMs; }
+    boost::posix_time::ptime transactionListReceivedTime() const {
+        return transactionListReceivedTimeMs;
+    }
 
     ~PendingTransactionsAgent() override = default;
 };
