@@ -242,8 +242,10 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks( ptr< ClientSock
     ptr< CommittedBlockList > blockList = nullptr;
 
     try {
+        // During node rotation, some block sigs may not verify durign catchup
+        // in such a case we return a partial block
         blockList = CommittedBlockList::deserialize(
-            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0 );
+            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0, true );
         CHECK_STATE( blockList )
 
 
