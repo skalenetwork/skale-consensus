@@ -105,9 +105,7 @@ public:
 
     uint64_t idleTime() const { return idleTimeMs; };
 
-    uint64_t transactionListReceivedTime() const {
-        return transactionListReceivedTimeMs;
-    }
+    uint64_t transactionListReceivedTime() const { return transactionListReceivedTimeMs; }
 
     ~PendingTransactionsAgent() override = default;
 };

@@ -124,12 +124,12 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
         }
 
         auto finishTime = Time::getCurrentTimeMs();
-        auto diffTime = finishTime - startTime;
+        auto diffTime = finishTime - startTimeMs;
 
         if ( this->sChain->getLastCommittedBlockID() == 0 ||
-             ( uint64_t ) diff.total_milliseconds() >=
-                 getSchain()->getNode()->getEmptyBlockIntervalMs() )
+             diffTime >= getSchain()->getNode()->getEmptyBlockIntervalMs() ) {
             break;
+        }
 
         usleep( waitTimeMs * 1000 );
 
@@ -140,7 +140,8 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
     }  // while
 
     auto finishTimeMs = Time::getCurrentTimeMs();
-    idleTimeMs = ( finishTimeMs - startTimeMs ).total_milliseconds();
+
+    idleTimeMs = finishTimeMs - startTimeMs;
 
     for ( const auto& e : txVector ) {
         ptr< Transaction > pt = Transaction::deserialize(
