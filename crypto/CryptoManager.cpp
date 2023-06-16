@@ -431,7 +431,7 @@ string CryptoManager::sgxSignECDSA( BLAKE3Hash& _hash, string& _keyName ) {
         auto startTimeMs = Time::getCurrentTimeMs();
         ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash.toHex(), false );
         auto finishTimeMs = Time::getCurrentTimeMs();
-        sgxBlockTimeMs += finishTimeMs - startTimeMs;
+        sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
     } else {
         Json::Value result;
         RETRY_BEGIN
@@ -439,7 +439,7 @@ string CryptoManager::sgxSignECDSA( BLAKE3Hash& _hash, string& _keyName ) {
         auto startTimeMs = Time::getCurrentTimeMs();
         result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash.toHex() );
         auto finishTimeMs = Time::getCurrentTimeMs();
-        sgxBlockTimeMs += finishTimeMs - startTimeMs;
+        sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
         RETRY_END
         JSONFactory::checkSGXStatus( result );
 
@@ -834,7 +834,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
             ret = zmqClient->blsSignMessageHash(
                 getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners, false );
             auto finishTimeMs = Time::getCurrentTimeMs();
-            sgxBlockTimeMs += finishTimeMs - startTimeMs;
+            sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
         } else {
             RETRY_BEGIN
             getSchain()->getNode()->exitCheck();
@@ -842,7 +842,7 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
             jsonShare = getSgxClient()->blsSignMessageHash(
                 getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners );
             auto finishTimeMs = Time::getCurrentTimeMs();
-            sgxBlockTimeMs += finishTimeMs - startTimeMs;
+            sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
             RETRY_END
 
             JSONFactory::checkSGXStatus( jsonShare );
@@ -1419,8 +1419,8 @@ void CryptoManager::checkZMQStatusIfUnknownBLS() {
     }
 }
 
-uint64_t CryptoManager::sgxBlockTime() {
-    uint64_t retVal = sgxBlockTimeMs;
-    sgxBlockTimeMs = 0;
+uint64_t CryptoManager::sgxBlockProcessingTime() {
+    uint64_t retVal = sgxBlockProcessingTimeMs;
+    sgxBlockProcessingTimeMs = 0;
     return retVal;
 }

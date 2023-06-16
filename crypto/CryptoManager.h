@@ -157,7 +157,7 @@ class CryptoManager {
 
     uint64_t simulateBLSSigFailBlock = 0;
 
-    uint64_t sgxBlockTimeMs = 0;
+    uint64_t sgxBlockProcessingTimeMs = 0;
 
     ptr< StubClient > getSgxClient();
 
@@ -319,7 +319,7 @@ public:
 
     pair< node_id, node_id > getHistoricNodeIDByIndex( uint64_t schain_id, uint64_t _timeStamp );
 
-    uint64_t sgxBlockTime();
+    uint64_t sgxBlockProcessingTime();
 };
 
 #define RETRY_BEGIN                           \

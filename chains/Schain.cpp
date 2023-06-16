@@ -663,12 +663,14 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
         cleanupUnneededMemoryBeforePushingToEvm( _block );
 
         auto evmProcessingStartMs = Time::getCurrentTimeMs();
+        auto blockPushedToExtFaceTimeMs = evmProcessingStartMs;
 
-        auto blockPushedToExtFaceTimeMs = Time::getCurrentTimeMs();
-        LOG( info, "CST: " + to_string( blockPushedToExtFaceTimeMs -
-                                        pendingTransactionsAgent->transactionListReceivedTime() ) );
-        LOG( info, "IDT: " + to_string( pendingTransactionsAgent->idleTime() ) );
-        LOG( info, "SGT: " + to_string( cryptoManager->sgxBlockTime() ) );
+        LOG( info,
+            "TLRT:" +
+                to_string( blockPushedToExtFaceTimeMs -
+                           pendingTransactionsAgent->transactionListReceivedTime() ) +
+                ":TLWT:" + to_string( pendingTransactionsAgent->getTransactionListWaitTime() ) +
+                ":SBPT:" + to_string( cryptoManager->sgxBlockProcessingTime() ) );
         pushBlockToExtFace( _block );
         auto evmProcessingTimeMs = Time::getCurrentTimeMs() - evmProcessingStartMs;
 

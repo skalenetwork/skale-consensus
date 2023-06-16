@@ -88,7 +88,7 @@ private:
 
     pair< ptr< vector< ptr< Transaction > > >, u256 > createTransactionsListForProposal();
 
-    uint64_t idleTimeMs = 0;
+    uint64_t transactionListWaitTime = 0;
 
     uint64_t transactionListReceivedTimeMs = 0;
 
@@ -103,7 +103,7 @@ public:
 
     ptr< BlockProposal > buildBlockProposal( block_id _blockID, TimeStamp& _timeStamp );
 
-    uint64_t idleTime() const { return idleTimeMs; };
+    uint64_t getTransactionListWaitTime() const { return transactionListWaitTime; };
 
     uint64_t transactionListReceivedTime() const { return transactionListReceivedTimeMs; }
 

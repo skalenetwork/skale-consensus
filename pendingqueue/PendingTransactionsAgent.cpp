@@ -141,7 +141,7 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
 
     auto finishTimeMs = Time::getCurrentTimeMs();
 
-    idleTimeMs = finishTimeMs - startTimeMs;
+    transactionListWaitTime = finishTimeMs - startTimeMs;
 
     for ( const auto& e : txVector ) {
         ptr< Transaction > pt = Transaction::deserialize(
