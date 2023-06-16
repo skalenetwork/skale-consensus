@@ -88,6 +88,10 @@ private:
 
     pair< ptr< vector< ptr< Transaction > > >, u256 > createTransactionsListForProposal();
 
+    uint64_t transactionListWaitTime = 0;
+
+    uint64_t transactionListReceivedTimeMs = 0;
+
 public:
     explicit PendingTransactionsAgent( Schain& _sChain );
 
@@ -98,6 +102,10 @@ public:
     ptr< Transaction > getKnownTransactionByPartialHash( ptr< partial_sha_hash > hash );
 
     ptr< BlockProposal > buildBlockProposal( block_id _blockID, TimeStamp& _timeStamp );
+
+    uint64_t getTransactionListWaitTime() const { return transactionListWaitTime; };
+
+    uint64_t transactionListReceivedTime() const { return transactionListReceivedTimeMs; }
 
     ~PendingTransactionsAgent() override = default;
 };
