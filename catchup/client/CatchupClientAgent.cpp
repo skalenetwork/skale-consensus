@@ -242,8 +242,10 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks( ptr< ClientSock
     ptr< CommittedBlockList > blockList = nullptr;
 
     try {
+        // During node rotation, some block sigs may not verify durign catchup
+        // in such a case we return a partial block list, up to the first non-verifying block
         blockList = CommittedBlockList::deserialize(
-            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0 );
+            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0, true );
         CHECK_STATE( blockList )
 
 
@@ -317,7 +319,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
         }
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        _agent->getNode()->exitOnFatalError( e.what() );
+        _agent->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 

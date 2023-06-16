@@ -526,7 +526,7 @@ void ConsensusEngine::startAll() {
         for ( auto&& it : nodes ) {
             CHECK_STATE( it.second );
             if ( !it.second->isExitRequested() ) {
-                it.second->exitOnFatalError( e.what() );
+                it.second->initiateApplicationExitOnFatalConsensusError( e.what() );
             }
         }
 
@@ -563,7 +563,7 @@ void ConsensusEngine::bootStrapAll() {
         for ( auto&& it : nodes ) {
             CHECK_STATE( it.second );
             if ( !it.second->isExitRequested() ) {
-                it.second->exitOnFatalError( e.what() );
+                it.second->initiateApplicationExitOnFatalConsensusError( e.what() );
             }
         }
 
@@ -663,7 +663,7 @@ void ConsensusEngine::init() {
 
 
 ConsensusEngine::ConsensusEngine( block_id _lastId, uint64_t _totalStorageLimitBytes )
-    : prices( 256 ), exitRequested( false ) {
+    : prices( 256 ) {
     cout << "Constructing consensus engine:LAST_BLOCK:" << ( uint64_t ) _lastId
          << ":TOTAL_STORAGE_LIMIT:" << _totalStorageLimitBytes << endl;
 
@@ -688,7 +688,7 @@ ConsensusEngine::ConsensusEngine( block_id _lastId, uint64_t _totalStorageLimitB
 ConsensusEngine::ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
     uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
     map< string, uint64_t > _patchTimestamps, uint64_t _totalStorageLimitBytes )
-    : prices( 256 ), exitRequested( false ), patchTimestamps( _patchTimestamps ) {
+    : prices( 256 ), patchTimestamps( _patchTimestamps ) {
     std::time_t lastCommitedBlockTimestamp = _lastCommittedBlockTimeStamp;
     cout << "Constructing consensus engine: "
          << ""
@@ -735,56 +735,63 @@ ConsensusExtFace* ConsensusEngine::getExtFace() const {
     return extFace;
 }
 
-
-void ConsensusEngine::exitGracefullyBlocking() {
-    LOG( info, "Consensus engine exiting: exitGracefullyBlocking called by skaled" );
-
-    cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
-
-    cerr << boost::stacktrace::stacktrace() << endl;
-
-
-    // !! if we don't check this - exitGracefullyAsync()
-    // will try to exit on deleted object!
-
-
-    if ( getStatus() != CONSENSUS_EXITED )
-        exitGracefully();
-
-    while ( getStatus() != CONSENSUS_EXITED ) {
-        usleep( 100000 );
-    }
-}
-
-
 void ConsensusEngine::exitGracefully() {
-    LOG( info, "Consensus engine exiting: blocking exit exitGracefully called by skaled" );
+    // guaranteed to be called only once
 
-    cerr << "Here is exitGracefullyBlocking() stack trace for your information:" << endl;
+    LOG( info, "Running exitGracefully method" );
 
+    RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyCalled )
+
+    LOG( info, "Iterating over nodes" );
+
+    // first make sure that exitOnBlockBoundaryRequested flag set
+    for ( auto&& it : nodes ) {
+        // run and forget
+
+        LOG( info, "Processing a node exit" );
+
+        auto node = it.second;
+
+        CHECK_STATE( node );
+
+        node->setExitOnBlockBoundaryRequested();
+    }
+
+
+    LOG( info, "Consensus exiting: exitGracefully called by skaled" );
+    cerr << "Here is stack trace for your info:" << endl;
     cerr << boost::stacktrace::stacktrace() << endl;
-
 
     // run and forget
     thread( [this]() { exitGracefullyAsync(); } ).detach();
 }
 
+// used in tests only
+void ConsensusEngine::testExitGracefullyBlocking() {
+    exitGracefully();
+    while ( getStatus() != CONSENSUS_EXITED ) {
+        usleep( 100 * 1000 );
+    }
+}
 consensus_engine_status ConsensusEngine::getStatus() const {
     return status;
 }
 
 void ConsensusEngine::exitGracefullyAsync() {
+    // guaranteed to be executed once
+    RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyAsyncCalled )
+
     LOG( info, "Consensus engine exiting: exitGracefullyAsync called by skaled" );
 
     try {
-        auto previouslyCalled = exitRequested.exchange( true );
-
-        if ( previouslyCalled ) {
-            return;
-        }
-
         LOG( info, "exitGracefullyAsync running" );
 
+        // if there is onlu one node we can all
+        // doSoftAndHardExit in the same
+        // thread for tests, we have many node objects and
+        // need many threads
+
+        uint64_t counter = 0;
 
         for ( auto&& it : nodes ) {
             // run and forget
@@ -795,16 +802,30 @@ void ConsensusEngine::exitGracefullyAsync() {
 
             // run and forget
 
-            thread( [node]() {
+            counter++;
+
+            if ( counter == nodes.size() ) {
+                // run exit for the last node in the same thread
                 try {
                     LOG( info, "Node exit called" );
-                    node->exit();
+                    node->doSoftAndThenHardExit();
                     LOG( info, "Node exit completed" );
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );
                 } catch ( ... ) {
                 };
-            } ).detach();
+            } else {
+                thread( [node]() {
+                    try {
+                        LOG( info, "Node exit called" );
+                        node->doSoftAndThenHardExit();
+                        LOG( info, "Node exit completed" );
+                    } catch ( exception& e ) {
+                        SkaleException::logNested( e );
+                    } catch ( ... ) {
+                    };
+                } ).detach();
+            }
         }
 
         CHECK_STATE( threadRegistry );
@@ -817,18 +838,24 @@ void ConsensusEngine::exitGracefullyAsync() {
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         status = CONSENSUS_EXITED;
+    } catch ( ... ) {
+        status = CONSENSUS_EXITED;
     }
     status = CONSENSUS_EXITED;
 }
 
 ConsensusEngine::~ConsensusEngine() {
-    exitGracefullyBlocking();
+    /* the time ConsensusEngine destructor is called, exitGracefully must have been
+    called. This is just precaution to make sure we do not destroy Consensus engine
+     and all of its fields before all consensus threads exited. */
 
-    nodes.clear();
+    exitGracefully();
+
+    while ( getStatus() != CONSENSUS_EXITED ) {
+        usleep( 100 * 1000 );
+    }
 
     curl_global_cleanup();
-
-    std::cerr << "ConsensusEngine terminated." << std::endl;
 }
 
 
@@ -899,16 +926,21 @@ map< string, uint64_t > ConsensusEngine::getConsensusDbUsage() const {
     //    map< string, uint64_t > ret;
     //    ret["blocks.db_disk_usage"] = node->getBlockDB()->getActiveDBSize();
     //    ret["block_proposal.db_disk_usage"] =
-    //    node->getBlockProposalDB()->getBlockProposalDBSize(); ret["block_sigshare.db_disk_usage"]
-    //    = node->getBlockSigShareDB()->getActiveDBSize(); ret["consensus_state.db_disk_usage"] =
-    //    node->getConsensusStateDB()->getActiveDBSize(); ret["da_proof.db_disk_usage"] =
-    //    node->getDaProofDB()->getDaProofDBSize(); ret["da_sigshare.db_disk_usage"] =
-    //    node->getDaSigShareDB()->getActiveDBSize(); ret["incoming_msg.db_disk_usage"] =
-    //    node->getIncomingMsgDB()->getActiveDBSize(); ret["interna_info.db_disk_usage"] =
-    //    node->getInternalInfoDB()->getActiveDBSize(); ret["outgoing_msg.db_disk_usage"] =
+    //    node->getBlockProposalDB()->getBlockProposalDBSize();
+    //    ret["block_sigshare.db_disk_usage"] =
+    //    node->getBlockSigShareDB()->getActiveDBSize();
+    //    ret["consensus_state.db_disk_usage"] =
+    //    node->getConsensusStateDB()->getActiveDBSize(); ret["da_proof.db_disk_usage"]
+    //    = node->getDaProofDB()->getDaProofDBSize(); ret["da_sigshare.db_disk_usage"] =
+    //    node->getDaSigShareDB()->getActiveDBSize(); ret["incoming_msg.db_disk_usage"]
+    //    = node->getIncomingMsgDB()->getActiveDBSize();
+    //    ret["interna_info.db_disk_usage"] =
+    //    node->getInternalInfoDB()->getActiveDBSize();
+    //    ret["outgoing_msg.db_disk_usage"] =
     //    node->getOutgoingMsgDB()->getActiveDBSize(); ret["price.db_disk_usage"] =
     //    node->getPriceDB()->getActiveDBSize(); ret["proposal_hash.db_disk_usage"] =
-    //    node->getProposalHashDB()->getProposalHashDBSize(); ret["proposal_vector.db_disk_usage"] =
+    //    node->getProposalHashDB()->getProposalHashDBSize();
+    //    ret["proposal_vector.db_disk_usage"] =
     //    node->getProposalVectorDB()->getActiveDBSize(); ret["random.db_disk_usage"] =
     //    node->getRandomDB()->getActiveDBSize();
 

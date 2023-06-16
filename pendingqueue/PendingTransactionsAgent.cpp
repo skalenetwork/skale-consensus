@@ -67,12 +67,6 @@ ptr< BlockProposal > PendingTransactionsAgent::buildBlockProposal(
     CHECK_STATE( transactions );
     auto stateRoot = result.second;
 
-    /*
-        if (getSchain()->getSchainIndex() != 1) {
-            transactions->clear();
-        }
-        */
-
     while ( Time::getCurrentTimeMs() <=
             _previousBlockTimeStamp.getS() * 1000 + _previousBlockTimeStamp.getMs() ) {
         usleep( 10 );
@@ -102,7 +96,7 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
 
     auto result = make_shared< vector< ptr< Transaction > > >();
 
-    size_t need_max = getNode()->getMaxTransactionsPerBlock();
+    size_t needMax = getNode()->getMaxTransactionsPerBlock();
 
     ConsensusExtFace::transactions_vector txVector;
 
@@ -117,15 +111,16 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
         getSchain()->getNode()->exitCheck();
 
         if ( sChain->getExtFace() ) {
-            txVector = sChain->getExtFace()->pendingTransactions( need_max, stateRoot );
-
-            // exit immediately if exitGracefully has been requested
-            getSchain()->getNode()->exitCheck();
+            getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
+            txVector = sChain->getExtFace()->pendingTransactions( needMax, stateRoot );
+            // block boundary is the safest place for exit
+            // exit immediately if exit has been requested
+            // this will initiate immediate exit and throw ExitRequestedException
+            getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
         } else {
             stateRootSample++;
             stateRoot = 7;
-
-            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions( need_max );
+            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions( needMax );
         }
 
         boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();

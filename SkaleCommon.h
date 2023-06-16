@@ -68,6 +68,10 @@
 
 #include <iostream>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#pragma GCC diagnostic ignored "-Wpessimizing-move"
+#pragma GCC diagnostic ignored "-Wsign-compare"
 
 #include <boost/exception/exception.hpp>
 #include <boost/exception/info.hpp>
@@ -82,17 +86,14 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-copy"
-#pragma GCC diagnostic ignored "-Wpessimizing-move"
 #include <boost/multiprecision/cpp_int.hpp>
-#pragma GCC diagnostic pop
-
 
 #include <boost/crc.hpp>
 
 #include "boost/lexical_cast.hpp"
 #include <boost/tokenizer.hpp>
+
+#pragma GCC diagnostic pop
 
 class ConsensusEngine;
 class SkaleLog;
@@ -356,6 +357,8 @@ static const uint64_t HEALTHCHECK_ON_START_TIME_BETWEEN_WARNINGS_SEC = 5 * 60;
 static const uint64_t TIME_BETWEEN_STARTUP_HEALTHCHECK_RETRIES_SEC = 1;
 
 static const uint64_t HEALTH_CHECK_TIME_TO_WAIT_FOR_ALL_NODES_SEC = 5;
+
+static const uint64_t CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS = 30000;
 
 extern void setThreadName( std::string const& _n, ConsensusEngine* _engine );
 

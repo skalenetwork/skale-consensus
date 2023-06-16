@@ -332,3 +332,7 @@ void Schain::setLastCommittedBlockId( uint64_t _lastCommittedBlockId ) {
 const ptr< OracleClient > Schain::getOracleClient() const {
     return oracleClient;
 }
+
+bool Schain::isInCreateBlock() const {
+    return inCreateBlock;
+}

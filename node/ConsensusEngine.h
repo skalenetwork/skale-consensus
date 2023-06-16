@@ -90,7 +90,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     recursive_mutex mutex;
 
-    atomic< bool > exitRequested = false;
+    atomic< bool > exitGracefullyAsyncCalled = false;
 
     string healthCheckDir;
     string dbDir;
@@ -112,15 +112,17 @@ class ConsensusEngine : public ConsensusInterface {
 
     ptr< spdlog::sinks::sink > logRotatingFileSync;
 
-public:
-    const map< string, uint64_t >& getPatchTimestamps() const;
+    atomic< bool > exitGracefullyCalled = false;
 
-private:
     ptr< StorageLimits > storageLimits = nullptr;
 
     map< string, uint64_t > patchTimestamps;
 
+    void exitGracefullyAsync();
+
 public:
+    const map< string, uint64_t >& getPatchTimestamps() const;
+
     // used for testing only
     ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosByIndex;
     ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosById;
@@ -236,11 +238,12 @@ public:
     void parseTestConfigsAndCreateAllNodes(
         const fs_path& dirname, bool _useBlockIDFromConsensus = false );
 
-    void exitGracefullyBlocking();
-
-    void exitGracefullyAsync();
 
     virtual void exitGracefully() override;
+
+
+    // used in tests
+    void testExitGracefullyBlocking();
 
     /* consensus status for now can be CONSENSUS_ACTIVE and CONSENSUS_EXITED */
     virtual consensus_engine_status getStatus() const override;
