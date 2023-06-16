@@ -426,5 +426,5 @@ public:
 
     bool verifyRealSignatures() const;
 
-    bool setExitOnBlockBoundaryRequested();
+    void setExitOnBlockBoundaryRequested();
 };
