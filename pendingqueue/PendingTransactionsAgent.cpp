@@ -62,7 +62,7 @@ ptr< BlockProposal > PendingTransactionsAgent::buildBlockProposal(
     MICROPROFILE_LEAVE();
 
     auto result = createTransactionsListForProposal();
-    transactionListReceivedTimeMs = boost::posix_time::microsec_clock::local_time();
+    transactionListReceivedTimeMs = Time::getCurrentTimeMs();
     auto transactions = result.first;
     CHECK_STATE( transactions );
     auto stateRoot = result.second;
@@ -100,7 +100,7 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
 
     ConsensusExtFace::transactions_vector txVector;
 
-    boost::posix_time::ptime t1 = boost::posix_time::microsec_clock::local_time();
+    auto startTimeMs = Time::getCurrentTimeMs();
 
     u256 stateRoot = 0;
     static u256 stateRootSample = 1;
@@ -123,8 +123,8 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions( needMax );
         }
 
-        boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
-        boost::posix_time::time_duration diff = t2 - t1;
+        auto finishTime = Time::getCurrentTimeMs();
+        auto diffTime = finishTime - startTime;
 
         if ( this->sChain->getLastCommittedBlockID() == 0 ||
              ( uint64_t ) diff.total_milliseconds() >=
@@ -138,8 +138,9 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
         }
 
     }  // while
-    boost::posix_time::ptime t2 = boost::posix_time::microsec_clock::local_time();
-    idleTimeMs = ( t2 - t1 ).total_milliseconds();
+
+    auto finishTimeMs = Time::getCurrentTimeMs();
+    idleTimeMs = ( finishTimeMs - startTimeMs ).total_milliseconds();
 
     for ( const auto& e : txVector ) {
         ptr< Transaction > pt = Transaction::deserialize(

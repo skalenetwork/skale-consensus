@@ -90,7 +90,7 @@ private:
 
     uint64_t idleTimeMs = 0;
 
-    boost::posix_time::ptime transactionListReceivedTimeMs;
+    uint64_t transactionListReceivedTimeMs = 0;
 
 public:
     explicit PendingTransactionsAgent( Schain& _sChain );
@@ -105,7 +105,7 @@ public:
 
     uint64_t idleTime() const { return idleTimeMs; };
 
-    boost::posix_time::ptime transactionListReceivedTime() const {
+    uint64_t transactionListReceivedTime() const {
         return transactionListReceivedTimeMs;
     }
 
