@@ -664,10 +664,12 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         auto evmProcessingStartMs = Time::getCurrentTimeMs();
 
-        boost::posix_time::ptime blockPushedToExtFaceTimeMs = boost::posix_time::microsec_clock::local_time();
-        LOG( info, "CST: " + std::to_string( ( blockPushedToExtFaceTimeMs -
-                                               pendingTransactionsAgent->transactionListReceivedTime() )
-                                               .total_milliseconds() ) );
+        boost::posix_time::ptime blockPushedToExtFaceTimeMs =
+            boost::posix_time::microsec_clock::local_time();
+        LOG( info,
+            "CST: " + std::to_string( ( blockPushedToExtFaceTimeMs -
+                                        pendingTransactionsAgent->transactionListReceivedTime() )
+                                          .total_milliseconds() ) );
         LOG( info, "IDT: " + std::to_string( pendingTransactionsAgent->idleTime() ) );
         LOG( info, "SGT: " + std::to_string( cryptoManager->sgxBlockTime() ) );
         pushBlockToExtFace( _block );
