@@ -96,8 +96,8 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
                           " blocks, got exception on block " +
                           to_string( _cryptoManager->getSchain()->getLastCommittedBlockID() +
                                      counter + 1 ) );
-            // during catchup some block sigs may not verify due to node rotation
-            // in such a case, return a partial list
+            // During node rotation, some block sigs may not verify durign catchup
+            // in such a case we return a partial block list, up to the first non-verifying block
             if ( _createPartialListIfSomeSignaturesDontVerify ) {
                 return;
             }
