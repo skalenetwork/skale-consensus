@@ -666,7 +666,7 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
         auto blockPushedToExtFaceTimeMs = evmProcessingStartMs;
 
         LOG( info,
-            "TLRT:" +
+            "CWT:" +
                 to_string( blockPushedToExtFaceTimeMs -
                            pendingTransactionsAgent->transactionListReceivedTime() ) +
                 ":TLWT:" + to_string( pendingTransactionsAgent->getTransactionListWaitTime() ) +
