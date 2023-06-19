@@ -1005,7 +1005,12 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
         {
             lock_guard< timed_mutex > lock( ( blockProcessMutex ) );
+            auto emptyBlockInterval = getNode()->getEmptyBlockIntervalMs();
+            // do not wait much for the first block after start
+            // otherwise bootStrapAll() can block node start
+            getNode()->setEmptyBlockIntervalMs( 50 );
             proposeNextBlock();
+            getNode()->setEmptyBlockIntervalMs( emptyBlockInterval );
         }
 
 
