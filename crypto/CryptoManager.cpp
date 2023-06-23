@@ -428,12 +428,18 @@ string CryptoManager::sgxSignECDSA( BLAKE3Hash& _hash, string& _keyName ) {
 
     // temporary solution to support old servers
     if ( zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
+        auto startTimeMs = Time::getCurrentTimeMs();
         ret = zmqClient->ecdsaSignMessageHash( 16, _keyName, _hash.toHex(), false );
+        auto finishTimeMs = Time::getCurrentTimeMs();
+        sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
     } else {
         Json::Value result;
         RETRY_BEGIN
         getSchain()->getNode()->exitCheck();
+        auto startTimeMs = Time::getCurrentTimeMs();
         result = getSgxClient()->ecdsaSignMessageHash( 16, _keyName, _hash.toHex() );
+        auto finishTimeMs = Time::getCurrentTimeMs();
+        sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
         RETRY_END
         JSONFactory::checkSGXStatus( result );
 
@@ -824,13 +830,19 @@ ptr< ThresholdSigShare > CryptoManager::signSigShare(
         checkZMQStatusIfUnknownBLS();
 
         if ( zmqClient->getZMQStatus() == SgxZmqClient::TRUE ) {
+            auto startTimeMs = Time::getCurrentTimeMs();
             ret = zmqClient->blsSignMessageHash(
                 getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners, false );
+            auto finishTimeMs = Time::getCurrentTimeMs();
+            sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
         } else {
             RETRY_BEGIN
             getSchain()->getNode()->exitCheck();
+            auto startTimeMs = Time::getCurrentTimeMs();
             jsonShare = getSgxClient()->blsSignMessageHash(
                 getSgxBlsKeyName(), _hash.toHex(), requiredSigners, totalSigners );
+            auto finishTimeMs = Time::getCurrentTimeMs();
+            sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
             RETRY_END
 
             JSONFactory::checkSGXStatus( jsonShare );
@@ -1405,4 +1417,10 @@ void CryptoManager::checkZMQStatusIfUnknownBLS() {
             LOG( warn, "Could not connect SGX ZMQ API. Will fallback to HTTP(S)" );
         };
     }
+}
+
+uint64_t CryptoManager::sgxBlockProcessingTime() {
+    uint64_t retVal = sgxBlockProcessingTimeMs;
+    sgxBlockProcessingTimeMs = 0;
+    return retVal;
 }

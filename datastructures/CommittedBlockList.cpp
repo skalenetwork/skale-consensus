@@ -41,7 +41,7 @@ CommittedBlockList::CommittedBlockList( const ptr< vector< ptr< CommittedBlock >
 
 CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManager,
     const ptr< vector< uint64_t > >& _blockSizes, const ptr< vector< uint8_t > >& _serializedBlocks,
-    uint64_t _offset ) {
+    uint64_t _offset, bool _createPartialListIfSomeSignaturesDontVerify ) {
     CHECK_ARGUMENT( _cryptoManager );
     CHECK_ARGUMENT( _blockSizes );
     CHECK_ARGUMENT( _serializedBlocks );
@@ -96,6 +96,11 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
                           " blocks, got exception on block " +
                           to_string( _cryptoManager->getSchain()->getLastCommittedBlockID() +
                                      counter + 1 ) );
+            // During node rotation, some block sigs may not verify durign catchup
+            // in such a case we return a partial block list, up to the first non-verifying block
+            if ( _createPartialListIfSomeSignaturesDontVerify ) {
+                return;
+            }
         }
         throw_with_nested( InvalidStateException(
             "Could not create block list. \n"
@@ -150,14 +155,15 @@ ptr< CommittedBlockList > CommittedBlockList::createRandomSample(
 
 ptr< CommittedBlockList > CommittedBlockList::deserialize(
     const ptr< CryptoManager >& _cryptoManager, const ptr< vector< uint64_t > >& _blockSizes,
-    const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t _offset ) {
+    const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t _offset,
+    bool _createPartialListIfSomeSignaturesDontVerify ) {
     if ( _serializedBlocks->at( 0 ) != '[' ) {
         BOOST_THROW_EXCEPTION(
             InvalidStateException( "Serialized blocks do not start with [", __CLASS_NAME__ ) );
     }
 
-    return ptr< CommittedBlockList >(
-        new CommittedBlockList( _cryptoManager, _blockSizes, _serializedBlocks, _offset ) );
+    return ptr< CommittedBlockList >( new CommittedBlockList( _cryptoManager, _blockSizes,
+        _serializedBlocks, _offset, _createPartialListIfSomeSignaturesDontVerify ) );
 }
 
 ptr< vector< uint64_t > > CommittedBlockList::createSizes() {
