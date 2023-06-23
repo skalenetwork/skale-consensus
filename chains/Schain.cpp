@@ -350,6 +350,16 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
         return 0;
     }
 
+
+    // wait until the schain state is fully initialized and startup
+    // otherwise last committed block id is not fully initialized and the chain can not accept
+    // catchup blocks
+    while ( !getSchain()->getIsStateInitialized() ) {
+        usleep( 500 * 1000 );
+        LOG( info, "Waiting for boostrap to complete ..." );
+    }
+
+
     try {
         if ( !blockProcessMutex.try_lock_for( chrono::seconds( 60 ) ) ) {
             // Could not lock for 60 seconds. There is probably a deadlock.
