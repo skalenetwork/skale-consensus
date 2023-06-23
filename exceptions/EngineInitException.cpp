@@ -28,7 +28,5 @@
 #include "EngineInitException.h"
 
 
-
-EngineInitException::EngineInitException(const string &_message, const string &_className) :
-       SkaleException("Engine init failed:" + _message, _className) {}
-
+EngineInitException::EngineInitException( const string& _message, const string& _className )
+    : SkaleException( "Engine init failed:" + _message, _className ) {}

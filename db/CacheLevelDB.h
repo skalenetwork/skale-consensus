@@ -25,38 +25,30 @@
 #ifndef SKALED_CACHELEVELDB_H
 #define SKALED_CACHELEVELDB_H
 
+#include "leveldb/db.h"
 #include "SkaleCommon.h"
 #include "thirdparty/lrucache.hpp"
 
 
-
 class Schain;
 
-namespace leveldb {
-class DB;
-
-class Status;
-
-class Slice;
-}  // namespace leveldb
-
-
-
 class CacheLevelDB {
-
-    static list<uint64_t> writeTimes;
+    static list< uint64_t > writeTimes;
     static recursive_mutex writeTimeMutex;
-    static atomic<uint64_t> writeTimeTotal;
-    static list<uint64_t> readTimes;
+    static atomic< uint64_t > writeTimeTotal;
+    static list< uint64_t > readTimes;
     static recursive_mutex readTimeMutex;
-    static atomic<uint64_t> readTimeTotal;
-    static atomic<uint64_t> readCounter;
-    static atomic<uint64_t> writeCounter;
+    static atomic< uint64_t > readTimeTotal;
+    static atomic< uint64_t > readCounter;
+    static atomic< uint64_t > writeCounter;
 
     shared_timed_mutex m;
 
-protected:
+    leveldb::Options options;
+    leveldb::WriteOptions writeOptions;  // NOLINT(cert-err58-cpp)
+    leveldb::ReadOptions readOptions;    // NOLINT(cert-err58-cpp)
 
+protected:
     vector< ptr< leveldb::DB > > db;
     uint64_t highestDBIndex = 0;
 
@@ -104,7 +96,7 @@ protected:
     string createKey( block_id _blockId, uint64_t _counter );
 
     string createKey( const block_id& _blockId, const schain_index& _proposerIndex,
-                      const bin_consensus_round& _round );
+        const bin_consensus_round& _round );
 
     string createCounterKey( block_id _block_id );
 
@@ -114,7 +106,7 @@ protected:
 
     bool keyExistsInSet( block_id _blockId, schain_index _index );
 
-    string readStringFromSet(block_id _blockId, schain_index _index );
+    string readStringFromSet( block_id _blockId, schain_index _index );
 
     void rotateDBsIfNeeded();
 
@@ -126,14 +118,12 @@ protected:
 
 
     CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId,
-                  uint64_t _maxDBSize, bool _isDuplicateAddOK = false );
+        uint64_t _maxDBSize, leveldb::Options _options, bool _isDuplicateAddOK = false );
 
-    static ptr< map< string, string > > readPrefixRangeFromDBUnsafe(
+    ptr< map< string, string > > readPrefixRangeFromDBUnsafe(
         string& _prefix, const ptr< leveldb::DB >& _db, bool lastOnly = false );
 
 public:
-
-
     void destroy();
 
     virtual const string& getFormatVersion() = 0;
@@ -157,24 +147,22 @@ public:
 
     ptr< map< string, string > > readPrefixRange( string& _prefix );
 
-    static void addWriteStats(uint64_t _time);
-    static void addReadStats(uint64_t _time);
+    static void addWriteStats( uint64_t _time );
+    static void addReadStats( uint64_t _time );
 
-    static  uint64_t getReadStats();
-    static  uint64_t getWriteStats();
+    static uint64_t getReadStats();
+    static uint64_t getWriteStats();
 
-    static uint64_t getReads() {
-        return readCounter;
-    }
+    static uint64_t getReads() { return readCounter; }
 
-    static uint64_t getWrites() {
-        return writeCounter;
-    }
+    static uint64_t getWrites() { return writeCounter; }
 
 
-    void checkForDeadLock(const char *_functionName);
+    void checkForDeadLock( const char* _functionName );
 
-    void checkForDeadLockRead(const char *_functionName);
+    void checkForDeadLockRead( const char* _functionName );
+
+    uint64_t getMemoryUsed();
 };
 
 

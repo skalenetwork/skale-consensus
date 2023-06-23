@@ -21,33 +21,28 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "AbstractBlockRequestHeader.h"
 
 class DAProof;
 
 
-class SubmitDAProofRequestHeader : public AbstractBlockRequestHeader{
-
+class SubmitDAProofRequestHeader : public AbstractBlockRequestHeader {
     node_id proposerNodeID;
     string thresholdSig;
     string blockHash;
 
 public:
-    SubmitDAProofRequestHeader(Schain &_sChain, const ptr<DAProof>& _proof, block_id _blockId);
+    SubmitDAProofRequestHeader( Schain& _sChain, const ptr< DAProof >& _proof, block_id _blockId );
 
-    SubmitDAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount);
+    SubmitDAProofRequestHeader( nlohmann::json _proposalRequest, node_count _nodeCount );
 
-    void addFields(nlohmann::basic_json<> &jsonRequest) override;
+    void addFields( nlohmann::basic_json<>& jsonRequest ) override;
 
     [[nodiscard]] node_id getProposerNodeId() const;
 
     [[nodiscard]] string getSignature() const;
 
     [[nodiscard]] string getBlockHash() const;
-
 };
-
-
-

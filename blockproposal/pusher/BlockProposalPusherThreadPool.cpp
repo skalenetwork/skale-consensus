@@ -35,7 +35,7 @@ BlockProposalPusherThreadPool::BlockProposalPusherThreadPool(
 void BlockProposalPusherThreadPool::createThread( uint64_t /*number*/ ) {
     auto p = ( BlockProposalClientAgent* ) agent;
 
-    LOCK(threadPoolLock);
+    LOCK( threadPoolLock );
     this->threadpool.push_back(
         make_shared< thread >( AbstractClientAgent::workerThreadItemSendLoop, p ) );
 }

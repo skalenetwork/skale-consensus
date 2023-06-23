@@ -28,11 +28,7 @@
 class ProtocolInstance;
 
 class ChildMessage : public InternalMessage {
-
 public:
-    ChildMessage(MsgType _msgType, ProtocolInstance& _srcProtocolInstance, ptr<ProtocolKey> _key);
-
+    ChildMessage(
+        MsgType _msgType, ProtocolInstance& _srcProtocolInstance, ptr< ProtocolKey > _key );
 };
-
-
-

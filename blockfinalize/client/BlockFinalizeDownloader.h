@@ -25,7 +25,6 @@
 #pragma once
 
 
-
 class CommittedBlockList;
 class ClientSocket;
 class Schain;
@@ -40,7 +39,6 @@ class ThresholdSignature;
 #include "datastructures/BlockProposalFragmentList.h"
 
 class BlockFinalizeDownloader : public Agent {
-
     block_id blockId = 0;
 
     schain_index proposerIndex = 0;
@@ -48,48 +46,45 @@ class BlockFinalizeDownloader : public Agent {
     BlockProposalFragmentList fragmentList;
 
 private:
-
     string blockHash = "";
-    ptr<ThresholdSignature> daSig = nullptr;
+    ptr< ThresholdSignature > daSig = nullptr;
 
     recursive_mutex m;
 
 public:
+    ptr< ThresholdSignature > getDaSig( uint64_t _blockTimeStampS );
 
-    ptr<ThresholdSignature> getDaSig();
+    ptr< BlockFinalizeDownloaderThreadPool > threadPool = nullptr;
 
-    ptr<BlockFinalizeDownloaderThreadPool> threadPool = nullptr;
-
-    BlockFinalizeDownloader(Schain *_sChain, block_id _blockId, schain_index _proposerIndex);
+    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex );
 
 
     ~BlockFinalizeDownloader() override;
 
-    uint64_t downloadFragment(schain_index _dstIndex, fragment_index _fragmentIndex);
+    uint64_t downloadFragment( schain_index _dstIndex, fragment_index _fragmentIndex );
 
 
-    static void workerThreadFragmentDownloadLoop(BlockFinalizeDownloader* _agent, schain_index _dstIndex );
+    static void workerThreadFragmentDownloadLoop(
+        BlockFinalizeDownloader* _agent, schain_index _dstIndex );
 
     nlohmann::json readBlockFinalizeResponseHeader( const ptr< ClientSocket >& _socket );
 
 
-    ptr<BlockProposalFragment>
-    readBlockFragment(const ptr<ClientSocket>& _socket, nlohmann::json responseHeader, fragment_index _fragmentIndex,
-                      node_count _nodeCount);
+    ptr< BlockProposalFragment > readBlockFragment( const ptr< ClientSocket >& _socket,
+        nlohmann::json responseHeader, fragment_index _fragmentIndex, node_count _nodeCount );
 
-    static uint64_t readFragmentSize(nlohmann::json _responseHeader);
+    static uint64_t readFragmentSize( nlohmann::json _responseHeader );
 
-    ptr<BlockProposal> downloadProposal();
+    ptr< BlockProposal > downloadProposal();
 
 
-    string readBlockHash(nlohmann::json _responseHeader);
+    string readBlockHash( nlohmann::json _responseHeader );
 
     block_id getBlockId();
 
     schain_index getProposerIndex();
 
-    static uint64_t readBlockSize(nlohmann::json _responseHeader);
+    static uint64_t readBlockSize( nlohmann::json _responseHeader );
 
     string readDAProofSig( nlohmann::json _responseHeader );
 };
-

@@ -28,7 +28,6 @@
 class CommittedBlock;
 
 
-
 #include "CacheLevelDB.h"
 
 
@@ -40,31 +39,30 @@ class VersionUpdateHistory;
  */
 
 class InternalInfoDB : public CacheLevelDB {
-
     recursive_mutex m;
 
-    ptr<VersionUpdateHistory> cachedVersionUpdateHistory = nullptr;
+    ptr< VersionUpdateHistory > cachedVersionUpdateHistory = nullptr;
 
 public:
-
     /**
      * Create DB
      */
-    InternalInfoDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    InternalInfoDB(
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
 
-    const string& getFormatVersion() override ;
+    const string& getFormatVersion() override;
 
     /**
      * Get the current history of  version updates.
      */
-    ptr<VersionUpdateHistory> getVersionUpdateHistory();
+    ptr< VersionUpdateHistory > getVersionUpdateHistory();
 
     /*
      * Called each time the chain starts
      */
 
-    void updateInternalChainInfo(block_id _blockId);
+    void updateInternalChainInfo( block_id _blockId );
 
     string readVersionUpdateHistory();
 
@@ -72,4 +70,4 @@ public:
 };
 
 
-#endif 
+#endif

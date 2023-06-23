@@ -27,14 +27,14 @@
 #include "OracleServerAgent.h"
 #include "OracleThreadPool.h"
 
-OracleThreadPool::OracleThreadPool(Agent *_agent)
-        : WorkerThreadPool(NUM_ORACLE_THREADS, _agent, false) {}
+OracleThreadPool::OracleThreadPool( Agent* _agent )
+    : WorkerThreadPool( NUM_ORACLE_THREADS, _agent, false ) {}
 
 
-void OracleThreadPool::createThread(uint64_t /*number*/) {
-    auto p = (OracleServerAgent *) agent;
+void OracleThreadPool::createThread( uint64_t /*number*/ ) {
+    auto p = ( OracleServerAgent* ) agent;
 
-    LOCK(threadPoolLock);
+    LOCK( threadPoolLock );
     this->threadpool.push_back(
-            make_shared<thread>(OracleServerAgent::workerThreadItemSendLoop, p));
+        make_shared< thread >( OracleServerAgent::workerThreadItemSendLoop, p ) );
 }

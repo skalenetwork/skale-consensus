@@ -28,25 +28,24 @@
 class CommittedBlock;
 
 
-
 #include "CacheLevelDB.h"
 
 class CryptoManager;
 
 class ProposalHashDB : public CacheLevelDB {
-
     recursive_mutex m;
 
 public:
+    ProposalHashDB(
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    bool checkAndSaveHash(
+        block_id _proposalBlockID, schain_index _proposerIndex, const string& _proposalHash );
 
-    bool checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, const string& _proposalHash);
+    bool haveProposal( block_id _proposalBlockID, schain_index _proposerIndex );
 
-    bool haveProposal(block_id _proposalBlockID, schain_index _proposerIndex);
-
-    const string& getFormatVersion() override ;
+    const string& getFormatVersion() override;
 };
 
 
-#endif //SKALED_ProposalHashDB_H
+#endif  // SKALED_ProposalHashDB_H

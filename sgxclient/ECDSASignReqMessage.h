@@ -28,12 +28,8 @@
 
 class ECDSASignReqMessage : public SgxZmqMessage {
 public:
-
-    ECDSASignReqMessage(shared_ptr <rapidjson::Document> &_d) : SgxZmqMessage(_d) {};
-
-
-
+    ECDSASignReqMessage( shared_ptr< rapidjson::Document >& _d ) : SgxZmqMessage( _d ){};
 };
 
 
-#endif //SGXWALLET_ECDSASIGNREQMESSAGE_H
+#endif  // SGXWALLET_ECDSASIGNREQMESSAGE_H

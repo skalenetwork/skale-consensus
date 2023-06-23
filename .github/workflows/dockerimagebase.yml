@@ -5,7 +5,7 @@ on:
       - build_base*
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - name: Free disk space
       run: |

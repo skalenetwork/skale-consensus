@@ -28,22 +28,19 @@
 
 class PricingStrategy;
 
-class PricingAgent : public Agent{
-
-    ptr<PricingStrategy> pricingStrategy ;
+class PricingAgent : public Agent {
+    ptr< PricingStrategy > pricingStrategy;
 
 public:
+    explicit PricingAgent( Schain& _sChain );
 
-    explicit PricingAgent(Schain& _sChain);
+    u256 calculatePrice( const ConsensusExtFace::transactions_vector& _approvedTransactions,
+        uint64_t _timeStamp, uint32_t _timeStampMs, block_id _blockID );
 
-    u256 calculatePrice(const ConsensusExtFace::transactions_vector &_approvedTransactions,
-                                uint64_t _timeStamp, uint32_t  _timeStampMs, block_id _blockID);
+    u256 readPrice( block_id _blockId );
 
-    u256 readPrice(block_id _blockId);
-
-    void savePrice(u256 price, block_id _blockID);
-
+    void savePrice( u256 price, block_id _blockID );
 };
 
 
-#endif //SKALED_PRICINGAGENT_H
+#endif  // SKALED_PRICINGAGENT_H

@@ -33,4 +33,4 @@ public:
 };
 
 
-#endif //SKALED_TIME_H
+#endif  // SKALED_TIME_H

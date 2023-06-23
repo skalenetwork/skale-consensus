@@ -28,32 +28,28 @@
 #include "chains/Schain.h"
 #include "ReceivedBlockProposal.h"
 
-ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID,
-                                             const schain_index &_proposerIndex,
-                                             const ptr<TransactionList> &_transactions, u256 _stateRoot,
-                                             const uint64_t &_timeStamp,
-                                             const uint32_t &_timeStampMs, const string& _signature) : BlockProposal(
-        _sChain.getSchainID(), _sChain.getNodeIDByIndex(_proposerIndex), _blockID,
-        _proposerIndex, _transactions, _stateRoot,
-        _timeStamp, _timeStampMs, _signature, nullptr) {
-
-    CHECK_ARGUMENT(_transactions);
-    CHECK_ARGUMENT(_signature != "");
+ReceivedBlockProposal::ReceivedBlockProposal( Schain& _sChain, const block_id& _blockID,
+    const schain_index& _proposerIndex, const ptr< TransactionList >& _transactions,
+    u256 _stateRoot, const uint64_t& _timeStamp, const uint32_t& _timeStampMs,
+    const string& _signature )
+    : BlockProposal( _sChain.getSchainID(), _sChain.getNodeIDByIndex( _proposerIndex ), _blockID,
+          _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature,
+          nullptr ) {
+    CHECK_ARGUMENT( _transactions );
+    CHECK_ARGUMENT( _signature != "" );
     totalObjects++;
 }
 
-ReceivedBlockProposal::ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const uint64_t &_timeStamp,
-                                             const uint32_t &_timeStampMs, u256 _stateRoot) : BlockProposal(
-        _sChain.getSchainID(), 0, _blockID,
-        0, make_shared<TransactionList>(make_shared<vector<ptr<Transaction >>>()), _stateRoot, _timeStamp, _timeStampMs,
-        "EMPTY", ptr<CryptoManager>()) {
+ReceivedBlockProposal::ReceivedBlockProposal( Schain& _sChain, const block_id& _blockID,
+    const uint64_t& _timeStamp, const uint32_t& _timeStampMs, u256 _stateRoot )
+    : BlockProposal( _sChain.getSchainID(), 0, _blockID, 0,
+          make_shared< TransactionList >( make_shared< vector< ptr< Transaction > > >() ),
+          _stateRoot, _timeStamp, _timeStampMs, "EMPTY", ptr< CryptoManager >() ) {
     totalObjects++;
 }
 
-atomic<int64_t>  ReceivedBlockProposal::totalObjects(0);
+atomic< int64_t > ReceivedBlockProposal::totalObjects( 0 );
 
 ReceivedBlockProposal::~ReceivedBlockProposal() {
     totalObjects--;
 }
-
-

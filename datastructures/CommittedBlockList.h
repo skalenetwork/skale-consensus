@@ -18,7 +18,7 @@
 
     @file CommittedBlockList.h
     @author Stan Kladko
-    @date 2018
+    @date 2018 -
 */
 
 
@@ -37,15 +37,14 @@
 class CommittedBlock;
 
 class CommittedBlockList : public DataStructure {
-
-    ptr< vector< ptr< CommittedBlock > > > blocks; // tsafe
+    ptr< vector< ptr< CommittedBlock > > > blocks;  // tsafe
 
     CommittedBlockList( const ptr< CryptoManager >& _cryptoManager,
         const ptr< vector< uint64_t > >& _blockSizes,
-        const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t offset = 0 );
+        const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t offset = 0,
+        bool _createPartialListIfSomeSignaturesDontVerify = false );
 
 public:
-
     explicit CommittedBlockList( const ptr< vector< ptr< CommittedBlock > > >& _blocks );
 
 
@@ -57,7 +56,8 @@ public:
 
     static ptr< CommittedBlockList > deserialize( const ptr< CryptoManager >& _cryptoManager,
         const ptr< vector< uint64_t > >& _blockSizes,
-        const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t _offset );
+        const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t _offset,
+        bool _createPartialListIfSomeSignaturesDontVerify = false );
 
 
     static ptr< CommittedBlockList > createRandomSample( const ptr< CryptoManager >& _cryptoManager,

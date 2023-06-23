@@ -35,79 +35,77 @@ class Buffer;
 class Node;
 class Schain;
 
-enum TransportType {ZMQ};
+enum TransportType { ZMQ };
 
-class Network : public Agent  {
-
+class Network : public Agent {
 protected:
+    cache::lru_cache< string, bool > knownMsgHashes;
 
-    cache::lru_cache<string, bool> knownMsgHashes;
-
-    vector<list<pair<ptr<NetworkMessage>,ptr<NodeInfo>>>> delayedSends; // tsafe
-    vector<recursive_mutex> delayedSendsLocks;
+    vector< list< pair< ptr< NetworkMessage >, ptr< NodeInfo > > > > delayedSends;  // tsafe
+    vector< recursive_mutex > delayedSendsLocks;
 
     // used in testing
 
     uint32_t packetLoss = 0;
 
-    uint64_t   catchupBlocks = 0;
+    uint64_t catchupBlocks = 0;
 
-    ptr<thread> networkReadThread;
+    ptr< thread > networkReadThread;
 
-    ptr<thread> deferredMessageThread;
+    ptr< thread > deferredMessageThread;
 
     static TransportType transport;
 
-    explicit Network(Schain& _sChain);
+    explicit Network( Schain& _sChain );
 
-    map<block_id, ptr<list<ptr<NetworkMessageEnvelope>>>> deferredMessageQueue; //tsafe
+    map< block_id, ptr< list< ptr< NetworkMessageEnvelope > > > > deferredMessageQueue;  // tsafe
     recursive_mutex deferredMessageMutex;
 
-    virtual void addToDeferredMessageQueue(const ptr<NetworkMessageEnvelope>& _me);
+    virtual void addToDeferredMessageQueue( const ptr< NetworkMessageEnvelope >& _me );
 
-    ptr<vector<ptr<NetworkMessageEnvelope> > > pullMessagesForCurrentBlockID();
+    ptr< vector< ptr< NetworkMessageEnvelope > > > pullMessagesForCurrentBlockID();
 
-    virtual bool sendMessage(const ptr<NodeInfo> &remoteNodeInfo, const ptr<NetworkMessage>& _msg) = 0;
+    virtual bool sendMessage(
+        const ptr< NodeInfo >& remoteNodeInfo, const ptr< NetworkMessage >& _msg ) = 0;
 
 public:
-
     void startThreads();
 
     void deferredMessagesLoop();
 
     void networkReadLoop();
 
-    static string ipToString(uint32_t _ip);
+    static string ipToString( uint32_t _ip );
 
-    void broadcastOracleRequestMessage(const ptr<OracleRequestBroadcastMessage>& _msg);
+    void broadcastOracleRequestMessage( const ptr< OracleRequestBroadcastMessage >& _msg );
 
-    void sendOracleResponseMessage(const ptr<OracleResponseMessage> &_msg, schain_index _index);
+    void sendOracleResponseMessage( const ptr< OracleResponseMessage >& _msg, schain_index _index );
 
-    void broadcastMessage(const ptr<NetworkMessage>& _msg);
+    void broadcastMessage( const ptr< NetworkMessage >& _msg );
 
-    void rebroadcastMessage(const ptr<NetworkMessage>& _msg);
+    void rebroadcastMessage( const ptr< NetworkMessage >& _msg );
 
-    void broadcastMessageImpl(const ptr<NetworkMessage>& _msg , bool _isFirstBroadcast );
+    void broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isFirstBroadcast );
 
-    ptr<NetworkMessageEnvelope> receiveMessage();
+    ptr< NetworkMessageEnvelope > receiveMessage();
 
-    virtual uint64_t readMessageFromNetwork(ptr<Buffer> buf) = 0;
+    virtual uint64_t readMessageFromNetwork( ptr< Buffer > buf ) = 0;
 
-    static bool validateIpAddress(const string &_ip);
+    static bool validateIpAddress( const string& _ip );
 
-    static void setTransport(TransportType transport);
+    static void setTransport( TransportType transport );
 
     static TransportType getTransport();
 
-    void setPacketLoss(uint32_t packetLoss);
+    void setPacketLoss( uint32_t packetLoss );
 
-    void setCatchupBlocks(uint64_t _catchupBlocks);
+    void setCatchupBlocks( uint64_t _catchupBlocks );
 
-    void postDeferOrDrop(const ptr<NetworkMessageEnvelope> & _me );
+    void postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me );
 
     ~Network() override;
 
-    void addToDelayedSends(const ptr<NetworkMessage>& _m, const ptr<NodeInfo>& _dstNodeInfo );
+    void addToDelayedSends( const ptr< NetworkMessage >& _m, const ptr< NodeInfo >& _dstNodeInfo );
 
     void trySendingDelayedSends();
 

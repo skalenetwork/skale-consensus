@@ -24,16 +24,18 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
+#include "LevelDBOptions.h"
 
 #include "RandomDB.h"
 #include "CacheLevelDB.h"
 
 
-_Pragma("GCC diagnostic push")
-_Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
+_Pragma( "GCC diagnostic push" ) _Pragma( "GCC diagnostic ignored \"-Wunused-parameter\"" )
 
-RandomDB::RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
-        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {}
+    RandomDB::RandomDB(
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getRandomDBOptions(), false ) {}
 
 
 const string& RandomDB::getFormatVersion() {
@@ -42,31 +44,24 @@ const string& RandomDB::getFormatVersion() {
 }
 
 
-uint64_t
-RandomDB::readRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round) {
-
-    auto key = createKey(_blockId, _proposerIndex, _round);
-    CHECK_STATE(!key.empty())
-    auto value = readString(key);
-    CHECK_STATE(!value.empty())
-    return stoul(value);
-
+uint64_t RandomDB::readRandom( const block_id& _blockId, const schain_index& _proposerIndex,
+    const bin_consensus_round& _round ) {
+    auto key = createKey( _blockId, _proposerIndex, _round );
+    CHECK_STATE( !key.empty() )
+    auto value = readString( key );
+    CHECK_STATE( !value.empty() )
+    return stoul( value );
 }
 
 
-void
-RandomDB::writeRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round,
-                      uint64_t _random) {
-
-
+void RandomDB::writeRandom( const block_id& _blockId, const schain_index& _proposerIndex,
+    const bin_consensus_round& _round, uint64_t _random ) {
 #ifdef CONSENSUS_STATE_PERSISTENCE
 
-    auto key = createKey(_blockId, _proposerIndex, _round);
-    CHECK_STATE(key);
+    auto key = createKey( _blockId, _proposerIndex, _round );
+    CHECK_STATE( key );
 
-    writeString(*key, to_string(_random));
+    writeString( *key, to_string( _random ) );
 
 #endif
-
 }
-

@@ -22,6 +22,4 @@
 */
 
 
-
-
 #include "SkaleCommon.h"

@@ -23,37 +23,30 @@
 
 #pragma once
 
-enum MessageOrigin {ORIGIN_NETWORK, ORIGIN_PARENT, ORIGIN_CHILD, ORIGIN_EXTERNAL};
+enum MessageOrigin { ORIGIN_NETWORK, ORIGIN_PARENT, ORIGIN_CHILD, ORIGIN_EXTERNAL };
 
 class Message;
 class NodeInfo;
 
 class MessageEnvelope {
-
 protected:
-
     MessageOrigin origin;
-    ptr<Message> message;
+    ptr< Message > message;
 
 protected:
-
     schain_index srcSchainIndex;
 
 public:
+    MessageEnvelope(
+        MessageOrigin origin, const ptr< Message >& _message, schain_index _srcSchainIndex );
 
-
-    MessageEnvelope(MessageOrigin origin, const ptr<Message> &_message,
-                    schain_index _srcSchainIndex);
-
-    [[nodiscard]] ptr<Message> getMessage() const;
+    [[nodiscard]] ptr< Message > getMessage() const;
 
     [[nodiscard]] MessageOrigin getOrigin() const;
 
 
     [[nodiscard]] schain_index getSrcSchainIndex() const;
 
-    virtual ~MessageEnvelope();;
-
-
+    virtual ~MessageEnvelope();
+    ;
 };
-

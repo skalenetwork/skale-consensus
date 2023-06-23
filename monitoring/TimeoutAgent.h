@@ -29,16 +29,13 @@ class Schain;
 class TimeoutThreadPool;
 class LivelinessMonitor;
 
-class TimeoutAgent : public Agent  {
-
+class TimeoutAgent : public Agent {
     ptr< TimeoutThreadPool > timeoutThreadPool = nullptr;
 
 public:
-
     explicit TimeoutAgent( Schain& _sChain );
 
     static void timeoutLoop( TimeoutAgent* agent );
 
     void join();
-
 };

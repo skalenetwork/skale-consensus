@@ -66,26 +66,10 @@ bool ZMQNetwork::sendMessage(
 
 
 uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len ) {
-
-
     int rc;
 
-
-/*
-
-    zmq_pollitem_t items[1];
-    items[0].socket = _socket;
-    items[0].events = ZMQ_POLLIN;
-
-    */
-
-
     for ( ;; ) {
-
-
         if ( this->getNode()->isExitRequested() ) {
-            zmq_close(_socket);
-            LOG( debug, getThreadName() + "zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
             BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
         }
 
@@ -93,9 +77,6 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
         rc = zmq_recv( _socket, _buf, _len, 0 );
 
         if ( this->getNode()->isExitRequested() ) {
-            //zmq_close(_socket);
-            LOG( debug,
-                getThreadName() + " zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
             BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
         }
 
@@ -111,9 +92,6 @@ uint64_t ZMQNetwork::interruptableRecv( void* _socket, void* _buf, size_t _len )
 
 
 bool ZMQNetwork::interruptableSend( void* _socket, void* _buf, size_t _len ) {
-
-
-
     auto simulatedDelay = sChain->getNode()->getSimulateNetworkWriteDelayMs();
 
     if ( simulatedDelay > 0 )
@@ -125,8 +103,6 @@ bool ZMQNetwork::interruptableSend( void* _socket, void* _buf, size_t _len ) {
     int flags = ZMQ_DONTWAIT;
 
     if ( this->getNode()->isExitRequested() ) {
-        zmq_close(_socket);
-        LOG( debug, getThreadName() + "zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
         BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
     }
 
@@ -134,8 +110,6 @@ bool ZMQNetwork::interruptableSend( void* _socket, void* _buf, size_t _len ) {
     rc = zmq_send( _socket, _buf, _len, flags );
 
     if ( this->getNode()->isExitRequested() ) {
-        zmq_close(_socket);
-        LOG( debug, getThreadName() + "zmq debug: closing = " + to_string( ( uint64_t ) _socket ) );
         BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
     }
 
@@ -154,15 +128,17 @@ bool ZMQNetwork::interruptableSend( void* _socket, void* _buf, size_t _len ) {
 uint64_t ZMQNetwork::readMessageFromNetwork( const ptr< Buffer > buf ) {
     getSchain()->getNode()->exitCheck();
 
-    if (getSchain()->getNodeCount() == 1) {
+    if ( getSchain()->getNodeCount() == 1 ) {
         // there is no one to receive from
-        while (true) {
-            usleep(100000);
+        while ( true ) {
+            usleep( 100000 );
             getSchain()->getNode()->exitCheck();
         }
     }
 
     auto s = sChain->getNode()->getSockets()->consensusZMQSockets->getReceiveSocket();
+
+    CHECK_STATE( buf->getBuf()->size() >= MAX_CONSENSUS_MESSAGE_LEN );
 
     auto rc = interruptableRecv( s, buf->getBuf()->data(), MAX_CONSENSUS_MESSAGE_LEN );
 
@@ -173,7 +149,6 @@ uint64_t ZMQNetwork::readMessageFromNetwork( const ptr< Buffer > buf ) {
 
     return rc;
 }
-
 
 
 ZMQNetwork::ZMQNetwork( Schain& _schain ) : Network( _schain ) {}

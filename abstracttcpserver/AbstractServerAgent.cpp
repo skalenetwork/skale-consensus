@@ -46,85 +46,78 @@
 
 #include "AbstractServerAgent.h"
 
-void AbstractServerAgent::pushToQueueAndNotifyWorkers(const ptr<ServerConnection>& _connectionEnvelope ) {
+void AbstractServerAgent::pushToQueueAndNotifyWorkers(
+    const ptr< ServerConnection >& _connectionEnvelope ) {
     CHECK_ARGUMENT( _connectionEnvelope );
-    lock_guard<mutex> lock(incomingTCPConnectionsMutex);
+    lock_guard< mutex > lock( incomingTCPConnectionsMutex );
     incomingTCPConnections.push( _connectionEnvelope );
     incomingTCPConnectionsCond.notify_all();
 }
 
-ptr<ServerConnection> AbstractServerAgent::workerThreadWaitandPopConnection() {
+ptr< ServerConnection > AbstractServerAgent::workerThreadWaitandPopConnection() {
+    unique_lock< mutex > mlock( incomingTCPConnectionsMutex );
 
-    unique_lock<mutex> mlock(incomingTCPConnectionsMutex);
-
-    while (incomingTCPConnections.empty()) {
-        if( getSchain()->getNode()->isExitRequested() )
+    while ( incomingTCPConnections.empty() ) {
+        if ( getSchain()->getNode()->isExitRequested() )
             return nullptr;
-        incomingTCPConnectionsCond.wait_for( mlock, std::chrono::milliseconds( 1000 ) ); // incomingTCPConnectionsCond.wait(mlock);
+        incomingTCPConnectionsCond.wait_for(
+            mlock, std::chrono::milliseconds( 1000 ) );  // incomingTCPConnectionsCond.wait(mlock);
         getSchain()->getNode()->exitCheck();
     }
-    if( getSchain()->getNode()->isExitRequested() )
+    if ( getSchain()->getNode()->isExitRequested() )
         return nullptr;
 
-    CHECK_STATE(!incomingTCPConnections.empty());
+    CHECK_STATE( !incomingTCPConnections.empty() );
 
-    ptr<ServerConnection> connection = incomingTCPConnections.front();
+    ptr< ServerConnection > connection = incomingTCPConnections.front();
 
     CHECK_STATE( connection );
 
     incomingTCPConnections.pop();
 
     return connection;
-
 }
 
 
-void AbstractServerAgent::workerThreadConnectionProcessingLoop(void *_params) {
-
-    CHECK_ARGUMENT(_params);
-    AbstractServerAgent *server = (reinterpret_cast < AbstractServerAgent * > ( _params ));
-    CHECK_STATE(server);
+void AbstractServerAgent::workerThreadConnectionProcessingLoop( void* _params ) {
+    CHECK_ARGUMENT( _params );
+    AbstractServerAgent* server = ( reinterpret_cast< AbstractServerAgent* >( _params ) );
+    CHECK_STATE( server );
 
     server->waitOnGlobalStartBarrier();
 
-    LOG(trace, "Started server loop");
+    LOG( trace, "Started server loop" );
 
-    while (!server->getNode()->isExitRequested()) {
-
-        ptr<ServerConnection> connection = nullptr;
+    while ( !server->getNode()->isExitRequested() ) {
+        ptr< ServerConnection > connection = nullptr;
         try {
-
             connection = server->workerThreadWaitandPopConnection();
-            if( server->getNode()->isExitRequested() )
-                return; // notice - connection is nullptr in this case
-            CHECK_STATE(connection);
-            server->processNextAvailableConnection(connection);
-        } catch (PingException &e) {
-            LOG(info, e.what());
-        }
-        catch (exception &e) {
-            SkaleException::logNested(e);
+            if ( server->getNode()->isExitRequested() )
+                return;  // notice - connection is nullptr in this case
+            CHECK_STATE( connection );
+            server->processNextAvailableConnection( connection );
+        } catch ( PingException& e ) {
+            LOG( info, e.what() );
+        } catch ( exception& e ) {
+            SkaleException::logNested( e );
         }
     }
 }
 
 
-void AbstractServerAgent::send(const ptr<ServerConnection>& _connectionEnvelope,
-                               const ptr<Header>& _header) {
-
-
-    CHECK_ARGUMENT(_connectionEnvelope);
-    CHECK_ARGUMENT(_header);
-    CHECK_ARGUMENT(_header->isComplete());
+void AbstractServerAgent::send(
+    const ptr< ServerConnection >& _connectionEnvelope, const ptr< Header >& _header ) {
+    CHECK_ARGUMENT( _connectionEnvelope );
+    CHECK_ARGUMENT( _header );
+    CHECK_ARGUMENT( _header->isComplete() );
 
     auto buf = _header->toBuffer();
-    getSchain()->getIo()->writeBuf(_connectionEnvelope->getDescriptor(), buf);
+    getSchain()->getIo()->writeBuf( _connectionEnvelope->getDescriptor(), buf );
 }
 
-AbstractServerAgent::AbstractServerAgent(const string &_name, Schain &_schain,
-                                         const ptr<TCPServerSocket>& _socket)
-        : Agent(_schain, true), name(_name), socket(_socket), networkReadThread(nullptr) {
-
+AbstractServerAgent::AbstractServerAgent(
+    const string& _name, Schain& _schain, const ptr< TCPServerSocket >& _socket )
+    : Agent( _schain, true ), name( _name ), socket( _socket ), networkReadThread( nullptr ) {
     logThreadLocal_ = _schain.getNode()->getLog();
 }
 
@@ -133,69 +126,53 @@ AbstractServerAgent::~AbstractServerAgent() {
 }
 
 void AbstractServerAgent::acceptTCPConnectionsLoop() {
-
-    setThreadName(name, getSchain()->getNode()->getConsensusEngine());
+    setThreadName( name, getSchain()->getNode()->getConsensusEngine() );
 
     waitOnGlobalStartBarrier();
 
     struct sockaddr_in clientAddress;
-    socklen_t sizeOfClientAddress = sizeof(clientAddress);
-    CHECK_STATE(this->socket > 0);
-    auto s = dynamic_pointer_cast<TCPServerSocket>(this->socket)->getDescriptor();
-    CHECK_STATE(s > 0);
+    socklen_t sizeOfClientAddress = sizeof( clientAddress );
+    CHECK_STATE( this->socket > 0 );
+    auto s = dynamic_pointer_cast< TCPServerSocket >( this->socket )->getDescriptor();
+    CHECK_STATE( s > 0 );
     try {
+        while ( !getSchain()->getNode()->isExitRequested() ) {
+            int newConnection = accept( s, ( sockaddr* ) &clientAddress, &sizeOfClientAddress );
 
-        while (!getSchain()->getNode()->isExitRequested()) {
+            // static  int one = 1;
+            // CHECK_STATE(setsockopt(newConnection, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
 
-
-
-            int newConnection = accept(s, (sockaddr *) &clientAddress, &sizeOfClientAddress);
-
-            //static  int one = 1;
-            //CHECK_STATE(setsockopt(newConnection, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
-
-            if (getSchain()->getNode()->isExitRequested()) {
+            if ( getSchain()->getNode()->isExitRequested() ) {
                 return;
             }
 
-            if (newConnection < 0) {
-                BOOST_THROW_EXCEPTION(NetworkProtocolException("accept failed:" + string(strerror(errno)), __CLASS_NAME__));
+            if ( newConnection < 0 ) {
+                BOOST_THROW_EXCEPTION( NetworkProtocolException(
+                    "accept failed:" + string( strerror( errno ) ), __CLASS_NAME__ ) );
             }
 
-            string ip(inet_ntoa(clientAddress.sin_addr));
+            string ip( inet_ntoa( clientAddress.sin_addr ) );
 
-            this->pushToQueueAndNotifyWorkers(make_shared<ServerConnection>(newConnection, ip));
-
+            this->pushToQueueAndNotifyWorkers(
+                make_shared< ServerConnection >( newConnection, ip ) );
         }
-    } catch (FatalError& e) {
+    } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        getNode()->exitOnFatalError(e.what());
+        getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 
 void AbstractServerAgent::createNetworkReadThread() {
-
-    LOG(trace, name + " Starting TCP server network read loop");
-    networkReadThread = make_shared<thread>(std::bind(&AbstractServerAgent::acceptTCPConnectionsLoop, this));
-    LOG(trace, name + " Started TCP server network read loop");
-
+    LOG( trace, name + " Starting TCP server network read loop" );
+    networkReadThread =
+        make_shared< thread >( std::bind( &AbstractServerAgent::acceptTCPConnectionsLoop, this ) );
+    LOG( trace, name + " Started TCP server network read loop" );
 }
-
 
 
 void AbstractServerAgent::notifyAllConditionVariables() {
     Agent::notifyAllConditionVariables();
-    LOG(trace, "Notifying TCP cond" + to_string((uint64_t) (void *) &incomingTCPConnectionsCond));
+    LOG( trace,
+        "Notifying TCP cond" + to_string( ( uint64_t )( void* ) &incomingTCPConnectionsCond ) );
     incomingTCPConnectionsCond.notify_all();
-
 }
-
-
-
-
-
-
-
-
-
-

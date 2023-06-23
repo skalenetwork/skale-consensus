@@ -27,7 +27,6 @@
 #include "Log.h"
 
 
-
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
 #include "thirdparty/json.hpp"
@@ -57,6 +56,14 @@
 #include "messages/Message.h"
 
 #include "db/BlockDB.h"
+#include "db/BlockProposalDB.h"
+#include "db/BlockSigShareDB.h"
+#include "db/DAProofDB.h"
+#include "db/DASigShareDB.h"
+#include "db/InternalInfoDB.h"
+#include "db/MsgDB.h"
+#include "db/ProposalHashDB.h"
+#include "db/ProposalVectorDB.h"
 
 #include "db/ConsensusStateDB.h"
 #include "db/PriceDB.h"
@@ -71,67 +78,65 @@
 using namespace std;
 
 
-uint64_t Node::getParamUint64(const string &_paramName, uint64_t paramDefault) {
+uint64_t Node::getParamUint64( const string& _paramName, uint64_t paramDefault ) {
+    auto result = std::getenv( _paramName.c_str() );
 
-    auto result = std::getenv(_paramName.c_str());
-
-    if (result != nullptr) {
+    if ( result != nullptr ) {
         errno = 0;
-        auto value = strtoll(result, nullptr, 10);
-        if (errno == 0) {
+        auto value = strtoll( result, nullptr, 10 );
+        if ( errno == 0 ) {
             return value;
         } else {
-            BOOST_THROW_EXCEPTION(InvalidStateException("Invalid value of env var " + _paramName + "=" +
-                                                        result, __CLASS_NAME__));
+            BOOST_THROW_EXCEPTION( InvalidStateException(
+                "Invalid value of env var " + _paramName + "=" + result, __CLASS_NAME__ ) );
         }
     }
 
     try {
-        if (cfg.find(_paramName) != cfg.end()) {
-            return cfg.at(_paramName).get<uint64_t>();
+        if ( cfg.find( _paramName ) != cfg.end() ) {
+            return cfg.at( _paramName ).get< uint64_t >();
         } else {
             return paramDefault;
         }
-    } catch (...) {
+    } catch ( ... ) {
         throw_with_nested(
-                ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
+            ParsingException( "Could not parse param " + _paramName, __CLASS_NAME__ ) );
     }
 }
 
-int64_t Node::getParamInt64(const string &_paramName, uint64_t _paramDefault) {
+int64_t Node::getParamInt64( const string& _paramName, uint64_t _paramDefault ) {
     try {
-        if (cfg.find(_paramName) != cfg.end()) {
-            return cfg.at(_paramName).get<uint64_t>();
+        if ( cfg.find( _paramName ) != cfg.end() ) {
+            return cfg.at( _paramName ).get< uint64_t >();
         } else {
             return _paramDefault;
         }
 
-    } catch (...) {
+    } catch ( ... ) {
         throw_with_nested(
-                ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
+            ParsingException( "Could not parse param " + _paramName, __CLASS_NAME__ ) );
     }
 }
 
 
-string Node::getParamString(const string &_paramName, string &_paramDefault) {
+string Node::getParamString( const string& _paramName, string& _paramDefault ) {
+    auto result = std::getenv( _paramName.c_str() );
 
-    auto result = std::getenv(_paramName.c_str());
-
-    if (result != nullptr) {
-        return string(result);
+    if ( result != nullptr ) {
+        return string( result );
     }
 
 
     try {
-        if (cfg.find(_paramName) != cfg.end()) {
-            return string(cfg.at(_paramName).get<string>());
+        if ( cfg.find( _paramName ) != cfg.end() ) {
+            return string( cfg.at( _paramName ).get< string >() );
         } else {
-            return string(_paramDefault);
+            return string( _paramDefault );
         }
 
-    } catch (...) {
+    } catch ( ... ) {
         throw_with_nested(
-                ParsingException("Could not parse param " + _paramName, __CLASS_NAME__));
+            ParsingException( "Could not parse param " + _paramName, __CLASS_NAME__ ) );
     }
 }
 
@@ -141,40 +146,40 @@ node_id Node::getNodeID() const {
 }
 
 
-ptr<ProposalHashDB> Node::getProposalHashDB() {
-    CHECK_STATE(proposalHashDB);
+ptr< ProposalHashDB > Node::getProposalHashDB() const {
+    CHECK_STATE( proposalHashDB );
     return proposalHashDB;
 }
 
-ptr<ProposalVectorDB> Node::getProposalVectorDB() {
-    CHECK_STATE(proposalVectorDB);
+ptr< ProposalVectorDB > Node::getProposalVectorDB() const {
+    CHECK_STATE( proposalVectorDB );
     return proposalVectorDB;
 }
 
-ptr<MsgDB> Node::getOutgoingMsgDB() {
-    CHECK_STATE(outgoingMsgDB);
+ptr< MsgDB > Node::getOutgoingMsgDB() const {
+    CHECK_STATE( outgoingMsgDB );
     return outgoingMsgDB;
 }
 
-ptr<MsgDB> Node::getIncomingMsgDB() {
-    CHECK_STATE(incomingMsgDB);
+ptr< MsgDB > Node::getIncomingMsgDB() const {
+    CHECK_STATE( incomingMsgDB );
     return incomingMsgDB;
 }
 
-ptr<ConsensusStateDB> Node::getConsensusStateDB() {
-    CHECK_STATE(consensusStateDB);
+ptr< ConsensusStateDB > Node::getConsensusStateDB() const {
+    CHECK_STATE( consensusStateDB );
     return consensusStateDB;
 }
 
-ptr<map<uint64_t , ptr<NodeInfo> > > Node::getNodeInfosByIndex() const {
-    CHECK_STATE(nodeInfosByIndex);
+ptr< map< uint64_t, ptr< NodeInfo > > > Node::getNodeInfosByIndex() const {
+    CHECK_STATE( nodeInfosByIndex );
     return nodeInfosByIndex;
 }
 
 
 ptr< Network > Node::getNetwork() const {
-    if (!network) {
-        CHECK_STATE(network);
+    if ( !network ) {
+        CHECK_STATE( network );
     }
     return network;
 }
@@ -184,72 +189,70 @@ nlohmann::json Node::getCfg() const {
 }
 
 
-Sockets *Node::getSockets() const {
-    CHECK_STATE(sockets);
+Sockets* Node::getSockets() const {
+    CHECK_STATE( sockets );
     return sockets.get();
 }
 
-Schain *Node::getSchain() const {
-    CHECK_STATE(sChain);
+Schain* Node::getSchain() const {
+    CHECK_STATE( sChain );
     return sChain.get();
 }
 
 
 ptr< SkaleLog > Node::getLog() const {
-    CHECK_STATE(log);
+    CHECK_STATE( log );
     return log;
 }
 
 
 string Node::getBindIP() const {
-    CHECK_STATE(!bindIP.empty())
+    CHECK_STATE( !bindIP.empty() )
     return bindIP;
 }
 
 network_port Node::getBasePort() const {
-    CHECK_STATE(basePort > 0);
+    CHECK_STATE( basePort > 0 );
     return basePort;
 }
 
 
-ptr<NodeInfo> Node::getNodeInfoByIndex(schain_index _index) {
+ptr< NodeInfo > Node::getNodeInfoByIndex( schain_index _index ) {
+    CHECK_STATE( nodeInfosByIndex );
 
-    CHECK_STATE(nodeInfosByIndex);
-
-    if (nodeInfosByIndex->count((uint64_t )_index) == 0)
+    if ( nodeInfosByIndex->count( ( uint64_t ) _index ) == 0 )
         return nullptr;
-    return nodeInfosByIndex->at((uint64_t )_index);
+    return nodeInfosByIndex->at( ( uint64_t ) _index );
 }
 
 
-ptr<NodeInfo> Node::getNodeInfoById(node_id _id) {
+ptr< NodeInfo > Node::getNodeInfoById( node_id _id ) {
+    CHECK_STATE( nodeInfosById );
 
-    CHECK_STATE(nodeInfosById);
-
-    if (nodeInfosById->count((uint64_t )_id) == 0)
+    if ( nodeInfosById->count( ( uint64_t ) _id ) == 0 )
         return nullptr;
 
-    return nodeInfosById->at((uint64_t )_id);
+    return nodeInfosById->at( ( uint64_t ) _id );
 }
 
 
-ptr<BlockDB> Node::getBlockDB() {
-    CHECK_STATE(blockDB);
+ptr< BlockDB > Node::getBlockDB() const {
+    CHECK_STATE( blockDB );
     return blockDB;
 }
 
-ptr<RandomDB> Node::getRandomDB() {
-    CHECK_STATE(randomDB);
+ptr< RandomDB > Node::getRandomDB() const {
+    CHECK_STATE( randomDB );
     return randomDB;
 }
 
-ptr<PriceDB> Node::getPriceDB() const {
-    CHECK_STATE(priceDB)
+ptr< PriceDB > Node::getPriceDB() const {
+    CHECK_STATE( priceDB )
     return priceDB;
 }
 
-ptr<InternalInfoDB> Node::getInternalInfoDB() const {
-    CHECK_STATE(internalInfoDB)
+ptr< InternalInfoDB > Node::getInternalInfoDB() const {
+    CHECK_STATE( internalInfoDB )
     return internalInfoDB;
 }
 
@@ -301,12 +304,8 @@ uint64_t Node::getConsensusStateDBSize() const {
 }
 
 
-uint64_t Node::getCommittedTransactionHistoryLimit() const {
-    return committedTransactionsHistory;
-}
-
-void Node::setBasePort(const network_port &_basePort) {
-    CHECK_ARGUMENT(_basePort > 0);
+void Node::setBasePort( const network_port& _basePort ) {
+    CHECK_ARGUMENT( _basePort > 0 );
     basePort = _basePort;
 }
 
@@ -314,17 +313,14 @@ uint64_t Node::getSimulateNetworkWriteDelayMs() const {
     return simulateNetworkWriteDelayMs;
 }
 
-const ptr<TestConfig> &Node::getTestConfig() const {
-    CHECK_STATE(testConfig)
+const ptr< TestConfig >& Node::getTestConfig() const {
+    CHECK_STATE( testConfig )
     return testConfig;
 }
 
 bool Node::isExitRequested() {
     return exitRequested;
 }
-
-
-
 
 bool Node::isStarted() const {
     return startedServers;
@@ -342,18 +338,18 @@ uint64_t Node::getBlockSigShareDBSize() const {
     return blockSigShareDBSize;
 }
 
-ptr<BlockSigShareDB> Node::getBlockSigShareDB() const {
-    CHECK_STATE(blockSigShareDB);
+ptr< BlockSigShareDB > Node::getBlockSigShareDB() const {
+    CHECK_STATE( blockSigShareDB );
     return blockSigShareDB;
 }
 
-ptr<DASigShareDB> Node::getDaSigShareDB() const {
-    CHECK_STATE(daSigShareDB);
+ptr< DASigShareDB > Node::getDaSigShareDB() const {
+    CHECK_STATE( daSigShareDB );
     return daSigShareDB;
 }
 
-ptr<DAProofDB> Node::getDaProofDB() const {
-    CHECK_STATE(daProofDB);
+ptr< DAProofDB > Node::getDaProofDB() const {
+    CHECK_STATE( daProofDB );
     return daProofDB;
 }
 
@@ -365,8 +361,8 @@ uint64_t Node::getDaProofDBSize() const {
     return daProofDBSize;
 }
 
-ptr<BlockProposalDB>  Node::getBlockProposalDB() const {
-    CHECK_STATE(blockProposalDB)
+ptr< BlockProposalDB > Node::getBlockProposalDB() const {
+    CHECK_STATE( blockProposalDB )
     return blockProposalDB;
 }
 
@@ -378,16 +374,34 @@ uint64_t Node::getInternalInfoDBSize() const {
     return internalInfoDBSize;
 }
 
+map< string, uint64_t > Node::getDBUsage() const {
+    map< string, uint64_t > ret;
+    ret["blocks.db_disk_usage"] = getBlockDB()->getActiveDBSize();
+    ret["block_proposal.db_disk_usage"] = getBlockProposalDB()->getActiveDBSize();
+    ret["block_sigshare.db_disk_usage"] = getBlockSigShareDB()->getActiveDBSize();
+    ret["consensus_state.db_disk_usage"] = getConsensusStateDB()->getActiveDBSize();
+    ret["da_proof.db_disk_usage"] = getDaProofDB()->getActiveDBSize();
+    ret["da_sigshare.db_disk_usage"] = getDaSigShareDB()->getActiveDBSize();
+    ret["incoming_msg.db_disk_usage"] = getIncomingMsgDB()->getActiveDBSize();
+    ret["interna_info.db_disk_usage"] = getInternalInfoDB()->getActiveDBSize();
+    ret["outgoing_msg.db_disk_usage"] = getOutgoingMsgDB()->getActiveDBSize();
+    ret["price.db_disk_usage"] = getPriceDB()->getActiveDBSize();
+    ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getActiveDBSize();
+    ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getActiveDBSize();
+    ret["random.db_disk_usage"] = getRandomDB()->getActiveDBSize();
 
-ConsensusEngine *Node::getConsensusEngine() const {
-    CHECK_STATE(consensusEngine);
+    return ret;
+}
+
+ConsensusEngine* Node::getConsensusEngine() const {
+    CHECK_STATE( consensusEngine );
     return consensusEngine;
 }
-string Node::getSgxUrl()  {
-    CHECK_STATE(!sgxURL.empty());
+string Node::getSgxUrl() {
+    CHECK_STATE( !sgxURL.empty() );
     return sgxURL;
 }
-string Node::getSgxSslKeyFileFullPath()  {
+string Node::getSgxSslKeyFileFullPath() {
     return sgxSSLKeyFileFullPath;
 }
 
@@ -397,4 +411,13 @@ string Node::getSgxSslCertFileFullPath() {
 
 uint64_t Node::getVisualizationType() const {
     return visualizationType;
+}
+
+bool Node::isTestNet() const {
+    return testNet;
+}
+
+void Node::setExitOnBlockBoundaryRequested() {
+    LOG( info, "Set exit on block boundary" );
+    exitOnBlockBoundaryRequested = true;
 }

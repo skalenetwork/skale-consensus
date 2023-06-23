@@ -22,17 +22,17 @@
 */
 
 
-#include "PriceDB.h"
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
 #include "exceptions/ExitRequestedException.h"
+#include "LevelDBOptions.h"
+#include "PriceDB.h"
 
-
-PriceDB::PriceDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
-        : CacheLevelDB(_sChain, _dirName, _prefix,
-                       _nodeId,
-                       _maxDBSize, false) {}
+PriceDB::PriceDB(
+    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getPriceDBOptions(), false ) {}
 
 
 const string& PriceDB::getFormatVersion() {
@@ -41,48 +41,46 @@ const string& PriceDB::getFormatVersion() {
 }
 
 
-u256 PriceDB::readPrice(block_id _blockID) {
-
-    if (_blockID <= 1) {
-        return getSchain()->getNode()->getParamUint64(string("DYNAMIC_PRICING_START_PRICE"),
-            DEFAULT_MIN_PRICE);
+u256 PriceDB::readPrice( block_id _blockID ) {
+    if ( _blockID <= 1 ) {
+        return getSchain()->getNode()->getParamUint64(
+            string( "DYNAMIC_PRICING_START_PRICE" ), DEFAULT_MIN_PRICE );
     }
 
 
     try {
+        auto key = createKey( _blockID );
+        CHECK_STATE( !key.empty() )
 
+        auto price = readString( key );
 
-        auto key = createKey(_blockID);
-        CHECK_STATE(!key.empty())
-
-        auto price = readString(key);
-
-        if (price.empty()) {
-            BOOST_THROW_EXCEPTION(InvalidArgumentException("Price for block " +
-                                                           to_string(_blockID) + " is unknown", __CLASS_NAME__));
+        if ( price.empty() ) {
+            BOOST_THROW_EXCEPTION( InvalidArgumentException(
+                "Price for block " + to_string( _blockID ) + " is unknown", __CLASS_NAME__ ) );
         }
 
-        return u256(price.c_str());
+        return u256( price.c_str() );
 
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
-void PriceDB::savePrice(const u256& _price, block_id _blockID) {
-
-    LOG(trace, "Save price for block" + to_string(_blockID));
+void PriceDB::savePrice( const u256& _price, block_id _blockID ) {
+    LOG( trace, "Save price for block" + to_string( _blockID ) );
 
     try {
-
-        auto key = createKey(_blockID);
-        CHECK_STATE(key != "")
+        auto key = createKey( _blockID );
+        CHECK_STATE( key != "" )
 
         auto value = _price.str();
 
-        writeString(key, value);
-    } catch (ExitRequestedException &) { throw; } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        writeString( key, value );
+    } catch ( ExitRequestedException& ) {
+        throw;
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
-

@@ -8,6 +8,5 @@
     { "nodeID": 1115, "ip": "127.0.0.4", "basePort":1231, "schainIndex" : 4}
   ],
 
-
   "blockProposalTest": "SLOW"
 }

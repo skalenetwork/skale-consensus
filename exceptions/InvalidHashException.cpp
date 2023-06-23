@@ -26,7 +26,7 @@
 
 #include "InvalidHashException.h"
 
-InvalidHashException::InvalidHashException(const std::string &_message, const string& _className) :
-                     SkaleException(_message, _className) {
+InvalidHashException::InvalidHashException( const std::string& _message, const string& _className )
+    : SkaleException( _message, _className ) {
     fatal = false;
 }

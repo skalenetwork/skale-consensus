@@ -35,18 +35,13 @@
 #include "MonitoringAgent.h"
 #include "MonitoringThreadPool.h"
 
-MonitoringThreadPool::MonitoringThreadPool(num_threads _numThreads, Agent* _agent) : WorkerThreadPool(_numThreads,
-                                                                                                     _agent, false) {
+MonitoringThreadPool::MonitoringThreadPool( num_threads _numThreads, Agent* _agent )
+    : WorkerThreadPool( _numThreads, _agent, false ) {}
+
+
+void MonitoringThreadPool::createThread( uint64_t /*number*/ ) {
+    auto a = ( MonitoringAgent* ) agent;
+
+    LOCK( threadPoolLock )
+    this->threadpool.push_back( make_shared< thread >( MonitoringAgent::monitoringLoop, a ) );
 }
-
-
-void MonitoringThreadPool::createThread(uint64_t /*number*/) {
-
-    auto a = (MonitoringAgent*)agent;
-
-    LOCK(threadPoolLock)
-    this->threadpool.push_back(make_shared<thread>(MonitoringAgent::monitoringLoop, a));
-
-}
-
-

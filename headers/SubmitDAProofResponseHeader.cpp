@@ -25,4 +25,4 @@
 #include "thirdparty/json.hpp"
 #include "SubmitDAProofResponseHeader.h"
 
-SubmitDAProofResponseHeader::SubmitDAProofResponseHeader() : Header(Header::DA_PROOF_RSP) {}
+SubmitDAProofResponseHeader::SubmitDAProofResponseHeader() : Header( Header::DA_PROOF_RSP ) {}

@@ -26,7 +26,6 @@
 #define SKALED_BLOCKPROPOSALFRAGMENTLIST_H
 
 
-
 class BlockProposalFragment;
 
 
@@ -38,10 +37,9 @@ class BlockProposalFragment;
 
 
 class BlockProposalFragmentList : public DataStructure {
+    map< fragment_index, ptr< vector< uint8_t > > > fragments;  // tsafe
 
-    map<fragment_index, ptr<vector<uint8_t>>> fragments; // tsafe
-
-    list<uint64_t> missingFragments;
+    list< uint64_t > missingFragments;
 
     int64_t blockSize = -1;
 
@@ -49,9 +47,9 @@ class BlockProposalFragmentList : public DataStructure {
 
     bool isSerialized = false;
 
-    const block_id blockID  = 0;
+    const block_id blockID = 0;
 
-    const uint64_t  totalFragments  = 0;
+    const uint64_t totalFragments = 0;
 
     void checkSanity();
 
@@ -60,18 +58,17 @@ class BlockProposalFragmentList : public DataStructure {
     static boost::random::uniform_int_distribution<> ubyte;
 
 public:
+    BlockProposalFragmentList( const block_id& _blockId, uint64_t _totalFragments );
 
-    BlockProposalFragmentList(const block_id &_blockId, uint64_t _totalFragments);
-
-    bool addFragment(const ptr<BlockProposalFragment>& _fragment, uint64_t& _nextIndexToRetrieve);
+    bool addFragment(
+        const ptr< BlockProposalFragment >& _fragment, uint64_t& _nextIndexToRetrieve );
 
     uint64_t nextIndexToRetrieve();
 
     bool isComplete();
 
-    const ptr<vector<uint8_t>> serialize();
-
+    const ptr< vector< uint8_t > > serialize();
 };
 
 
-#endif //SKALED_BLOCKPROPOSALFRAGMENTLIST_H
+#endif  // SKALED_BLOCKPROPOSALFRAGMENTLIST_H

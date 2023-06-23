@@ -28,11 +28,8 @@
 #include "threads/WorkerThreadPool.h"
 
 class TimeoutThreadPool : public WorkerThreadPool {
-
 public:
+    TimeoutThreadPool( num_threads _numThreads, Agent* _agent );
 
-    TimeoutThreadPool(num_threads _numThreads, Agent* _agent);
-
-    void createThread(uint64_t _number) override;
-
+    void createThread( uint64_t _number ) override;
 };

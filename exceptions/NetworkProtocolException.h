@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "SkaleException.h"
 #include "SkaleCommon.h"
@@ -30,5 +30,5 @@
 
 class NetworkProtocolException : public SkaleException {
 public:
-    NetworkProtocolException(const std::string &_message, const string& _className);
+    NetworkProtocolException( const std::string& _message, const string& _className );
 };

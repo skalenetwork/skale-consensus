@@ -27,7 +27,7 @@
 
 #include "thirdparty/rapidjson/document.h"
 #include "thirdparty/json.hpp"
-#include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
+#include "thirdparty/rapidjson/prettywriter.h"  // for stringify JSON
 
 #include "SkaleCommon.h"
 #include "Log.h"
@@ -36,21 +36,20 @@
 
 #include "FastMessageLedger.h"
 
-FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, block_id _blockId) :
-        schain(_schain), blockId(_blockId) {
+FastMessageLedger::FastMessageLedger( Schain* _schain, string _dirFullPath, block_id _blockId )
+    : schain( _schain ), blockId( _blockId ) {
+    previousRunMessages = make_shared< vector< ptr< Message > > >();
+    CHECK_STATE( schain );
+    CHECK_STATE( _dirFullPath.size() > 2 );
 
-    previousRunMessages = make_shared<vector<ptr<Message>>>();
-    CHECK_STATE(schain);
-    CHECK_STATE(_dirFullPath.size() > 2);
+    CHECK_STATE( _dirFullPath.back() != '/' );
 
-    CHECK_STATE(_dirFullPath.back() != '/');
+    ledgerFileFullPath =
+        _dirFullPath + "/cons_incoming_msg_ledger_" + to_string( schain->getSchainIndex() );
 
-    ledgerFileFullPath= _dirFullPath + "/cons_incoming_msg_ledger_" +
-            to_string(schain->getSchainIndex());
+    LOG( info, "Creating fast ledger at: " + string( ledgerFileFullPath ) );
 
-    LOG(info, "Creating fast ledger at: " + string(ledgerFileFullPath));
-
-    std::ifstream infile(ledgerFileFullPath);
+    std::ifstream infile( ledgerFileFullPath );
 
     // if file exist, read and parse
 
@@ -77,118 +76,115 @@ FastMessageLedger::FastMessageLedger(Schain *_schain, string  _dirFullPath, bloc
         }
     }
     */
-    startNewBlock(_blockId);
-    CHECK_STATE(fd > 0);
+    startNewBlock( _blockId );
+    CHECK_STATE( fd > 0 );
 }
 
 
-uint64_t FastMessageLedger::parseFirstLine(string _line) {
+uint64_t FastMessageLedger::parseFirstLine( string _line ) {
     try {
-
         rapidjson::Document d;
 
-        d.Parse(_line.data());
+        d.Parse( _line.data() );
 
-        CHECK_STATE(!d.HasParseError());
-        CHECK_STATE(d.IsObject())
-        auto bid  = BasicHeader::getUint64Rapid(d, "bi");
+        CHECK_STATE( !d.HasParseError() );
+        CHECK_STATE( d.IsObject() )
+        auto bid = BasicHeader::getUint64Rapid( d, "bi" );
         return bid;
-    } catch (...) {
-        throw_with_nested(InvalidStateException("Could not parse message", __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( "Could not parse message", __CLASS_NAME__ ) );
     }
-
 }
 
 
-
-ptr<Message> FastMessageLedger::parseLine(string& _line) {
+ptr< Message > FastMessageLedger::parseLine( string& _line ) {
     try {
-    if (_line.find("\"cv\"") != string::npos) {
-        return ConsensusProposalMessage::parseMessageLite(_line, schain);
-    } else {
-        return NetworkMessage::parseMessage(_line, schain, true);
-    }
-    } catch (...) {
-        throw_with_nested(InvalidStateException("Could not parse message:" + _line, __CLASS_NAME__));
+        if ( _line.find( "\"cv\"" ) != string::npos ) {
+            return ConsensusProposalMessage::parseMessageLite( _line, schain );
+        } else {
+            return NetworkMessage::parseMessage( _line, schain, true );
+        }
+    } catch ( ... ) {
+        throw_with_nested(
+            InvalidStateException( "Could not parse message:" + _line, __CLASS_NAME__ ) );
     }
 }
 
-ptr<vector<ptr<Message>>> FastMessageLedger::retrieveAndClearPreviosRunMessages() {
-    CHECK_STATE(fd > 0);
+ptr< vector< ptr< Message > > > FastMessageLedger::retrieveAndClearPreviosRunMessages() {
+    CHECK_STATE( fd > 0 );
     auto result = previousRunMessages;
     previousRunMessages = nullptr;
-    CHECK_STATE(result);
+    CHECK_STATE( result );
     return result;
 }
 
-void FastMessageLedger::writeProposalMessage(ptr<ConsensusProposalMessage> _message) {
-    CHECK_STATE(fd > 0);
-    CHECK_STATE(_message);
+void FastMessageLedger::writeProposalMessage( ptr< ConsensusProposalMessage > _message ) {
+    CHECK_STATE( fd > 0 );
+    CHECK_STATE( _message );
     auto msg = _message->serializeToStringLite();
-    LOCK(m)
-    writeLine(msg);
+    LOCK( m )
+    writeLine( msg );
 }
 
-void FastMessageLedger::writeNetworkMessage(ptr<NetworkMessage> _message) {
-    CHECK_STATE(fd > 0);
-    CHECK_STATE(_message);
+void FastMessageLedger::writeNetworkMessage( ptr< NetworkMessage > _message ) {
+    CHECK_STATE( fd > 0 );
+    CHECK_STATE( _message );
     auto msg = _message->serializeToStringLite();
-    LOCK(m)
-    writeLine(msg);
+    LOCK( m )
+    writeLine( msg );
 }
-
 
 
 void FastMessageLedger::closeFd() {
-    if (fd > 0) {
-        close(fd);
+    if ( fd > 0 ) {
+        close( fd );
         fd = -1;
     }
 }
 
-void FastMessageLedger::writeLine(string&) {
+void FastMessageLedger::writeLine( string& ) {
     // disable for now
 }
 
 
-void FastMessageLedger::writeLine2(string& _str) {
-    CHECK_STATE(_str.size() > 0);
-    CHECK_STATE(fd > 0);
+void FastMessageLedger::writeLine2( string& _str ) {
+    CHECK_STATE( _str.size() > 0 );
+    CHECK_STATE( fd > 0 );
     int64_t written = 0;
     int64_t result = -1;
     do {
-        result  = write(fd, _str.c_str() + written, _str.length() - written);
-        if (result < 0) {
-            LOG(err, "Write failed with errno:" + string(strerror(errno)) );
+        result = write( fd, _str.c_str() + written, _str.length() - written );
+        if ( result < 0 ) {
+            LOG( err, "Write failed with errno:" + string( strerror( errno ) ) );
         }
-        CHECK_STATE(result >= 0);
+        CHECK_STATE( result >= 0 );
         written += result;
-    } while (written < (int64_t) _str.size());
+    } while ( written < ( int64_t ) _str.size() );
 
     do {
-        result  = write(fd, "\n", 1);
-        CHECK_STATE(result >= 0);
-    } while (result == 0);
+        result = write( fd, "\n", 1 );
+        CHECK_STATE( result >= 0 );
+    } while ( result == 0 );
 }
 
 
-void FastMessageLedger::startNewBlock(block_id _blockId) {
-    LOCK(m)
+void FastMessageLedger::startNewBlock( block_id _blockId ) {
+    LOCK( m )
     blockId = _blockId;
     closeFd();
-    fd = open(ledgerFileFullPath.c_str(), O_CREAT| O_TRUNC | O_WRONLY, S_IRWXU);
-    CHECK_STATE2(fd > 0, ledgerFileFullPath + " file write open failed with errno:" +
-                         string(strerror(errno)));
+    fd = open( ledgerFileFullPath.c_str(), O_CREAT | O_TRUNC | O_WRONLY, S_IRWXU );
+    CHECK_STATE2( fd > 0,
+        ledgerFileFullPath + " file write open failed with errno:" + string( strerror( errno ) ) );
 
-    string header = "{\"bi\":" + to_string((uint64_t) _blockId) + "}";
+    string header = "{\"bi\":" + to_string( ( uint64_t ) _blockId ) + "}";
 
-    writeLine(header);
+    writeLine( header );
 }
 
 
 void FastMessageLedger::destroy() {
-    LOCK(m)
+    LOCK( m )
     closeFd();
-    auto result = remove(ledgerFileFullPath.c_str());
-    LOG(info, "Removed fast ledger file.  Status:" + to_string(result));
+    auto result = remove( ledgerFileFullPath.c_str() );
+    LOG( info, "Removed fast ledger file.  Status:" + to_string( result ) );
 }

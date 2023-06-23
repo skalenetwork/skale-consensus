@@ -29,11 +29,14 @@
 #include "crypto/ConsensusBLSSigShare.h"
 #include "datastructures/CommittedBlock.h"
 
+#include "LevelDBOptions.h"
 #include "SigDB.h"
 
 
-SigDB::SigDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize) :
-        CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize, false) {}
+SigDB::SigDB(
+    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getSigDBOptions(), false ) {}
 
 
 const string& SigDB::getFormatVersion() {
@@ -42,15 +45,11 @@ const string& SigDB::getFormatVersion() {
 }
 
 
-
-
-void SigDB::addSignature(block_id _blockId, const ptr<ThresholdSignature>& _sig) {
-    CHECK_ARGUMENT(_sig)
-    auto key = createKey(_blockId);
-    CHECK_STATE(!key.empty())
-    if (readString(key).empty()) {
-        writeString(key, _sig->toString());
+void SigDB::addSignature( block_id _blockId, const ptr< ThresholdSignature >& _sig ) {
+    CHECK_ARGUMENT( _sig )
+    auto key = createKey( _blockId );
+    CHECK_STATE( !key.empty() )
+    if ( readString( key ).empty() ) {
+        writeString( key, _sig->toString() );
     }
 }
-
-

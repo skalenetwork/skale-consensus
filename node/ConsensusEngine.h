@@ -50,40 +50,38 @@ class StorageLimits;
 #include "thirdparty/lrucache.hpp"
 
 class ConsensusEngine : public ConsensusInterface {
+    map< node_id, ptr< Node > > nodes;  // tsafe
 
-
-    map< node_id, ptr< Node > > nodes; //tsafe
-
-    mutable cache::lru_cache<uint64_t, u256> prices; // tsafe
+    mutable cache::lru_cache< uint64_t, u256 > prices;  // tsafe
 
     ConsensusExtFace* extFace = nullptr;
 
     block_id lastCommittedBlockID = 0;
 
-    ptr<TimeStamp> lastCommittedBlockTimeStamp = nullptr;
+    ptr< TimeStamp > lastCommittedBlockTimeStamp = nullptr;
 
     set< node_id > nodeIDs;
-    
+
     bool useTestSGXKeys = false;
 
     bool isSGXEnabled = false;
     bool verifyRealSignatures = false;
-    
+
     string sgxServerUrl;
     string sgxSSLKeyFileFullPath;
     string sgxSSLCertFileFullPath;
     string ecdsaKeyName;
     string blsKeyName;
 
-    ptr< vector<string> > ecdsaKeyNames; //tsafe
-    ptr< vector<string> > blsKeyNames; //tsafe
-    ptr< vector<string> > ecdsaPublicKeys; //tsafe
-    ptr< vector< ptr< vector<string>>>> blsPublicKeys; //tsafe
+    ptr< vector< string > > ecdsaKeyNames;                   // tsafe
+    ptr< vector< string > > blsKeyNames;                     // tsafe
+    ptr< vector< string > > ecdsaPublicKeys;                 // tsafe
+    ptr< vector< ptr< vector< string > > > > blsPublicKeys;  // tsafe
     ptr< BLSPublicKey > blsPublicKey;
     ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
     ptr< map< uint64_t, string > > historicECDSAPublicKeys;
-    ptr<map<uint64_t, vector<uint64_t>>> historicNodeGroups;
-    
+    ptr< map< uint64_t, vector< uint64_t > > > historicNodeGroups;
+
     atomic< consensus_engine_status > status = CONSENSUS_ACTIVE;
 
     ptr< GlobalThreadRegistry > threadRegistry;
@@ -92,31 +90,38 @@ class ConsensusEngine : public ConsensusInterface {
 
     recursive_mutex mutex;
 
-    atomic<bool> exitRequested = false;
+    atomic< bool > exitGracefullyAsyncCalled = false;
 
     string healthCheckDir;
     string dbDir;
-    
+
     static bool onTravis;
 
     static bool noUlimitCheck;
-    
+
     static atomic< uint64_t > engineCounter;
 
     static ptr< spdlog::logger > configLogger;
-    
+
     string dataDir;
     string logDir;
 
     static recursive_mutex logMutex;
-    
+
     string logFileNamePrefix;
 
     ptr< spdlog::sinks::sink > logRotatingFileSync;
 
-    ptr<StorageLimits> storageLimits = nullptr;
+    atomic< bool > exitGracefullyCalled = false;
+
+    ptr< StorageLimits > storageLimits = nullptr;
+
+    map< string, uint64_t > patchTimestamps;
+
+    void exitGracefullyAsync();
 
 public:
+    const map< string, uint64_t >& getPatchTimestamps() const;
 
     // used for testing only
     ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosByIndex;
@@ -124,9 +129,9 @@ public:
 
     [[nodiscard]] ptr< StorageLimits > getStorageLimits() const;
 
-    void setEcdsaKeyName(const string& _ecdsaKeyName );
+    void setEcdsaKeyName( const string& _ecdsaKeyName );
 
-    void setBlsKeyName(const string& _blsKeyName );
+    void setBlsKeyName( const string& _blsKeyName );
 
     [[nodiscard]] const string getEcdsaKeyName() const;
 
@@ -147,27 +152,27 @@ public:
     ptr< spdlog::logger > createLogger( const string& loggerName );
 
     const string getDataDir();
-    
+
     const string getLogDir();
-    
+
     string exec( const char* cmd );
 
     static void checkExistsAndDirectory( const fs_path& dirname );
 
     static void checkExistsAndFile( const fs_path& filename );
 
-    ptr< Node > readNodeTestConfigFileAndCreateNode(const string path, set< node_id >& _nodeIDs,
-                                                    bool _useSGX = false, string _sgxSSLKeyFileFullPath = "",
-                                                    string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
-                                                    ptr< vector<string> > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
-                                                    ptr< vector< ptr< vector<string>>>> _blsPublicKeys = nullptr,
-                                                    ptr< BLSPublicKey > _blsPublicKey = nullptr,
-                                                    ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys = nullptr,
-                                                    ptr< map< uint64_t, string > > _historicECDSAPublicKeys = nullptr,
-                                                    ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups = nullptr);
-    
-    void readSchainConfigFiles(const ptr< Node >& _node, const fs_path& _dirPath );
-    
+    ptr< Node > readNodeTestConfigFileAndCreateNode( const string path, set< node_id >& _nodeIDs,
+        bool _useSGX = false, string _sgxSSLKeyFileFullPath = "",
+        string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
+        ptr< vector< string > > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
+        ptr< vector< ptr< vector< string > > > > _blsPublicKeys = nullptr,
+        ptr< BLSPublicKey > _blsPublicKey = nullptr,
+        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys = nullptr,
+        ptr< map< uint64_t, string > > _historicECDSAPublicKeys = nullptr,
+        ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups = nullptr );
+
+    void readSchainConfigFiles( const ptr< Node >& _node, const fs_path& _dirPath );
+
     /* Returns an old block from the consensus storage.
      * The block is an EXACT COPY of the info that was earlier provided by
      * ConsensusExtface::createBlock(...)
@@ -180,8 +185,8 @@ public:
      *  gasPrice
      *  stateRoot
      *
-     *  If the block is not found (block is too old or in the future), will return nullptr as transaction vector,
-     *  the remaining return values will be set to zero
+     *  If the block is not found (block is too old or in the future), will return nullptr as
+     * transaction vector, the remaining return values will be set to zero
      *
      *   Example of usage:
      *
@@ -191,7 +196,8 @@ public:
      *   }
      */
 
-    tuple<ptr<ConsensusExtFace::transactions_vector>,  uint32_t , uint32_t , u256, u256> getBlock(block_id _blockID);
+    tuple< ptr< ConsensusExtFace::transactions_vector >, uint32_t, uint32_t, u256, u256 > getBlock(
+        block_id _blockID );
 
     set< node_id >& getNodeIDs();
 
@@ -205,13 +211,14 @@ public:
 
     block_id getLargestCommittedBlockIDInDb();
 
-    ConsensusEngine( block_id _lastId, uint64_t totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT);
+    ConsensusEngine( block_id _lastId, uint64_t totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT );
 
     ~ConsensusEngine() override;
 
     ConsensusEngine( ConsensusExtFace& _extFace, uint64_t _lastCommittedBlockID,
-        uint64_t _lastCommittedBlockTimeStamp,uint64_t _lastCommittedBlockTimeStampMs,
-        uint64_t _totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT);
+        uint64_t _lastCommittedBlockTimeStamp, uint64_t _lastCommittedBlockTimeStampMs,
+        map< string, uint64_t > _patchTimestamps,
+        uint64_t _totalStorageLimitBytes = DEFAULT_DB_STORAGE_LIMIT );
 
     [[nodiscard]] ConsensusExtFace* getExtFace() const;
 
@@ -219,19 +226,24 @@ public:
     [[nodiscard]] uint64_t getEngineID() const;
 
 
+    // If starting from a snapshot, start all will pass to consensus the last comitted
+    // block coming from the snapshot
     void startAll() override;
 
-    void parseFullConfigAndCreateNode( const string& fullPathToConfigFile, const string& _gethURL) override;
+    void parseFullConfigAndCreateNode(
+        const string& fullPathToConfigFile, const string& _gethURL ) override;
 
     // used for standalone debugging
 
-    void parseTestConfigsAndCreateAllNodes( const fs_path& dirname, bool _useBlockIDFromConsensus = false) ;
+    void parseTestConfigsAndCreateAllNodes(
+        const fs_path& dirname, bool _useBlockIDFromConsensus = false );
 
-    void exitGracefullyBlocking();
-
-    void exitGracefullyAsync();
 
     virtual void exitGracefully() override;
+
+
+    // used in tests
+    void testExitGracefullyBlocking();
 
     /* consensus status for now can be CONSENSUS_ACTIVE and CONSENSUS_EXITED */
     virtual consensus_engine_status getStatus() const override;
@@ -257,40 +269,41 @@ public:
 
     u256 getRandomForBlockId( uint64_t _blockId ) const override;
 
+    map< string, uint64_t > getConsensusDbUsage() const override;
+
     void systemHealthCheck();
 
     static string getEngineVersion();
 
     [[nodiscard]] ptr< GlobalThreadRegistry > getThreadRegistry() const;
 
-    void setTestKeys( string _serverURL, string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
+    void setTestKeys(
+        string _serverURL, string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
 
-    void setSGXKeyInfo(const string& _sgxServerURL,
-        string& _sgxSSLKeyFileFullPath,
-        string& _sgxSSLCertFileFullPath,
-        string& _ecdsaKeyName,
-        string& _blsKeyName);
+    void setSGXKeyInfo( const string& _sgxServerURL, string& _sgxSSLKeyFileFullPath,
+        string& _sgxSSLCertFileFullPath, string& _ecdsaKeyName, string& _blsKeyName );
 
-    void setPublicKeyInfo(
-                       ptr<vector<string>>& _ecdsaPublicKeys,
-            // array of BLS public key shares of all nodes, including this node
-            // each BLS public key share is a vector of 4 strings.
-                       ptr<vector<ptr<vector<string>>>>& _blsPublicKeyShares,
-                       uint64_t _requiredSigners,
-                       uint64_t _totalSigners);
+    void setPublicKeyInfo( ptr< vector< string > >& _ecdsaPublicKeys,
+        // array of BLS public key shares of all nodes, including this node
+        // each BLS public key share is a vector of 4 strings.
+        ptr< vector< ptr< vector< string > > > >& _blsPublicKeyShares, uint64_t _requiredSigners,
+        uint64_t _totalSigners );
 
 
-    void setRotationHistory(ptr<map<uint64_t, vector<string>>> _previousBLSKeys,
-                            ptr<map<uint64_t, string>> _historicECDSAKeys,
-                            ptr<map<uint64_t, vector<uint64_t>>>  _historicNodeGroups);
+    void setRotationHistory( ptr< map< uint64_t, vector< string > > > _previousBLSKeys,
+        ptr< map< uint64_t, string > > _historicECDSAKeys,
+        ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups );
 
     [[nodiscard]] uint64_t getTotalStorageLimitBytes() const;
 
     static int getOpenDescriptors();
 
-    uint64_t submitOracleRequest(const string& _spec, string &_receipt) override;
+    uint64_t submitOracleRequest(
+        const string& _spec, string& _receipt, string& _errorMessage ) override;
 
 
-    uint64_t  checkOracleResult(const string& _receipt, string& _result) override;
+    uint64_t checkOracleResult( const string& _receipt, string& _result ) override;
 
+
+    std::shared_ptr< std::vector< std::uint8_t > > getSerializedBlock( std::uint64_t _blockNumber );
 };

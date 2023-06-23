@@ -30,35 +30,28 @@
 #include "ListOfHashes.h"
 
 
-
-
 BLAKE3Hash ListOfHashes::calculateTopMerkleRoot() {
+    LOCK( m )
 
-    LOCK(m)
+    CHECK_STATE( hashCount() > 0 );
 
-    CHECK_STATE(hashCount() > 0);
+    vector< BLAKE3Hash > hashes;
+    hashes.reserve( hashCount() + 1 );
 
-    vector<BLAKE3Hash> hashes;
-    hashes.reserve(hashCount() + 1);
-
-    for (uint64_t i = 0; i < hashCount(); i++) {
-        hashes.push_back(getHash(i));
+    for ( uint64_t i = 0; i < hashCount(); i++ ) {
+        hashes.push_back( getHash( i ) );
     }
 
-    while (hashes.size() > 1) {
+    while ( hashes.size() > 1 ) {
+        if ( hashes.size() % 2 == 1 )
+            hashes.push_back( hashes.back() );
 
-        if (hashes.size() % 2 == 1)
-            hashes.push_back(hashes.back());
-
-        for (uint64_t j = 0; j < hashes.size() / 2; j++) {
-            hashes[j] = BLAKE3Hash::merkleTreeMerge(hashes[2 * j], hashes[2 * j + 1]);
+        for ( uint64_t j = 0; j < hashes.size() / 2; j++ ) {
+            hashes[j] = BLAKE3Hash::merkleTreeMerge( hashes[2 * j], hashes[2 * j + 1] );
         }
 
-        hashes.resize(hashes.size() / 2);
+        hashes.resize( hashes.size() / 2 );
     }
 
     return hashes.front();
-
 }
-
-

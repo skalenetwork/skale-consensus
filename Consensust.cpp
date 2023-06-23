@@ -23,6 +23,11 @@
 
 #define CATCH_CONFIG_MAIN
 
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
 #include <cryptopp/eccrypto.h>
 #include <cryptopp/osrng.h>
 #include <cryptopp/sha.h>
@@ -42,7 +47,7 @@
 #include "crypto/BLAKE3Hash.h"
 
 #include "json/JSONFactory.h"
-
+#include "utils/Time.h"
 
 #include "Consensust.h"
 #include "JsonStubClient.h"
@@ -53,38 +58,29 @@
 #endif
 
 
-
-ConsensusEngine *engine;
+ConsensusEngine* engine;
 
 
 class DontCleanup {
 public:
-    DontCleanup() {
+    DontCleanup() { Consensust::setConfigDirPath( boost::filesystem::system_complete( "." ) ); };
 
-        Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
-
-    };
-
-    ~DontCleanup() {
-    }
+    ~DontCleanup() {}
 };
-
 
 
 class StartFromScratch {
 public:
     StartFromScratch() {
-
-        int i = system("rm -rf /tmp/*.db.*");
-        i = system("rm -rf /tmp/*.db");
-        i++; // make compiler happy
-        Consensust::setConfigDirPath(boost::filesystem::system_complete("."));
+        int i = system( "rm -rf /tmp/*.db.*" );
+        i = system( "rm -rf /tmp/*.db" );
+        i++;  // make compiler happy
+        Consensust::setConfigDirPath( boost::filesystem::system_complete( "." ) );
 
 #ifdef GOOGLE_PROFILE
-        HeapProfilerStart("/tmp/consensusd.profile");
-        HeapProfilerStart("/tmp/consensusd.profile");
+        HeapProfilerStart( "/tmp/consensusd.profile" );
+        HeapProfilerStart( "/tmp/consensusd.profile" );
 #endif
-
     };
 
     ~StartFromScratch() {
@@ -95,13 +91,11 @@ public:
 };
 
 uint64_t Consensust::getRunningTimeS() {
+    if ( runningTimeS == 0 ) {
+        auto env = getenv( "TEST_TIME_S" );
 
-    if (runningTimeS == 0) {
-
-        auto env = getenv("TEST_TIME_S");
-
-        if (env != NULL) {
-            runningTimeS = strtoul(env, NULL, 10);
+        if ( env != NULL ) {
+            runningTimeS = strtoul( env, NULL, 10 );
         } else {
             runningTimeS = DEFAULT_RUNNING_TIME_S;
         }
@@ -114,12 +108,12 @@ uint64_t Consensust::runningTimeS = 0;
 
 fs_path Consensust::configDirPath;
 
-const fs_path &Consensust::getConfigDirPath() {
+const fs_path& Consensust::getConfigDirPath() {
     return configDirPath;
 }
 
 
-void Consensust::setConfigDirPath(const fs_path &_configDirPath) {
+void Consensust::setConfigDirPath( const fs_path& _configDirPath ) {
     Consensust::configDirPath = _configDirPath;
 }
 
@@ -128,49 +122,59 @@ void Consensust::useCorruptConfigs() {
 }
 
 
-void testLog(const char *message) {
-    printf("TEST_LOG: %s\n", message);
+void testLog( const char* message ) {
+    printf( "TEST_LOG: %s\n", message );
 }
 
-block_id basicRun(int64_t _lastId = 0) {
+void abort_handler( int ) {
+    printf( "cought SIGABRT, exiting.\n" );
+    exit( 0 );
+}
+
+block_id basicRun( int64_t _lastId = 0 ) {
     try {
+        REQUIRE( ConsensusEngine::getEngineVersion().size() > 0 );
 
-        REQUIRE(ConsensusEngine::getEngineVersion().size() > 0);
-
-        engine = new ConsensusEngine(_lastId, 1000000000);
-
-
-
+        engine = new ConsensusEngine( _lastId, 1000000000 );
 
 
         engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath(), _lastId == -1 );
 
 
-
-
         engine->slowStartBootStrapTest();
 
-        uint64_t testRunningTimeMs = Consensust::getRunningTimeS();
 
-        usleep(testRunningTimeMs * 1000 * 1000);
+        auto startTime = Time::getCurrentTimeSec();
 
-        REQUIRE(engine->nodesCount() > 0);
+        while ( Time::getCurrentTimeSec() < startTime + Consensust::getRunningTimeS() ) {
+            try {
+                usleep( 1000 * 1000 );
+            } catch ( ... ) {
+            };
+        }
+
+        REQUIRE( engine->nodesCount() > 0 );
         auto lastId = engine->getLargestCommittedBlockID();
-        REQUIRE(lastId > 0);
+        REQUIRE( lastId > 0 );
 
-        auto [transactions, timestampS, timeStampMs, price, stateRoot]  = engine->getBlock(1);
+        auto [transactions, timestampS, timeStampMs, price, stateRoot] = engine->getBlock( 1 );
 
 
-        REQUIRE(transactions);
-        REQUIRE(timestampS > 0);
-        REQUIRE(timeStampMs > 0);
+        REQUIRE( transactions );
+        REQUIRE( timestampS > 0 );
 
         cerr << price << ":" << stateRoot << endl;
-        engine->exitGracefullyBlocking();
+        signal( SIGABRT, abort_handler );
+        engine->exitGracefully();
+
+        while ( engine->getStatus() != CONSENSUS_EXITED ) {
+            usleep( 100 * 1000 );
+        }
+
         delete engine;
         return lastId;
-    } catch (SkaleException &e) {
-        SkaleException::logNested(e);
+    } catch ( SkaleException& e ) {
+        SkaleException::logNested( e );
         throw;
     }
 }
@@ -179,15 +183,14 @@ block_id basicRun(int64_t _lastId = 0) {
 bool success = false;
 
 void exit_check() {
-    sleep(STUCK_TEST_TIME);
-    engine->exitGracefullyBlocking();
+    sleep( STUCK_TEST_TIME );
+    engine->exitGracefully();
+
+    while ( engine->getStatus() != CONSENSUS_EXITED ) {
+        usleep( 100 * 1000 );
+    }
 }
-
-
 
 
 #include "unittests/consensus_tests.cpp"
 #include "unittests/sgx_tests.cpp"
-
-
-

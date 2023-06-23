@@ -37,37 +37,34 @@
 
 #include "utils/Time.h"
 
-TimeoutAgent::TimeoutAgent(Schain &_sChain) : Agent(_sChain, false, true) {
+TimeoutAgent::TimeoutAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
-        this->timeoutThreadPool = make_shared<TimeoutThreadPool>(1, this);
+        this->timeoutThreadPool = make_shared< TimeoutThreadPool >( 1, this );
         timeoutThreadPool->startService();
 
-    } catch (...) {
-        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 
-void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
+void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
+    CHECK_ARGUMENT( _agent );
 
-
-    CHECK_ARGUMENT(_agent);
-
-    setThreadName("TimeoutLoop", _agent->getSchain()->getNode()->getConsensusEngine());
+    setThreadName( "TimeoutLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
-    if( _agent->getSchain()->getNode()->isExitRequested() )
+    if ( _agent->getSchain()->getNode()->isExitRequested() )
         return;
 
-    LOG(info, "Timeout agent started monitoring");
+    LOG( info, "Timeout agent started monitoring" );
 
-    uint64_t blockProcessingStart = max(_agent->getSchain()->getLastCommitTimeMs(),
-                                                           _agent->getSchain()->getStartTimeMs());
+    uint64_t blockProcessingStart =
+        max( _agent->getSchain()->getLastCommitTimeMs(), _agent->getSchain()->getStartTimeMs() );
 
-    if( blockProcessingStart == 0)
+    if ( blockProcessingStart == 0 )
         blockProcessingStart = Time::getCurrentTimeMs();
 
     uint64_t lastRebroadCastTime = blockProcessingStart;
@@ -75,28 +72,26 @@ void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
     bool proposalReceiptTimedOut = false;
 
     try {
-        while (!_agent->getSchain()->getNode()->isExitRequested()) {
-
-            usleep(_agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000);
+        while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
+            usleep( _agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000 );
 
             try {
-
                 auto currentBlockId = _agent->getSchain()->getLastCommittedBlockID() + 1;
                 auto currentTime = Time::getCurrentTimeMs();
 
-                auto timeZero = max(_agent->getSchain()->getLastCommitTimeMs(),
-                                    _agent->getSchain()->getStartTimeMs());
+                auto timeZero = max( _agent->getSchain()->getLastCommitTimeMs(),
+                    _agent->getSchain()->getStartTimeMs() );
 
                 blockProcessingStart = timeZero;
 
-                lastRebroadCastTime = max(lastRebroadCastTime, timeZero);
+                lastRebroadCastTime = max( lastRebroadCastTime, timeZero );
 
-                if (_agent->getSchain()->getNodeCount() > 2) {
-
+                if ( _agent->getSchain()->getNodeCount() > 2 ) {
                     if ( currentTime - blockProcessingStart <= BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS )
                         proposalReceiptTimedOut = false;
 
-                    if ( !proposalReceiptTimedOut && currentBlockId > 2 && currentTime - blockProcessingStart > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
+                    if ( !proposalReceiptTimedOut && currentBlockId > 2 &&
+                         currentTime - blockProcessingStart > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
                         try {
                             _agent->getSchain()->blockProposalReceiptTimeoutArrived(
                                 currentBlockId );
@@ -105,20 +100,21 @@ void TimeoutAgent::timeoutLoop(TimeoutAgent *_agent) {
                         }
                     }
 
-                    if ( currentBlockId > 2 && currentTime - lastRebroadCastTime > REBROADCAST_TIMEOUT_MS) {
+                    if ( currentBlockId > 2 &&
+                         currentTime - lastRebroadCastTime > REBROADCAST_TIMEOUT_MS ) {
                         _agent->getSchain()->rebroadcastAllMessagesForCurrentBlock();
                         lastRebroadCastTime = currentTime;
                     }
                 }
-            } catch (ExitRequestedException &) {
+            } catch ( ExitRequestedException& ) {
                 return;
-            } catch (exception &e) {
-                SkaleException::logNested(e);
+            } catch ( exception& e ) {
+                SkaleException::logNested( e );
             }
         };
-    } catch (FatalError& e) {
-        SkaleException::logNested(e);
-        _agent->getSchain()->getNode()->exitOnFatalError(e.what());
+    } catch ( FatalError& e ) {
+        SkaleException::logNested( e );
+        _agent->getSchain()->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 

@@ -51,7 +51,7 @@ static string dummy_string( "" );
 
 ConsensusBLSSignature::ConsensusBLSSignature( const ptr< BLSSignature >& _blsSig, block_id _blockID,
     size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ), blsSig(_blsSig) {
+    : ThresholdSignature( _blockID, _totalSigners, _requiredSigners ), blsSig( _blsSig ) {
     CHECK_ARGUMENT( _blsSig );
 }
 

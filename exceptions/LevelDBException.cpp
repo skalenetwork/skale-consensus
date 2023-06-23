@@ -27,7 +27,5 @@
 #include "LevelDBException.h"
 
 
-
-LevelDBException::LevelDBException(const string &_message, const string &_className) :
-       SkaleException("LevelDB:" + _message, _className) {}
-
+LevelDBException::LevelDBException( const string& _message, const string& _className )
+    : SkaleException( "LevelDB:" + _message, _className ) {}

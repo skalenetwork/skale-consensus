@@ -28,13 +28,12 @@
 #include "ChildBVDecidedMessage.h"
 
 
-
 using namespace std;
 
-ChildBVDecidedMessage::ChildBVDecidedMessage(bool _value, ProtocolInstance &_srcProtocolInstance,
-                                             const ptr<ProtocolKey>& _key, bin_consensus_round _round,
-                                             uint64_t _maxProcessingTimeMs, uint64_t _maxLatencyTimeMs) : ChildMessage(BIN_CONSENSUS_COMMIT,
-                                                                                           _srcProtocolInstance, _key) {
+ChildBVDecidedMessage::ChildBVDecidedMessage( bool _value, ProtocolInstance& _srcProtocolInstance,
+    const ptr< ProtocolKey >& _key, bin_consensus_round _round, uint64_t _maxProcessingTimeMs,
+    uint64_t _maxLatencyTimeMs )
+    : ChildMessage( BIN_CONSENSUS_COMMIT, _srcProtocolInstance, _key ) {
     this->value = _value;
     this->round = _round;
     this->maxProcessingTimeMs = _maxProcessingTimeMs;

@@ -38,8 +38,7 @@
 #define NID_FAST NID_X9_62_prime256v1
 #define NID_ETH NID_secp256k1
 
-OpenSSLEdDSAKey::OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate )
-    : isPrivate( _isPrivate )  {
+OpenSSLEdDSAKey::OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate ) : isPrivate( _isPrivate ) {
     CHECK_STATE( _edKey );
 
     this->edKey = _edKey;
@@ -52,15 +51,12 @@ OpenSSLEdDSAKey::~OpenSSLEdDSAKey() {
 
 
 ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::generateKey() {
-
     EVP_PKEY* edkey = nullptr;
 
     edkey = genFastKeyImpl();
 
-    return make_shared< OpenSSLEdDSAKey >(edkey, true);
+    return make_shared< OpenSSLEdDSAKey >( edkey, true );
 }
-
-
 
 
 EVP_PKEY* OpenSSLEdDSAKey::genFastKeyImpl() {
@@ -145,10 +141,9 @@ string OpenSSLEdDSAKey::fastSignImpl( const char* _hash ) {
     return encodedSignature;
 }
 
-EVP_PKEY* OpenSSLEdDSAKey::deserializeFastPubKey(const string& encodedPubKeyStr ) {
-
+EVP_PKEY* OpenSSLEdDSAKey::deserializeFastPubKey( const string& encodedPubKeyStr ) {
     EVP_PKEY* pubKey = nullptr;
-    BIO * encodedPubKeyBio = nullptr;
+    BIO* encodedPubKeyBio = nullptr;
 
     try {
         CHECK_STATE( !encodedPubKeyStr.empty() );
@@ -161,27 +156,27 @@ EVP_PKEY* OpenSSLEdDSAKey::deserializeFastPubKey(const string& encodedPubKeyStr 
 
         CHECK_STATE( pubKey );
 
-    } catch (...) {
-        if (encodedPubKeyBio) {
-            BIO_free(encodedPubKeyBio);
+    } catch ( ... ) {
+        if ( encodedPubKeyBio ) {
+            BIO_free( encodedPubKeyBio );
         }
         throw;
     }
 
-    if (encodedPubKeyBio) {
-        BIO_free(encodedPubKeyBio);
+    if ( encodedPubKeyBio ) {
+        BIO_free( encodedPubKeyBio );
     }
 
     return pubKey;
 }
 
 string OpenSSLEdDSAKey::serializePubKey() const {
-    BIO * bio = nullptr;
+    BIO* bio = nullptr;
     string result;
     try {
         bio = BIO_new( BIO_s_mem() );
         CHECK_STATE( bio );
-        CHECK_STATE(edKey);
+        CHECK_STATE( edKey );
         CHECK_STATE( PEM_write_bio_PUBKEY( bio, edKey ) );
 
         char* encodedPubKey = nullptr;
@@ -190,15 +185,15 @@ string OpenSSLEdDSAKey::serializePubKey() const {
         CHECK_STATE( pubKeyEncodedLen > 10 );
         result = string( encodedPubKey, pubKeyEncodedLen );
 
-    } catch (...) {
-        if (bio) {
-            BIO_free(bio);
+    } catch ( ... ) {
+        if ( bio ) {
+            BIO_free( bio );
         }
         throw;
     }
 
-    if (bio) {
-        BIO_free(bio);
+    if ( bio ) {
+        BIO_free( bio );
     }
     return result;
 }
@@ -206,10 +201,9 @@ string OpenSSLEdDSAKey::serializePubKey() const {
 void OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _hash ) const {
     CHECK_STATE( _hash );
 
-    EVP_MD_CTX *  verifyCtx = nullptr;
+    EVP_MD_CTX* verifyCtx = nullptr;
 
     try {
-
         verifyCtx = EVP_MD_CTX_new();
 
         vector< unsigned char > decodedSig( _encodedSignature.size(), 0 );
@@ -223,7 +217,6 @@ void OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _h
         CHECK_STATE( decodedLen >= 64 )
 
 
-
         CHECK_STATE( verifyCtx );
 
         CHECK_STATE( EVP_DigestVerifyInit( verifyCtx, NULL, NULL, NULL, edKey ) > 0 )
@@ -231,17 +224,20 @@ void OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _h
         CHECK_STATE( EVP_DigestVerify( verifyCtx, decodedSig.data(), 64,
                          ( const unsigned char* ) _hash, 32 ) == 1 );
 
-    } catch (...) {
-        if (verifyCtx) {
-            EVP_MD_CTX_free(verifyCtx);
+    } catch ( ... ) {
+        if ( verifyCtx ) {
+            EVP_MD_CTX_free( verifyCtx );
         }
-        throw_with_nested(InvalidStateException(__FUNCTION__ , __CLASS_NAME__));
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 
+
+    if ( verifyCtx )
+        EVP_MD_CTX_free( verifyCtx );
 }
 
 
-ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::importPubKey( const string& _publicKey) {
-    auto  pubKey = deserializeFastPubKey( _publicKey );
+ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::importPubKey( const string& _publicKey ) {
+    auto pubKey = deserializeFastPubKey( _publicKey );
     return make_shared< OpenSSLEdDSAKey >( pubKey, false );
 }

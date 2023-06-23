@@ -26,25 +26,21 @@
 #define SKALED_VERSIONUPDATEHISTORY_H
 
 
-
 /**
  * History of consensus version updates
  */
 class VersionUpdateHistory {
-
-    vector<string> history;
+    vector< string > history;
 
 public:
+    explicit VersionUpdateHistory( string& _serializedVersionUpdateHistory );
 
-    explicit VersionUpdateHistory(string& _serializedVersionUpdateHistory);
-    
     recursive_mutex m;
 
     const string serialize();
 
-    const vector<string> &getHistory() const;
-
+    const vector< string >& getHistory() const;
 };
 
 
-#endif //SKALED_VERSIONUPDATEHISTORY_H
+#endif  // SKALED_VERSIONUPDATEHISTORY_H

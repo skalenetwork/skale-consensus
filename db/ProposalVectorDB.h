@@ -23,7 +23,7 @@
 
 
 #ifndef SKALED_PROPOSAL_VECTOR_DB_H
-#define SKALED_PROPOSAL_VECTOR_DB_
+#define SKALED_PROPOSAL_VECTOR_DB_H
 
 
 #include "CacheLevelDB.h"
@@ -32,19 +32,19 @@ class CryptoManager;
 class BooleanProposalVector;
 
 class ProposalVectorDB : public CacheLevelDB {
-
     recursive_mutex m;
 
 public:
+    ProposalVectorDB(
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    ProposalVectorDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
+    bool trySavingProposalVector(
+        block_id _proposalBlockID, const ptr< BooleanProposalVector >& _proposalVector );
 
-    bool trySavingProposalVector(block_id _proposalBlockID, const ptr<BooleanProposalVector>& _proposalVector);
+    ptr< BooleanProposalVector > getVector( block_id _blockID );
 
-    ptr<BooleanProposalVector> getVector(block_id _blockID);
-
-    const string& getFormatVersion() override ;
+    const string& getFormatVersion() override;
 };
 
 
-#endif //SKALED_PROPOSAL_VECTOR_DB_H
+#endif  // SKALED_PROPOSAL_VECTOR_DB_H

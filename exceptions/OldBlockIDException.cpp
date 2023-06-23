@@ -20,4 +20,3 @@
     @author Stan Kladko
     @date 2018
 */
-

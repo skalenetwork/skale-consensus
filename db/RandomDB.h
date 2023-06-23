@@ -29,20 +29,19 @@
 #include "CacheLevelDB.h"
 
 class RandomDB : public CacheLevelDB {
-
 public:
+    RandomDB(
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    RandomDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize);
-
-    uint64_t
-    readRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round);
+    uint64_t readRandom( const block_id& _blockId, const schain_index& _proposerIndex,
+        const bin_consensus_round& _round );
 
 
-    void writeRandom(const block_id &_blockId, const schain_index &_proposerIndex, const bin_consensus_round &_round,
-                     uint64_t _random);
+    void writeRandom( const block_id& _blockId, const schain_index& _proposerIndex,
+        const bin_consensus_round& _round, uint64_t _random );
 
     const string& getFormatVersion() override;
 };
 
 
-#endif //SKALED_RANDOMDB_H
+#endif  // SKALED_RANDOMDB_H

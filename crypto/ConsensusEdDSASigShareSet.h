@@ -31,24 +31,23 @@ class PartialHashesList;
 class Schain;
 class ConsensusEdDSASigShare;
 class ConsensusEdDSASignature;
-class  BLAKE3Hash;
+class BLAKE3Hash;
 
 class ConsensusEdDSASigShareSet : public ThresholdSigShareSet {
-
     schain_id schainId;
-    map<uint64_t, string> edDSASet; // thread-safe
+    uint64_t timestamp;
+    map< uint64_t, string > edDSASet;  // thread-safe
     recursive_mutex edDSASetLock;
 
 public:
-    ConsensusEdDSASigShareSet(schain_id _schainId, block_id _blockId, size_t _totalSigners, size_t _requiredSigners );
+    ConsensusEdDSASigShareSet( schain_id _schainId, block_id _blockId, uint64_t _timestamp,
+        size_t _totalSigners, size_t _requiredSigners );
 
-    ptr<ThresholdSignature> mergeSignature() override;
+    ptr< ThresholdSignature > mergeSignature() override;
 
-    bool addSigShare(const ptr<ThresholdSigShare>& _sigShare) override;
+    bool addSigShare( const ptr< ThresholdSigShare >& _sigShare ) override;
 
     bool isEnough() override;
 
     ~ConsensusEdDSASigShareSet() override;
-
-
 };

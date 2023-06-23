@@ -31,9 +31,9 @@
 #include "CommittedTransactionDB.h"
 
 
-CommittedTransactionDB::CommittedTransactionDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-                                               uint64_t _maxDBSize) : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId,
-                                                                                   _maxDBSize, false) {}
+CommittedTransactionDB::CommittedTransactionDB( Schain* _sChain, string& _dirName, string& _prefix,
+    node_id _nodeId, uint64_t _maxDBSize, leveldb::Options& _options )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize, _options, false ) {}
 
 
 const string& CommittedTransactionDB::getFormatVersion() {
@@ -42,18 +42,18 @@ const string& CommittedTransactionDB::getFormatVersion() {
 }
 
 
-void CommittedTransactionDB::writeCommittedTransaction(const ptr<Transaction>& _t, __uint64_t _committedTransactionCounter) {
-
-    CHECK_ARGUMENT(_t)
+void CommittedTransactionDB::writeCommittedTransaction(
+    const ptr< Transaction >& _t, __uint64_t _committedTransactionCounter ) {
+    CHECK_ARGUMENT( _t )
     auto hash = _t->getPartialHash();
-    CHECK_STATE(hash)
-    auto key = (const char *) hash->data();
+    CHECK_STATE( hash )
+    auto key = ( const char* ) hash->data();
     auto keyLen = PARTIAL_HASH_LEN;
-    auto value = (const char *) &_committedTransactionCounter;
-    auto valueLen = sizeof(_committedTransactionCounter);
-    writeByteArray(key, keyLen, value, valueLen);
+    auto value = ( const char* ) &_committedTransactionCounter;
+    auto valueLen = sizeof( _committedTransactionCounter );
+    writeByteArray( key, keyLen, value, valueLen );
 
     static auto key1 = getFormatVersion() + ":transactions";
-    auto value1 = to_string(_committedTransactionCounter);
-    writeString(key1, value1);
+    auto value1 = to_string( _committedTransactionCounter );
+    writeString( key1, value1 );
 }

@@ -28,7 +28,7 @@ namespace cache {
     template<typename key_t, typename value_t>
     class lru_cache {
 
-        std::recursive_mutex m;
+        std::shared_mutex m;
 
     public:
         typedef typename std::pair<key_t, value_t> key_value_pair_t;
@@ -40,9 +40,9 @@ namespace cache {
 
 
         bool putIfDoesNotExist(const key_t& key, const value_t& value) {
-            LOCK(m);
-            if (!exists(key)) {
-                put( key, value );
+            WRITE_LOCK(m)
+            if (!existsUnsafe(key)) {
+                putUnsafe( key, value );
                 return true;
             } else {
                 return false;
@@ -50,8 +50,60 @@ namespace cache {
         }
 
         void put(const key_t& key, const value_t& value) {
+            WRITE_LOCK(m)
+            putUnsafe(key, value);
+        }
 
-            LOCK(m);
+
+        const value_t& get(const key_t& key) {
+
+            READ_LOCK(m);
+
+            auto it = _cache_items_map.find(key);
+            if (it == _cache_items_map.end()) {
+                throw std::range_error("There is no such key in cache");
+            } else {
+                _cache_items_list.splice(_cache_items_list.begin(), _cache_items_list, it->second);
+                return it->second->second;
+            }
+        }
+
+
+        const std::any getIfExists(const key_t& key) {
+
+            READ_LOCK(m);
+
+            auto it = _cache_items_map.find(key);
+            if (it == _cache_items_map.end()) {
+                return std::any();
+            } else {
+                _cache_items_list.splice(_cache_items_list.begin(), _cache_items_list, it->second);
+                return it->second->second;
+            }
+        }
+
+
+        bool exists(const key_t& key)  {
+            READ_LOCK(m);
+            return existsUnsafe(key);
+        }
+
+
+        size_t size()  {
+            READ_LOCK(m);
+            return _cache_items_map.size();
+        }
+
+    private:
+        std::list<key_value_pair_t> _cache_items_list;
+        std::unordered_map<key_t, list_iterator_t> _cache_items_map;
+        size_t _max_size;
+
+        bool existsUnsafe(const key_t& key)  {
+            return _cache_items_map.find(key) != _cache_items_map.end();
+        }
+
+        void putUnsafe(const key_t& key, const value_t& value) {
 
             auto it = _cache_items_map.find(key);
             _cache_items_list.push_front(key_value_pair_t(key, value));
@@ -69,55 +121,6 @@ namespace cache {
             }
         }
 
-
-
-
-        const value_t& get(const key_t& key) {
-
-            LOCK(m);
-
-            auto it = _cache_items_map.find(key);
-            if (it == _cache_items_map.end()) {
-                throw std::range_error("There is no such key in cache");
-            } else {
-                _cache_items_list.splice(_cache_items_list.begin(), _cache_items_list, it->second);
-                return it->second->second;
-            }
-        }
-
-
-
-
-        const std::any getIfExists(const key_t& key) {
-
-            LOCK(m);
-
-            auto it = _cache_items_map.find(key);
-            if (it == _cache_items_map.end()) {
-                return std::any();
-            } else {
-                _cache_items_list.splice(_cache_items_list.begin(), _cache_items_list, it->second);
-                return it->second->second;
-            }
-        }
-
-
-        bool exists(const key_t& key)  {
-
-            LOCK(m);
-
-            return _cache_items_map.find(key) != _cache_items_map.end();
-        }
-
-        size_t size() const {
-            LOCK(m);
-            return _cache_items_map.size();
-        }
-
-    private:
-        std::list<key_value_pair_t> _cache_items_list;
-        std::unordered_map<key_t, list_iterator_t> _cache_items_map;
-        size_t _max_size;
     };
 
 } // namespace cache

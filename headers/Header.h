@@ -24,42 +24,32 @@
 #pragma once
 
 
-
-
-
-
 class Buffer;
 class ServerConnection;
-class  BLAKE3Hash;
+class BLAKE3Hash;
 
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "BasicHeader.h"
 
 
-
 class Header : public BasicHeader {
-
 private:
-
     ConnectionStatus status = CONNECTION_ERROR;
     ConnectionSubStatus substatus = CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
 
 public:
-
-    explicit Header(const char *_type);
+    explicit Header( const char* _type );
 
     ~Header() override;
 
-    void addFields(nlohmann::json & j) override;
+    void addFields( nlohmann::json& j ) override;
 
-    pair<ConnectionStatus, ConnectionSubStatus> getStatusSubStatus() { return {status,
-                                                                          substatus};};
+    pair< ConnectionStatus, ConnectionSubStatus > getStatusSubStatus() {
+        return { status, substatus };
+    };
 
     void setStatusSubStatus( ConnectionStatus _status, ConnectionSubStatus _substatus ) {
         this->status = _status;
         this->substatus = _substatus;
     }
 };
-
-
-

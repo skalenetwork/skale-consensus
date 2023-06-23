@@ -28,11 +28,8 @@
 #include "threads/WorkerThreadPool.h"
 
 class CatchupClientThreadPool : public WorkerThreadPool {
-
 public:
+    CatchupClientThreadPool( num_threads numThreads, Agent* _agent );
 
-    CatchupClientThreadPool(num_threads numThreads, Agent *_agent);
-
-    void createThread(uint64_t number) override;
-
+    void createThread( uint64_t number ) override;
 };

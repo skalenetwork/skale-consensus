@@ -21,219 +21,237 @@
     @date 2021-
 */
 
-#include "SkaleCommon.h"
+
 #include "Log.h"
+
+#include "OracleClient.h"
+#include "OracleErrors.h"
+#include "OracleReceivedResults.h"
+#include "OracleRequestBroadcastMessage.h"
+#include "OracleRequestSpec.h"
+#include "OracleResponseMessage.h"
+#include "OracleResult.h"
+#include "SkaleCommon.h"
 #include "chains/Schain.h"
-#include "node/Node.h"
 #include "messages/MessageEnvelope.h"
 #include "network/Network.h"
-#include "OracleResponseMessage.h"
-#include "utils/Time.h"
+#include "node/Node.h"
 #include "protocols/ProtocolInstance.h"
-#include "OracleRequestSpec.h"
-#include "OracleResult.h"
-#include "OracleReceivedResults.h"
-#include "OracleErrors.h"
-#include "OracleRequestBroadcastMessage.h"
-#include "OracleClient.h"
+#include "utils/Time.h"
+#include "exceptions/OracleException.h"
 
 
-OracleClient::OracleClient(Schain &_sChain) : ProtocolInstance(ORACLE, _sChain), sChain(&_sChain),
-                                              receiptsMap(ORACLE_RECEIPTS_MAP_SIZE) {
-
+OracleClient::OracleClient( Schain& _sChain )
+    : ProtocolInstance( ORACLE, _sChain ),
+      sChain( &_sChain ),
+      receiptsMap( ORACLE_RECEIPTS_MAP_SIZE ) {
     gethURL = getSchain()->getNode()->getGethUrl();
 
-    if (gethURL.empty()) {
-        LOG(err, "Consensus initialized with empty gethURL. Geth-related Oracle functions will be disabled");
+    if ( gethURL.empty() ) {
+        LOG( err,
+            "Consensus initialized with empty gethURL. Geth-related Oracle functions will be "
+            "disabled" );
     }
 }
 
-uint64_t OracleClient::broadcastRequest(ptr<OracleRequestBroadcastMessage> _msg) {
-
+uint64_t OracleClient::broadcastRequest( ptr< OracleRequestBroadcastMessage > _msg ) {
     try {
-
-        CHECK_STATE(_msg)
-        CHECK_STATE(sChain)
+        CHECK_STATE( _msg )
+        CHECK_STATE( sChain )
 
 
         auto receipt = _msg->getParsedSpec()->getReceipt();
 
 
-        auto results = make_shared<OracleReceivedResults>(
-                _msg->getParsedSpec(), getSchain()->getRequiredSigners(),
-                (uint64_t) getSchain()->getNodeCount(), getSchain()->getNode()->isSgxEnabled());
+        auto results = make_shared< OracleReceivedResults >( _msg->getParsedSpec(),
+            getSchain()->getRequiredSigners(), ( uint64_t ) getSchain()->getNodeCount(),
+            getSchain()->getNode()->isSgxEnabled() );
 
-        auto exists = receiptsMap.putIfDoesNotExist(receipt,
-                                                    results);
+        auto exists = receiptsMap.putIfDoesNotExist( receipt, results );
 
-        if (!exists) {
-            LOG(err, "Request exists:" + receipt);
+        if ( !exists ) {
+            LOG( err, "Request exists:" + receipt );
             return ORACLE_DUPLICATE_REQUEST;
         }
 
-        LOCK(m);
+        LOCK( m );
 
-        sChain->getNode()->getNetwork()->broadcastOracleRequestMessage(_msg);
+        sChain->getNode()->getNetwork()->broadcastOracleRequestMessage( _msg );
 
         return ORACLE_SUCCESS;
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
 
-
-void OracleClient::sendTestRequestGet() {
-
-
-    string uri = "http://worldtimeapi.org/api/timezone/Europe/Kiev";
-    vector<string> jsps{"/unixtime", "/day_of_year", "/xxx"};
-    vector<uint64_t> trims{1, 1, 1};
-    string encoding = "rlp";
-    string post = "";
-
-    sendRequestAndWaitForResult(uri, jsps, trims, post, encoding);
-}
-
-
-void OracleClient::sendTestRequestPost() {
+void OracleClient::sendTestRequestAndWaitForResult( ptr< OracleRequestSpec > _spec ) {
+    CHECK_STATE( _spec );
 
     try {
-
-        if (getSchain()->getSchainIndex() != 1) {
-            return;
-        }
-
-        string _receipt;
-        string uri = "https://reqres.in/api/users";
-        vector<string> jsps = {"/id"};
-        string post = "haha";
-        string encoding = "rlp";
-
-        sendRequestAndWaitForResult(uri, jsps, {}, post, encoding);
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
-
-void OracleClient::sendRequestAndWaitForResult(string &_uri,
-                                               const vector<string> &_jsps,
-                                               const vector<uint64_t> &_trims,
-                                               string &_post,
-                                               string &_encoding) {
-
-
-    try {
-
-        auto _cid = (uint64_t) getSchain()->getSchainID();
-
         string _receipt;
 
 
-        auto time = Time::getCurrentTimeMs();
+        auto status = submitOracleRequest( _spec->getSpec(), _receipt );
 
-        auto os = make_shared<OracleRequestSpec>(_cid, _uri, _jsps, _trims, time, _post,
-                                                 _encoding);
-
-        CHECK_STATE(os->verifyPow());
+        CHECK_STATE( status.first == ORACLE_SUCCESS );
 
 
-        auto status = submitOracleRequest(os->getSpec(), _receipt);
-
-        CHECK_STATE(status == ORACLE_SUCCESS);
-
-
-        thread t([this, _receipt]() {
-            while (true) {
+        thread t( [this, _receipt]() {
+            while ( true ) {
                 string result;
                 string r = _receipt;
-                sleep(1);
-                auto st = checkOracleResult(r, result);
-                cerr << "ORACLE_STATUS:" << st << endl;
-                if (st == ORACLE_SUCCESS) {
+                sleep( 1 );
+                auto st = checkOracleResult( r, result );
+                if ( st == ORACLE_SUCCESS ) {
                     cerr << result << endl;
                     return;
                 }
 
-                if (st != ORACLE_RESULT_NOT_READY) {
+                if ( st != ORACLE_RESULT_NOT_READY ) {
                     return;
                 }
             }
-        });
+        } );
         t.detach();
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 };
 
 
-uint64_t OracleClient::submitOracleRequest(const string &_spec, string &_receipt) {
+pair< uint64_t, string > OracleClient::submitOracleRequest(
+    const string& _spec, string& _receipt ) {
+    ptr< OracleRequestBroadcastMessage > msg = nullptr;
 
     try {
+        msg =
+            make_shared< OracleRequestBroadcastMessage >( _spec, sChain->getLastCommittedBlockID(),
+                Time::getCurrentTimeMs(), *sChain->getOracleClient() );
 
-        auto msg = make_shared<OracleRequestBroadcastMessage>(_spec, sChain->getLastCommittedBlockID(),
-                                                              Time::getCurrentTimeMs(),
-                                                              *sChain->getOracleClient());
-        _receipt = msg->getParsedSpec()->getReceipt();
+        auto spec = msg->getParsedSpec();
 
-        return broadcastRequest(msg);
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
-    }
-}
-
-
-void OracleClient::processResponseMessage(const ptr<MessageEnvelope> &_me) {
-    try {
-        CHECK_STATE(_me);
-
-        auto origin = (uint64_t) _me->getSrcSchainIndex();
-
-        CHECK_STATE(origin > 0 || origin <= getSchain()->getNodeCount());
-
-        auto msg = dynamic_pointer_cast<OracleResponseMessage>(_me->getMessage());
-
-        CHECK_STATE(msg);
-
-        auto receipt = msg->getReceipt();
-
-        auto receivedResults = receiptsMap.getIfExists(receipt);
-
-        if (!receivedResults.has_value()) {
-            LOG(warn, "Received OracleResponseMessage with unknown receipt" + receipt);
-            return;
+        if ( !spec ) {
+            auto message = "Null spec in submitOracleRequest";
+            LOG( err, message );
+            return { ORACLE_INTERNAL_SERVER_ERROR, message };
         }
 
-        auto rslts = std::any_cast<ptr<OracleReceivedResults>>(receivedResults);
-        rslts->insertIfDoesntExist(origin, msg->getOracleResult(rslts->getRequestSpec()->getEncoding(),
-                                                                getSchain()->getSchainID()));
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        if ( msg->getParsedSpec()->getChainId() != this->getSchain()->getSchainID() ) {
+            auto message = string( "Invalid schain id in oracle spec:" +
+                                   to_string( msg->getParsedSpec()->getChainId() ) );
+            LOG( err, message );
+            return { ORACLE_INVALID_CHAIN_ID, message };
+        }
+
+        if ( spec->getTime() + ORACLE_REQUEST_AGE_ON_RECEIPT_MS < Time::getCurrentTimeMs() ) {
+            auto message = string( "Received old request with age:" ) +
+                           to_string( Time::getCurrentTimeMs() - spec->getTime() );
+            LOG( err, message );
+            return { ORACLE_TIME_IN_REQUEST_SPEC_TOO_OLD, message };
+        }
+
+        if ( spec->getTime() > Time::getCurrentTimeMs() + ORACLE_REQUEST_FUTURE_JITTER_MS ) {
+            auto message = string( "Received oracle request with time in the future age:" ) +
+                           to_string( spec->getTime() - Time::getCurrentTimeMs() );
+            LOG( err, message );
+            return { ORACLE_TIME_IN_REQUEST_SPEC_IN_THE_FUTURE, message };
+        }
+
+    } catch ( OracleException& e ) {
+        auto message = string( "Invalid oracle spec in submitOracleRequest " ) + e.what();
+        LOG( err, message );
+        return { e.getError(), message };
+    } catch ( exception& e ) {
+        auto message = string( "Invalid oracle spec in submitOracleRequest " ) + e.what();
+        LOG( err, message );
+        return { ORACLE_INVALID_JSON_REQUEST, message };
+    } catch ( ... ) {
+        auto message = string( "Unknown exception in " ) + __FUNCTION__;
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
+    }
+
+    try {
+        _receipt = msg->getParsedSpec()->getReceipt();
+        if ( _receipt.empty() ) {
+            auto message = "Could not compute oracle receipt ";
+            LOG( err, message );
+            return { ORACLE_INTERNAL_SERVER_ERROR, message };
+        }
+    } catch ( exception& e ) {
+        auto message = string( "Exception computing receipt " ) + e.what();
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
+    } catch ( ... ) {
+        auto message = string( "Unknown Exception computing receipt " );
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
+    }
+
+    try {
+        return { broadcastRequest( msg ), "" };
+    } catch ( exception& e ) {
+        auto message = string( "Exception broadcasting message " ) + e.what();
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
+    } catch ( ... ) {
+        auto message = "Internal server error in submitOracleRequest ";
+        LOG( err, message );
+        return { ORACLE_INTERNAL_SERVER_ERROR, message };
     }
 }
 
 
-uint64_t OracleClient::checkOracleResult(const string &_receipt,
-                                         string &_result) {
-
+uint64_t OracleClient::checkOracleResult( const string& _receipt, string& _result ) {
     try {
-        auto oracleReceivedResults = receiptsMap.getIfExists(_receipt);
+        auto oracleReceivedResults = receiptsMap.getIfExists( _receipt );
 
-        if (!oracleReceivedResults.has_value()) {
-            LOG(warn, "Received tryGettingOracleResult  with unknown receipt" + _receipt);
+        if ( !oracleReceivedResults.has_value() ) {
+            LOG( warn, "Received tryGettingOracleResult  with unknown receipt" + _receipt );
             return ORACLE_UNKNOWN_RECEIPT;
         }
 
+        auto receipts = std::any_cast< ptr< OracleReceivedResults > >( oracleReceivedResults );
 
-        auto receipts = std::any_cast<ptr<OracleReceivedResults>>(oracleReceivedResults);
+        return receipts->tryGettingResult( _result );
 
-        return receipts->tryGettingResult(_result);
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( exception& e ) {
+        LOG( err, string( "Exception broadcasting message " ) + e.what() );
+        return ORACLE_INTERNAL_SERVER_ERROR;
+    } catch ( ... ) {
+        LOG( err, "Internal server error in submitOracleRequest " );
+        return ORACLE_INTERNAL_SERVER_ERROR;
     }
-
 }
 
+
+void OracleClient::processResponseMessage( const ptr< MessageEnvelope >& _me ) {
+    try {
+        CHECK_STATE( _me );
+
+        auto origin = ( uint64_t ) _me->getSrcSchainIndex();
+
+        CHECK_STATE( origin > 0 || origin <= getSchain()->getNodeCount() );
+
+        auto msg = dynamic_pointer_cast< OracleResponseMessage >( _me->getMessage() );
+
+        CHECK_STATE( msg );
+
+        auto receipt = msg->getReceipt();
+
+        auto receivedResults = receiptsMap.getIfExists( receipt );
+
+        if ( !receivedResults.has_value() ) {
+            LOG( warn, "Received OracleResponseMessage with unknown receipt" + receipt );
+            return;
+        }
+
+        auto rslts = std::any_cast< ptr< OracleReceivedResults > >( receivedResults );
+        rslts->insertIfDoesntExist(
+            origin, msg->getOracleResult( rslts->getRequestSpec(), getSchain()->getSchainID() ) );
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+    }
+}

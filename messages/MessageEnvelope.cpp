@@ -31,8 +31,8 @@
 #include "MessageEnvelope.h"
 
 
-ptr<Message> MessageEnvelope::getMessage() const {
-    CHECK_STATE(message);
+ptr< Message > MessageEnvelope::getMessage() const {
+    CHECK_STATE( message );
     return message;
 }
 
@@ -41,15 +41,14 @@ MessageOrigin MessageEnvelope::getOrigin() const {
     return origin;
 }
 
-MessageEnvelope::MessageEnvelope(MessageOrigin origin, const ptr<Message> &_message,
-                                 schain_index _srcSchainIndex) : origin(origin), message(_message),
-                                                                     srcSchainIndex(_srcSchainIndex) {
-    CHECK_ARGUMENT(_message);
-
+MessageEnvelope::MessageEnvelope(
+    MessageOrigin origin, const ptr< Message >& _message, schain_index _srcSchainIndex )
+    : origin( origin ), message( _message ), srcSchainIndex( _srcSchainIndex ) {
+    CHECK_ARGUMENT( _message );
 }
 
 MessageEnvelope::~MessageEnvelope() {}
 
 schain_index MessageEnvelope::getSrcSchainIndex() const {
-        return srcSchainIndex;
+    return srcSchainIndex;
 }

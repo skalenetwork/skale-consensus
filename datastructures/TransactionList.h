@@ -40,11 +40,10 @@ class Transaction;
 class ConsensusExtFace;
 
 class TransactionList : public ListOfHashes {
+    ptr< vector< ptr< Transaction > > > transactions = nullptr;  // tsafe
 
-    ptr< vector< ptr< Transaction > > > transactions = nullptr; // tsafe
 
-
-    ptr< vector< uint8_t > > serializedTransactions = nullptr; // tsafe
+    ptr< vector< uint8_t > > serializedTransactions = nullptr;  // tsafe
     recursive_mutex serializedTransactionsLock;
 
     TransactionList( const ptr< vector< uint64_t > >& _transactionSizes,
@@ -52,10 +51,9 @@ class TransactionList : public ListOfHashes {
         bool _checkPartialHash );
 
 public:
-
     static atomic< int64_t > totalObjects;
 
-    explicit TransactionList( const ptr< vector< ptr< Transaction > > >& _transactions ) ;
+    explicit TransactionList( const ptr< vector< ptr< Transaction > > >& _transactions );
 
     ptr< vector< ptr< Transaction > > > getItems();
 
@@ -81,6 +79,4 @@ public:
 
     static ptr< TransactionList > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
         boost::random::uniform_int_distribution<>& _ubyte );
-
-
 };

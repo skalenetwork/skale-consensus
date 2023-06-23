@@ -31,9 +31,10 @@
 #include "DAProof.h"
 
 
-DAProof::DAProof(const ptr<BlockProposal>& _proposal, ptr<ThresholdSignature>& _thresholdSignature) {
+DAProof::DAProof(
+    const ptr< BlockProposal >& _proposal, ptr< ThresholdSignature >& _thresholdSignature ) {
     CHECK_ARGUMENT( _proposal );
-    CHECK_ARGUMENT(_thresholdSignature);
+    CHECK_ARGUMENT( _thresholdSignature );
 
     this->thresholdSig = _thresholdSignature;
     this->schainID = _proposal->getSchainID();
@@ -60,8 +61,8 @@ schain_index DAProof::getProposerIndex() const {
     return proposerIndex;
 }
 
-ptr<ThresholdSignature> DAProof::getThresholdSig() const {
-    CHECK_STATE(thresholdSig);
+ptr< ThresholdSignature > DAProof::getThresholdSig() const {
+    CHECK_STATE( thresholdSig );
     return thresholdSig;
 }
 

@@ -35,27 +35,25 @@ class Transaction;
 #include "db/CacheLevelDB.h"
 
 class PendingTransactionsAgent : Agent {
-
 public:
-
     class Hasher {
     public:
-        std::size_t operator()(const ptr<partial_sha_hash>& a) const {
+        std::size_t operator()( const ptr< partial_sha_hash >& a ) const {
             size_t hash = 0;
-            for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
-                hash = hash * 31 + (*a)[i];
+            for ( size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
+                hash = hash * 31 + ( *a )[i];
             }
             return hash;
         };
     };
 
 
-
     class Equal {
     public:
-        std::size_t operator() (const ptr<partial_sha_hash>& a, const ptr<partial_sha_hash>& b)  const {
-            for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
-                if ((*a)[i] != (*b)[i]) {
+        std::size_t operator()(
+            const ptr< partial_sha_hash >& a, const ptr< partial_sha_hash >& b ) const {
+            for ( size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
+                if ( ( *a )[i] != ( *b )[i] ) {
                     return false;
                 }
             }
@@ -65,47 +63,49 @@ public:
 
 
 private:
-
     class Comparator {
     public:
-        bool operator()(const ptr<partial_sha_hash> &a,
-                        const ptr<partial_sha_hash>& b ) const {
-            for (size_t i = 0; i < PARTIAL_HASH_LEN; i++) {
-                if ((*a)[i] < (*b)[i])
+        bool operator()(
+            const ptr< partial_sha_hash >& a, const ptr< partial_sha_hash >& b ) const {
+            for ( size_t i = 0; i < PARTIAL_HASH_LEN; i++ ) {
+                if ( ( *a )[i] < ( *b )[i] )
                     return false;
-                if ((*b)[i] < (*a)[i])
+                if ( ( *b )[i] < ( *a )[i] )
                     return true;
             }
             return false;
         }
     };
 
-    unordered_map<ptr<partial_sha_hash>, ptr<Transaction> , Hasher, Equal> knownTransactions;
+    unordered_map< ptr< partial_sha_hash >, ptr< Transaction >, Hasher, Equal > knownTransactions;
+    queue< ptr< Transaction > > knownTransactionsQueue;
 
     uint64_t knownTransactionsTotalSize = 0;
 
-    recursive_mutex transactionsMutex;
+    shared_mutex transactionsMutex;
 
     transaction_count transactionCounter = 0;
 
-    pair<ptr<vector<ptr<Transaction>>>, u256> createTransactionsListForProposal();
+    pair< ptr< vector< ptr< Transaction > > >, u256 > createTransactionsListForProposal();
+
+    uint64_t transactionListWaitTime = 0;
+
+    uint64_t transactionListReceivedTimeMs = 0;
 
 public:
+    explicit PendingTransactionsAgent( Schain& _sChain );
 
-    explicit PendingTransactionsAgent(Schain& _sChain);
-
-    void pushKnownTransaction(const ptr<Transaction>& _transaction);
+    void pushKnownTransaction( const ptr< Transaction >& _transaction );
 
     uint64_t getKnownTransactionsSize();
 
-    ptr<Transaction> getKnownTransactionByPartialHash(ptr<partial_sha_hash> hash);
+    ptr< Transaction > getKnownTransactionByPartialHash( ptr< partial_sha_hash > hash );
 
-    ptr<BlockProposal> buildBlockProposal(block_id _blockID, TimeStamp& _timeStamp);
+    ptr< BlockProposal > buildBlockProposal( block_id _blockID, TimeStamp& _timeStamp );
+
+    uint64_t getTransactionListWaitTime() const { return transactionListWaitTime; };
+
+    uint64_t transactionListReceivedTime() const { return transactionListReceivedTimeMs; }
 
     ~PendingTransactionsAgent() override = default;
-
-
 };
-
-
-

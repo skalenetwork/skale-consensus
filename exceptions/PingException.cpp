@@ -23,5 +23,5 @@
 
 #include "PingException.h"
 
-PingException::PingException(const string &_message, const string &_className) : NetworkProtocolException(_message,
-                                                                                                          _className) {}
+PingException::PingException( const string& _message, const string& _className )
+    : NetworkProtocolException( _message, _className ) {}

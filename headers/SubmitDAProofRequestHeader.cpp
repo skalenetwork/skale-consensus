@@ -38,27 +38,23 @@
 
 using namespace std;
 
-SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(nlohmann::json _proposalRequest, node_count _nodeCount)
-        : AbstractBlockRequestHeader(_nodeCount, (schain_id) Header::getUint64(_proposalRequest, "schainID"),
-                                     (block_id) Header::getUint64(_proposalRequest, "blockID"),
-                                     Header::DA_PROOF_REQ,
-                                     (schain_index) Header::getUint64(_proposalRequest, "proposerIndex")) {
-
-    proposerNodeID = (node_id) Header::getUint64(_proposalRequest, "proposerNodeID");
-    thresholdSig = Header::getString(_proposalRequest, "thrSig");
-    CHECK_STATE(!thresholdSig.empty())
-    blockHash = Header::getString(_proposalRequest, "hash");
-    CHECK_STATE(!blockHash.empty())
+SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(
+    nlohmann::json _proposalRequest, node_count _nodeCount )
+    : AbstractBlockRequestHeader( _nodeCount,
+          ( schain_id ) Header::getUint64( _proposalRequest, "schainID" ),
+          ( block_id ) Header::getUint64( _proposalRequest, "blockID" ), Header::DA_PROOF_REQ,
+          ( schain_index ) Header::getUint64( _proposalRequest, "proposerIndex" ) ) {
+    proposerNodeID = ( node_id ) Header::getUint64( _proposalRequest, "proposerNodeID" );
+    thresholdSig = Header::getString( _proposalRequest, "thrSig" );
+    CHECK_STATE( !thresholdSig.empty() )
+    blockHash = Header::getString( _proposalRequest, "hash" );
+    CHECK_STATE( !blockHash.empty() )
 }
 
-SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, const ptr<DAProof>& _proof, block_id _blockId) :
-        AbstractBlockRequestHeader(_sChain.getNodeCount(), _sChain.getSchainID(), _blockId,
-                                   Header::DA_PROOF_REQ,
-                                   _sChain.getSchainIndex()) {
-
-
-
-
+SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(
+    Schain& _sChain, const ptr< DAProof >& _proof, block_id _blockId )
+    : AbstractBlockRequestHeader( _sChain.getNodeCount(), _sChain.getSchainID(), _blockId,
+          Header::DA_PROOF_REQ, _sChain.getSchainIndex() ) {
     this->proposerNodeID = _sChain.getNode()->getNodeID();
 
     this->thresholdSig = _proof->getThresholdSig()->toString();
@@ -66,36 +62,32 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(Schain &_sChain, const pt
     this->blockHash = _proof->getHash().toHex();
 
     complete = true;
-
 }
 
-void SubmitDAProofRequestHeader::addFields(nlohmann::json &_jsonRequest) {
+void SubmitDAProofRequestHeader::addFields( nlohmann::json& _jsonRequest ) {
+    AbstractBlockRequestHeader::addFields( _jsonRequest );
 
-    AbstractBlockRequestHeader::addFields(_jsonRequest);
-
-    _jsonRequest["schainID"] = (uint64_t) schainID;
-    _jsonRequest["proposerNodeID"] = (uint64_t) proposerNodeID;
-    _jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
-    _jsonRequest["blockID"] = (uint64_t) blockID;
-    CHECK_STATE(!thresholdSig.empty())
+    _jsonRequest["schainID"] = ( uint64_t ) schainID;
+    _jsonRequest["proposerNodeID"] = ( uint64_t ) proposerNodeID;
+    _jsonRequest["proposerIndex"] = ( uint64_t ) proposerIndex;
+    _jsonRequest["blockID"] = ( uint64_t ) blockID;
+    CHECK_STATE( !thresholdSig.empty() )
     _jsonRequest["thrSig"] = thresholdSig;
     _jsonRequest["hash"] = blockHash;
 }
 
 
- node_id SubmitDAProofRequestHeader::getProposerNodeId() const  {
+node_id SubmitDAProofRequestHeader::getProposerNodeId() const {
     return proposerNodeID;
 }
 
 
-string SubmitDAProofRequestHeader::getSignature() const  {
-    CHECK_STATE(!thresholdSig.empty())
+string SubmitDAProofRequestHeader::getSignature() const {
+    CHECK_STATE( !thresholdSig.empty() )
     return thresholdSig;
 }
 
-string SubmitDAProofRequestHeader::getBlockHash() const  {
-    CHECK_STATE(!blockHash.empty())
+string SubmitDAProofRequestHeader::getBlockHash() const {
+    CHECK_STATE( !blockHash.empty() )
     return blockHash;
 }
-
-

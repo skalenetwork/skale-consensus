@@ -30,36 +30,32 @@
 class OracleProtocolInstance;
 
 class OracleResult;
+class OracleRequestSpec;
 
 class OracleResponseMessage : public NetworkMessage {
-
     string oracleResultStr;
-    ptr<OracleResult> oracleResult;
+    ptr< OracleResult > oracleResult;
     string receipt;
 
     recursive_mutex m;
 
 protected:
+    void updateWithChildHash( blake3_hasher& _hasher ) override;
 
-    void updateWithChildHash(blake3_hasher &_hasher) override;
-
-    void serializeToStringChild(rapidjson::Writer<rapidjson::StringBuffer> &_writer) override;
+    void serializeToStringChild( rapidjson::Writer< rapidjson::StringBuffer >& _writer ) override;
 
 
 public:
+    ptr< OracleResult >& getOracleResult( ptr< OracleRequestSpec > _spec, schain_id _schaiId );
 
-    ptr<OracleResult> &getOracleResult(string _encoding, schain_id _schaiId);
+    OracleResponseMessage( string& _oracleResult, string& _receipt, block_id _blockID,
+        uint64_t _timeMs, OracleClient& sourceProtocolInstance );
 
-    OracleResponseMessage(string &_oracleResult, string &_receipt, block_id _blockID, uint64_t _timeMs,
-                          OracleClient &sourceProtocolInstance);
-
-    OracleResponseMessage(string &_oracleResult, string &_receipt, node_id _srcNodeID, block_id _blockID,
-                          uint64_t _timeMs, schain_id _schainId,
-                          msg_id _msgID, schain_index _srcSchainIndex, const string &_ecdsaSig,
-                          const string &_publicKey, const string &_pkSig, Schain *_sChain);
-
-
-    const string &getReceipt() const;
+    OracleResponseMessage( string& _oracleResult, string& _receipt, node_id _srcNodeID,
+        block_id _blockID, uint64_t _timeMs, schain_id _schainId, msg_id _msgID,
+        schain_index _srcSchainIndex, const string& _ecdsaSig, const string& _publicKey,
+        const string& _pkSig, Schain* _sChain );
 
 
+    const string& getReceipt() const;
 };

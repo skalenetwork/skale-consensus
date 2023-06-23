@@ -25,9 +25,7 @@
 
 
 class ServerSocket {
-
 protected:
-
     recursive_mutex m;
 
     string bindIP;
@@ -35,8 +33,7 @@ protected:
     uint32_t bindPort = 0;
 
 public:
-
-    ServerSocket(const string &_bindIP, uint16_t _basePort, port_type  _portType);
+    ServerSocket( const string& _bindIP, uint16_t _basePort, port_type _portType );
 
     virtual ~ServerSocket();
 

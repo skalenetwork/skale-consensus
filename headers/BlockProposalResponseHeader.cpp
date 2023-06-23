@@ -25,4 +25,4 @@
 #include "thirdparty/json.hpp"
 #include "BlockProposalResponseHeader.h"
 
-BlockProposalResponseHeader::BlockProposalResponseHeader() : Header(Header::BLOCK_PROPOSAL_RSP) {}
+BlockProposalResponseHeader::BlockProposalResponseHeader() : Header( Header::BLOCK_PROPOSAL_RSP ) {}

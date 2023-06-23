@@ -21,78 +21,129 @@
     @date 2018
 */
 
-#include "pendingqueue/TestMessageGeneratorAgent.h"
+#include "thirdparty/json.hpp"
+#include "Log.h"
 #include "PendingTransactionsAgent.h"
 #include "SkaleCommon.h"
-#include "Log.h"
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
 #include "datastructures/Transaction.h"
 #include "exceptions/FatalError.h"
 #include "node/ConsensusEngine.h"
-#include "thirdparty/json.hpp"
 #include "oracle/OracleClient.h"
+#include "oracle/OracleRequestSpec.h"
+#include "utils/Time.h"
+#include "pendingqueue/TestMessageGeneratorAgent.h"
 
 
-TestMessageGeneratorAgent::TestMessageGeneratorAgent(Schain& _sChain_) : Agent(_sChain_, false) {
-    CHECK_STATE(_sChain_.getNodeCount() > 0);
+TestMessageGeneratorAgent::TestMessageGeneratorAgent( Schain& _sChain_ )
+    : Agent( _sChain_, false ) {
+    CHECK_STATE( _sChain_.getNodeCount() > 0 );
 }
 
 
-
-
-ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactions( size_t _limit ) {
-
+ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactions(
+    size_t _limit ) {
     // test oracle for the first block
 
-    uint64_t  messageSize = 200;
+    uint64_t messageSize = 500;
 
     ConsensusExtFace::transactions_vector result;
 
     auto test = sChain->getBlockProposerTest();
 
-    CHECK_STATE(!test.empty());
+    CHECK_STATE( !test.empty() );
 
-    if (test == SchainTest::NONE)
+    if ( test == SchainTest::NONE )
         return result;
 
-    for (uint64_t i = 0; i < _limit; i++) {
+    for ( uint64_t i = 0; i < _limit; i++ ) {
+        vector< uint8_t > transaction( messageSize );
 
-        vector<uint8_t> transaction(messageSize);
+        uint64_t dummy = counter;
+        auto bytes = ( uint8_t* ) &dummy;
 
-        uint64_t  dummy = counter;
-        auto bytes = (uint8_t*) & dummy;
-
-        for (uint64_t j = 0; j < messageSize/8; j++) {
-            for (int k = 0; k < 7; k++) {
-                transaction.at(2 * j + k ) = bytes[k];
+        for ( uint64_t j = 0; j < messageSize / 8; j++ ) {
+            for ( int k = 0; k < 7; k++ ) {
+                transaction.at( 2 * j + k ) = bytes[k];
             }
-
         }
 
-        result.push_back(transaction);
+        result.push_back( transaction );
 
         counter++;
-
     }
 
-    static uint64_t iterations = 0;
+    static atomic< uint64_t > iterations = 0;
     // send oracle test once from schain index 1
 
-    if (iterations == getSchain()->getNodeCount() * 2) {
-        LOG(info, "Sending Oracle test get ");
-        getSchain()->getOracleClient()->sendTestRequestGet();
-        LOG(info, "Sent Oracle test get ");
-
-        LOG(info, "Sending Oracle test post ");
-        getSchain()->getOracleClient()->sendTestRequestGet();
-        LOG(info, "Sent Oracle test post ");
+    if ( getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
+        if ( iterations.fetch_add( 1 ) == 2 ) {
+            LOG( info, "Sending Oracle test eth_call " );
+            sendTestRequestEthCall();
+            LOG( info, "Sent Oracle eth_call request" );
+        }
     }
 
-    iterations++;
-
     return result;
-
 };
 
 
+void TestMessageGeneratorAgent::sendTestRequestGet() {
+    string uri = "https://worldtimeapi.org/api/timezone/Europe/Kiev";
+    vector< string > jsps{ "/unixtime", "/day_of_year", "/xxx" };
+    vector< uint64_t > trims{ 1, 1, 1 };
+    string post = "";
+    string encoding = "json";
+
+    auto cid = ( uint64_t ) getSchain()->getSchainID();
+    auto time = Time::getCurrentTimeMs();
+    auto os = OracleRequestSpec::makeWebSpec( cid, uri, jsps, trims, post, encoding, time );
+
+    getSchain()->getOracleClient()->sendTestRequestAndWaitForResult( os );
+}
+
+
+void TestMessageGeneratorAgent::sendTestRequestPost() {
+    try {
+        string _receipt;
+        string uri = "https://reqres.in/api/users";
+        vector< string > jsps = { "/id" };
+        string post = "haha";
+        string encoding = "json";
+        auto cid = ( uint64_t ) getSchain()->getSchainID();
+        auto time = Time::getCurrentTimeMs();
+        auto os = OracleRequestSpec::makeWebSpec( cid, uri, jsps, {}, post, encoding, time );
+
+        getSchain()->getOracleClient()->sendTestRequestAndWaitForResult( os );
+
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+    }
+}
+
+
+void TestMessageGeneratorAgent::sendTestRequestEthCall() {
+    try {
+        string _receipt;
+        string uri = "http://127.0.0.1:8545/";
+        string from = "0x9876543210987654321098765432109876543210";
+        string to = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+        string data = "0x893d20e8";
+        string gas = "0x100000";
+        string block = "latest";
+        string encoding = "json";
+
+        auto _cid = ( uint64_t ) getSchain()->getSchainID();
+
+        auto time = Time::getCurrentTimeMs();
+
+        auto os = OracleRequestSpec::makeEthCallSpec(
+            _cid, uri, from, to, data, gas, block, encoding, time );
+
+        getSchain()->getOracleClient()->sendTestRequestAndWaitForResult( os );
+
+    } catch ( exception& e ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+    }
+}

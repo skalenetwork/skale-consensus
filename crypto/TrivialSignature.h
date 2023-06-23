@@ -28,12 +28,10 @@
 #include "ThresholdSignature.h"
 
 class TrivialSignature : public ThresholdSignature {
-
     string s;
 
 public:
-
-    TrivialSignature(block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
+    TrivialSignature( block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
     string toString() override;
 

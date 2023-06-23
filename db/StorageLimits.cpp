@@ -24,15 +24,15 @@
 #include "Log.h"
 #include "StorageLimits.h"
 
-StorageLimits::StorageLimits( uint64_t _totalStorageLimitBytes ) : storageUnitBytes( _totalStorageLimitBytes ) {
-
-    auto unit = _totalStorageLimitBytes / (LEVELDB_SHARDS *(1000 + 10 * 10 + 100));
+StorageLimits::StorageLimits( uint64_t _totalStorageLimitBytes )
+    : storageUnitBytes( _totalStorageLimitBytes ) {
+    auto unit = _totalStorageLimitBytes / ( LEVELDB_SHARDS * ( 1000 + 10 * 10 + 100 ) );
 
     BLOCK_DB_SIZE = 1000 * unit;
     RANDOM_DB_SIZE = 10 * unit;
-    PRICE_DB_SIZE = 10 *  unit;
+    PRICE_DB_SIZE = 10 * unit;
     PROPOSAL_HASH_DB_SIZE = 10 * unit;
-    PROPOSAL_VECTOR_DB_SIZE = 10  * unit;
+    PROPOSAL_VECTOR_DB_SIZE = 10 * unit;
     OUTGOING_MSG_DB_SIZE = 10 * unit;
     CONSENSUS_STATE_DB_SIZE = 10 * unit;
     BLOCK_SIG_SHARE_DB_SIZE = 10 * unit;

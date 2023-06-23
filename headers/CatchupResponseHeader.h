@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "Header.h"
 
@@ -29,30 +29,23 @@ class NodeInfo;
 class BlockProposal;
 class Schain;
 class Transaction;
-class CatchupResponseHeader : public Header{
+class CatchupResponseHeader : public Header {
 public:
-
     [[nodiscard]] uint64_t getBlockCount() const;
 
-    void setBlockCount(uint64_t blockCount);
+    void setBlockCount( uint64_t blockCount );
 
 private:
-
     uint64_t blockCount = 0;
 
-    ptr<list<uint64_t>> blockSizes = nullptr;
+    ptr< list< uint64_t > > blockSizes = nullptr;
 
 public:
-
     CatchupResponseHeader();
 
-    explicit CatchupResponseHeader(const ptr<list<uint64_t>>_blockSizes);
+    explicit CatchupResponseHeader( const ptr< list< uint64_t > > _blockSizes );
 
-    void setBlockSizes(const ptr<list<uint64_t>>& _blockSizes);
+    void setBlockSizes( const ptr< list< uint64_t > >& _blockSizes );
 
-    void addFields(nlohmann::basic_json<> &j_) override;
-
+    void addFields( nlohmann::basic_json<>& j_ ) override;
 };
-
-
-

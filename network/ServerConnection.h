@@ -21,13 +21,12 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 class ServerConnection {
-
     recursive_mutex m;
 
-    static atomic<int64_t> totalObjects;
+    static atomic< int64_t > totalObjects;
 
     file_descriptor descriptor = 0;
 
@@ -36,8 +35,7 @@ class ServerConnection {
     void closeConnection();
 
 public:
-
-    ServerConnection(unsigned int _descriptor, const string& _ip );
+    ServerConnection( unsigned int _descriptor, const string& _ip );
 
     virtual ~ServerConnection();
 
@@ -46,6 +44,4 @@ public:
     string getIP();
 
     static uint64_t getTotalObjects();
-
 };
-

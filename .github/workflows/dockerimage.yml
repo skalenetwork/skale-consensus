@@ -2,7 +2,7 @@ name: Build consensust container
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Free disk space
         run: |
@@ -100,19 +100,10 @@ jobs:
           echo "Checking alternative for gcov-tool"
           which gcov-tool
           gcov-tool --version
-
-      - name: Login to docker
-        env:
-          GITHUB_TOKEN: ${{ secrets.DOCKER_SECRET }}
-        run: docker login -u skalelabsci -p ${GITHUB_TOKEN}
       - uses: actions/checkout@v1
       - name: submodule update
-        run: git submodule update --init --recursive
-
+        run: git submodule update --init --recursive          
       - name: Build the Docker image(GH)
         run: |
           rm -rf ./build/*
           docker build . --file Dockerfile --tag skalenetwork/consensust:latest
-
-      - name: push docker image
-        run:  docker push skalenetwork/consensust:latest

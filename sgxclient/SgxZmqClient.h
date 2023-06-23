@@ -22,8 +22,6 @@
 */
 
 
-
-
 #ifndef SKALED_SGXZMQCLIENT_H
 #define SKALED_SGXZMQCLIENT_H
 
@@ -53,26 +51,21 @@
 #pragma GCC diagnostic pop
 
 
-
-
-#define REQUEST_TIMEOUT     10000    //  msecs, (> 1000!)
+#define REQUEST_TIMEOUT 10000  //  msecs, (> 1000!)
 
 class SgxZmqClient {
-
 public:
-
-    enum zmq_status {UNKNOWN, TRUE, FALSE};
+    enum zmq_status { UNKNOWN, TRUE, FALSE };
     bool serverDown = false;
 
     bool isServerDown() const;
 
     zmq_status getZMQStatus() const;
-    void setZmqStatus(zmq_status _status);
+    void setZmqStatus( zmq_status _status );
 
     uint64_t getZmqSocketCount();
 
 private:
-
     zmq_status zmqStatus = UNKNOWN;
 
 
@@ -91,12 +84,11 @@ private:
     string key = "";
 
 
-
     string url;
 
     // generate random identity
 
-    shared_ptr <zmq::socket_t> clientSocket = nullptr;
+    shared_ptr< zmq::socket_t > clientSocket = nullptr;
     recursive_mutex socketMutex;
     recursive_mutex certMutex;
 
@@ -106,45 +98,41 @@ public:
     Schain* getSchain() const;
 
 private:
+    static cache::lru_cache< string, pair< EVP_PKEY*, X509* > > verifiedCerts;
 
-    static cache::lru_cache<string, pair < EVP_PKEY * , X509 *>> verifiedCerts;
+    shared_ptr< SgxZmqMessage > doRequestReply(
+        Json::Value& _req, string& _description, bool _throwExceptionOnTimeout = false );
 
-    shared_ptr < SgxZmqMessage > doRequestReply(Json::Value &_req, string& _description,
-                               bool _throwExceptionOnTimeout = false);
-
-    string doZmqRequestReply(string &_req, string& _description, bool _throwExceptionOnTimeout = false);
+    string doZmqRequestReply(
+        string& _req, string& _description, bool _throwExceptionOnTimeout = false );
 
     uint64_t getProcessID();
 
-    static string readFileIntoString(const string& _fileName);
-
+    static string readFileIntoString( const string& _fileName );
 
 
 public:
-    SgxZmqClient(Schain* _schain, const string &_domain, uint16_t _port, bool _sign, const string&  _certPathName,
-              const string& _certKeyName);
+    SgxZmqClient( Schain* _schain, const string& _domain, uint16_t _port, bool _sign,
+        const string& _certPathName, const string& _certKeyName );
 
-    void reconnect() ;
+    void reconnect();
 
-    static pair<EVP_PKEY*, X509*>  readPublicKeyFromCertStr(const string& _cert);
+    static pair< EVP_PKEY*, X509* > readPublicKeyFromCertStr( const string& _cert );
 
-    static string signString(EVP_PKEY* _pkey, const string& _str);
+    static string signString( EVP_PKEY* _pkey, const string& _str );
 
-    string blsSignMessageHash(const string &_keyShareName, const string &_messageHash, 
-        int _t, int _n, bool _throwExceptionOnTimeout);
+    string blsSignMessageHash( const string& _keyShareName, const string& _messageHash, int _t,
+        int _n, bool _throwExceptionOnTimeout );
 
-    string ecdsaSignMessageHash(int _base, const string &_keyName, const string &_messageHash,
-        bool _throwExceptionOnTimeout);
+    string ecdsaSignMessageHash( int _base, const string& _keyName, const string& _messageHash,
+        bool _throwExceptionOnTimeout );
 
     void exit();
 
-    static void verifySig(EVP_PKEY* _pubkey, const string& _str, const string& _sig);
+    static void verifySig( EVP_PKEY* _pubkey, const string& _str, const string& _sig );
 
     void verifyMsgSig( const char* _msg, size_t _size );
-
-
 };
-
 
 
 #endif

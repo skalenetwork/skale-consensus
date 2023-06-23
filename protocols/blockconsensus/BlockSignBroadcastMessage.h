@@ -21,23 +21,19 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
-class BlockSignBroadcastMessage : public NetworkMessage{
+class BlockSignBroadcastMessage : public NetworkMessage {
 public:
+    BlockSignBroadcastMessage( block_id _blockID, schain_index _blockProposerIndex, uint64_t _time,
+        ProtocolInstance& _sourceProtocolInstance );
 
-    BlockSignBroadcastMessage(block_id _blockID, schain_index _blockProposerIndex, uint64_t _time,
-                              ProtocolInstance &_sourceProtocolInstance);
+    BlockSignBroadcastMessage( node_id _srcNodeID, block_id _blockID,
+        schain_index _blockProposerIndex, uint64_t _time, schain_id _schainId, msg_id _msgID,
+        const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
+        const string& _pubKey, const string& _pkSig, Schain* _sChain );
 
-    BlockSignBroadcastMessage(node_id _srcNodeID, block_id _blockID,
-                              schain_index _blockProposerIndex,uint64_t _time, schain_id _schainId,
-                              msg_id _msgID, const string& _sigShare,
-                              schain_index _srcSchainIndex, const string& _ecdsaSig,
- const string& _pubKey, const string& _pkSig,
-                              Schain *_sChain);
+    virtual bin_consensus_round getRound() const override;
 
-    virtual bin_consensus_round getRound() const override ;
-
-    virtual bin_consensus_value getValue() const override ;
+    virtual bin_consensus_value getValue() const override;
 };
-
