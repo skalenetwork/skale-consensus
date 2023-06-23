@@ -351,7 +351,13 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
     }
 
     try {
-        lockWithDeadLockCheck( __FUNCTION__ );
+        if ( !blockProcessMutex.try_lock_for( chrono::seconds( 60 ) ) ) {
+            // Could not lock for 60 seconds. There is probably a deadlock.
+            // Skipping this catchup iteration
+            checkForExit();
+            LOG( err, "Could not lock in:" + string( __FUNCTION__ ) );
+            return 0;
+        }
 
         bumpPriority();
 
@@ -387,6 +393,7 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
         blockProcessMutex.unlock();
         return result;
     } catch ( ... ) {
+        unbumpPriority();
         blockProcessMutex.unlock();
         throw;
     }
@@ -412,7 +419,8 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
     // otherwise last committed block id is not fully initialized and the chain can not accept
     // catchup blocks
     while ( !getSchain()->getIsStateInitialized() ) {
-        usleep( 100 * 1000 );
+        usleep( 500 * 1000 );
+        LOG( info, "Waiting for boostrap to complete ..." );
     }
 
     // no regular block commits happen for sync nodes
@@ -460,9 +468,11 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         blockProcessMutex.unlock();
 
     } catch ( ExitRequestedException& e ) {
+        unbumpPriority();
         blockProcessMutex.unlock();
         throw;
     } catch ( ... ) {
+        unbumpPriority();
         blockProcessMutex.unlock();
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
@@ -973,6 +983,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
                 _lastCommittedBlockID = _lastCommittedBlockID + 1;
                 _lastCommittedBlockTimeStamp = block->getTimeStampS();
                 _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
+                LOG( info, "Pushed block to skaled:" + _lastCommittedBlockID );
             } catch ( ... ) {
                 // Cant read the block from db, may be it is corrupt in the  snapshot
                 LOG( err, "Bootstrap could not read block from db. Repair." );
@@ -983,6 +994,8 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     // Step 2 : now bootstrap
+
+    LOG( info, "Starting normal boostrap ..." );
 
     try {
         bootstrapBlockID = ( uint64_t ) _lastCommittedBlockID;
@@ -1011,10 +1024,12 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
             getNode()->setEmptyBlockIntervalMs( 50 );
             proposeNextBlock();
             getNode()->setEmptyBlockIntervalMs( emptyBlockInterval );
+            LOG( info, "Successfully proposed block in boostrap" );
         }
 
 
         ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCurrentBlock();
+        LOG( info, "Successfully completed boostrap" );
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         return;
