@@ -2,23 +2,23 @@
 
 ## 1. Intro
 
-Dynamic Oracle is implemented by each SKL chain. It is used to retrieve trusted data from websites and blockchains,
-and then sign this data by multiple SKL nodes.
+Dynamic Oracle is implemented by each SKALE chain. It is used to retrieve trusted data from websites and blockchains,
+and then sign this data by multiple SKALE nodes.
 
 ### 1.1  Oracle request flow
 
 When a user submit an Oracle request to retrieve data from a network endpoint:
 
-* all nodes in a SKL chain issue requests to retrieve data
+* all nodes in a SKALE chain issue requests to retrieve data
 * nodes compare data received and verify it is identical
 * node create an OracleResult object
 * at least 6 nodes must to sign the object
 * OracleResult object is returned to the user (typically browser or mobile app)
-* OracleResult can then be submitted to the SKL chain and verified in Solidity.
+* OracleResult can then be submitted to the SKALE chain and verified in Solidity.
 
 ### 1.2 JSON-RPC calls
 
-The following two JSON-RPC calls are implemented by SKL node
+The following two JSON-RPC calls are implemented by the SKALE node
 
 * ```oracle_submitRequest``` - this one is used to submit the initial initial Oracle request. 
 It returns a receipt object. 
@@ -54,12 +54,12 @@ Otherwise, one of the following errors is returned
 
 
 * ```ORACLE_NO_CONSENSUS``` - the endpoint returned different
-data to different SKL nodes, so no consensus could be reached on the data
+data to different SKALE nodes, so no consensus could be reached on the data
 
 ## 4. OracleRequestSpec JSON format.
 
 ```OracleRequestSpec``` is a JSON string that is used by the client to 
-initiate an Oracle request to a SKL node.
+initiate an Oracle request to a SKALE node.
 
 Note: for efficiency, empty spaces and carriage returns are not allowed in OracleRequestSpec.  We do it to simplify
 Solidity code that handles Oracle data.
