@@ -332,7 +332,6 @@ void Schain::constructChildAgents() {
 
 void Schain::lockWithDeadLockCheck( const char* _functionName ) {
     while ( !blockProcessMutex.try_lock_for( chrono::seconds( 60 ) ) ) {
-        checkForExit();
         LOG( err, "Trying to lock in:" + string( _functionName ) );
     }
 }
@@ -400,6 +399,9 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
 
         unbumpPriority();
 
+        // we meed to unlock the mutex everytime we return from the function
+        // including exceptions. In 2.3 we will make it cleaner by using
+        // a custom lock_guard so the lock is unlocked automatically
         blockProcessMutex.unlock();
         return result;
     } catch ( ... ) {
@@ -442,8 +444,14 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         lockWithDeadLockCheck( __FUNCTION__ );
 
 
-        if ( _committedBlockID <= getLastCommittedBlockID() )
+        if ( _committedBlockID <= getLastCommittedBlockID() ) {
+            // we meed to unlock the mutex everytime we return from the function
+            // including exceptions. In 2.3 we will make it cleaner by using
+            // a custom lock_guard so the lock is unlocked automatically
+            // for now we just manually verify in the code that the mutex is always unlocked
+            blockProcessMutex.unlock();
             return;
+        }
 
 
         CHECK_STATE( _committedBlockID == ( getLastCommittedBlockID() + 1 ) ||
