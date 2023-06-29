@@ -57,7 +57,7 @@ namespace cache {
 
         const value_t& get(const key_t& key) {
 
-            READ_LOCK(m);
+            WRITE_LOCK(m);
 
             auto it = _cache_items_map.find(key);
             if (it == _cache_items_map.end()) {
@@ -71,7 +71,7 @@ namespace cache {
 
         const std::any getIfExists(const key_t& key) {
 
-            READ_LOCK(m);
+            WRITE_LOCK(m);
 
             auto it = _cache_items_map.find(key);
             if (it == _cache_items_map.end()) {
