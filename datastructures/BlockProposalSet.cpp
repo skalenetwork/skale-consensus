@@ -49,7 +49,7 @@ bool BlockProposalSet::add( const ptr< BlockProposal >& _proposal ) {
     LOCK( m )
 
     if ( proposals.count( index ) > 0 ) {
-        LOG( trace, "Got block proposal with the same index" + to_string( index ) );
+        LOG( trace, "Got block proposal with the same index" << to_string( index ) );
         return false;
     }
 

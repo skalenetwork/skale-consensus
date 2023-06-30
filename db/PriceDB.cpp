@@ -69,7 +69,7 @@ u256 PriceDB::readPrice( block_id _blockID ) {
 }
 
 void PriceDB::savePrice( const u256& _price, block_id _blockID ) {
-    LOG( trace, "Save price for block" + to_string( _blockID ) );
+    LOG( trace, "Save price for block" << to_string( _blockID ) );
 
     try {
         auto key = createKey( _blockID );

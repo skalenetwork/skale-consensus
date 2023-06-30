@@ -327,8 +327,8 @@ ptr< BlockProposal > BlockProposal::deserialize(
             _manager->verifyProposalECDSA(
                 proposal, blockHeader->getBlockHash(), blockHeader->getSignature() );
         } catch ( ... ) {
-            LOG( err, "Block proposer ecdsa signature did not verify for" +
-                          to_string( ( uint64_t ) proposal->getProposerIndex() ) );
+            LOG( err, "Block proposer ecdsa signature did not verify for"
+                          << to_string( ( uint64_t ) proposal->getProposerIndex() ) );
             throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
         }
     }

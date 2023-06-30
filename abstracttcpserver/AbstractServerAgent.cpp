@@ -163,16 +163,16 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 }
 
 void AbstractServerAgent::createNetworkReadThread() {
-    LOG( trace, name + " Starting TCP server network read loop" );
+    LOG( trace, name << " Starting TCP server network read loop" );
     networkReadThread =
         make_shared< thread >( std::bind( &AbstractServerAgent::acceptTCPConnectionsLoop, this ) );
-    LOG( trace, name + " Started TCP server network read loop" );
+    LOG( trace, name << " Started TCP server network read loop" );
 }
 
 
 void AbstractServerAgent::notifyAllConditionVariables() {
     Agent::notifyAllConditionVariables();
     LOG( trace,
-        "Notifying TCP cond" + to_string( ( uint64_t )( void* ) &incomingTCPConnectionsCond ) );
+        "Notifying TCP cond" << to_string( ( uint64_t )( void* ) &incomingTCPConnectionsCond ) );
     incomingTCPConnectionsCond.notify_all();
 }

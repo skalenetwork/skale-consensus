@@ -89,7 +89,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
         CHECK_STATE2( result->getStatus() == 0, "SGX server returned error:" + resultStr );
 
         if ( result->getWarning() ) {
-            LOG( warn, "SGX server reported warning:" + *result->getWarning() );
+            LOG( warn, "SGX server reported warning:" << *result->getWarning() );
         }
         return result;
 
@@ -134,7 +134,7 @@ string SgxZmqClient::doZmqRequestReply(
             CHECK_STATE( strlen( reply.c_str() ) == reply.length() )
 
             CHECK_STATE( reply.length() > 5 );
-            LOG( debug, "ZMQ client received reply:" + reply );
+            LOG( debug, "ZMQ client received reply:" << reply );
             CHECK_STATE( reply.front() == '{' );
             CHECK_STATE( reply.back() == '}' );
 
@@ -143,10 +143,10 @@ string SgxZmqClient::doZmqRequestReply(
         } else {
             serverDown = true;
             if ( _throwExceptionOnTimeout ) {
-                LOG( err, "No response from sgx server for:" + _description );
+                LOG( err, "No response from sgx server for:" << _description );
                 CHECK_STATE( false );
             }
-            LOG( err, "No response from SGX server for " + _description + ". Retrying..." );
+            LOG( err, "No response from SGX server for " << _description << ". Retrying..." );
             usleep( SGX_REQUEST_TIMEOUT_MS * 1000 );
             reconnect();
 
@@ -165,7 +165,7 @@ string SgxZmqClient::readFileIntoString( const string& _fileName ) {
     try {
         str = string( ( istreambuf_iterator< char >( t ) ), istreambuf_iterator< char >() );
     } catch ( ... ) {
-        LOG( err, "Could not read file:" + _fileName );
+        LOG( err, "Could not read file:" << _fileName );
         throw;
     }
 
@@ -216,7 +216,7 @@ string SgxZmqClient::signString( EVP_PKEY* _pkey, const string& _str ) {
 pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _certStr ) {
     CHECK_STATE( !_certStr.empty() )
 
-    LOG( info, "Reading server public key:\n" + _certStr );
+    LOG( info, "Reading server public key:\n" << _certStr );
 
     BIO* bo = BIO_new( BIO_s_mem() );
     CHECK_STATE( bo )
@@ -236,14 +236,14 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
     CHECK_STATE( _sChain );
     this->schain = _sChain;
 
-    LOG( info, "Initing ZMQClient. Sign:" + to_string( sign ) );
+    LOG( info, "Initing ZMQClient. Sign:" << to_string( sign ) );
 
     if ( sign ) {
         CHECK_STATE( !_certFileName.empty() );
         try {
             cert = readFileIntoString( _certFileName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" + _certFileName + ":" + e.what() );
+            LOG( err, "Could not read file:" << _certFileName << ":" << e.what() );
             throw;
         }
         CHECK_STATE( !cert.empty() );
@@ -251,7 +251,7 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
         try {
             key = readFileIntoString( _certKeyName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" + _certKeyName + ":" + e.what() );
+            LOG( err, "Could not read file:" << _certKeyName << ":" << e.what() );
             throw;
         }
 

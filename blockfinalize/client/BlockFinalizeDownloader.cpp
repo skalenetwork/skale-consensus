@@ -91,7 +91,7 @@ nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(
 
 uint64_t BlockFinalizeDownloader::downloadFragment(
     schain_index _dstIndex, fragment_index _fragmentIndex ) {
-    LOG( debug, "BLCK_FRG_DWNLD:" + to_string( _fragmentIndex ) + ":" + to_string( _dstIndex ) );
+    LOG( debug, "BLCK_FRG_DWNLD:" << to_string( _fragmentIndex ) << ":" << to_string( _dstIndex ) );
 
     try {
         auto header = make_shared< BlockFinalizeRequestHeader >(
@@ -142,8 +142,8 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
         auto status = ( ConnectionStatus ) Header::getUint64( response, "status" );
 
         if ( status == CONNECTION_DISCONNECT ) {
-            LOG( debug, "BLCK_FRG_DWNLD:NO_FRG:" + to_string( _fragmentIndex ) + ":" +
-                            to_string( _dstIndex ) );
+            LOG( debug, "BLCK_FRG_DWNLD:NO_FRG:" << to_string( _fragmentIndex ) << ":"
+                                                 << to_string( _dstIndex ) );
             return 0;
         }
 

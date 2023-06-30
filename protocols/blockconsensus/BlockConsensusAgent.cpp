@@ -103,7 +103,7 @@ void BlockConsensusAgent::startConsensusProposal(
             LOG( debug, "Terminating consensus proposal since already committed." );
         }
 
-        LOG( debug, "CONSENSUS START:BLOCK:" + to_string( _blockID ) );
+        LOG( debug, "CONSENSUS START:BLOCK:" << to_string( _blockID ) );
 
 
         for ( uint64_t i = 1; i <= ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
@@ -167,10 +167,9 @@ void BlockConsensusAgent::decideBlock(
     try {
         BinConsensusInstance::logGlobalStats();
 
-        LOG( info, string( "BLOCK_DECIDED:PROPOSER:" ) + to_string( _sChainIndex ) +
-
-                       ":BID:" + to_string( _blockId ) + ":STATS:|" + _stats +
-                       "| Now signing block ..." );
+        LOG( info, string( "BLOCK_DECIDED:PROPOSER:" )
+                       << to_string( _sChainIndex ) << ":BID:" + to_string( _blockId ) << ":STATS:|"
+                       << _stats << "| Now signing block ..." );
 
 
         auto msg = make_shared< BlockSignBroadcastMessage >(
@@ -320,8 +319,9 @@ void BlockConsensusAgent::processBlockSignMessage(
         auto proposer = _message->getBlockProposerIndex();
         auto blockId = _message->getBlockId();
 
-        LOG( info, string( "BLOCK_DECIDED_AND_SIGNED:PRPSR:" ) + to_string( proposer ) +
-                       ":BID:" + to_string( blockId ) + ":SIG:" + signature->toString() );
+        LOG( info, string( "BLOCK_DECIDED_AND_SIGNED:PRPSR:" )
+                       << to_string( proposer ) << ":BID:" << to_string( blockId )
+                       << ":SIG:" << signature->toString() );
 
 
         getSchain()->finalizeDecidedAndSignedBlock( blockId, proposer, signature );
@@ -379,8 +379,9 @@ void BlockConsensusAgent::routeAndProcessMessage( const ptr< MessageEnvelope >& 
         }
 
         if ( _me->getOrigin() == ORIGIN_CHILD ) {
-            LOG( debug, "Got child message " + to_string( _me->getMessage()->getBlockId() ) + ":" +
-                            to_string( _me->getMessage()->getBlockProposerIndex() ) );
+            LOG( debug, "Got child message "
+                            << to_string( _me->getMessage()->getBlockId() ) << ":"
+                            << to_string( _me->getMessage()->getBlockProposerIndex() ) );
 
             auto internalMessageEnvelope = dynamic_pointer_cast< InternalMessageEnvelope >( _me );
 

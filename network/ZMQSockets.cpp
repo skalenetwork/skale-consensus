@@ -69,8 +69,8 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
 
     CHECK_STATE( requester );
 
-    LOG(
-        debug, getThreadName() + " zmq debug: requester = " + to_string( ( uint64_t ) requester ) );
+    LOG( debug,
+        getThreadName() << " zmq debug: requester = " << to_string( ( uint64_t ) requester ) );
 
     int timeout = ZMQ_TIMEOUT;
     int linger = 0;
@@ -82,7 +82,7 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
 
     int result = zmq_connect( requester,
         ( "tcp://" + ipAddress + ":" + to_string( basePort + BINARY_CONSENSUS ) ).c_str() );
-    LOG( debug, "Connected ZMQ socket" + to_string( result ) );
+    LOG( debug, "Connected ZMQ socket" << to_string( result ) );
     sendSockets[schainIndex] = requester;
 
     return requester;
@@ -111,8 +111,8 @@ void* ZMQSockets::getReceiveSocket() {
 
         CHECK_STATE( receiveSocket );
 
-        LOG( debug, getThreadName() +
-                        " zmq debug: receiveSocket = " + to_string( ( uint64_t ) receiveSocket ) );
+        LOG( debug, getThreadName() << " zmq debug: receiveSocket = "
+                                    << to_string( ( uint64_t ) receiveSocket ) );
 
         int timeout = ZMQ_TIMEOUT;
         int linger = 0;
@@ -158,8 +158,8 @@ void ZMQSockets::closeSend() {
     LOG( info, "consensus engine exiting: closing ZMQ send sockets" );
     for ( auto&& item : sendSockets ) {
         if ( item.second ) {
-            LOG( debug, getThreadName() + " zmq debug in closeSend(): closing " +
-                            to_string( ( uint64_t ) item.second ) );
+            LOG( debug, getThreadName() << " zmq debug in closeSend(): closing "
+                                        << to_string( ( uint64_t ) item.second ) );
             if ( zmq_close( item.second ) != 0 ) {
                 LOG( err, "zmq_close returned an error on sendSocket;" );
             }
@@ -181,7 +181,7 @@ void ZMQSockets::closeAndCleanupAll() {
         closeSend();
         closeReceive();
     } catch ( const exception& e ) {
-        LOG( err, "Exception in zmq socket close:" + string( e.what() ) );
+        LOG( err, "Exception in zmq socket close:" << string( e.what() ) );
     }
 
     LOG( info, "Closing ZMQ context" );

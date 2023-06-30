@@ -376,7 +376,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 ecdsaSig, publicKey, pkSig, _sChain );
 
         } else {
-            LOG( warn, "Incorrect message type in received message:" + type );
+            LOG( warn, "Incorrect message type in received message:" << type );
             CHECK_STATE( false )
         }
 

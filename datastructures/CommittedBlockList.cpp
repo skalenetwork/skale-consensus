@@ -73,11 +73,11 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
                 // a default block has a zero proposer index and no DA sig
                 if ( block->getProposerIndex() != 0 && block->getDaSig().empty() ) {
                     LOG( err,
-                        "EMPTY_DA_SIG_ON_CATCHUP:BLOCK_STAMP:" +
-                            to_string( block->getTimeStampS() ) + ":PATCH_STAMP:" +
-                            to_string(
-                                _cryptoManager->getSchain()->getVerifyDaSigsPatchTimestampS() ) +
-                            ":PRPS:" + to_string( block->getProposerIndex() ) );
+                        "EMPTY_DA_SIG_ON_CATCHUP:BLOCK_STAMP:"
+                            << to_string( block->getTimeStampS() ) << ":PATCH_STAMP:"
+                            << to_string(
+                                   _cryptoManager->getSchain()->getVerifyDaSigsPatchTimestampS() )
+                            << ":PRPS:" << to_string( block->getProposerIndex() ) );
 
                     CHECK_STATE2(
                         !block->getDaSig().empty(), "Catchup received a block without DA sig:" );
@@ -92,10 +92,10 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
         }
     } catch ( ... ) {
         if ( _blockSizes->size() > 1 ) {
-            LOG( err, "Successfully deserialized " + to_string( counter ) +
-                          " blocks, got exception on block " +
-                          to_string( _cryptoManager->getSchain()->getLastCommittedBlockID() +
-                                     counter + 1 ) );
+            LOG( err, "Successfully deserialized "
+                          << to_string( counter ) << " blocks, got exception on block "
+                          << to_string( _cryptoManager->getSchain()->getLastCommittedBlockID() +
+                                        counter + 1 ) );
             // During node rotation, some block sigs may not verify durign catchup
             // in such a case we return a partial block list, up to the first non-verifying block
             if ( _createPartialListIfSomeSignaturesDontVerify ) {

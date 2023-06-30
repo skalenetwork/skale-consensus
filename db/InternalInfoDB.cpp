@@ -85,7 +85,7 @@ void InternalInfoDB::updateInternalChainInfo( block_id _blockId ) {
 
     auto h = readVersionUpdateHistory();
     CHECK_STATE( !h.empty() );
-    LOG( info, "Version update history: " + h );
+    LOG( info, "Version update history: " << h );
 }
 
 ptr< VersionUpdateHistory > InternalInfoDB::getVersionUpdateHistory() {

@@ -431,10 +431,10 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
     auto blsPublicKeysMap = make_shared< map< size_t, ptr< BLSPublicKeyShare > > >();
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
-        LOG( info, "Configured BLS public key share for node index " + to_string( i + 1 ) + ":" +
-                       blsPublicKeys->at( i )->at( 0 ) + ":" + blsPublicKeys->at( i )->at( 1 ) +
-                       ":" + blsPublicKeys->at( i )->at( 2 ) + ":" +
-                       blsPublicKeys->at( i )->at( 3 ) );
+        LOG( info, "Configured BLS public key share for node index "
+                       << to_string( i + 1 ) << ":" << blsPublicKeys->at( i )->at( 0 ) << ":"
+                       << blsPublicKeys->at( i )->at( 1 ) << ":" << blsPublicKeys->at( i )->at( 2 )
+                       << ":" << blsPublicKeys->at( i )->at( 3 ) );
 
         auto share =
             make_shared< BLSPublicKeyShare >( blsPublicKeys->at( i ), _requiredNodes, _totalNodes );
@@ -502,8 +502,8 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
     LOG( info, "Getting ECDSA keys" );
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
-        LOG(
-            info, "Getting ECDSA public key for " + ecdsaKeyNames->at( i ).substr( 0, 8 ) + "..." );
+        LOG( info,
+            "Getting ECDSA public key for " << ecdsaKeyNames->at( i ).substr( 0, 8 ) << "..." );
 
         auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
 
@@ -511,7 +511,7 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
 
         auto publicKey = getString( response, "publicKey" );
 
-        LOG( info, "Got ECDSA public key:" + publicKey );
+        LOG( info, "Got ECDSA public key:" << publicKey );
 
         ecdsaPublicKeys->push_back( publicKey );
     }
@@ -549,7 +549,7 @@ void JSONFactory::checkSGXStatus( Json::Value& _result ) {
     auto status = JSONFactory::getInt64( _result, "status" );
 
     if ( status != 0 ) {
-        LOG( err, "SGX server returned error status:" + to_string( status ) );
+        LOG( err, "SGX server returned error status:" << to_string( status ) );
         LOG( err, _result.asString() );
     }
 

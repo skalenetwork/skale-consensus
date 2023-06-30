@@ -276,7 +276,7 @@ nlohmann::json IO::readJsonHeader( file_descriptor descriptor, const char* _erro
     uint64_t headerLen = *( uint64_t* ) buf2->data();
 
     if ( headerLen < 2 || headerLen > _maxHeaderLen ) {
-        LOG( err, "Total Len:" + to_string( headerLen ) );
+        LOG( err, "Total Len:" << to_string( headerLen ) );
         BOOST_THROW_EXCEPTION(
             ParsingException( _errorString + string( ":Invalid Header len from:" ) + _ip + ":" +
                                   to_string( headerLen ),
@@ -299,7 +299,7 @@ nlohmann::json IO::readJsonHeader( file_descriptor descriptor, const char* _erro
     auto s = make_shared< string >(
         ( const char* ) buf->getBuf()->data(), ( size_t ) buf->getBuf()->size() );
 
-    LOG( trace, "Read JSON header" + *s );
+    LOG( trace, "Read JSON header" << *s );
 
     nlohmann::json js;
 

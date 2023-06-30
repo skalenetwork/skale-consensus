@@ -222,7 +222,7 @@ void Node::initLogging() {
         string category = "logLevel" + item.first;
         if ( cfg.find( category ) != cfg.end() ) {
             string logLevel = cfg.at( category ).get< string >();
-            LOG( info, "Setting log level:" + category + ":" + logLevel );
+            LOG( info, "Setting log level:" << category << ":" << logLevel );
             log->loggers[item.first]->set_level( SkaleLog::logLevelFromString( logLevel ) );
         }
     }
@@ -421,13 +421,13 @@ void Node::initSchain( const ptr< Node >& _node, schain_index _schainIndex, scha
         logThreadLocal_ = _node->getLog();
 
         for ( auto& rni : remoteNodeInfos ) {
-            LOG( debug, "Adding Node Info:" + to_string( rni->getSchainIndex() ) );
+            LOG( debug, "Adding Node Info:" << to_string( rni->getSchainIndex() ) );
             _node->setNodeInfo( rni );
-            LOG( debug, "Got IP" + rni->getBaseIP() );
+            LOG( debug, "Got IP" << rni->getBaseIP() );
 
             auto ipPortString = rni->getBaseIP() + ":" + to_string( ( uint16_t ) rni->getPort() );
 
-            LOG( info, "Adding:" + ipPortString );
+            LOG( info, "Adding:" << ipPortString );
 
             if ( ipPortSet.count( ipPortString ) > 0 ) {
                 BOOST_THROW_EXCEPTION( InvalidStateException(
@@ -532,8 +532,8 @@ void Node::doSoftAndThenHardExit() {
 
     auto startTimeMs = Time::getCurrentTimeMs();
 
-    LOG( info, "Node::exit() will try to exit on block boundary for " +
-                   to_string( CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS / 1000 ) + " seconds" );
+    LOG( info, "Node::exit() will try to exit on block boundary for "
+                   << to_string( CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS / 1000 ) << " seconds" );
 
     while ( Time::getCurrentTimeMs() < startTimeMs + CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS ) {
         usleep( 100 * 1000 );
@@ -556,7 +556,7 @@ void Node::exitImmediately() {
     // guaranteed to execute only once
     RETURN_IF_PREVIOUSLY_CALLED( exitRequested )
 
-    LOG( info, __FUNCTION__ + string( " called" ) );
+    LOG( info, __FUNCTION__ << string( " called" ) );
 
     getSchain()->stopStatusServer();
 
@@ -564,7 +564,7 @@ void Node::exitImmediately() {
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
-    LOG( info, __FUNCTION__ + string( " completed" ) );
+    LOG( info, __FUNCTION__ << string( " completed" ) );
 }
 
 /* this is called immediately after block is processed so we can exit
@@ -642,7 +642,7 @@ void Node::exitCheck() {
  * Fatal exit happened in consensus. Tell skaled to exit.
  */
 void Node::initiateApplicationExitOnFatalConsensusError( const string& message ) {
-    LOG( info, __FUNCTION__ + string( " called" ) );
+    LOG( info, __FUNCTION__ << string( " called" ) );
 
     // guaranteed to execute only once
     RETURN_IF_PREVIOUSLY_CALLED( fatalErrorOccured )

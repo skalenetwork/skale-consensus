@@ -51,8 +51,14 @@ class logger;
 
 #define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
 
-#define LOG( __SEVERITY__, __MESSAGE__ ) \
-    ConsensusEngine::log( __SEVERITY__, __MESSAGE__, className( __PRETTY_FUNCTION__ ) )
+
+#define LOG( __SEVERITY__, __MESSAGE__ )                                                  \
+    {                                                                                     \
+        std::stringstream __TMP__LOG__STREAM__;                                           \
+        __TMP__LOG__STREAM__ << __MESSAGE__;                                              \
+        ConsensusEngine::log(                                                             \
+            __SEVERITY__, __TMP__LOG__STREAM__.str(), className( __PRETTY_FUNCTION__ ) ); \
+    }
 
 
 class SkaleLog {

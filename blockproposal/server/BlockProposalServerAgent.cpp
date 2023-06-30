@@ -444,9 +444,9 @@ err:
 
 
 void BlockProposalServerAgent::checkForOldBlock( const block_id& _blockID ) {
-    LOG( debug, "BID:" + to_string( _blockID ) +
-                    ":CBID:" + to_string( getSchain()->getLastCommittedBlockID() ) +
-                    ":MQ:" + to_string( getSchain()->getMessagesCount() ) );
+    LOG( debug, "BID:" << to_string( _blockID )
+                       << ":CBID:" << to_string( getSchain()->getLastCommittedBlockID() )
+                       << ":MQ:" << to_string( getSchain()->getMessagesCount() ) );
     if ( _blockID <= getSchain()->getLastCommittedBlockID() )
         BOOST_THROW_EXCEPTION(
             OldBlockIDException( "Old block ID", nullptr, nullptr, __CLASS_NAME__ ) );
@@ -460,7 +460,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     if ( ( uint64_t ) sChain->getSchainID() != ( uint64_t ) _header.getSchainId() ) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID );
         responseHeader->setComplete();
-        LOG( err, "Incorrect schain " + to_string( _header.getSchainId() ) );
+        LOG( err, "Incorrect schain " << to_string( _header.getSchainId() ) );
         return responseHeader;
     };
 
@@ -471,8 +471,8 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
         responseHeader->setStatusSubStatus(
             CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE );
         responseHeader->setComplete();
-        LOG( err, "Could not find node info for NODE_ID:" +
-                      to_string( ( uint64_t ) _header.getProposerNodeId() ) );
+        LOG( err, "Could not find node info for NODE_ID:" << to_string(
+                      ( uint64_t ) _header.getProposerNodeId() ) );
         return responseHeader;
     }
 
@@ -481,7 +481,7 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     if ( nmi->getSchainIndex() != ( uint64_t ) _header.getProposerIndex() ) {
         responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX );
         responseHeader->setComplete();
-        LOG( err, "Node schain index does not match " + _header.getProposerIndex() );
+        LOG( err, "Node schain index does not match " << _header.getProposerIndex() );
         return responseHeader;
     }
 
@@ -555,8 +555,8 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     }
 
     if ( Time::getCurrentTimeSec() + 1 < _header.getTimeStamp() ) {
-        LOG( info, "Incorrect timestamp:" + to_string( _header.getTimeStamp() ) +
-                       ":vs:" + to_string( Time::getCurrentTimeSec() ) );
+        LOG( info, "Incorrect timestamp:" << to_string( _header.getTimeStamp() )
+                                          << ":vs:" << to_string( Time::getCurrentTimeSec() ) );
         responseHeader->setStatusSubStatus(
             CONNECTION_ERROR, CONNECTION_ERROR_TIME_STAMP_IN_THE_FUTURE );
         responseHeader->setComplete();
@@ -566,8 +566,9 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
     auto timeStamp = TimeStamp( _header.getTimeStamp(), _header.getTimeStampMs() );
 
     if ( !( sChain->getLastCommittedBlockTimeStamp() < timeStamp ) ) {
-        LOG( info, "Timestamp is less or equal prev block:" + to_string( _header.getTimeStamp() ) +
-                       ":vs:" + sChain->getLastCommittedBlockTimeStamp().toString() );
+        LOG( info, "Timestamp is less or equal prev block:"
+                       << to_string( _header.getTimeStamp() )
+                       << ":vs:" << sChain->getLastCommittedBlockTimeStamp().toString() );
 
         responseHeader->setStatusSubStatus(
             CONNECTION_DISCONNECT, CONNECTION_ERROR_TIME_STAMP_EARLIER_THAN_COMMITTED );
@@ -577,8 +578,9 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
 
     if ( !getSchain()->getNode()->getProposalHashDB()->checkAndSaveHash(
              _header.getBlockId(), _header.getProposerIndex(), _header.getHash() ) ) {
-        LOG( info, "Double proposal for block:" + to_string( _header.getBlockId() ) +
-                       "  proposer index:" + to_string( _header.getProposerIndex() ) );
+        LOG( info, "Double proposal for block:" << to_string( _header.getBlockId() )
+                                                << "  proposer index:"
+                                                << to_string( _header.getProposerIndex() ) );
         responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT, CONNECTION_DOUBLE_PROPOSAL );
         responseHeader->setComplete();
         return responseHeader;
@@ -590,11 +592,11 @@ ptr< Header > BlockProposalServerAgent::createProposalResponseHeader(
 void BlockProposalServerAgent::logStateRootMismatchError( BlockProposalRequestHeader& _header,
     block_id& blockIDInHeader, const ptr< BlockProposal >& myBlockProposalForTheSameBlockID ) {
     LOG( err, "Proposal state root does not match: " );
-    LOG( err, " My schain index:" + to_string( getSchain()->getSchainIndex() ) +
-                  " My root:" + myBlockProposalForTheSameBlockID->getStateRoot().str() );
+    LOG( err, " My schain index:" << to_string( getSchain()->getSchainIndex() ) << " My root:"
+                                  << myBlockProposalForTheSameBlockID->getStateRoot().str() );
 
-    LOG( err, "Sender schain index:" + to_string( _header.getProposerIndex() ) +
-                  " Sender root:" + _header.getStateRoot().str() );
+    LOG( err, "Sender schain index:" << to_string( _header.getProposerIndex() )
+                                     << " Sender root:" << _header.getStateRoot().str() );
 
 
     LOG( err, "State roots of other proposals:" );
@@ -604,8 +606,8 @@ void BlockProposalServerAgent::logStateRootMismatchError( BlockProposalRequestHe
     for ( uint64_t i = 1; i <= getSchain()->getNodeCount(); i++ ) {
         auto proposal = proposalDB->getBlockProposal( blockIDInHeader, i );
         if ( proposal ) {
-            LOG( err, "schain_index:" + to_string( proposal->getProposerIndex() ) +
-                          " root:" + proposal->getStateRoot().str() );
+            LOG( err, "schain_index:" << to_string( proposal->getProposerIndex() )
+                                      << " root:" << proposal->getStateRoot().str() );
         }
     }
 }

@@ -47,7 +47,7 @@ FastMessageLedger::FastMessageLedger( Schain* _schain, string _dirFullPath, bloc
     ledgerFileFullPath =
         _dirFullPath + "/cons_incoming_msg_ledger_" + to_string( schain->getSchainIndex() );
 
-    LOG( info, "Creating fast ledger at: " + string( ledgerFileFullPath ) );
+    LOG( info, "Creating fast ledger at: " << string( ledgerFileFullPath ) );
 
     std::ifstream infile( ledgerFileFullPath );
 
@@ -155,7 +155,7 @@ void FastMessageLedger::writeLine2( string& _str ) {
     do {
         result = write( fd, _str.c_str() + written, _str.length() - written );
         if ( result < 0 ) {
-            LOG( err, "Write failed with errno:" + string( strerror( errno ) ) );
+            LOG( err, "Write failed with errno:" << string( strerror( errno ) ) );
         }
         CHECK_STATE( result >= 0 );
         written += result;
@@ -186,5 +186,5 @@ void FastMessageLedger::destroy() {
     LOCK( m )
     closeFd();
     auto result = remove( ledgerFileFullPath.c_str() );
-    LOG( info, "Removed fast ledger file.  Status:" + to_string( result ) );
+    LOG( info, "Removed fast ledger file.  Status:" << to_string( result ) );
 }

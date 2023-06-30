@@ -111,7 +111,7 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
             Header::getString( js, "sig" ), Header::getString( js, "pk" ),
             Header::getString( js, "pks" ) );
     } else {
-        LOG( err, "Proposal push failed:" + to_string( status ) + ":" + to_string( subStatus ) );
+        LOG( err, "Proposal push failed:" << to_string( status ) << ":" << to_string( subStatus ) );
         return make_shared< FinalProposalResponseHeader >( status, subStatus );
     }
 }
@@ -194,8 +194,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 
     if ( result.first != CONNECTION_PROCEED ) {
-        LOG( trace, "Proposal Server terminated proposal push:" + to_string( result.first ) + ":" +
-                        to_string( result.second ) );
+        LOG( trace, "Proposal Server terminated proposal push:" << to_string( result.first ) << ":"
+                                                                << to_string( result.second ) );
         return result;
     }
 
@@ -430,8 +430,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     }
 
     if ( status == CONNECTION_ERROR ) {
-        LOG( err,
-            "Failure submitting DA proof:" + to_string( status ) + ":" + to_string( substatus ) );
+        LOG( err, "Failure submitting DA proof:" << to_string( status ) << ":"
+                                                 << to_string( substatus ) );
     }
 
     if ( getSchain()->getNode()->getVisualizationType() != 0 ) {

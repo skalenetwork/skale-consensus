@@ -70,7 +70,7 @@ uint64_t OracleClient::broadcastRequest( ptr< OracleRequestBroadcastMessage > _m
         auto exists = receiptsMap.putIfDoesNotExist( receipt, results );
 
         if ( !exists ) {
-            LOG( err, "Request exists:" + receipt );
+            LOG( err, "Request exists:" << receipt );
             return ORACLE_DUPLICATE_REQUEST;
         }
 
@@ -209,7 +209,7 @@ uint64_t OracleClient::checkOracleResult( const string& _receipt, string& _resul
         auto oracleReceivedResults = receiptsMap.getIfExists( _receipt );
 
         if ( !oracleReceivedResults.has_value() ) {
-            LOG( warn, "Received tryGettingOracleResult  with unknown receipt" + _receipt );
+            LOG( warn, "Received tryGettingOracleResult  with unknown receipt" << _receipt );
             return ORACLE_UNKNOWN_RECEIPT;
         }
 
@@ -218,7 +218,7 @@ uint64_t OracleClient::checkOracleResult( const string& _receipt, string& _resul
         return receipts->tryGettingResult( _result );
 
     } catch ( exception& e ) {
-        LOG( err, string( "Exception broadcasting message " ) + e.what() );
+        LOG( err, string( "Exception broadcasting message " ) << e.what() );
         return ORACLE_INTERNAL_SERVER_ERROR;
     } catch ( ... ) {
         LOG( err, "Internal server error in submitOracleRequest " );
@@ -244,7 +244,7 @@ void OracleClient::processResponseMessage( const ptr< MessageEnvelope >& _me ) {
         auto receivedResults = receiptsMap.getIfExists( receipt );
 
         if ( !receivedResults.has_value() ) {
-            LOG( warn, "Received OracleResponseMessage with unknown receipt" + receipt );
+            LOG( warn, "Received OracleResponseMessage with unknown receipt" << receipt );
             return;
         }
 

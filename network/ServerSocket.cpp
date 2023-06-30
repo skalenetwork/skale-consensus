@@ -37,8 +37,8 @@ ServerSocket::ServerSocket( const string& _bindIP, uint16_t _basePort, port_type
 
     CHECK_STATE( Utils::isValidIpAddress( _bindIP ) );
 
-    LOG( debug,
-        "Binding ip: " + _bindIP + " " + to_string( bindPort ) + " " + to_string( _basePort ) );
+    LOG( debug, "Binding ip: " << _bindIP << " " << to_string( bindPort ) << " "
+                               << to_string( _basePort ) );
 }
 
 
