@@ -80,7 +80,7 @@ ptr< BlockProposal > PendingTransactionsAgent::buildBlockProposal(
         sChain->getSchainIndex(), transactionList, stateRoot, stamp.getS(), stamp.getMs(),
         getSchain()->getCryptoManager() );
 
-    LOG( trace, "Created proposal, transactions:" + to_string( transactions->size() ) );
+    LOG( trace, "Created proposal, transactions:" << to_string( transactions->size() ) );
 
     auto pHashesList = myBlockProposal->createPartialHashesList();
     CHECK_STATE( pHashesList );

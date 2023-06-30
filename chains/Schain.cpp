@@ -332,7 +332,7 @@ void Schain::constructChildAgents() {
 
 void Schain::lockWithDeadLockCheck( const char* _functionName ) {
     while ( !blockProcessMutex.try_lock_for( chrono::seconds( 60 ) ) ) {
-        LOG( err, "Trying to lock in:" + string( _functionName ) );
+        LOG( err, "Trying to lock in:" << string( _functionName ) );
     }
 }
 
@@ -364,7 +364,7 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
             // Could not lock for 60 seconds. There is probably a deadlock.
             // Skipping this catchup iteration
             checkForExit();
-            LOG( err, "Could not lock in:" + string( __FUNCTION__ ) );
+            LOG( err, "Could not lock in:" << string( __FUNCTION__ ) );
             return 0;
         }
 
@@ -390,8 +390,8 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
         uint64_t result = 0;
 
         if ( committedIDOld < getLastCommittedBlockID() ) {
-            LOG( info, "CATCHUP_PROCESSED_BLOCKS:COUNT: " +
-                           to_string( getLastCommittedBlockID() - committedIDOld ) );
+            LOG( info, "CATCHUP_PROCESSED_BLOCKS:COUNT: " << to_string(
+                           getLastCommittedBlockID() - committedIDOld ) );
             result = ( ( uint64_t ) getLastCommittedBlockID() ) - committedIDOld;
             if ( !getNode()->isSyncOnlyNode() )
                 proposeNextBlock();
@@ -530,7 +530,7 @@ void Schain::proposeNextBlock() {
 
         proposedBlockArrived( myProposal );
 
-        LOG( debug, "PROPOSING BLOCK NUMBER:" + to_string( _proposedBlockID ) );
+        LOG( debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ) );
 
         auto db = getNode()->getProposalHashDB();
 
@@ -693,12 +693,11 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
         auto evmProcessingStartMs = Time::getCurrentTimeMs();
         auto blockPushedToExtFaceTimeMs = evmProcessingStartMs;
 
-        LOG( info,
-            "CWT:" +
-                to_string( blockPushedToExtFaceTimeMs -
-                           pendingTransactionsAgent->transactionListReceivedTime() ) +
-                ":TLWT:" + to_string( pendingTransactionsAgent->getTransactionListWaitTime() ) +
-                ":SBPT:" + to_string( cryptoManager->sgxBlockProcessingTime() ) );
+        LOG( info, "CWT:" << to_string( blockPushedToExtFaceTimeMs -
+                                        pendingTransactionsAgent->transactionListReceivedTime() )
+                          << ":TLWT:"
+                          << to_string( pendingTransactionsAgent->getTransactionListWaitTime() )
+                          << ":SBPT:" << to_string( cryptoManager->sgxBlockProcessingTime() ) );
         pushBlockToExtFace( _block );
         auto evmProcessingTimeMs = Time::getCurrentTimeMs() - evmProcessingStartMs;
 
@@ -807,20 +806,20 @@ void Schain::startConsensus(
 
         checkForExit();
 
-        LOG( info, "CONSENSUS_STARTED:PROPOSING: " + _proposalVector->toString() );
+        LOG( info, "CONSENSUS_STARTED:PROPOSING: " << _proposalVector->toString() );
 
-        LOG( debug, "Got proposed block set for block:" + to_string( _blockID ) );
+        LOG( debug, "Got proposed block set for block:" << to_string( _blockID ) );
 
-        LOG( debug, "StartConsensusIfNeeded BLOCK NUMBER:" + to_string( ( _blockID ) ) );
+        LOG( debug, "StartConsensusIfNeeded BLOCK NUMBER:" << to_string( ( _blockID ) ) );
 
         if ( _blockID <= getLastCommittedBlockID() ) {
-            LOG( debug, "Too late to start consensus: already committed " +
-                            to_string( lastCommittedBlockID ) );
+            LOG( debug, "Too late to start consensus: already committed "
+                            << to_string( lastCommittedBlockID ) );
             return;
         }
 
         if ( _blockID > getLastCommittedBlockID() + 1 ) {
-            LOG( debug, "Consensus is in the future" + to_string( lastCommittedBlockID ) );
+            LOG( debug, "Consensus is in the future" << to_string( lastCommittedBlockID ) );
             return;
         }
     }
@@ -833,7 +832,7 @@ void Schain::startConsensus(
 
     auto envelope = make_shared< InternalMessageEnvelope >( ORIGIN_EXTERNAL, message, *this );
 
-    LOG( debug, "Starting consensus for block id:" + to_string( _blockID ) );
+    LOG( debug, "Starting consensus for block id:" << to_string( _blockID ) );
     postMessage( envelope );
 }
 
@@ -929,10 +928,10 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
 
     auto lastCommittedBlockIDInConsensus = readLastCommittedBlockIDFromDb();
 
-    LOG(
-        info, "Last committed block in consensus:" + to_string( lastCommittedBlockIDInConsensus ) );
+    LOG( info,
+        "Last committed block in consensus:" << to_string( lastCommittedBlockIDInConsensus ) );
 
-    LOG( info, "Last committed block in skaled:" + to_string( _lastCommittedBlockID ) );
+    LOG( info, "Last committed block in skaled:" << to_string( _lastCommittedBlockID ) );
 
 
     LOG( info, "Check the consensus database for corruption ..." );
@@ -1001,7 +1000,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
                 _lastCommittedBlockID = _lastCommittedBlockID + 1;
                 _lastCommittedBlockTimeStamp = block->getTimeStampS();
                 _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
-                LOG( info, "Pushed block to skaled:" + _lastCommittedBlockID );
+                LOG( info, "Pushed block to skaled:" << _lastCommittedBlockID );
             } catch ( ... ) {
                 // Cant read the block from db, may be it is corrupt in the  snapshot
                 LOG( err, "Bootstrap could not read block from db. Repair." );
@@ -1023,7 +1022,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
         initLastCommittedBlockInfo( ( uint64_t ) _lastCommittedBlockID, stamp );
 
 
-        LOG( info, "Jump starting the system with block:" + to_string( _lastCommittedBlockID ) );
+        LOG( info, "Jump starting the system with block:" << to_string( _lastCommittedBlockID ) );
 
         if ( getLastCommittedBlockID() == 0 )
             this->pricingAgent->calculatePrice( ConsensusExtFace::transactions_vector(), 0, 0, 0 );
@@ -1062,8 +1061,8 @@ void Schain::ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCur
 
         auto messages = getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
         CHECK_STATE( messages );
-        LOG( info, "Rebroadcasting " + to_string( messages->size() ) + " messages for block " +
-                       to_string( lastCommittedBlockID + 1 ) );
+        LOG( info, "Rebroadcasting " << to_string( messages->size() ) << " messages for block "
+                                     << to_string( lastCommittedBlockID + 1 ) );
         for ( auto&& m : *messages ) {
             getNode()->getNetwork()->rebroadcastMessage( m );
         }
@@ -1073,8 +1072,8 @@ void Schain::ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCur
 void Schain::rebroadcastAllMessagesForCurrentBlock() {
     auto messages = getNode()->getOutgoingMsgDB()->getMessages( lastCommittedBlockID + 1 );
     CHECK_STATE( messages );
-    LOG( info, "Rebroadcasting " + to_string( messages->size() ) + " messages for block " +
-                   to_string( lastCommittedBlockID + 1 ) );
+    LOG( info, "Rebroadcasting " << to_string( messages->size() ) << " messages for block "
+                                 << to_string( lastCommittedBlockID + 1 ) );
     for ( auto&& m : *messages ) {
         getNode()->getNetwork()->rebroadcastMessage( m );
     }
@@ -1220,8 +1219,8 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
 
     if ( _blockId <= getLastCommittedBlockID() ) {
-        LOG( debug, "Ignoring old block decide, already got this through catchup: BID:" +
-                        to_string( _blockId ) + ":PRP:" + to_string( _proposerIndex ) );
+        LOG( debug, "Ignoring old block decide, already got this through catchup: BID:"
+                        << to_string( _blockId ) << ":PRP:" << to_string( _proposerIndex ) );
         return;
     }
 
@@ -1263,7 +1262,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posess the proposal
 
-            LOG( info, "FINALIZING_BLOCK:BID:" + to_string( _blockId ) );
+            LOG( info, "FINALIZING_BLOCK:BID:" << to_string( _blockId ) );
 
             auto agent = make_unique< BlockFinalizeDownloader >( this, _blockId, _proposerIndex );
 

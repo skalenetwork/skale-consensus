@@ -84,8 +84,8 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     }
 
     if ( restartIteration > 1 ) {
-        LOG( info, "Stuck detection engine: previous restarts detected:" +
-                       to_string( restartIteration - 1 ) );
+        LOG( info, "Stuck detection engine: previous restarts detected:" << to_string(
+                       restartIteration - 1 ) );
     }
 
 

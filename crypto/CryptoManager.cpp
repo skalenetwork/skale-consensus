@@ -94,9 +94,9 @@ void CryptoManager::initSGXClient() {
     if ( isSGXEnabled ) {
         if ( isHTTPSEnabled ) {
             if ( isSSLCertEnabled ) {
-                LOG( info, string( "Setting sgxSSLKeyFileFullPath to " ) + sgxSSLKeyFileFullPath );
-                LOG(
-                    info, string( "Setting sgxCertKeyFileFullPath to " ) + sgxSSLCertFileFullPath );
+                LOG( info, string( "Setting sgxSSLKeyFileFullPath to " ) << sgxSSLKeyFileFullPath );
+                LOG( info, string( "Setting sgxCertKeyFileFullPath to " )
+                               << sgxSSLCertFileFullPath );
                 setSGXKeyAndCert( sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath, sgxPort );
             } else {
                 LOG( info, string( "Setting sgxSSLKeyCertFileFullPath  is not set."
@@ -125,12 +125,12 @@ string blsKeyToString( ptr< BLSPublicKey > _pk ) {
 
 pair< ptr< BLSPublicKey >, ptr< BLSPublicKey > > CryptoManager::getSgxBlsPublicKey(
     uint64_t _timestamp ) {
-    LOG( debug, string( "Looking for BLS public key for timestamp " ) +
-                    std::to_string( _timestamp ) +
-                    string( " to verify a block came through catchup" ) );
+    LOG( debug, string( "Looking for BLS public key for timestamp " )
+                    << to_string( _timestamp )
+                    << string( " to verify a block came through catchup" ) );
     if ( _timestamp == uint64_t( -1 ) || previousBlsPublicKeys->size() < 2 ) {
         CHECK_STATE( sgxBLSPublicKey )
-        LOG( debug, string( "Got current BLS public key " ) + blsKeyToString( sgxBLSPublicKey ) );
+        LOG( debug, string( "Got current BLS public key " ) << blsKeyToString( sgxBLSPublicKey ) );
         return { sgxBLSPublicKey, nullptr };
     } else {
         // second key is used when the sig corresponds
@@ -142,13 +142,14 @@ pair< ptr< BLSPublicKey >, ptr< BLSPublicKey > > CryptoManager::getSgxBlsPublicK
         auto it = previousBlsPublicKeys->upper_bound( _timestamp );
 
         if ( it == previousBlsPublicKeys->begin() ) {
-            LOG( debug, string( "Got first BLS public key " ) + blsKeyToString( ( *it ).second ) );
+            LOG( debug, string( "Got first BLS public key " ) << blsKeyToString( ( *it ).second ) );
             // if begin() then no previous groups for this key
             return { ( *it ).second, nullptr };
         }
 
-        LOG( debug, string( "Got two BLS public keys " ) + blsKeyToString( ( *it ).second ) + " " +
-                        blsKeyToString( ( *std::prev( it ) ).second ) );
+        LOG( debug, string( "Got two BLS public keys " )
+                        << blsKeyToString( ( *it ).second ) << " "
+                        << blsKeyToString( ( *std::prev( it ) ).second ) );
         return { ( *it ).second, ( *( --it ) ).second };
     }
 }
@@ -238,13 +239,13 @@ CryptoManager::CryptoManager( Schain& _sChain )
     CHECK_ARGUMENT( totalSigners >= requiredSigners );
 
     isSGXEnabled = _sChain.getNode()->isSgxEnabled();
-    LOG( info, "SGX Enabled:" + to_string( isSGXEnabled ) );
+    LOG( info, "SGX Enabled:" << to_string( isSGXEnabled ) );
     isSyncNode = _sChain.getNode()->isSyncOnlyNode();
-    LOG( info, "Is Sync Node:" + to_string( isSyncNode ) );
+    LOG( info, "Is Sync Node:" << to_string( isSyncNode ) );
     // we verify real signatures if sgx is enabled on a core node or if a sync node has
     // bls public key
     verifyRealSignatures = _sChain.getNode()->verifyRealSignatures();
-    LOG( info, "Verify real signatures:" + to_string( verifyRealSignatures ) );
+    LOG( info, "Verify real signatures:" << to_string( verifyRealSignatures ) );
 
 
     // if we are going to verify ECDSA and BLS sigs we need to set up all coresponding objects
@@ -672,14 +673,16 @@ string CryptoManager::getECDSAHistoricPublicKeyForNodeId( uint64_t _nodeId, uint
 
 pair< node_id, node_id > CryptoManager::getHistoricNodeIDByIndex(
     uint64_t schain_id, uint64_t _timeStamp ) {
-    LOG( debug, string( "Looking for historic nodeId by index " ) + std::to_string( schain_id ) +
-                    string( " for timestamp " ) + std::to_string( _timeStamp ) +
-                    string( " to verify a block came through catchup" ) );
+    LOG( debug, string( "Looking for historic nodeId by index " )
+                    << to_string( schain_id ) << string( " for timestamp " )
+                    << to_string( _timeStamp )
+                    << string( " to verify a block came through catchup" ) );
     if ( _timeStamp == uint64_t( -1 ) || historicNodeGroups->size() < 2 ) {
         node_id nodeId = getSchain()->getNodeIDByIndex( schain_id );
-        LOG( debug, string( "Got current node id " ) + std::to_string( uint64_t( nodeId ) ) +
-                        string( " for index " ) + std::to_string( schain_id ) +
-                        string( " and timestamp " ) + std::to_string( _timeStamp ) );
+        LOG( debug, string( "Got current node id " )
+                        << to_string( uint64_t( nodeId ) ) << string( " for index " )
+                        << to_string( schain_id ) << string( " and timestamp " )
+                        << to_string( _timeStamp ) );
         return { nodeId, uint64_t( -1 ) };
     } else {
         // second key is used when the sig corresponds
@@ -692,19 +695,21 @@ pair< node_id, node_id > CryptoManager::getHistoricNodeIDByIndex(
 
         if ( it == historicNodeGroups->begin() ) {
             node_id nodeId = ( *it ).second[schain_id - 1];
-            LOG( debug, string( "Got node id " ) + std::to_string( uint64_t( nodeId ) ) +
-                            string( " for index " ) + std::to_string( schain_id ) +
-                            string( " and timestamp " ) + std::to_string( _timeStamp ) );
+            LOG( debug, string( "Got node id " )
+                            << to_string( uint64_t( nodeId ) ) << string( " for index " )
+                            << to_string( schain_id ) << string( " and timestamp " )
+                            << to_string( _timeStamp ) );
             // if begin() then no previous groups for this key
             return { ( *it ).second[schain_id - 1], uint64_t( -1 ) };
         }
 
         node_id nodeId1 = ( *it ).second[schain_id - 1];
         node_id nodeId2 = ( *( --it ) ).second[schain_id - 1];
-        LOG( debug, string( "Got two node ids " ) + std::to_string( uint64_t( nodeId1 ) ) + " " +
-                        std::to_string( uint64_t( nodeId2 ) ) + string( " for index " ) +
-                        std::to_string( schain_id ) + string( " and timestamp " ) +
-                        std::to_string( _timeStamp ) );
+        LOG( debug, string( "Got two node ids " )
+                        << to_string( uint64_t( nodeId1 ) ) << " "
+                        << to_string( uint64_t( nodeId2 ) ) << string( " for index " )
+                        << to_string( schain_id ) << string( " and timestamp " )
+                        << to_string( _timeStamp ) );
         return { nodeId1, nodeId2 };
     }
 }
@@ -887,9 +892,9 @@ void CryptoManager::verifyThresholdSig(
 
             if ( !blsKeys.first->VerifySig(
                      make_shared< array< uint8_t, HASH_LEN > >( _hash.getHash() ), libBlsSig ) ) {
-                LOG( err, "Could not BLS verify signature:" + _signature->toString() +
-                              string( ":KEY:" ) + blsKeys.first->toString()->at( 0 ) +
-                              ":HASH:" + _hash.toHex() );
+                LOG( err, "Could not BLS verify signature:"
+                              << _signature->toString() << string( ":KEY:" )
+                              << blsKeys.first->toString()->at( 0 ) << ":HASH:" << _hash.toHex() );
 
                 // second key is used when the sig corresponds
                 // to the last block before node rotation!
@@ -968,8 +973,8 @@ void CryptoManager::verifyBlsSigShare( ptr< BLSSigShare > _sigShare, BLAKE3Hash&
                 std::make_shared< std::array< uint8_t, 32 > >( _hash.getHash() ), _sigShare,
                 requiredSigners, totalSigners );
         } catch ( ... ) {
-            LOG( err, "Bls sig share did not verify NODE_ID:" +
-                          to_string( ( uint64_t ) _sigShare->getSignerIndex() ) );
+            LOG( err, "Bls sig share did not verify NODE_ID:" << to_string(
+                          ( uint64_t ) _sigShare->getSignerIndex() ) );
             throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
         }
 
@@ -1089,16 +1094,17 @@ void CryptoManager::verifySessionSigAndKey( BLAKE3Hash& _hash, const string& _si
                 try {
                     verifyECDSASig( pkeyHash, pkSig, _nodeId.first, _timeStamp );
                 } catch ( ... ) {
-                    LOG( err, "PubKey ECDSA sig did not verify NODE_ID:" +
-                                  to_string( ( uint64_t ) _nodeId.first ) +
-                                  string( ". Probably because of rotation, trying second key" ) );
+                    LOG(
+                        err, "PubKey ECDSA sig did not verify NODE_ID:"
+                                 << to_string( ( uint64_t ) _nodeId.first )
+                                 << string( ". Probably because of rotation, trying second key" ) );
                     if ( _nodeId.second != node_id( -1 ) ) {  // default value
                         try {
                             verifyECDSASig( pkeyHash, pkSig, _nodeId.second, _timeStamp );
                         } catch ( ... ) {
-                            LOG( err, "PubKey ECDSA sig did not verify NODE_ID:" +
-                                          to_string( ( uint64_t ) _nodeId.second ) +
-                                          string( ". Pubkey ECDSA wasn't verified." ) );
+                            LOG( err, "PubKey ECDSA sig did not verify NODE_ID:"
+                                          << to_string( ( uint64_t ) _nodeId.second )
+                                          << string( ". Pubkey ECDSA wasn't verified." ) );
                             throw_with_nested(
                                 InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
                         }
@@ -1205,7 +1211,7 @@ string CryptoManager::getSGXEcdsaPublicKey( const string& _keyName, const ptr< S
     CHECK_ARGUMENT( _keyName != "" );
     CHECK_ARGUMENT( _c );
 
-    LOG( info, "Getting ECDSA public key for " + _keyName.substr( 0, 8 ) + "..." );
+    LOG( info, "Getting ECDSA public key for " << _keyName.substr( 0, 8 ) << "..." );
 
     Json::Value result;
 
@@ -1217,7 +1223,7 @@ string CryptoManager::getSGXEcdsaPublicKey( const string& _keyName, const ptr< S
 
     auto publicKey = JSONFactory::getString( result, "publicKey" );
 
-    LOG( info, "Got ECDSA public key: " + publicKey );
+    LOG( info, "Got ECDSA public key: " << publicKey );
 
     return publicKey;
 }

@@ -294,7 +294,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
         fragment_index fragmentIndex = Header::getUint64( _jsonRequest, "fragmentIndex" );
 
         if ( fragmentIndex < 1 || ( uint64_t ) fragmentIndex > getSchain()->getNodeCount() - 1 ) {
-            LOG( debug, "Incorrect fragment index:" + to_string( fragmentIndex ) );
+            LOG( debug, "Incorrect fragment index:" << to_string( fragmentIndex ) );
             _responseHeader->setStatusSubStatus(
                 CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_FRAGMENT_INDEX );
             _responseHeader->setComplete();
@@ -306,7 +306,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
 
 
         if ( proposerIndex < 1 || ( uint64_t ) fragmentIndex > getSchain()->getNodeCount() ) {
-            LOG( debug, "Incorrect proposer index:" + to_string( proposerIndex ) );
+            LOG( debug, "Incorrect proposer index:" << to_string( proposerIndex ) );
             _responseHeader->setStatusSubStatus(
                 CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX );
             _responseHeader->setComplete();

@@ -337,7 +337,7 @@ void ConsensusEngine::readSchainConfigFiles( const ptr< Node >& _node, const fs_
 
         for ( ; itr != end; ++itr ) {
             fs_path jsonFile = itr->path();
-            LOG( debug, "Parsing file:" + jsonFile.string() );
+            LOG( debug, "Parsing file:" << jsonFile.string() );
             JSONFactory::createAndAddSChainFromJson( _node, jsonFile, this );
             break;
         }
@@ -479,8 +479,8 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(
 
         BinConsensusInstance::initHistory( nodes.begin()->second->getSchain()->getNodeCount() );
 
-        LOG( trace,
-            "Parsed configs and created " + to_string( ConsensusEngine::nodesCount() ) + " nodes" );
+        LOG( trace, "Parsed configs and created " << to_string( ConsensusEngine::nodesCount() )
+                                                  << " nodes" );
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         throw;
@@ -505,7 +505,7 @@ void ConsensusEngine::startAll() {
 
 
             it.second->startServers( nullptr );
-            LOG( info, "Started servers" + to_string( it.second->getNodeID() ) );
+            LOG( info, "Started servers" << to_string( it.second->getNodeID() ) );
         }
 
 
@@ -515,7 +515,7 @@ void ConsensusEngine::startAll() {
             }
             CHECK_STATE( it.second );
             it.second->startClients();
-            LOG( info, "Started clients" + to_string( it.second->getNodeID() ) );
+            LOG( info, "Started clients" << to_string( it.second->getNodeID() ) );
         }
 
         LOG( info, "Started node" );
@@ -1046,7 +1046,7 @@ void ConsensusEngine::setPublicKeyInfo( ptr< vector< string > >& _ecdsaPublicKey
 
 
     for ( uint64_t i = 0; i < _requiredSigners; i++ ) {
-        LOG( info, "Parsing BLS key share:" + blsPublicKeys->at( i )->at( 0 ) );
+        LOG( info, "Parsing BLS key share:" << blsPublicKeys->at( i )->at( 0 ) );
 
         BLSPublicKeyShare pubKey( blsPublicKeys->at( i ), _requiredSigners, _totalSigners );
 
@@ -1134,20 +1134,20 @@ ConsensusEngine::getBlock( block_id _blockId ) {
 uint64_t ConsensusEngine::submitOracleRequest(
     const string& _spec, string& _receipt, string& _errorMessage ) {
     if ( nodes.size() == 0 ) {
-        LOG( err, string( "Empty nodes in " ) + __FUNCTION__ );
+        LOG( err, string( "Empty nodes in " ) << __FUNCTION__ );
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
     auto node = nodes.begin()->second;
 
     if ( !node ) {
-        LOG( err, string( "Null node in " ) + __FUNCTION__ );
+        LOG( err, string( "Null node in " ) << __FUNCTION__ );
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
 
     try {
         auto oracleClient = node->getSchain()->getOracleClient();
         if ( !oracleClient ) {
-            LOG( err, string( "Null oracle client in " ) + __FUNCTION__ );
+            LOG( err, string( "Null oracle client in " ) << __FUNCTION__ );
             return ORACLE_INTERNAL_SERVER_ERROR;
         }
 
@@ -1179,17 +1179,17 @@ uint64_t ConsensusEngine::submitOracleRequest(
 uint64_t ConsensusEngine::checkOracleResult( const string& _receipt, string& _result ) {
     try {
         if ( nodes.size() == 0 ) {
-            LOG( err, string( "Empty nodes in " ) + __FUNCTION__ );
+            LOG( err, string( "Empty nodes in " ) << __FUNCTION__ );
             return ORACLE_INTERNAL_SERVER_ERROR;
         }
         auto node = nodes.begin()->second;
         if ( !node ) {
-            LOG( err, string( "Null node in " ) + __FUNCTION__ );
+            LOG( err, string( "Null node in " ) << __FUNCTION__ );
             return ORACLE_INTERNAL_SERVER_ERROR;
         }
         auto oracleClient = node->getSchain()->getOracleClient();
         if ( !oracleClient ) {
-            LOG( err, string( "Null oracleClient in " ) + __FUNCTION__ );
+            LOG( err, string( "Null oracleClient in " ) << __FUNCTION__ );
             return ORACLE_INTERNAL_SERVER_ERROR;
         }
         return oracleClient->checkOracleResult( _receipt, _result );
@@ -1197,7 +1197,7 @@ uint64_t ConsensusEngine::checkOracleResult( const string& _receipt, string& _re
         SkaleException::logNested( e, err );
         return ORACLE_INTERNAL_SERVER_ERROR;
     } catch ( ... ) {
-        LOG( err, string( "Unknown exception in " ) + __FUNCTION__ );
+        LOG( err, string( "Unknown exception in " ) << __FUNCTION__ );
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
 }

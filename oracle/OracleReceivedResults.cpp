@@ -40,8 +40,8 @@ void OracleReceivedResults::insertIfDoesntExist(
         LOCK( m )
 
         if ( signaturesBySchainIndex->count( _origin ) > 0 ) {
-            LOG( warn, "Duplicate OracleResponseMessage for result:" + unsignedResult +
-                           "} index:" + to_string( _origin ) );
+            LOG( warn, "Duplicate OracleResponseMessage for result:" << unsignedResult << "} index:"
+                                                                     << to_string( _origin ) );
             return;
         }
 

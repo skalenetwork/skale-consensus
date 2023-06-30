@@ -151,7 +151,7 @@ void Network::broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isF
             try {
                 getSchain()->getNode()->getOutgoingMsgDB()->saveMsg( _msg );
             } catch ( exception& e ) {
-                LOG( err, "Could not save outgoing message:" + string( e.what() ) );
+                LOG( err, "Could not save outgoing message:" << string( e.what() ) );
             }
         }
 

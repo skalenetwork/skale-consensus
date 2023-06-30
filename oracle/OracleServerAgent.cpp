@@ -120,15 +120,15 @@ void OracleServerAgent::workerThreadItemSendLoop( OracleServerAgent* _agent ) {
 
     CHECK_STATE( _agent->threadCounter == 0 );
 
-    LOG( info, "Thread counter is : " + to_string( _agent->threadCounter ) );
+    LOG( info, "Thread counter is : " << to_string( _agent->threadCounter ) );
 
     auto threadNumber = ++( _agent->threadCounter );
 
-    LOG( info, "Starting Oracle worker thread: " + to_string( threadNumber ) );
+    LOG( info, "Starting Oracle worker thread: " << to_string( threadNumber ) );
 
     _agent->waitOnGlobalStartBarrier();
 
-    LOG( info, "Started Oracle worker thread " + to_string( threadNumber ) );
+    LOG( info, "Started Oracle worker thread " << to_string( threadNumber ) );
 
     auto agent = ( Agent* ) _agent;
 
@@ -148,20 +148,20 @@ void OracleServerAgent::workerThreadItemSendLoop( OracleServerAgent* _agent ) {
             auto spec = orclMsg->getParsedSpec();
 
             if ( spec->getChainId() != agent->getSchain()->getSchainID() ) {
-                LOG( err, string( "Received msg with invalid schain id in oracle spec:" +
-                                  to_string( spec->getChainId() ) ) );
+                LOG( err, string( "Received msg with invalid schain id in oracle spec:" )
+                              << to_string( spec->getChainId() ) );
                 continue;
             }
 
             if ( spec->getTime() + ORACLE_REQUEST_AGE_ON_RECEIPT_MS < Time::getCurrentTimeMs() ) {
-                LOG( err, string( "Received msg with old request with age:" ) +
-                              to_string( Time::getCurrentTimeMs() - spec->getTime() ) );
+                LOG( err, string( "Received msg with old request with age:" )
+                              << to_string( Time::getCurrentTimeMs() - spec->getTime() ) );
                 continue;
             }
 
             if ( spec->getTime() > Time::getCurrentTimeMs() + ORACLE_REQUEST_FUTURE_JITTER_MS ) {
-                LOG( err, string( "Received msg with oracle request with time in the future:" ) +
-                              to_string( spec->getTime() - Time::getCurrentTimeMs() ) );
+                LOG( err, string( "Received msg with oracle request with time in the future:" )
+                              << to_string( spec->getTime() - Time::getCurrentTimeMs() ) );
                 continue;
             }
 
@@ -233,7 +233,7 @@ ptr< OracleResponseMessage > OracleServerAgent::doEndpointRequestResponse(
 
     auto resultStr = oracleResult->toString();
 
-    LOG( debug, "Oracle request result: " + resultStr );
+    LOG( debug, "Oracle request result: " << resultStr );
 
     string receipt = _requestSpec->getReceipt();
 
@@ -280,8 +280,8 @@ uint64_t OracleServerAgent::curlHttp(
     res = curl_easy_perform( curl );
 
     if ( res != CURLE_OK ) {
-        LOG( err,
-            "Curl easy perform failed for url: " + _uri + " with error code:" + to_string( res ) );
+        LOG( err, "Curl easy perform failed for url: " << _uri
+                                                       << " with error code:" + to_string( res ) );
         status = ORACLE_COULD_NOT_CONNECT_TO_ENDPOINT;
     } else {
         status = ORACLE_SUCCESS;
