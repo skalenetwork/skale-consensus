@@ -173,6 +173,6 @@ void AbstractServerAgent::createNetworkReadThread() {
 void AbstractServerAgent::notifyAllConditionVariables() {
     Agent::notifyAllConditionVariables();
     LOG( trace,
-        "Notifying TCP cond" << to_string( ( uint64_t ) ( void* ) &incomingTCPConnectionsCond ) );
+        "Notifying TCP cond" << to_string( ( uint64_t )( void* ) &incomingTCPConnectionsCond ) );
     incomingTCPConnectionsCond.notify_all();
 }
