@@ -189,6 +189,8 @@ class Node {
 
     uint64_t emptyBlockIntervalMs = 0;
 
+    uint64_t emptyBlockIntervalAfterCatchupMs = 0;
+
     uint64_t blockProposalHistorySize;
 
     uint64_t committedTransactionsHistory = 0;
@@ -388,6 +390,8 @@ public:
 
     uint64_t getEmptyBlockIntervalMs() const;
 
+    uint64_t getEmptyBlockIntervalAfterCatchupMs() const;
+
     uint64_t getMaxCatchupDownloadBytes() const;
 
     uint64_t getMaxTransactionsPerBlock() const;
@@ -407,6 +411,10 @@ public:
     void initLogging();
 
     void setEmptyBlockIntervalMs( uint64_t _interval ) { this->emptyBlockIntervalMs = _interval; }
+
+    void setEmptyBlockIntervalAfterCatchupMs( uint64_t _interval ) {
+        this->emptyBlockIntervalAfterCatchupMs = _interval;
+    }
 
     void testNodeInfos();
 

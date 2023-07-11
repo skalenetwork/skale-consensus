@@ -249,6 +249,26 @@ void JSONFactory::createAndAddSChainFromJsonObject(
 
         _node->setEmptyBlockIntervalMs( emptyBlockIntervalMs );
 
+
+        uint64_t emptyBlockIntervalAfterCatchupMs;
+        int64_t emptyBlockIntervalAfterCatchupMsTmp;
+
+        try {
+            emptyBlockIntervalAfterCatchupMsTmp =
+                element.at( "emptyBlockIntervalAfterCatchupMs" ).get< int64_t >();
+        } catch ( ... ) {
+            emptyBlockIntervalMsTmp = EMPTY_BLOCK_INTERVAL_AFTER_CATCHUP_MS;
+        }
+
+        if ( emptyBlockIntervalAfterCatchupMsTmp < 0 ) {
+            emptyBlockIntervalAfterCatchupMs = 100000000000000;
+        } else {
+            emptyBlockIntervalAfterCatchupMs = emptyBlockIntervalAfterCatchupMsTmp;
+        }
+
+        _node->setEmptyBlockIntervalAfterCatchupMs( emptyBlockIntervalAfterCatchupMs );
+
+
         ptr< NodeInfo > localNodeInfo = nullptr;
 
         vector< ptr< NodeInfo > > remoteNodeInfos;

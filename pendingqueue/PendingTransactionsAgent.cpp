@@ -56,12 +56,12 @@ PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
     : Agent( ref_sChain, false ) {}
 
 ptr< BlockProposal > PendingTransactionsAgent::buildBlockProposal(
-    block_id _blockID, TimeStamp& _previousBlockTimeStamp ) {
+    block_id _blockID, TimeStamp& _previousBlockTimeStamp, uint64_t _maxPendingQueueWaitTimeMs ) {
     MICROPROFILE_ENTERI( "PendingTransactionsAgent", "sleep", MP_DIMGRAY );
     usleep( getNode()->getMinBlockIntervalMs() * 1000 );
     MICROPROFILE_LEAVE();
 
-    auto result = createTransactionsListForProposal();
+    auto result = createTransactionsListForProposal( _maxPendingQueueWaitTimeMs );
     transactionListReceivedTimeMs = Time::getCurrentTimeMs();
     auto transactions = result.first;
     CHECK_STATE( transactions );
@@ -91,7 +91,7 @@ ptr< BlockProposal > PendingTransactionsAgent::buildBlockProposal(
 }
 
 pair< ptr< vector< ptr< Transaction > > >, u256 >
-PendingTransactionsAgent::createTransactionsListForProposal() {
+PendingTransactionsAgent::createTransactionsListForProposal( uint64_t _maxPendingQueueWaitTimeMs ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime() )
 
     auto result = make_shared< vector< ptr< Transaction > > >();
@@ -127,7 +127,7 @@ PendingTransactionsAgent::createTransactionsListForProposal() {
         auto diffTime = finishTime - startTimeMs;
 
         if ( this->sChain->getLastCommittedBlockID() == 0 ||
-             diffTime >= getSchain()->getNode()->getEmptyBlockIntervalMs() ) {
+             diffTime >= _maxPendingQueueWaitTimeMs ) {
             break;
         }
 
