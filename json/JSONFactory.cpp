@@ -257,7 +257,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(
             emptyBlockIntervalAfterCatchupMsTmp =
                 element.at( "emptyBlockIntervalAfterCatchupMs" ).get< int64_t >();
         } catch ( ... ) {
-            emptyBlockIntervalMsTmp = EMPTY_BLOCK_INTERVAL_AFTER_CATCHUP_MS;
+            emptyBlockIntervalAfterCatchupMsTmp = EMPTY_BLOCK_INTERVAL_AFTER_CATCHUP_MS;
         }
 
         if ( emptyBlockIntervalAfterCatchupMsTmp < 0 ) {
