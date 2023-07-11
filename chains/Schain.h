@@ -183,7 +183,7 @@ class Schain : public Agent {
     recursive_mutex blockErrorAnalyzersMutex;
     vector< ptr< BlockErrorAnalyzer > > blockErrorAnalyzers;
 
-    void proposeNextBlock();
+    void proposeNextBlock( uint64_t _maxPendingQueueWaitTimeMs );
 
     void processCommittedBlock( const ptr< CommittedBlock >& _block );
 

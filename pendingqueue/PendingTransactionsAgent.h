@@ -86,7 +86,8 @@ private:
 
     transaction_count transactionCounter = 0;
 
-    pair< ptr< vector< ptr< Transaction > > >, u256 > createTransactionsListForProposal();
+    pair< ptr< vector< ptr< Transaction > > >, u256 > createTransactionsListForProposal(
+        uint64_t _maxPendingQueueWaitTimeMs );
 
     uint64_t transactionListWaitTime = 0;
 
@@ -101,7 +102,8 @@ public:
 
     ptr< Transaction > getKnownTransactionByPartialHash( ptr< partial_sha_hash > hash );
 
-    ptr< BlockProposal > buildBlockProposal( block_id _blockID, TimeStamp& _timeStamp );
+    ptr< BlockProposal > buildBlockProposal(
+        block_id _blockID, TimeStamp& _timeStamp, uint64_t _maxPendingQueueWaitTimeMs );
 
     uint64_t getTransactionListWaitTime() const { return transactionListWaitTime; };
 

@@ -394,7 +394,7 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
                            getLastCommittedBlockID() - committedIDOld ) );
             result = ( ( uint64_t ) getLastCommittedBlockID() ) - committedIDOld;
             if ( !getNode()->isSyncOnlyNode() )
-                proposeNextBlock();
+                proposeNextBlock( getNode()->getEmptyBlockIntervalAfterCatchupMs() );
         }
 
         unbumpPriority();
@@ -479,7 +479,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
 
         processCommittedBlock( newCommittedBlock );
-        proposeNextBlock();
+        proposeNextBlock( getNode()->getEmptyBlockIntervalMs() );
 
         unbumpPriority();
 
@@ -505,7 +505,7 @@ void Schain::checkForExit() {
 
 
 // Note: this function must be called with blockProcessing mutex held
-void Schain::proposeNextBlock() {
+void Schain::proposeNextBlock( uint64_t _maxPendingQueueWaitTimeMs ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     checkForExit();
@@ -519,7 +519,8 @@ void Schain::proposeNextBlock() {
                 _proposedBlockID, getSchainIndex() );
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();
-            myProposal = pendingTransactionsAgent->buildBlockProposal( _proposedBlockID, stamp );
+            myProposal = pendingTransactionsAgent->buildBlockProposal(
+                _proposedBlockID, stamp, _maxPendingQueueWaitTimeMs );
         }
 
         CHECK_STATE( myProposal );
@@ -1044,7 +1045,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
             // do not wait much for the first block after start
             // otherwise bootStrapAll() can block node start
             getNode()->setEmptyBlockIntervalMs( 50 );
-            proposeNextBlock();
+            proposeNextBlock( getNode()->getEmptyBlockIntervalMs() );
             getNode()->setEmptyBlockIntervalMs( emptyBlockInterval );
             LOG( info, "Successfully proposed block in boostrap" );
         }

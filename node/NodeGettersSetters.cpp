@@ -282,6 +282,11 @@ uint64_t Node::getEmptyBlockIntervalMs() const {
     return emptyBlockIntervalMs;
 }
 
+uint64_t Node::getEmptyBlockIntervalAfterCatchupMs() const {
+    return emptyBlockIntervalAfterCatchupMs;
+}
+
+
 uint64_t Node::getMaxCatchupDownloadBytes() const {
     return maxCatchupDownloadBytes;
 }

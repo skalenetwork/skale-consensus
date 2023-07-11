@@ -45,7 +45,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/json/JSONFactory.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/json/JSONFactory.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +69,7 @@
     </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="develop" />
+        <entry key="$PROJECT_DIR$" value="826_sync_node_sigsegv" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
