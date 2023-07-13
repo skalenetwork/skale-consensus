@@ -21,11 +21,12 @@
     @date 2018
 */
 
-
+#include <algorithm>
 #include "leveldb/db.h"
 #include <malloc.h>
 #include <sched.h>
 #include <unordered_set>
+
 
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -393,8 +394,14 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
             LOG( info, "CATCHUP_PROCESSED_BLOCKS:COUNT: " << to_string(
                            getLastCommittedBlockID() - committedIDOld ) );
             result = ( ( uint64_t ) getLastCommittedBlockID() ) - committedIDOld;
-            if ( !getNode()->isSyncOnlyNode() )
-                proposeNextBlock( getNode()->getEmptyBlockIntervalAfterCatchupMs() );
+            if ( !getNode()->isSyncOnlyNode() ) {
+                auto emptyBlockInterval = getNode()->getEmptyBlockIntervalMs();
+                auto emptyBlockIntervalAfterCatchup =
+                    getNode()->getEmptyBlockIntervalAfterCatchupMs();
+                // chose the smaller of two intervals. This is just to be able to force
+                // empty block in tests by setting only emptyBlockInterval to zero
+                proposeNextBlock( std::min( emptyBlockInterval, emptyBlockIntervalAfterCatchup ) );
+            }
         }
 
         unbumpPriority();
