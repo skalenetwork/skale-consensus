@@ -21,6 +21,7 @@
     @date 2018-
 */
 
+#include <algorithm>
 #include "Log.h"
 #include "SkaleCommon.h"
 #include "db/BlockDB.h"
@@ -56,12 +57,12 @@ PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
     : Agent( ref_sChain, false ) {}
 
 ptr< BlockProposal > PendingTransactionsAgent::buildBlockProposal(
-    block_id _blockID, TimeStamp& _previousBlockTimeStamp, uint64_t _maxPendingQueueWaitTimeMs ) {
+    block_id _blockID, TimeStamp& _previousBlockTimeStamp, bool _isCalledAfterCatchup ) {
     MICROPROFILE_ENTERI( "PendingTransactionsAgent", "sleep", MP_DIMGRAY );
     usleep( getNode()->getMinBlockIntervalMs() * 1000 );
     MICROPROFILE_LEAVE();
 
-    auto result = createTransactionsListForProposal( _maxPendingQueueWaitTimeMs );
+    auto result = createTransactionsListForProposal( _isCalledAfterCatchup );
     transactionListReceivedTimeMs = Time::getCurrentTimeMs();
     auto transactions = result.first;
     CHECK_STATE( transactions );
@@ -91,7 +92,7 @@ ptr< BlockProposal > PendingTransactionsAgent::buildBlockProposal(
 }
 
 pair< ptr< vector< ptr< Transaction > > >, u256 >
-PendingTransactionsAgent::createTransactionsListForProposal( uint64_t _maxPendingQueueWaitTimeMs ) {
+PendingTransactionsAgent::createTransactionsListForProposal( bool _isCalledAfterCatchup ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime() )
 
     auto result = make_shared< vector< ptr< Transaction > > >();
@@ -126,8 +127,18 @@ PendingTransactionsAgent::createTransactionsListForProposal( uint64_t _maxPendin
         auto finishTime = Time::getCurrentTimeMs();
         auto diffTime = finishTime - startTimeMs;
 
-        if ( this->sChain->getLastCommittedBlockID() == 0 ||
-             diffTime >= _maxPendingQueueWaitTimeMs ) {
+        uint64_t emptyBlockTimeMs;
+
+        if ( _isCalledAfterCatchup ) {
+            // chose the smaller of two intervals. This is just to be able to force
+            // empty block in tests by setting only emptyBlockInterval to zero
+            emptyBlockTimeMs = std::min( getNode()->getEmptyBlockIntervalAfterCatchupMs(),
+                getNode()->getEmptyBlockIntervalMs() );
+        } else {
+            emptyBlockTimeMs = getNode()->getEmptyBlockIntervalMs();
+        }
+
+        if ( this->sChain->getLastCommittedBlockID() == 0 || diffTime >= emptyBlockTimeMs ) {
             break;
         }
 
