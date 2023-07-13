@@ -395,12 +395,7 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
                            getLastCommittedBlockID() - committedIDOld ) );
             result = ( ( uint64_t ) getLastCommittedBlockID() ) - committedIDOld;
             if ( !getNode()->isSyncOnlyNode() ) {
-                auto emptyBlockInterval = getNode()->getEmptyBlockIntervalMs();
-                auto emptyBlockIntervalAfterCatchup =
-                    getNode()->getEmptyBlockIntervalAfterCatchupMs();
-                // chose the smaller of two intervals. This is just to be able to force
-                // empty block in tests by setting only emptyBlockInterval to zero
-                proposeNextBlock( std::min( emptyBlockInterval, emptyBlockIntervalAfterCatchup ) );
+                proposeNextBlock( true );
             }
         }
 
@@ -486,7 +481,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
 
         processCommittedBlock( newCommittedBlock );
-        proposeNextBlock( getNode()->getEmptyBlockIntervalMs() );
+        proposeNextBlock( false );
 
         unbumpPriority();
 
@@ -512,7 +507,7 @@ void Schain::checkForExit() {
 
 
 // Note: this function must be called with blockProcessing mutex held
-void Schain::proposeNextBlock( uint64_t _maxPendingQueueWaitTimeMs ) {
+void Schain::proposeNextBlock( bool _isCalledAfterCatchup ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     checkForExit();
@@ -527,7 +522,7 @@ void Schain::proposeNextBlock( uint64_t _maxPendingQueueWaitTimeMs ) {
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();
             myProposal = pendingTransactionsAgent->buildBlockProposal(
-                _proposedBlockID, stamp, _maxPendingQueueWaitTimeMs );
+                _proposedBlockID, stamp, _isCalledAfterCatchup );
         }
 
         CHECK_STATE( myProposal );
@@ -1052,7 +1047,7 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
             // do not wait much for the first block after start
             // otherwise bootStrapAll() can block node start
             getNode()->setEmptyBlockIntervalMs( 50 );
-            proposeNextBlock( getNode()->getEmptyBlockIntervalMs() );
+            proposeNextBlock( false );
             getNode()->setEmptyBlockIntervalMs( emptyBlockInterval );
             LOG( info, "Successfully proposed block in boostrap" );
         }
