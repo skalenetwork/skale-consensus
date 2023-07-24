@@ -247,8 +247,129 @@ An example of Oracle result is provided below
 
 ### 7.1 OracleResult example for EthApi request.
 ```JSON
-{"cid":1,"uri":"https://mygeth.com:1234",,"ethApi":"eth_call","params":[{ "from":"0x9876543210987654321098765432109876543210","to":"0x5FbDB2315678afecb367f032d93F642f64180aa3","data":"0x893d20e8","gas":"0x100000"},"latest"],"encoding":"json","time":1681494451895, "rslts":["0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"],"sigs"["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",null,null,null,null,null,null,null,null,null,null]}
+{"cid":1,"uri":"https://mygeth.com:1234","ethApi":"eth_call","params":[{ "from":"0x9876543210987654321098765432109876543210","to":"0x5FbDB2315678afecb367f032d93F642f64180aa3","data":"0x893d20e8","gas":"0x100000"},"latest"],"encoding":"json","time":1681494451895, "rslts":["0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"],"sigs"["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",null,null,null,null,null,null,null,null,null,null]}
 ```
+
+
+## 8. Details of Oracle JSON ordering and whitespace handling.
+
+1. The OracleRequest submitted by Dapp should not include any whitespace or carriage return characters.
+Oracle will remove all such characters from the spec on submission before any further handling is performed.
+The string obtained after removal of whitespace is `OriginalRequestString`
+
+2. Oracle receipt is simply a hash of `OriginalRequestString`.
+
+Oracle uses hex-encoded 32-byte Keccak_256 hash function, as specified by C++ code below.
+
+```
+string hashForOracle( char* _data, size_t _size ) {
+    CryptoPP::Keccak_256 hash;
+    string digest;
+    hash.Update( ( const CryptoPP::byte* ) _data, _size );
+    digest.resize( hash.DigestSize() );
+    hash.Final( ( CryptoPP::byte* ) &digest[0] );
+    return Utils::carray2Hex( ( const uint8_t* ) digest.data(), 32 );
+}
+```
+
+The hex-encoded hash always has 64 characters (digits and lower-case letters).
+
+
+3. Characters in `OriginalRequestString` are never reordered or changed during processing.   
+
+`OracleResult` will start exactly with `OriginalRequestString` that has `pow` element stripped.
+
+4. To calculate the correct `pow` `OriginalRequestString`, incremental values of of `pow` shall be tried, starting with 0 until `verifyPow` returns true.
+
+Here is C++ code for `verifyPow`
+
+```
+bool verifyPow( string _spec ) {
+    hash = hashForOracle( _spec.data(), _spec.size() );        
+    if ( ~u256( 0 ) / binaryHash > u256( 10000 ) ) {
+       return true;
+    } else {
+       return false;
+    }
+}
+```
+
+Here `u256()` means a 256-bit number.
+`~u256(0)` is simply a 256-bit number where every bit is equal to `1`.
+
+Note that 'pow' element is not included in the `OracleResult`.
+Therefore, when you parse the result in  Solidity, you do not need to care about 'pow'. 
+
+
+5. `pow` element shall always be the last JSON element of `OriginalRequestString`. Oracle checks this 
+and will return an error if this is not true.
+
+6. When `OracleResult` is signed, the signature takes the hash of the entire unsigned result string.
+This includes the comma.
+
+Here is C++ code that signs the result
+
+```
+void signResultAsJson() {
+        // check that unsigned result ends with comma
+        CHECK_STATE( unsignedOracleResult.at( oracleResult.size() - 1 ) == ',' )        
+        sig = signOracleResult( unsignedOracleResult );
+}
+```
+
+```
+string signOracleResult( string _unsignedResult ) {
+    auto hashStr = hashForOracle( _unsignedResult.data(), _unsigned.size() );
+    return sgxEcdsaSignMessageHash( 16, sgxECDSAKeyName, hashStr);
+}
+```
+
+```
+string sgxEcdsaSignMessageHash( string keyName, string messageHash) {
+    Json::Value p;
+    p["type"] = ECDSA_SIGN_REQ;
+    p["base"] = 16;
+    p["keyName"] = keyName;
+    p["messageHash"] = messageHash;
+    auto result = doSGXRequest( p); 
+    return result;
+}
+```
+
+
+7.  Since Oracle does not re-order characters in the `OriginalRequestString`, parsing 
+in Solidity can be simplified.
+
+
+Lets take this example 
+
+```JSON
+{"cid":1,"uri":"https://mygeth.com:1234","ethApi":"eth_call","params":[{ "from":"0x9876543210987654321098765432109876543210","to":"0x5FbDB2315678afecb367f032d93F642f64180aa3","data":"0x893d20e8","gas":"0x100000"},"latest"],"encoding":"json","time":1681494451895, "rslts":["0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"],"sigs"["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",null,null,null,null,null,null,null,null,null,null]}
+```
+
+You can start Solidity parsing by simply verifying that the string starts with 
+
+```
+{"cid":1,"uri":"https://mygeth.com:1234","ethApi":"eth_call","params":[{ "from":"0x9876543210987654321098765432109876543210","to":"0x5FbDB2315678afecb367f032d93F642f64180aa3","data":"0x893d20e8","gas":"0x100000"},"latest"],"encoding":"json",
+```
+
+The above will never change, so it can be simply hardcoded into the smartcontract
+
+Then the only thing that needs to be dynamically parsed in Solidity is 
+
+```
+"time":1681494451895, "rslts":["0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266"],"sigs"["6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","7d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","8d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","9d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","1050daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f","6d50daf908d97d947fdcd387ed4bdc76149b11766f455b31c86d5734f4422c8f",null,null,null,null,null,null,null,null,null,null]}
+```
+
+First check that time is not too old. The Dapp needs to decide what is acceptable time difference.
+
+Then verify signatures and parse results.
+
+This library can be useful when handling strings in Solidity:
+
+https://github.com/Arachnid/solidity-stringutils
+
+
 # Appendix A: list of Oracle error codes.
 
 ```
