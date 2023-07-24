@@ -279,7 +279,7 @@ The hex-encoded hash always has 64 characters (digits and lower-case letters).
 
 `OracleResult` will start exactly with `OriginalRequestString` that has `pow` element stripped.
 
-4. To calculate the correct `pow` `OriginalRequestString`, incremental values of of `pow` shall be tried, starting with 0 until `verifyPow` returns true.
+4. To calculate the correct `pow` for `OriginalRequestString`, incremental values of of `pow` shall be tried, starting with 0 until `verifyPow` returns true.
 
 Here is C++ code for `verifyPow`
 
