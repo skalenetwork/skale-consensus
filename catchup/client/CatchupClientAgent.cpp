@@ -81,6 +81,8 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
     LOG( debug, "Catchupc step 0: requesting blocks after "
                     << to_string( getSchain()->getLastCommittedBlockID() ) );
 
+    auto catchupDownloadStartTimeMs = Time::getCurrentTimeMs();
+
     auto requestHeader = make_shared< CatchupRequestHeader >( *sChain, _dstIndex );
     CHECK_STATE( _dstIndex != ( uint64_t ) getSchain()->getSchainIndex() )
 
@@ -158,10 +160,12 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
         throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
     }
 
+    auto catchupDownloadTimeMs = Time::getCurrentTimeMs() - catchupDownloadStartTimeMs;
+
     LOG(
         debug, "Catchupc step 3: got missing blocks:" << to_string( blocks->getBlocks()->size() ) );
 
-    auto result = getSchain()->blockCommitsArrivedThroughCatchup( blocks );
+    auto result = getSchain()->blockCommitsArrivedThroughCatchup( blocks, catchupDownloadTimeMs );
     LOG( debug, "Catchupc success" );
     return result;
 }

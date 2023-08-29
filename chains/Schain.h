@@ -284,7 +284,7 @@ public:
 
 
     [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup(
-        const ptr< CommittedBlockList >& _blockList );
+        const ptr< CommittedBlockList >& _blockList, uint64_t _catchupDownloadTimeMs );
 
     void daProofSigShareArrived(
         const ptr< ThresholdSigShare >& _sigShare, const ptr< BlockProposal >& _proposal );
