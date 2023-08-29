@@ -58,7 +58,7 @@
 #include "network/Network.h"
 #include "network/ServerConnection.h"
 #include "network/Sockets.h"
-
+#include "utils/Time.h"
 
 #include "datastructures/BlockProposalFragment.h"
 #include "datastructures/CommittedBlock.h"
@@ -233,6 +233,8 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockCatchupResponse(
 
     MONITOR( __CLASS_NAME__, __FUNCTION__ );
 
+    auto responseStartTimeMs = Time::getCurrentTimeMs();
+
     try {
         if ( sChain->getLastCommittedBlockID() <= block_id( _blockID ) ) {
             LOG( debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)" );
@@ -273,6 +275,9 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockCatchupResponse(
 
         _responseHeader->setBlockSizes( blockSizes );
 
+        auto responseTimeMs = Time::getCurrentTimeMs() - responseStartTimeMs;
+
+        LOG( info, "RETURNED_CATCHUP_BLOCKS:" << blockSizes->size() << ":CRT:" << responseTimeMs )
 
         return serializedBlocks;
     } catch ( ExitRequestedException& e ) {

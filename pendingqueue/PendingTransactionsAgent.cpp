@@ -108,6 +108,7 @@ PendingTransactionsAgent::createTransactionsListForProposal( bool _isCalledAfter
 
     uint64_t waitTimeMs = 10;
 
+
     while ( txVector.empty() ) {
         getSchain()->getNode()->exitCheck();
 
