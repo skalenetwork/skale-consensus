@@ -339,7 +339,7 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
 
 
 [[nodiscard]] uint64_t Schain::blockCommitsArrivedThroughCatchup(
-    const ptr< CommittedBlockList >& _blockList ) {
+    const ptr< CommittedBlockList >& _blockList, uint64_t _catchupDownloadTimeMs ) {
     CHECK_ARGUMENT( _blockList );
 
     auto blocks = _blockList->getBlocks();
@@ -360,6 +360,8 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
     }
 
 
+    auto catchupProcessStartTimeMs = Time::getCurrentTimeMs();
+
     try {
         if ( !blockProcessMutex.try_lock_for( chrono::seconds( 60 ) ) ) {
             // Could not lock for 60 seconds. There is probably a deadlock.
@@ -368,6 +370,8 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
             LOG( err, "Could not lock in:" << string( __FUNCTION__ ) );
             return 0;
         }
+
+        auto catchupLockTimeMs = Time::getCurrentTimeMs() - catchupProcessStartTimeMs;
 
         bumpPriority();
 
@@ -390,9 +394,13 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
 
         uint64_t result = 0;
 
+        auto catchupProcessTimeMs = Time::getCurrentTimeMs() - catchupProcessStartTimeMs;
+
         if ( committedIDOld < getLastCommittedBlockID() ) {
-            LOG( info, "CATCHUP_PROCESSED_BLOCKS:COUNT: " << to_string(
-                           getLastCommittedBlockID() - committedIDOld ) );
+            LOG( info, "CATCHUP_PROCESSED_BLOCKS:COUNT:"
+                           << to_string( getLastCommittedBlockID() - committedIDOld )
+                           << ":DTM:" << _catchupDownloadTimeMs << ":PTM:" << catchupProcessTimeMs
+                           << ":LTM:" << catchupLockTimeMs );
             result = ( ( uint64_t ) getLastCommittedBlockID() ) - committedIDOld;
             if ( !getNode()->isSyncOnlyNode() ) {
                 proposeNextBlock( true );
@@ -401,7 +409,7 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
 
         unbumpPriority();
 
-        // we meed to unlock the mutex everytime we return from the function
+        // we need to unlock the mutex everytime we return from the function
         // including exceptions. In 2.3 we will make it cleaner by using
         // a custom lock_guard so the lock is unlocked automatically
         blockProcessMutex.unlock();

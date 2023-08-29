@@ -165,7 +165,7 @@ static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 8 * 1024;
 
 static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 3000;
 
-static constexpr int64_t EMPTY_BLOCK_INTERVAL_AFTER_CATCHUP_MS = 3000;
+static constexpr int64_t EMPTY_BLOCK_INTERVAL_AFTER_CATCHUP_MS = 100;
 
 static constexpr uint64_t MIN_BLOCK_INTERVAL_MS = 1;
 
