@@ -381,19 +381,19 @@ uint64_t Node::getInternalInfoDBSize() const {
 
 map< string, uint64_t > Node::getDBUsage() const {
     map< string, uint64_t > ret;
-    ret["blocks.db_disk_usage"] = getBlockDB()->getActiveDBSize();
-    ret["block_proposal.db_disk_usage"] = getBlockProposalDB()->getActiveDBSize();
-    ret["block_sigshare.db_disk_usage"] = getBlockSigShareDB()->getActiveDBSize();
-    ret["consensus_state.db_disk_usage"] = getConsensusStateDB()->getActiveDBSize();
-    ret["da_proof.db_disk_usage"] = getDaProofDB()->getActiveDBSize();
-    ret["da_sigshare.db_disk_usage"] = getDaSigShareDB()->getActiveDBSize();
-    ret["incoming_msg.db_disk_usage"] = getIncomingMsgDB()->getActiveDBSize();
-    ret["interna_info.db_disk_usage"] = getInternalInfoDB()->getActiveDBSize();
-    ret["outgoing_msg.db_disk_usage"] = getOutgoingMsgDB()->getActiveDBSize();
-    ret["price.db_disk_usage"] = getPriceDB()->getActiveDBSize();
-    ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getActiveDBSize();
-    ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getActiveDBSize();
-    ret["random.db_disk_usage"] = getRandomDB()->getActiveDBSize();
+    ret["blocks.db_disk_usage"] = getBlockDB()->getMemoryUsed();
+    ret["block_proposal.db_disk_usage"] = getBlockProposalDB()->getMemoryUsed();
+    ret["block_sigshare.db_disk_usage"] = getBlockSigShareDB()->getMemoryUsed();
+    ret["consensus_state.db_disk_usage"] = getConsensusStateDB()->getMemoryUsed();
+    ret["da_proof.db_disk_usage"] = getDaProofDB()->getMemoryUsed();
+    ret["da_sigshare.db_disk_usage"] = getDaSigShareDB()->getMemoryUsed();
+    ret["incoming_msg.db_disk_usage"] = getIncomingMsgDB()->getMemoryUsed();
+    ret["interna_info.db_disk_usage"] = getInternalInfoDB()->getMemoryUsed();
+    ret["outgoing_msg.db_disk_usage"] = getOutgoingMsgDB()->getMemoryUsed();
+    ret["price.db_disk_usage"] = getPriceDB()->getMemoryUsed();
+    ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getMemoryUsed();
+    ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getMemoryUsed();
+    ret["random.db_disk_usage"] = getRandomDB()->getMemoryUsed();
 
     return ret;
 }
