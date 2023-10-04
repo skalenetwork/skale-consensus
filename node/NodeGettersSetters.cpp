@@ -381,19 +381,22 @@ uint64_t Node::getInternalInfoDBSize() const {
 
 map< string, uint64_t > Node::getDBUsage() const {
     map< string, uint64_t > ret;
-    ret["blocks.db_disk_usage"] = getBlockDB()->getMemoryUsed();
-    ret["block_proposal.db_disk_usage"] = getBlockProposalDB()->getMemoryUsed();
-    ret["block_sigshare.db_disk_usage"] = getBlockSigShareDB()->getMemoryUsed();
-    ret["consensus_state.db_disk_usage"] = getConsensusStateDB()->getMemoryUsed();
-    ret["da_proof.db_disk_usage"] = getDaProofDB()->getMemoryUsed();
-    ret["da_sigshare.db_disk_usage"] = getDaSigShareDB()->getMemoryUsed();
-    ret["incoming_msg.db_disk_usage"] = getIncomingMsgDB()->getMemoryUsed();
-    ret["interna_info.db_disk_usage"] = getInternalInfoDB()->getMemoryUsed();
-    ret["outgoing_msg.db_disk_usage"] = getOutgoingMsgDB()->getMemoryUsed();
-    ret["price.db_disk_usage"] = getPriceDB()->getMemoryUsed();
-    ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getMemoryUsed();
-    ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getMemoryUsed();
-    ret["random.db_disk_usage"] = getRandomDB()->getMemoryUsed();
+
+    // use getFullDBSize() to get memory used by the entire db
+    // not only the active one
+    ret["blocks.db_disk_usage"] = getBlockDB()->getFullDBSize();
+    ret["block_proposal.db_disk_usage"] = getBlockProposalDB()->getFullDBSize();
+    ret["block_sigshare.db_disk_usage"] = getBlockSigShareDB()->getFullDBSize();
+    ret["consensus_state.db_disk_usage"] = getConsensusStateDB()->getFullDBSize();
+    ret["da_proof.db_disk_usage"] = getDaProofDB()->getFullDBSize();
+    ret["da_sigshare.db_disk_usage"] = getDaSigShareDB()->getFullDBSize();
+    ret["incoming_msg.db_disk_usage"] = getIncomingMsgDB()->getFullDBSize();
+    ret["internal_info.db_disk_usage"] = getInternalInfoDB()->getFullDBSize();
+    ret["outgoing_msg.db_disk_usage"] = getOutgoingMsgDB()->getFullDBSize();
+    ret["price.db_disk_usage"] = getPriceDB()->getFullDBSize();
+    ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getFullDBSize();
+    ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getFullDBSize();
+    ret["random.db_disk_usage"] = getRandomDB()->getFullDBSize();
 
     return ret;
 }

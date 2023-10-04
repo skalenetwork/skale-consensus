@@ -163,6 +163,9 @@ public:
     void checkForDeadLockRead( const char* _functionName );
 
     uint64_t getMemoryUsed();
+
+    // get the occupied storage space by the db in bytes
+    uint64_t getFullDBSize();
 };
 
 

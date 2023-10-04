@@ -735,3 +735,19 @@ uint64_t CacheLevelDB::getMemoryUsed() {
     }
     return totalMemory;
 }
+
+uint64_t CacheLevelDB::getFullDBSize() {
+    uint64_t totalSize = 0;
+
+    boost::filesystem::path dbPath( dirname );
+
+    boost::filesystem::recursive_directory_iterator directory_it( dbPath ), end;
+    while ( directory_it != end ) {
+        if ( boost::filesystem::is_regular_file( *directory_it ) ) {
+            totalSize += boost::filesystem::file_size( *directory_it );
+        }
+        ++directory_it;
+    }
+
+    return totalSize;
+}
