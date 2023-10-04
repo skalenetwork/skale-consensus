@@ -382,7 +382,7 @@ uint64_t Node::getInternalInfoDBSize() const {
 map< string, uint64_t > Node::getDBUsage() const {
     map< string, uint64_t > ret;
 
-    // use getFullDBSize() to get memory used by the entire db
+    // use getFullDBSize() to get storage used by the entire db
     // not only the active one
     ret["blocks.db_disk_usage"] = getBlockDB()->getFullDBSize();
     ret["block_proposal.db_disk_usage"] = getBlockProposalDB()->getFullDBSize();
