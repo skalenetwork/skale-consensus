@@ -57,7 +57,7 @@ using namespace leveldb;
 
 
 string CacheLevelDB::index2Path( uint64_t index ) {
-    return dirname + "/db." + to_string( index );
+    return dirName + "/db." + to_string( index );
 }
 
 string CacheLevelDB::createKey( const block_id _blockId, uint64_t _counter ) {
@@ -371,14 +371,14 @@ CacheLevelDB::CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, 
     this->prefix = _prefix;
     this->totalSigners = _sChain->getTotalSigners();
     this->requiredSigners = _sChain->getRequiredSigners();
-    this->dirname = _dirName + "/" + _prefix;
+    this->dirName = _dirName + "/" + _prefix;
     this->maxDBSize = _maxDBSize;
     this->options = _options;
     this->readOptions.fill_cache = false;
     this->writeOptions.sync = true;
     this->isDuplicateAddOK = _isDuplicateAddOK;
 
-    boost::filesystem::path path( dirname );
+    boost::filesystem::path path( dirName );
     boost::filesystem::create_directory( path );
 
     highestDBIndex = findMaxMinDBIndex().first;
@@ -435,7 +435,7 @@ pair< uint64_t, uint64_t > CacheLevelDB::findMaxMinDBIndex() {
     vector< path > dirs;
     vector< uint64_t > indices;
 
-    copy( directory_iterator( path( dirname ) ), directory_iterator(), back_inserter( dirs ) );
+    copy( directory_iterator( path( dirName ) ), directory_iterator(), back_inserter( dirs ) );
     sort( dirs.begin(), dirs.end() );
 
     size_t offset = string( "db." ).size();
@@ -739,14 +739,14 @@ uint64_t CacheLevelDB::getMemoryUsed() {
 uint64_t CacheLevelDB::getFullDBSize() {
     uint64_t totalSize = 0;
 
-    boost::filesystem::path dbPath( dirname );
+    boost::filesystem::path dbPath( dirName );
 
-    boost::filesystem::recursive_directory_iterator directory_it( dbPath ), end;
-    while ( directory_it != end ) {
-        if ( boost::filesystem::is_regular_file( *directory_it ) ) {
-            totalSize += boost::filesystem::file_size( *directory_it );
+    boost::filesystem::recursive_directory_iterator directoryIt( dbPath ), end;
+    while ( directoryIt != end ) {
+        if ( boost::filesystem::is_regular_file( *directoryIt ) ) {
+            totalSize += boost::filesystem::file_size( *directoryIt );
         }
-        ++directory_it;
+        ++directoryIt;
     }
 
     return totalSize;
