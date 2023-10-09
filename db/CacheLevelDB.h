@@ -55,7 +55,7 @@ protected:
 
     node_id nodeId = 0;
     string prefix;
-    string dirname;
+    string dirName;
     uint64_t maxDBSize = 0;
     uint64_t totalSigners = 0;
     uint64_t requiredSigners = 0;
@@ -163,6 +163,9 @@ public:
     void checkForDeadLockRead( const char* _functionName );
 
     uint64_t getMemoryUsed();
+
+    // get the occupied storage space by the db in bytes
+    uint64_t getFullDBSize();
 };
 
 
