@@ -24,7 +24,6 @@
 #pragma once
 
 
-
 #include "Agent.h"
 
 class ConsensusSigShareSet;
@@ -37,20 +36,15 @@ class ThresholdSigShare;
 
 #include "CacheLevelDB.h"
 
-class DASigShareDB : public  CacheLevelDB {
-
+class DASigShareDB : public CacheLevelDB {
     recursive_mutex sigShareMutex;
 
 public:
+    explicit DASigShareDB(
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    explicit DASigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-        uint64_t _maxDBSize);
-
-    ptr<DAProof> addAndMergeSigShareAndVerifySig(const ptr<ThresholdSigShare>& _sigShare,
- const ptr<BlockProposal>& _proposal);
+    ptr< DAProof > addAndMergeSigShareAndVerifySig(
+        const ptr< ThresholdSigShare >& _sigShare, const ptr< BlockProposal >& _proposal );
 
     const string& getFormatVersion();
 };
-
-
-

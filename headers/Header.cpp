@@ -31,20 +31,15 @@
 #include "Header.h"
 
 
-
-
-Header::Header(const char *_type) : BasicHeader(_type){
-    CHECK_ARGUMENT(_type);
+Header::Header( const char* _type ) : BasicHeader( _type ) {
+    CHECK_ARGUMENT( _type );
 }
 
 
-
-Header::~Header() {
-}
+Header::~Header() {}
 
 
-
-void Header::addFields(nlohmann::json &j) {
+void Header::addFields( nlohmann::json& j ) {
     j["status"] = status;
     j["substatus"] = substatus;
 }

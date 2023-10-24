@@ -34,47 +34,41 @@
 
 using namespace std;
 
-void Sockets::initSockets(const string & _bindIP, uint16_t _basePort ) {
+void Sockets::initSockets( const string& _bindIP, uint16_t _basePort ) {
+    CHECK_ARGUMENT( !_bindIP.empty() );
 
-    CHECK_ARGUMENT(!_bindIP.empty() );
+    LOG( debug, "Initing network processing\n" );
 
-    LOG(debug, "Initing network processing\n");
-
-    consensusZMQSockets = make_shared< ZMQSockets >( _bindIP, _basePort, BINARY_CONSENSUS);
-    blockProposalSocket = make_shared<TCPServerSocket>( _bindIP, _basePort, PROPOSAL);
-    catchupSocket = make_shared<TCPServerSocket>( _bindIP, _basePort, CATCHUP);
+    consensusZMQSockets = make_shared< ZMQSockets >( _bindIP, _basePort, BINARY_CONSENSUS );
+    blockProposalSocket = make_shared< TCPServerSocket >( _bindIP, _basePort, PROPOSAL );
+    catchupSocket = make_shared< TCPServerSocket >( _bindIP, _basePort, CATCHUP );
 }
 
 
+ptr< sockaddr_in > Sockets::createSocketAddress( const string& _ip, uint16_t port ) {
+    CHECK_ARGUMENT( !_ip.empty() )
 
+    CHECK_STATE( Network::validateIpAddress( _ip ) > 0 );
 
+    auto a = make_shared< struct sockaddr_in >();
+    memset( a.get(), 0, sizeof( struct sockaddr_in ) );
 
-ptr<sockaddr_in> Sockets::createSocketAddress(const string& _ip, uint16_t port) {
-
-    CHECK_ARGUMENT(!_ip.empty())
-
-    CHECK_STATE(Network::validateIpAddress( _ip ) > 0);
-
-    auto a = make_shared<struct sockaddr_in>();
-    memset(a.get(), 0, sizeof(struct sockaddr_in));
-
-    uint32_t ipbin = inet_addr( _ip.c_str());
+    uint32_t ipbin = inet_addr( _ip.c_str() );
 
     a->sin_family = AF_INET;
-    a->sin_port = htons(port);
+    a->sin_port = htons( port );
     a->sin_addr.s_addr = ipbin;
 
     return a;
 }
 
-Sockets::Sockets(Node &node) : node(node) {}
+Sockets::Sockets( Node& node ) : node( node ) {}
 
-Node &Sockets::getNode() const {
+Node& Sockets::getNode() const {
     return node;
 }
 
 ptr< ZMQSockets > Sockets::getConsensusZMQSockets() const {
-    CHECK_STATE(consensusZMQSockets);
+    CHECK_STATE( consensusZMQSockets );
     return consensusZMQSockets;
 }
-

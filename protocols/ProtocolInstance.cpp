@@ -36,18 +36,18 @@
 
 
 msg_id ProtocolInstance::createNetworkMessageID() {
-    this->messageCounter+=1;
+    this->messageCounter += 1;
     return messageCounter;
 }
 
 
-ProtocolInstance::ProtocolInstance(ProtocolType _protocolType, Schain& _sChain)
-    : sChain(&_sChain) , protocolType(_protocolType) , messageCounter(0) {
+ProtocolInstance::ProtocolInstance( ProtocolType _protocolType, Schain& _sChain )
+    : sChain( &_sChain ), protocolType( _protocolType ), messageCounter( 0 ) {
     totalObjects++;
 }
 
-Schain *ProtocolInstance::getSchain() const {
-    CHECK_STATE(sChain);
+Schain* ProtocolInstance::getSchain() const {
+    CHECK_STATE( sChain );
     return sChain;
 }
 
@@ -55,4 +55,4 @@ ProtocolInstance::~ProtocolInstance() {
     totalObjects--;
 }
 
-atomic<int64_t>  ProtocolInstance::totalObjects(0);
+atomic< int64_t > ProtocolInstance::totalObjects( 0 );

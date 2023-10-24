@@ -26,29 +26,26 @@
 #include "DynamicPricingStrategy.h"
 
 
-
-u256 DynamicPricingStrategy::calculatePrice(u256 _previousPrice,
-                                         const ConsensusExtFace::transactions_vector & _block,
-                                         uint64_t, uint32_t, block_id) {
-
-
-
-    auto loadPercentage = (_block.size() * 100) / MAX_TRANSACTIONS_PER_BLOCK;
+u256 DynamicPricingStrategy::calculatePrice( u256 _previousPrice,
+    const ConsensusExtFace::transactions_vector& _block, uint64_t, uint32_t, block_id ) {
+    auto loadPercentage = ( _block.size() * 100 ) / MAX_TRANSACTIONS_PER_BLOCK;
 
     u256 price;
 
-    if (loadPercentage < optimalLoadPercentage) {
-        price = _previousPrice - (adjustmentSpeed * _previousPrice) * (optimalLoadPercentage - loadPercentage) / 1000000;
+    if ( loadPercentage < optimalLoadPercentage ) {
+        price = _previousPrice - ( adjustmentSpeed * _previousPrice ) *
+                                     ( optimalLoadPercentage - loadPercentage ) / 1000000;
 
     } else {
-        price = _previousPrice + (adjustmentSpeed * _previousPrice) * (loadPercentage - optimalLoadPercentage) / 1000000;
+        price = _previousPrice + ( adjustmentSpeed * _previousPrice ) *
+                                     ( loadPercentage - optimalLoadPercentage ) / 1000000;
     }
 
-    if (price < minPrice) {
+    if ( price < minPrice ) {
         price = minPrice;
     }
 
-    if (price > maxPrice) {
+    if ( price > maxPrice ) {
         price = maxPrice;
     }
 

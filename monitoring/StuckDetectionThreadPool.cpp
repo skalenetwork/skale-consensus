@@ -35,5 +35,6 @@ StuckDetectionThreadPool::StuckDetectionThreadPool( num_threads _numThreads, Age
 void StuckDetectionThreadPool::createThread( uint64_t /*number*/ ) {
     auto a = ( StuckDetectionAgent* ) agent;
     LOCK( threadPoolLock );
-    this->threadpool.push_back( make_shared< thread >( StuckDetectionAgent::StuckDetectionLoop, a ) );
+    this->threadpool.push_back(
+        make_shared< thread >( StuckDetectionAgent::StuckDetectionLoop, a ) );
 }

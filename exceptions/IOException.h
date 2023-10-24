@@ -21,16 +21,13 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "NetworkProtocolException.h"
 
-class IOException : public  NetworkProtocolException {
-
+class IOException : public NetworkProtocolException {
     int errNo = 0;
 
 public:
-
-    IOException(string _what, int _errno, const string& _className);
+    IOException( string _what, int _errno, const string& _className );
 };
-

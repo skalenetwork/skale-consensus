@@ -84,7 +84,6 @@ bool BlockProposalFragmentList::addFragment(
     } else {
         CHECK_ARGUMENT( blockHash.compare( _fragment->getBlockHash() ) == 0 );
         CHECK_ARGUMENT( blockSize == ( int64_t ) _fragment->getBlockSize() );
-
     }
 
     checkSanity();

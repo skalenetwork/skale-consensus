@@ -26,27 +26,32 @@
 
 #pragma GCC diagnostic ignored "-Wnon-virtual-dtor"
 
-#include<boost/multiprecision/cpp_int.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+
+#include <boost/multiprecision/cpp_int.hpp>
+
+#pragma GCC diagnostic pop
 
 #include <map>
 #include <string>
 #include <vector>
 
 enum consensus_engine_status {
-    CONSENSUS_ACTIVE = 0, CONSENSUS_EXITED = 1,
+    CONSENSUS_ACTIVE = 0,
+    CONSENSUS_EXITED = 1,
 };
 
 
-
-using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256, 256,
-        boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
+using u256 = boost::multiprecision::number< boost::multiprecision::backends::cpp_int_backend< 256,
+    256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void > >;
 
 class ConsensusInterface {
 public:
     virtual ~ConsensusInterface() = default;
 
-    virtual void parseFullConfigAndCreateNode(const std::string &fullPathToConfigFile,
-                                              const string& gethURL) = 0;
+    virtual void parseFullConfigAndCreateNode(
+        const std::string& fullPathToConfigFile, const string& gethURL ) = 0;
 
 
     // If starting from a snapshot, start all will pass to consensus the last comitted
@@ -54,7 +59,6 @@ public:
     virtual void startAll() = 0;
 
     virtual void bootStrapAll() = 0;
-
 
 
     /* exitGracefully is asyncronous and returns immediately
@@ -67,29 +71,29 @@ public:
      e) If you are in createBlock() function, return from it too (it is void)
      f) call getStatus() from time to time until it returns CONSENSUS_EXITED
 
-     Consensus guarantees that it will not do anything for a particular block ID, until pendingTransactions(...)
-     for this block id returns.
+     Consensus guarantees that it will not do anything for a particular block ID, until
+     pendingTransactions(...) for this block id returns.
      */
 
     virtual void exitGracefully() = 0;
 
-    virtual u256 getPriceForBlockId(uint64_t _blockId) const = 0;
+    virtual u256 getPriceForBlockId( uint64_t _blockId ) const = 0;
 
-    virtual u256 getRandomForBlockId(uint64_t _blockId) const = 0;
+    virtual u256 getRandomForBlockId( uint64_t _blockId ) const = 0;
 
     virtual map< string, uint64_t > getConsensusDbUsage() const = 0;
 
     virtual uint64_t getEmptyBlockIntervalMs() const { return -1; }
 
-    virtual void setEmptyBlockIntervalMs(uint64_t) {}
+    virtual void setEmptyBlockIntervalMs( uint64_t ) {}
 
     virtual consensus_engine_status getStatus() const = 0;
 
-#define ORACLE_SUCCESS  0
-#define ORACLE_UNKNOWN_RECEIPT  1
+#define ORACLE_SUCCESS 0
+#define ORACLE_UNKNOWN_RECEIPT 1
 #define ORACLE_TIMEOUT 2
-#define ORACLE_NO_CONSENSUS  3
-#define ORACLE_UNKNOWN_ERROR  4
+#define ORACLE_NO_CONSENSUS 3
+#define ORACLE_UNKNOWN_ERROR 4
 #define ORACLE_RESULT_NOT_READY 5
 #define ORACLE_DUPLICATE_REQUEST 6
 #define ORACLE_COULD_NOT_CONNECT_TO_ENDPOINT 7
@@ -122,13 +126,13 @@ public:
 #define ORACLE_POW_DID_NOT_VERIFY 33
 #define ORACLE_ETH_API_NOT_STRING 34
 #define ORACLE_ETH_API_NOT_PROVIDED 35
-#define ORACLE_JSPS_NOT_PROVIDED  36
-#define ORACLE_JSPS_NOT_ARRAY  37
-#define ORACLE_JSPS_EMPTY  38
-#define ORACLE_TOO_MANY_JSPS  39
-#define ORACLE_JSP_TOO_LONG  40
-#define ORACLE_JSP_NOT_STRING  41
-#define ORACLE_TRIMS_ITEM_NOT_STRING  42
+#define ORACLE_JSPS_NOT_PROVIDED 36
+#define ORACLE_JSPS_NOT_ARRAY 37
+#define ORACLE_JSPS_EMPTY 38
+#define ORACLE_TOO_MANY_JSPS 39
+#define ORACLE_JSP_TOO_LONG 40
+#define ORACLE_JSP_NOT_STRING 41
+#define ORACLE_TRIMS_ITEM_NOT_STRING 42
 #define ORACLE_JSPS_TRIMS_SIZE_NOT_EQUAL 43
 #define ORACLE_POST_NOT_STRING 44
 #define ORACLE_POST_STRING_TOO_LARGE 45
@@ -137,7 +141,7 @@ public:
 #define ORACLE_PARAMS_ARRAY_FIRST_ELEMENT_NOT_OBJECT 48
 #define ORACLE_PARAMS_INVALID_FROM_ADDRESS 49
 #define ORACLE_PARAMS_INVALID_TO_ADDRESS 50
-#define  ORACLE_PARAMS_ARRAY_INCORRECT_COUNT 51
+#define ORACLE_PARAMS_ARRAY_INCORRECT_COUNT 51
 #define ORACLE_BLOCK_NUMBER_NOT_STRING 52
 #define ORACLE_INVALID_BLOCK_NUMBER 53
 #define ORACLE_MISSING_FIELD 54
@@ -157,7 +161,8 @@ public:
      *  Error values are enumerated above
      */
 
-    virtual uint64_t submitOracleRequest(const string& _spec, string &_receipt, string& _errorMessage) = 0;
+    virtual uint64_t submitOracleRequest(
+        const string& _spec, string& _receipt, string& _errorMessage ) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -171,16 +176,15 @@ public:
      */
 
 
-    virtual uint64_t  checkOracleResult(const string& _receipt, string& _result) = 0;
+    virtual uint64_t checkOracleResult( const string& _receipt, string& _result ) = 0;
 
 
     /*
      * This will return a consensus block serialized as byte array from consensus db.
      * Returns nullptr if the block is not in consensus DB
      */
-    //virtual std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
-      //  std::uint64_t _blockNumber)  = 0;
-
+    // virtual std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
+    //  std::uint64_t _blockNumber)  = 0;
 };
 
 /**
@@ -188,20 +192,19 @@ public:
  */
 class ConsensusExtFace {
 public:
-    typedef std::vector<std::vector<uint8_t> > transactions_vector;
+    typedef std::vector< std::vector< uint8_t > > transactions_vector;
 
     // Returns hashes and bytes of new transactions as well as state root to put into block proposal
-    virtual transactions_vector pendingTransactions(size_t _limit, u256& _stateRoot) = 0;
+    virtual transactions_vector pendingTransactions( size_t _limit, u256& _stateRoot ) = 0;
 
     // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp,
-                             uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice,
-                             u256 _stateRoot, uint64_t _winningNodeIndex) = 0;
+    virtual void createBlock( const transactions_vector& _approvedTransactions, uint64_t _timeStamp,
+        uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
+        uint64_t _winningNodeIndex ) = 0;
 
     virtual ~ConsensusExtFace() = default;
 
-    virtual void terminateApplication() {};
-
+    virtual void terminateApplication(){};
 };
 
 #endif  // CONSENSUSINTERFACE_H

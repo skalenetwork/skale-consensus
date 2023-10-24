@@ -49,39 +49,36 @@ class OracleThreadPool;
 class OracleRequestSpec;
 
 class OracleServerAgent : public Agent {
+    vector< shared_ptr< BlockingReaderWriterQueue< shared_ptr< MessageEnvelope > > > >
+        incomingQueues;
 
-    vector<shared_ptr<BlockingReaderWriterQueue<shared_ptr<MessageEnvelope>>>> incomingQueues;
+    atomic< uint64_t > requestCounter;
 
-    atomic<uint64_t> requestCounter;
+    atomic< uint64_t > threadCounter;
 
-    atomic<uint64_t> threadCounter;
-
-    ptr<OracleThreadPool> oracleThreadPool = nullptr;
+    ptr< OracleThreadPool > oracleThreadPool = nullptr;
 
     string gethURL;
 
 
-    ptr<OracleResponseMessage> doEndpointRequestResponse(ptr<OracleRequestSpec> _requestSpec);
+    ptr< OracleResponseMessage > doEndpointRequestResponse( ptr< OracleRequestSpec > _requestSpec );
 
 
-    void sendOutResult(ptr<OracleResponseMessage> _msg, schain_index _destination);
+    void sendOutResult( ptr< OracleResponseMessage > _msg, schain_index _destination );
 
 
 public:
+    OracleServerAgent( Schain& _schain );
 
-    OracleServerAgent(Schain &_schain);
+    virtual ~OracleServerAgent(){};
 
-    virtual ~OracleServerAgent() {};
+    void routeAndProcessMessage( const ptr< MessageEnvelope >& _me );
 
-    void routeAndProcessMessage(const ptr<MessageEnvelope> &_me);
+    static void workerThreadItemSendLoop( OracleServerAgent* _agent );
 
-    static void workerThreadItemSendLoop(OracleServerAgent *_agent);
+    static uint64_t curlHttp(
+        const string& _uri, bool _isPost, string& _postString, string& _result );
 
-    static uint64_t curlHttp(const string &_uri, bool _isPost, string &_postString, string &_result);
-
-    static ptr<vector<ptr<string>>> extractResults(
-            string &_response, vector<string> &_jsps);
-
-
+    static ptr< vector< ptr< string > > > extractResults(
+        string& _response, vector< string >& _jsps );
 };
-

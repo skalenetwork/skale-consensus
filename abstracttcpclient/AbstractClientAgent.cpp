@@ -73,17 +73,18 @@ uint64_t AbstractClientAgent::incrementAndReturnThreadCounter() {
 void AbstractClientAgent::sendItem( const ptr< SendableItem >& _item, schain_index _dstIndex ) {
     CHECK_ARGUMENT( _item );
 
-    CHECK_STATE(dynamic_pointer_cast<DAProof>(_item) ||
-                dynamic_pointer_cast<BlockProposal>(_item));
+    CHECK_STATE( dynamic_pointer_cast< DAProof >( _item ) ||
+                 dynamic_pointer_cast< BlockProposal >( _item ) );
 
     CHECK_STATE( getNode()->isStarted() );
 
     while ( true ) {
         CHECK_STATE( _dstIndex != ( uint64_t ) getSchain()->getSchainIndex() );
 
-        if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS > Time::getCurrentTimeMs()) {
-            BOOST_THROW_EXCEPTION(ConnectionRefusedException("Dead node:" + to_string(_dstIndex),
-                                                             5, __CLASS_NAME__));
+        if ( getSchain()->getDeathTimeMs( ( uint64_t ) _dstIndex ) + NODE_DEATH_INTERVAL_MS >
+             Time::getCurrentTimeMs() ) {
+            BOOST_THROW_EXCEPTION( ConnectionRefusedException(
+                "Dead node:" + to_string( _dstIndex ), 5, __CLASS_NAME__ ) );
         }
         auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, portType );
 
@@ -101,8 +102,8 @@ void AbstractClientAgent::sendItem( const ptr< SendableItem >& _item, schain_ind
         }
 
 
-        CHECK_STATE(dynamic_pointer_cast<DAProof>(_item) ||
-                    dynamic_pointer_cast<BlockProposal>(_item));
+        CHECK_STATE( dynamic_pointer_cast< DAProof >( _item ) ||
+                     dynamic_pointer_cast< BlockProposal >( _item ) );
 
 
         if ( sendItemImpl( _item, socket, _dstIndex ).first != CONNECTION_RETRY_LATER ) {
@@ -118,8 +119,8 @@ void AbstractClientAgent::sendItem( const ptr< SendableItem >& _item, schain_ind
 void AbstractClientAgent::enqueueItemImpl( const ptr< SendableItem >& _item ) {
     CHECK_ARGUMENT( _item );
 
-    CHECK_STATE(dynamic_pointer_cast<DAProof>(_item) ||
-                dynamic_pointer_cast<BlockProposal>(_item));
+    CHECK_STATE( dynamic_pointer_cast< DAProof >( _item ) ||
+                 dynamic_pointer_cast< BlockProposal >( _item ) );
 
 
     for ( uint64_t i = 1; i <= ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
@@ -127,8 +128,8 @@ void AbstractClientAgent::enqueueItemImpl( const ptr< SendableItem >& _item ) {
             lock_guard< std::mutex > lock( *queueMutex[schain_index( i )] );
             auto q = itemQueue[schain_index( i )];
             CHECK_STATE( q );
-            CHECK_STATE(dynamic_pointer_cast<DAProof>(_item) ||
-                        dynamic_pointer_cast<BlockProposal>(_item));
+            CHECK_STATE( dynamic_pointer_cast< DAProof >( _item ) ||
+                         dynamic_pointer_cast< BlockProposal >( _item ) );
             q->push( _item );
 
             if ( q->size() > MAX_PROPOSAL_QUEUE_SIZE ) {
@@ -171,13 +172,11 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
 
                 CHECK_STATE( proposal );
 
-                CHECK_STATE(dynamic_pointer_cast<DAProof>(proposal) ||
-                            dynamic_pointer_cast<BlockProposal>(proposal));
+                CHECK_STATE( dynamic_pointer_cast< DAProof >( proposal ) ||
+                             dynamic_pointer_cast< BlockProposal >( proposal ) );
 
                 agent->itemQueue[destinationSchainIndex]->pop();
             }
-
-
 
 
             if ( ( uint64_t ) destinationSchainIndex !=
@@ -212,7 +211,7 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
 
     catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        agent->getNode()->exitOnFatalError( e.what() );
+        agent->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     } catch ( ExitRequestedException& e ) {
         return;
     } catch ( exception& e ) {

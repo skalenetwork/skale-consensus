@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "SkaleCommon.h"
 
@@ -30,7 +30,7 @@
 #include "SendableItem.h"
 
 class Schain;
-class  BLAKE3Hash;
+class BLAKE3Hash;
 class DAProofHeader;
 
 class CryptoManager;
@@ -38,26 +38,21 @@ class ThresholdSignature;
 class SubmitDAProofRequestHeader;
 
 class DAProof : public SendableItem {
-
-
-
     uint64_t creationTime;
 
 public:
     uint64_t getCreationTime() const;
 
 protected:
-
     schain_id schainID;
     node_id proposerNodeID;
     block_id blockID;
     schain_index proposerIndex;
     BLAKE3Hash hash;
-    ptr<ThresholdSignature> thresholdSig;
+    ptr< ThresholdSignature > thresholdSig;
 
 public:
-
-    DAProof(const ptr<BlockProposal>& _proposal, ptr<ThresholdSignature>& _thresholdSig);
+    DAProof( const ptr< BlockProposal >& _proposal, ptr< ThresholdSignature >& _thresholdSig );
 
     [[nodiscard]] schain_id getSchainId() const;
 
@@ -67,8 +62,7 @@ public:
 
     [[nodiscard]] schain_index getProposerIndex() const;
 
-    [[nodiscard]] ptr<ThresholdSignature> getThresholdSig() const;
+    [[nodiscard]] ptr< ThresholdSignature > getThresholdSig() const;
 
     [[nodiscard]] BLAKE3Hash getHash() const;
 };
-

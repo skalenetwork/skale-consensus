@@ -34,13 +34,10 @@
 
 using namespace std;
 
-CatchupResponseHeader::CatchupResponseHeader() : Header(Header::BLOCK_CATCHUP_RSP) {
+CatchupResponseHeader::CatchupResponseHeader() : Header( Header::BLOCK_CATCHUP_RSP ) {}
 
-}
-
-void CatchupResponseHeader::setBlockSizes(const ptr<list<uint64_t>>& _blockSizes) {
-
-    CHECK_ARGUMENT(_blockSizes);
+void CatchupResponseHeader::setBlockSizes( const ptr< list< uint64_t > >& _blockSizes ) {
+    CHECK_ARGUMENT( _blockSizes );
 
     blockCount = _blockSizes->size();
 
@@ -49,25 +46,19 @@ void CatchupResponseHeader::setBlockSizes(const ptr<list<uint64_t>>& _blockSizes
     complete = true;
 }
 
-void CatchupResponseHeader::addFields(nlohmann::json &_j) {
-
-    Header::addFields(_j);
+void CatchupResponseHeader::addFields( nlohmann::json& _j ) {
+    Header::addFields( _j );
 
     _j["count"] = blockCount;
 
-    if (blockSizes != nullptr)
+    if ( blockSizes != nullptr )
         _j["sizes"] = *blockSizes;
-
-
 }
 
 uint64_t CatchupResponseHeader::getBlockCount() const {
     return blockCount;
 }
 
-void CatchupResponseHeader::setBlockCount(uint64_t _blockCount) {
+void CatchupResponseHeader::setBlockCount( uint64_t _blockCount ) {
     CatchupResponseHeader::blockCount = _blockCount;
 }
-
-
-

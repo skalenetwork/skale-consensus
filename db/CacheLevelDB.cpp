@@ -56,7 +56,6 @@
 using namespace leveldb;
 
 
-
 string CacheLevelDB::index2Path( uint64_t index ) {
     return dirname + "/db." + to_string( index );
 }
@@ -164,14 +163,14 @@ bool CacheLevelDB::keyExists( const string& _key ) {
 
 void CacheLevelDB::checkForDeadLock( const char* _functionName ) {
     while ( !m.try_lock_for( chrono::seconds( 60 ) ) ) {
-        LOG( err, "Deadlock detected in " + string( _functionName ) );
+        LOG( err, "Deadlock detected in " << string( _functionName ) );
     }
     m.unlock();
 }
 
 void CacheLevelDB::checkForDeadLockRead( const char* _functionName ) {
     while ( !m.try_lock_shared_for( chrono::seconds( 60 ) ) ) {
-        LOG( err, "Deadlock detected in " + string( _functionName ) );
+        LOG( err, "Deadlock detected in " << string( _functionName ) );
     }
     m.unlock_shared();
 }
@@ -191,7 +190,7 @@ void CacheLevelDB::writeString( const string& _key, const string& _value, bool _
         lock_guard< shared_timed_mutex > lock( m );
 
         if ( ( !_overWrite ) && keyExistsUnsafe( _key ) ) {
-            LOG( trace, "Double db entry " + this->prefix + "\n" + _key );
+            LOG( trace, "Double db entry " << this->prefix << "\n" << _key );
             return;
         }
 
@@ -474,7 +473,8 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             if ( getActiveDBSize() <= maxDBSize )
                 return;
 
-            LOG( info, "ROTATED_DATABASE: " + prefix + ":MAX_DB_SIZE:" + to_string( maxDBSize ) );
+            LOG(
+                info, "ROTATED_DATABASE: " << prefix << ":MAX_DB_SIZE:" << to_string( maxDBSize ) );
 
             auto newDB = openDB( highestDBIndex + 1 );
 
@@ -498,7 +498,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
                 try {
                     boost::filesystem::remove_all( path( dbName ) );
                 } catch ( SkaleException& e ) {
-                    LOG( err, "Could not remove db:" + dbName );
+                    LOG( err, "Could not remove db:" << dbName );
                 }
             }
 
@@ -535,7 +535,7 @@ uint64_t CacheLevelDB::readCount( block_id _blockId ) {
         return result;
 
     } catch ( ... ) {
-        LOG( err, "Incorrect value in LevelDB:" + countString );
+        LOG( err, "Incorrect value in LevelDB:" << countString );
         return 0;
     }
 }
@@ -601,8 +601,8 @@ ptr< map< schain_index, string > > CacheLevelDB::writeByteArrayToSetUnsafe(
 
     if ( keyExistsUnsafe( entryKey ) ) {
         if ( !isDuplicateAddOK )
-            LOG( trace, "Double db entry " + this->prefix + "\n" + to_string( _blockId ) + ":" +
-                            to_string( _index ) );
+            LOG( trace, "Double db entry " << this->prefix << "\n"
+                                           << to_string( _blockId ) << ":" << to_string( _index ) );
         return nullptr;
     }
 
@@ -627,7 +627,7 @@ ptr< map< schain_index, string > > CacheLevelDB::writeByteArrayToSetUnsafe(
         try {
             count = stoull( *result, NULL, 10 );
         } catch ( ... ) {
-            LOG( err, "Incorrect value in LevelDB:" + *result );
+            LOG( err, "Incorrect value in LevelDB:" << *result );
             return 0;
         }
     } else {
@@ -730,8 +730,8 @@ uint64_t CacheLevelDB::getMemoryUsed() {
     for ( int i = LEVELDB_SHARDS - 1; i >= 0; i-- ) {
         CHECK_STATE( db.at( i ) )
         string usage;
-        db.at( i )->GetProperty("leveldb.approximate-memory-usage", &usage);
-        totalMemory += boost::lexical_cast<uint64_t>(usage);
+        db.at( i )->GetProperty( "leveldb.approximate-memory-usage", &usage );
+        totalMemory += boost::lexical_cast< uint64_t >( usage );
     }
     return totalMemory;
 }

@@ -25,8 +25,7 @@
 #include "node/ConsensusEngine.h"
 #include "ZeroPricingStrategy.h"
 
-u256 ZeroPricingStrategy::calculatePrice(u256,
-                                         const ConsensusExtFace::transactions_vector &,
-                                         uint64_t, uint32_t,  block_id) {
+u256 ZeroPricingStrategy::calculatePrice(
+    u256, const ConsensusExtFace::transactions_vector&, uint64_t, uint32_t, block_id ) {
     return 0;
 }

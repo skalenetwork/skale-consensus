@@ -78,8 +78,10 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
 
 
 [[nodiscard]] uint64_t CatchupClientAgent::sync( schain_index _dstIndex ) {
-    LOG( debug, "Catchupc step 0: requesting blocks after " +
-                    to_string( getSchain()->getLastCommittedBlockID() ) );
+    LOG( debug, "Catchupc step 0: requesting blocks after "
+                    << to_string( getSchain()->getLastCommittedBlockID() ) );
+
+    auto catchupDownloadStartTimeMs = Time::getCurrentTimeMs();
 
     auto requestHeader = make_shared< CatchupRequestHeader >( *sChain, _dstIndex );
     CHECK_STATE( _dstIndex != ( uint64_t ) getSchain()->getSchainIndex() )
@@ -158,9 +160,12 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
         throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
     }
 
-    LOG( debug, "Catchupc step 3: got missing blocks:" + to_string( blocks->getBlocks()->size() ) );
+    auto catchupDownloadTimeMs = Time::getCurrentTimeMs() - catchupDownloadStartTimeMs;
 
-    auto result = getSchain()->blockCommitsArrivedThroughCatchup( blocks );
+    LOG(
+        debug, "Catchupc step 3: got missing blocks:" << to_string( blocks->getBlocks()->size() ) );
+
+    auto result = getSchain()->blockCommitsArrivedThroughCatchup( blocks, catchupDownloadTimeMs );
     LOG( debug, "Catchupc success" );
     return result;
 }
@@ -168,7 +173,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
 size_t CatchupClientAgent::parseBlockSizes( nlohmann::json _responseHeader,
     const ptr< vector< uint64_t > >& _blockSizes, ptr< CatchupRequestHeader > _requestHeader ) {
     if ( _responseHeader.count( "sizes" ) == 0 ) {
-        LOG( err, "Invalid response header:" + _responseHeader.dump() );
+        LOG( err, "Invalid response header:" << _responseHeader.dump() );
         BOOST_THROW_EXCEPTION(
             NetworkProtocolException( "No json sizes element in response", __CLASS_NAME__ ) );
     }
@@ -179,16 +184,16 @@ size_t CatchupClientAgent::parseBlockSizes( nlohmann::json _responseHeader,
 
 
     if ( !jsonSizes.is_array() ) {
-        LOG( err, "Invalid catchup response header:" + _responseHeader.dump() );
-        LOG( err, "Corresponding request:" + _requestHeader->serializeToString() );
+        LOG( err, "Invalid catchup response header:" << _responseHeader.dump() );
+        LOG( err, "Corresponding request:" << _requestHeader->serializeToString() );
         BOOST_THROW_EXCEPTION(
             NetworkProtocolException( "JSON Sizes is not an array ", __CLASS_NAME__ ) );
     }
 
 
     if ( jsonSizes.size() == 0 ) {
-        LOG( err, "Invalid catchup response header:" + _responseHeader.dump() );
-        LOG( err, "Corresponding request:" + _requestHeader->serializeToString() );
+        LOG( err, "Invalid catchup response header:" << _responseHeader.dump() );
+        LOG( err, "Corresponding request:" << _requestHeader->serializeToString() );
         BOOST_THROW_EXCEPTION( NetworkProtocolException( "JSON sizes is empty", __CLASS_NAME__ ) );
     }
 
@@ -200,15 +205,15 @@ size_t CatchupClientAgent::parseBlockSizes( nlohmann::json _responseHeader,
     }
 
     if ( totalSize < 4 ) {
-        LOG( err, "Invalid catchup response header:" + _responseHeader.dump() );
-        LOG( err, "Corresponding request:" + _requestHeader->serializeToString() );
+        LOG( err, "Invalid catchup response header:" << _responseHeader.dump() );
+        LOG( err, "Corresponding request:" << _requestHeader->serializeToString() );
         BOOST_THROW_EXCEPTION( NetworkProtocolException( "TotalSize < 4", __CLASS_NAME__ ) );
     }
 
 
     if ( totalSize > getNode()->getMaxCatchupDownloadBytes() ) {
-        LOG( err, "Invalid response header:" + _responseHeader.dump() );
-        LOG( err, "Corresponding request:" + _requestHeader->serializeToString() );
+        LOG( err, "Invalid response header:" << _responseHeader.dump() );
+        LOG( err, "Corresponding request:" << _requestHeader->serializeToString() );
         BOOST_THROW_EXCEPTION( NetworkProtocolException(
             "totalSize > getNode()->getMaxCatchupDownloadBytes()", __CLASS_NAME__ ) );
     }
@@ -225,7 +230,7 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks( ptr< ClientSock
 
     auto blockSizes = make_shared< vector< uint64_t > >();
 
-    auto totalSize = parseBlockSizes( _responseHeader, blockSizes , _requestHeader);
+    auto totalSize = parseBlockSizes( _responseHeader, blockSizes, _requestHeader );
 
     auto serializedBlocks = make_shared< vector< uint8_t > >( totalSize );
 
@@ -242,16 +247,18 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks( ptr< ClientSock
     ptr< CommittedBlockList > blockList = nullptr;
 
     try {
+        // During node rotation, some block sigs may not verify durign catchup
+        // in such a case we return a partial block list, up to the first non-verifying block
         blockList = CommittedBlockList::deserialize(
-            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0 );
+            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0, true );
         CHECK_STATE( blockList )
 
 
         if ( blockSizes->size() > 1 ) {
-            LOG(
-                info, "CATCHUP_GOT_BLOCKS:COUNT:" + to_string( blockSizes->size() ) +
-                          ":STARTBLOCK:" + string( blockList->getBlocks()->at( 0 )->getBlockID() ) +
-                          ":FROM_NODE:" + _socket->getIP() );
+            LOG( info, "CATCHUP_GOT_BLOCKS:COUNT:"
+                           << to_string( blockSizes->size() ) << ":STARTBLOCK:"
+                           << string( blockList->getBlocks()->at( 0 )->getBlockID() )
+                           << ":FROM_NODE:" << _socket->getIP() );
         }
     } catch ( ExitRequestedException& ) {
         throw;
@@ -317,7 +324,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
         }
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        _agent->getNode()->exitOnFatalError( e.what() );
+        _agent->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 

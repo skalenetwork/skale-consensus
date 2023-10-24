@@ -26,8 +26,6 @@
 #include "SkaleException.h"
 
 class CouldNotReadPartialDataHashesException : public SkaleException {
-
 public:
-    CouldNotReadPartialDataHashesException(const std::string &_message,  const string& _className);
+    CouldNotReadPartialDataHashesException( const std::string& _message, const string& _className );
 };
-

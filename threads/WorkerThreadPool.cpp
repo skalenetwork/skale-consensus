@@ -31,44 +31,43 @@
 
 
 void WorkerThreadPool::startService() {
+    LOCK( threadPoolLock );
 
-    LOCK(threadPoolLock);
-
-    CHECK_STATE(!started)
+    CHECK_STATE( !started )
 
     started = true;
 
-    for (uint64_t i = 0; i < (uint64_t) numThreads; i++) {
-        createThread(i);
-        if (!dontJoinGlobalRegistry)
-            agent->getThreadRegistry()->add(threadpool.at(i));
+    for ( uint64_t i = 0; i < ( uint64_t ) numThreads; i++ ) {
+        createThread( i );
+        if ( !dontJoinGlobalRegistry )
+            agent->getThreadRegistry()->add( threadpool.at( i ) );
     }
-
 }
 
 
-WorkerThreadPool::WorkerThreadPool(num_threads _numThreads, Agent *_agent, bool _dontJoinGlobalRegistry) {
-    CHECK_ARGUMENT(_numThreads > 0);
-    CHECK_ARGUMENT(_agent);
-    LOG(trace, "Started threads count:" + to_string(_numThreads));
+WorkerThreadPool::WorkerThreadPool(
+    num_threads _numThreads, Agent* _agent, bool _dontJoinGlobalRegistry ) {
+    CHECK_ARGUMENT( _numThreads > 0 );
+    CHECK_ARGUMENT( _agent );
+    LOG( trace, "Started threads count:" << to_string( _numThreads ) );
     this->dontJoinGlobalRegistry = _dontJoinGlobalRegistry;
     this->agent = _agent;
-    this->numThreads = _numThreads;;
+    this->numThreads = _numThreads;
 }
 
 
 void WorkerThreadPool::joinAll() {
-    LOCK(threadPoolLock);
+    LOCK( threadPoolLock );
 
-    if (joined)
+    if ( joined )
         return;
 
     joined = true;
 
-    for (auto &&thread : threadpool) {
-        if (thread->joinable())
+    for ( auto&& thread : threadpool ) {
+        if ( thread->joinable() )
             thread->join();
-        CHECK_STATE(!thread->joinable());
+        CHECK_STATE( !thread->joinable() );
     }
 }
 
@@ -76,5 +75,4 @@ bool WorkerThreadPool::isJoined() const {
     return joined;
 }
 
-WorkerThreadPool::~WorkerThreadPool(){
-}
+WorkerThreadPool::~WorkerThreadPool() {}

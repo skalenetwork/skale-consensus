@@ -30,18 +30,16 @@ class Transaction;
 #include "CacheLevelDB.h"
 
 class CommittedTransactionDB : public CacheLevelDB {
-
     const string& getFormatVersion() override;
 
 
 public:
+    CommittedTransactionDB( Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId,
+        uint64_t _maxDBSize, leveldb::Options& _options );
 
-    CommittedTransactionDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-                           uint64_t _maxDBSize, leveldb::Options& _options);
-
-    void writeCommittedTransaction(const ptr<Transaction>& _t, __uint64_t _committedTransactionCounter);
-
+    void writeCommittedTransaction(
+        const ptr< Transaction >& _t, __uint64_t _committedTransactionCounter );
 };
 
 
-#endif //SKALED_COMMITTEDTRANSACTIONDB_H
+#endif  // SKALED_COMMITTEDTRANSACTIONDB_H

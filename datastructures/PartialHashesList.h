@@ -26,31 +26,24 @@
 #include "DataStructure.h"
 
 
-class PartialHashesList : public DataStructure  {
-
-    ptr<vector<uint8_t>> partialHashes; // tsafe
+class PartialHashesList : public DataStructure {
+    ptr< vector< uint8_t > > partialHashes;  // tsafe
 
     transaction_count transactionCount = 0;
 
 public:
+    [[nodiscard]] transaction_count getTransactionCount() const;
 
-    [[nodiscard ]] transaction_count getTransactionCount() const;
-
-    [[nodiscard ]] ptr<vector<uint8_t>> getPartialHashes() const;
+    [[nodiscard]] ptr< vector< uint8_t > > getPartialHashes() const;
 
     ~PartialHashesList() override;
 
-    explicit PartialHashesList(transaction_count _transactionCount);
+    explicit PartialHashesList( transaction_count _transactionCount );
 
-    PartialHashesList(transaction_count _transactionCount, const ptr<vector<uint8_t>>& _partialHashes);
+    PartialHashesList(
+        transaction_count _transactionCount, const ptr< vector< uint8_t > >& _partialHashes );
 
-    msg_len getLen() {
-        return msg_len(partialHashes->size());
-    }
+    msg_len getLen() { return msg_len( partialHashes->size() ); }
 
-    ptr<partial_sha_hash> getPartialHash(uint64_t i) ;
-
+    ptr< partial_sha_hash > getPartialHash( uint64_t i );
 };
-
-
-

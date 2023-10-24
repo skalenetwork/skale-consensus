@@ -30,14 +30,12 @@
 
 
 void GlobalThreadRegistry::joinAll() {
+    LOCK( allThreadsLock );
 
-
-    LOCK(allThreadsLock);
-
-    if (joined)
+    if ( joined )
         return;
 
-    for (auto &&thread : GlobalThreadRegistry::allThreads) {
+    for ( auto&& thread : GlobalThreadRegistry::allThreads ) {
         thread->join();
     }
 
@@ -46,10 +44,9 @@ void GlobalThreadRegistry::joinAll() {
     allThreads.clear();
 }
 
-void GlobalThreadRegistry::add(const ptr<thread>& _t) {
+void GlobalThreadRegistry::add( const ptr< thread >& _t ) {
+    CHECK_ARGUMENT( _t );
 
-    CHECK_ARGUMENT(_t);
-
-    LOCK(allThreadsLock)
-    allThreads.push_back(_t);
+    LOCK( allThreadsLock )
+    allThreads.push_back( _t );
 }

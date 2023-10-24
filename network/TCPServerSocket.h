@@ -24,20 +24,16 @@
 #pragma once
 
 
-
-
 #include "ServerSocket.h"
 
 
-class TCPServerSocket : public ServerSocket{
-
+class TCPServerSocket : public ServerSocket {
     ptr< sockaddr_in > socketaddr;
 
-    atomic<int> descriptor;
+    atomic< int > descriptor;
 
 public:
-
-    TCPServerSocket(const string &_bindIP, uint16_t _basePort, port_type  _portType);
+    TCPServerSocket( const string& _bindIP, uint16_t _basePort, port_type _portType );
 
     void touch();
 
@@ -46,5 +42,4 @@ public:
     ~TCPServerSocket() override;
 
     void closeAndCleanupAll() override;
-
 };

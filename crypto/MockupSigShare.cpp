@@ -30,22 +30,19 @@
 
 #include "MockupSigShare.h"
 
-MockupSigShare::MockupSigShare(const string& _sigShare, schain_id _schainID, block_id _blockID, schain_index _signerIndex,
-                               size_t _totalSigners, size_t _requiredSigners)
-    : ThresholdSigShare(_schainID, _blockID, _signerIndex) {
-
-    CHECK_ARGUMENT(_sigShare != "");
-    CHECK_ARGUMENT(_requiredSigners <= _totalSigners);
+MockupSigShare::MockupSigShare( const string& _sigShare, schain_id _schainID, block_id _blockID,
+    schain_index _signerIndex, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSigShare( _schainID, _blockID, _signerIndex ) {
+    CHECK_ARGUMENT( _sigShare != "" );
+    CHECK_ARGUMENT( _requiredSigners <= _totalSigners );
     this->totalSigners = _totalSigners;
     this->requiredSigners = _requiredSigners;
     this->sigShare = _sigShare;
 }
 
-MockupSigShare::~MockupSigShare() {
-
-}
+MockupSigShare::~MockupSigShare() {}
 
 string MockupSigShare::toString() {
-    CHECK_STATE(sigShare != "");
+    CHECK_STATE( sigShare != "" );
     return sigShare;
 }

@@ -35,102 +35,93 @@
 using namespace std;
 
 
+void SkaleLog::setGlobalLogLevel( string& _s ) {
+    globalLogLevel = logLevelFromString( _s );
 
-
-
-void SkaleLog::setGlobalLogLevel(string &_s) {
-    globalLogLevel = logLevelFromString(_s);
-
-    for (auto &&item : loggers) {
-        item.second->set_level(globalLogLevel);
+    for ( auto&& item : loggers ) {
+        item.second->set_level( globalLogLevel );
     }
 
-    ConsensusEngine::setConfigLogLevel(_s);
+    ConsensusEngine::setConfigLogLevel( _s );
 }
 
 
-
-string level_names[]   = SPDLOG_LEVEL_NAMES;
-level_enum SkaleLog::logLevelFromString(string &_s) {
-    for (int i = 0; i < 7; i++) {
-        if (_s == level_names[i]) {
-            return level_enum(i);
+string level_names[] = SPDLOG_LEVEL_NAMES;
+level_enum SkaleLog::logLevelFromString( string& _s ) {
+    for ( int i = 0; i < 7; i++ ) {
+        if ( _s == level_names[i] ) {
+            return level_enum( i );
         }
     }
 
 
-    BOOST_THROW_EXCEPTION(ParsingException("Unknown level name " + _s, __CLASS_NAME__));
+    BOOST_THROW_EXCEPTION( ParsingException( "Unknown level name " + _s, __CLASS_NAME__ ) );
 }
 
-shared_ptr<spdlog::logger> SkaleLog::loggerForClass(const char *_s) {
+shared_ptr< spdlog::logger > SkaleLog::loggerForClass( const char* _s ) {
     string key;
 
-    if (strstr(_s, "Proposal"))
+    if ( strstr( _s, "Proposal" ) )
         key = "Proposal";
-    if (strstr(_s, "Catchup"))
+    if ( strstr( _s, "Catchup" ) )
         key = "Catchup";
 
-    if (strstr(_s, "Pending"))
+    if ( strstr( _s, "Pending" ) )
         key = "Pending";
-    if (strstr(_s, "Consensus"))
+    if ( strstr( _s, "Consensus" ) )
         key = "Consensus";
-    if (strstr(_s, "Protocol"))
+    if ( strstr( _s, "Protocol" ) )
         key = "Consensus";
-    if (strstr(_s, "Header"))
+    if ( strstr( _s, "Header" ) )
         key = "Datastructures";
-    if (strstr(_s, "Network"))
+    if ( strstr( _s, "Network" ) )
         key = "Net";
 
-    if (key == "")
+    if ( key == "" )
         key = "Main";
 
-    CHECK_STATE(loggers.count(key) > 0);
+    CHECK_STATE( loggers.count( key ) > 0 );
     return loggers[key];
 }
 
-SkaleLog::SkaleLog(node_id _nodeID, ConsensusEngine* _engine) {
-
-    CHECK_STATE(_engine);
+SkaleLog::SkaleLog( node_id _nodeID, ConsensusEngine* _engine ) {
+    CHECK_STATE( _engine );
 
     engine = _engine;
 
     nodeID = _nodeID;
 
-    prefix = to_string(_nodeID) + ":";
+    prefix = to_string( _nodeID ) + ":";
 
 
-    if (_engine->getEngineID() > 1) {
-        prefix = to_string(_engine->getEngineID()) + ":" + to_string(_nodeID) + ":";
+    if ( _engine->getEngineID() > 1 ) {
+        prefix = to_string( _engine->getEngineID() ) + ":" + to_string( _nodeID ) + ":";
     } else {
-        prefix = to_string(_nodeID) + ":";
+        prefix = to_string( _nodeID ) + ":";
     }
 
-    mainLogger = _engine->createLogger(prefix + "main");
+    mainLogger = _engine->createLogger( prefix + "main" );
     loggers["Main"] = mainLogger;
-    proposalLogger = _engine->createLogger(prefix + "proposal");
+    proposalLogger = _engine->createLogger( prefix + "proposal" );
     loggers["Proposal"] = proposalLogger;
-    catchupLogger = _engine->createLogger(prefix + "catchup");
+    catchupLogger = _engine->createLogger( prefix + "catchup" );
     loggers["Catchup"] = catchupLogger;
-    consensusLogger = _engine->createLogger(prefix + "consensus");
+    consensusLogger = _engine->createLogger( prefix + "consensus" );
     loggers["Consensus"] = consensusLogger;
-    netLogger = _engine->createLogger(prefix + "net");
+    netLogger = _engine->createLogger( prefix + "net" );
     loggers["Net"] = netLogger;
-    dataStructuresLogger = _engine->createLogger(prefix + "datastructures");
+    dataStructuresLogger = _engine->createLogger( prefix + "datastructures" );
     loggers["Datastructures"] = dataStructuresLogger;
-    pendingQueueLogger = _engine->createLogger(prefix + "pending");
+    pendingQueueLogger = _engine->createLogger( prefix + "pending" );
     loggers["Pending"] = pendingQueueLogger;
 }
-
 
 
 const node_id SkaleLog::getNodeID() const {
     return nodeID;
 }
 
-ConsensusEngine * SkaleLog::getEngine() const {
-    CHECK_STATE(engine);
+ConsensusEngine* SkaleLog::getEngine() const {
+    CHECK_STATE( engine );
     return engine;
 }
-
-
-

@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 
 #include "Buffer.h"
 #include "Network.h"
@@ -39,18 +39,15 @@ class Schain;
 class TransactionList;
 
 class ZMQNetwork : public Network {
-
 public:
+    uint64_t interruptableRecv( void* _socket, void* _buf, size_t _len );
 
-    uint64_t interruptableRecv(void *_socket, void *_buf, size_t _len);
+    bool interruptableSend( void* _socket, void* _buf, size_t _len );
 
-    bool interruptableSend(void *_socket, void *_buf, size_t _len);
+    uint64_t readMessageFromNetwork( const ptr< Buffer > buf ) override;
 
-    uint64_t readMessageFromNetwork(const ptr<Buffer> buf) override;
+    explicit ZMQNetwork( Schain& _schain );
 
-    explicit ZMQNetwork(Schain &_schain);
-
-    bool sendMessage(const ptr<NodeInfo> &_remoteNodeInfo, const ptr<NetworkMessage>& _msg) override;
-
+    bool sendMessage(
+        const ptr< NodeInfo >& _remoteNodeInfo, const ptr< NetworkMessage >& _msg ) override;
 };
-

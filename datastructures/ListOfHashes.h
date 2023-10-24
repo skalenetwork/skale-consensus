@@ -29,15 +29,13 @@
 class SHAHAsh;
 
 class ListOfHashes : public DataStructure {
-
 public:
-
     virtual uint64_t hashCount() = 0;
 
-    virtual BLAKE3Hash getHash(uint64_t _index) = 0;
+    virtual BLAKE3Hash getHash( uint64_t _index ) = 0;
 
     BLAKE3Hash calculateTopMerkleRoot();
 };
 
 
-#endif //SKALED_LISTOFHASHES_H
+#endif  // SKALED_LISTOFHASHES_H

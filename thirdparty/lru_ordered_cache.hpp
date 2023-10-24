@@ -26,7 +26,7 @@ namespace cache {
     template<typename key_t, typename value_t>
     class lru_ordered_cache {
 
-        std::recursive_mutex m;
+        std::shared_mutex m;
 
     public:
         typedef typename std::pair<key_t, value_t> key_value_pair_t;
@@ -38,7 +38,7 @@ namespace cache {
 
         void put(const key_t& key, const value_t& value) {
 
-            LOCK(m);
+            WRITE_LOCK(m);
 
             auto it = _cache_items_map.find(key);
             _cache_items_list.push_front(key_value_pair_t(key, value));
@@ -58,7 +58,7 @@ namespace cache {
 
         const value_t& get(const key_t& key) {
 
-            LOCK(m);
+            READ_LOCK(m);
 
             auto it = _cache_items_map.find(key);
             if (it == _cache_items_map.end()) {
@@ -71,7 +71,7 @@ namespace cache {
 
         const std::any getIfExists(const key_t& key) {
 
-            LOCK(m);
+            READ_LOCK(m);
 
             auto it = _cache_items_map.find(key);
             if (it == _cache_items_map.end()) {
@@ -85,13 +85,13 @@ namespace cache {
 
         bool exists(const key_t& key)  {
 
-            LOCK(m);
+            READ_LOCK(m);
 
             return _cache_items_map.find(key) != _cache_items_map.end();
         }
 
-        size_t size() const {
-            LOCK(m);
+        size_t size()  {
+            READ_LOCK(m);
             return _cache_items_map.size();
         }
 

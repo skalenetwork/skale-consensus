@@ -35,50 +35,41 @@
 
 #include "HistoryMessage.h"
 
-HistoryMessage::HistoryMessage(MsgType _messageType, bin_consensus_round _r, bin_consensus_value _value,
-                               BinConsensusInstance &_srcProtocolInstance)
-        : NetworkMessage(_messageType, _srcProtocolInstance.getBlockID(),
-                         _srcProtocolInstance.getBlockProposerIndex(), _r, _value, 0,
-                         _srcProtocolInstance) {
-}
+HistoryMessage::HistoryMessage( MsgType _messageType, bin_consensus_round _r,
+    bin_consensus_value _value, BinConsensusInstance& _srcProtocolInstance )
+    : NetworkMessage( _messageType, _srcProtocolInstance.getBlockID(),
+          _srcProtocolInstance.getBlockProposerIndex(), _r, _value, 0, _srcProtocolInstance ) {}
 
 
-
-HistoryDecideMessage::HistoryDecideMessage(bin_consensus_round _r, bin_consensus_value _value,
-                                           BinConsensusInstance &_srcProtocolInstance) : HistoryMessage(
-        MsgType::BIN_CONSENSUS_HISTORY_DECIDE, _r, _value, _srcProtocolInstance) {
+HistoryDecideMessage::HistoryDecideMessage(
+    bin_consensus_round _r, bin_consensus_value _value, BinConsensusInstance& _srcProtocolInstance )
+    : HistoryMessage( MsgType::BIN_CONSENSUS_HISTORY_DECIDE, _r, _value, _srcProtocolInstance ) {
     printPrefix = "d";
-
 }
 
 
-
-HistoryBVSelfVoteMessage::HistoryBVSelfVoteMessage(bin_consensus_round _r, bin_consensus_value _value,
-                                                     BinConsensusInstance &_srcProtocolInstance) : HistoryMessage(
-        MsgType::BIN_CONSENSUS_HISTORY_BVSELF, _r, _value, _srcProtocolInstance) {
+HistoryBVSelfVoteMessage::HistoryBVSelfVoteMessage(
+    bin_consensus_round _r, bin_consensus_value _value, BinConsensusInstance& _srcProtocolInstance )
+    : HistoryMessage( MsgType::BIN_CONSENSUS_HISTORY_BVSELF, _r, _value, _srcProtocolInstance ) {
     printPrefix = "bs";
-
 }
 
-HistoryAUXSelfVoteMessage::HistoryAUXSelfVoteMessage(bin_consensus_round _r, bin_consensus_value _value,
-                                                     BinConsensusInstance &_srcProtocolInstance) : HistoryMessage(
-        MsgType::BIN_CONSENSUS_HISTORY_AUXSELF, _r, _value, _srcProtocolInstance) {
+HistoryAUXSelfVoteMessage::HistoryAUXSelfVoteMessage(
+    bin_consensus_round _r, bin_consensus_value _value, BinConsensusInstance& _srcProtocolInstance )
+    : HistoryMessage( MsgType::BIN_CONSENSUS_HISTORY_AUXSELF, _r, _value, _srcProtocolInstance ) {
     printPrefix = "as";
-
 }
 
 
-HistoryCommonCoinMessage::HistoryCommonCoinMessage(bin_consensus_round _r, bin_consensus_value _value,
-                                                   BinConsensusInstance &_srcProtocolInstance) : HistoryMessage(
-        MsgType::BIN_CONSENSUS_HISTORY_CC, _r, _value, _srcProtocolInstance) {
+HistoryCommonCoinMessage::HistoryCommonCoinMessage(
+    bin_consensus_round _r, bin_consensus_value _value, BinConsensusInstance& _srcProtocolInstance )
+    : HistoryMessage( MsgType::BIN_CONSENSUS_HISTORY_CC, _r, _value, _srcProtocolInstance ) {
     printPrefix = "cc";
-
 }
 
 
-HistoryNewRoundMessage::HistoryNewRoundMessage(bin_consensus_round _r, bin_consensus_value _value,
-                                               BinConsensusInstance &_srcProtocolInstance) : HistoryMessage(
-        MsgType::BIN_CONSENSUS_HISTORY_NEW_ROUND, _r, _value, _srcProtocolInstance) {
+HistoryNewRoundMessage::HistoryNewRoundMessage(
+    bin_consensus_round _r, bin_consensus_value _value, BinConsensusInstance& _srcProtocolInstance )
+    : HistoryMessage( MsgType::BIN_CONSENSUS_HISTORY_NEW_ROUND, _r, _value, _srcProtocolInstance ) {
     printPrefix = "nr";
-
 }

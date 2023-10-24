@@ -27,12 +27,9 @@
 #include "sgxclient/SgxZmqMessage.h"
 
 class BLSSignReqMessage : public SgxZmqMessage {
-
 public:
-
-    BLSSignReqMessage(shared_ptr<rapidjson::Document>& _d) : SgxZmqMessage(_d) {};
-
+    BLSSignReqMessage( shared_ptr< rapidjson::Document >& _d ) : SgxZmqMessage( _d ){};
 };
 
 
-#endif //SGXWALLET_BLSSIGNREQMSG_H
+#endif  // SGXWALLET_BLSSIGNREQMSG_H

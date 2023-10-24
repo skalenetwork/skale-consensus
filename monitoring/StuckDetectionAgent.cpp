@@ -73,7 +73,7 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     uint64_t restartIteration = 1;
 
     while ( true ) {
-        if( _agent->getSchain()->getNode()->isExitRequested() )
+        if ( _agent->getSchain()->getNode()->isExitRequested() )
             return;
         auto restartFileName = _agent->createStuckFileName( restartIteration );
 
@@ -83,19 +83,20 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
         restartIteration++;
     }
 
-    if (restartIteration > 1) {
-        LOG(info, "Stuck detection engine: previous restarts detected:" + to_string(restartIteration - 1));
+    if ( restartIteration > 1 ) {
+        LOG( info, "Stuck detection engine: previous restarts detected:" << to_string(
+                       restartIteration - 1 ) );
     }
 
 
-    if( _agent->getSchain()->getNode()->isExitRequested() )
+    if ( _agent->getSchain()->getNode()->isExitRequested() )
         return;
 
     uint64_t restartTime = 0;
     uint64_t sleepTime = _agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000;
 
     while ( restartTime == 0 ) {
-        if( _agent->getSchain()->getNode()->isExitRequested() )
+        if ( _agent->getSchain()->getNode()->isExitRequested() )
             return;
         try {
             usleep( sleepTime );
@@ -125,7 +126,6 @@ void StuckDetectionAgent::join() {
 
 
 bool StuckDetectionAgent::checkNodesAreOnline() {
-
     LOG( info, "StuckDetectionEngine:: stuck detected. Checking network connectivity ..." );
 
     std::unordered_set< uint64_t > connections;
@@ -153,7 +153,7 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
                     throw;
                 } catch ( std::exception& e ) {
                 }
-                usleep(50 * 1000);
+                usleep( 50 * 1000 );
             }
         }
     }
@@ -169,7 +169,6 @@ bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _tim
                   ( currentTimeMs - getSchain()->getLastCommitTimeMs() > _restartIntervalMs ) &&
                   ( Time::getCurrentTimeMs() - _timeStamp > _restartIntervalMs ) &&
                   checkNodesAreOnline();
-
 
 
     return result;
@@ -189,17 +188,17 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
         return 0;
 
     // if sgx is enabled and SGX server is down, there is no point restarting
-    if (sChain->getCryptoManager()->isSGXServerDown())
+    if ( sChain->getCryptoManager()->isSGXServerDown() )
         return 0;
 
     auto timeStampMs = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;
 
     // check that the chain has not been doing much for a long time
     auto startTimeMs = Time::getCurrentTimeMs();
-    while (Time::getCurrentTimeMs() - startTimeMs < 60000 ) {
+    while ( Time::getCurrentTimeMs() - startTimeMs < 60000 ) {
         if ( !stuckCheck( restartIntervalMs, timeStampMs ) )
             return 0;
-        usleep(5 * 1000 * 1000);
+        usleep( 5 * 1000 * 1000 );
     }
 
     LOG( info, "Need for restart detected. Cleaning and restarting " );
@@ -223,8 +222,9 @@ void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration 
 
     createStuckRestartFile( _iteration + 1 );
 
-    LOG(err, "Consensus engine stuck detected, because no blocks were mined for a long time and "
-             "majority of other nodes in the chain seem to be reachable on network. Restarting ...");
+    LOG( err,
+        "Consensus engine stuck detected, because no blocks were mined for a long time and "
+        "majority of other nodes in the chain seem to be reachable on network. Restarting ..." );
 
     exit( 13 );
 }

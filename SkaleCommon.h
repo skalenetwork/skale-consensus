@@ -68,6 +68,10 @@
 
 #include <iostream>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#pragma GCC diagnostic ignored "-Wpessimizing-move"
+#pragma GCC diagnostic ignored "-Wsign-compare"
 
 #include <boost/exception/exception.hpp>
 #include <boost/exception/info.hpp>
@@ -82,27 +86,24 @@
 
 #include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-copy"
-#pragma GCC diagnostic ignored "-Wpessimizing-move"
 #include <boost/multiprecision/cpp_int.hpp>
-#pragma GCC diagnostic pop
-
 
 #include <boost/crc.hpp>
 
 #include "boost/lexical_cast.hpp"
 #include <boost/tokenizer.hpp>
 
+#pragma GCC diagnostic pop
+
 class ConsensusEngine;
 class SkaleLog;
 
 
-#define BOOST_STRONG_TYPEDEF(T, D)                                                     \
+#define BOOST_STRONG_TYPEDEF( T, D )                                                     \
     struct D : boost::totally_ordered1< D,                                               \
                    boost::totally_ordered2< D, T,                                        \
                        boost::multipliable2< D, T,                                       \
-                           boost::addable2< D, T, boost::subtractable2< D, T >>>> > { \
+                           boost::addable2< D, T, boost::subtractable2< D, T > > > > > { \
         T t;                                                                             \
         D( const T& t_ ) : t( t_ ){};                                                    \
         D( T&& t_ ) : t( std::move( t_ ) ){};                                            \
@@ -149,16 +150,13 @@ using namespace std;
 
 static const uint64_t LEVELDB_SHARDS = 4;
 
-static const uint64_t BLOCK_PROPOSAL_HISTORY_SIZE = 1;
-
-static const uint64_t COMMITTED_TRANSACTIONS_HISTORY = 1024 * 1024;
 
 static const uint64_t MAX_ACTIVE_CONSENSUSES = 5;
 
-static const uint64_t MAX_CONSENSUS_HISTORY  = 2 * MAX_ACTIVE_CONSENSUSES;
+static const uint64_t MAX_CONSENSUS_HISTORY = 2 * MAX_ACTIVE_CONSENSUSES;
 
-static const uint64_t SESSION_KEY_CACHE_SIZE  = 2;
-static const uint64_t SESSION_PUBLIC_KEY_CACHE_SIZE  = 16;
+static const uint64_t SESSION_KEY_CACHE_SIZE = 2;
+static const uint64_t SESSION_PUBLIC_KEY_CACHE_SIZE = 16;
 
 // catchup happens in chunks of 32 MB MAX
 static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 64 * 1024 * 1024;
@@ -167,9 +165,11 @@ static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 8 * 1024;
 
 static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 3000;
 
+static constexpr int64_t EMPTY_BLOCK_INTERVAL_AFTER_CATCHUP_MS = 100;
+
 static constexpr uint64_t MIN_BLOCK_INTERVAL_MS = 1;
 
-static  constexpr uint64_t PROPOSAL_RETRY_INTERVAL_MS = 500;
+static constexpr uint64_t PROPOSAL_RETRY_INTERVAL_MS = 500;
 
 static constexpr uint64_t CATCHUP_INTERVAL_MS = 5000;
 
@@ -177,7 +177,7 @@ static constexpr uint64_t MONITORING_INTERVAL_MS = 1000;
 
 static constexpr uint64_t STUCK_MONITORING_INTERVAL_MS = 3000;
 
-static constexpr uint64_t STUCK_RESTART_INTERVAL_MS = 3 * 60 * 60 * 1000; // three hours
+static constexpr uint64_t STUCK_RESTART_INTERVAL_MS = 3 * 60 * 60 * 1000;  // three hours
 
 static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
@@ -205,12 +205,12 @@ static constexpr uint64_t MAGIC_NUMBER = 0x1396A22050B30;
 
 static constexpr uint64_t TEST_MAGIC_NUMBER = 0x2456032650150;
 
-static constexpr uint64_t  MAX_DEFERRED_QUEUE_SIZE_FOR_BLOCK = 1024;
+static constexpr uint64_t MAX_DEFERRED_QUEUE_SIZE_FOR_BLOCK = 1024;
 
 static const uint64_t KNOWN_TRANSACTIONS_HISTORY = 2 * MAX_TRANSACTIONS_PER_BLOCK;
-static const uint64_t MAX_KNOWN_TRANSACTIONS_TOTAL_SIZE = 256 * 1024 * 1024; // 256 MBYTE FOR NOW
+static const uint64_t MAX_KNOWN_TRANSACTIONS_TOTAL_SIZE = 256 * 1024 * 1024;  // 256 MBYTE FOR NOW
 
-static const uint64_t  KNOWN_MSG_HASHES_SIZE = 1024;
+static const uint64_t KNOWN_MSG_HASHES_SIZE = 1024;
 
 static const uint64_t LEVELDB_STATS_HISTORY = 8;
 
@@ -220,7 +220,7 @@ static const int CONSENSUS_ZMQ_HWM = 32;
 
 static const int NODE_DEATH_INTERVAL_MS = 30000;
 
-static const string VERSION_STRING ("2.1");
+static const string VERSION_STRING( "2.1" );
 
 static constexpr uint64_t MAX_CONSENSUS_MESSAGE_LEN = 4096;
 static constexpr uint64_t MAX_ORACLE_SPEC_LEN = 1024;
@@ -228,109 +228,111 @@ static constexpr uint64_t MAX_ORACLE_RESULT_LEN = 1024 * 3;
 
 
 enum port_type {
-    PROPOSAL = 0, CATCHUP = 1, RETRIEVE = 2, HTTP_JSON = 3, BINARY_CONSENSUS = 4, ZMQ_BROADCAST = 5,
+    PROPOSAL = 0,
+    CATCHUP = 1,
+    RETRIEVE = 2,
+    HTTP_JSON = 3,
+    BINARY_CONSENSUS = 4,
+    ZMQ_BROADCAST = 5,
     MTA = 6,
     STATUS = 10
 };
 
 
-template<typename T>
-using ptr = typename std::shared_ptr<T>;  // #define ptr shared_ptr
-template<typename T>
-static inline std::string tstr(T x) {
-    return std::to_string(x);
+template < typename T >
+using ptr = typename std::shared_ptr< T >;  // #define ptr shared_ptr
+template < typename T >
+static inline std::string tstr( T x ) {
+    return std::to_string( x );
 }  // #define tstr(x) to_string(x)
 
 using fs_path = boost::filesystem::path;  // #define fs_path boost::filesystem::path
 
 
-typedef array<uint8_t, PARTIAL_HASH_LEN> partial_sha_hash;
+typedef array< uint8_t, PARTIAL_HASH_LEN > partial_sha_hash;
 
 class SkaleCommon {
 public:
-
-    static constexpr const char *NODE_FILE_NAME = "Node.json";
-    static constexpr const char *SCHAIN_DIR_NAME = "schains";
+    static constexpr const char* NODE_FILE_NAME = "Node.json";
+    static constexpr const char* SCHAIN_DIR_NAME = "schains";
 };
 
-enum BinaryDecision {
-    DECISION_UNDECIDED, DECISION_TRUE, DECISION_FALSE
-};
+enum BinaryDecision { DECISION_UNDECIDED, DECISION_TRUE, DECISION_FALSE };
 
-BOOST_STRONG_TYPEDEF(uint64_t, block_id);
+BOOST_STRONG_TYPEDEF( uint64_t, block_id );
 
-BOOST_STRONG_TYPEDEF(uint64_t, node_count);
+BOOST_STRONG_TYPEDEF( uint64_t, node_count );
 
-BOOST_STRONG_TYPEDEF(uint64_t, msg_id);
+BOOST_STRONG_TYPEDEF( uint64_t, msg_id );
 
-BOOST_STRONG_TYPEDEF(uint64_t, node_id);
+BOOST_STRONG_TYPEDEF( uint64_t, node_id );
 
-BOOST_STRONG_TYPEDEF(uint64_t, schain_id);
+BOOST_STRONG_TYPEDEF( uint64_t, schain_id );
 
 
-BOOST_STRONG_TYPEDEF(unsigned int, tcp_connection);
+BOOST_STRONG_TYPEDEF( unsigned int, tcp_connection );
 
-BOOST_STRONG_TYPEDEF(uint64_t, instance_id);
+BOOST_STRONG_TYPEDEF( uint64_t, instance_id );
 
-BOOST_STRONG_TYPEDEF(uint64_t, schain_index);
+BOOST_STRONG_TYPEDEF( uint64_t, schain_index );
 
-BOOST_STRONG_TYPEDEF(uint64_t, bulk_data_len);
+BOOST_STRONG_TYPEDEF( uint64_t, bulk_data_len );
 
-BOOST_STRONG_TYPEDEF(uint64_t, bin_consensus_round);
+BOOST_STRONG_TYPEDEF( uint64_t, bin_consensus_round );
 
-BOOST_STRONG_TYPEDEF(uint8_t, bin_consensus_value);
-
-
-BOOST_STRONG_TYPEDEF(uint64_t, transaction_count);
-
-BOOST_STRONG_TYPEDEF(uint16_t, network_port);
-
-BOOST_STRONG_TYPEDEF(uint64_t, msg_len);
-
-BOOST_STRONG_TYPEDEF(uint64_t, msg_nonce);
-
-BOOST_STRONG_TYPEDEF(uint64_t, num_threads);
-
-BOOST_STRONG_TYPEDEF(uint64_t, fragment_index);
-
-BOOST_STRONG_TYPEDEF(int, file_descriptor);
-
-BOOST_STRONG_TYPEDEF(char, out_buffer);
-
-BOOST_STRONG_TYPEDEF(char, in_buffer);
-
-using u256 =  boost::multiprecision::number<boost::multiprecision::cpp_int_backend<256, 256, boost::multiprecision::unsigned_magnitude,
-boost::multiprecision::unchecked, void>>;
+BOOST_STRONG_TYPEDEF( uint8_t, bin_consensus_value );
 
 
-inline std::string className(const std::string &prettyFunction) {
-    size_t colons = prettyFunction.find("::");
-    if (colons == std::string::npos)
+BOOST_STRONG_TYPEDEF( uint64_t, transaction_count );
+
+BOOST_STRONG_TYPEDEF( uint16_t, network_port );
+
+BOOST_STRONG_TYPEDEF( uint64_t, msg_len );
+
+BOOST_STRONG_TYPEDEF( uint64_t, msg_nonce );
+
+BOOST_STRONG_TYPEDEF( uint64_t, num_threads );
+
+BOOST_STRONG_TYPEDEF( uint64_t, fragment_index );
+
+BOOST_STRONG_TYPEDEF( int, file_descriptor );
+
+BOOST_STRONG_TYPEDEF( char, out_buffer );
+
+BOOST_STRONG_TYPEDEF( char, in_buffer );
+
+using u256 = boost::multiprecision::number< boost::multiprecision::cpp_int_backend< 256, 256,
+    boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void > >;
+
+
+inline std::string className( const std::string& prettyFunction ) {
+    size_t colons = prettyFunction.find( "::" );
+    if ( colons == std::string::npos )
         return "::";
-    size_t begin = prettyFunction.substr(0, colons).rfind(" ") + 1;
+    size_t begin = prettyFunction.substr( 0, colons ).rfind( " " ) + 1;
     size_t end = colons - begin;
 
-    return prettyFunction.substr(begin, end);
+    return prettyFunction.substr( begin, end );
 }
 
 
-static const num_threads NUM_SCHAIN_THREADS = num_threads(1);
+static const num_threads NUM_SCHAIN_THREADS = num_threads( 1 );
 
 
-static const num_threads NUM_DISPATCH_THREADS = num_threads(1);
+static const num_threads NUM_DISPATCH_THREADS = num_threads( 1 );
 
-static const num_threads NUM_ORACLE_THREADS = num_threads(1);
+static const num_threads NUM_ORACLE_THREADS = num_threads( 1 );
 
-static const uint64_t  ORACLE_QUEUE_TIMEOUT_MS = 1000;
-static const uint64_t  ORACLE_TIMEOUT_MS = 30000;
-static const uint64_t  ORACLE_REQUEST_AGE_ON_RECEIPT_MS = 10000;
+static const uint64_t ORACLE_QUEUE_TIMEOUT_MS = 1000;
+static const uint64_t ORACLE_TIMEOUT_MS = 30000;
+static const uint64_t ORACLE_REQUEST_AGE_ON_RECEIPT_MS = 10000;
 
 
-static const uint64_t DEFAULT_DB_STORAGE_LIMIT = 5000000000; // 5Gbyte
+static const uint64_t DEFAULT_DB_STORAGE_LIMIT = 5000000000;  // 5Gbyte
 
-static const uint64_t  MAX_DELAYED_MESSAGE_SENDS = 128;
+static const uint64_t MAX_DELAYED_MESSAGE_SENDS = 128;
 
-static const uint64_t  MAX_PROPOSAL_QUEUE_SIZE = 4;
+static const uint64_t MAX_PROPOSAL_QUEUE_SIZE = 4;
 
 static const uint64_t SGX_SSL_PORT = 1026;
 
@@ -344,72 +346,93 @@ static const uint64_t DEFAULT_MIN_PRICE = 100000;
 
 static const uint64_t COMMON_COIN_ROUND = 4;
 
-static const uint64_t  ORACLE_RECEIPTS_MAP_SIZE = 100000;
+static const uint64_t ORACLE_RECEIPTS_MAP_SIZE = 100000;
 
 static const uint64_t ORACLE_REQUEST_FUTURE_JITTER_MS = 1000;
 
-static const uint64_t SGX_REQUEST_TIMEOUT_MS  = 10000;
+static const uint64_t SGX_REQUEST_TIMEOUT_MS = 10000;
 
 static const uint64_t HEALTHCHECK_ON_START_RETRY_TIME_SEC = 1500;
 
-static const uint64_t  HEALTHCHECK_ON_START_TIME_BETWEEN_WARNINGS_SEC = 5 * 60;
+static const uint64_t HEALTHCHECK_ON_START_TIME_BETWEEN_WARNINGS_SEC = 5 * 60;
 
-static const uint64_t  TIME_BETWEEN_STARTUP_HEALTHCHECK_RETRIES_SEC = 1;
+static const uint64_t TIME_BETWEEN_STARTUP_HEALTHCHECK_RETRIES_SEC = 1;
 
-static const uint64_t  HEALTH_CHECK_TIME_TO_WAIT_FOR_ALL_NODES_SEC = 5;
+static const uint64_t HEALTH_CHECK_TIME_TO_WAIT_FOR_ALL_NODES_SEC = 5;
 
-extern void setThreadName(std::string const &_n, ConsensusEngine* _engine);
+static const uint64_t CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS = 30000;
+
+extern void setThreadName( std::string const& _n, ConsensusEngine* _engine );
 
 extern std::string getThreadName();
 
-#define CHECK_ARGUMENT(_EXPRESSION_) \
-    if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Argument Check failed:") + #_EXPRESSION_ + "\n" + __CLASS_NAME__ + ":" + __FUNCTION__ +  \
-        + " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw InvalidArgumentException(__msg__, __CLASS_NAME__);}
+#define CHECK_ARGUMENT( _EXPRESSION_ )                                                         \
+    if ( !( _EXPRESSION_ ) ) {                                                                 \
+        auto __msg__ = string( "Argument Check failed:" ) + #_EXPRESSION_ + "\n" +             \
+                       __CLASS_NAME__ + ":" + __FUNCTION__ + +" " + string( __FILE__ ) + ":" + \
+                       to_string( __LINE__ );                                                  \
+        throw InvalidArgumentException( __msg__, __CLASS_NAME__ );                             \
+    }
 
-#define CHECK_STATE(_EXPRESSION_) \
-    if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("State check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw InvalidStateException(__msg__, __CLASS_NAME__);}
-
-
-#define ORACLE_CHECK_STATE(_EXPRESSION_) \
-    if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Oracle check failed: ") + #_EXPRESSION_; \
-        throw InvalidStateException(__msg__, "");}
-
-#define CHECK_SIGNATURE_STATE(_EXPRESSION_) \
-    if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Signature check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw InvalidSignatureException(__msg__, __CLASS_NAME__);}
+#define CHECK_STATE( _EXPRESSION_ )                                             \
+    if ( !( _EXPRESSION_ ) ) {                                                  \
+        auto __msg__ = string( "State check failed::" ) + #_EXPRESSION_ + " " + \
+                       string( __FILE__ ) + ":" + to_string( __LINE__ );        \
+        throw InvalidStateException( __msg__, __CLASS_NAME__ );                 \
+    }
 
 
+#define ORACLE_CHECK_STATE( _EXPRESSION_ )                                \
+    if ( !( _EXPRESSION_ ) ) {                                            \
+        auto __msg__ = string( "Oracle check failed: " ) + #_EXPRESSION_; \
+        throw InvalidStateException( __msg__, "" );                       \
+    }
+
+#define CHECK_SIGNATURE_STATE( _EXPRESSION_ )                                       \
+    if ( !( _EXPRESSION_ ) ) {                                                      \
+        auto __msg__ = string( "Signature check failed::" ) + #_EXPRESSION_ + " " + \
+                       string( __FILE__ ) + ":" + to_string( __LINE__ );            \
+        throw InvalidSignatureException( __msg__, __CLASS_NAME__ );                 \
+    }
 
 
-#define CHECK_ARGUMENT2(_EXPRESSION_, _MSG_) \
-    if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw InvalidArgumentException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
+#define CHECK_ARGUMENT2( _EXPRESSION_, _MSG_ )                                                 \
+    if ( !( _EXPRESSION_ ) ) {                                                                 \
+        auto __msg__ = string( "Check failed::" ) + #_EXPRESSION_ + " " + string( __FILE__ ) + \
+                       ":" + to_string( __LINE__ );                                            \
+        throw InvalidArgumentException( __msg__ + ":" + _MSG_, __CLASS_NAME__ );               \
+    }
 
-#define CHECK_STATE2(_EXPRESSION_, _MSG_) \
-    if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Check failed::") + #_EXPRESSION_ +  " " + string(__FILE__) + ":" + to_string(__LINE__); \
-        throw InvalidStateException(__msg__ + ":" + _MSG_, __CLASS_NAME__);}
+#define CHECK_STATE2( _EXPRESSION_, _MSG_ )                                                    \
+    if ( !( _EXPRESSION_ ) ) {                                                                 \
+        auto __msg__ = string( "Check failed::" ) + #_EXPRESSION_ + " " + string( __FILE__ ) + \
+                       ":" + to_string( __LINE__ );                                            \
+        throw InvalidStateException( __msg__ + ":" + _MSG_, __CLASS_NAME__ );                  \
+    }
 
-#define ORACLE_CHECK_STATE3(_EXPRESSION_, _MSG_, _ERROR_) \
-    if (!(_EXPRESSION_)) { \
-        auto __msg__ = string("Oracle check failed: ") + _MSG_; \
-        throw OracleException(__msg__, "", _ERROR_); }
+#define ORACLE_CHECK_STATE3( _EXPRESSION_, _MSG_, _ERROR_ )       \
+    if ( !( _EXPRESSION_ ) ) {                                    \
+        auto __msg__ = string( "Oracle check failed: " ) + _MSG_; \
+        throw OracleException( __msg__, "", _ERROR_ );            \
+    }
 
-#define INJECT_TEST(__TEST_NAME__, __TEST_CODE__) \
- { static bool __TEST_NAME__ = (getenv(#__TEST_NAME__) != nullptr); \
- if (__TEST_NAME__) {__TEST_CODE__ ;} };
+#define INJECT_TEST( __TEST_NAME__, __TEST_CODE__ )                          \
+    {                                                                        \
+        static bool __TEST_NAME__ = ( getenv( #__TEST_NAME__ ) != nullptr ); \
+        if ( __TEST_NAME__ ) {                                               \
+            __TEST_CODE__;                                                   \
+        }                                                                    \
+    };
 
-#define LOCK(_M_) lock_guard<recursive_mutex> _lock_(_M_);
+#define LOCK( _M_ ) lock_guard< recursive_mutex > _lock_( _M_ );
 
-#define RETURN_IF_PREVIOUSLY_CALLED(__BOOL__) \
-    auto __previouslyCalled = __BOOL__.exchange(true); \
-    if (__previouslyCalled) { return;}
+#define READ_LOCK( _M_ ) shared_lock< shared_mutex > _read_lock_( _M_ );
+#define WRITE_LOCK( _M_ ) unique_lock< shared_mutex > _write_lock_( _M_ );
 
-#endif // SKALE_COMMON_H
+#define RETURN_IF_PREVIOUSLY_CALLED( __BOOL__ )          \
+    auto __previouslyCalled = __BOOL__.exchange( true ); \
+    if ( __previouslyCalled ) {                          \
+        return;                                          \
+    }
+
+#endif  // SKALE_COMMON_H

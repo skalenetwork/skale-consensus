@@ -29,25 +29,17 @@
 #include "Utils.h"
 
 
-ServerSocket::ServerSocket(const string &_bindIP, uint16_t _basePort, port_type _portType)
+ServerSocket::ServerSocket( const string& _bindIP, uint16_t _basePort, port_type _portType )
     : bindIP( _bindIP ) {
-
-    CHECK_ARGUMENT(!_bindIP.empty())
+    CHECK_ARGUMENT( !_bindIP.empty() )
 
     bindPort = _basePort + _portType;
 
-    CHECK_STATE(Utils::isValidIpAddress( _bindIP ) );
+    CHECK_STATE( Utils::isValidIpAddress( _bindIP ) );
 
-    LOG(debug, "Binding ip: " + _bindIP + " " + to_string(bindPort) + " " +
-               to_string(_basePort));
-
+    LOG( debug, "Binding ip: " << _bindIP << " " << to_string( bindPort ) << " "
+                               << to_string( _basePort ) );
 }
 
 
-
-
-ServerSocket::~ServerSocket() {
-}
-
-
-
+ServerSocket::~ServerSocket() {}

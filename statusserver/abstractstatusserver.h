@@ -7,34 +7,40 @@
 
 #include <jsonrpccpp/server.h>
 
-class AbstractStatusServer : public jsonrpc::AbstractServer<AbstractStatusServer>
-{
-    public:
-        AbstractStatusServer(jsonrpc::AbstractServerConnector &conn, jsonrpc::serverVersion_t type = jsonrpc::JSONRPC_SERVER_V2) : jsonrpc::AbstractServer<AbstractStatusServer>(conn, type)
-        {
-            this->bindAndAddMethod(jsonrpc::Procedure("consensus_getTPSAverage", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_STRING,  NULL), &AbstractStatusServer::consensus_getTPSAverageI);
-            this->bindAndAddMethod(jsonrpc::Procedure("consensus_getBlockSizeAverage", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_STRING,  NULL), &AbstractStatusServer::consensus_getBlockSizeAverageI);
-            this->bindAndAddMethod(jsonrpc::Procedure("consensus_getBlockTimeAverageMs", jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_STRING,  NULL), &AbstractStatusServer::consensus_getBlockTimeAverageMsI);
-        }
+class AbstractStatusServer : public jsonrpc::AbstractServer< AbstractStatusServer > {
+public:
+    AbstractStatusServer( jsonrpc::AbstractServerConnector& conn,
+        jsonrpc::serverVersion_t type = jsonrpc::JSONRPC_SERVER_V2 )
+        : jsonrpc::AbstractServer< AbstractStatusServer >( conn, type ) {
+        this->bindAndAddMethod( jsonrpc::Procedure( "consensus_getTPSAverage",
+                                    jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_STRING, NULL ),
+            &AbstractStatusServer::consensus_getTPSAverageI );
+        this->bindAndAddMethod( jsonrpc::Procedure( "consensus_getBlockSizeAverage",
+                                    jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_STRING, NULL ),
+            &AbstractStatusServer::consensus_getBlockSizeAverageI );
+        this->bindAndAddMethod( jsonrpc::Procedure( "consensus_getBlockTimeAverageMs",
+                                    jsonrpc::PARAMS_BY_NAME, jsonrpc::JSON_STRING, NULL ),
+            &AbstractStatusServer::consensus_getBlockTimeAverageMsI );
+    }
 
-        inline virtual void consensus_getTPSAverageI(const Json::Value &request, Json::Value &response)
-        {
-            (void)request;
-            response = this->consensus_getTPSAverage();
-        }
-        inline virtual void consensus_getBlockSizeAverageI(const Json::Value &request, Json::Value &response)
-        {
-            (void)request;
-            response = this->consensus_getBlockSizeAverage();
-        }
-        inline virtual void consensus_getBlockTimeAverageMsI(const Json::Value &request, Json::Value &response)
-        {
-            (void)request;
-            response = this->consensus_getBlockTimeAverageMs();
-        }
-        virtual std::string consensus_getTPSAverage() = 0;
-        virtual std::string consensus_getBlockSizeAverage() = 0;
-        virtual std::string consensus_getBlockTimeAverageMs() = 0;
+    inline virtual void consensus_getTPSAverageI(
+        const Json::Value& request, Json::Value& response ) {
+        ( void ) request;
+        response = this->consensus_getTPSAverage();
+    }
+    inline virtual void consensus_getBlockSizeAverageI(
+        const Json::Value& request, Json::Value& response ) {
+        ( void ) request;
+        response = this->consensus_getBlockSizeAverage();
+    }
+    inline virtual void consensus_getBlockTimeAverageMsI(
+        const Json::Value& request, Json::Value& response ) {
+        ( void ) request;
+        response = this->consensus_getBlockTimeAverageMs();
+    }
+    virtual std::string consensus_getTPSAverage() = 0;
+    virtual std::string consensus_getBlockSizeAverage() = 0;
+    virtual std::string consensus_getBlockTimeAverageMs() = 0;
 };
 
-#endif //JSONRPC_CPP_STUB_ABSTRACTSTATUSSERVER_H_
+#endif  // JSONRPC_CPP_STUB_ABSTRACTSTATUSSERVER_H_

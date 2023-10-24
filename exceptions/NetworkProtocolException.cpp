@@ -25,5 +25,6 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
-NetworkProtocolException::NetworkProtocolException(const std::string &_message,
-        const string & _className) :SkaleException(_message, _className) {}
+NetworkProtocolException::NetworkProtocolException(
+    const std::string& _message, const string& _className )
+    : SkaleException( _message, _className ) {}

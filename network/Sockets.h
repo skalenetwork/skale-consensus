@@ -37,26 +37,22 @@ class ZMQSockets;
 
 class Sockets {
     Node& node;
-public:
 
+public:
     ptr< ZMQSockets > consensusZMQSockets;
 
-    ptr<TCPServerSocket> blockProposalSocket;
+    ptr< TCPServerSocket > blockProposalSocket;
 
-    ptr<TCPServerSocket> catchupSocket;
+    ptr< TCPServerSocket > catchupSocket;
 
 
-    Node &getNode() const;
+    Node& getNode() const;
 
-    Sockets(Node &node);
+    Sockets( Node& node );
 
     ptr< ZMQSockets > getConsensusZMQSockets() const;
 
-    static ptr<sockaddr_in> createSocketAddress(const string & _ip, uint16_t port);
+    static ptr< sockaddr_in > createSocketAddress( const string& _ip, uint16_t port );
 
-    void initSockets(const string & _bindIP, uint16_t _basePort );
-
+    void initSockets( const string& _bindIP, uint16_t _basePort );
 };
-
-
-

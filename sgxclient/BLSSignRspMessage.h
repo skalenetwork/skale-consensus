@@ -28,14 +28,10 @@
 
 class BLSSignRspMessage : public SgxZmqMessage {
 public:
+    BLSSignRspMessage( shared_ptr< rapidjson::Document >& _d ) : SgxZmqMessage( _d ){};
 
-    BLSSignRspMessage(shared_ptr<rapidjson::Document>& _d) : SgxZmqMessage(_d) {};
-
-    string getSigShare() {
-        return getStringRapid("signatureShare");
-    }
-
+    string getSigShare() { return getStringRapid( "signatureShare" ); }
 };
 
 
-#endif //SGXWALLET_BLSSIGNRSPMSG_H
+#endif  // SGXWALLET_BLSSIGNRSPMSG_H

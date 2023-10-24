@@ -30,6 +30,6 @@
 
 class InvalidSchainIndexException : public SkaleException {
 public:
-    InvalidSchainIndexException(const string &_message, const string _className) :SkaleException(_message, _className) {}
-
+    InvalidSchainIndexException( const string& _message, const string _className )
+        : SkaleException( _message, _className ) {}
 };

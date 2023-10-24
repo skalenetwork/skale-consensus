@@ -21,28 +21,6 @@
     @date 2019-
 */
 
-/*
-    Copyright (C) 2018- SKALE Labs
-
-    This file is part of skale-consensus.
-
-    skale-consensus is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    skale-consensus is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
-
-    @file BlockFinalizeDownloader.cpp
-    @author Stan Kladko
-    @date 2018
-*/
 
 #include <exceptions/ConnectionRefusedException.h>
 
@@ -113,7 +91,7 @@ nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(
 
 uint64_t BlockFinalizeDownloader::downloadFragment(
     schain_index _dstIndex, fragment_index _fragmentIndex ) {
-    LOG( debug, "BLCK_FRG_DWNLD:" + to_string( _fragmentIndex ) + ":" + to_string( _dstIndex ) );
+    LOG( debug, "BLCK_FRG_DWNLD:" << to_string( _fragmentIndex ) << ":" << to_string( _dstIndex ) );
 
     try {
         auto header = make_shared< BlockFinalizeRequestHeader >(
@@ -164,8 +142,8 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
         auto status = ( ConnectionStatus ) Header::getUint64( response, "status" );
 
         if ( status == CONNECTION_DISCONNECT ) {
-            LOG( debug, "BLCK_FRG_DWNLD:NO_FRG:" + to_string( _fragmentIndex ) + ":" +
-                            to_string( _dstIndex ) );
+            LOG( debug, "BLCK_FRG_DWNLD:NO_FRG:" << to_string( _fragmentIndex ) << ":"
+                                                 << to_string( _dstIndex ) );
             return 0;
         }
 
@@ -271,7 +249,7 @@ ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
         if ( !this->daSig && !sig.empty() ) {
             auto blakeHash = BLAKE3Hash::fromHex( h );
             this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
-                blakeHash, sig, blockId, uint64_t(-1));
+                blakeHash, sig, blockId, uint64_t( -1 ) );
         }
     }
 
@@ -340,20 +318,17 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
             if ( !testFinalizationDownloadOnly ) {
                 // take into account that the block can
                 //  be in parallel committed through catchup
+                // then we need to stop working
                 if ( sChain->getLastCommittedBlockID() >= blockId ) {
                     return;
                 }
 
                 // take into account that the proposal and da proof can arrive through
                 // BlockproposalServerAgent
-
-                if ( proposalDB->proposalExists( blockId, proposerIndex ) ) {
-                    auto proposal =
-                        proposalDB->getBlockProposal( _agent->blockId, _agent->proposerIndex );
-                    CHECK_STATE( proposal )
-                    if ( daProofDB->haveDAProof( proposal ) ) {
-                        return;
-                    }
+                // then we need to stop working
+                auto proposal = proposalDB->getBlockProposal( blockId, proposerIndex );
+                if ( proposal && daProofDB->haveDAProof( proposal ) ) {
+                    return;
                 }
             }
 
@@ -379,7 +354,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
         }
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        node->exitOnFatalError( e.what() );
+        node->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 

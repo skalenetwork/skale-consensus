@@ -32,12 +32,12 @@
 #include "OracleResultAssemblyAgent.h"
 #include "OracleMessageThreadPool.h"
 
-OracleMessageThreadPool::OracleMessageThreadPool(Agent *_agent) : WorkerThreadPool(NUM_SCHAIN_THREADS, _agent, false) {
+OracleMessageThreadPool::OracleMessageThreadPool( Agent* _agent )
+    : WorkerThreadPool( NUM_SCHAIN_THREADS, _agent, false ) {}
 
-}
-
-void OracleMessageThreadPool::createThread(uint64_t /*_threadNumber*/) {
-    LOCK(threadPoolLock)
-    threadpool.push_back(make_shared<thread>(OracleResultAssemblyAgent::messageThreadProcessingLoop,
-                                             reinterpret_cast < OracleResultAssemblyAgent * > ( agent )));
+void OracleMessageThreadPool::createThread( uint64_t /*_threadNumber*/ ) {
+    LOCK( threadPoolLock )
+    threadpool.push_back(
+        make_shared< thread >( OracleResultAssemblyAgent::messageThreadProcessingLoop,
+            reinterpret_cast< OracleResultAssemblyAgent* >( agent ) ) );
 }

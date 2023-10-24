@@ -27,10 +27,9 @@
 #include "openssl/ec.h"
 
 class OpenSSLEdDSAKey {
-
     bool isPrivate = false;
 
-    EVP_PKEY*  edKey = nullptr;
+    EVP_PKEY* edKey = nullptr;
 
     static EVP_PKEY* genFastKeyImpl();
 
@@ -39,16 +38,15 @@ class OpenSSLEdDSAKey {
     static EVP_PKEY* deserializeFastPubKey( const string& encodedPubKeyStr );
 
 public:
+    OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate );
 
-    OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate);
-
-    static ptr< OpenSSLEdDSAKey > importPubKey( const string& _publicKey);
+    static ptr< OpenSSLEdDSAKey > importPubKey( const string& _publicKey );
 
     virtual ~OpenSSLEdDSAKey();
 
     [[nodiscard]] string serializePubKey() const;
 
-    string sign(const char* hash);
+    string sign( const char* hash );
 
     void verifySig( const string& _encodedSignature, const char* _hash ) const;
 

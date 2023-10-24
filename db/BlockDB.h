@@ -32,23 +32,21 @@ class CommittedBlock;
 class CryptoManager;
 
 class BlockDB : public CacheLevelDB {
-
     shared_mutex m;
 
-    void saveBlock2LevelDB(const ptr<CommittedBlock> &_block);
+    void saveBlock2LevelDB( const ptr< CommittedBlock >& _block );
 
-    cache::lru_cache<uint64_t , ptr<vector<uint8_t>>> blockCache; // tsafe
+    cache::lru_cache< uint64_t, ptr< vector< uint8_t > > > blockCache;  // tsafe
 
 public:
+    BlockDB(
+        Schain* _sChain, string& _dirname, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    BlockDB(Schain *_sChain, string &_dirname, string &_prefix, node_id _nodeId,
-        uint64_t _maxDBSize);
+    ptr< vector< uint8_t > > getSerializedBlockFromLevelDB( block_id _blockID );
 
-    ptr<vector<uint8_t >> getSerializedBlockFromLevelDB(block_id _blockID);
+    void saveBlock( const ptr< CommittedBlock >& _block );
 
-    void saveBlock(const ptr<CommittedBlock> &_block);
-
-    ptr<CommittedBlock> getBlock(block_id _blockID, const ptr<CryptoManager>& _cryptoManager);
+    ptr< CommittedBlock > getBlock( block_id _blockID, const ptr< CryptoManager >& _cryptoManager );
 
     block_id readLastCommittedBlockID();
 
@@ -56,13 +54,13 @@ public:
 
     string createLastCommittedKey();
 
-    string createBlockStartKey(block_id _blockID );
+    string createBlockStartKey( block_id _blockID );
 
     bool unfinishedBlockExists( block_id _blockID );
 
-    ptr<vector<uint8_t>> getSerializedBlocksFromLevelDB(block_id _startBlock, block_id _endBlock,
-                                                        ptr<list<uint64_t>> _blockSizes);
+    ptr< vector< uint8_t > > getSerializedBlocksFromLevelDB(
+        block_id _startBlock, block_id _endBlock, ptr< list< uint64_t > > _blockSizes );
 };
 
 
-#endif //SKALED_BLOCKDB_H
+#endif  // SKALED_BLOCKDB_H

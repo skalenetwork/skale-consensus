@@ -37,34 +37,31 @@
 #include "MissingTransactionsRequestHeader.h"
 
 
-
 using namespace std;
 
-MissingTransactionsRequestHeader::MissingTransactionsRequestHeader() :
-Header(Header::MISSING_TRANSACTIONS_REQ){
+MissingTransactionsRequestHeader::MissingTransactionsRequestHeader()
+    : Header( Header::MISSING_TRANSACTIONS_REQ ) {
     missingTransactionsCount = 0;
 };
 
 
-MissingTransactionsRequestHeader::MissingTransactionsRequestHeader(const ptr<map<uint64_t, ptr<partial_sha_hash>>>& _missingMessages)
-        : MissingTransactionsRequestHeader() {
-
-     this->missingTransactionsCount = _missingMessages->size();
-     complete = true;
-
+MissingTransactionsRequestHeader::MissingTransactionsRequestHeader(
+    const ptr< map< uint64_t, ptr< partial_sha_hash > > >& _missingMessages )
+    : MissingTransactionsRequestHeader() {
+    this->missingTransactionsCount = _missingMessages->size();
+    complete = true;
 }
 
-void MissingTransactionsRequestHeader::addFields(nlohmann::json &_j) {
-       Header::addFields(_j);
-        _j["count"] = missingTransactionsCount;
+void MissingTransactionsRequestHeader::addFields( nlohmann::json& _j ) {
+    Header::addFields( _j );
+    _j["count"] = missingTransactionsCount;
 }
 
 uint64_t MissingTransactionsRequestHeader::getMissingTransactionsCount() const {
     return missingTransactionsCount;
 }
 
-void MissingTransactionsRequestHeader::setMissingTransactionsCount(uint64_t _missingTransactionsCount) {
+void MissingTransactionsRequestHeader::setMissingTransactionsCount(
+    uint64_t _missingTransactionsCount ) {
     MissingTransactionsRequestHeader::missingTransactionsCount = _missingTransactionsCount;
 }
-
-

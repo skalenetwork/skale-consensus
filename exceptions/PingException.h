@@ -29,8 +29,8 @@
 
 class PingException : public NetworkProtocolException {
 public:
-    PingException(const string &_message, const string &_className);
+    PingException( const string& _message, const string& _className );
 };
 
 
-#endif //CONSENSUS_PINGEXCEPTION_H
+#endif  // CONSENSUS_PINGEXCEPTION_H

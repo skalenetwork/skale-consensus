@@ -32,54 +32,46 @@
 #endif
 
 
-
-
-int main(int argc, char **argv) {
-
+int main( int argc, char** argv ) {
 #ifdef GOOGLE_PROFILE
-    HeapProfilerStart("/tmp/consensusd.profile");
+    HeapProfilerStart( "/tmp/consensusd.profile" );
 #endif
 
-    signal(SIGPIPE, SIG_IGN);
+    signal( SIGPIPE, SIG_IGN );
 
 
-
-    if (argc < 2) {
-        printf("Usage: consensusd nodes_dir node_id1 node_id2 \n");
-        exit(1);
+    if ( argc < 2 ) {
+        printf( "Usage: consensusd nodes_dir node_id1 node_id2 \n" );
+        exit( 1 );
     }
 
 
-    ConsensusEngine engine(0, 100000000);
+    ConsensusEngine engine( 0, 100000000 );
 
 
-    for (int i = 2; i < argc; i++) {
-
+    for ( int i = 2; i < argc; i++ ) {
         uint64_t ui64;
-        ui64 = static_cast<uint64_t >(stoll(argv[i]));
+        ui64 = static_cast< uint64_t >( stoll( argv[i] ) );
 
-        engine.getNodeIDs().insert(node_id(ui64));
+        engine.getNodeIDs().insert( node_id( ui64 ) );
 
-        cerr << node_id(ui64) << endl;
+        cerr << node_id( ui64 ) << endl;
     }
 
-    fs_path dirPath(boost::filesystem::system_complete(fs_path(argv[1])));
+    fs_path dirPath( boost::filesystem::system_complete( fs_path( argv[1] ) ) );
 
     engine.parseTestConfigsAndCreateAllNodes( dirPath );
 
 
     engine.slowStartBootStrapTest();
 
-    sleep(20);
+    while ( engine.getStatus() != CONSENSUS_EXITED ) {
+        usleep( 100 * 1000 );
+    }
 
-    engine.exitGracefullyBlocking();
     cerr << "Exited" << endl;
 
 #ifdef GOOGLE_PROFILE
     HeapProfilerStop();
 #endif
-
-
-
-
 }

@@ -32,20 +32,18 @@ class CryptoManager;
 class NetworkMessage;
 
 class MsgDB : public CacheLevelDB {
-
     recursive_mutex m;
 
 public:
+    MsgDB(
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    MsgDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-        uint64_t _maxDBSize);
+    bool saveMsg( const ptr< NetworkMessage >& _msg );
 
-    bool saveMsg(const ptr<NetworkMessage>& _msg);
+    ptr< vector< ptr< NetworkMessage > > > getMessages( block_id _blockID );
 
-    ptr<vector<ptr<NetworkMessage>>> getMessages(block_id _blockID);
-
-    const string& getFormatVersion() override ;
+    const string& getFormatVersion() override;
 };
 
 
-#endif //SKALED_OUTGOING_MSG_DB_H
+#endif  // SKALED_OUTGOING_MSG_DB_H

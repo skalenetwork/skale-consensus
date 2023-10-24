@@ -22,8 +22,6 @@
 */
 
 
-
-
 #ifndef SKALED_TIMESTAMP_H
 #define SKALED_TIMESTAMP_H
 
@@ -33,22 +31,20 @@ class TimeStamp {
     uint64_t ms = 0;
 
 public:
-
-    TimeStamp() {};
+    TimeStamp(){};
     TimeStamp( uint64_t _s, uint64_t _ms );
 
-    [[nodiscard ]] uint64_t getS() const;
-    [[nodiscard ]] uint64_t getMs() const;
-    [[nodiscard ]] uint64_t getLinuxTimeMs() const;
+    [[nodiscard]] uint64_t getS() const;
+    [[nodiscard]] uint64_t getMs() const;
+    [[nodiscard]] uint64_t getLinuxTimeMs() const;
 
-    bool operator<(const TimeStamp& r) const;
+    bool operator<( const TimeStamp& r ) const;
 
     string toString();
 
     static TimeStamp getCurrentTimeStamp();
 
     TimeStamp incrementByMs();
-
 };
 
 

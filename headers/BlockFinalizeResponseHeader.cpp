@@ -30,40 +30,35 @@
 #include "AbstractBlockRequestHeader.h"
 #include "BlockFinalizeResponseHeader.h"
 
-BlockFinalizeResponseHeader::BlockFinalizeResponseHeader() : Header(Header::BLOCK_FINALIZE_RSP ) {
-
-}
+BlockFinalizeResponseHeader::BlockFinalizeResponseHeader() : Header( Header::BLOCK_FINALIZE_RSP ) {}
 
 
-void BlockFinalizeResponseHeader::addFields(nlohmann::json &_j) {
+void BlockFinalizeResponseHeader::addFields( nlohmann::json& _j ) {
+    CHECK_STATE( isComplete() )
+    Header::addFields( _j );
 
-
-    CHECK_STATE(isComplete())
-    Header::addFields(_j);
-
-    if (getStatusSubStatus().first != CONNECTION_PROCEED)
+    if ( getStatusSubStatus().first != CONNECTION_PROCEED )
         return;
 
-    CHECK_STATE(!blockHash.empty())
+    CHECK_STATE( !blockHash.empty() )
     _j["blockHash"] = blockHash;
-    _j["fragmentSize"] = (uint64_t) fragmentSize;
-    _j["blockSize"] = (uint64_t) blockSize;
+    _j["fragmentSize"] = ( uint64_t ) fragmentSize;
+    _j["blockSize"] = ( uint64_t ) blockSize;
 
-    if (!daProofSig.empty()) {
+    if ( !daProofSig.empty() ) {
         _j["daSig"] = daProofSig;
     }
 }
 
-void BlockFinalizeResponseHeader::setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize,
-    const string& _hash, const string& _daProofSig) {
+void BlockFinalizeResponseHeader::setFragmentParams(
+    uint64_t _fragmentSize, uint64_t _blockSize, const string& _hash, const string& _daProofSig ) {
+    CHECK_ARGUMENT( _fragmentSize > 2 )
+    CHECK_ARGUMENT( _blockSize > 16 )
+    CHECK_ARGUMENT( !_hash.empty() )
 
-    CHECK_ARGUMENT(_fragmentSize > 2)
-    CHECK_ARGUMENT(_blockSize > 16)
-    CHECK_ARGUMENT(!_hash.empty())
-
-    if (_daProofSig.empty())
-        exit(-7);
-    CHECK_ARGUMENT(!_daProofSig.empty())
+    if ( _daProofSig.empty() )
+        exit( -7 );
+    CHECK_ARGUMENT( !_daProofSig.empty() )
 
     fragmentSize = _fragmentSize;
     blockSize = _blockSize;

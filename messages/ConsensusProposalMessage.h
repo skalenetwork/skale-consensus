@@ -21,12 +21,12 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 #include <vector>
 
 #include "thirdparty/rapidjson/document.h"
 #include "thirdparty/json.hpp"
-#include "thirdparty/rapidjson/prettywriter.h" // for stringify JSON
+#include "thirdparty/rapidjson/prettywriter.h"  // for stringify JSON
 
 
 #include "Message.h"
@@ -38,17 +38,16 @@ class Schain;
 class BooleanProposalVector;
 
 class ConsensusProposalMessage : public Message {
-
-ptr<BooleanProposalVector>  proposals;
+    ptr< BooleanProposalVector > proposals;
 
 public:
+    ConsensusProposalMessage(
+        Schain& _sChain, const block_id& _blockID, const ptr< BooleanProposalVector > _proposals );
 
-    ConsensusProposalMessage(Schain& _sChain, const block_id &_blockID, const ptr<BooleanProposalVector> _proposals);
-
-    [[nodiscard]] const ptr<BooleanProposalVector> getProposals() const;
+    [[nodiscard]] const ptr< BooleanProposalVector > getProposals() const;
 
     string serializeToStringLite();
 
-    static ptr< ConsensusProposalMessage > parseMessageLite(const string& _header, Schain* _sChain );
-
+    static ptr< ConsensusProposalMessage > parseMessageLite(
+        const string& _header, Schain* _sChain );
 };

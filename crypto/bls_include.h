@@ -58,4 +58,4 @@
 #pragma GCC diagnostic pop
 
 
-#endif //SKALED_BLS_INCLUDE_H
+#endif  // SKALED_BLS_INCLUDE_H

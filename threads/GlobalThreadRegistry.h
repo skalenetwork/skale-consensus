@@ -26,20 +26,17 @@
 
 
 class GlobalThreadRegistry {
-
-    vector< ptr<thread>> allThreads;
+    vector< ptr< thread > > allThreads;
 
     recursive_mutex allThreadsLock;
 
     bool joined = false;
 
 public:
-
     void joinAll();
 
-    void add(const ptr<thread>& _t);
-
+    void add( const ptr< thread >& _t );
 };
 
 
-#endif //SKALED_GLOBALTHREADREGISTRY_H
+#endif  // SKALED_GLOBALTHREADREGISTRY_H

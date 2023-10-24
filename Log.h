@@ -42,7 +42,6 @@
 using namespace std;
 
 
-
 class SkaleException;
 
 
@@ -52,13 +51,17 @@ class logger;
 
 #define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
 
-#define LOG( __SEVERITY__, __MESSAGE__ ) \
-    ConsensusEngine::log( __SEVERITY__, __MESSAGE__, className( __PRETTY_FUNCTION__ ) )
+
+#define LOG( __SEVERITY__, __MESSAGE__ )                                                  \
+    {                                                                                     \
+        std::stringstream __TMP__LOG__STREAM__;                                           \
+        __TMP__LOG__STREAM__ << __MESSAGE__;                                              \
+        ConsensusEngine::log(                                                             \
+            __SEVERITY__, __TMP__LOG__STREAM__.str(), className( __PRETTY_FUNCTION__ ) ); \
+    }
 
 
 class SkaleLog {
-
-
     ConsensusEngine* engine;
 
     string prefix = "";
@@ -69,10 +72,9 @@ class SkaleLog {
         netLogger, dataStructuresLogger, pendingQueueLogger;
 
 public:
+    ConsensusEngine* getEngine() const;
 
-    ConsensusEngine *getEngine() const;
-
-    SkaleLog( node_id _nodeID, ConsensusEngine* _engine);
+    SkaleLog( node_id _nodeID, ConsensusEngine* _engine );
 
     const node_id getNodeID() const;
 
@@ -87,6 +89,6 @@ public:
     shared_ptr< spdlog::logger > loggerForClass( const char* _className );
 
 
-    static level_enum logLevelFromString(string &_s);
+    static level_enum logLevelFromString( string& _s );
 };
 #endif

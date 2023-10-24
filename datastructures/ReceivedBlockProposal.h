@@ -25,27 +25,21 @@
 
 #include "BlockProposal.h"
 
-class ReceivedBlockProposal : public BlockProposal{
-
-    static atomic<int64_t>  totalObjects;
+class ReceivedBlockProposal : public BlockProposal {
+    static atomic< int64_t > totalObjects;
 
 public:
-
-    ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const uint64_t &_timeStamp,
-                          const uint32_t &_timeStampMs, u256 _stateRoot);
-
-
-    ReceivedBlockProposal(Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
-                          const ptr<TransactionList> &_transactions, u256 _stateRoot, const uint64_t &_timeStamp,
-                          const uint32_t &_timeStampMs, const string& _signature);
+    ReceivedBlockProposal( Schain& _sChain, const block_id& _blockID, const uint64_t& _timeStamp,
+        const uint32_t& _timeStampMs, u256 _stateRoot );
 
 
-    static int64_t getTotalObjects() {
-        return totalObjects;
-    }
+    ReceivedBlockProposal( Schain& _sChain, const block_id& _blockID,
+        const schain_index& _proposerIndex, const ptr< TransactionList >& _transactions,
+        u256 _stateRoot, const uint64_t& _timeStamp, const uint32_t& _timeStampMs,
+        const string& _signature );
+
+
+    static int64_t getTotalObjects() { return totalObjects; }
 
     ~ReceivedBlockProposal() override;
-
-
-
 };

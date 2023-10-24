@@ -103,8 +103,9 @@ void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(
     bin_consensus_round _round ) {
     if ( isDecided && _round == getCurrentRound() + 1 &&
          isTwoThird( totalAUXVotes( getCurrentRound() ) ) ) {
-        LOG( debug, to_string( getBlockProposerIndex() ) + ":NEW_ROUND_REQUESTED:BLOCK:" +
-                        to_string( blockID ) + ":ROUND:" + to_string( getCurrentRound() + 1 ) );
+        LOG( debug, to_string( getBlockProposerIndex() )
+                        << ":NEW_ROUND_REQUESTED:BLOCK:" << to_string( blockID )
+                        << ":ROUND:" << to_string( getCurrentRound() + 1 ) );
         proceedWithNextRound( decidedValue );
     }
 }
@@ -499,8 +500,9 @@ uint64_t BinConsensusInstance::computeRandom( bin_consensus_round& _r ) {
 void BinConsensusInstance::playDecisionLottery( bool _hasTrue, bool _hasFalse, uint64_t _random ) {
     CHECK_STATE( !isDecided );
 
-    LOG( debug, to_string( getBlockProposerIndex() ) + "ROUND_COMPLETE:BLOCK:" +
-                    to_string( blockID ) + ":ROUND:" + to_string( getCurrentRound() ) );
+    LOG( debug, to_string( getBlockProposerIndex() )
+                    << "ROUND_COMPLETE:BLOCK:" << to_string( blockID )
+                    << ":ROUND:" << to_string( getCurrentRound() ) );
 
     bin_consensus_value common_coin_value( _random % 2 == 0 );
 
@@ -509,8 +511,9 @@ void BinConsensusInstance::playDecisionLottery( bool _hasTrue, bool _hasFalse, u
 
     if ( _hasTrue && _hasFalse ) {
         // Section (4.2) (07) Got both values proceed with the next round
-        LOG( debug, to_string( getBlockProposerIndex() ) + ":NEW ROUND:BLOCK:" +
-                        to_string( blockID ) + ":ROUND:" + to_string( getCurrentRound() + 1 ) );
+        LOG( debug, to_string( getBlockProposerIndex() )
+                        << ":NEW ROUND:BLOCK:" << to_string( blockID )
+                        << ":ROUND:" << to_string( getCurrentRound() + 1 ) );
         // Section 4.2 (10)
         proceedWithNextRound( common_coin_value );
         return;
@@ -519,13 +522,15 @@ void BinConsensusInstance::playDecisionLottery( bool _hasTrue, bool _hasFalse, u
         bin_consensus_value v( _hasTrue );
         if ( v == common_coin_value ) {
             // Lucky. Decide.
-            LOG( debug, ":PROPOSER:" + to_string( getBlockProposerIndex() ) + ":DECIDED VALUE" +
-                            to_string( v ) + ":ROUND:" + to_string( getCurrentRound() ) );
+            LOG( debug, ":PROPOSER:" << to_string( getBlockProposerIndex() ) << ":DECIDED VALUE"
+                                     << to_string( v )
+                                     << ":ROUND:" << to_string( getCurrentRound() ) );
             decide( v );
         } else {
             // Unlucky. Next round.
-            LOG( debug, to_string( getBlockProposerIndex() ) + ":NEW ROUND:BLOCK:" +
-                            to_string( v ) + ":ROUND:" + to_string( getCurrentRound() ) );
+            LOG( debug, to_string( getBlockProposerIndex() )
+                            << ":NEW ROUND:BLOCK:" << to_string( v )
+                            << ":ROUND:" << to_string( getCurrentRound() ) );
             proceedWithNextRound( v );
         }
     }
@@ -633,9 +638,9 @@ void BinConsensusInstance::decide( bin_consensus_value _b ) {
         this->getCurrentRound(), maxProcessingTimeMs, maxLatencyTimeMs );
 
 
-    LOG( debug, "Decided value: " + to_string( decidedValue ) +
-                    " for blockid:" + to_string( getBlockID() ) +
-                    " proposer:" + to_string( getBlockProposerIndex() ) );
+    LOG( debug, "Decided value: " << to_string( decidedValue )
+                                  << " for blockid:" << to_string( getBlockID() )
+                                  << " proposer:" << to_string( getBlockProposerIndex() ) );
 
     auto envelope = make_shared< InternalMessageEnvelope >( ORIGIN_CHILD, msg, *getSchain() );
 
@@ -793,8 +798,8 @@ uint64_t BinConsensusInstance::calculateBLSRandom( bin_consensus_round _r ) {
 
     auto random = shares->mergeSignature()->getRandom();
 
-    LOG( debug, to_string( getBlockProposerIndex() ) + ":Random for round: " + to_string( _r ) +
-                    ":" + to_string( random ) );
+    LOG( debug, to_string( getBlockProposerIndex() )
+                    << ":Random for round: " << to_string( _r ) << ":" << to_string( random ) );
 
     return random;
 }

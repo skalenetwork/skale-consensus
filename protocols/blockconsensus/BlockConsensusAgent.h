@@ -38,57 +38,51 @@ class CryptoManager;
 #include "FastMessageLedger.h"
 
 class BlockConsensusAgent : public ProtocolInstance {
-
     friend class BinConsensusInstance;
 
     recursive_mutex m;
 
     // protocol cache for each block proposer
 
-    vector<ptr<cache::lru_cache<uint64_t, ptr<BinConsensusInstance>>>> children; // tsafe
+    vector< ptr< cache::lru_cache< uint64_t, ptr< BinConsensusInstance > > > > children;  // tsafe
 
-    ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>>
+    ptr< cache::lru_cache< uint64_t, ptr< map< schain_index, ptr< ChildBVDecidedMessage > > > > >
         trueDecisions;
-    ptr<cache::lru_cache<uint64_t , ptr<map<schain_index, ptr<ChildBVDecidedMessage>>>>> falseDecisions;
-    ptr<cache::lru_cache<uint64_t , schain_index>> decidedIndices;
+    ptr< cache::lru_cache< uint64_t, ptr< map< schain_index, ptr< ChildBVDecidedMessage > > > > >
+        falseDecisions;
+    ptr< cache::lru_cache< uint64_t, schain_index > > decidedIndices;
 
-    void processChildMessageImpl(const ptr<InternalMessageEnvelope>& _me);
+    void processChildMessageImpl( const ptr< InternalMessageEnvelope >& _me );
 
-    void decideBlock(block_id _blockId, schain_index _sChainIndex, const string& _stats);
+    void decideBlock( block_id _blockId, schain_index _sChainIndex, const string& _stats );
 
-    void propose(bin_consensus_value _proposal, schain_index index, block_id _id);
+    void propose( bin_consensus_value _proposal, schain_index index, block_id _id );
 
-    void reportConsensusAndDecideIfNeeded(const ptr<ChildBVDecidedMessage>& _msg);
+    void reportConsensusAndDecideIfNeeded( const ptr< ChildBVDecidedMessage >& _msg );
 
-    void decideDefaultBlock(block_id _blockNumber);
-
-
-    void startConsensusProposal(block_id _blockID, const ptr<BooleanProposalVector>& _proposal);
-
-    void processBlockSignMessage(const ptr<BlockSignBroadcastMessage>& _message);
+    void decideDefaultBlock( block_id _blockNumber );
 
 
-    bin_consensus_round getRound(const ptr<ProtocolKey>& _key);
+    void startConsensusProposal( block_id _blockID, const ptr< BooleanProposalVector >& _proposal );
+
+    void processBlockSignMessage( const ptr< BlockSignBroadcastMessage >& _message );
 
 
-    bool decided(const ptr<ProtocolKey>& _key);
+    bin_consensus_round getRound( const ptr< ProtocolKey >& _key );
 
-    string buildStats(block_id _blockID);
 
-    ptr<BinConsensusInstance> getChild(const ptr<ProtocolKey>& _key);
+    bool decided( const ptr< ProtocolKey >& _key );
 
-    void writeString(string& _str);
+    string buildStats( block_id _blockID );
+
+    ptr< BinConsensusInstance > getChild( const ptr< ProtocolKey >& _key );
+
+    void writeString( string& _str );
 
 public:
+    BlockConsensusAgent( Schain& _schain );
 
+    bool shouldPost( const ptr< NetworkMessage >& _msg );
 
-    BlockConsensusAgent(Schain& _schain);
-
-    bool shouldPost(const ptr<NetworkMessage>& _msg);
-
-    void routeAndProcessMessage(const ptr<MessageEnvelope>& _me );
-
-
-
+    void routeAndProcessMessage( const ptr< MessageEnvelope >& _me );
 };
-

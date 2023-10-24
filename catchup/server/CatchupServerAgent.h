@@ -42,7 +42,6 @@ class CatchupResponseHeader;
 class BlockFinalizeResponseHeader;
 
 class CatchupServerAgent : public AbstractServerAgent {
-
     ptr< CatchupWorkerThreadPool > catchupWorkerThreadPool;
 
     ptr< vector< uint8_t > > createBlockCatchupResponse( nlohmann::json _jsonRequest,
@@ -54,7 +53,6 @@ class CatchupServerAgent : public AbstractServerAgent {
 
 
 public:
-
     CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s );
 
     ~CatchupServerAgent() override;
@@ -64,5 +62,4 @@ public:
         const ptr< Header >& _responseHeader );
 
     void processNextAvailableConnection( const ptr< ServerConnection >& _connection ) override;
-
 };

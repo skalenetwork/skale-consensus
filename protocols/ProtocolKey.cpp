@@ -26,33 +26,29 @@
 #include "exceptions/FatalError.h"
 #include "ProtocolKey.h"
 
-ProtocolKey::ProtocolKey(const ProtocolKey &key) :
-        blockID(key.blockID),
-        blockProposerIndex(key.blockProposerIndex) {
-    CHECK_STATE((uint64_t) blockID > 0);
+ProtocolKey::ProtocolKey( const ProtocolKey& key )
+    : blockID( key.blockID ), blockProposerIndex( key.blockProposerIndex ) {
+    CHECK_STATE( ( uint64_t ) blockID > 0 );
 }
 
 block_id ProtocolKey::getBlockID() const {
-    CHECK_STATE((uint64_t) blockID > 0);
+    CHECK_STATE( ( uint64_t ) blockID > 0 );
     return blockID;
 }
 
 schain_index ProtocolKey::getBlockProposerIndex() const {
-
     return blockProposerIndex;
 }
 
-ProtocolKey::ProtocolKey(block_id _blockId, schain_index _blockProposerIndex) :
-        blockID(_blockId),  blockProposerIndex(_blockProposerIndex){
-    CHECK_STATE((uint64_t) blockID > 0);
+ProtocolKey::ProtocolKey( block_id _blockId, schain_index _blockProposerIndex )
+    : blockID( _blockId ), blockProposerIndex( _blockProposerIndex ) {
+    CHECK_STATE( ( uint64_t ) blockID > 0 );
 }
 
-bool operator<(const ProtocolKey &l, const ProtocolKey &r) {
-
-    if ((uint64_t )l.getBlockID() != (uint64_t ) r.getBlockID()) {
-        return (uint64_t )l.getBlockID() < (uint64_t ) r.getBlockID();
+bool operator<( const ProtocolKey& l, const ProtocolKey& r ) {
+    if ( ( uint64_t ) l.getBlockID() != ( uint64_t ) r.getBlockID() ) {
+        return ( uint64_t ) l.getBlockID() < ( uint64_t ) r.getBlockID();
     }
 
-    return (uint64_t )l.getBlockProposerIndex() < (uint64_t )r.getBlockProposerIndex();
-
+    return ( uint64_t ) l.getBlockProposerIndex() < ( uint64_t ) r.getBlockProposerIndex();
 }

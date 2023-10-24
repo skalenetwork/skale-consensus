@@ -28,16 +28,12 @@
 #include "threads/WorkerThreadPool.h"
 
 class BlockFinalizeDownloaderThreadPool : public WorkerThreadPool {
-
 public:
+    BlockFinalizeDownloaderThreadPool( num_threads numThreads, Agent* _params );
 
-    BlockFinalizeDownloaderThreadPool(num_threads numThreads, Agent *_params);
-
-    void createThread(uint64_t threadIndex ) override;
+    void createThread( uint64_t threadIndex ) override;
 
     void startService() override;
 
     ~BlockFinalizeDownloaderThreadPool() override;
-
 };
-

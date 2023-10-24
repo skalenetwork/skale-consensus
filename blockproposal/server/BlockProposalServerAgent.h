@@ -102,4 +102,6 @@ public:
 
     void signBlock( const ptr< BlockFinalizeResponseHeader >& _responseHeader,
         const ptr< CommittedBlock >& _block ) const;
+    void logStateRootMismatchError( BlockProposalRequestHeader& _header, block_id& blockIDInHeader,
+        const ptr< BlockProposal >& myBlockProposalForTheSameBlockID );
 };

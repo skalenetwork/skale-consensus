@@ -33,82 +33,65 @@
 #include "ProposalHashDB.h"
 
 
-
-ProposalHashDB::ProposalHashDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
-    uint64_t _maxDBSize)
-        : CacheLevelDB(_sChain, _dirName, _prefix,
-                       _nodeId, _maxDBSize, LevelDBOptions::getProposalHashDBOptions(), false) {
-
+ProposalHashDB::ProposalHashDB(
+    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getProposalHashDBOptions(), false ) {
     static string SCHAIN_INDEX = "schainIndex";
 
-    auto index = this->readString(SCHAIN_INDEX);
+    auto index = this->readString( SCHAIN_INDEX );
 
-    if (index.empty()) {
-        this->writeString(SCHAIN_INDEX, to_string((uint64_t)_sChain->getSchainIndex()));
+    if ( index.empty() ) {
+        this->writeString( SCHAIN_INDEX, to_string( ( uint64_t ) _sChain->getSchainIndex() ) );
     } else {
-        if (to_string((uint64_t ) getSchain()->getSchainIndex()) != index) {
-            BOOST_THROW_EXCEPTION(FatalError(
-                "Schain index of this node changed in the config."
-                "This should never happen.  Fix the config and restart the node."));
+        if ( to_string( ( uint64_t ) getSchain()->getSchainIndex() ) != index ) {
+            BOOST_THROW_EXCEPTION(
+                FatalError( "Schain index of this node changed in the config."
+                            "This should never happen.  Fix the config and restart the node." ) );
         }
     }
-
 }
 
 
-bool
-ProposalHashDB::checkAndSaveHash(block_id _proposalBlockID, schain_index _proposerIndex, const string& _proposalHash) {
+bool ProposalHashDB::checkAndSaveHash(
+    block_id _proposalBlockID, schain_index _proposerIndex, const string& _proposalHash ) {
+    CHECK_ARGUMENT( !_proposalHash.empty() );
 
-
-    CHECK_ARGUMENT(!_proposalHash.empty());
-
-    lock_guard<recursive_mutex> lock(m);
+    lock_guard< recursive_mutex > lock( m );
 
     try {
+        auto key = createKey( _proposalBlockID, _proposerIndex );
+        CHECK_STATE( !key.empty() );
 
-        auto key = createKey(_proposalBlockID, _proposerIndex);
-        CHECK_STATE(!key.empty());
+        auto previous = readString( key );
 
-        auto previous = readString(key);
-
-        if (previous.empty()) {
-            writeString(key, _proposalHash);
+        if ( previous.empty() ) {
+            writeString( key, _proposalHash );
             return true;
         }
 
-        return (previous == _proposalHash);
+        return ( previous == _proposalHash );
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
-bool
-ProposalHashDB::haveProposal(block_id _proposalBlockID, schain_index _proposerIndex) {
-
-
+bool ProposalHashDB::haveProposal( block_id _proposalBlockID, schain_index _proposerIndex ) {
     try {
+        auto key = createKey( _proposalBlockID, _proposerIndex );
+        CHECK_STATE( !key.empty() );
 
-        auto key = createKey(_proposalBlockID, _proposerIndex);
-        CHECK_STATE(!key.empty());
+        auto previous = readString( key );
 
-        auto previous = readString(key);
+        return ( !previous.empty() );
 
-        return (!previous.empty());
-
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
 
 const string& ProposalHashDB::getFormatVersion() {
     static const string version = "1.0";
     return version;
 }
-
-
-
-
-

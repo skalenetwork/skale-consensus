@@ -111,7 +111,7 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
             Header::getString( js, "sig" ), Header::getString( js, "pk" ),
             Header::getString( js, "pks" ) );
     } else {
-        LOG( err, "Proposal push failed:" + to_string( status ) + ":" + to_string( subStatus ) );
+        LOG( err, "Proposal push failed:" << to_string( status ) << ":" << to_string( subStatus ) );
         return make_shared< FinalProposalResponseHeader >( status, subStatus );
     }
 }
@@ -127,7 +127,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
     } else {
         auto _daProof = dynamic_pointer_cast< DAProof >( _item );
         CHECK_STATE( _daProof );  // a sendable item is either DAProof or Proposal
-        return sendDAProof( _daProof, _socket, _index);
+        return sendDAProof( _daProof, _socket, _index );
     }
 }
 
@@ -160,7 +160,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     LOG( trace, "Proposal step 0: Starting block proposal" );
 
 
-    ptr< Header > header = proposalCopy->createProposalRequestHeader(sChain);
+    ptr< Header > header = proposalCopy->createProposalRequestHeader( sChain );
 
     CHECK_STATE( header );
 
@@ -194,8 +194,8 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 
     if ( result.first != CONNECTION_PROCEED ) {
-        LOG( trace, "Proposal Server terminated proposal push:" + to_string( result.first ) + ":" +
-                        to_string( result.second ) );
+        LOG( trace, "Proposal Server terminated proposal push:" << to_string( result.first ) << ":"
+                                                                << to_string( result.second ) );
         return result;
     }
 
@@ -260,6 +260,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
         for ( auto&& transaction : *_proposal->getTransactionList()->getItems() ) {
             if ( missingHashes->count( transaction->getPartialHash() ) ) {
                 missingTransactions->push_back( transaction );
+
                 missingTransactionsSizes->push_back( transaction->getSerializedSize( false ) );
             }
         }
@@ -317,13 +318,14 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
         return finalResult;
 
 
-    auto sigShare =
-        getSchain()->getCryptoManager()->createDAProofSigShare( finalHeader->getSigShare(),
-            _proposal->getSchainID(), _proposal->getBlockID(), _index, _proposal->getTimeStampS(), false );
+    auto sigShare = getSchain()->getCryptoManager()->createDAProofSigShare(
+        finalHeader->getSigShare(), _proposal->getSchainID(), _proposal->getBlockID(), _index,
+        _proposal->getTimeStampS(), false );
 
     auto h = _proposal->getHash();
 
-    getSchain()->getCryptoManager()->verifyDAProofSigShare(sigShare, _index, h, uint64_t(-1), false);
+    getSchain()->getCryptoManager()->verifyDAProofSigShare(
+        sigShare, _index, h, uint64_t( -1 ), false );
 
     CHECK_STATE( sigShare );
 
@@ -334,14 +336,11 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     CHECK_STATE( nodeInfo );
 
     try {
-        getSchain()->getCryptoManager()->verifySessionSigAndKey(hash,
-                                                                finalHeader->getSignature(),
-                                                                finalHeader->getPublicKey(),
-                                                                finalHeader->getPublicKeySig(),
-                                                                _proposal->getBlockID(), {nodeInfo->getNodeID(), node_id(-1)},
-                                                                _proposal->getTimeStampS());
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+        getSchain()->getCryptoManager()->verifySessionSigAndKey( hash, finalHeader->getSignature(),
+            finalHeader->getPublicKey(), finalHeader->getPublicKeySig(), _proposal->getBlockID(),
+            { nodeInfo->getNodeID(), node_id( -1 ) }, _proposal->getTimeStampS() );
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 
     getSchain()->daProofSigShareArrived( sigShare, _proposal );
@@ -356,44 +355,40 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 void BlockProposalClientAgent::saveToVisualization(
     ptr< BlockProposal > _proposal, schain_index _dst, uint64_t _visualizationType ) {
-    CHECK_STATE(_proposal);
+    CHECK_STATE( _proposal );
 
-    string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_BLOCK_PROPOSAL ) + "," +
-                  "\"b\":" + to_string( _proposal->getCreationTime() -
-                                 getSchain()->getStartTimeMs()) + "," +
-                  "\"f\":" + to_string( Time::getCurrentTimeMs() - getSchain()->getStartTimeMs() ) + "," +
-                  "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
-                  "\"d\":" + to_string( _dst ) + "," +
-                  "\"p\":" + to_string( _proposal->getProposerIndex() ) + "," +
-                  "\"b\":" + to_string( _proposal->getBlockID() ) + "}\n";
+    string info =
+        string( "{" ) + "\"t\":" + to_string( MsgType::MSG_BLOCK_PROPOSAL ) + "," +
+        "\"b\":" + to_string( _proposal->getCreationTime() - getSchain()->getStartTimeMs() ) + "," +
+        "\"f\":" + to_string( Time::getCurrentTimeMs() - getSchain()->getStartTimeMs() ) + "," +
+        "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," + "\"d\":" + to_string( _dst ) +
+        "," + "\"p\":" + to_string( _proposal->getProposerIndex() ) + "," +
+        "\"b\":" + to_string( _proposal->getBlockID() ) + "}\n";
 
-    if (_visualizationType == 1)
-        Schain::writeToVisualizationStream(info);
-
+    if ( _visualizationType == 1 )
+        Schain::writeToVisualizationStream( info );
 }
 
 
 void BlockProposalClientAgent::saveToVisualization(
     ptr< DAProof > _daProof, schain_index _dst, uint64_t _visualizationType ) {
+    CHECK_STATE( _daProof );
 
-    CHECK_STATE(_daProof);
+    string info =
+        string( "{" ) + "\"t\":" + to_string( MsgType::MSG_CONSENSUS_PROPOSAL ) + "," +
+        "\"b\":" + to_string( _daProof->getCreationTime() - getSchain()->getStartTimeMs() ) + "," +
+        "\"f\":" + to_string( Time::getCurrentTimeMs() - getSchain()->getStartTimeMs() ) + "," +
+        "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," + "\"d\":" + to_string( _dst ) +
+        "," + "\"p\":" + to_string( _daProof->getProposerIndex() ) + "," +
+        "\"i\":" + to_string( _daProof->getBlockId() ) + "}\n";
 
-    string info = string( "{" ) + "\"t\":" + to_string( MsgType::MSG_CONSENSUS_PROPOSAL ) + "," +
-                  "\"b\":" + to_string( _daProof->getCreationTime() - getSchain()->getStartTimeMs() ) + "," +
-                  "\"f\":" + to_string( Time::getCurrentTimeMs() - getSchain()->getStartTimeMs() ) + "," +
-                  "\"s\":" + to_string( getSchain()->getSchainIndex() ) + "," +
-                  "\"d\":" + to_string( _dst ) + "," +
-                  "\"p\":" + to_string( _daProof->getProposerIndex() ) + "," +
-                  "\"i\":" + to_string( _daProof->getBlockId() ) + "}\n";
-
-    if (_visualizationType == 1)
-        Schain::writeToVisualizationStream(info);
-
+    if ( _visualizationType == 1 )
+        Schain::writeToVisualizationStream( info );
 }
 
 
 pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAProof(
-    const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket,schain_index _index ) {
+    const ptr< DAProof >& _daProof, const ptr< ClientSocket >& _socket, schain_index _index ) {
     CHECK_ARGUMENT( _daProof );
     CHECK_ARGUMENT( _socket );
 
@@ -435,12 +430,12 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     }
 
     if ( status == CONNECTION_ERROR ) {
-        LOG( err,
-            "Failure submitting DA proof:" + to_string( status ) + ":" + to_string( substatus ) );
+        LOG( err, "Failure submitting DA proof:" << to_string( status ) << ":"
+                                                 << to_string( substatus ) );
     }
 
     if ( getSchain()->getNode()->getVisualizationType() != 0 ) {
-        saveToVisualization( _daProof, _index, getSchain()->getNode()->getVisualizationType()  );
+        saveToVisualization( _daProof, _index, getSchain()->getNode()->getVisualizationType() );
     }
 
 

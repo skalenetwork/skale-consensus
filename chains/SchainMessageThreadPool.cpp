@@ -31,12 +31,11 @@
 #include "pendingqueue/PendingTransactionsAgent.h"
 
 
-SchainMessageThreadPool::SchainMessageThreadPool(Agent *_agent) : WorkerThreadPool(NUM_SCHAIN_THREADS, _agent, false) {
+SchainMessageThreadPool::SchainMessageThreadPool( Agent* _agent )
+    : WorkerThreadPool( NUM_SCHAIN_THREADS, _agent, false ) {}
 
-}
-
-void SchainMessageThreadPool::createThread(uint64_t /*_threadNumber*/) {
-    LOCK(threadPoolLock)
-    threadpool.push_back(make_shared<thread>(Schain::messageThreadProcessingLoop,
-                                    reinterpret_cast < Schain * > ( agent )));
+void SchainMessageThreadPool::createThread( uint64_t /*_threadNumber*/ ) {
+    LOCK( threadPoolLock )
+    threadpool.push_back( make_shared< thread >(
+        Schain::messageThreadProcessingLoop, reinterpret_cast< Schain* >( agent ) ) );
 }

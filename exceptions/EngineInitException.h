@@ -21,11 +21,10 @@
     @date 2018
 */
 
-#pragma  once
+#pragma once
 #include "SkaleException.h"
 
 class EngineInitException : public SkaleException {
 public:
-    EngineInitException(const std::string &_message, const string& _className);
-
+    EngineInitException( const std::string& _message, const string& _className );
 };

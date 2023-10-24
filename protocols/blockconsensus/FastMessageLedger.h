@@ -35,45 +35,43 @@
 
 
 class FastMessageLedger {
-
-    Schain *schain = nullptr;
+    Schain* schain = nullptr;
     block_id blockId = 0;
     string ledgerFileFullPath;
-    ptr<vector<ptr<Message>>> previousRunMessages = nullptr;
-    atomic<int> fd = -1;
+    ptr< vector< ptr< Message > > > previousRunMessages = nullptr;
+    atomic< int > fd = -1;
     recursive_mutex m;
 
 
-    ptr<Message> parseLine(string &_line);
+    ptr< Message > parseLine( string& _line );
 
     void closeFd();
 
-    void writeLine(string &_str);
+    void writeLine( string& _str );
 
 
-    void writeLine2(string &_str);
+    void writeLine2( string& _str );
 
-    uint64_t parseFirstLine(string _line);
+    uint64_t parseFirstLine( string _line );
 
 
 public:
-    FastMessageLedger(Schain *schain, string ledgerFileFullPath, block_id _blockID);
+    FastMessageLedger( Schain* schain, string ledgerFileFullPath, block_id _blockID );
 
     ~FastMessageLedger() { closeFd(); }
 
     // writes consensus proposal message to ledger
-    void writeProposalMessage(ptr<ConsensusProposalMessage> _message);
+    void writeProposalMessage( ptr< ConsensusProposalMessage > _message );
 
     // writes consensus proposal message to ledger
-    void writeNetworkMessage(ptr<NetworkMessage> _message);
+    void writeNetworkMessage( ptr< NetworkMessage > _message );
 
-    ptr<vector<ptr<Message>>> retrieveAndClearPreviosRunMessages();
+    ptr< vector< ptr< Message > > > retrieveAndClearPreviosRunMessages();
 
-    void startNewBlock(block_id _blockID);
+    void startNewBlock( block_id _blockID );
 
     void destroy();
-
 };
 
 
-#endif //SKALED_FASTMESSAGELEDGER_H
+#endif  // SKALED_FASTMESSAGELEDGER_H

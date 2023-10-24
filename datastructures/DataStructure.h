@@ -29,10 +29,8 @@
 #include <mutex>
 
 class DataStructure {
-
 protected:
-
-    uint64_t objectCreationTime  = 0;
+    uint64_t objectCreationTime = 0;
 
     std::recursive_mutex m;
 

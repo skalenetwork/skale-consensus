@@ -34,56 +34,43 @@
 #include "ThresholdSignature.h"
 
 
-ConsensusEdDSASignature::ConsensusEdDSASignature(
-    const string& _mergedSig, schain_id _schainId, block_id _blockId, uint64_t _timestamp,
-        size_t _totalSigners, size_t _requiredSigners )
-    : ThresholdSignature( _blockId, _totalSigners, _requiredSigners ), mergedSig(_mergedSig), timestamp(_timestamp) {
-
-    CHECK_ARGUMENT(!_mergedSig.empty());
+ConsensusEdDSASignature::ConsensusEdDSASignature( const string& _mergedSig, schain_id _schainId,
+    block_id _blockId, uint64_t _timestamp, size_t _totalSigners, size_t _requiredSigners )
+    : ThresholdSignature( _blockId, _totalSigners, _requiredSigners ),
+      mergedSig( _mergedSig ),
+      timestamp( _timestamp ) {
+    CHECK_ARGUMENT( !_mergedSig.empty() );
 
     boost::char_separator< char > sep( "*" );
-    boost::tokenizer tok {_mergedSig, sep};
+    boost::tokenizer tok{ _mergedSig, sep };
 
-    for ( const auto& it : tok) {
-        auto share = make_shared<ConsensusEdDSASigShare>(
-                                          it, _schainId, _blockId, timestamp, _totalSigners);
+    for ( const auto& it : tok ) {
+        auto share = make_shared< ConsensusEdDSASigShare >(
+            it, _schainId, _blockId, timestamp, _totalSigners );
 
         auto index = share->getSignerIndex();
 
-        CHECK_STATE2(shares.count((uint64_t )index) == 0, "Duplicate shares in EdDsaThresholdSig");
+        CHECK_STATE2(
+            shares.count( ( uint64_t ) index ) == 0, "Duplicate shares in EdDsaThresholdSig" );
 
-        shares.emplace(index, share);
-
+        shares.emplace( index, share );
     }
 
-    CHECK_ARGUMENT2(shares.size() == _requiredSigners, "Incorrect shares count:" +
-        to_string(shares.size()));
-
-
-
-
+    CHECK_ARGUMENT2(
+        shares.size() == _requiredSigners, "Incorrect shares count:" + to_string( shares.size() ) );
 }
 
-string  ConsensusEdDSASignature::toString() {
+string ConsensusEdDSASignature::toString() {
     return mergedSig;
 };
 
-void ConsensusEdDSASignature::verify(
-    CryptoManager& _cryptoManager,
-    BLAKE3Hash& _hash) {
-
+void ConsensusEdDSASignature::verify( CryptoManager& _cryptoManager, BLAKE3Hash& _hash ) {
     try {
-
-        for (auto & share: shares ) {
-                share.second->verify(_cryptoManager, _hash, share.first);
+        for ( auto& share : shares ) {
+            share.second->verify( _cryptoManager, _hash, share.first );
         }
 
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
-
 }
-
-
-
-

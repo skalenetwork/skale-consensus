@@ -39,33 +39,29 @@
 
 using namespace std;
 
-bool BlockProposalSet::add(const ptr<BlockProposal>& _proposal) {
+bool BlockProposalSet::add( const ptr< BlockProposal >& _proposal ) {
+    CHECK_ARGUMENT( _proposal );
 
-    CHECK_ARGUMENT( _proposal);
+    auto index = ( uint64_t ) _proposal->getProposerIndex();
 
-    auto index = (uint64_t ) _proposal->getProposerIndex();
+    CHECK_STATE( index > 0 && index <= nodeCount )
 
-    CHECK_STATE(index > 0 && index <= nodeCount)
+    LOCK( m )
 
-    LOCK(m)
-
-    if ( proposals.count(index) > 0 ) {
-        LOG(trace,
-            "Got block proposal with the same index" + to_string(index));
+    if ( proposals.count( index ) > 0 ) {
+        LOG( trace, "Got block proposal with the same index" << to_string( index ) );
         return false;
     }
 
-    proposals.emplace(index,_proposal);
+    proposals.emplace( index, _proposal );
 
     return true;
 }
 
 
-
-BlockProposalSet::BlockProposalSet(Schain* _sChain, block_id _blockId)
-    : blockId(_blockId){
-    CHECK_ARGUMENT(_sChain);
-    CHECK_ARGUMENT(_blockId > 0);
+BlockProposalSet::BlockProposalSet( Schain* _sChain, block_id _blockId ) : blockId( _blockId ) {
+    CHECK_ARGUMENT( _sChain );
+    CHECK_ARGUMENT( _blockId > 0 );
 
     nodeCount = _sChain->getNodeCount();
     totalObjects++;
@@ -76,9 +72,9 @@ BlockProposalSet::~BlockProposalSet() {
 }
 
 node_count BlockProposalSet::getCount() {
-    LOCK(m)
+    LOCK( m )
     return ( node_count ) proposals.size();
 }
 
 
-atomic<int64_t>  BlockProposalSet::totalObjects(0);
+atomic< int64_t > BlockProposalSet::totalObjects( 0 );

@@ -154,6 +154,7 @@ class Schain : public Agent {
     TimeStamp lastCommittedBlockTimeStamp;
     mutex lastCommittedBlockInfoMutex;
     atomic< uint64_t > proposalReceiptTime = 0;
+    atomic< bool > inCreateBlock = false;
 
 
     atomic< uint64_t > bootstrapBlockID = 0;
@@ -182,7 +183,7 @@ class Schain : public Agent {
     recursive_mutex blockErrorAnalyzersMutex;
     vector< ptr< BlockErrorAnalyzer > > blockErrorAnalyzers;
 
-    void proposeNextBlock();
+    void proposeNextBlock( bool _isCalledAfterCatchup );
 
     void processCommittedBlock( const ptr< CommittedBlock >& _block );
 
@@ -192,6 +193,8 @@ class Schain : public Agent {
     void constructChildAgents();
 
     void saveBlock( const ptr< CommittedBlock >& _block );
+
+    void cleanupUnneededMemoryBeforePushingToEvm( const ptr< CommittedBlock > _block );
 
     void pushBlockToExtFace( const ptr< CommittedBlock >& _block );
 
@@ -206,8 +209,7 @@ class Schain : public Agent {
 
 
 public:
-
-    void addBlockErrorAnalyzer( ptr<BlockErrorAnalyzer> _blockErrorAnalyzer );
+    void addBlockErrorAnalyzer( ptr< BlockErrorAnalyzer > _blockErrorAnalyzer );
 
     static void writeToVisualizationStream( string& _s );
 
@@ -248,8 +250,6 @@ public:
 
     void joinMonitorAndTimeoutThreads();
 
-    ptr< BlockProposal > getBlockProposal( block_id _blockID, schain_index _schainIndex );
-
     void constructServers( const ptr< Sockets >& _sockets );
 
     void healthCheck();
@@ -284,7 +284,7 @@ public:
 
 
     [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup(
-        const ptr< CommittedBlockList >& _blockList );
+        const ptr< CommittedBlockList >& _blockList, uint64_t _catchupDownloadTimeMs );
 
     void daProofSigShareArrived(
         const ptr< ThresholdSigShare >& _sigShare, const ptr< BlockProposal >& _proposal );
@@ -348,6 +348,8 @@ public:
     uint64_t getVerifyDaSigsPatchTimestampS() const;
 
 
+    bool isInCreateBlock() const;
+
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig );
@@ -368,7 +370,7 @@ public:
 
     block_id readLastCommittedBlockIDFromDb();
 
-    void checkForDeadLock( const char* _functionName );
+    void lockWithDeadLockCheck( const char* _functionName );
 
     void printBlockLog( const ptr< CommittedBlock >& _block );
 

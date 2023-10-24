@@ -34,9 +34,7 @@ class GlobalThreadRegistry;
 class ConnectionRefusedException;
 
 class Agent {
-
 protected:
-
     bool isServer = false;
 
     mutex messageMutex;
@@ -47,7 +45,7 @@ protected:
 
     Schain* sChain = nullptr;
 
-    map<schain_index, uint64_t> lastConnectionRefusedLogTime; // tsafe
+    map< schain_index, uint64_t > lastConnectionRefusedLogTime;  // tsafe
     recursive_mutex lastConnectionRefusedLogTimeLock;
 
 public:
@@ -58,15 +56,14 @@ public:
     virtual void notifyAllConditionVariables();
 
     virtual ~Agent();
-    
-    ptr<GlobalThreadRegistry> getThreadRegistry();
-    
-    ptr<Node> getNode();
-    
+
+    ptr< GlobalThreadRegistry > getThreadRegistry();
+
+    ptr< Node > getNode();
+
     Schain* getSchain() const;
 
     void waitOnGlobalStartBarrier();
 
-    void logConnectionRefused(ConnectionRefusedException &_e, schain_index _index);
-
+    void logConnectionRefused( ConnectionRefusedException& _e, schain_index _index );
 };

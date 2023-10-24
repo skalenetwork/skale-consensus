@@ -32,12 +32,11 @@
 #include "Sockets.h"
 #include "TCPServerSocket.h"
 
-TCPServerSocket::TCPServerSocket(const string& _bindIP, uint16_t _basePort, port_type _portType )
+TCPServerSocket::TCPServerSocket( const string& _bindIP, uint16_t _basePort, port_type _portType )
     : ServerSocket( _bindIP, _basePort, _portType ) {
-
     socketaddr = Sockets::createSocketAddress( bindIP, bindPort );
 
-    CHECK_STATE(socketaddr);
+    CHECK_STATE( socketaddr );
 
     LOG( debug, "Creating TCP listen socket" );
 
@@ -53,8 +52,8 @@ TCPServerSocket::TCPServerSocket(const string& _bindIP, uint16_t _basePort, port
 
     if ( ::bind( s, ( struct sockaddr* ) socketaddr.get(), sizeof( sockaddr_in ) ) < 0 ) {
         BOOST_THROW_EXCEPTION(
-            FatalError( "Could not bind the TCP socket on address:" + _bindIP +
-           ":" + to_string(bindPort) + " error: " + to_string( errno ) ) );
+            FatalError( "Could not bind the TCP socket on address:" + _bindIP + ":" +
+                        to_string( bindPort ) + " error: " + to_string( errno ) ) );
     }
 
     // Init the connection
@@ -80,17 +79,18 @@ void TCPServerSocket::touch() {
         io_service service;
         ip::tcp::socket sock( service );
         sock.connect( ep );
-    } catch (...) {};    
+    } catch ( ... ) {
+    };
 }
 
 int TCPServerSocket::getDescriptor() {
-    CHECK_STATE(descriptor);
+    CHECK_STATE( descriptor );
     return descriptor;
 }
 
 
 void TCPServerSocket::closeAndCleanupAll() {
-    auto previous = descriptor.exchange(0);
+    auto previous = descriptor.exchange( 0 );
     if ( previous != 0 ) {
         close( descriptor );
     }

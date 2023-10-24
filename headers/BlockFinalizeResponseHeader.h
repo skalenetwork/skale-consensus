@@ -26,28 +26,18 @@
 #include "Header.h"
 
 class BlockFinalizeResponseHeader : public Header {
-
-
-    uint64_t  fragmentSize = 0;
-    uint64_t  blockSize = 0;
+    uint64_t fragmentSize = 0;
+    uint64_t blockSize = 0;
     string blockHash = "";
     string daProofSig = "";
 
 
 public:
-
-    void setFragmentParams(uint64_t _fragmentSize, uint64_t _blockSize, const string& _hash,
-        const string& _daProofSig);
-
+    void setFragmentParams( uint64_t _fragmentSize, uint64_t _blockSize, const string& _hash,
+        const string& _daProofSig );
 
 
     BlockFinalizeResponseHeader();
 
-    void addFields(nlohmann::json &jsonRequest) override;
-
-
-
-
+    void addFields( nlohmann::json& jsonRequest ) override;
 };
-
-

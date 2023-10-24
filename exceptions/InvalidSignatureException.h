@@ -8,13 +8,10 @@
 #include "InvalidStateException.h"
 
 class InvalidSignatureException : public InvalidStateException {
-
 public:
-
-    InvalidSignatureException( const std::string& _message, const std::string& _className ):
-        InvalidStateException(_message, _className) {};
-
+    InvalidSignatureException( const std::string& _message, const std::string& _className )
+        : InvalidStateException( _message, _className ){};
 };
 
 
-#endif //SKALED_INVALIDSIGNATUREEXCEPTION_H
+#endif  // SKALED_INVALIDSIGNATUREEXCEPTION_H

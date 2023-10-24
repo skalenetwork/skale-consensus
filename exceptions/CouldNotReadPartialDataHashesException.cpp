@@ -25,6 +25,6 @@
 #include "exceptions/FatalError.h"
 #include "CouldNotReadPartialDataHashesException.h"
 
-CouldNotReadPartialDataHashesException::CouldNotReadPartialDataHashesException(const std::string &_message,
-        const string& _className) : SkaleException(
-        _message, _className) {}
+CouldNotReadPartialDataHashesException::CouldNotReadPartialDataHashesException(
+    const std::string& _message, const string& _className )
+    : SkaleException( _message, _className ) {}

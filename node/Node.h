@@ -40,7 +40,7 @@ class Agent;
 class ConsensusExtFace;
 class ConsensusEngine;
 class ConsensusBLSSigShare;
-class  BLAKE3Hash;
+class BLAKE3Hash;
 class BLSPublicKey;
 class BLSPrivateKeyShare;
 class CacheLevelDB;
@@ -67,7 +67,6 @@ enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 
 class Node {
-    
     ConsensusEngine* consensusEngine;
 
     vector< Agent* > agents;
@@ -87,7 +86,17 @@ class Node {
 
     atomic_bool startedClients;
 
-    atomic_bool exitRequested;
+    atomic_bool exitRequested = false;
+
+    atomic_bool exitCalled = false;
+
+    atomic_bool fatalErrorOccured = false;
+
+    atomic_bool closeAllSocketsCalled = false;
+
+    void exitImmediately();
+
+    bool isExitOnBlockBoundaryRequested() const;
 
     ptr< SkaleLog > log = nullptr;
     string name = "";
@@ -116,18 +125,18 @@ class Node {
     };
 
 
-    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosByIndex; //tsafe
-    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosById; //tsafe
+    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosByIndex;  // tsafe
+    ptr< map< uint64_t, ptr< NodeInfo > > > nodeInfosById;     // tsafe
 
     bool sgxEnabled = false;
 
     string ecdsaKeyName;
 
-    ptr< vector<string> > ecdsaPublicKeys; // tsafe
+    ptr< vector< string > > ecdsaPublicKeys;  // tsafe
 
     string blsKeyName;
 
-    ptr< vector< ptr< vector<string>>>> blsPublicKeys; // tsafe
+    ptr< vector< ptr< vector< string > > > > blsPublicKeys;  // tsafe
 
     ptr< BLSPublicKey > blsPublicKey;
 
@@ -150,7 +159,7 @@ class Node {
 
     ptr< ProposalHashDB > proposalHashDB = nullptr;
 
-    ptr< ProposalVectorDB > proposalVectorDB ;
+    ptr< ProposalVectorDB > proposalVectorDB;
 
     ptr< MsgDB > outgoingMsgDB;
 
@@ -180,6 +189,8 @@ class Node {
 
     uint64_t emptyBlockIntervalMs = 0;
 
+    uint64_t emptyBlockIntervalAfterCatchupMs = 0;
+
     uint64_t blockProposalHistorySize;
 
     uint64_t committedTransactionsHistory = 0;
@@ -190,7 +201,8 @@ class Node {
 
     uint64_t minBlockIntervalMs = 0;
 
-    uint64_t blockDBSize = 0;;
+    uint64_t blockDBSize = 0;
+    ;
     uint64_t proposalHashDBSize = 0;
     uint64_t proposalVectorDBSize = 0;
     uint64_t outgoingMsgDBSize = 0;
@@ -213,7 +225,7 @@ class Node {
 
     bool inited = false;
 
-    map<string, uint64_t> patchTimestamps;
+    map< string, uint64_t > patchTimestamps;
 
 
     void releaseGlobalServerBarrier();
@@ -222,15 +234,26 @@ class Node {
 
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
+    atomic< bool > exitOnBlockBoundaryRequested = false;
+
 public:
+    void checkForExitOnBlockBoundaryAndExitIfNeeded();
+
+    void exitCheck();
+
+    bool isExitRequested();
+
+    void initiateApplicationExitOnFatalConsensusError( const string& message );
+
+    void doSoftAndThenHardExit();
 
     string getEcdsaKeyName();
 
-    ptr< vector<string> > getEcdsaPublicKeys();
+    ptr< vector< string > > getEcdsaPublicKeys();
 
     string getBlsKeyName();
 
-    ptr< vector< ptr< vector<string>>>> getBlsPublicKeys();
+    ptr< vector< ptr< vector< string > > > > getBlsPublicKeys();
 
     ptr< BLSPublicKey > getBlsPublicKey();
 
@@ -298,33 +321,26 @@ public:
     bool isStarted() const;
 
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
-        string _sgxURL,
-        string _sgxSSLKeyFileFullPath,
-        string _sgxSSLCertFileFullPath,
-        string _ecdsaKeyName, ptr< vector<string> > _ecdsaPublicKeys,
-        string _blsKeyName, ptr< vector< ptr< vector<string>>>> _blsPublicKeys,
-        ptr< BLSPublicKey > _blsPublicKey, string& _gethURL,
-        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        string _sgxURL, string _sgxSSLKeyFileFullPath, string _sgxSSLCertFileFullPath,
+        string _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys, string _blsKeyName,
+        ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< BLSPublicKey > _blsPublicKey,
+        string& _gethURL, ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
         ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
-        ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups,
-        bool _isSyncNode);
+        ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups, bool _isSyncNode );
 
 
     ~Node();
 
     // if the node starts from a snapshot, we will pass the last consensus block which is
     // coming from the snapshot. Normally we will pass nullptr
-    void startServers(ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock);
+    void startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisAsLastBlock );
 
-    void exit();
 
-    void exitOnFatalError( const string& message );
+    void setSchain( const ptr< Schain >& _schain );
 
-    void setSchain(const ptr< Schain >& _schain );
-
-    static void initSchain(const ptr<Node>& _node, schain_index _schainIndex, schain_id _schainId,
-                          const vector<ptr<NodeInfo> > &remoteNodeInfos,
-                          ConsensusExtFace *_extFace, string& _schainName);
+    static void initSchain( const ptr< Node >& _node, schain_index _schainIndex,
+        schain_id _schainId, const vector< ptr< NodeInfo > >& remoteNodeInfos,
+        ConsensusExtFace* _extFace, string& _schainName );
 
 
     void waitOnGlobalServerStartBarrier( Agent* _agent );
@@ -347,9 +363,6 @@ public:
 
     void registerAgent( Agent* _agent );
 
-    bool isExitRequested();
-
-    void exitCheck();
 
     ptr< NodeInfo > getNodeInfoByIndex( schain_index _index );
 
@@ -377,6 +390,8 @@ public:
 
     uint64_t getEmptyBlockIntervalMs() const;
 
+    uint64_t getEmptyBlockIntervalAfterCatchupMs() const;
+
     uint64_t getMaxCatchupDownloadBytes() const;
 
     uint64_t getMaxTransactionsPerBlock() const;
@@ -397,9 +412,13 @@ public:
 
     void setEmptyBlockIntervalMs( uint64_t _interval ) { this->emptyBlockIntervalMs = _interval; }
 
+    void setEmptyBlockIntervalAfterCatchupMs( uint64_t _interval ) {
+        this->emptyBlockIntervalAfterCatchupMs = _interval;
+    }
+
     void testNodeInfos();
 
-    void setNodeInfo(const ptr< NodeInfo >& _nodeInfo );
+    void setNodeInfo( const ptr< NodeInfo >& _nodeInfo );
 
     ConsensusEngine* getConsensusEngine() const;
 
@@ -409,10 +428,11 @@ public:
 
     bool isInited() const;
 
-    const string &getGethUrl() const;
+    const string& getGethUrl() const;
 
     bool isSyncOnlyNode() const;
 
     bool verifyRealSignatures() const;
 
+    void setExitOnBlockBoundaryRequested();
 };

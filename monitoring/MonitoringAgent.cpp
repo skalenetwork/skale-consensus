@@ -79,8 +79,9 @@ void MonitoringAgent::monitor() {
             auto currentTime = Time::getCurrentTimeMs();
 
             if ( currentTime > monitor->getExpiryTime() ) {
-                LOG( warn, monitor->toString() + " has been stuck for " +
-                               to_string( currentTime - monitor->getStartTime() ) + " ms" );
+                LOG( warn, monitor->toString()
+                               << " has been stuck for "
+                               << to_string( currentTime - monitor->getStartTime() ) + " ms" );
             }
         }
     }
@@ -110,7 +111,7 @@ void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
         };
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        _agent->getSchain()->getNode()->exitOnFatalError( e.what() );
+        _agent->getSchain()->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
 }
 
