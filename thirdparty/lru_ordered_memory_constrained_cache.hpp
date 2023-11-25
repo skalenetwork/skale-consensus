@@ -49,7 +49,7 @@ namespace cache {
             auto it = _cache_items_map.find(key);
             _cache_items_list.push_front(key_value_pair_t(key, value));
             if (it != _cache_items_map.end()) {
-                auto item_size = _cache_items_sizes_map.at(key);
+                size_t item_size = _cache_items_sizes_map.at(key);
                 if (item_size > _total_bytes) {
                     throw std::underflow_error("Item size more than total bytes" +
                                                 to_string(item_size) + ":" + to_string(_total_bytes));
@@ -66,7 +66,7 @@ namespace cache {
             while (_cache_items_map.size() > _max_size || _total_bytes > _max_bytes) {
                 auto last = _cache_items_list.end();
                 last--;
-                auto item_size = _cache_items_map.at(last->first);
+                size_t item_size = _cache_items_sizes_map.at(last->first);
                 if ( item_size > _total_bytes ) {
                     throw std::underflow_error( "Item size more than total bytes" +
                                                 to_string( item_size ) + ":" +
