@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <any>
 #include <memory>
+#include <shared_mutex>
 
 #define CACHE_READ_LOCK( _M_ ) std::shared_lock< std::shared_mutex > _read_lock_( _M_ );
 #define CACHE_WRITE_LOCK( _M_ ) std::unique_lock< std::shared_mutex > _write_lock_( _M_ );
