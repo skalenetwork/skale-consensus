@@ -52,7 +52,7 @@ namespace cache {
                 size_t item_size = _cache_items_sizes_map.at(key);
                 if (item_size > _total_bytes) {
                     throw std::underflow_error("Item size more than total bytes" +
-                                                to_string(item_size) + ":" + to_string(_total_bytes));
+                                                std::to_string(item_size) + ":" + to_string(_total_bytes));
                 }
                 _total_bytes -= item_size;
                 _cache_items_list.erase(it->second);
@@ -69,7 +69,7 @@ namespace cache {
                 size_t item_size = _cache_items_sizes_map.at(last->first);
                 if ( item_size > _total_bytes ) {
                     throw std::underflow_error( "Item size more than total bytes" +
-                                                to_string( item_size ) + ":" +
+                                                std::to_string( item_size ) + ":" +
                                                 to_string( _total_bytes ) );
                 }
                 _total_bytes -= item_size;
