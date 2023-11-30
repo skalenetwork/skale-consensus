@@ -21,14 +21,12 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
-
-#include "Log.h"
-#include "exceptions/ExitRequestedException.h"
-#include "exceptions/FatalError.h"
 
 #include "thirdparty/json.hpp"
-
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "datastructures/PeerStateInfo.h"
+#include "exceptions/ExitRequestedException.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "crypto/CryptoManager.h"
 
@@ -59,6 +57,12 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, fals
             this->catchupClientThreadPool = make_shared< CatchupClientThreadPool >( 1, this );
             catchupClientThreadPool->startService();
         }
+
+        for (int i = 0; i < _sChain.getNodeCount(); i++) {
+            // init peer state infos
+            peerStateInfos.push_back(nullptr);
+        }
+
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -128,6 +132,14 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
         throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
     }
 
+    // now see if peerinfo information returned by the peer
+    ptr<PeerStateInfo> peerStateInfo = PeerStateInfo::extract(response);
+
+    if (peerStateInfo) {
+        // update the info
+        LOCK(peerStateInfosMutex)
+        peerStateInfos.at((uint64_t)_dstIndex) = peerStateInfo;
+    }
 
     LOG( debug, "Catchupc step 2: read catchup response requestHeader" );
 
@@ -138,15 +150,12 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
         return 0;
     }
 
-
     if ( status != CONNECTION_PROCEED ) {
         BOOST_THROW_EXCEPTION( NetworkProtocolException(
             "Server error in catchup response:" + to_string( status ), __CLASS_NAME__ ) );
     }
 
-
     ptr< CommittedBlockList > blocks;
-
 
     try {
         blocks = readMissingBlocks( socket, response, requestHeader );

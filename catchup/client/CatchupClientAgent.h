@@ -23,16 +23,21 @@
 
 #pragma once
 
-
 class CommittedBlockList;
 class ClientSocket;
 class Schain;
 class CatchupClientThreadPool;
 class CatchupRequestHeader;
 class CatchupResponseHeader;
+class PeerStateInfo;
+
 
 class CatchupClientAgent : public Agent {
+
     ptr< CatchupClientThreadPool > catchupClientThreadPool = nullptr;
+
+    vector<ptr<PeerStateInfo>> peerStateInfos;
+    recursive_mutex peerStateInfosMutex;
 
 public:
     explicit CatchupClientAgent( Schain& _sChain );
