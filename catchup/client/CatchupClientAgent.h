@@ -69,4 +69,6 @@ public:
 
     [[nodiscard]] static schain_index nextSyncNodeIndex(
             const CatchupClientAgent *_agent, schain_index _destinationSchainIndex);
+
+    [[nodiscard]] ConsensusInterface::SyncInfo getSyncInfo();
 };

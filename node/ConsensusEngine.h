@@ -306,4 +306,10 @@ public:
 
 
     std::shared_ptr< std::vector< std::uint8_t > > getSerializedBlock( std::uint64_t _blockNumber );
+
+    // return sync information as requested by eth_syncing API of geth
+    // if isSyncing is false, all fields will be set to zero.
+
+    [[nodiscard]] SyncInfo getSyncInfo() override;
+
 };

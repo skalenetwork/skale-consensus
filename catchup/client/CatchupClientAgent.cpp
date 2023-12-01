@@ -351,3 +351,8 @@ schain_index CatchupClientAgent::nextSyncNodeIndex(
 
     return index + 1;
 }
+
+
+[[nodiscard]] ConsensusInterface::SyncInfo CatchupClientAgent::getSyncInfo() {
+    return ConsensusInterface::SyncInfo();
+}
