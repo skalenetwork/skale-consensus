@@ -42,8 +42,12 @@ class CatchupClientAgent : public Agent {
 
     ptr<CatchupClientThreadPool> catchupClientThreadPool = nullptr;
 
+    // vector of information on the state of peer nodes
     vector<ptr<PeerStateInfo>> peerStateInfos;
-    recursive_mutex peerStateInfosMutex;
+    shared_mutex peerStateInfosMutex;
+
+    // last catchup starting block
+    block_id lastStartingBlock;
 
 public:
     explicit CatchupClientAgent(Schain &_sChain);
