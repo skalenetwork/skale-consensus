@@ -23,37 +23,56 @@
 
 #pragma once
 
-
 class CommittedBlockList;
+
 class ClientSocket;
+
 class Schain;
+
 class CatchupClientThreadPool;
+
 class CatchupRequestHeader;
+
 class CatchupResponseHeader;
 
+class PeerStateInfo;
+
+
 class CatchupClientAgent : public Agent {
-    ptr< CatchupClientThreadPool > catchupClientThreadPool = nullptr;
+
+    ptr<CatchupClientThreadPool> catchupClientThreadPool = nullptr;
+
+    // vector of information on the state of peer nodes
+    vector<ptr<PeerStateInfo>> peerStateInfos;
+    shared_mutex peerStateInfosMutex;
+
+    // last catchup starting block
+    block_id lastStartingBlock;
 
 public:
-    explicit CatchupClientAgent( Schain& _sChain );
+    explicit CatchupClientAgent(Schain &_sChain);
+
+    [[nodiscard]] uint64_t sync(schain_index _dstIndex);
+
+    static void workerThreadItemSendLoop(CatchupClientAgent *_agent);
+
+    [[nodiscard]] nlohmann::json readCatchupResponseHeader(
+            const ptr<ClientSocket> &_socket, ptr<CatchupRequestHeader> _requestHeader);
 
 
-    [[nodiscard]] uint64_t sync( schain_index _dstIndex );
+    [[nodiscard]] ptr<CommittedBlockList> readMissingBlocks(ptr<ClientSocket> &_socket,
+                                                            nlohmann::json &_responseHeader,
+                                                            ptr<CatchupRequestHeader> _requestHeader);
 
 
-    static void workerThreadItemSendLoop( CatchupClientAgent* _agent );
+    [[nodiscard]] size_t parseBlockSizes(nlohmann::json _responseHeader,
+                                         const ptr<vector<uint64_t> > &_blockSizes,
+                                         ptr<CatchupRequestHeader> _requestHeader);
 
-    nlohmann::json readCatchupResponseHeader(
-        const ptr< ClientSocket >& _socket, ptr< CatchupRequestHeader > _requestHeader );
+    [[nodiscard]] block_id getMaxKnownBlockId();
 
+    [[nodiscard]] static schain_index nextSyncNodeIndex(
+            const CatchupClientAgent *_agent, schain_index _destinationSchainIndex);
 
-    ptr< CommittedBlockList > readMissingBlocks( ptr< ClientSocket >& _socket,
-        nlohmann::json& _responseHeader, ptr< CatchupRequestHeader > _requestHeader );
-
-
-    size_t parseBlockSizes( nlohmann::json _responseHeader,
-        const ptr< vector< uint64_t > >& _blockSizes, ptr< CatchupRequestHeader > _requestHeader );
-
-    static schain_index nextSyncNodeIndex(
-        const CatchupClientAgent* _agent, schain_index _destinationSchainIndex );
+    [[nodiscard]] ConsensusInterface::SyncInfo getSyncInfo();
 };

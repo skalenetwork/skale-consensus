@@ -38,6 +38,7 @@
 #include "exceptions/FatalError.h"
 #include "node/Node.h"
 #include "oracle/OracleClient.h"
+#include "catchup/client/CatchupClientAgent.h"
 #include "thirdparty/json.hpp"
 #include "threads/GlobalThreadRegistry.h"
 
@@ -1216,4 +1217,13 @@ ptr< vector< uint8_t > > ConsensusEngine::getSerializedBlock( std::uint64_t _blo
 
 const map< string, uint64_t >& ConsensusEngine::getPatchTimestamps() const {
     return patchTimestamps;
+}
+
+
+[[nodiscard]] ConsensusInterface::SyncInfo ConsensusEngine::getSyncInfo() {
+
+    CHECK_STATE( nodes.size() > 0 );
+
+    return nodes.begin()->second->getSchain()->getCatchupClientAgent()->getSyncInfo();
+
 }

@@ -387,4 +387,7 @@ public:
     bool verifyDASigsPatch( uint64_t _blockTimeStampSec );
 
     void updateInternalChainInfo( block_id _lastCommittedBlockID );
+
+    const ptr<CatchupClientAgent> &getCatchupClientAgent() const;
+
 };
