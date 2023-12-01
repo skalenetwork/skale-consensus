@@ -86,7 +86,7 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
             _agent->getSchain()->getNode()->exitCheck();
             usleep(_agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000);
             // this will return non-zero if skaled needs to be restarted
-            whenToRestart = _agent->doStuckCheck(restartIteration);
+            whenToRestart = _agent->doStuckCheckAndReturnTimeWhenToRestart(restartIteration);
         } catch ( ExitRequestedException& ) {
             return;
         } catch ( exception& e ) {
@@ -169,12 +169,12 @@ bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _tim
     return result;
 }
 
-uint64_t StuckDetectionAgent::doStuckCheck(uint64_t _restartIteration ) {
+// this function returns 0 if now stuck is detected
+// othewise it returns Linux time in ms when to restart
+uint64_t StuckDetectionAgent::doStuckCheckAndReturnTimeWhenToRestart(uint64_t _restartIteration ) {
     CHECK_STATE( _restartIteration >= 1 );
 
-    auto baseRestartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
-
-    uint64_t restartIntervalMs = baseRestartIntervalMs;
+    auto restartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
 
     auto blockID = getSchain()->getLastCommittedBlockID();
 
@@ -186,12 +186,13 @@ uint64_t StuckDetectionAgent::doStuckCheck(uint64_t _restartIteration ) {
     if ( sChain->getCryptoManager()->isSGXServerDown() )
         return 0;
 
-    auto timeStampMs = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;
+    auto lastBlockTimeStampMs = getSchain()->getBlock(blockID )->getTimeStampS() * 1000;
 
     // check that the chain has not been doing much for a long time
     auto startTimeMs = Time::getCurrentTimeMs();
     while ( Time::getCurrentTimeMs() - startTimeMs < 60000 ) {
-        if ( !stuckCheck( restartIntervalMs, timeStampMs ) )
+        getNode()->exitCheck();
+        if ( !stuckCheck(restartIntervalMs, lastBlockTimeStampMs ) )
             return 0;
         usleep( 5 * 1000 * 1000 );
     }
@@ -201,21 +202,21 @@ uint64_t StuckDetectionAgent::doStuckCheck(uint64_t _restartIteration ) {
 
     LOG( info, "Cleaned up state" );
 
-    return timeStampMs + restartIntervalMs + 120000;
+    return lastBlockTimeStampMs + restartIntervalMs + 120000;
 }
 void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration ) {
     CHECK_STATE( _restartTimeMs > 0 );
 
+    // wait until restart time is reached
     while ( Time::getCurrentTimeMs() < _restartTimeMs ) {
         try {
             usleep( 100 );
         } catch ( ... ) {
         }
-
         getNode()->exitCheck();
     }
 
-    createStuckRestartFile( _iteration + 1 );
+    createStuckRestartFile( _iteration );
 
     LOG( err,
         "Consensus engine stuck detected, because no blocks were mined for a long time and "

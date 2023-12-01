@@ -39,7 +39,7 @@ public:
 
     void join();
 
-    uint64_t doStuckCheck( uint64_t _restartIteration );
+    uint64_t doStuckCheckAndReturnTimeWhenToRestart(uint64_t _restartIteration );
 
     void restart( uint64_t _baseRestartTimeMs, uint64_t _iteration );
 
