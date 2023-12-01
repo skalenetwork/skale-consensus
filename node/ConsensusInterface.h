@@ -185,6 +185,11 @@ public:
         std::uint64_t startingBlock = 0;
         std::uint64_t currentBlock = 0;
         std::uint64_t highestBlock = 0;
+
+        std::string toString() {
+            return std::to_string(isSyncing) + ":" + std::to_string(startingBlock) + ":" +
+            std::to_string(currentBlock) + ":" + std::to_string(highestBlock);
+        }
     };
 
     // return sync information as requested by eth_syncing API of geth
