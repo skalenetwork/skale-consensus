@@ -49,9 +49,9 @@ public:
 
     string restartFileName(uint64_t _iteration );
 
-    bool checkNodesAreOnline();
+    bool areTwoThirdsOfPeerNodesOnline();
 
-    bool stuckCheck( uint64_t _restartIntervalMs, uint64_t _timeStamp );
+    bool stuckCheck( uint64_t _restartIntervalMs);
 
     uint64_t getNumberOfPreviousRestarts();
 };

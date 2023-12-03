@@ -49,32 +49,32 @@
 
 #include "utils/Time.h"
 
-StuckDetectionAgent::StuckDetectionAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
+StuckDetectionAgent::StuckDetectionAgent(Schain &_sChain) : Agent(_sChain, false, true) {
     try {
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
         // we only need one agent
-        this->stuckDetectionThreadPool = make_shared< StuckDetectionThreadPool >( 1, this );
+        this->stuckDetectionThreadPool = make_shared<StuckDetectionThreadPool>(1, this);
         stuckDetectionThreadPool->startService();
-    } catch ( ... ) {
-        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
-void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
-    CHECK_ARGUMENT( _agent );
-    setThreadName( "StuckDetectionLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
+void StuckDetectionAgent::StuckDetectionLoop(StuckDetectionAgent *_agent) {
+    CHECK_ARGUMENT(_agent);
+    setThreadName("StuckDetectionLoop", _agent->getSchain()->getNode()->getConsensusEngine());
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
 
-    LOG( info, "StuckDetection agent: started monitoring." );
+    LOG(info, "StuckDetection agent: started monitoring.");
 
     // determine if this is the first restart, or there we restarts
     // before
     auto numberOfPreviousRestarts = _agent->getNumberOfPreviousRestarts();
 
-    if ( numberOfPreviousRestarts > 0 ) {
-        LOG( info, "Stuck detection engine: previous restarts detected:" << numberOfPreviousRestarts );
+    if (numberOfPreviousRestarts > 0) {
+        LOG(info, "Stuck detection engine: previous restarts detected:" << numberOfPreviousRestarts);
     }
 
     uint64_t restartIteration = numberOfPreviousRestarts + 1;
@@ -87,18 +87,18 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
             usleep(_agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000);
             // this will return non-zero if skaled needs to be restarted
             whenToRestart = _agent->doStuckCheck(restartIteration);
-        } catch ( ExitRequestedException& ) {
+        } catch (ExitRequestedException &) {
             return;
-        } catch ( exception& e ) {
-            SkaleException::logNested( e );
+        } catch (exception &e) {
+            SkaleException::logNested(e);
         }
-    } while (whenToRestart == 0 );
+    } while (whenToRestart == 0);
 
     // Stuck detection loop detected stuck. Restart.
     try {
-        LOG( info, "Stuck detection engine: restarting skaled because of stuck detected." );
-        _agent->restart(whenToRestart, restartIteration );
-    } catch ( ExitRequestedException& ) {
+        LOG(info, "Stuck detection engine: restarting skaled because of stuck detected.");
+        _agent->restart(whenToRestart, restartIteration);
+    } catch (ExitRequestedException &) {
         return;
     }
 }
@@ -115,132 +115,128 @@ uint64_t StuckDetectionAgent::getNumberOfPreviousRestarts() {
 }
 
 void StuckDetectionAgent::join() {
-    CHECK_STATE( stuckDetectionThreadPool );
+    CHECK_STATE(stuckDetectionThreadPool);
     stuckDetectionThreadPool->joinAll();
 }
 
 
-bool StuckDetectionAgent::checkNodesAreOnline() {
-    LOG( info, "StuckDetectionEngine:: stuck detected. Checking network connectivity ..." );
+bool StuckDetectionAgent::areTwoThirdsOfPeerNodesOnline() {
+    LOG(info, "StuckDetectionEngine:: stuck detected. Checking network connectivity ...");
 
-    std::unordered_set< uint64_t > connections;
+    std::unordered_set<uint64_t> connections;
     auto beginTime = Time::getCurrentTimeSec();
     auto nodeCount = getSchain()->getNodeCount();
 
     // check if can connect to 2/3 of peers. If yes, restart
-    while ( 3 * ( connections.size() + 1 ) < 2 * nodeCount ) {
-        if ( Time::getCurrentTimeSec() - beginTime > 10 ) {
-            LOG( info, "Stuck check Could not connect to 2/3 of nodes. Will not restart" );
+    while (3 * (connections.size() + 1) < 2 * nodeCount) {
+        if (Time::getCurrentTimeSec() - beginTime > 10) {
+            LOG(info, "Stuck check Could not connect to 2/3 of nodes. Will not restart");
             return false;  // could not connect to 2/3 of peers
         }
 
-        for ( int i = 1; i <= nodeCount; i++ ) {
-            if ( i != ( getSchain()->getSchainIndex() ) && !connections.count( i ) ) {
+        for (int i = 1; i <= nodeCount; i++) {
+            if (i != (getSchain()->getSchainIndex()) && !connections.count(i)) {
                 try {
-                    if ( getNode()->isExitRequested() ) {
-                        BOOST_THROW_EXCEPTION( ExitRequestedException( __CLASS_NAME__ ) );
+                    if (getNode()->isExitRequested()) {
+                        BOOST_THROW_EXCEPTION(ExitRequestedException( __CLASS_NAME__ ));
                     }
-                    auto socket = make_shared< ClientSocket >(
-                        *getSchain(), schain_index( i ), port_type::PROPOSAL );
-                    getSchain()->getIo()->writeMagic( socket, true );
-                    connections.insert( i );
-                } catch ( ExitRequestedException& ) {
+                    auto socket = make_shared<ClientSocket>(
+                            *getSchain(), schain_index(i), port_type::PROPOSAL);
+                    getSchain()->getIo()->writeMagic(socket, true);
+                    connections.insert(i);
+                } catch (ExitRequestedException &) {
                     throw;
-                } catch ( std::exception& e ) {
+                } catch (std::exception &e) {
                 }
-                usleep( 50 * 1000 );
+                usleep(50 * 1000);
             }
         }
     }
-    LOG( info, "Stuck detection engine: could connect to 2/3 of nodes." );
+    LOG(info, "Stuck detection engine: could connect to 2/3 of nodes.");
     return true;
 }
 
 
-bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _timeStamp ) {
+bool StuckDetectionAgent::stuckCheck(uint64_t _restartIntervalMs) {
     auto currentTimeMs = Time::getCurrentTimeMs();
 
-    auto result = ( currentTimeMs - getSchain()->getStartTimeMs() ) > _restartIntervalMs &&
-                  ( currentTimeMs - getSchain()->getLastCommitTimeMs() > _restartIntervalMs ) &&
-                  ( Time::getCurrentTimeMs() - _timeStamp > _restartIntervalMs ) &&
-                  checkNodesAreOnline();
-
+    // note that when the consensus starts, lastCommitTimeMs is set to the consensus start time
+    // consensus is deemed stuck if it did not produce a new block for _restartIntervalMs
+    // provided that all nodes are alive and sgx server is down
+    auto result = (currentTimeMs - getSchain()->getLastCommitTimeMs() > _restartIntervalMs) &&
+                  (!sChain->getCryptoManager()->isSGXServerDown()) &&
+                  areTwoThirdsOfPeerNodesOnline();
 
     return result;
 }
 
-uint64_t StuckDetectionAgent::doStuckCheck(uint64_t _restartIteration ) {
-    CHECK_STATE( _restartIteration >= 1 );
+uint64_t StuckDetectionAgent::doStuckCheck(uint64_t _restartIteration) {
+    CHECK_STATE(_restartIteration >= 1);
 
-    auto baseRestartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
-
-    uint64_t restartIntervalMs = baseRestartIntervalMs;
+    auto restartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
 
     auto blockID = getSchain()->getLastCommittedBlockID();
 
     // do not restart for the first block
-    if ( blockID < 2 )
+    if (blockID < 2)
         return 0;
-
-    // if sgx is enabled and SGX server is down, there is no point restarting
-    if ( sChain->getCryptoManager()->isSGXServerDown() )
-        return 0;
-
-    auto timeStampMs = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;
 
     // check that the chain has not been doing much for a long time
     auto startTimeMs = Time::getCurrentTimeMs();
-    while ( Time::getCurrentTimeMs() - startTimeMs < 60000 ) {
-        if ( !stuckCheck( restartIntervalMs, timeStampMs ) )
+    while (Time::getCurrentTimeMs() - startTimeMs < 60000) {
+        if (!stuckCheck(restartIntervalMs))
             return 0;
-        usleep( 5 * 1000 * 1000 );
+        usleep(5 * 1000 * 1000);
     }
 
-    LOG( info, "Need for restart detected. Cleaning and restarting " );
+    LOG(info, "Need for restart detected. Cleaning and restarting ");
     cleanupState();
 
-    LOG( info, "Cleaned up state" );
+    LOG(info, "Cleaned up state");
 
-    return timeStampMs + restartIntervalMs + 120000;
+    auto lastCommittedBlockTimeStampS = getSchain()->getLastCommittedBlockTimeStamp().getS();
+
+    return lastCommittedBlockTimeStampS * 1000 + restartIntervalMs + 120000;
 }
-void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration ) {
-    CHECK_STATE( _restartTimeMs > 0 );
 
-    while ( Time::getCurrentTimeMs() < _restartTimeMs ) {
+void StuckDetectionAgent::restart(uint64_t _restartTimeMs, uint64_t _iteration) {
+    CHECK_STATE(_restartTimeMs > 0);
+
+    while (Time::getCurrentTimeMs() < _restartTimeMs) {
         try {
-            usleep( 100 );
-        } catch ( ... ) {
+            usleep(100);
+        } catch (...) {
         }
 
         getNode()->exitCheck();
     }
 
-    createStuckRestartFile( _iteration + 1 );
+    createStuckRestartFile(_iteration + 1);
 
-    LOG( err,
+    LOG(err,
         "Consensus engine stuck detected, because no blocks were mined for a long time and "
-        "majority of other nodes in the chain seem to be reachable on network. Restarting ..." );
+        "majority of other nodes in the chain seem to be reachable on network. Restarting ...");
 
-    exit( 13 );
+    exit(13);
 }
 
-string StuckDetectionAgent::restartFileName(uint64_t _iteration ) {
-    CHECK_STATE( _iteration >= 1 );
+string StuckDetectionAgent::restartFileName(uint64_t _iteration) {
+    CHECK_STATE(_iteration >= 1);
     auto engine = getNode()->getConsensusEngine();
-    CHECK_STATE( engine );
+    CHECK_STATE(engine);
     string fileName = engine->getHealthCheckDir() + "/STUCK_RESTART";
-    fileName.append( "." + to_string( getNode()->getNodeID() ) );
-    fileName.append( "." + to_string( sChain->getLastCommittedBlockID() ) );
-    fileName.append( "." + to_string( _iteration ) );
+    fileName.append("." + to_string(getNode()->getNodeID()));
+    fileName.append("." + to_string(sChain->getLastCommittedBlockID()));
+    fileName.append("." + to_string(_iteration));
     return fileName;
 };
 
-void StuckDetectionAgent::createStuckRestartFile( uint64_t _iteration ) {
-    CHECK_STATE( _iteration >= 1 );
+void StuckDetectionAgent::createStuckRestartFile(uint64_t _iteration) {
+    CHECK_STATE(_iteration >= 1);
     auto fileName = restartFileName(_iteration);
 
     ofstream f;
-    f.open( fileName, ios::trunc );
+    f.open(fileName, ios::trunc);
     f << " ";
     f.close();
 }
