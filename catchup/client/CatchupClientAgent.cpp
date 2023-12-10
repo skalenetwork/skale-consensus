@@ -21,14 +21,12 @@
     @date 2018
 */
 
-#include "SkaleCommon.h"
-
-#include "Log.h"
-#include "exceptions/ExitRequestedException.h"
-#include "exceptions/FatalError.h"
 
 #include "thirdparty/json.hpp"
-
+#include "SkaleCommon.h"
+#include "Log.h"
+#include "datastructures/PeerStateInfo.h"
+#include "exceptions/ExitRequestedException.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "crypto/CryptoManager.h"
 
@@ -59,6 +57,12 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, fals
             this->catchupClientThreadPool = make_shared< CatchupClientThreadPool >( 1, this );
             catchupClientThreadPool->startService();
         }
+
+        for (int i = 0; i < _sChain.getNodeCount(); i++) {
+            // init peer state infos
+            peerStateInfos.push_back(nullptr);
+        }
+
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -128,6 +132,14 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
         throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
     }
 
+    // now see if peerinfo information returned by the peer
+    ptr<PeerStateInfo> peerStateInfo = PeerStateInfo::extract(response);
+
+    if (peerStateInfo) {
+        // update the info on the peer
+        WRITE_LOCK(peerStateInfosMutex)
+        peerStateInfos.at((uint64_t)_dstIndex - 1) = peerStateInfo;
+    }
 
     LOG( debug, "Catchupc step 2: read catchup response requestHeader" );
 
@@ -138,15 +150,15 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
         return 0;
     }
 
-
     if ( status != CONNECTION_PROCEED ) {
         BOOST_THROW_EXCEPTION( NetworkProtocolException(
             "Server error in catchup response:" + to_string( status ), __CLASS_NAME__ ) );
     }
 
-
     ptr< CommittedBlockList > blocks;
 
+    // Starting blockdownload, update last starting block
+    lastStartingBlock = getSchain()->getLastCommittedBlockID();
 
     try {
         blocks = readMissingBlocks( socket, response, requestHeader );
@@ -341,4 +353,47 @@ schain_index CatchupClientAgent::nextSyncNodeIndex(
     } while ( index == ( _agent->getSchain()->getSchainIndex() - 1 ) );
 
     return index + 1;
+}
+
+
+constexpr uint64_t ALLOWED_CATCHUP_DELAY_S = 30;
+
+[[nodiscard]] ConsensusInterface::SyncInfo CatchupClientAgent::getSyncInfo() {
+
+    ConsensusInterface::SyncInfo syncInfo;
+
+    // If the last block timestamp is less than 30 seconds in the past
+    // we always set is_syncing to false. This is is to prevent nodes that
+    // are just a little behing to flip back and forth into is_syncing
+    if (Time::getCurrentTimeSec() < getSchain()->getLastCommittedBlockTimeStamp().getS() + ALLOWED_CATCHUP_DELAY_S) {
+        return syncInfo;
+    }
+
+    // find the maximum block on peer nodes
+    uint64_t  highestBlock = 0;
+    {
+        READ_LOCK(peerStateInfosMutex)
+        for (auto&& item : peerStateInfos) {
+            if (item && item->getLastBlockId() > highestBlock) {
+                highestBlock = (uint64_t) item->getLastBlockId();
+            }
+        }
+    }
+
+    // no peer has a block larger than last committed block
+    // return is_syncing false
+    if (highestBlock <= getSchain()->getLastCommittedBlockID()) {
+        return syncInfo;
+    }
+
+    // we are syncing since we are more than 60 seconds behind and other nodes have
+    // more blocks. Set info and return
+
+    syncInfo.isSyncing = true;
+    syncInfo.highestBlock = highestBlock;
+    syncInfo.currentBlock = (uint64_t) getSchain()->getLastCommittedBlockID();
+    syncInfo.startingBlock = (uint64_t) lastStartingBlock;
+
+    return syncInfo;
+
 }
