@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2018- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,9 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file StuckDetectionAgent.cpp
     @author Stan Kladko
-    @date 2021
 */
 
 #include "Log.h"
@@ -75,6 +73,7 @@ void StuckDetectionAgent::StuckDetectionLoop(StuckDetectionAgent *_agent) {
 
     if (numberOfPreviousRestarts > 0) {
         LOG(info, "Stuck detection engine: previous restarts detected:" << numberOfPreviousRestarts);
+
     }
 
     uint64_t restartIteration = numberOfPreviousRestarts + 1;
@@ -197,6 +196,7 @@ uint64_t StuckDetectionAgent::doStuckCheck(uint64_t _restartIteration) {
     auto lastCommittedBlockTimeStampS = getSchain()->getLastCommittedBlockTimeStamp().getS();
 
     return lastCommittedBlockTimeStampS * 1000 + restartIntervalMs + 120000;
+
 }
 
 void StuckDetectionAgent::restart(uint64_t _restartTimeMs, uint64_t _iteration) {
@@ -207,7 +207,6 @@ void StuckDetectionAgent::restart(uint64_t _restartTimeMs, uint64_t _iteration) 
             usleep(100);
         } catch (...) {
         }
-
         getNode()->exitCheck();
     }
 
@@ -233,6 +232,7 @@ string StuckDetectionAgent::restartFileName(uint64_t _iteration) {
 
 void StuckDetectionAgent::createStuckRestartFile(uint64_t _iteration) {
     CHECK_STATE(_iteration >= 1);
+
     auto fileName = restartFileName(_iteration);
 
     ofstream f;
