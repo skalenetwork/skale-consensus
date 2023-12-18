@@ -407,11 +407,10 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
             } else {
                 // on sync nodes we get candidate block and throw it away immediately
                 // this is to clean skaled queues
-                u256 stateRoot = 0;
-                if (!extFace) {    // we are in tests
-                    return;
+                if (extFace) {    // if extFace is null we are in consensus tests and there is no skaled
+                    u256 stateRoot = 0;
+                    extFace->pendingTransactions( getNode()->getMaxTransactionsPerBlock(), stateRoot );
                 }
-                extFace->pendingTransactions( getNode()->getMaxTransactionsPerBlock(), stateRoot );
             }
         }
 
