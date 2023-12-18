@@ -404,6 +404,14 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
             result = ( ( uint64_t ) getLastCommittedBlockID() ) - committedIDOld;
             if ( !getNode()->isSyncOnlyNode() ) {
                 proposeNextBlock( true );
+            } else {
+                // on sync nodes we get candidate block and throw it away immediately
+                // this is to clean skaled queues
+                u256 stateRoot = 0;
+                if (!extFace) {    // we are in tests
+                    return;
+                }
+                extFace->pendingTransactions( getNode()->getMaxTransactionsPerBlock(), stateRoot );
             }
         }
 
