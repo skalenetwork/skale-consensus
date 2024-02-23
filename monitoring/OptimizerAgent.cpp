@@ -54,7 +54,7 @@ bool OptimizerAgent::doOptimizedConsensus(block_id _blockId) {
 
 schain_index OptimizerAgent::getLastWinner(block_id _blockId) {
     // first 16 blocks we do not know the winner
-    if ((uint64_t) _blockId <= 1000 * getSchain()->getNodeCount()) {
+    if ((uint64_t) _blockId <= getSchain()->getNodeCount()) {
         return 0;
     }
     auto block = getSchain()->getBlock((uint64_t )_blockId - (uint64_t ) getSchain()->getNodeCount());
