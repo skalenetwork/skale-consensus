@@ -542,11 +542,10 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         CHECK_STATE(myProposal->getSignature() != "");
 
 
-
         proposedBlockArrived(myProposal);
 
         if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_proposedBlockID)) {
-            auto winner  = getSchain()->getOptimizerAgent()->getLastWinner(_proposedBlockID);
+            auto winner = getSchain()->getOptimizerAgent()->getLastWinner(_proposedBlockID);
             if (winner != getSchain()->getSchainIndex()) {
                 return;
             }
@@ -904,12 +903,11 @@ void Schain::daProofArrived(const ptr<DAProof> &_daProof) {
 
         if (getOptimizerAgent()->doOptimizedConsensus(bid)) {
             auto lastWinner = getOptimizerAgent()->getLastWinner(_daProof->getBlockId());
-            if (lastWinner != 0) {
-                if (_daProof->getProposerIndex() == lastWinner) {
-                    pv = make_shared<BooleanProposalVector>(getNodeCount(), lastWinner);
-                }
+            if (_daProof->getProposerIndex() == lastWinner) {
+                pv = make_shared<BooleanProposalVector>(getNodeCount(), lastWinner);
             }
         }
+
         if (pv) {
             // try starting consensus. It may already have been started due to
             // block proposal receipt timeout
