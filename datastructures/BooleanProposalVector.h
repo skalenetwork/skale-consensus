@@ -37,6 +37,8 @@ public:
 
     BooleanProposalVector( node_count _nodeCount, const string& _vectorStr );
 
+    BooleanProposalVector( node_count _nodeCount, schain_index _singleWinner );
+
     bool getProposalValue( schain_index _index );
 
     [[nodiscard]] uint64_t getTrueCount() const;

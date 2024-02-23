@@ -61,7 +61,7 @@ class CatchupServerAgent;
 class MonitoringAgent;
 class TimeoutAgent;
 class StuckDetectionAgent;
-
+class OptimizerAgent;
 
 class BlockProposalServerAgent;
 
@@ -133,8 +133,9 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
-
     ptr< OracleResultAssemblyAgent > oracleResultAssemblyAgent;
+
+    ptr<OptimizerAgent> optimizerAgent;
 
 
     ptr< IO > io;
@@ -343,6 +344,8 @@ public:
     u256 getPriceForBlockId( uint64_t _blockId );
 
     ptr< CryptoManager > getCryptoManager() const;
+
+    ptr< OptimizerAgent > getOptimizerAgent() const;
 
 
     uint64_t getVerifyDaSigsPatchTimestampS() const;

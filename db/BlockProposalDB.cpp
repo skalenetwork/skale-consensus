@@ -36,6 +36,7 @@
 #include "exceptions/FatalError.h"
 #include "leveldb/db.h"
 #include "monitoring/LivelinessMonitor.h"
+#include "monitoring/OptimizerAgent.h"
 #include "node/Node.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "thirdparty/json.hpp"
@@ -79,8 +80,18 @@ void BlockProposalDB::addBlockProposal( const ptr< BlockProposal > _proposal ) {
 
     addProposalToCacheIfDoesNotExist( _proposal );
 
+
     // save own proposal to levelDB
     if ( _proposal->getProposerIndex() == getSchain()->getSchainIndex() ) {
+
+
+        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_proposal->getBlockID())) {
+            auto winner  = getSchain()->getOptimizerAgent()->getLastWinner(_proposal->getBlockID());
+            if (winner != getSchain()->getSchainIndex()) {
+                return;
+            }
+        }
+
         serializeProposalAndSaveItToLevelDB( _proposal );
     }
 }

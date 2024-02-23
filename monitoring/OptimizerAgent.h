@@ -16,31 +16,29 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ConsensusTest.h
+    @file OptimizerAgent.h
     @author Stan Kladko
-    @date 2018
+    @date 2024 -
 */
 
 #pragma once
 
-#define DEFAULT_RUNNING_TIME_S 600
-#define STUCK_TEST_TIME 5
+class Agent;
+class Schain;
 
-class Consensust {
-    static uint64_t runningTimeS;
-    static fs_path configDirPath;
+
+class OptimizerAgent : public Agent {
+
+    uint64_t nodeCount;
 
 public:
-    static const fs_path& getConfigDirPath();
-
-    static void setConfigDirPath( const fs_path& _configDirPath );
-
-    static void useCorruptConfigs();
-
-    static uint64_t getRunningTimeS();
+    explicit OptimizerAgent( Schain& _sChain );
 
 
-    static void testInit();
+    // we determine consensus winner each 16 blocks
+    bool doOptimizedConsensus(block_id _blockId);
 
-    static void testFinalize();
+    schain_index getLastWinner(block_id _block);
+
+
 };
