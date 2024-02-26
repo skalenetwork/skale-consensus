@@ -28,8 +28,8 @@
 #include "OptimizerAgent.h"
 #include "datastructures/CommittedBlock.h"
 
-OptimizerAgent::OptimizerAgent( Schain& _sChain ) : Agent( _sChain, false, true ),
-nodeCount(_sChain.getNodeCount()){
+OptimizerAgent::OptimizerAgent(Schain &_sChain) : Agent(_sChain, false, true),
+                                                  nodeCount(_sChain.getNodeCount()) {
 
 }
 
@@ -48,7 +48,7 @@ bool OptimizerAgent::doOptimizedConsensus(block_id _blockId) {
 
     // redo full consensus each 17 blocks to
     // determine the winner. Othewise optimize
-    return (uint64_t )_blockId % (nodeCount + 1 ) != 0;
+    return (uint64_t) _blockId % (nodeCount + 1) != 0;
 
 }
 
@@ -57,7 +57,7 @@ schain_index OptimizerAgent::getLastWinner(block_id _blockId) {
     if ((uint64_t) _blockId <= getSchain()->getNodeCount()) {
         return 0;
     }
-    auto block = getSchain()->getBlock((uint64_t )_blockId - (uint64_t ) getSchain()->getNodeCount());
+    auto block = getSchain()->getBlock((uint64_t) _blockId - (uint64_t) getSchain()->getNodeCount());
 
     if (!block) {
         return 0;
@@ -66,6 +66,11 @@ schain_index OptimizerAgent::getLastWinner(block_id _blockId) {
     return block->getProposerIndex();
 }
 
-
+schain_index OptimizerAgent::skipSendingProposalToTheNetwork(block_id _blockId) {
+    // node skips sending proposal if the current block consensus
+    // is optimized consensus and if node chain index is not equal to the last winner
+    return (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockId) &&
+        (getSchain()->getOptimizerAgent()->getLastWinner(_blockId) != getSchain()->getSchainIndex()));
+}
 
 

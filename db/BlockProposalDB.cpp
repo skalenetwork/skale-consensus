@@ -84,13 +84,10 @@ void BlockProposalDB::addBlockProposal( const ptr< BlockProposal > _proposal ) {
     // save own proposal to levelDB
     if ( _proposal->getProposerIndex() == getSchain()->getSchainIndex() ) {
 
-
-        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_proposal->getBlockID())) {
-            auto winner  = getSchain()->getOptimizerAgent()->getLastWinner(_proposal->getBlockID());
-            if (winner != getSchain()->getSchainIndex()) {
+        // for optimized consensus only the winner of the previous similar round will send the proposal
+        // to the network. Therefor we
+        if (getSchain()->getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposal->getBlockID()))
                 return;
-            }
-        }
 
         serializeProposalAndSaveItToLevelDB( _proposal );
     }

@@ -544,11 +544,11 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
 
         proposedBlockArrived(myProposal);
 
-        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_proposedBlockID)) {
-            auto winner = getSchain()->getOptimizerAgent()->getLastWinner(_proposedBlockID);
-            if (winner != getSchain()->getSchainIndex()) {
-                return;
-            }
+        // a node skips sending and saving its proposal during optimized blockconsensus if
+        // the node was not a winner last time
+
+        if (getSchain()->getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposedBlockID)) {
+            return;
         }
 
         LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string(_proposedBlockID));
@@ -556,7 +556,6 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         auto db = getNode()->getProposalHashDB();
 
         db->checkAndSaveHash(_proposedBlockID, getSchainIndex(), myProposal->getHash().toHex());
-
 
         blockProposalClient->enqueueItem(myProposal);
 
@@ -901,6 +900,9 @@ void Schain::daProofArrived(const ptr<DAProof> &_daProof) {
         auto pv = getNode()->getDaProofDB()->addDAProof(_daProof);
 
 
+        // if we do optimized block consensus only a single block proposer
+        // proposes and provides da proof, which is the previous winner.
+        // proposals from other nodes, if made by mistake, are ignored
         if (getOptimizerAgent()->doOptimizedConsensus(bid)) {
             auto lastWinner = getOptimizerAgent()->getLastWinner(_daProof->getBlockId());
             if (_daProof->getProposerIndex() == lastWinner) {

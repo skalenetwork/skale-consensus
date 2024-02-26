@@ -41,4 +41,5 @@ public:
     schain_index getLastWinner(block_id _block);
 
 
+    schain_index skipSendingProposalToTheNetwork(block_id _blockId);
 };

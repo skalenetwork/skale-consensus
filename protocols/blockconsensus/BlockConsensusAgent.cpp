@@ -46,6 +46,7 @@
 #include "messages/NetworkMessage.h"
 #include "messages/NetworkMessageEnvelope.h"
 #include "messages/ParentMessage.h"
+#include "monitoring/OptimizerAgent.h"
 #include "network/Network.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
@@ -270,10 +271,16 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(
             seed = *( ( uint64_t* ) previousBlock->getHash().data() );
         }
 
-        auto random = ( ( uint64_t ) seed ) % nodeCount;
+        auto leader = ( ( uint64_t ) seed ) % nodeCount;
+
+        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID)) {
+            leader = (uint64_t ) getSchain()->getOptimizerAgent()->getLastWinner(blockID);
+        }
+
+        CHECK_STATE(leader <= nodeCount);
 
 
-        for ( uint64_t i = random; i < random + nodeCount; i++ ) {
+        for (uint64_t i = leader; i < leader + nodeCount; i++ ) {
             auto index = schain_index( i % nodeCount ) + 1;
 
             if ( auto result = trueDecisions->getIfExists( ( ( uint64_t ) blockID ) );
