@@ -69,54 +69,49 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
 
     LOG( info, "StuckDetection agent: started monitoring." );
 
+    // determine if this is the first restart, or there we restarts
+    // before
+    auto numberOfPreviousRestarts = _agent->getNumberOfPreviousRestarts();
 
-    uint64_t restartIteration = 1;
-
-    while ( true ) {
-        if ( _agent->getSchain()->getNode()->isExitRequested() )
-            return;
-        auto restartFileName = _agent->createStuckFileName( restartIteration );
-
-        if ( !boost::filesystem::exists( restartFileName ) ) {
-            break;
-        }
-        restartIteration++;
+    if ( numberOfPreviousRestarts > 0 ) {
+        LOG( info, "Stuck detection engine: previous restarts detected:" << numberOfPreviousRestarts );
     }
 
-    if ( restartIteration > 1 ) {
-        LOG( info, "Stuck detection engine: previous restarts detected:" << to_string(
-                       restartIteration - 1 ) );
-    }
+    uint64_t restartIteration = numberOfPreviousRestarts + 1;
+    uint64_t whenToRestart = 0;
 
-
-    if ( _agent->getSchain()->getNode()->isExitRequested() )
-        return;
-
-    uint64_t restartTime = 0;
-    uint64_t sleepTime = _agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000;
-
-    while ( restartTime == 0 ) {
-        if ( _agent->getSchain()->getNode()->isExitRequested() )
-            return;
+    // loop until stuck is detected
+    do {
         try {
-            usleep( sleepTime );
             _agent->getSchain()->getNode()->exitCheck();
-            restartTime = _agent->checkForRestart( restartIteration );
+            usleep(_agent->getSchain()->getNode()->getStuckMonitoringIntervalMs() * 1000);
+            // this will return non-zero if skaled needs to be restarted
+            whenToRestart = _agent->doStuckCheckAndReturnTimeWhenToRestart(restartIteration);
         } catch ( ExitRequestedException& ) {
             return;
         } catch ( exception& e ) {
             SkaleException::logNested( e );
         }
-    }
+    } while (whenToRestart == 0 );
 
-
-    CHECK_STATE( restartTime > 0 );
+    // Stuck detection loop detected stuck. Restart.
     try {
         LOG( info, "Stuck detection engine: restarting skaled because of stuck detected." );
-        _agent->restart( restartTime, restartIteration );
+        _agent->restart(whenToRestart, restartIteration );
     } catch ( ExitRequestedException& ) {
         return;
     }
+}
+
+uint64_t StuckDetectionAgent::getNumberOfPreviousRestarts() {
+    // each time a restart happens, a file with a corresponding name
+    // is created. To find out how many restarts already happened we
+    // count these files
+    uint64_t restartCounter = 0;
+    while (boost::filesystem::exists(restartFileName(restartCounter + 1))) {
+        restartCounter++;
+    }
+    return restartCounter;
 }
 
 void StuckDetectionAgent::join() {
@@ -174,12 +169,12 @@ bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _tim
     return result;
 }
 
-uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
+// this function returns 0 if now stuck is detected
+// othewise it returns Linux time in ms when to restart
+uint64_t StuckDetectionAgent::doStuckCheckAndReturnTimeWhenToRestart(uint64_t _restartIteration ) {
     CHECK_STATE( _restartIteration >= 1 );
 
-    auto baseRestartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
-
-    uint64_t restartIntervalMs = baseRestartIntervalMs;
+    auto restartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
 
     auto blockID = getSchain()->getLastCommittedBlockID();
 
@@ -191,12 +186,13 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
     if ( sChain->getCryptoManager()->isSGXServerDown() )
         return 0;
 
-    auto timeStampMs = getSchain()->getBlock( blockID )->getTimeStampS() * 1000;
+    auto lastBlockTimeStampMs = getSchain()->getBlock(blockID )->getTimeStampS() * 1000;
 
     // check that the chain has not been doing much for a long time
     auto startTimeMs = Time::getCurrentTimeMs();
     while ( Time::getCurrentTimeMs() - startTimeMs < 60000 ) {
-        if ( !stuckCheck( restartIntervalMs, timeStampMs ) )
+        getNode()->exitCheck();
+        if ( !stuckCheck(restartIntervalMs, lastBlockTimeStampMs ) )
             return 0;
         usleep( 5 * 1000 * 1000 );
     }
@@ -206,21 +202,21 @@ uint64_t StuckDetectionAgent::checkForRestart( uint64_t _restartIteration ) {
 
     LOG( info, "Cleaned up state" );
 
-    return timeStampMs + restartIntervalMs + 120000;
+    return lastBlockTimeStampMs + restartIntervalMs + 120000;
 }
 void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration ) {
     CHECK_STATE( _restartTimeMs > 0 );
 
+    // wait until restart time is reached
     while ( Time::getCurrentTimeMs() < _restartTimeMs ) {
         try {
             usleep( 100 );
         } catch ( ... ) {
         }
-
         getNode()->exitCheck();
     }
 
-    createStuckRestartFile( _iteration + 1 );
+    createStuckRestartFile( _iteration );
 
     LOG( err,
         "Consensus engine stuck detected, because no blocks were mined for a long time and "
@@ -229,7 +225,7 @@ void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration 
     exit( 13 );
 }
 
-string StuckDetectionAgent::createStuckFileName( uint64_t _iteration ) {
+string StuckDetectionAgent::restartFileName(uint64_t _iteration ) {
     CHECK_STATE( _iteration >= 1 );
     auto engine = getNode()->getConsensusEngine();
     CHECK_STATE( engine );
@@ -242,7 +238,7 @@ string StuckDetectionAgent::createStuckFileName( uint64_t _iteration ) {
 
 void StuckDetectionAgent::createStuckRestartFile( uint64_t _iteration ) {
     CHECK_STATE( _iteration >= 1 );
-    auto fileName = createStuckFileName( _iteration );
+    auto fileName = restartFileName(_iteration);
 
     ofstream f;
     f.open( fileName, ios::trunc );

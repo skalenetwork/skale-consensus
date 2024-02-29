@@ -39,7 +39,7 @@ public:
 
     void join();
 
-    uint64_t checkForRestart( uint64_t _restartIteration );
+    uint64_t doStuckCheckAndReturnTimeWhenToRestart(uint64_t _restartIteration );
 
     void restart( uint64_t _baseRestartTimeMs, uint64_t _iteration );
 
@@ -47,9 +47,11 @@ public:
 
     void cleanupState();
 
-    string createStuckFileName( uint64_t _iteration );
+    string restartFileName(uint64_t _iteration );
 
     bool checkNodesAreOnline();
+
+    uint64_t getNumberOfPreviousRestarts();
 
     bool stuckCheck( uint64_t _restartIntervalMs, uint64_t _timeStamp );
 };

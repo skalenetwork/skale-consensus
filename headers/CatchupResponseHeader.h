@@ -31,21 +31,22 @@ class Schain;
 class Transaction;
 class CatchupResponseHeader : public Header {
 public:
-    [[nodiscard]] uint64_t getBlockCount() const;
 
-    void setBlockCount( uint64_t blockCount );
-
-private:
-    uint64_t blockCount = 0;
-
-    ptr< list< uint64_t > > blockSizes = nullptr;
-
-public:
     CatchupResponseHeader();
 
     explicit CatchupResponseHeader( const ptr< list< uint64_t > > _blockSizes );
 
-    void setBlockSizes( const ptr< list< uint64_t > >& _blockSizes );
+    void setBlockSizesAndLatestBlockInfo( const ptr< list< uint64_t > >& _blockSizes,
+        block_id _lastCommittedBlockId, uint64_t _lastCommittedBlockTimestampS );
 
     void addFields( nlohmann::basic_json<>& j_ ) override;
+
+private:
+
+    ptr< list< uint64_t > > blockSizes = nullptr;
+
+    // latest block known to this consensus instance and its
+    uint64_t lastCommittedBlockId = 0;
+    uint64_t lastCommittedBlockTimestampS = 0;
+
 };

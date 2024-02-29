@@ -404,6 +404,13 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
             result = ( ( uint64_t ) getLastCommittedBlockID() ) - committedIDOld;
             if ( !getNode()->isSyncOnlyNode() ) {
                 proposeNextBlock( true );
+            } else {
+                // on sync nodes we get candidate block and throw it away immediately
+                // this is to clean skaled queues
+                if (extFace) {    // if extFace is null we are in consensus tests and there is no skaled
+                    u256 stateRoot = 0;
+                    extFace->pendingTransactions( getNode()->getMaxTransactionsPerBlock(), stateRoot );
+                }
             }
         }
 
@@ -1457,6 +1464,8 @@ void Schain::analyzeErrors( ptr< CommittedBlock > _block ) {
 uint64_t Schain::getVerifyDaSigsPatchTimestampS() const {
     return verifyDaSigsPatchTimestampS;
 }
+
+
 
 
 mutex Schain::vdsMutex;

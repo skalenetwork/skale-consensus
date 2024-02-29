@@ -336,3 +336,10 @@ const ptr< OracleClient > Schain::getOracleClient() const {
 bool Schain::isInCreateBlock() const {
     return inCreateBlock;
 }
+
+
+
+const ptr<CatchupClientAgent> &Schain::getCatchupClientAgent() const {
+    CHECK_STATE(catchupClientAgent);
+    return catchupClientAgent;
+}
