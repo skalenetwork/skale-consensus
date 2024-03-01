@@ -58,12 +58,12 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void propose( bin_consensus_value _proposal, schain_index index, block_id _id );
 
-    void reportBinaryConsensusAndDecideBlockIfNeeded(const ptr< ChildBVDecidedMessage >& _msg );
+    void reportBinaryConsensusAndDecideBlockIfCan(const ptr< ChildBVDecidedMessage >& _msg );
 
     void decideDefaultBlock( block_id _blockNumber );
 
 
-    void startConsensusProposal( block_id _blockID, const ptr< BooleanProposalVector >& _proposal );
+    void startConsensusProposal( block_id _blockID, const ptr< BooleanProposalVector >& _proposalVector );
 
     void processBlockSignMessage( const ptr< BlockSignBroadcastMessage >& _message );
 
@@ -91,4 +91,12 @@ public:
                          const block_id &blockID);
 
     uint64_t getPriorityLeaderForBlock(uint64_t nodeCount, block_id &blockID) const;
+
+    bool haveTrueDecision(block_id _blockId, schain_index _proposerIndex);
+
+    bool haveFalseDecision(block_id _blockId, schain_index _proposerIndex);
+
+    void decideNormalBlockConsensusIfCan(block_id _blockId);
+
+    void decideOptimizedBlockConsensusIfCan(block_id _blockId);
 };
