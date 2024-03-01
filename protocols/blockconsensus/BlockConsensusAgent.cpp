@@ -131,7 +131,7 @@ void BlockConsensusAgent::processChildMessageImpl( const ptr< InternalMessageEnv
 
     auto msg = dynamic_pointer_cast< ChildBVDecidedMessage >( _me->getMessage() );
 
-    reportConsensusAndDecideIfNeeded( msg );
+    reportBinaryConsensusAndDecideBlockIfNeeded(msg);
 }
 
 void BlockConsensusAgent::propose(
@@ -206,42 +206,33 @@ void BlockConsensusAgent::decideDefaultBlock( block_id _blockNumber ) {
 }
 
 
-void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(
+void BlockConsensusAgent::reportBinaryConsensusAndDecideBlockIfNeeded(
     const ptr< ChildBVDecidedMessage >& _msg ) {
     CHECK_ARGUMENT( _msg );
 
     try {
         auto nodeCount = ( uint64_t ) getSchain()->getNodeCount();
         schain_index blockProposerIndex = _msg->getBlockProposerIndex();
+        CHECK_STATE( blockProposerIndex <= nodeCount );
         auto blockID = _msg->getBlockId();
 
         if ( blockID <= getSchain()->getLastCommittedBlockID() ) {
             // Old consensus is reporting, already got this block through catchup
+            // do nothing
             return;
         }
 
-        CHECK_STATE( blockProposerIndex <= nodeCount );
-
+        // the consensus for this block has already completed
+        // do nothing
         if ( decidedIndices->exists( ( uint64_t ) blockID ) ) {
             return;
         }
 
-        if ( _msg->getValue() ) {
-            if ( !trueDecisions->exists( ( uint64_t ) blockID ) )
-                trueDecisions->putIfDoesNotExist( ( uint64_t ) blockID,
-                    make_shared< map< schain_index, ptr< ChildBVDecidedMessage > > >() );
+        // record that the binary consensus completion reported by the msg
+        recordBinaryDecision(_msg, blockProposerIndex, blockID);
 
-            auto map = trueDecisions->get( ( uint64_t ) blockID );
-            map->emplace( blockProposerIndex, _msg );
 
-        } else {
-            if ( !falseDecisions->exists( ( uint64_t ) blockID ) )
-                falseDecisions->putIfDoesNotExist( ( uint64_t ) blockID,
-                    make_shared< map< schain_index, ptr< ChildBVDecidedMessage > > >() );
-
-            auto map = falseDecisions->get( ( uint64_t ) blockID );
-            map->emplace( blockProposerIndex, _msg );
-        }
+        uint64_t priorityLeader = getPriorityLeaderForBlock(nodeCount, blockID);
 
 
         if ( auto result = trueDecisions->getIfExists( ( uint64_t ) blockID );
@@ -257,30 +248,10 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(
             return;
         }
 
-        uint64_t seed;
-
-        if ( blockID <= 1 ) {
-            seed = 1;
-        } else {
-            CHECK_STATE( blockID - 1 <= getSchain()->getLastCommittedBlockID() );
-            auto previousBlock = getSchain()->getBlock( blockID - 1 );
-            if ( previousBlock == nullptr )
-                BOOST_THROW_EXCEPTION( InvalidStateException(
-                    "Can not read block " + to_string( blockID - 1 ) + " from LevelDB",
-                    __CLASS_NAME__ ) );
-            seed = *( ( uint64_t* ) previousBlock->getHash().data() );
-        }
-
-        auto leader = ( ( uint64_t ) seed ) % nodeCount;
-
-        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID)) {
-            leader = (uint64_t ) getSchain()->getOptimizerAgent()->getLastWinner(blockID);
-        }
-
-        CHECK_STATE(leader <= nodeCount);
 
 
-        for (uint64_t i = leader; i < leader + nodeCount; i++ ) {
+
+        for (uint64_t i = priorityLeader; i < priorityLeader + nodeCount; i++ ) {
             auto index = schain_index( i % nodeCount ) + 1;
 
             if ( auto result = trueDecisions->getIfExists( ( ( uint64_t ) blockID ) );
@@ -308,6 +279,52 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(
         throw;
     } catch ( SkaleException& e ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+    }
+}
+
+uint64_t BlockConsensusAgent::getPriorityLeaderForBlock(uint64_t nodeCount, block_id &blockID) const {
+    uint64_t priorityLeader;
+
+    uint64_t seed;
+
+    if ( blockID <= 1 ) {
+        seed = 1;
+    } else {
+        CHECK_STATE( blockID - 1 <= getSchain()->getLastCommittedBlockID() );
+        auto previousBlock = getSchain()->getBlock(blockID - 1 );
+        if ( previousBlock == nullptr )
+            BOOST_THROW_EXCEPTION( InvalidStateException(
+                "Can not read block " + to_string( blockID - 1 ) + " from LevelDB",
+                __CLASS_NAME__ ) );
+        seed = *( ( uint64_t* ) previousBlock->getHash().data() );
+    }
+
+    priorityLeader = ( ( uint64_t ) seed ) % nodeCount;
+
+    if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID)) {
+        priorityLeader = (uint64_t ) getSchain()->getOptimizerAgent()->getLastWinner(blockID);
+    }
+    CHECK_STATE(priorityLeader <= nodeCount);
+    return priorityLeader;
+}
+
+void BlockConsensusAgent::recordBinaryDecision(const ptr<ChildBVDecidedMessage> &_msg, schain_index &blockProposerIndex,
+                                               const block_id &blockID) {
+    if ( _msg->getValue() ) {
+        if ( !trueDecisions->exists(( uint64_t ) blockID ) )
+            trueDecisions->putIfDoesNotExist(( uint64_t ) blockID,
+                                             make_shared< map< schain_index, ptr< ChildBVDecidedMessage > > >() );
+
+        auto map = trueDecisions->get(( uint64_t ) blockID );
+        map->emplace( blockProposerIndex, _msg );
+
+    } else {
+        if ( !falseDecisions->exists(( uint64_t ) blockID ) )
+            falseDecisions->putIfDoesNotExist(( uint64_t ) blockID,
+                                              make_shared< map< schain_index, ptr< ChildBVDecidedMessage > > >() );
+
+        auto map = falseDecisions->get(( uint64_t ) blockID );
+        map->emplace( blockProposerIndex, _msg );
     }
 }
 
