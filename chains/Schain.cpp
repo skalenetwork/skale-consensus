@@ -897,17 +897,25 @@ void Schain::daProofArrived(const ptr<DAProof> &_daProof) {
         if (bid <= getLastCommittedBlockID())
             return;
 
-        auto pv = getNode()->getDaProofDB()->addDAProof(_daProof);
 
 
-        // if we do optimized block consensus only a single block proposer
-        // proposes and provides da proof, which is the previous winner.
-        // proposals from other nodes, if made by mistake, are ignored
+        ptr<BooleanProposalVector> pv;
+
+
         if (getOptimizerAgent()->doOptimizedConsensus(bid)) {
+            // when we do optimized block consensus only a single block proposer
+            // proposes and provides da proof, which is the previous winner.
+            // proposals from other nodes, if sent made by mistake, are ignored
             auto lastWinner = getOptimizerAgent()->getLastWinner(_daProof->getBlockId());
             if (_daProof->getProposerIndex() == lastWinner) {
+                getNode()->getDaProofDB()->addDAProof(_daProof);
                 pv = make_shared<BooleanProposalVector>(getNodeCount(), lastWinner);
             }
+        } else {
+            // do things regular way
+            // the vector is formed and the consensus is started when
+            // 2/3 of nodes submit a da proof
+            pv = getNode()->getDaProofDB()->addDAProof(_daProof);
         }
 
         if (pv) {
