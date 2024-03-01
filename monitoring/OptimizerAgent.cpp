@@ -67,8 +67,8 @@ schain_index OptimizerAgent::getLastWinner(block_id _blockId) {
 }
 
 schain_index OptimizerAgent::skipSendingProposalToTheNetwork(block_id _blockId) {
-    // node skips sending proposal if the current block consensus
-    // is optimized consensus and if node chain index is not equal to the last winner
+    // whe we run optimized consensus a node skips sending proposal to the network
+    // if node chain index is not equal to the last winner
     return (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockId) &&
         (getSchain()->getOptimizerAgent()->getLastWinner(_blockId) != getSchain()->getSchainIndex()));
 }

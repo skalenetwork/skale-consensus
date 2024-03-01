@@ -84,8 +84,10 @@ void BlockProposalDB::addBlockProposal( const ptr< BlockProposal > _proposal ) {
     // save own proposal to levelDB
     if ( _proposal->getProposerIndex() == getSchain()->getSchainIndex() ) {
 
-        // for optimized consensus only the winner of the previous similar round will send the proposal
-        // to the network. Therefor we
+        // for optimized consensus only previous winner proposed.
+        // non-winners skip sending proposal and do not need to save it to the db
+        // since saving proposal to the db is done to be able to resend it in case of a
+        // crash
         if (getSchain()->getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposal->getBlockID()))
                 return;
 
