@@ -25,6 +25,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "chains/Schain.h"
+#include "monitoring/LivelinessMonitor.h"
 #include "datastructures/CommittedBlock.h"
 #include "exceptions/InvalidStateException.h"
 #include "utils/Time.h"
@@ -38,6 +39,7 @@ constexpr uint64_t NUMBER_OF_BLOCKS_TO_CACHE = 3;
 ptr< vector< uint8_t > > BlockDB::getSerializedBlocksFromLevelDB(
     block_id _startBlock, block_id _endBlock, ptr< list< uint64_t > > _blockSizes ) {
     CHECK_STATE( _blockSizes );
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     auto serializedBlocks = make_shared< vector< uint8_t > >();
 

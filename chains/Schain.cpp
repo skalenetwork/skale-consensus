@@ -731,6 +731,10 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
         updateLastCommittedBlockInfo((uint64_t) _block->getBlockID(), stamp,
                                      _block->getTransactionList()->size(), evmProcessingTimeMs);
 
+        // simple sanity check that we can calculate block random
+        getRandomForBlockId((uint64_t) _block->getBlockID());
+
+
         // the last thing is to run analyzers to log any errors that happened during
         // block processing
 
@@ -896,7 +900,6 @@ void Schain::daProofArrived(const ptr<DAProof> &_daProof) {
 
         if (bid <= getLastCommittedBlockID())
             return;
-
 
 
         ptr<BooleanProposalVector> pv;

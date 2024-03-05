@@ -303,7 +303,7 @@ void Schain::initLastCommittedBlockInfo(
 void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize,
     uint64_t _lastCommittedBlockProcessingTimeMs ) {
-    lock_guard< mutex > lock( lastCommittedBlockInfoMutex );
+    LOCK_NR( lastCommittedBlockInfoMutex );
     CHECK_STATE( _lastCommittedBlockID == lastCommittedBlockID + 1 )
     if ( _lastCommittedBlockTimeStamp < lastCommittedBlockTimeStamp ) {
         LOG( err, "TimeStamp in the past:" << lastCommittedBlockTimeStamp.toString() << ":"
@@ -325,10 +325,6 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     if ( blockTimeAverageMs == 0 )
         blockTimeAverageMs = 1;
     tpsAverage = ( blockSizeAverage * 1000 ) / blockTimeAverageMs;
-    getRandomForBlockId( ( uint64_t ) lastCommittedBlockID );
-
-    if ( getNode()->isSyncOnlyNode() )
-        return;
 }
 
 
