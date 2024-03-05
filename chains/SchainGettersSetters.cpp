@@ -182,6 +182,7 @@ uint64_t Schain::getTotalTransactions() const {
 }
 
 TimeStamp Schain::getLastCommittedBlockTimeStamp() {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ );
     lock_guard< mutex > l( lastCommittedBlockInfoMutex );
     return lastCommittedBlockTimeStamp;
 }
@@ -296,6 +297,7 @@ void Schain::initLastCommittedBlockInfo(
 void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     TimeStamp& _lastCommittedBlockTimeStamp, uint64_t _blockSize,
     uint64_t _lastCommittedBlockProcessingTimeMs ) {
+    MONITOR( __CLASS_NAME__, __FUNCTION__ );
     lock_guard< mutex > lock( lastCommittedBlockInfoMutex );
     CHECK_STATE( _lastCommittedBlockID == lastCommittedBlockID + 1 )
     if ( _lastCommittedBlockTimeStamp < lastCommittedBlockTimeStamp ) {

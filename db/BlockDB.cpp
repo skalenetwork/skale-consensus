@@ -27,6 +27,7 @@
 #include "chains/Schain.h"
 #include "datastructures/CommittedBlock.h"
 #include "exceptions/InvalidStateException.h"
+#include "monitoring/LivelinessMonitor.h"
 #include "utils/Time.h"
 
 #include "LevelDBOptions.h"
@@ -38,6 +39,9 @@ constexpr uint64_t NUMBER_OF_BLOCKS_TO_CACHE = 3;
 ptr< vector< uint8_t > > BlockDB::getSerializedBlocksFromLevelDB(
     block_id _startBlock, block_id _endBlock, ptr< list< uint64_t > > _blockSizes ) {
     CHECK_STATE( _blockSizes );
+
+    MONITOR( __CLASS_NAME__, __FUNCTION__ );
+
 
     auto serializedBlocks = make_shared< vector< uint8_t > >();
 
@@ -83,6 +87,8 @@ ptr< vector< uint8_t > > BlockDB::getSerializedBlocksFromLevelDB(
 ptr< vector< uint8_t > > BlockDB::getSerializedBlockFromLevelDB( block_id _blockID ) {
     // check if block is in the cache and return
     // cache is already thread safe
+
+    MONITOR( __CLASS_NAME__, __FUNCTION__ );
     auto result = blockCache.getIfExists( ( uint64_t ) _blockID );
     if ( result.has_value() ) {
         auto block = std::any_cast< ptr< vector< uint8_t > > >( result );

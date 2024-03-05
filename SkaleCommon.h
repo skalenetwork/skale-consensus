@@ -159,7 +159,7 @@ static const uint64_t SESSION_KEY_CACHE_SIZE = 2;
 static const uint64_t SESSION_PUBLIC_KEY_CACHE_SIZE = 16;
 
 // catchup happens in chunks of 32 MB MAX
-static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 64 * 1024 * 1024;
+static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 16 * 1024 * 1024;
 
 static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 8 * 1024;
 
