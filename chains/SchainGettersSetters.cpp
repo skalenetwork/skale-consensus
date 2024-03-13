@@ -327,8 +327,6 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     tpsAverage = ( blockSizeAverage * 1000 ) / blockTimeAverageMs;
     getRandomForBlockId( ( uint64_t ) lastCommittedBlockID );
 
-    if ( getNode()->isSyncOnlyNode() )
-        return;
 }
 
 
