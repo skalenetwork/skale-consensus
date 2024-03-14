@@ -33,7 +33,12 @@ OptimizerAgent::OptimizerAgent(Schain &_sChain) : Agent(_sChain, false, true),
 
 }
 
-bool OptimizerAgent::doOptimizedConsensus(block_id _blockId) {
+bool OptimizerAgent::doOptimizedConsensus(block_id _blockId, uint64_t _lastBlockTimeStampS) {
+
+
+    if (!getSchain()->fastConsensusPatch(_lastBlockTimeStampS)) {
+        return false;
+    }
 
 
     auto lastWinner = getLastWinner(_blockId);
@@ -69,8 +74,9 @@ schain_index OptimizerAgent::getLastWinner(block_id _blockId) {
 schain_index OptimizerAgent::skipSendingProposalToTheNetwork(block_id _blockId) {
     // whe we run optimized consensus a node skips sending proposal to the network
     // if node chain index is not equal to the last winner
-    return (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockId) &&
-        (getSchain()->getOptimizerAgent()->getLastWinner(_blockId) != getSchain()->getSchainIndex()));
+    return (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockId,
+                                                                   getSchain()->getLastCommittedBlockTimeStamp().getS()) &&
+            (getSchain()->getOptimizerAgent()->getLastWinner(_blockId) != getSchain()->getSchainIndex()));
 }
 
 

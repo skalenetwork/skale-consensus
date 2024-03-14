@@ -178,6 +178,8 @@ class Schain : public Agent {
 
     uint64_t verifyDaSigsPatchTimestampS = 0;
 
+    uint64_t fastConsensusPatchTimestampS = 0;
+
     // If a BlockError analyzer is added to the queue
     // its analyze(CommittedBlock _block) function will be run on commit
     // and then t will be removed from the queue
@@ -350,6 +352,8 @@ public:
 
     uint64_t getVerifyDaSigsPatchTimestampS() const;
 
+    uint64_t getFastConsensusTimestampS() const;
+
 
     bool isInCreateBlock() const;
 
@@ -388,6 +392,8 @@ public:
     const atomic< bool >& getIsStateInitialized() const;
 
     bool verifyDASigsPatch( uint64_t _blockTimeStampSec );
+
+    bool fastConsensusPatch( uint64_t _blockTimeStampSec );
 
     void updateInternalChainInfo( block_id _lastCommittedBlockID );
 

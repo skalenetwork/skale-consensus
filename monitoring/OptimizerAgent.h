@@ -36,7 +36,7 @@ public:
 
 
     // we determine consensus winner each 16 blocks
-    bool doOptimizedConsensus(block_id _blockId);
+    bool doOptimizedConsensus(block_id _blockId, uint64_t _lastBlockTimeStamp);
 
     schain_index getLastWinner(block_id _block);
 

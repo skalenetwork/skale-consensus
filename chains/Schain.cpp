@@ -243,6 +243,18 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
           schainIndex(_schainIndex) {
     lastCommittedBlockTimeStamp = TimeStamp(0, 0);
 
+    if (getNode()->getPatchTimestamps().count("verifyDaSigsPatchTimestamp") > 0) {
+        this->verifyDaSigsPatchTimestampS =
+                getNode()->getPatchTimestamps().at("verifyDaSigsPatchTimestamp");
+    }
+
+    if (getNode()->getPatchTimestamps().count("verifyDaSigsPatchTimestamp") > 0) {
+        this->fastConsensusPatchTimestampS =
+                getNode()->getPatchTimestamps().at("fastConsensusPatchTimestamp");
+    }
+
+
+
     // construct monitoring, timeout and stuck detection agents early
     monitoringAgent = make_shared<MonitoringAgent>(*this);
     optimizerAgent = make_shared<OptimizerAgent>(*this);
@@ -294,10 +306,7 @@ Schain::Schain(weak_ptr<Node> _node, schain_index _schainIndex, const schain_id 
         getNode()->registerAgent(this);
 
 
-        if (getNode()->getPatchTimestamps().count("verifyDaSigsPatchTimestamp") > 0) {
-            this->verifyDaSigsPatchTimestampS =
-                    getNode()->getPatchTimestamps().at("verifyDaSigsPatchTimestamp");
-        }
+
 
     } catch (ExitRequestedException &) {
         throw;
@@ -430,6 +439,10 @@ const atomic<bool> &Schain::getIsStateInitialized() const {
 
 bool Schain::verifyDASigsPatch(uint64_t _blockTimeStampS) {
     return verifyDaSigsPatchTimestampS != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestampS;
+}
+
+bool Schain::fastConsensusPatch(uint64_t _blockTimeStampS) {
+    return fastConsensusPatchTimestampS != 0 && _blockTimeStampS >= fastConsensusPatchTimestampS;
 }
 
 
@@ -898,11 +911,10 @@ void Schain::daProofArrived(const ptr<DAProof> &_daProof) {
             return;
 
 
-
         ptr<BooleanProposalVector> pv;
 
 
-        if (getOptimizerAgent()->doOptimizedConsensus(bid)) {
+        if (getOptimizerAgent()->doOptimizedConsensus(bid, getLastCommittedBlockTimeStamp().getS())) {
             // when we do optimized block consensus only a single block proposer
             // proposes and provides da proof, which is the previous winner.
             // proposals from other nodes, if sent made by mistake, are ignored
@@ -1488,6 +1500,10 @@ void Schain::analyzeErrors(ptr<CommittedBlock> _block) {
 
 uint64_t Schain::getVerifyDaSigsPatchTimestampS() const {
     return verifyDaSigsPatchTimestampS;
+}
+
+uint64_t Schain::getFastConsensusTimestampS() const {
+    return fastConsensusPatchTimestampS;
 }
 
 

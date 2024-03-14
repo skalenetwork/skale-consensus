@@ -106,7 +106,8 @@ void BlockConsensusAgent::startConsensusProposal(
 
         LOG(debug, "CONSENSUS START:BLOCK:" << to_string(_blockID));
 
-        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockID)) {
+        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockID,
+                                                                   getSchain()->getLastCommittedBlockTimeStamp().getS())) {
             // for optimized block consensus, we only propose and initiated binary consensus
             // for the last block winner
             auto lastWinner = getSchain()->getOptimizerAgent()->getLastWinner(_blockID);
@@ -231,7 +232,7 @@ bool BlockConsensusAgent::haveFalseDecision(block_id _blockId, schain_index _pro
 
 
 void BlockConsensusAgent::decideNormalBlockConsensusIfCan(block_id _blockId) {
-    auto nodeCount = (uint64_t ) getSchain()->getNodeCount();
+    auto nodeCount = (uint64_t) getSchain()->getNodeCount();
     // note, priorityLeader is numbered from 0 to N-1, so
     uint64_t priorityLeader = getPriorityLeaderForBlock((uint64_t) nodeCount, _blockId);
 
@@ -308,7 +309,8 @@ void BlockConsensusAgent::reportBinaryConsensusAndDecideBlockIfCan(
         // if we are doing optimized consensus
         // we are only running a single binary consensus for the last
         // winner and ignoring all other messages, even if someone sends them by mistake
-        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID) &&
+        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID,
+                                                                   getSchain()->getLastCommittedBlockTimeStamp().getS()) &&
             (uint64_t) blockProposerIndex != getSchain()->getOptimizerAgent()->getLastWinner(blockID)) {
             LOG(warn, "Consensus got ChildBVBroadcastMessage for non-winner in optimized round:" + blockProposerIndex);
             return;
@@ -317,7 +319,8 @@ void BlockConsensusAgent::reportBinaryConsensusAndDecideBlockIfCan(
         // record that the binary consensus completion reported by the msg
         recordBinaryDecision(_msg, blockProposerIndex, blockID);
 
-        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID)) {
+        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID,
+                                                                   getSchain()->getLastCommittedBlockTimeStamp().getS())) {
             decideOptimizedBlockConsensusIfCan(blockID);
         } else {
             decideNormalBlockConsensusIfCan(blockID);
@@ -351,7 +354,8 @@ uint64_t BlockConsensusAgent::getPriorityLeaderForBlock(uint64_t nodeCount, bloc
 
     priorityLeader = ((uint64_t) seed) % nodeCount;
 
-    if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID)) {
+    if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID,
+                                                               getSchain()->getLastCommittedBlockTimeStamp().getS())) {
         priorityLeader = (uint64_t) getSchain()->getOptimizerAgent()->getLastWinner(blockID);
     }
     CHECK_STATE(priorityLeader <= nodeCount);
