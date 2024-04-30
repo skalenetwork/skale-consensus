@@ -246,7 +246,6 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
 
     // construct monitoring, timeout and stuck detection agents early
     monitoringAgent = make_shared< MonitoringAgent >( *this );
-
     if ( !getNode()->isSyncOnlyNode() ) {
         timeoutAgent = make_shared< TimeoutAgent >( *this );
         stuckDetectionAgent = make_shared< StuckDetectionAgent >( *this );
@@ -549,7 +548,6 @@ void Schain::proposeNextBlock( bool _isCalledAfterCatchup ) {
 
         proposedBlockArrived( myProposal );
 
-
         if (getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposedBlockID)) {
             // a node skips sending and saving its proposal during
             // optimized block consensus, if the node was not a winner
@@ -557,7 +555,7 @@ void Schain::proposeNextBlock( bool _isCalledAfterCatchup ) {
             return; // dont propose
         }
 
-        LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string(_proposedBlockID));
+        LOG( debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ) );
 
         auto db = getNode()->getProposalHashDB();
 
@@ -900,22 +898,7 @@ void Schain::daProofArrived( const ptr< DAProof >& _daProof ) {
         if ( _daProof->getBlockId() <= getLastCommittedBlockID() )
             return;
 
-        ptr<BooleanProposalVector> pv;
-        if (getOptimizerAgent()->doOptimizedConsensus(bid, getLastCommittedBlockTimeStamp().getS())) {
-            // when we do optimized block consensus only a single block proposer
-            // proposes and provides da proof, which is the previous winner.
-            // proposals from other nodes, if sent made by mistake, are ignored
-            auto lastWinner = getOptimizerAgent()->getLastWinner(_daProof->getBlockId());
-            if (_daProof->getProposerIndex() == lastWinner) {
-                getNode()->getDaProofDB()->addDAProof(_daProof);
-                pv = make_shared<BooleanProposalVector>(getNodeCount(), lastWinner);
-            }
-        } else {
-            // do things regular way
-            // the vector is formed and the consensus is started when
-            // 2/3 of nodes submit a da proof
-            pv = getNode()->getDaProofDB()->addDAProof(_daProof);
-        }
+        auto pv = calculateBooleanProposalVectorIfItsTimeToStartBinaryConsensus( _daProof );
 
 
         if ( pv != nullptr ) {
@@ -1489,7 +1472,37 @@ uint64_t Schain::getVerifyDaSigsPatchTimestampS() const {
     return verifyDaSigsPatchTimestampS;
 }
 
+
+
+
 mutex Schain::vdsMutex;
+
+// this function is called on arrival of each DA proof
+// if it is time to make binary proposals it will return a vector of 0s and 1s
+// for normal consensus it will happen when 2t+1 da proofs proposals arrive (which is 11)
+// for optimized consensus it will happen when a da proof from the previos winner arrives
+ptr<BooleanProposalVector>
+Schain::calculateBooleanProposalVectorIfItsTimeToStartBinaryConsensus(const ptr<DAProof> &_daProof) {
+
+    ptr<BooleanProposalVector> pv;
+
+    if (getOptimizerAgent()->doOptimizedConsensus(_daProof->getBlockId(), getLastCommittedBlockTimeStamp().getS())) {
+        // when we do optimized block consensus only a single block proposer
+        // proposes and provides da proof, which is the previous winner.
+        // proposals from other nodes, if sent made by mistake, are ignored
+        auto lastWinner = getOptimizerAgent()->getLastWinner(_daProof->getBlockId());
+        if (_daProof->getProposerIndex() == lastWinner) {
+            getNode()->getDaProofDB()->addDAProof(_daProof);
+            pv = make_shared<BooleanProposalVector>(getNodeCount(), lastWinner);
+        }
+    } else {
+        // do things regular way
+        // the vector is formed and the consensus is started when
+        // 2/3 of nodes submit a da proof
+        pv = getNode()->getDaProofDB()->addDAProof(_daProof);
+    }
+    return pv;
+}
 
 bool Schain::fastConsensusPatch(uint64_t _blockTimeStampS) {
     return fastConsensusPatchTimestampS != 0 && _blockTimeStampS >= fastConsensusPatchTimestampS;
