@@ -58,7 +58,7 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void propose( bin_consensus_value _proposal, schain_index index, block_id _id );
 
-    void reportConsensusAndDecideIfNeeded(const ptr< ChildBVDecidedMessage >& _msg );
+    void reportConsensusAndDecideIfNeeded( const ptr< ChildBVDecidedMessage >& _msg );
 
     void decideDefaultBlock( block_id _blockNumber );
 
@@ -86,9 +86,8 @@ public:
 
     void routeAndProcessMessage( const ptr< MessageEnvelope >& _me );
 
-    void
-    recordBinaryDecision(const ptr<ChildBVDecidedMessage> &_msg, schain_index &blockProposerIndex,
-                         const block_id &blockID);
+    void recordBinaryDecision(
+            const ptr<ChildBVDecidedMessage> &_msg, schain_index &blockProposerIndex, const block_id &blockID);
 
     bool haveTrueDecision(block_id _blockId, schain_index _proposerIndex);
 
