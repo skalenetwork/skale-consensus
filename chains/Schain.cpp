@@ -151,8 +151,8 @@ void Schain::postMessage( const ptr< MessageEnvelope >& _me ) {
 
     CHECK_STATE( ( uint64_t ) _me->getMessage()->getBlockId() != 0 );
     {
-        lock_guard<mutex> l(messageMutex);
-        messageQueue.push(_me);
+        lock_guard< mutex > l( messageMutex );
+        messageQueue.push( _me );
         messageCond.notify_all();
     }
 }
@@ -242,12 +242,9 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
       node( _node ),
       schainIndex( _schainIndex ) {
     lastCommittedBlockTimeStamp = TimeStamp( 0, 0 );
-
     setTimeStampValuesFromConfig();
 
-
-
-    // construct monitoring, timeout, stuck detection, and optimizer  agents early
+    // construct monitoring, timeout and stuck detection agents early
     monitoringAgent = make_shared< MonitoringAgent >( *this );
 
     if ( !getNode()->isSyncOnlyNode() ) {
@@ -304,22 +301,6 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
-}
-
-
-
-#define SET_TIMESTAMP_FROM_CONFIG(TIMESTAMP_NAME) \
-    { \
-        auto& timestamps = getNode()->getPatchTimestamps(); \
-        if (timestamps.count(#TIMESTAMP_NAME) > 0) { \
-            TIMESTAMP_NAME = timestamps.at(#TIMESTAMP_NAME); \
-        } \
-    }
-
-
-void Schain::setTimeStampValuesFromConfig() {
-    SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestampS)
-    SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestampS)
 }
 
 
@@ -454,10 +435,6 @@ const atomic< bool >& Schain::getIsStateInitialized() const {
 
 bool Schain::verifyDASigsPatch( uint64_t _blockTimeStampS ) {
     return verifyDaSigsPatchTimestampS != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestampS;
-}
-
-bool Schain::fastConsensusPatch(uint64_t _blockTimeStampS) {
-    return fastConsensusPatchTimestampS != 0 && _blockTimeStampS >= fastConsensusPatchTimestampS;
 }
 
 
@@ -919,18 +896,11 @@ void Schain::daProofArrived( const ptr< DAProof >& _daProof ) {
 
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-
     try {
-
-        auto bid = _daProof->getBlockId();
-
-        if (bid <= getLastCommittedBlockID())
+        if ( _daProof->getBlockId() <= getLastCommittedBlockID() )
             return;
 
-
         ptr<BooleanProposalVector> pv;
-
-
         if (getOptimizerAgent()->doOptimizedConsensus(bid, getLastCommittedBlockTimeStamp().getS())) {
             // when we do optimized block consensus only a single block proposer
             // proposes and provides da proof, which is the previous winner.
@@ -947,10 +917,13 @@ void Schain::daProofArrived( const ptr< DAProof >& _daProof ) {
             pv = getNode()->getDaProofDB()->addDAProof(_daProof);
         }
 
-        if (pv) {
+
+        if ( pv != nullptr ) {
+            auto bid = _daProof->getBlockId();
+
             // try starting consensus. It may already have been started due to
             // block proposal receipt timeout
-            tryStartingConsensus(pv, bid);
+            tryStartingConsensus( pv, bid );
         }
     } catch ( ExitRequestedException& e ) {
         throw;
@@ -1516,9 +1489,26 @@ uint64_t Schain::getVerifyDaSigsPatchTimestampS() const {
     return verifyDaSigsPatchTimestampS;
 }
 
+mutex Schain::vdsMutex;
+
+bool Schain::fastConsensusPatch(uint64_t _blockTimeStampS) {
+    return fastConsensusPatchTimestampS != 0 && _blockTimeStampS >= fastConsensusPatchTimestampS;
+}
+
 uint64_t Schain::getFastConsensusTimestampS() const {
     return fastConsensusPatchTimestampS;
 }
 
+#define SET_TIMESTAMP_FROM_CONFIG(TIMESTAMP_NAME) \
+    { \
+        auto& timestamps = getNode()->getPatchTimestamps(); \
+        if (timestamps.count(#TIMESTAMP_NAME) > 0) { \
+            TIMESTAMP_NAME = timestamps.at(#TIMESTAMP_NAME); \
+        } \
+    }
 
-mutex Schain::vdsMutex;
+
+void Schain::setTimeStampValuesFromConfig() {
+    SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestampS)
+    SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestampS)
+}
