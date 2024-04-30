@@ -178,7 +178,7 @@ class Schain : public Agent {
 
     uint64_t verifyDaSigsPatchTimestampS = 0;
 
-    uint64_t fastConsensusPatchTimestampS = 0;
+    uint64_t fastConsensusPatchTimestampS = 1;
 
     // If a BlockError analyzer is added to the queue
     // its analyze(CommittedBlock _block) function will be run on commit

@@ -58,12 +58,12 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void propose( bin_consensus_value _proposal, schain_index index, block_id _id );
 
-    void reportBinaryConsensusAndDecideBlockIfCan(const ptr< ChildBVDecidedMessage >& _msg );
+    void reportConsensusAndDecideIfNeeded(const ptr< ChildBVDecidedMessage >& _msg );
 
     void decideDefaultBlock( block_id _blockNumber );
 
 
-    void startConsensusProposal( block_id _blockID, const ptr< BooleanProposalVector >& _proposalVector );
+    void startConsensusProposal( block_id _blockID, const ptr< BooleanProposalVector >& _proposal );
 
     void processBlockSignMessage( const ptr< BlockSignBroadcastMessage >& _message );
 
