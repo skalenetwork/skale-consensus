@@ -234,7 +234,8 @@ bool BlockConsensusAgent::haveFalseDecision(block_id _blockId, schain_index _pro
 void BlockConsensusAgent::decideNormalBlockConsensusIfCan(block_id _blockId) {
     auto nodeCount = (uint64_t) getSchain()->getNodeCount();
     // note, priorityLeader is numbered from 0 to N-1, so
-    uint64_t priorityLeader = getPriorityLeaderForBlock((uint64_t) nodeCount, _blockId);
+    uint64_t priorityLeader = getSchain()->getOptimizerAgent()->getPriorityLeaderForBlock(
+            (uint64_t) nodeCount, _blockId);
 
     for (uint64_t i = priorityLeader; i < priorityLeader + nodeCount; i++) {
         auto proposerIndex = schain_index(i % nodeCount) + 1;
@@ -332,32 +333,6 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(
 
 }
 
-uint64_t BlockConsensusAgent::getPriorityLeaderForBlock(uint64_t nodeCount, block_id &blockID) const {
-    uint64_t priorityLeader;
-
-    uint64_t seed;
-
-    if (blockID <= 1) {
-        seed = 1;
-    } else {
-        CHECK_STATE( blockID - 1 <= getSchain()->getLastCommittedBlockID() );
-        auto previousBlock = getSchain()->getBlock( blockID - 1 );
-        if ( previousBlock == nullptr )
-            BOOST_THROW_EXCEPTION( InvalidStateException(
-                                          "Can not read block " + to_string( blockID - 1 ) + " from LevelDB",
-                                                  __CLASS_NAME__ ) );
-        seed = *( (uint64_t *) previousBlock->getHash().data() );
-    }
-
-    priorityLeader = ( (uint64_t) seed ) % nodeCount;
-
-    if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID,
-                                                               getSchain()->getLastCommittedBlockTimeStamp().getS())) {
-        priorityLeader = (uint64_t) getSchain()->getOptimizerAgent()->getLastWinner(blockID);
-    }
-    CHECK_STATE( priorityLeader <= nodeCount );
-    return priorityLeader;
-}
 
 void BlockConsensusAgent::recordBinaryDecision(const ptr<ChildBVDecidedMessage> &_msg, schain_index &blockProposerIndex,
                                                const block_id &blockID) {

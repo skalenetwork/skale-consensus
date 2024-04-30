@@ -90,8 +90,6 @@ public:
     recordBinaryDecision(const ptr<ChildBVDecidedMessage> &_msg, schain_index &blockProposerIndex,
                          const block_id &blockID);
 
-    uint64_t getPriorityLeaderForBlock(uint64_t nodeCount, block_id &blockID) const;
-
     bool haveTrueDecision(block_id _blockId, schain_index _proposerIndex);
 
     bool haveFalseDecision(block_id _blockId, schain_index _proposerIndex);

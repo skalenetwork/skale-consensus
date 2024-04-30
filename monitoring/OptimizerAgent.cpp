@@ -33,7 +33,7 @@ OptimizerAgent::OptimizerAgent(Schain &_sChain) : Agent(_sChain, false, true),
 
 }
 
-bool OptimizerAgent::doOptimizedConsensus(block_id _blockId, uint64_t _lastBlockTimeStampS) {
+bool OptimizerAgent::doOptimizedConsensus(block_id _blockId, uint64_t _lastBlockTimeStampS)  {
 
 
     if (!getSchain()->fastConsensusPatch(_lastBlockTimeStampS)) {
@@ -56,6 +56,35 @@ bool OptimizerAgent::doOptimizedConsensus(block_id _blockId, uint64_t _lastBlock
     return (uint64_t) _blockId % (nodeCount + 1) != 0;
 
 }
+
+
+uint64_t OptimizerAgent::getPriorityLeaderForBlock(uint64_t _nodeCount, block_id &_blockID) {
+    uint64_t priorityLeader;
+
+    uint64_t seed;
+
+    if (_blockID <= 1) {
+        seed = 1;
+    } else {
+        CHECK_STATE(_blockID - 1 <= getSchain()->getLastCommittedBlockID());
+        auto previousBlock = getSchain()->getBlock(_blockID - 1);
+        if (previousBlock == nullptr)
+            BOOST_THROW_EXCEPTION(InvalidStateException(
+                                          "Can not read block " + to_string(_blockID - 1) + " from LevelDB",
+                                                  __CLASS_NAME__ ));
+        seed = *((uint64_t *) previousBlock->getHash().data());
+    }
+
+    priorityLeader = ((uint64_t) seed) % _nodeCount;
+
+    if (doOptimizedConsensus(_blockID,
+                             getSchain()->getLastCommittedBlockTimeStamp().getS())) {
+        priorityLeader = (uint64_t) getSchain()->getOptimizerAgent()->getLastWinner(_blockID);
+    }
+    CHECK_STATE(priorityLeader <= _nodeCount);
+    return priorityLeader;
+}
+
 
 schain_index OptimizerAgent::getLastWinner(block_id _blockId) {
     // first 16 blocks we do not know the winner
