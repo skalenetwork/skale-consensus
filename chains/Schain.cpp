@@ -255,9 +255,8 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
 
 
 
-    // construct monitoring, timeout and stuck detection agents early
+    // construct monitoring, timeout, stuck detection, and optimizer  agents early
     monitoringAgent = make_shared< MonitoringAgent >( *this );
-    optimizerAgent = make_shared< OptimizerAgent >( *this );
 
     if ( !getNode()->isSyncOnlyNode() ) {
         timeoutAgent = make_shared< TimeoutAgent >( *this );
@@ -321,6 +320,7 @@ void Schain::constructChildAgents() {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
+        optimizerAgent = make_shared< OptimizerAgent >( *this );
         oracleResultAssemblyAgent = make_shared< OracleResultAssemblyAgent >( *this );
         pricingAgent = make_shared< PricingAgent >( *this );
         catchupClientAgent = make_shared< CatchupClientAgent >( *this );
@@ -564,11 +564,12 @@ void Schain::proposeNextBlock( bool _isCalledAfterCatchup ) {
 
         proposedBlockArrived( myProposal );
 
-        // a node skips sending and saving its proposal during optimized blockconsensus if
-        // the node was not a winner last time
 
-        if (getSchain()->getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposedBlockID)) {
-            return;
+        if (getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposedBlockID)) {
+            // a node skips sending and saving its proposal during
+            // optimized block consensus, if the node was not a winner
+            // last time
+            return; // dont propose
         }
 
         LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string(_proposedBlockID));
