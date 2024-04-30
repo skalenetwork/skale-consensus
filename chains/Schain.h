@@ -133,10 +133,10 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
+
     ptr< OracleResultAssemblyAgent > oracleResultAssemblyAgent;
 
     ptr<OptimizerAgent> optimizerAgent;
-
 
     ptr< IO > io;
 
@@ -177,7 +177,6 @@ class Schain : public Agent {
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
     uint64_t verifyDaSigsPatchTimestampS = 0;
-
     uint64_t fastConsensusPatchTimestampS = 1;
 
     // If a BlockError analyzer is added to the queue
@@ -347,12 +346,8 @@ public:
 
     ptr< CryptoManager > getCryptoManager() const;
 
-    ptr< OptimizerAgent > getOptimizerAgent() const;
-
 
     uint64_t getVerifyDaSigsPatchTimestampS() const;
-
-    uint64_t getFastConsensusTimestampS() const;
 
 
     bool isInCreateBlock() const;
@@ -393,11 +388,18 @@ public:
 
     bool verifyDASigsPatch( uint64_t _blockTimeStampSec );
 
-    bool fastConsensusPatch( uint64_t _blockTimeStampSec );
-
     void updateInternalChainInfo( block_id _lastCommittedBlockID );
 
     const ptr<CatchupClientAgent> &getCatchupClientAgent() const;
 
+    ptr< OptimizerAgent > getOptimizerAgent() const;
+
+    uint64_t getFastConsensusTimestampS() const;
+
+    bool fastConsensusPatch( uint64_t _blockTimeStampSec );
+
     void setTimeStampValuesFromConfig();
+
+    ptr<BooleanProposalVector>
+    calculateBooleanProposalVectorIfItsTimeToStartBinaryConsensus(const ptr<DAProof> &_daProof);
 };
