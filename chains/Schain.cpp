@@ -243,15 +243,7 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
       schainIndex( _schainIndex ) {
     lastCommittedBlockTimeStamp = TimeStamp( 0, 0 );
 
-    if (getNode()->getPatchTimestamps().count("verifyDaSigsPatchTimestamp") > 0) {
-        this->verifyDaSigsPatchTimestampS =
-                getNode()->getPatchTimestamps().at("verifyDaSigsPatchTimestamp");
-    }
-
-    if (getNode()->getPatchTimestamps().count("verifyDaSigsPatchTimestamp") > 0) {
-        this->fastConsensusPatchTimestampS =
-                getNode()->getPatchTimestamps().at("fastConsensusPatchTimestamp");
-    }
+    setTimeStampValuesFromConfig();
 
 
 
@@ -312,6 +304,22 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
+}
+
+
+
+#define SET_TIMESTAMP_FROM_CONFIG(TIMESTAMP_NAME) \
+    { \
+        auto& timestamps = getNode()->getPatchTimestamps(); \
+        if (timestamps.count(#TIMESTAMP_NAME) > 0) { \
+            TIMESTAMP_NAME = timestamps.at(#TIMESTAMP_NAME); \
+        } \
+    }
+
+
+void Schain::setTimeStampValuesFromConfig() {
+    SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestampS)
+    SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestampS)
 }
 
 

@@ -399,4 +399,5 @@ public:
 
     const ptr<CatchupClientAgent> &getCatchupClientAgent() const;
 
+    void setTimeStampValuesFromConfig();
 };
