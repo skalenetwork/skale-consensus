@@ -1,10 +1,10 @@
 # 1. SKALE Consensus Overview
 
+A SKALE chain is composed of `N` network `nodes` that process `transactions`. 
+
 SKALE consensus is a provably secure algorithm that is used by SKALE chains to order `transactions` into `blocks`.
 
 ## 2. Consensus Architecture
-
-A SKALE chain is composed of `N` network `nodes` that process user `transactions`. The purpose of SKALE consensus is to order `transactions` into `blocks`.
 
 ## 2.1 Consensus Phases
 
