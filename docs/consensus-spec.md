@@ -10,11 +10,13 @@ The set of variables stored in `EVM` is denoted as `EVM state`.
 
 EVM processes `committed blocks` one `transaction` at a time. For each `transaction` it runs instructions (`bytecode`) specified by the `transaction` and changes `EVM state`.
 
-## 2. SKALE Consensus Architecture
+## 2. Consensus Architecture
 
-The purpose of SKALE chain is to order `transactions` into `blocks` and then process them by `EVM`.
+A SKALE chain is composed of `N` network `nodes` that process user `transactions`. The purpose of SKALE consensus is to order `transactions` into `blocks`.
 
-SKALE chain is composed of `N` network `nodes` that process user `transactions` according to the following phases
+## 2.1 Consensus Phases
+
+Consensus includes he following phases
 
 * accept and validate user `transactions` (_submission phase_)
 * broadcast `transactions` to peer nodes (_broadcast phase_)
@@ -28,6 +30,10 @@ into `block signature`. (_block signature phase_)
 * process the `committed block` through `Ethereum Virtual Machine` to transition to the new `EVM state`. (_EVM processing phase_)
 * store `committed blocks` and `EVM state`(_storage phase_)
 
+
+## 2.2 Typical transaction flow
+
+
 The diagram below illustrates typical transaction flow:
 
 ```mermaid
@@ -39,6 +45,8 @@ flowchart TD
     b6[Block Catchup] -->b4
 ```
 
+## 2.3 Normal block processing vs catchup.
+
 Note that in addition to normal block processing, a node can receive blocks through `block catchup` mechanism.
 
 `Block catchup` means that the `node` does not participate in `block consensus`. Instead, it simply downloads  `committed blocks` from other `nodes`, verifying `block signatures`. `block catchup` typically happens when a node is powered on after being offline,
@@ -46,9 +54,7 @@ or if the nework connection of the node is slower than 2/3 of other nodes, so th
 
 `block consensus` and `block catchup` run in parallel. This means that every node in addition to normal `block consensus` procedure makes periodic random connections to other nodes, to attempt to download ready committed blocks.
 
-The blockchain provides a _guarantee that every transaction is included into the chain only once_. This means, in particular, that when a `node` commits a block, the `node` will remove the `transactions` included in the `block` from the `pending transaction queue`.
-
-=== SKALE node overview
+## 2.4 Skaled overview
 
 Each `node` runs `skaled`, SKALE software blockchain agent. 
 
@@ -75,8 +81,9 @@ flowchart TD
     b8 -->|Committed Blocks| b9[Block Storage Module]
     b8 -->|EVM State| b10[Evm Storage module]    
 ```
+# 3 Consensus specification
 
-=== Security assumptions overview
+## 3.1 Security assumptions
 
 SKALE is _provably secure_. This means one can prove two qualities of the blockchain
 
@@ -88,7 +95,7 @@ Provable security means that _under certain mathematical assumptions_, SKALE cha
 
 The mathematical assumptions for provable security are specified below.
 
-==== Node security assumptions 
+### 3.1.1. Node security assumptions 
 
 We assume that out of `N` `nodes`, `t` `nodes` at maximum are Byzantine (malicious), where
 
@@ -103,7 +110,7 @@ any messages, when it supposed to send a message by a protocol.
 
 It is assumed that `malicious nodes` do not control network routers and links. This means that `malicious nodes` can not affect `messages` sent between `honest nodes`, such as corrupting or reordering them.
 
-==== Network security assumptions
+# 3.1.2 Network security assumptions
 
 The algorithms used by SKALE make assumptions about _the properties of the underlying network_.
 
@@ -119,7 +126,7 @@ The asynchronous model described above is _similar to the model assumed by Bitco
 Since real Internet sometimes drops messages on the way without delivering them, _the eventual delivery guarantee is achieved in practice by retransmissions_. The `sending node` will make _multiple attempts to transfer_  `message` to the `receiving node`, until the transfer is successful and is confirmed by the `receiving node`.
 
 
-=== Node priority
+## 3.2 Node priority
 
 For each `block id` each node is assigned priority. The priority is used to determine the winner. 
 
@@ -135,12 +142,12 @@ It is easy to see from the above formular, that
 
 `priorityLeader = ((nodeIndex - blockId )) mod N + 1`
 
-=== Default block
+## 3.3 Default block
 
 Sometimes (very infrequently) no node wins consensus. In addition to that a network disruption can lead to no proposals communicated.
 In such cases, block consensus can result in an empty block that no-one proposed, named `default block`.
 
-==== Full and Optimized Block Consensus
+## 3.4 Full and Optimized Block Consensus
 
 For each block, nodes need to propose and agree on a block. This is referred to as `block consensus`.
 
@@ -154,18 +161,18 @@ As an example, for block 18 the winner of the consensus at block 2 is allowed to
 
 
 
-=== Protocol phases 
+## 3.5 Consensus phases
 
-==== Submission phase
+### 3.5.1 Submission phase
 
 During submission phase a `user client` (browser or mobile app) signs a `transaction` using user `private wallet key` and submits it either directly to one of `core nodes` or to a `network proxy` or an archive node. A `network proxy` is a node that load balances incoming transactions to `core nodes` attempting to load them evenly, and avoiding transaction submissions to non-responsive nodes. An archive node is a node that does not participate in consensus, but stores a historic copy of the state as well as can broadcast transactions to 
 core nodes.
 
-==== Broadcast phase
+### 3.5.2 Broadcast phase
 
 During the broadcast phase, a `core node` or an `archive node` that received a `transaction` from `user client` will broadcast it to all `core nodes`. 
 
-==== Pending queue phase
+### 3.5.3 Pending queue phase
 
 A `transaction` received from `user client` or from `transaction broadcast` is validated and placed into the`pending queue`.
 During the validation, `transaction signature` and format are verified. 
@@ -175,10 +182,7 @@ During the validation, `transaction signature` and format are verified.
 Pending queues on different core nodes will typically look similar but not identical due to network delays.
 
 
-
-
-
-==== Block proposal phase 
+### 3.5.4 Block proposal phase 
 
 For each `block id`, each SKALE node will form a `block proposal`.  A `block proposal` is an ordered list of `transactions`.
 
@@ -190,7 +194,7 @@ Once the `receiving node` receives the `block proposal`, it will sign a `Data Av
 
 Once the `sending node` collects `DA signatures` from `2/3` of nodes, it will merge the signatures into a `DA proof`. The `DA proof` proves that the proposal has been widely distributed over the network.
 
-==== DA broadcast phase
+### 3.5.5 DA broadcast phase
 
 Once a `node` obtains a `DA proof` for its `block proposal`, it will broadcast `DA proof` to other nodes.
 
@@ -202,7 +206,7 @@ Second, since `DA proof` creation requires a 2/3 signature of nodes, the proposa
 A malicious proposal is not able to create two different proposals an obtain DA proofs for both of them.
 
 
-==== Block consensus phase
+### 3.5.6 Block consensus phase
 
 Once a node receives `DA proofs` from 2/3 of nodes, the node will start the block consensus phase.
 
@@ -219,7 +223,7 @@ that `1` was initially voted by at least `1' honest nodes. That, in turn, guaran
 
 If a `block consensus` phase outputs `1` for several proposals, the proposal with highest priority is selected. The priority changes from one block to another so that on average each node has similar probability to win.
 
-==== Block  signature phase
+### 3.5.7  Block  signature phase
 
 After `block consensus` decides on the winning block, each node will sign the statement specifying the winning proposal (`block signature share`) and broadcast it to other nodes. The node will then wait until receipt of 2/3 of `block signature shares` and merge the shares into `block signature`.
 
@@ -235,13 +239,15 @@ Therefore, during _block finalization_phase_ If a `node` does not happen to have
 
 Note that 2/3 of the nodes are guaranteed to have a copy of the proposal after _DA proof phase_
 
-==== EVM processing phase
+### 3.5.8  EVM processing phase
 
-After block finalization the block is present on the node.
+After block finalization the committed block is present on the node
 
-It will be then processed through Ethereum Virtual Machine to update `EVM state`.
+The node will  remove the matching transactions from the transaction queue.
 
-==== Storage phase
+The block will be then processed through Ethereum Virtual Machine to update `EVM state`.
+
+### 3.5.9  Storage phase
 
 `Committed block` will now be stored in persistent storage, and 
 `EVM state` will be updated in persistent storage.
@@ -249,8 +255,9 @@ It will be then processed through Ethereum Virtual Machine to update `EVM state`
 The node will move into _block proposal phase_ for the next block.
 
 
-== Protocol Deep dive 
-=== Achieving eventual delivery by retransmissions
+# 4. Behavior in case of network failures and crashes
+
+## 4.1 Achieving eventual delivery by retransmissions
 
 Since real Internet sometimes drops messages on the way without delivering them, _the eventual delivery guarantee is achieved in practice by retransmissions_. The `sending node` will make _multiple attempts to transfer_  `message` to the `receiving node`, until the transfer is successful and is confirmed by the `receiving node`.
 
@@ -263,14 +270,13 @@ Since there is a dedicated `message sending thread` for each `destination node`,
 In the remainder of this document, anywhere where it is specified that a `message` is sent from `node` `A` to `B`, we mean reliable independent delivery as described above.
 
 
-
-=== Consensus state
+## 4.2 Consensus state
 
 Each node stores _consensus state_. For each round of consensus, consensus state includes the set of proposed blocks, as well as the state variables of the protocols used by the consensus round.
 
 The state is stored in non-volatile memory and preserved across reboots.
 
-=== Reboots and crashes
+## 4.3 Reboots and crashes
 
 During `_A_`, a node will temporarily become unavailable. After a reboot, messages destined to the node will be delivered to the node. Therefore, a reboot does not disrupt operation of asynchronous consensus.
 
@@ -280,17 +286,17 @@ A is an event, where a node loses all of parts of the consensus state. For insta
 
 A hard crash can happen in case of a software bug or a hardware failure. It also can happen if a node stays offline for a very long time. In this case, the outgoing message queues of nodes sending messages to this node will overflow, and the nodes will start dropping older messages. This will lead to a loss of a protocol state.
 
-=== Default queue lifetime
+## 4.4 Default queue lifetime
 
 This specification specifies one hour as a default lifetime of a message which has been placed into an outgoing queue. Messages older than one hour may be dropped from the message queues. A reboot, which took less than an hour is, therefore, guaranteed to be a a normal reboot.
 
-=== Limited hard crashes
+## 4.5 Limited hard crashes
 
 Hard crashes are permitted by the consensus protocol, as long as not too many nodes crash at the same time. Since a crashed node does not conform to the consensus protocol, it counts as a Byzantine node for the consensus round, in which the state was lost. Therefore, only a limited number of concurrent hard crashes can exist at a given moment in time. The sum of crashed nodes and byzantine nodes can not be more than `t` in the equation (1). Then the crash is qualified as a limited hard crash.
 
 During a limited hard crash, other nodes continue block generation and consensus. The blockchain continues to grow. When a crashed node is back online, it will sync its blockchain with other nodes using a catchup procedure described in this document, and start participating in consensus.
 
-=== Widespread crashes
+## 4.6 Widespread crashes
 
 A widespread crash is a crash where the sum of crashed nodes and Byzantine nodes is more than $t$.
 
@@ -302,7 +308,7 @@ The simplest example of a widespread crash is when more than 1/3 of nodes are po
 
 In real life, a widespread crash can happen due to to a software bug affecting a large proportion of nodes. As an example, after a software update all nodes in an schain may experience the same bug.
 
-=== Failure resolution protocol
+## 4.7 Failure resolution protocol
 
 In a case of a catastrophic failure a separate failure resolution protocol is used to restart consensus.
 
@@ -312,106 +318,17 @@ Second, nodes will execute a failure recovery protocol that utilizes Ethereum ma
 
 Finally, after a period of mandatory silence, nodes will start consensus at an agreed time point in the future.
 
-=== Blockchain architecture
+# 5. Data structures format
 
-Each node stores a sequence of blocks. Blocks are constructed from transactions submitted by users.
-
-The following properties are guaranteed:
-
-. `_block sequence_` - each node stores a block sequence `*B~i~*` that have positive block IDs ranging from 0 to `HEAD`
-. `_genesis block_` - every node has the same genesis block that has zero block id.
-. `_liveliness_` - the blockchain on each node will continuously grow by appending newly committed blocks. If users do not submit transactions to the blockchain, empty blocks will be periodically committed. Periodic generation of empty blocks serves as a beacon to monitor liveliness of the blockchain.
-. `_fork-free consistency_` - due to network propagation delays, blockchain lengths on two nodes `*A*` and `*B*` may be different. For a given block id, if both node `*A*` and node `*B*` possess a copy of a block, the two copies are guaranteed to be identical.
-
-=== Honest and Byzantine Nodes
-
-An honest node is a node that behaves according to the rules described in this document. A Byzantine node can behave in arbitrary way, including doing nothing at all.
-
-The goal of a Byzantine node is to either violate the liveliness property of the protocol by preventing the blockchain from committing new blocks or violate the consistency property of the protocol by making two different nodes commit two different blocks having the same block ID.
-
-It is assumed that out of `*N*` total nodes, $t$ nodes are Byzantine, where less the following condition is satisfied.
-
-latexmath:[3t+1\le N]
-
-or
-
-latexmath:[t\le \left\lfloor \frac{N - 1}{3} \right\rfloor]
-
-The above condition is well known in the consensus theory. There is a proof that shows that secure asynchronous consensus is impossible for larger values of $t$.
-
-It is easy to show that if a security proof works for a certain number of Byzantine nodes, it will work for a fewer Byzantine nodes. Indeed, an honest node can always be viewed as a Byzantine node that decided to behave honestly. Therefore, in proofs, we always assume that the system has the maximum allowed number of Byzantine nodes
-
-latexmath:[t\le \left\lfloor \frac{N - 1}{3} \right\rfloor]
-
-In this case the number of honest nodes is
-
-latexmath:[h = N-t = N - \left\lfloor \frac{N-1}{3} \right\rfloor = \left\lfloor \frac{2N-1}{3} \right\rfloor]
-
-Note, that it is beneficial to select `*N*` in such a way that latexmath:[\frac{N - 1}{3}] is divisible by `3`. Otherwise an increase in `*N*` does not lead to an increase in the maximum allowed number of Byzantine nodes.
-
-As an example, for latexmath:[N=16] we get latexmath:[t=5]. For latexmath:[N=17] we get latexmath:[t=5] too, so an increase in `*N*` does not improve Byzantine tolerance.
-
-In this specification, we assume that the `*N*` is always selected in such a way that latexmath:[N-1] is divisible by 3.
-
-In this case, expressions simplify as follows
-
-latexmath:[t\le \left\lfloor \frac{N - 1}{3} \right\rfloor]
-
-latexmath:[h = \frac{2N+1}{3} = 2t+1]
-
-=== Mathematical properties of node voting
-
-Consensus uses voting rounds. It is, therefore, important to proof some basic mathematical properties of voting.
-
-Typically, a node will vote by signing a value and transmitting it to other nodes. To count votes, a receiving node will count received signatures for a particular value `v`.
-
-The number of Byzantine nodes is less than a simple majority of honest nodes.
-
-This directly follows from the fact that latexmath:[h = 2t+1], and, therefore, a simple majority of honest nodes is
-
-latexmath:[s = t+1]
-
-We define _supermajority_ as a vote of at least latexmath:[\frac{2N+1}{3}] nodes.
-
-_A vote of all honest nodes is a supermajority_.
-
-Proof: this comes from the fact that latexmath:[h = \frac{2N+1}{3}].
-
-If a particular message was signed by a supermajority vote, at least a simple majority of honest nodes signed this message
-
-Even if all Byzantine nodes participate in a supermajority vote, the number of honest votes it needs to receive is
-
-latexmath:[\frac{2N+1}{3}-t = 2t+1-t = t+1]
-
-which is exactly the simple majority of honest nodes `*s*`.
-
-If honest nodes are required to never sign conflicting messages, two conflicting messages can not be signed by a supermajority vote.
-
-Proof: lets `*A*` and `*B*` be two conflicting messages. Since a particular honest node will sign either `*A*` or `*B*`, both `*A*` and `*B*` can not get simple majority of honest nodes. Since a supermajority vote requires participation of a simple majority of honest nodes, both `*A*` and `*B*` can not reach a supermajority, even if Byzantine nodes vote for both.
-
-A supermajority vote, is, therefore, an important conflict avoidance mechanism. If a message is signed by a supermajority vote, it is guaranteed that no conflicting messages exist. As an example, if a block is signed by a supermajority vote, it is guaranteed that no other block with the same block ID exists.
-
-=== Threshold signatures
-
-Our protocol uses threshold signatures for supermajority voting.
-
-Each node is supposed to be in possession of BLS private key share `*PKS~I~*`. Initial generation of key shares is performed using joint-Feldman Distributed Key Generation (DKG) algorithm that is described in this document. DKG algorithm is executed when an schain is created.
-
-Nodes are able to collectively issue supermajority threshold signatures on messages, where the threshold value is equal to the supermajority vote latexmath:[\frac{2N+1}{3}]. For instance for `N = 16`, the threshold value is `11`.
-
-BLS threshold signatures are implemented as described in the paper of by Boldyreva. BLS threshold signatures require a choice of elliptic curve and group pairing. We use elliptic curve (altBN256) and group pairing (optimal-Ate) implemented in Ethereum Constantinople release.
-
-To verify the signature, one uses BLS public key `PK`. This key is computed during the initial DKG algorithm execution. The key is stored in SKALE manager contract on Ethereum mainnet and is available to anyone.
-
-=== Transactions
+## 5.1 Transactions
 
 Each user transaction `T` is assumed to be an Ethereum-compatible transaction, represented as a sequence of bytes.
 
-=== Block format: header and body
+## 5.2 Block
 
 Each block is a byte string, which includes a header followed by a body.
 
-=== Block format: header
+## 5.2.1 Block header
 
 Block header is a JSON object that includes the following:
 
@@ -426,21 +343,21 @@ Block header is a JSON object that includes the following:
 
 Note: All integers in this spec are unsigned 64-bit integers unless specified otherwise.
 
-=== Block format: body
+## 5.2.2 Block body
 
 `BLOCK BODY` is a concatenated transactions array of all transactions in the block.
 
-=== Block format: hash
+## 5.2.3 Blockhash
 
 Block hash is calculated by taking 256-bit Keccack hash of block header concatenated with block body, while omitting `CURRENT BLOCK HASH`, `CURRENT BLOCK SIG`, and `CURRENT BLOCK TSIG` from the header. The reason why these fields are omitted is because they are not known at the time block is hashed and signed.
 
 Note: Throughout this spec we use SHA-3 as a secure hash algorithm.
 
-=== Block verification
+## 5.2.4 Block verification
 
 A node or a third party can verify the block by verifying a threshold signature on it and also verifying the previous block hash stored in the block. Since the threshold signature is a supermajority threshold signature and since any honest node will only sign a single block at a particular block ID, no two blocks with the same block ID can get a threshold signature. This provides security against forks.
 
-=== Block proposal format
+## 5.3 Block proposal
 
 A block starts as a block proposal. A block proposal has the same structure as a block, but has the threshold signature element unset.
 
@@ -448,16 +365,7 @@ Node concurrently make proposals for a given block ID. A node can only make one 
 
 Once a block proposal is selected to become a block by consensus, it is signed by a supermajority of nodes. A signed proposal is then committed to the end of the chain on each node.
 
-=== Pending transactions queue
 
-Each node will keep a pending transactions queue. The first node that receives a transaction will attempt to propagate it to all other nodes in the queue. A user client software may also directly submit the transaction to all nodes.
-
-When a node commits a block to its blockchain, if will remove the matching transactions from the transaction queue.
-
-
-=== Gas fees
-
-Each transaction requires payment of a gas fee, compatible with ETH gas fee. The gas fee can be paid in native currency of the SKALE chain (sFUEL) or in Proof of Work. The gas price is adjusted after each committed block. It is decreased if the block has been underloaded, meaning that the number of transactions in the block is less than 70 percent of the maximum number of transactions per block, and is increased if the block has been overloaded.
 
 === Compressed block proposal communication
 
@@ -474,12 +382,7 @@ After that the receiving node will then reconstruct the block proposal.
 
 == Consensus data structures and operation
 
-=== Blockchain
 
-For a particular node, the blockchain consists of a range of committed
-blocks `*B~i~*` starting from `*B~0~*` end ending with `*B~TIPID~*`, where
-`*TIP~ID~*` is the ID of the largest known committed block. Block ids are
-sequential positive integers. Blocks are stored in non-volatile storage.
 
 === Consensus rounds
 
@@ -779,86 +682,10 @@ The purpose of the algorithm is to minimize network traffic.
 . `*A*` waits until receives `supermajority -1` of responses
 . If `*A*` received all chunks, the algorithm is complete. Otherwise it goes back to step 3.
 
-FUTURE: we may implement more advanced algorithms based on erasure codes.
 
-=== Purging old transactions
 
-For each node, 33 percent of the storage is assigned to blockchain, 33
-percent to EVM and 33 to the rest of the system, such as consensus
-state.
 
-If blockchain storage is exhausted, the old blocks will be deleted to
-free storage in increments of 1024 blocks.
 
-If EVM/Solidity storage is exhausted, EVM will start throwing
-\\"OutOfStorage\\" errors until storage is freed.
 
-If consensus storage is exhausted, the consensus agent will start
-erasing items such as messages in the message outgoing queues, in the
-order of item age, from oldest to newest.
 
-== EVM/Solidity
 
-=== EVM compatibility
-
-The goal is to provide EVM/Solidity compatibility, except the cases
-documented in this specification. The compatibility is for client
-software, in particular Metamask, Truffle, Web3js and Web3py.
-
-=== EVM execution
-
-Once a block is finalized on the chain, it is passed to EVM, and each
-transaction is sequentially executed by the EVM one after another. We
-currently use unmodified Ethereum EVM, therefore there should not be
-compatibility issues. Once Ethereum finalizes EWASM version of EVM, we
-will be able to plug in in.
-
-=== EVM storage
-
-EVM has pluggable storage backend database to store EVM/Solidity
-variables we simplified and sped up the storage by using LevelDB from
-Google. Each variable in EVM is stored as a key value in LevelDB where
-the key is the sha3 hash of the virtual memory address and the value is
-the 256 bit value of the variable. In EVM all variables have 256 bits.
-
-=== EVM gas calculations and DOS protection
-
-We do not charge users gas for transactions.
-
-We do have a protection against Denial of Service attacks.
-
-Each transaction needs to submit proof of work (PoW) proportional to the
-amount of gas that the transaction would have used if we would charge
-for transactions. We are currently using the same PoW algorithm as
-Ethereum.
-
-latexmath:[POW = k * gas]
-
-This PoW is calculated in the browser or other client that submits a
-transaction and is passed together with the transaction. If the
-transaction does not include the required PoW it will be rejected.
-
-We are still researching the formula for `k`. Ideally `k` should go down
-if the chain is underloaded and increase if the chains starts to be
-overloaded.
-
-== Ethereum clients
-
-=== Compatibility
-
-The goal is to provide compatible JSON client API for client software
-such as Web3js, Web3py, Metamask and Truffle.
-
-=== FUTURE: Multi-node requests
-
-Existing clients such Web3js connect to a single node, which creates
-security problem for Solidity read requests that read variables.
-
-Transactions involve a consensus of the entire blockchain, but Solidity
-read requests interact with a single node. Therefore, an malicious node,
-such as Infura, can prove a user incorrect information on, e.g. the
-amount of funds the user has in possession.
-
-Therefore, in the future we will need to add multi-node requests where
-the first node that receives the request passes it to all others and
-collects a tsig.
