@@ -16,7 +16,7 @@ A SKALE chain is composed of `N` network `nodes` that process user `transactions
 
 ## 2.1 Consensus Phases
 
-Consensus includes he following phases
+Consensus includes the following phases
 
 * accept and validate user `transactions` (_submission phase_)
 * broadcast `transactions` to peer nodes (_broadcast phase_)
@@ -24,9 +24,8 @@ Consensus includes he following phases
 * create `block proposal` for each `block number` and broadcast it to peers, collecting `2/3 N` `data availability signatures` and creating `DA proofs`. (_block proposal phase_)
 * broadcast `DA proofs` to peers (_DA broadcast phase_)
 * run `block consensus` for each `block proposal` to select a `winning proposal` (_block consensus phase_)
-* sign the statement on which proposal won (`block signature share`) and broadcast it to other nodes. Wait until receipt of 2/3 of `block signature shares` and merge them 
-into `block signature`. (_block signature phase_)
-* commit the `winning proposal` if `node` has it, otherwise download it from other nodes and commit it. The `winning proposal` becomes a`committed block` (_block finalization phase_)
+* sign `block signature share` (statement that states which proposal won). Broadcast `block signature share` to other nodes. Wait until receipt of 2/3 of `block signature shares`. Merge `block signature shares`  into `block signature`. (_block signature phase_)
+* commit the `winning proposal` if this `node` has it in storage. Otherwise download `winning proposal` from other nodes. The `winning proposal` becomes a`committed block` (_block finalization phase_)
 * process the `committed block` through `Ethereum Virtual Machine` to transition to the new `EVM state`. (_EVM processing phase_)
 * store `committed blocks` and `EVM state`(_storage phase_)
 
