@@ -1,7 +1,3 @@
-= SKALE Consensus
-:page-aliases: skale-consensus.adoc
-:stem: asciimath
-
 == Protocol Overvieww
 
 A SKALE chain is a Proof-of-Stake blockchain fully compatible with ETH mainnet and EVM. It runs ETH wallets, tools and dapps.
@@ -10,10 +6,9 @@ As any Ethereum-compatible chain, SKALE chain includes `blockchain`, which is a 
 The set of variables stored in `EVM` is denoted as `EVM state`. 
 
 [mermaid]
-....
 flowchart LR
     b0[Tx1processed]---b1[Tx2 processed]---b2[Tx3 processed]---|EVM Processing|b3[Tx3 unprocessed]   
-....
+
 
 EVM processes `committed blocks` one `transaction` at a time. For each `transaction` it runs instructions (`bytecode`) specified by the `transaction` and changes `EVM state`.
 
