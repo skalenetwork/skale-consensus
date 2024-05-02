@@ -1,4 +1,4 @@
-# Protocol Overvieww
+# 1. SKALE Consensus Overview
 
 A SKALE chain is a Proof-of-Stake blockchain fully compatible with ETH mainnet and EVM. It runs ETH wallets, tools and dapps.
 
@@ -12,7 +12,7 @@ flowchart LR
 
 EVM processes `committed blocks` one `transaction` at a time. For each `transaction` it runs instructions (`bytecode`) specified by the `transaction` and changes `EVM state`.
 
-=== Architecture overview
+## 2. Architecture
 
 The purpose of SKALE chain is to order `transactions` into `blocks` and then process them by `EVM`.
 
