@@ -60,18 +60,18 @@ Each `node` runs `skaled`, SKALE software blockchain agent.
 
 `skaled` is composed of:
 
-. `Network API module` accepts `transactions` and user requests.
-. `Transaction validation module` validates `transactions` on receipt.
-. `Pending queue module` holds `transactions`.
-. `Transaction broadcast module` broadcasts `valid transactions` to other `nodes` in the chain
-. `Proposal module` creates `block proposals` for consensus
-. `Proposal broadcast module` broadcasts `block proposals` to peers and collects `DA proofs`
-. `DA proof broadcast module` broadcasts `DA proofs` to peers
-. `Consensus module` selects the winning `block proposal` and turns it into a `committed block`, and then creates `block signature` by assembling `signature shares`.
-. `Finalization module` downloads winning proposals from other `nodes`, if a node does not have a copy of winning proposal by completion `block consensus`.
-. `EVM module` processes the `committed block`
-. `Block storage module` stores `committed blocks`, deleting old blocks if `skaled` runs out of block storage space (`block rotation`)
-. `State storage module` stores EVM state.  State information is _never deleted automatically_. Cleaning up the state is the responsibility of dapps
+* `Network API module` accepts `transactions` and user requests.
+* `Transaction validation module` validates `transactions` on receipt.
+* `Pending queue module` holds `transactions`.
+* `Transaction broadcast module` broadcasts `valid transactions` to other `nodes` in the chain
+* `Proposal module` creates `block proposals` for consensus
+* `Proposal broadcast module` broadcasts `block proposals` to peers and collects `DA proofs`
+* `DA proof broadcast module` broadcasts `DA proofs` to peers
+* `Consensus module` selects the winning `block proposal` and turns it into a `committed block`, and then creates `block signature` by assembling `signature shares`.
+* `Finalization module` downloads winning proposals from other `nodes`, if a node does not have a copy of winning proposal by completion `block consensus`.
+* `EVM module` processes the `committed block`
+* `Block storage module` stores `committed blocks`, deleting old blocks if `skaled` runs out of block storage space (`block rotation`)
+* `State storage module` stores EVM state.  State information is _never deleted automatically_. Cleaning up the state is the responsibility of dapps
 
 
 ```mermaid
