@@ -1,8 +1,11 @@
 # 1. SKALE Consensus Overview
 
+SKALE consensus is a provably secure algorithm that is used by SKALE chains to order `transactions` into `blocks`.
+
 A SKALE chain is a Proof-of-Stake blockchain fully compatible with ETH mainnet and EVM. It runs ETH wallets, tools and dapps.
 
-As any Ethereum-compatible chain, SKALE chain includes `blockchain`, which is a chain of `transactions` ordered into `committed blocks`, and a computing machine denoted as `EVM`. 
+As any Ethereum-compatible chain, SKALE chain includes `blockchain`, which is a chain of `transactions` ordered into `blocks`, and a computing machine denoted as `EVM`. 
+
 The set of variables stored in `EVM` is denoted as `EVM state`. 
 
 ```mermaid
@@ -10,9 +13,11 @@ flowchart LR
     b0[Tx1processed]---b1[Tx2 processed]---b2[Tx3 processed]---|EVM Processing|b3[Tx3 unprocessed]
 ```
 
+
+
 EVM processes `committed blocks` one `transaction` at a time. For each `transaction` it runs instructions (`bytecode`) specified by the `transaction` and changes `EVM state`.
 
-## 2. Architecture
+## 2. SKALE Consensus Architecture
 
 The purpose of SKALE chain is to order `transactions` into `blocks` and then process them by `EVM`.
 
