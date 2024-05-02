@@ -180,7 +180,7 @@ Pending queues on different core nodes will typically look similar but not ident
 
 ### 3.5.4 Block proposal phase (full consensus)
 
-For each `block id`, each SKALE node will form a `block proposal`.  A `block proposal` is an ordered list of `transactions`.
+For each `block id`, _each SKALE node_ will form a `block proposal`.  A `block proposal` is an ordered list of `transactions`.
 
 If all `transactions` in `pending queue` can be placed into proposal without reaching `block gas limit`, then all `transactions` will be placed into `block proposal`. Otherwise, `transactions` with higher gas price will be selected from the queue to create a `block proposal` that fits the `block gas limit`. 
 
@@ -189,6 +189,10 @@ Once a `node` created a proposal, it will broadcast `compressed proposal` to all
 Once the `receiving node` receives the `block proposal`, it will sign a `Data Availability Signature` and pass it to the `sending node`. 
 
 Once the `sending node` collects `DA signatures` from `2/3` of nodes, it will merge the signatures into a `DA proof`. The `DA proof` proves that the proposal has been widely distributed over the network.
+
+### 3.5.4 Block proposal phase (optimized consensus)
+
+For optimized consensus only the `previos winner` will form and broadcast a proposal, and collect a `DA proof` for it.
 
 ### 3.5.5 DA broadcast phase
 
@@ -199,12 +203,12 @@ Note that `DA proof` requirement solves two problems:
 First, a `block proposal` that has a `DA proof` is _guaranteed to be widely distributed_.
 
 Second, since `DA proof` creation requires a 2/3 signature of nodes, the proposal is _guaranteed to be unique_. 
-A malicious proposal is not able to create two different proposals an obtain DA proofs for both of them.
+A malicious node is not able to create two different proposals an obtain DA proofs for both of them.
 
 
-### 3.5.6 Block consensus phase
+### 3.5.6 Block consensus phase (full consensus)
 
-Once a node receives `DA proofs` from 2/3 of nodes, the node will start the block consensus phase.
+Once a node receives `DA proofs` from 2/3 of nodes, the node will start the block consensus phase. It will also start block consensus phase if a `proposal timeout` is reached, even with less than 2/3 proofs.
 
 During block consensus phase, the `node` will vote `1` if it received `DA proof` for a particular proposal, and vote `0` otherwise.
 
@@ -215,9 +219,15 @@ The particular binary consensus algorithm implemented in SKALE is specified in
 https://inria.hal.science/hal-00944019/file/RR-2016-Consensus-optimal-V5.pdf
 
 Once the binary consensus completed, it guarantees that all honest node will reach consensus of `1` or `0'. If honest nodes reach `1` it is guaranteed
-that `1` was initially voted by at least `1' honest nodes. That, in turn, guarantees that the `block proposal` is `DA safe`, or that it is widely distributed over the network.
+that `1` was initially voted by at least one honest node. That, in turn, guarantees that the `block proposal` is `DA safe`, or that it is widely distributed over the network.
 
-If a `block consensus` phase outputs `1` for several proposals, the proposal with highest priority is selected. The priority changes from one block to another so that on average each node has similar probability to win.
+If a `block consensus` phase outputs `1` for several proposals, _the proposal with highest priority is selected_.  In a rare case where consensus reports all zeroes, a `default block` is committed.
+
+### 3.5.7 Block consensus phase (optimized consensus)
+
+For optimized consensus the node waits for a `DA proof` from the `previous winner`, and then starts a single binary consensus voting `1'. In normal case, this will result in all honest nodes voting `1` and binary consensus resulting in `1`, which leads to committal of the block from `previous winner`.
+
+If `block proposal timeout` is reached, the node will start binary consensus voting `0`. This will typically happen if `previos winner` crashed and did not submit a proposal. In such a rare case, all honest nodes will normally vote `0`. This will lead to binary consensus resulting in `0`. In such a case, a `default block` is committed.
 
 ### 3.5.7  Block  signature phase
 
