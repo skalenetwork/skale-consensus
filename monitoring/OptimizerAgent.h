@@ -38,11 +38,11 @@ public:
     // we determine consensus winner each 16 blocks
     [[nodiscard]] bool doOptimizedConsensus(block_id _blockId, uint64_t _lastBlockTimeStamp);
 
-    schain_index getLastWinner(block_id _block);
+    schain_index getPreviousWinner(block_id _blockId );
 
 
-    schain_index skipSendingProposalToTheNetwork(block_id _blockId);
+    bool skipSendingProposalToTheNetwork(block_id _blockId);
 
 
-    uint64_t getPriorityLeaderForBlock(uint64_t _nodeCount, block_id &_blockID);
+    uint64_t getPriorityLeaderForBlock( block_id& _blockID );
 };

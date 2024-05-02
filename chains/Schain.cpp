@@ -1490,7 +1490,7 @@ Schain::calculateBooleanProposalVectorIfItsTimeToStartBinaryConsensus(const ptr<
         // when we do optimized block consensus only a single block proposer
         // proposes and provides da proof, which is the previous winner.
         // proposals from other nodes, if sent made by mistake, are ignored
-        auto lastWinner = getOptimizerAgent()->getLastWinner(_daProof->getBlockId());
+        auto lastWinner = getOptimizerAgent()->getPreviousWinner( _daProof->getBlockId() );
         if (_daProof->getProposerIndex() == lastWinner) {
             getNode()->getDaProofDB()->addDAProof(_daProof);
             pv = make_shared<BooleanProposalVector>(getNodeCount(), lastWinner);
@@ -1504,8 +1504,8 @@ Schain::calculateBooleanProposalVectorIfItsTimeToStartBinaryConsensus(const ptr<
     return pv;
 }
 
-bool Schain::fastConsensusPatch(uint64_t _blockTimeStampS) {
-    return fastConsensusPatchTimestampS != 0 && _blockTimeStampS >= fastConsensusPatchTimestampS;
+bool Schain::fastConsensusPatchEnabled(uint64_t _blockTimeStampSec ) {
+    return fastConsensusPatchTimestampS != 0 && _blockTimeStampSec >= fastConsensusPatchTimestampS;
 }
 
 uint64_t Schain::getFastConsensusTimestampS() const {

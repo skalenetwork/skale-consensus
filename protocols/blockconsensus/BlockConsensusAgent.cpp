@@ -111,7 +111,7 @@ void BlockConsensusAgent::startConsensusProposal(
             //  Optimized consensus. Start N binary consensuses
             // for optimized block consensus, we only propose and initiated binary consensus
             // for the last block winner
-            auto lastWinner = getSchain()->getOptimizerAgent()->getLastWinner(_blockID);
+            auto lastWinner = getSchain()->getOptimizerAgent()->getPreviousWinner( _blockID );
             auto x = bin_consensus_value(_proposal->getProposalValue(schain_index(lastWinner)) ? 1 : 0);
             propose(x, lastWinner, _blockID);
             return;
@@ -241,7 +241,8 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(
         // winner and ignoring all other messages, even if someone sends them by mistake
         if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID,
                                                                    getSchain()->getLastCommittedBlockTimeStamp().getS()) &&
-            (uint64_t) blockProposerIndex != getSchain()->getOptimizerAgent()->getLastWinner(blockID)) {
+            (uint64_t) blockProposerIndex !=
+                 getSchain()->getOptimizerAgent()->getPreviousWinner( blockID )) {
             LOG(warn, "Consensus got ChildBVBroadcastMessage for non-winner in optimized round:" + blockProposerIndex);
             return;
         }
@@ -468,7 +469,7 @@ string BlockConsensusAgent::buildStats( block_id _blockID ) {
 }
 
 bool BlockConsensusAgent::haveTrueDecision(block_id _blockId, schain_index _proposerIndex) {
-    CHECK_STATE(trueDecisions);
+    CHECK_STATE(trueDecisions)
     auto result = trueDecisions->getIfExists(((uint64_t) _blockId));
     if (!result.has_value()) {
         return false;
@@ -489,11 +490,17 @@ bool BlockConsensusAgent::haveFalseDecision(block_id _blockId, schain_index _pro
 
 
 void BlockConsensusAgent::decideNormalBlockConsensusIfCan(block_id _blockId) {
-    auto nodeCount = (uint64_t) getSchain()->getNodeCount();
-    // note, priorityLeader is numbered from 0 to N-1, so
-    uint64_t priorityLeader = getSchain()->getOptimizerAgent()->getPriorityLeaderForBlock(
-            (uint64_t) nodeCount, _blockId);
 
+    auto nodeCount = (uint64_t ) getSchain()->getNodeCount();
+
+    uint64_t priorityLeader =
+        getSchain()->getOptimizerAgent()->getPriorityLeaderForBlock( _blockId );
+
+
+    // we iterate over binary decisions starting from the priority leader, to
+    // see if we have a sequence like 1 or 01, or 001, or 0001 etc without gaps
+    // the first 1 in the sequence is the winning proposer
+    // note, priorityLeader variable is numbered from 0 to N-1
     for (uint64_t i = priorityLeader; i < priorityLeader + nodeCount; i++) {
         auto proposerIndex = schain_index(i % nodeCount) + 1;
 
@@ -504,16 +511,18 @@ void BlockConsensusAgent::decideNormalBlockConsensusIfCan(block_id _blockId) {
         }
 
         if (!haveFalseDecision(_blockId, proposerIndex)) {
-            // found a gap that is not yet true or false
-            // cant decide yet
+            // found a gap that is not yet 1 or 0
+            // cant decide on the winning proposal yet
             return;
         }
+        // if we are here we found 0, so we keep iterating until we find 1 or gap
     }
 
-    // if we got to this point without returning , it means we iterated through all nodes and did not see 1 or a  gap.
-    // it means that all binary consensuses completed with zeroes, and we need to
-    // decide a default block. There is no winner.
-    // veryfy sanity
+    // if we got to this point without returning , it means we iterated through all nodes and did
+    // not see 1 or a gap. it means that all binary consensuses completed with zeroes, and we
+    // need to decide a default block. There is no winner.
+
+    // verify sanity
     for (uint64_t j = 1; j <= nodeCount; j++) {
         CHECK_STATE(haveFalseDecision(_blockId, j));
     }
@@ -522,23 +531,29 @@ void BlockConsensusAgent::decideNormalBlockConsensusIfCan(block_id _blockId) {
 }
 
 void BlockConsensusAgent::decideOptimizedBlockConsensusIfCan( block_id _blockId ) {
+    // for optimized consensus  there is only one proposer
+    // which is the previous winner of normal consensus
+    // the block is decided if there is either 1 or 0 consensus for the previous winner
 
+    schain_index lastWinner = getSchain()->getOptimizerAgent()->getPreviousWinner( _blockId );
 
-    schain_index lastWinner = getSchain()->getOptimizerAgent()->getLastWinner( _blockId );
+    CHECK_STATE(lastWinner > 0)
 
     if ( haveTrueDecision(_blockId, lastWinner) ) {
         // last winner consensus completed with 1
         decideBlock(_blockId, lastWinner, buildStats(_blockId));
         return;
-    }
-
-    if ( haveFalseDecision( _blockId, lastWinner ) ) {
+    } else if ( haveFalseDecision( _blockId, lastWinner ) ) {
         // last winner consensus completed with 0
         // since this is the only consensus we are running in optimized round
         // we need to produce default block
         // This will happen in rare situations when the last winner crashed
         decideDefaultBlock( _blockId );
     }
+
+    // we do not yet have 1 ofr 0 for the last winner, we can not decide yet,
+    // so we just return
+
 }
 
 

@@ -396,7 +396,7 @@ public:
 
     uint64_t getFastConsensusTimestampS() const;
 
-    bool fastConsensusPatch( uint64_t _blockTimeStampSec );
+    bool fastConsensusPatchEnabled( uint64_t _blockTimeStampSec );
 
     void setTimeStampValuesFromConfig();
 
