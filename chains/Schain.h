@@ -177,7 +177,7 @@ class Schain : public Agent {
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
     uint64_t verifyDaSigsPatchTimestampS = 0;
-    uint64_t fastConsensusPatchTimestampS = 1;
+    uint64_t fastConsensusPatchTimestampS = 0;
 
     // If a BlockError analyzer is added to the queue
     // its analyze(CommittedBlock _block) function will be run on commit
@@ -394,12 +394,10 @@ public:
 
     ptr< OptimizerAgent > getOptimizerAgent() const;
 
-    uint64_t getFastConsensusTimestampS() const;
-
     bool fastConsensusPatchEnabled( uint64_t _blockTimeStampSec );
 
     void setTimeStampValuesFromConfig();
 
     ptr<BooleanProposalVector>
-    calculateBooleanProposalVectorIfItsTimeToStartBinaryConsensus(const ptr<DAProof> &_daProof);
+    addDAProofToDBAndCalculateProposalVectorIfItsTimeToStartBinaryConsensus(const ptr<DAProof> &_daProof);
 };

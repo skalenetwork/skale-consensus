@@ -898,7 +898,10 @@ void Schain::daProofArrived( const ptr< DAProof >& _daProof ) {
         if ( _daProof->getBlockId() <= getLastCommittedBlockID() )
             return;
 
-        auto pv = calculateBooleanProposalVectorIfItsTimeToStartBinaryConsensus( _daProof );
+        // this will add the DAProof to DB. If there are enough DAProofs in DB
+        // to start binary consensus, this will return binary proposal vector of 1s and 0s
+        auto pv =
+            addDAProofToDBAndCalculateProposalVectorIfItsTimeToStartBinaryConsensus( _daProof );
 
 
         if ( pv != nullptr ) {
@@ -1479,16 +1482,17 @@ mutex Schain::vdsMutex;
 
 // this function is called on arrival of each DA proof
 // if it is time to make binary proposals it will return a vector of 0s and 1s
-// for normal consensus it will happen when 2t+1 da proofs proposals arrive (which is 11)
-// for optimized consensus it will happen when a da proof from the previos winner arrives
+// for normal consensus it will happen when 2t+1 DA proofs  arrive (which is 11)
+// for optimized consensus it will happen when a DA proof from the previous winner arrives
 ptr<BooleanProposalVector>
-Schain::calculateBooleanProposalVectorIfItsTimeToStartBinaryConsensus(const ptr<DAProof> &_daProof) {
+Schain::addDAProofToDBAndCalculateProposalVectorIfItsTimeToStartBinaryConsensus(
+    const ptr<DAProof> &_daProof) {
 
     ptr<BooleanProposalVector> pv;
 
     if (getOptimizerAgent()->doOptimizedConsensus(_daProof->getBlockId(), getLastCommittedBlockTimeStamp().getS())) {
-        // when we do optimized block consensus only a single block proposer
-        // proposes and provides da proof, which is the previous winner.
+        // when we do optimized block consensus only the previous winner
+        // proposes and provides da proof
         // proposals from other nodes, if sent made by mistake, are ignored
         auto lastWinner = getOptimizerAgent()->getPreviousWinner( _daProof->getBlockId() );
         if (_daProof->getProposerIndex() == lastWinner) {
@@ -1497,30 +1501,28 @@ Schain::calculateBooleanProposalVectorIfItsTimeToStartBinaryConsensus(const ptr<
         }
     } else {
         // do things regular way
-        // the vector is formed and the consensus is started when
-        // 2/3 of nodes submit a da proof
+        // the binary proposal vector is formed and the consensus is started when
+        // 2/3 of nodes  (11) submit a da proof
         pv = getNode()->getDaProofDB()->addDAProof(_daProof);
     }
     return pv;
 }
 
+// returns true if fastConsensusPatch ie enabled
 bool Schain::fastConsensusPatchEnabled(uint64_t _blockTimeStampSec ) {
     return fastConsensusPatchTimestampS != 0 && _blockTimeStampSec >= fastConsensusPatchTimestampS;
 }
 
-uint64_t Schain::getFastConsensusTimestampS() const {
-    return fastConsensusPatchTimestampS;
-}
-
-#define SET_TIMESTAMP_FROM_CONFIG(TIMESTAMP_NAME) \
+// macro to set patchstamp variable from connfig
+#define SET_TIMESTAMP_FROM_CONFIG(__TIMESTAMP_NAME__) \
     { \
         auto& timestamps = getNode()->getPatchTimestamps(); \
-        if (timestamps.count(#TIMESTAMP_NAME) > 0) { \
-            TIMESTAMP_NAME = timestamps.at(#TIMESTAMP_NAME); \
+        if (timestamps.count(#__TIMESTAMP_NAME__) > 0) { \
+            __TIMESTAMP_NAME__ = timestamps.at(#__TIMESTAMP_NAME__); \
         } \
     }
 
-
+// set all timestamp values from config
 void Schain::setTimeStampValuesFromConfig() {
     SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestampS)
     SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestampS)

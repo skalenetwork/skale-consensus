@@ -63,14 +63,18 @@ BooleanProposalVector::BooleanProposalVector( node_count _nodeCount, const strin
 }
 
 
-BooleanProposalVector::BooleanProposalVector( node_count _nodeCount, schain_index _singleWinner )
+
+// This is boolean proposal constructor in case of optimized proposal. In this
+// case we proposer 1 for the previos winner and 0 for everyone else
+BooleanProposalVector::BooleanProposalVector( node_count _nodeCount, schain_index _previousWinner )
         : nodeCount( _nodeCount ) {
 
-    CHECK_ARGUMENT( _singleWinner <= (uint64_t )_nodeCount );
+    CHECK_ARGUMENT( _previousWinner > 0 );
+    CHECK_ARGUMENT( _previousWinner <= (uint64_t )_nodeCount );
     proposals.push_back( false );
 
     for ( uint64_t i = 1; i <= _nodeCount; i++ ) {
-        if ( i == _singleWinner ) {
+        if ( i == _previousWinner ) {
             proposals.push_back( true );
             trueCount++;
         } else {

@@ -107,12 +107,13 @@ void BlockConsensusAgent::startConsensusProposal(
         LOG( debug, "CONSENSUS START:BLOCK:" << to_string( _blockID ) );
 
         if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockID,
-                                                                   getSchain()->getLastCommittedBlockTimeStamp().getS())) {
+                 getSchain()->getLastCommittedBlockTimeStamp().getS())) {
             //  Optimized consensus. Start N binary consensuses
             // for optimized block consensus, we only propose and initiated binary consensus
             // for the last block winner
             auto lastWinner = getSchain()->getOptimizerAgent()->getPreviousWinner( _blockID );
-            auto x = bin_consensus_value(_proposal->getProposalValue(schain_index(lastWinner)) ? 1 : 0);
+            auto x =
+                bin_consensus_value(_proposal->getProposalValue(schain_index(lastWinner)) ? 1 : 0);
             propose(x, lastWinner, _blockID);
             return;
         }

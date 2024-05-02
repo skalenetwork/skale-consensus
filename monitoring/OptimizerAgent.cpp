@@ -46,11 +46,11 @@ bool OptimizerAgent::doOptimizedConsensus( block_id _blockId, uint64_t _lastBloc
         return false;
     }
 
-    // redo full consensus each 17 blocks to
+    // redo full consensus each 65 blocks to
     // determine the winner. Otherwise optimize
     // potentially we could redo full consensus even more rarely, but
     // for now lets be conservative
-    return ( uint64_t ) _blockId % ( nodeCount + 1 ) != 0;
+    return ( uint64_t ) _blockId % ( 4 * nodeCount + 1 ) != 0;
 }
 
 // returns the priority leader for the current block numbered from 0 to N-1
