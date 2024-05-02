@@ -38,16 +38,20 @@ flowchart TD
 
 ## 2.3 Normal block processing vs catchup.
 
-Note that in addition to normal block processing, a node can receive blocks through `block catchup` mechanism.
+In addition to normal block processing, a node can receive blocks through `block catchup` mechanism.
 
-`Block catchup` means that the `node` does not participate in `block consensus`. Instead, it simply downloads  `committed blocks` from other `nodes`, verifying `block signatures`. `block catchup` typically happens when a node is powered on after being offline,
-or if the nework connection of the node is slower than 2/3 of other nodes, so they reach consensus without the node participating. `Block catchup` can also be used by `third-party nodes` that do not participate in `core chain`, such a `archive nodes`.
+`Block catchup` means that the `node` does not participate in `block consensus`. Instead, it simply downloads  `committed blocks` from other `nodes`, verifying `block signatures`. `Block catchup` typically happens when:
 
-`block consensus` and `block catchup` run in parallel. This means that every node in addition to normal `block consensus` procedure makes periodic random connections to other nodes, to attempt to download ready committed blocks.
+*  a node is powered on after being offline,
+*  the nework connection of the node is slower than 2/3 of other nodes, so they reach consensus without the node participating.
 
-## 2.4 Skaled overview
+  Block catchup` is also be used by `achive nodes` that do not participate in `core chain`.
 
-Each `node` runs `skaled`, SKALE software blockchain agent. 
+On core nodes `block consensus` and `block catchup` run in parallel. This means that every node in addition to normal `block consensus` procedure makes periodic random connections to other nodes, to attempt to download ready committed blocks.
+
+## 2.4 Skaled agent overview
+
+Each `node` runs `skaled`, SKALE software PoS blockchain agent. 
 
 `skaled` is composed of:
 
@@ -119,38 +123,39 @@ Since real Internet sometimes drops messages on the way without delivering them,
 
 ## 3.2 Node priority
 
-For each `block id` each node is assigned priority. The priority is used to determine the winner. 
+For each `block id` each `node` is assigned priority. The priority is used to determine the winner of consensus.
 
-Node priority changes in a round-robin fashion from one block to another. For the first block, the first node has the highest priority or is a `priority leader`. For the second block the second node has the highest priority and so on.
+Node priority changes in a round-robin fashion from one block to another. For the first block, the first node has the highest priority or is a `priority leader`. For the second block the second node is the `priority leader` and so on.
 
-In general the node priority can be expressed by the following formula
+In general, node priority can be expressed by the following formula
 
 `nodePriority = N - ((nodeIndex - blockId ) mod N)`
 
-Where `nodeIndex` is the integer index of the node in the chain from 1 to N.  As ab example: for `blockId = 5` and `N = 16`, node 5 has priority 16, node 6 has priority 15 and so on, ending with node 4 having priority 1.
+Where `nodeIndex` is the integer index of the node in the chain from `1` to `N`.  As an example: for `blockId = 5` and `N = 16`, node `5` has priority `16`, node `6` has priority `15` and so on, ending with node `4` having priority `1`.
 
-It is easy to see from the above formular, that 
+It is easy to see from the above expression, that 
 
 `priorityLeader = ((nodeIndex - blockId )) mod N + 1`
 
 ## 3.3 Default block
 
-Sometimes (very infrequently) no node wins consensus. In addition to that a network disruption can lead to no proposals communicated.
-In such cases, block consensus can result in an empty block that no-one proposed, named `default block`.
+Sometimes (very infrequently) no node wins consensus. In such cases, block consensus can result in an empty block that no-one proposed, named `default block`.
 
 ## 3.4 Full and Optimized Block Consensus
 
 For each block, nodes need to propose and agree on a block. This is referred to as `block consensus`.
 
-SKALE utilizes two types of block consensus: full consensus and optimized consensus.
+SKALE utilizes two types of block consensus: `full consensus` and `optimized consensus`.
 
-During full consensus, all nodes compete to propose and create a block.  The winner is determined by competition, if there are multiple potential winners the ultimate winner is selected by choosing the highest priority node. 
+During `full consensus`, all nodes compete to propose and create a block.  The winner is determined by competition. If there are multiple potential winners the ultimate winner is selected by _choosing the highest priority node_ out of the candidates.
 
-During optimized consensus, only the winner of the previous consensus at `blockId = currentBlockId - N` is allowed to propose. This saves lots of network bandwidth.
+During optimized consensus, only the winner of the previous consensus at `blockId = currentBlockId - N` is allowed to propose and win. This saves lots of network bandwidth. Essentially the purpose of the optimized consensus is to let previous winner win.
 
-As an example, for block 18 the winner of the consensus at block 2 is allowed to propose. Essentially the purpose of the optimized consensus is to let previous winner win.
+As an example, for block `18` the winner of the consensus at block `2` is allowed to propose and win.
 
+The full consensus will run for first `N` blocks, and then will be re-run every `4 N + 1` blocks (65 blocks). The reason to re-run the full consensus is to see if network conditions changed. For most blocks, optimized consensus will run that will utilize the previous winner.
 
+Full comsensus will also rerun if there is no previous winner, meaning that previous consensus ended with a default block.
 
 ## 3.5 Consensus phases
 
@@ -173,7 +178,7 @@ During the validation, `transaction signature` and format are verified.
 Pending queues on different core nodes will typically look similar but not identical due to network delays.
 
 
-### 3.5.4 Block proposal phase 
+### 3.5.4 Block proposal phase (full consensus)
 
 For each `block id`, each SKALE node will form a `block proposal`.  A `block proposal` is an ordered list of `transactions`.
 
