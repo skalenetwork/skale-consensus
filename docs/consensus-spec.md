@@ -32,15 +32,14 @@ into `block signature`. (_block signature phase_)
 
 The diagram below illustrates typical transaction flow:
 
-[mermaid]
-....
+```mermaid
 flowchart TD
     b0[Transaction submission] --> b1[Transaction broadcast] --> b2[Pending Queue] --> b3[Block Proposal] --> b31[DA Broadcast] --> b32[Block Consensus] --> 
     b33[Block Signature] --> 
     b34[Block Finalization] --> b4[Block Commit] --> b5[EVM Processing] -->
     b9[Storage phase]
     b6[Block Catchup] -->b4
-....
+```
 
 Note that in addition to normal block processing, a node can receive blocks through `block catchup` mechanism.
 
@@ -71,14 +70,13 @@ Each `node` runs `skaled`, SKALE software blockchain agent.
 . `State storage module` stores EVM state.  State information is _never deleted automatically_. Cleaning up the state is the responsibility of dapps
 
 
-[mermaid]
-....
+```mermaid
 flowchart TD
     b1[Network API Module] -->|Txs| b2[Tx validation module] -->|Validated Txs| b3[Pending queue module] -->|Block Proposals| b5[Proposal Module] --> |DA Proofs| b6[DA proof broadcast module] --> |Proposals and DA proofs| b7[Consensus module] -->|consensus on winning proposal| b12[Finalization module] -->|committed block| b8[EVM module]
     b2 -->|Validated Txs| b11[Tx Broadcast Module]
     b8 -->|Committed Blocks| b9[Block Storage Module]
     b8 -->|EVM State| b10[Evm Storage module]    
-....
+```
 
 === Security assumptions overview
 
