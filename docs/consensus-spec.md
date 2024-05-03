@@ -15,16 +15,16 @@ Consensus blocks finalized immediately, so block time is equal to the finalizati
 
 During consensus for a particular `blockId` each `node` goes through the following phases
 
-* _submission phase_ : accept and validate user `transactions` 
-* _broadcast phase_ : broadcast `transactions` to peer nodes 
-* _pending queue phase_: store `transactions` into `pending queues` 
-* _block proposal phase_: create `block proposal` for each `block number` and broadcast it to peers, collecting `2/3 N` `data availability signatures` and creating `DA proofs`. 
-* _DA broadcast phase_: broadcast `DA proofs` to peers
-* _block consensus phase_: run `block consensus` for each `block proposal` to select a `winning proposal`
-* _block signature phase_: sign `block signature share` (statement that states which proposal won). Broadcast `block signature share` to other nodes. Wait until receipt of 2/3 of `block signature shares`. Merge `block signature shares`  into `block signature`. 
-* _block finalization phase_: commit the `winning proposal` if this `node` has it in storage. Otherwise download `winning proposal` from other nodes. The `winning proposal` becomes a`committed block` 
+* _Submission phase_ : accept and validate user `transactions`.
+* _Broadcast phase_ : broadcast `transactions` to peer nodes.
+* _Pending queue phase_: store `transactions` into `pending queues`.
+* _Block proposal phase_: create `block proposal` for each `block number` and broadcast it to peers, collecting `2/3 N` `data availability signatures` and creating `DA proofs`. 
+* _DA broadcast phase_: broadcast `DA proofs` to peers.
+* _Block consensus phase_: run `block consensus` for each `block proposal` to select a `winning proposal`.
+* _Block signature phase_: sign `block signature share` (statement that states which proposal won). Broadcast `block signature share` to other nodes. Wait until receipt of 2/3 of `block signature shares`. Merge `block signature shares`  into `block signature`. 
+* _Block finalization phase_: commit the `winning proposal` if this `node` has it in storage. Otherwise download `winning proposal` from other nodes. The `winning proposal` becomes a`committed block`. 
 * _EVM processing phase_: process the `committed block` through `Ethereum Virtual Machine` to transition to the new `EVM state`. 
-* _storage phase_: store `committed blocks` and `EVM state`
+* _Storage phase_: store `committed blocks` and `EVM state`.
 
 
 ## 2.2 Typical transaction flow
@@ -60,18 +60,18 @@ Each `node` runs `skaled`, SKALE software PoS blockchain agent.
 
 `skaled` is composed of:
 
-* `Network API module` accepts `transactions` and user requests.
+* `Network API module` accepts `transactions`.
 * `Transaction validation module` validates `transactions` on receipt.
 * `Pending queue module` holds `transactions`.
-* `Transaction broadcast module` broadcasts `valid transactions` to other `nodes` in the chain
-* `Proposal module` creates `block proposals` for consensus
-* `Proposal broadcast module` broadcasts `block proposals` to peers and collects `DA proofs`
-* `DA proof broadcast module` broadcasts `DA proofs` to peers
+* `Transaction broadcast module` broadcasts `valid transactions` to other `nodes` in the chain.
+* `Proposal module` creates `block proposals` for consensus.
+* `Proposal broadcast module` broadcasts `block proposals` to peers and collects `DA proofs`.
+* `DA proof broadcast module` broadcasts `DA proofs` to peers.
 * `Consensus module` selects the winning `block proposal` and turns it into a `committed block`, and then creates `block signature` by assembling `signature shares`.
 * `Finalization module` downloads winning proposals from other `nodes`, if a node does not have a copy of winning proposal by completion `block consensus`.
-* `EVM module` processes the `committed block`
-* `Block storage module` stores `committed blocks`, deleting old blocks if `skaled` runs out of block storage space (`block rotation`)
-* `State storage module` stores EVM state.  State information is _never deleted automatically_. Cleaning up the state is the responsibility of dapps
+* `EVM module` processes the `committed block`.
+* `Block storage module` stores `committed blocks`, deleting old blocks if `skaled` runs out of block storage space (`block rotation`).
+* `State storage module` stores EVM state.  State information is _never deleted automatically_. Cleaning up the state is the responsibility of dapps.
 
 
 ```mermaid
@@ -101,12 +101,12 @@ We assume that out of `N` `nodes`, `t` `nodes` at maximum are Byzantine (malicio
 
 `3t+1 < = N`
 
-Simply speaking, not more than 1/3 of nodes can be malicious. For instance, if `N = 16`, the maximum number of malicious `nodes` is `5`.
+Simply speaking, not more than 1/3 of `nodes` can be malicious. For instance, if `N = 16`, the maximum number of `malicious nodes` is `5`.
 
-The identity of malicious nodes is not known. A malicious node will typically pretend being an honest node.
+The identity of `malicious nodes` is not known. A malicious `node` will typically pretend being an `honest node`.
 
-A malicious node will attempt to break the consistency and liveliness of the network by sending malicious messages, or not sending 
-any messages, when it supposed to send a message by a protocol.
+A `malicious node` will attempt to break the consistency and liveliness of the network by sending `malicious messages`, or not sending 
+any `messages`, when it supposed to send a `message` by the protocol.
 
 It is assumed that `malicious nodes` do not control network routers and links. This means that `malicious nodes` can not affect `messages` sent between `honest nodes`, such as corrupting or reordering them.
 
@@ -118,56 +118,59 @@ SKALE assumes that _the network is asynchronous and reliable with eventual deliv
 
 This means that:
 
-* `nodes` are assumed to be connected by _reliable communication links_. 
+* `Nodes` are assumed to be connected by _reliable communication links_. 
 * Links can can be arbitrarily slow, but will eventually deliver `messages`.
 
 The asynchronous model described above is _similar to the model assumed by Bitcoin and Ethereum blockchains_. It reflects *the state of modern Internet*, where temporary network splits and interruptions are normal, but always resolve eventually.
 
-Since real Internet sometimes drops messages on the way without delivering them, _the eventual delivery guarantee is achieved in practice by retransmissions_. The `sending node` will make _multiple attempts to transfer_  `message` to the `receiving node`, until the transfer is successful and is confirmed by the `receiving node`.
+Since real Internet sometimes drops `messages` on the way without delivering them, _the eventual delivery guarantee is achieved in practice by retransmissions_. The `sending node` will make _multiple attempts to transfer_  `message` to the `receiving node`, until the transfer is successful and is confirmed by the `receiving node`.
 
 
 ## 3.2 Node priority
 
-For each `block id` each `node` is assigned priority. The priority is used to determine the winner of consensus.
+For each `block id` each `node` is assigned integer `priority`. The `priority` is used to determine the winner of consensus.
 
-Node priority changes in a round-robin fashion from one block to another. For the first block, the first node has the highest priority or is a `priority leader`. For the second block the second node is the `priority leader` and so on.
+`Node priority` changes in a round-robin fashion from one `block` to another. For the `first block`, the `first node` has the highest `priority` or is a `priority leader`. For the second block the `second node` is the `priority leader` and so on.
 
 In general, node priority can be expressed by the following formula
 
 `nodePriority = N - ((nodeIndex - blockId ) mod N)`
 
-Where `nodeIndex` is the integer index of the node in the chain from `1` to `N`.  As an example: for `blockId = 5` and `N = 16`, node `5` has priority `16`, node `6` has priority `15` and so on, ending with node `4` having priority `1`.
+Here `nodeIndex` is the integer index of the `node` in the chain from `1` to `N`.  As an example: for `blockId = 5` and `N = 16`, `node 5` has priority `16`, `node 6` has `priority` `15` and so on, ending with `node` `4` having `priority` `1`.
 
 It is easy to see from the above expression, that 
 
-`priorityLeader = ((nodeIndex - blockId )) mod N + 1`
+`priorityLeader = (nodeIndex - blockId ) mod N + 1`
 
 ## 3.3 Default block
 
-Sometimes (very infrequently) no node wins consensus. In such cases, block consensus can result in an empty block that no-one proposed, named `default block`.
+Sometimes (very infrequently) no `node` wins consensus. In such cases, `block consensus` can result in an `empty block` that no-one proposed, named `default block`.
 
 ## 3.4 Full and Optimized Block Consensus
 
-For each block, nodes need to propose and agree on a block. This is referred to as `block consensus`.
+For each `block`, nodes need to propose and agree on a block. Once this happens, the `block` is finalized (signed) and committed to the chain. This is referred to as `block consensus`.
 
 SKALE utilizes two types of block consensus: `full consensus` and `optimized consensus`.
 
-During `full consensus`, all nodes compete to propose and create a block.  The winner is determined by competition. If there are multiple potential winners the ultimate winner is selected by _choosing the highest priority node_ out of the candidates.
+During `full consensus`, all nodes compete to propose and create a `block`.  The winner is determined by competition. If there are multiple potential winners the ultimate winner is selected by _choosing the highest priority node_ out of the candidates.
 
-During optimized consensus, only the winner of the previous consensus at `blockId = currentBlockId - N` is allowed to propose and win. This saves lots of network bandwidth. Essentially the purpose of the optimized consensus is to let previous winner win.
+During optimized consensus, only the winner of the previous consensus at `blockId = currentBlockId - N` is allowed to propose and win. This saves lots of network bandwidth. Essentially _the purpose of the optimized consensus is to let the previous winner win_.
 
-As an example, for block `18` the winner of the consensus at block `2` is allowed to propose and win.
+As an example, for block `18`, the winner of the consensus at block `2` was `node 3` is allowed to propose and win.
 
-The full consensus will run for first `N` blocks, and then will be re-run every `4 N + 1` blocks (65 blocks). The reason to re-run the full consensus is to see if network conditions changed. For most blocks, optimized consensus will run that will utilize the previous winner.
+The full consensus will run for first `N` `blocks`, and then will be re-run every `4 N + 1` `blocks` (65 `blocks`). The reason to re-run the full consensus is to see if network conditions changed. For most blocks, optimized consensus will run that will utilize the previous winner.
 
-Full comsensus will also rerun if there is no previous winner, meaning that previous consensus ended with a default block.
+Full comsensus will also rerun if there is no previous winner, meaning that previous consensus ended with a `default block`.
 
 ## 3.5 Consensus phases
 
 ### 3.5.1 Submission phase
 
-During submission phase a `user client` (browser or mobile app) signs a `transaction` using user `private wallet key` and submits it either directly to one of `core nodes` or to a `network proxy` or an archive node. A `network proxy` is a node that load balances incoming transactions to `core nodes` attempting to load them evenly, and avoiding transaction submissions to non-responsive nodes. An archive node is a node that does not participate in consensus, but stores a historic copy of the state as well as can broadcast transactions to 
-core nodes.
+During submission phase a `user client` (browser or mobile app) signs a `transaction` using user `private wallet key` and submits it either directly to one of `core nodes`, or to a `network proxy`,  or to an `archive node`. 
+
+A `network proxy` is a `node` that load balances incoming transactions to `core nodes` attempting to load them evenly, and avoiding transaction submissions to non-responsive `nodes`. 
+
+An `archive node` is a `node` that does not participate in consensus, but stores a historic copy of the state as well as can broadcast transactions to core `nodes`.
 
 ### 3.5.2 Broadcast phase
 
