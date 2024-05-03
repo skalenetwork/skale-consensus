@@ -4,7 +4,12 @@ A SKALE chain is composed of `N` network `nodes` that process `transactions`.
 
 SKALE consensus is a provably secure algorithm that is used by SKALE chains to order `transactions` into `blocks`.
 
+Consensus blocks finalized immediately, so block time is equal to the finalization time.
+
 ## 2. Consensus Architecture
+
+
+
 
 ## 2.1 Consensus Phases
 
@@ -38,14 +43,14 @@ flowchart TD
 
 ## 2.3 Normal block processing vs catchup.
 
-In addition to normal block processing, a node can receive blocks through `block catchup` mechanism.
+In addition to normal block processing, a `node` can receive blocks through `block catchup` mechanism.
 
 `Block catchup` means that the `node` does not participate in `block consensus`. Instead, it simply downloads  `committed blocks` from other `nodes`, verifying `block signatures`. `Block catchup` typically happens when:
 
 *  a node is powered on after being offline,
-*  the nework connection of the node is slower than 2/3 of other nodes, so they reach consensus without the node participating.
+*  the nework connection of the node is slower than 2/3 of peer nodes, so they reach consensus without node participation.
 
-  Block catchup` is also be used by `achive nodes` that do not participate in `core chain`.
+  `Block catchup` is also be used by `achive nodes` that do not participate in `core chain`.
 
 On core nodes `block consensus` and `block catchup` run in parallel. This means that every node in addition to normal `block consensus` procedure makes periodic random connections to other nodes, to attempt to download ready committed blocks.
 
