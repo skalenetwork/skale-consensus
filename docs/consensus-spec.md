@@ -8,7 +8,7 @@ SKALE consensus is a provably secure algorithm that is used by SKALE chains to o
 
 ## 2.1 Consensus Phases
 
-Consensus includes the following phases
+During consensus for a particular `blockId` each `node` goes through the following phases
 
 * _submission phase_ : accept and validate user `transactions` 
 * _broadcast phase_ : broadcast `transactions` to peer nodes 
