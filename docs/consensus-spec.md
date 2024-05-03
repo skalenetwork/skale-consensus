@@ -229,6 +229,12 @@ There is, therefore, only one `DA proof` broadcast.
 
 ### 3.5.8 Block consensus phase (full consensus)
 
+Block consensus means that all honest need to agree on a winning proposal. Block consensus utilizes running multiple instances of `binary consensus algorithm` 
+
+See here for an introduction into asynchronous binary consensus.
+
+https://en.wikipedia.org/wiki/Consensus_(computer_science)
+
 #### 3.5.8.1 Binary consensuses start
 
 Once a node receives `DA proofs` from 2/3 of nodes, the node will start the block consensus phase. It will also start block consensus phase if a `proposal timeout` is reached, even with less than 2/3 proofs.
@@ -262,10 +268,13 @@ When `N` binary consensuses complete, each of them arrives at either `1` or '0`
 If the consensus completes with `1` it is guaranteed that `1` was initially voted by at least one honest node. That, in turn, guarantees that the particular `block proposal` was `DA safe`, or that it is widely distributed over the network.
 
 
-* If only one binary consensus completes with one, and the rest complete with zero, then _the proposal corresponding to this consensus_ is committed as a block.
-* If a `block consensus` phase outputs `1` for several proposals, _the proposal with highest priority is selected_.  In a rare case where consensus reports all zeroes, a `default block` is committed.
+* If only one binary consensus completes with one, and the rest complete with zero, then _the proposal corresponding to this consensus  is decided as a block_.
+* If a `block consensus` phase outputs `1` for several proposals, _the proposal with highest priority is decided_. 
+
+* In the rare case of alll binary consensuses returning `0` it typically means a major network problem that did not allow nodes to distribute proposals. In this case, a _default block is decided_.
 
 ### 3.5.9 Block consensus phase (optimized consensus)
+
 
 #### 3.5.9.1 Binary consensus start
 
@@ -276,40 +285,57 @@ During binary consensus phase, a `node` will vote `1` if it received both `propo
 Therefore, only one binary consensus is started.
 
 
-For optimized consensus the node waits for a `DA proof` from the `previous winner`, and then starts a single binary consensus voting `1'. In normal case, this will result in all honest nodes voting `1` and binary consensus resulting in `1`, which leads to committal of the block from `previous winner`.
+#### 3.5.9.2 Binary conensuses execute
 
-If `block proposal timeout` is reached, the node will start binary consensus voting `0`. This will typically happen if `previos winner` crashed and did not submit a proposal. In such a rare case, all honest nodes will normally vote `0`. This will lead to binary consensus resulting in `0`. In such a case, a `default block` is committed.
+The binary consensus executed is the algorithm described in  https://inria.hal.science/hal-00944019/file/RR-2016-Consensus-optimal-V5.pdf
 
-### 3.5.9  Block  signature phase
+#### 3.5.9.3 Binary consensuses complete
 
-After `block consensus` decides on the winning block, each node will sign the statement specifying the winning proposal (`block signature share`) and broadcast it to other nodes. The node will then wait until receipt of 2/3 of `block signature shares` and merge the shares into `block signature`.
+When binary consensuses completes, it outputs at either `1` or '0`
 
-==== Block  finalization phase.
+* If the consensus completes with `1` it is guaranteed that `1` was initially voted by at least one honest node. That, in turn, guarantees that the `block proposal` from `previos winner` was `DA safe`, or that it is widely distributed over the network.
+
+* If the consensus completes with `0` it means that the previous winner did not propose (crashed), or did not distribute the proposal widely on the network. It this rare case _a default block is decided_.
+
+### 3.5.10  Block  signature phase
+
+After `block consensus` decides on the winning block, each node will sign the statement specifying the winning proposal (`block signature share`) and broadcast it to other nodes.
+
+The node will then:
+
+* wait until receipt of 2/3 of `block signature shares`
+* merge the shares into `block signature`.
+
+### 3.5.11  Block  signature phase 
 
 On completion of _block signature phase_, all honest nodes will have the `block signature` but some of them may not have the block itself. 
 
 This can happen due to a malicious proposer, that intentionally does not send its proposals to some of the all nodes in order to break the liveliness property of the blocklchain. It can also happen due to proposer crashing, or due to slow network.
 
-Fortunately, `DA proof` requirement solves the problem.  It is guaranteed, that `block proposal` that wins _block consensus phase_ has `DA proof`, and is, therefore, widely distributed across the network.
+Fortunately, `DA proof` requirement solves the problem.  It is guaranteed, that `block proposal` that is decided wins _block consensus phase_ has `DA proof`, and is, therefore, widely distributed across the network.
 
 Therefore, during _block finalization_phase_ If a `node` does not happen to have the `winning proposal`, it will simply connect to other `nodes` to download it from them. 
 
 Note that 2/3 of the nodes are guaranteed to have a copy of the proposal after _DA proof phase_
 
-### 3.5.8  EVM processing phase
+### 3.5.12  EVM processing phase
 
-After block finalization the committed block is present on the node
+After block finalization the committed block is present on the node.
 
-The node will  remove the matching transactions from the transaction queue.
+Then:
 
-The block will be then processed through Ethereum Virtual Machine to update `EVM state`.
+* The node will  remove the matching transactions from the transaction queue.
 
-### 3.5.9  Storage phase
+* The block will be then processed through Ethereum Virtual Machine to update `EVM state`.
 
-`Committed block` will now be stored in persistent storage, and 
-`EVM state` will be updated in persistent storage.
+### 3.5.13  Storage phase
 
-The node will move into _block proposal phase_ for the next block.
+During the storage phas
+
+* `Committed block` will be stored in persistent storage, and 
+* `EVM state` will be updated in persistent storage.
+
+The node will then move into _block proposal phase_ for the next block. This completes the cycle.
 
 
 # 4. Behavior in case of network failures and crashes
