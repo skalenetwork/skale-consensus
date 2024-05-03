@@ -170,11 +170,11 @@ During submission phase a `user client` (browser or mobile app) signs a `transac
 
 A `network proxy` is a `node` that load balances incoming transactions to `core nodes` attempting to load them evenly, and avoiding transaction submissions to non-responsive `nodes`. 
 
-An `archive node` is a `node` that does not participate in consensus, but stores a historic copy of the state as well as can broadcast transactions to core `nodes`.
+An `archive node` is a `node` that does not participate in consensus, but stores a historic copy of the state as well as broadcasts transactions to core `nodes`.
 
 ### 3.5.2 Broadcast phase
 
-During the broadcast phase, a `core node` or an `archive node` that received a `transaction` from `user client` will broadcast it to all `core nodes`. 
+During the broadcast phase, a `core node` or an `archive node` that has received a `transaction` from `user client` will broadcast it to all `core nodes`. 
 
 ### 3.5.3 Pending queue phase
 
@@ -183,61 +183,104 @@ During the validation, `transaction signature` and format are verified.
 
 `Pending queue` has fixed memory capacity. If the `pending queue` is full, adding a new `transaction` to the `queue` will cause some `transactions` to be dropped from the `pending queue`. Ethereum-compatible blockchains, including SKALE, drop transactions habing the smallest `gas price`.
 
-Pending queues on different core nodes will typically look similar but not identical due to network delays.
+Pending queues on different core nodes will typically look similar but not identical due to network and computational delays.
 
+### 3.5.4 Block proposals and DA proofs.
 
-### 3.5.4 Block proposal phase (full consensus)
+A `block proposal` is an ordered list of `transactions`, signed by the `proposing node`.
 
-For each `block id`, _each SKALE node_ will form a `block proposal`.  A `block proposal` is an ordered list of `transactions`.
+A `DA proof` is a `data availability proof` that a proposal has been distributed to 2/3 nodes on the network. To create a `DA proof`, `proposer node` uploads the proposal to at least 2/3 nodes in the network. On each upload the `receiving node` signs a `DA proof signature share` that confirms receipt of the proposal.  The `proposing node` will then merge `2/3 N` signature shares into a `threshold signature`. This threshold signatue is a `data availability proof` `DA proof`.
+
+`DA proof` signifies that the proposal has been widely distributed to the network.  If a particular `node` does not have the proposal, it can download it from one of `2/3 N` nodes, out of which at least `1/3 N` are honest.
+
+`DA proof` also signifies uniqueness of proposal for a particular block ID. It is mathematically impossible for a `malicious proposer` to collect `2/3 N` signature on two conflicting proposals.
+
+To summarize, `DA proof` forces the proposer to be `non-malicious`. The `proposal` is enforced to be widely distributed and unique.
+
+### 3.5.5 Block proposal phase (full consensus)
+
+For each `block id`, _each SKALE node_ will form a `block proposal`.  
 
 If all `transactions` in `pending queue` can be placed into proposal without reaching `block gas limit`, then all `transactions` will be placed into `block proposal`. Otherwise, `transactions` with higher gas price will be selected from the queue to create a `block proposal` that fits the `block gas limit`. 
 
 Once a `node` created a proposal, it will broadcast `compressed proposal` to all its nodes. The compressed proposal includes only the `transaction hash` (fingerprint) of each transaction. The `receiving node` decompresses `transactions` by matching `transaction hashes` to `transactions` stored in is pending queue. In the event `receiving node` does not have a matching `transaction` in its pending queue, it will ask the `sending node` for the entire `transaction`.
 
-Once the `receiving node` receives the `block proposal`, it will sign a `Data Availability Signature` and pass it to the `sending node`. 
+Once the `receiving node` receives the `block proposal`, it will sign a `DA signature share` and pass it to the `sending node`. 
 
 Once the `sending node` collects `DA signatures` from `2/3` of nodes, it will merge the signatures into a `DA proof`. The `DA proof` proves that the proposal has been widely distributed over the network.
 
-### 3.5.4 Block proposal phase (optimized consensus)
+### 3.5.6 Block proposal phase (optimized consensus)
 
 For optimized consensus only the `previos winner` will form and broadcast a proposal, and collect a `DA proof` for it.
 
-### 3.5.5 DA broadcast phase
+So there is only one `proposal` and one `DA proof, which leads to way lower network load and faster completion of the `proposal phase`.
 
-Once a `node` obtains a `DA proof` for its `block proposal`, it will broadcast `DA proof` to other nodes.
+### 3.5.7 DA broadcast phase (full consensus)
 
-Note that `DA proof` requirement solves two problems:
+For each node, once a `node` obtains a `DA proof` for its `block proposal`, it will broadcast `DA proof` to all other nodes.
 
-First, a `block proposal` that has a `DA proof` is _guaranteed to be widely distributed_.
+There are, therefore, `N` 'DA proofs` broadcast in total.
 
-Second, since `DA proof` creation requires a 2/3 signature of nodes, the proposal is _guaranteed to be unique_. 
-A malicious node is not able to create two different proposals an obtain DA proofs for both of them.
+### 3.5.7 DA broadcast phase (optimized)
 
+The `previous winner node`, once a `previous node` obtains a `DA proof` for its `block proposal`, it will broadcast `DA proof` to all other nodes.
 
-### 3.5.6 Block consensus phase (full consensus)
+There is, therefore, only one `DA proof` broadcast.
+
+### 3.5.8 Block consensus phase (full consensus)
+
+#### 3.5.8.1 Binary consensuses start
 
 Once a node receives `DA proofs` from 2/3 of nodes, the node will start the block consensus phase. It will also start block consensus phase if a `proposal timeout` is reached, even with less than 2/3 proofs.
 
-During block consensus phase, the `node` will vote `1` if it received `DA proof` for a particular proposal, and vote `0` otherwise.
+During block consensus phase, the `node` will vote `1` if it received both `proposal` and `DA proof` from a particular proposer, and vote `0` otherwise.
 
-The nodes will then executed asynchronous binary consensus algorithm, also known as `Byzantine Generals problem`. https://en.wikipedia.org/wiki/Byzantine_fault
+Therefore, each node starts with a binary string of `N` ones and zeroes. The string will include at least `2/3 N` ones.
 
-The particular binary consensus algorithm implemented in SKALE is specified in 
+As an example `101101101111101`
 
-https://inria.hal.science/hal-00944019/file/RR-2016-Consensus-optimal-V5.pdf
+For each binary proposal, a separate binary consensus is executed. Therefore, there are `N` binary consensuses executed in total.
 
-Once the binary consensus completed, it guarantees that all honest node will reach consensus of `1` or `0'. If honest nodes reach `1` it is guaranteed
-that `1` was initially voted by at least one honest node. That, in turn, guarantees that the `block proposal` is `DA safe`, or that it is widely distributed over the network.
+#### 3.5.8.2 Binary conensuses execute
 
-If a `block consensus` phase outputs `1` for several proposals, _the proposal with highest priority is selected_.  In a rare case where consensus reports all zeroes, a `default block` is committed.
+The binary consensus executed is the algorithm described in  https://inria.hal.science/hal-00944019/file/RR-2016-Consensus-optimal-V5.pdf
 
-### 3.5.7 Block consensus phase (optimized consensus)
+This algorithm has the following provable properties:
+
+* initially each `node` votes `1' or `0`. So when the algorithm starts, there is no consensus.
+* nodes exchange vote messages as described in the algorithm. 
+* the always completes in final time.
+* when the algorithm completes, it completes with ether `1` or `0` consensus on all nodes
+* if the algorithm completes with 1, there is at least one honest nodes that initially voted 1.
+* if all honest nodes initially vote 1, there resulting consensus will be one.
+* the more honest nodes initially vote 1, the more is the probability that the resulting consensus will be `1`
+
+#### 3.5.8.3 Binary consensuses complete
+
+When `N` binary consensuses complete, each of them arrives at either `1` or '0`
+
+If the consensus completes with `1` it is guaranteed that `1` was initially voted by at least one honest node. That, in turn, guarantees that the particular `block proposal` was `DA safe`, or that it is widely distributed over the network.
+
+
+* If only one binary consensus completes with one, and the rest complete with zero, then _the proposal corresponding to this consensus_ is committed as a block.
+* If a `block consensus` phase outputs `1` for several proposals, _the proposal with highest priority is selected_.  In a rare case where consensus reports all zeroes, a `default block` is committed.
+
+### 3.5.9 Block consensus phase (optimized consensus)
+
+#### 3.5.9.1 Binary consensus start
+
+Once a node receives `DA proof` from `last winner`, the node will start the binary consensus. It will also start binary consensus if a `proposal timeout` is reached and no proposal is received from the `last winner`
+
+During binary consensus phase, a `node` will vote `1` if it received both `proposal` and `DA proof` from the `last winner`, and vote `0` otherwise.
+
+Therefore, only one binary consensus is started.
+
 
 For optimized consensus the node waits for a `DA proof` from the `previous winner`, and then starts a single binary consensus voting `1'. In normal case, this will result in all honest nodes voting `1` and binary consensus resulting in `1`, which leads to committal of the block from `previous winner`.
 
 If `block proposal timeout` is reached, the node will start binary consensus voting `0`. This will typically happen if `previos winner` crashed and did not submit a proposal. In such a rare case, all honest nodes will normally vote `0`. This will lead to binary consensus resulting in `0`. In such a case, a `default block` is committed.
 
-### 3.5.7  Block  signature phase
+### 3.5.9  Block  signature phase
 
 After `block consensus` decides on the winning block, each node will sign the statement specifying the winning proposal (`block signature share`) and broadcast it to other nodes. The node will then wait until receipt of 2/3 of `block signature shares` and merge the shares into `block signature`.
 
