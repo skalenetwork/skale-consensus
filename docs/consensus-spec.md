@@ -158,9 +158,9 @@ During optimized consensus, only the winner of the previous consensus at `blockI
 
 As an example, for block `18`, the winner of the consensus at block `2` was `node 3` is allowed to propose and win.
 
-The full consensus will run for first `N` `blocks`, and then will be re-run every `4 N + 1` `blocks` (65 `blocks`). The reason to re-run the full consensus is to see if network conditions changed. For most blocks, optimized consensus will run that will utilize the previous winner.
+The full consensus will run for first `N` `blocks`, and then will be re-run every `4 N + 1` `blocks` (65 `blocks`). The reason to re-run the `full consensus` is to see if network conditions changed. For most `blocks`, optimized consensus will run that will utilize the `previous winner`.
 
-Full comsensus will also rerun if there is no previous winner, meaning that previous consensus ended with a `default block`.
+Full comsensus will also rerun if there is no `previous winner`, meaning that previous consensus ended with a `default block`.
 
 ## 3.5 Consensus phases
 
