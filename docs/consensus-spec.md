@@ -10,16 +10,16 @@ SKALE consensus is a provably secure algorithm that is used by SKALE chains to o
 
 Consensus includes the following phases
 
-* accept and validate user `transactions` (_submission phase_)
-* broadcast `transactions` to peer nodes (_broadcast phase_)
-* store `transactions` into `pending queues` (_pending queue phase_)
-* create `block proposal` for each `block number` and broadcast it to peers, collecting `2/3 N` `data availability signatures` and creating `DA proofs`. (_block proposal phase_)
-* broadcast `DA proofs` to peers (_DA broadcast phase_)
-* run `block consensus` for each `block proposal` to select a `winning proposal` (_block consensus phase_)
-* sign `block signature share` (statement that states which proposal won). Broadcast `block signature share` to other nodes. Wait until receipt of 2/3 of `block signature shares`. Merge `block signature shares`  into `block signature`. (_block signature phase_)
-* commit the `winning proposal` if this `node` has it in storage. Otherwise download `winning proposal` from other nodes. The `winning proposal` becomes a`committed block` (_block finalization phase_)
-* process the `committed block` through `Ethereum Virtual Machine` to transition to the new `EVM state`. (_EVM processing phase_)
-* store `committed blocks` and `EVM state`(_storage phase_)
+* _submission phase_ : accept and validate user `transactions` 
+* _broadcast phase_ : broadcast `transactions` to peer nodes 
+* _pending queue phase_: store `transactions` into `pending queues` 
+* _block proposal phase_: create `block proposal` for each `block number` and broadcast it to peers, collecting `2/3 N` `data availability signatures` and creating `DA proofs`. 
+* _DA broadcast phase_: broadcast `DA proofs` to peers
+* _block consensus phase_: run `block consensus` for each `block proposal` to select a `winning proposal`
+* _block signature phase_: sign `block signature share` (statement that states which proposal won). Broadcast `block signature share` to other nodes. Wait until receipt of 2/3 of `block signature shares`. Merge `block signature shares`  into `block signature`. 
+* _block finalization phase_: commit the `winning proposal` if this `node` has it in storage. Otherwise download `winning proposal` from other nodes. The `winning proposal` becomes a`committed block` 
+* _EVM processing phase_: process the `committed block` through `Ethereum Virtual Machine` to transition to the new `EVM state`. 
+* _storage phase_: store `committed blocks` and `EVM state`
 
 
 ## 2.2 Typical transaction flow
