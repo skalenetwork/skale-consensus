@@ -9,8 +9,6 @@ Consensus blocks finalized immediately, so block time is equal to the finalizati
 ## 2. Consensus Architecture
 
 
-
-
 ## 2.1 Consensus Phases
 
 During consensus for a particular `blockId` each `node` goes through the following phases
