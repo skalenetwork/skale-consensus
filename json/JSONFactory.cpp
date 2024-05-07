@@ -87,7 +87,6 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile( const string& _sgxUrl, cons
 
         string gethURL = "";
 
-
         return createNodeFromJsonObject( j, nodeIDs, _consensusEngine, _useSGX, sgxUrl,
             _sgxSSLKeyFileFullPath, _sgxSSLCertFileFullPath, _ecdsaKeyName, _ecdsaPublicKeys,
             _blsKeyName, _blsPublicKeys, _blsPublicKey, gethURL, _previousBlsPublicKeys,
