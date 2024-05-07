@@ -45,40 +45,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="806 fix formatting">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node1/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node1/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node10/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node10/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node11/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node11/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node2/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node2/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node3/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node3/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node4/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node4/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node5/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node5/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node6/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node6/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node7/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node7/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node8/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node8/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/11_out_of_16/node9/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/11_out_of_16/node9/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node01/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node01/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node02/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node02/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node03/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node03/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node04/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node04/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node05/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node05/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node06/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node06/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node07/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node07/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node08/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node08/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node09/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node09/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node10/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node10/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node11/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node11/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node12/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node12/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node13/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node13/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node14/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node14/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node15/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node15/Node.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node16/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node16/Node.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

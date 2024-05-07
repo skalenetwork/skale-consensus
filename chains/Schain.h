@@ -347,7 +347,7 @@ public:
     ptr< CryptoManager > getCryptoManager() const;
 
 
-    uint64_t getverifyDaSigsPatchTimeStamp() const;
+    uint64_t getVerifyDaSigsPatchTimeStamp() const;
 
 
     bool isInCreateBlock() const;

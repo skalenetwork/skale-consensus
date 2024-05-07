@@ -1471,7 +1471,7 @@ void Schain::analyzeErrors( ptr< CommittedBlock > _block ) {
         analyzer->analyze( _block );
     }
 }
-uint64_t Schain::getverifyDaSigsPatchTimeStamp() const {
+uint64_t Schain::getVerifyDaSigsPatchTimeStamp() const {
     return verifyDaSigsPatchTimestamp;
 }
 
