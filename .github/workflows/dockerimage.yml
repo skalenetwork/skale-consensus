@@ -4,6 +4,12 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
+
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
       - name: Free disk space
         run: |
           sudo apt-get remove -yq cmake libjsoncpp-dev aria2 ansible azure-cli shellcheck rpm xorriso zsync \

@@ -45,9 +45,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="806 fix formatting">
+      <change beforePath="$PROJECT_DIR$/.github/workflows/dockerimage.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/dockerimage.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node02/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node02/Node.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -521,7 +521,7 @@
       <workItem from="1689266223513" duration="5810000" />
       <workItem from="1689629661010" duration="666000" />
       <workItem from="1690215695807" duration="6042000" />
-      <workItem from="1715092799641" duration="4000" />
+      <workItem from="1715092799641" duration="325000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
