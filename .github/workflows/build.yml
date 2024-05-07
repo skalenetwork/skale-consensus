@@ -2,8 +2,12 @@ name: Build and test skale-consensus
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.9.1
+      with:
+        access_token: ${{ github.token }}
 
     - name: checkout
       uses: actions/checkout@v1

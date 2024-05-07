@@ -45,11 +45,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="806 fix formatting">
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.h" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/zlib/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/sixteennodes/node02/Node.json" beforeDir="false" afterPath="$PROJECT_DIR$/test/sixteennodes/node02/Node.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -126,6 +124,10 @@
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 2
+}]]></component>
   <component name="ProjectId" id="1tLjZg8PrXyNb5KH1T9D17V0hIk" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -142,6 +144,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "WebServerToolWindowFactoryState": "false",
     "cf.advertisement.text.has.clang-format": "true",
     "cf.advertisement.text.overridden": "true",
@@ -237,11 +240,6 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -523,6 +521,7 @@
       <workItem from="1689266223513" duration="5810000" />
       <workItem from="1689629661010" duration="666000" />
       <workItem from="1690215695807" duration="6042000" />
+      <workItem from="1715092799641" duration="4000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
