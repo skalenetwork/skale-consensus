@@ -176,8 +176,8 @@ class Schain : public Agent {
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
 
-    uint64_t verifyDaSigsPatchTimestampS = 0;
-    uint64_t fastConsensusPatchTimestampS = 0;
+    uint64_t verifyDaSigsPatchTimestamp = 0;
+    uint64_t fastConsensusPatchTimestamp = 0;
 
     // If a BlockError analyzer is added to the queue
     // its analyze(CommittedBlock _block) function will be run on commit
@@ -347,7 +347,7 @@ public:
     ptr< CryptoManager > getCryptoManager() const;
 
 
-    uint64_t getVerifyDaSigsPatchTimestampS() const;
+    uint64_t getverifyDaSigsPatchTimeStamp() const;
 
 
     bool isInCreateBlock() const;

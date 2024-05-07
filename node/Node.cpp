@@ -276,10 +276,10 @@ void Node::initParamsFromConfig() {
 
     // for tests we add an option to read patchtimestamps from config
     if ( !consensusEngine->getExtFace() ) {
-        patchTimestamps["fastConsensusPatchTimestampS"] =
-            getParamUint64( "fastConsensusPatchTimestampS", 0 );
-        patchTimestamps["verifyDaSigsPatchTimestampS"] =
-            getParamUint64( "verifyDaSigsPatchTimestampS", 0 );
+        patchTimestamps["fastConsensusPatchTimestamp"] =
+            getParamUint64( "fastConsensusPatchTimestamp", 0 );
+        patchTimestamps["verifyDaSigsPatchTimestamp"] =
+            getParamUint64( "verifyDaSigsPatchTimestamp", 0 );
     }
 }
 

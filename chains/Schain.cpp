@@ -433,7 +433,7 @@ const atomic< bool >& Schain::getIsStateInitialized() const {
 }
 
 bool Schain::verifyDASigsPatch( uint64_t _blockTimeStampS ) {
-    return verifyDaSigsPatchTimestampS != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestampS;
+    return verifyDaSigsPatchTimestamp != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestamp;
 }
 
 
@@ -1471,8 +1471,8 @@ void Schain::analyzeErrors( ptr< CommittedBlock > _block ) {
         analyzer->analyze( _block );
     }
 }
-uint64_t Schain::getVerifyDaSigsPatchTimestampS() const {
-    return verifyDaSigsPatchTimestampS;
+uint64_t Schain::getverifyDaSigsPatchTimeStamp() const {
+    return verifyDaSigsPatchTimestamp;
 }
 
 
@@ -1510,7 +1510,7 @@ Schain::addDAProofToDBAndCalculateProposalVectorIfItsTimeToStartBinaryConsensus(
 
 // returns true if fastConsensusPatch ie enabled
 bool Schain::fastConsensusPatchEnabled(uint64_t _blockTimeStampSec ) {
-    return fastConsensusPatchTimestampS != 0 && _blockTimeStampSec >= fastConsensusPatchTimestampS;
+    return fastConsensusPatchTimestamp != 0 && _blockTimeStampSec >= fastConsensusPatchTimestamp;
 }
 
 // macro to set patchstamp variable from connfig
@@ -1524,6 +1524,6 @@ bool Schain::fastConsensusPatchEnabled(uint64_t _blockTimeStampSec ) {
 
 // set all timestamp values from config
 void Schain::setTimeStampValuesFromConfig() {
-    SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestampS)
-    SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestampS)
+    SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestamp)
+    SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestamp)
 }

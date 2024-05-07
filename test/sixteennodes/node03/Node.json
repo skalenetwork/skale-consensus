@@ -3,6 +3,6 @@
   "nodeID": 1113,
   "bindIP": "127.0.0.3",
   "basePort":1231,
-  "fastConsensusPatchTimestampS": 1,
-  "verifyDaSigsPatchTimestampS": 1
+  "fastConsensusPatchTimestamp": 1,
+  "verifyDaSigsPatchTimeStamp": 1
 }
