@@ -259,8 +259,6 @@ void Network::networkReadLoop() {
 
             // catchup test
             if ( msg->getBlockID() <= catchupBlocks ) {
-                auto syncInfo = getSchain()->getCatchupClientAgent()->getSyncInfo();
-                cerr <<  "Sync Info:" << syncInfo.toString() << endl;
                 continue;
             }
 

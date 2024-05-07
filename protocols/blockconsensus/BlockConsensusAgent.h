@@ -85,4 +85,15 @@ public:
     bool shouldPost( const ptr< NetworkMessage >& _msg );
 
     void routeAndProcessMessage( const ptr< MessageEnvelope >& _me );
+
+    void recordBinaryDecision(
+            const ptr<ChildBVDecidedMessage> &_msg, schain_index &blockProposerIndex, const block_id &blockID);
+
+    bool haveTrueDecision(block_id _blockId, schain_index _proposerIndex);
+
+    bool haveFalseDecision(block_id _blockId, schain_index _proposerIndex);
+
+    void decideNormalBlockConsensusIfCan(block_id _blockId);
+
+    void decideOptimizedBlockConsensusIfCan(block_id _blockId);
 };

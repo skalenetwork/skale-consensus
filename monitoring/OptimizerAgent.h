@@ -16,32 +16,33 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BooleanProposalVector.h
+    @file OptimizerAgent.h
     @author Stan Kladko
-    @date 2018
+    @date 2024 -
 */
 
 #pragma once
 
-#include "DataStructure.h"
+class Agent;
+class Schain;
 
-class BooleanProposalVector : public DataStructure {
-    vector< bool > proposals;  // thread safe
 
-    uint64_t nodeCount = 0;
-    uint64_t trueCount = 0;
+class OptimizerAgent : public Agent {
+
+    uint64_t nodeCount;
 
 public:
-    BooleanProposalVector(
-        node_count _nodeCount, const ptr< map< schain_index, string > >& _receivedDAProofs );
+    explicit OptimizerAgent( Schain& _sChain );
 
-    BooleanProposalVector( node_count _nodeCount, const string& _vectorStr );
 
-    BooleanProposalVector( node_count _nodeCount, schain_index _singleWinner );
+    // we determine consensus winner each 16 blocks
+    [[nodiscard]] bool doOptimizedConsensus(block_id _blockId, uint64_t _lastBlockTimeStamp);
 
-    bool getProposalValue( schain_index _index );
+    schain_index getPreviousWinner(block_id _blockId );
 
-    [[nodiscard]] uint64_t getTrueCount() const;
 
-    string toString();
+    bool skipSendingProposalToTheNetwork(block_id _blockId);
+
+
+    uint64_t getPriorityLeaderForBlock( block_id& _blockID );
 };

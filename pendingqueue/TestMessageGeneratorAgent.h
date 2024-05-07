@@ -29,8 +29,14 @@
 
 class Schain;
 
+constexpr uint64_t RANDOM_TEST_ARRAY_LEN = 1024 * 1024;
+constexpr uint64_t TEST_MESSAGE_SIZE = 500;
+
 class TestMessageGeneratorAgent : Agent {
     uint64_t counter = 0;
+    uint64_t position = 0;
+
+    std::array<uint8_t, RANDOM_TEST_ARRAY_LEN> randomBytes;
 
 public:
     explicit TestMessageGeneratorAgent( Schain& _sChain );

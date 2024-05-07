@@ -273,6 +273,14 @@ void Node::initParamsFromConfig() {
     simulateNetworkWriteDelayMs = getParamInt64( "simulateNetworkWriteDelayMs", 0 );
 
     testConfig = make_shared< TestConfig >( cfg );
+
+    // for tests we add an option to read patchtimestamps from config
+    if ( !consensusEngine->getExtFace() ) {
+        patchTimestamps["fastConsensusPatchTimestampS"] =
+            getParamUint64( "fastConsensusPatchTimestampS", 0 );
+        patchTimestamps["verifyDaSigsPatchTimestampS"] =
+            getParamUint64( "verifyDaSigsPatchTimestampS", 0 );
+    }
 }
 
 uint64_t Node::getProposalHashDBSize() const {

@@ -268,6 +268,13 @@ ptr< CryptoManager > Schain::getCryptoManager() const {
     return cryptoManager;
 }
 
+
+ptr< OptimizerAgent > Schain::getOptimizerAgent() const {
+    CHECK_STATE( optimizerAgent );
+    return optimizerAgent;
+}
+
+
 void Schain::createBlockConsensusInstance() {
     blockConsensusInstance = make_shared< BlockConsensusAgent >( *this );
 }
@@ -320,8 +327,6 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     tpsAverage = ( blockSizeAverage * 1000 ) / blockTimeAverageMs;
     getRandomForBlockId( ( uint64_t ) lastCommittedBlockID );
 
-    if ( getNode()->isSyncOnlyNode() )
-        return;
 }
 
 
