@@ -150,6 +150,7 @@
     "cf.advertisement.text.overridden": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
+
     "git-widget-placeholder": "806__consensus__improvements",
     "last_opened_file_path": "/d/skale-consensus",
     "node.js.detected.package.eslint": "true",
