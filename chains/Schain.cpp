@@ -434,7 +434,7 @@ bool Schain::verifyDASigsPatch( uint64_t _blockTimeStampS ) {
 }
 
 bool Schain::verifyBlsSyncPatch( uint64_t _blockTimeStampS ) {
-    return verifyBlsSyncPatchTimestampS != 0 && _blockTimeStampS >= verifyBlsSyncPatchTimestampS;
+    return verifyBlsSyncPatchTimestamp != 0 && _blockTimeStampS >= verifyBlsSyncPatchTimestamp;
 }
 
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
@@ -1476,7 +1476,7 @@ uint64_t Schain::getVerifyDaSigsPatchTimeStamp() const {
 }
 
 uint64_t Schain::getVerifyBlsSyncPatchTimestampS() const {
-    return verifyBlsSyncPatchTimestampS;
+    return verifyBlsSyncPatchTimestamp;
 }
 
 
@@ -1528,4 +1528,5 @@ bool Schain::fastConsensusPatchEnabled(uint64_t _blockTimeStampSec ) {
 void Schain::setTimeStampValuesFromConfig() {
     SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestamp)
+    SET_TIMESTAMP_FROM_CONFIG(verifyBlsSyncPatchTimestamp)
 }
