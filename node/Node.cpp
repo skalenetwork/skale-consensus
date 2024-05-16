@@ -721,7 +721,6 @@ bool Node::isSyncOnlyNode() const {
     return isSyncNode;
 }
 
-
 bool Node::verifyRealSignatures() const {
     return sgxEnabled || ( isSyncNode && blsPublicKey );
 }

@@ -1032,33 +1032,32 @@ void ConsensusEngine::setSGXKeyInfo( const string& _sgxServerURL, string& _sgxSS
 
 void ConsensusEngine::setPublicKeyInfo( ptr< vector< string > >& _ecdsaPublicKeys,
     ptr< vector< ptr< vector< string > > > >& _blsPublicKeyShares, uint64_t _requiredSigners,
-    uint64_t _totalSigners ) {
+    uint64_t _totalSigners, bool _isSyncNode ) {
     CHECK_STATE( _blsPublicKeyShares );
     CHECK_STATE( _ecdsaPublicKeys );
     CHECK_STATE( _ecdsaPublicKeys );
     CHECK_STATE( _totalSigners >= _requiredSigners );
 
 
-    this->blsPublicKeys = _blsPublicKeyShares;
     this->ecdsaPublicKeys = _ecdsaPublicKeys;
+    this->blsPublicKeys = _blsPublicKeyShares;
 
+    if ( !_isSyncNode ) {
+        map< size_t, shared_ptr< BLSPublicKeyShare > > blsPubKeyShares;
+        for ( uint64_t i = 0; i < _requiredSigners; i++ ) {
+            LOG( info, "Parsing BLS key share:" << blsPublicKeys->at( i )->at( 0 ) );
 
-    map< size_t, shared_ptr< BLSPublicKeyShare > > blsPubKeyShares;
+            BLSPublicKeyShare pubKey( blsPublicKeys->at( i ), _requiredSigners, _totalSigners );
 
+            blsPubKeyShares[i + 1] = make_shared< BLSPublicKeyShare >( pubKey );
+        }
 
-    for ( uint64_t i = 0; i < _requiredSigners; i++ ) {
-        LOG( info, "Parsing BLS key share:" << blsPublicKeys->at( i )->at( 0 ) );
+        // create pub key
 
-        BLSPublicKeyShare pubKey( blsPublicKeys->at( i ), _requiredSigners, _totalSigners );
-
-        blsPubKeyShares[i + 1] = make_shared< BLSPublicKeyShare >( pubKey );
+        blsPublicKey = make_shared< BLSPublicKey >(
+            make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
+            _requiredSigners, _totalSigners );
     }
-
-    // create pub key
-
-    blsPublicKey = make_shared< BLSPublicKey >(
-        make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
-        _requiredSigners, _totalSigners );
 }
 
 
@@ -1078,6 +1077,10 @@ void ConsensusEngine::setRotationHistory( ptr< map< uint64_t, vector< string > >
         make_shared< map< uint64_t, ptr< BLSPublicKey > > >( _previousBlsPublicKeys );
     historicECDSAPublicKeys = _historicECDSAKeys;
     historicNodeGroups = _historicNodeGroups;
+
+    // initialize for the sync nodes
+    if ( !blsPublicKey && _previousBlsPublicKeys.size() )
+        blsPublicKey = _previousBlsPublicKeys.rbegin()->second;
 }
 
 const string ConsensusEngine::getEcdsaKeyName() const {

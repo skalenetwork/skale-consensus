@@ -292,9 +292,6 @@ Schain::Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_
 
         getNode()->registerAgent( this );
 
-
-
-
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
@@ -436,6 +433,9 @@ bool Schain::verifyDASigsPatch( uint64_t _blockTimeStampS ) {
     return verifyDaSigsPatchTimestamp != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestamp;
 }
 
+bool Schain::verifyBlsSyncPatch( uint64_t _blockTimeStampS ) {
+    return verifyBlsSyncPatchTimestampS != 0 && _blockTimeStampS >= verifyBlsSyncPatchTimestampS;
+}
 
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig ) {
@@ -1475,7 +1475,9 @@ uint64_t Schain::getVerifyDaSigsPatchTimeStamp() const {
     return verifyDaSigsPatchTimestamp;
 }
 
-
+uint64_t Schain::getVerifyBlsSyncPatchTimestampS() const {
+    return verifyBlsSyncPatchTimestampS;
+}
 
 
 mutex Schain::vdsMutex;
