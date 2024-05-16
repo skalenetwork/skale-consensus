@@ -280,6 +280,8 @@ void Node::initParamsFromConfig() {
             getParamUint64( "fastConsensusPatchTimestamp", 0 );
         patchTimestamps["verifyDaSigsPatchTimestamp"] =
             getParamUint64( "verifyDaSigsPatchTimestamp", 0 );
+        patchTimestamps["verifyBlsSyncPatchTimestamp"] =
+                getParamUint64( "verifyBlsSyncPatchTimestamp", 0 );
     }
 }
 
