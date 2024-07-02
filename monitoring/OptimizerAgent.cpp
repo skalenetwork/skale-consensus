@@ -87,9 +87,7 @@ uint64_t OptimizerAgent::getPriorityLeaderForBlock( block_id& _blockID ) {
         // note that the priorityLeader variable goes from 0 to N-1
         // Thats why we need to subtract one because schain index goes from 1 to N
 
-
-        auto doOptimized = doOptimizedConsensus( _blockID, lastBlockStampS );
-        if ( doOptimized ) {
+        if ( doOptimizedConsensus( _blockID, lastBlockStampS ) ) {
             priorityLeader =
                 ( uint64_t ) getSchain()->getOptimizerAgent()->getPreviousWinner( _blockID ) - 1;
         } else {
