@@ -74,14 +74,22 @@ uint64_t OptimizerAgent::getPriorityLeaderForBlock( block_id& _blockID ) {
         seed = *( ( uint64_t* ) previousBlock->getHash().data() );
     }
 
-    auto lastBlockStampS = getSchain()->getLastCommittedBlockTimeStamp().getS();
+    uint lastBlockStampS = 0;
+
+    if (_blockID > 1) {
+        lastBlockStampS = getSchain()->getBlock(_blockID - 1)->getTimeStampS();
+    }
+
 
     if ( getSchain()->fastConsensusPatchEnabled( lastBlockStampS ) ) {
         // in the new scheme priority leader changes in Round Robin fashion for normal consensus
         // and is the previous block winner in the optimized consensus.
         // note that the priorityLeader variable goes from 0 to N-1
         // Thats why we need to subtract one because schain index goes from 1 to N
-        if ( doOptimizedConsensus( _blockID, lastBlockStampS ) ) {
+
+
+        auto doOptimized = doOptimizedConsensus( _blockID, lastBlockStampS );
+        if ( doOptimized ) {
             priorityLeader =
                 ( uint64_t ) getSchain()->getOptimizerAgent()->getPreviousWinner( _blockID ) - 1;
         } else {
@@ -93,6 +101,11 @@ uint64_t OptimizerAgent::getPriorityLeaderForBlock( block_id& _blockID ) {
     }
 
     CHECK_STATE( priorityLeader < nodeCount );
+
+    cerr << "Block id " << _blockID << " Priority leader " << priorityLeader
+       << endl;
+
+
     return priorityLeader;
 }
 
