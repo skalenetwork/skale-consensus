@@ -98,11 +98,6 @@ uint64_t OptimizerAgent::getPriorityLeaderForBlock( block_id& _blockID ) {
     }
 
     CHECK_STATE( priorityLeader < nodeCount );
-
-    cerr << "Block id " << _blockID << " Priority leader " << priorityLeader
-       << endl;
-
-
     return priorityLeader;
 }
 
