@@ -2350,12 +2350,12 @@ if [ "$WITH_BLAKE3" = "yes" ]; then
       git checkout master
       if [ "$ARCH" = "x86_or_x64" ]; then
         if [ "$UNIX_SYSTEM_NAME" = "Darwin" ]; then
-          gcc -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
+          gcc -c -O3 blake3.c blake3_dispatch.c blake3_portable.c \
             blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
             blake3_avx512_x86-64_unix.S
           ar rcs libblake3.a *.o
         else
-          gcc -c -O3 -g blake3.c blake3_dispatch.c blake3_portable.c \
+          gcc -c -O3 blake3.c blake3_dispatch.c blake3_portable.c \
             blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
             blake3_avx512_x86-64_unix.S
             ar rcs libblake3.a *.o
