@@ -1123,7 +1123,7 @@ void Schain::healthCheck() {
     LOG( info, "Waiting to connect to peers (could be up to two minutes)" );
 
 
-    while ( connections.size() + 1 < getNodeCount() ) {
+    while ( connections.size() + !getNode()->isSyncOnlyNode() < getNodeCount() ) {
         // will optimistically wait for all nodes.
         // if not all nodes are present, will be satisfied by 2/3 nodes
 

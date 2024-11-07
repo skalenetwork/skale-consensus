@@ -53,7 +53,7 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, fals
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
-        if ( _sChain.getNodeCount() > 1 ) {
+        if ( _sChain.getNodeCount() > 1 || _sChain.getNode()->isSyncOnlyNode() ) {
             this->catchupClientThreadPool = make_shared< CatchupClientThreadPool >( 1, this );
             catchupClientThreadPool->startService();
         }
@@ -76,7 +76,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
     CHECK_ARGUMENT( _socket )
     CHECK_ARGUMENT( _requestHeader )
     auto result = sChain->getIo()->readJsonHeader( _socket->getDescriptor(),
-        "Read catchup response", 30, _socket->getIP(), MAX_CATCHUP_DOWNLOAD_BYTES );
+        "Read catchup response", 300, _socket->getIP(), MAX_CATCHUP_DOWNLOAD_BYTES );
     return result;
 }
 
@@ -296,9 +296,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
         usleep( 100 * 1000 );
     }
 
-
     // start with a random index and then to round-robin
-
 
     auto nodeCount = ( uint64_t ) _agent->getSchain()->getNodeCount();
     auto selfIndex = _agent->getSchain()->getSchainIndex();
