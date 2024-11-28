@@ -76,7 +76,7 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
     CHECK_ARGUMENT( _socket )
     CHECK_ARGUMENT( _requestHeader )
     auto result = sChain->getIo()->readJsonHeader( _socket->getDescriptor(),
-        "Read catchup response", 30, _socket->getIP(), MAX_CATCHUP_DOWNLOAD_BYTES );
+        "Read catchup response", 300, _socket->getIP(), MAX_CATCHUP_DOWNLOAD_BYTES );
     return result;
 }
 
