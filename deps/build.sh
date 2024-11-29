@@ -253,10 +253,10 @@ setup_variable() {
 #setup_variable "WITH_SOMETHING" "yeah!!!"
 #echo "WITH_SOMETHING outside is " $WITH_SOMETHING
 
-setup_variable WITH_ZLIB "yes"
+setup_variable WITH_ZLIB "no"
 setup_variable WITH_BLAKE3 "yes"
 setup_variable WITH_OPENSSL "no"
-setup_variable WITH_CURL "yes"
+setup_variable WITH_CURL "no"
 setup_variable WITH_LZMA "no"
 setup_variable WITH_SSH "no"
 setup_variable WITH_SODIUM "yes"
@@ -276,7 +276,7 @@ setup_variable WITH_SOURCEY "no"
 
 setup_variable WITH_BOOST "no"
 setup_variable WITH_PUPNP "no"
-setup_variable WITH_ARGTABLE2 "yes"
+setup_variable WITH_ARGTABLE2 "no"
 
 #
 # notice: nettle and gnutls are needed for microhttpd on ubuntu 18.04
@@ -288,14 +288,16 @@ setup_variable WITH_GNU_TLS "no"
 #
 setup_variable WITH_GPGERROR "no"
 setup_variable WITH_GCRYPT "no"
-setup_variable WITH_MICRO_HTTP_D "yes"
-setup_variable WITH_JSONCPP "yes"
-setup_variable WITH_JSONRPCCPP "yes"
+setup_variable WITH_MICRO_HTTP_D "no"
+setup_variable WITH_JSONCPP "no"
+setup_variable WITH_JSONRPCCPP "no"
 setup_variable WITH_CRYPTOPP "yes"
 
 setup_variable WITH_FF "no"
 setup_variable WITH_GMP "no"
 setup_variable WITH_PBC "no"
+
+setup_variable WITH_LEVELDB "yes"
 
 if [ -z "${PARALLEL_COUNT}" ];
 then
@@ -600,6 +602,7 @@ echo -e "${COLOR_VAR_NAME}WITH_CRYPTOPP${COLOR_DOTS}..........${COLOR_VAR_DESC}L
 echo -e "${COLOR_VAR_NAME}WITH_GMP${COLOR_DOTS}...............${COLOR_VAR_DESC}LibGMP${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_GMP${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_FF${COLOR_DOTS}................${COLOR_VAR_DESC}LibFF${COLOR_DOTS}..................................${COLOR_VAR_VAL}$WITH_FF${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_PBC${COLOR_DOTS}...............${COLOR_VAR_DESC}LibPBC${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_PBC${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_LEVELDB${COLOR_DOTS}...........${COLOR_VAR_DESC}LibLevelDB${COLOR_DOTS}.........................${COLOR_VAR_VAL}$WITH_LEVELDB${COLOR_RESET}"
 
 #
 #
@@ -2373,6 +2376,35 @@ if [ "$WITH_BLAKE3" = "yes" ]; then
     echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
   fi
 fi
+
+if [ "$WITH_LEVELDB" = "yes" ];
+then
+    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LEVELDB${COLOR_SEPARATOR} ===========================================${COLOR_RESET}"
+    if [ ! -f "$INSTALL_ROOT/lib/libleveldb.a" ];
+    then
+        env_restore
+        cd "$SOURCES_ROOT"
+        if [ ! -d "leveldb" ];
+        then
+            echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+            git clone https://github.com/google/leveldb.git --recursive
+        fi
+        cd leveldb
+        git checkout 1.22
+        echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+        mkdir -p build
+        cd build
+        $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+                -DLEVELDB_BUILD_BENCHMARKS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
+        echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+        $MAKE ${PARALLEL_MAKE_OPTIONS}
+        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        cd "$SOURCES_ROOT"
+    else
+        echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+    fi
+fi
+
 
 echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
 echo -e "${COLOR_YELLOW}CONSENSUS dependencies build actions...${COLOR_RESET}"
