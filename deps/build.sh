@@ -253,10 +253,10 @@ setup_variable() {
 #setup_variable "WITH_SOMETHING" "yeah!!!"
 #echo "WITH_SOMETHING outside is " $WITH_SOMETHING
 
-setup_variable WITH_ZLIB "no"
+setup_variable WITH_ZLIB "yes"
 setup_variable WITH_BLAKE3 "yes"
 setup_variable WITH_OPENSSL "no"
-setup_variable WITH_CURL "no"
+setup_variable WITH_CURL "yes"
 setup_variable WITH_LZMA "no"
 setup_variable WITH_SSH "no"
 setup_variable WITH_SODIUM "yes"
@@ -276,7 +276,7 @@ setup_variable WITH_SOURCEY "no"
 
 setup_variable WITH_BOOST "no"
 setup_variable WITH_PUPNP "no"
-setup_variable WITH_ARGTABLE2 "no"
+setup_variable WITH_ARGTABLE2 "yes"
 
 #
 # notice: nettle and gnutls are needed for microhttpd on ubuntu 18.04
@@ -288,7 +288,7 @@ setup_variable WITH_GNU_TLS "no"
 #
 setup_variable WITH_GPGERROR "no"
 setup_variable WITH_GCRYPT "no"
-setup_variable WITH_MICRO_HTTP_D "no"
+setup_variable WITH_MICRO_HTTP_D "yes"
 setup_variable WITH_JSONCPP "yes"
 setup_variable WITH_JSONRPCCPP "yes"
 setup_variable WITH_CRYPTOPP "yes"
