@@ -309,7 +309,8 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
 
     do {
         uint64_t random;
-        getrandom( &random, sizeof( random ), 0 );
+        int res = getrandom( &random, sizeof( random ), 0 );
+        CHECK_STATE( res > 0 );
         startIndex = random % nodeCount + 1;
     } while ( startIndex == ( uint64_t ) selfIndex );
 
