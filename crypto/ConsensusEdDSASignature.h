@@ -24,6 +24,8 @@
 #ifndef SKALED_CONSENSUSEDDSASIGNATURE_H
 #define SKALED_CONSENSUSEDDSASIGNATURE_H
 
+#pragma GCC diagnostic ignored "-Wreturn-type"
+
 #include "ThresholdSignature.h"
 
 class ConsensusEdDSASigShareSet;
