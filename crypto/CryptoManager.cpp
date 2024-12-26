@@ -1266,10 +1266,11 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
     std::string random_string;
     std::generate_n( std::back_inserter( random_string ), 10,
         [&]() { return VALID_CHARS[distribution( generator )]; } );
-    system(
+    int res = system(
         ( "/usr/bin/openssl req -new -sha256 -nodes -out " + _fullPathToDir +
             "/csr  -newkey rsa:2048 -keyout " + _fullPathToDir + "/key -subj /CN=" + random_string )
             .data() );
+    CHECK_STATE(res == 0);
     string str, csr;
     ifstream file;
     file.open( _fullPathToDir + "/csr" );
