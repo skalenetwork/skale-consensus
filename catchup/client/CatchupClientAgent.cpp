@@ -75,8 +75,9 @@ nlohmann::json CatchupClientAgent::readCatchupResponseHeader(
     const ptr< ClientSocket >& _socket, ptr< CatchupRequestHeader > _requestHeader ) {
     CHECK_ARGUMENT( _socket )
     CHECK_ARGUMENT( _requestHeader )
+    uint32_t timeoutSec = getNode()->isSyncOnlyNode() ? 300 : 30;
     auto result = sChain->getIo()->readJsonHeader( _socket->getDescriptor(),
-        "Read catchup response", 300, _socket->getIP(), MAX_CATCHUP_DOWNLOAD_BYTES );
+        "Read catchup response", timeoutSec, _socket->getIP(), MAX_CATCHUP_DOWNLOAD_BYTES );
     return result;
 }
 
