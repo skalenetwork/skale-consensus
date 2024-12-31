@@ -57,9 +57,10 @@ link_directories("${DEPS_INSTALL_ROOT}/lib")
 set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
 
 #leveldb
+find_package(leveldb CONFIG REQUIRED)
+
 find_package( Snappy CONFIG REQUIRED )
 find_package( Crc32c CONFIG REQUIRED )
-find_package(leveldb CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 17)
 execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION )
