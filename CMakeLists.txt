@@ -198,6 +198,8 @@ SET(LINK_LIBRARIES
         ${BOOST_LIBS_FOR_CONSENSUS}
         ${LIB_NAME_cryptopp}
         leveldb
+        snappy
+        crc32c
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-server.a"
         "${DEPS_INSTALL_ROOT}/lib/libmicrohttpd.a"
