@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
     message(STATUS "**********************")
@@ -20,12 +19,6 @@ if (NOT DEFINED DEPS_INSTALL_ROOT)
     set(DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64")
 endif ()
 message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
-
-#include("cmake/HunterGate.cmake")
-#include("cmake/precompiledheader.cmake")
-
-
-#HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c7b60993e841850e2c449afd454f5d5aa4ec04e4")
 
 option( CONSENSUS_PROFILING "Build for profiling" OFF )
 if( SKALED_PROFILING )
@@ -63,15 +56,10 @@ include_directories("${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include
 link_directories("${DEPS_INSTALL_ROOT}/lib")
 set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
 
-# zeromq
-
-#find_package(оч CONFIG REQUIRED)
-
 #leveldb
+find_package( Snappy CONFIG REQUIRED )
+find_package( Crc32c CONFIG REQUIRED )
 find_package(leveldb CONFIG REQUIRED)
-
-#set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
-
 
 set(CMAKE_CXX_STANDARD 17)
 execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION )
