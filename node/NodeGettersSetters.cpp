@@ -430,18 +430,18 @@ void Node::setExitOnBlockBoundaryRequested() {
     exitOnBlockBoundaryRequested = true;
 }
 
-void Node::getCatchupTimeoutMs() const {
+uint64_t Node::getCatchupTimeoutMs() const {
     return catchupTimeoutMs;
 }
 
-void Node::getSyncNodeCatchupTimeoutMs() const {
+uint64_t Node::getSyncNodeCatchupTimeoutMs() const {
     return syncNodeCatchupTimeoutMs;
 }
 
-void Node::getReadJsonHeaderTimeoutMs() const {
+uint64_t Node::getReadJsonHeaderTimeoutMs() const {
     return readJsonHeaderTimeoutMs;
 }
 
-void Node::getSyncNodeReadJsonHeaderTimeoutMs() const {
+uint64_t Node::getSyncNodeReadJsonHeaderTimeoutMs() const {
     return syncNodeReadJsonHeaderTimeoutMs;
 }

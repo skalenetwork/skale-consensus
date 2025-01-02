@@ -405,6 +405,14 @@ public:
     uint64_t getMaxTransactionsPerBlock() const;
 
     uint64_t getMinBlockIntervalMs() const;
+    
+    uint64_t getCatchupTimeoutMs() const;
+
+    uint64_t getSyncNodeCatchupTimeoutMs() const;
+
+    uint64_t getReadJsonHeaderTimeoutMs() const;
+
+    uint64_t getSyncNodeReadJsonHeaderTimeoutMs() const;
 
     uint64_t getWaitAfterNetworkErrorMs();
 
