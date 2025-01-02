@@ -7,7 +7,7 @@ RUN apt-get update
 RUN sudo apt-add-repository universe; apt-get update; \
     apt-get install -yq libprocps-dev gcc-11 g++-11 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev \
     yasm texinfo autotools-dev automake python3 python3-pip \
-    cmake libtool pkg-config autoconf wget git \
+    cmake libtool pkg-config autoconf wget git unzip \
     libhiredis-dev redis-server openssl libssl-dev doxygen idn2 libgcrypt20-dev \
     libargtable2-dev libgnutls28-dev
     # python python-pip
@@ -36,8 +36,6 @@ WORKDIR /consensust
 
 RUN cd deps && ./build.sh
 RUN ccache -M 20G
-RUN mkdir -p "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/ && \
-    wget -O "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/hunter-1.0.5.tar.gz https://github.com/hunter-packages/crc32c/archive/refs/tags/hunter-1.0.5.tar.gz 
 RUN mkdir build
 WORKDIR build
 RUN cmake .. -DCMAKE_BUILD_TYPE=Debug
