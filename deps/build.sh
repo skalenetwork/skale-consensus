@@ -297,6 +297,10 @@ setup_variable WITH_FF "no"
 setup_variable WITH_GMP "no"
 setup_variable WITH_PBC "no"
 
+setup_variable WITH_CRC32 "yes"
+setup_variable WITH_SNAPPY "yes"
+setup_variable WITH_LEVELDB "yes"
+
 if [ -z "${PARALLEL_COUNT}" ];
 then
 	PARALLEL_COUNT=$NUMBER_OF_CPU_CORES
@@ -600,10 +604,9 @@ echo -e "${COLOR_VAR_NAME}WITH_CRYPTOPP${COLOR_DOTS}..........${COLOR_VAR_DESC}L
 echo -e "${COLOR_VAR_NAME}WITH_GMP${COLOR_DOTS}...............${COLOR_VAR_DESC}LibGMP${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_GMP${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_FF${COLOR_DOTS}................${COLOR_VAR_DESC}LibFF${COLOR_DOTS}..................................${COLOR_VAR_VAL}$WITH_FF${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_PBC${COLOR_DOTS}...............${COLOR_VAR_DESC}LibPBC${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_PBC${COLOR_RESET}"
-
-#
-#
-#
+echo -e "${COLOR_VAR_NAME}WITH_CRC32${COLOR_DOTS}.............${COLOR_VAR_DESC}LibCrc32${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_CRC32${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_SNAPPY${COLOR_DOTS}............${COLOR_VAR_DESC}LibSnappy${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_SNAPPY${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_LEVELDB${COLOR_DOTS}...........${COLOR_VAR_DESC}LibLevelDB${COLOR_DOTS}.............................${COLOR_VAR_VAL}$WITH_LEVELDB${COLOR_RESET}"
 
 cd "$SOURCES_ROOT"
 
@@ -2373,6 +2376,91 @@ if [ "$WITH_BLAKE3" = "yes" ]; then
     echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
   fi
 fi
+
+if [ "$WITH_CRC32" = "yes" ];
+then
+    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LibCrc32${COLOR_SEPARATOR} ===========================================${COLOR_RESET}"
+    if [ ! -f "$INSTALL_ROOT/lib/libcrc32c.a" ];
+    then
+        env_restore
+        cd "$SOURCES_ROOT"
+        if [ ! -d "crc32c" ];
+        then
+            echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+            git clone https://github.com/google/crc32c.git --recursive
+        fi
+        cd crc32c
+        git checkout 1.0.5
+        echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+        mkdir -p build
+        cd build
+        $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+                -DCRC32C_BUILD_BENCHMARKS=OFF -DCRC32C_BUILD_TESTS=OFF -DCRC32C_USE_GLOG=OFF ..
+        echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+        $MAKE ${PARALLEL_MAKE_OPTIONS}
+        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        cd "$SOURCES_ROOT"
+    else
+        echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+    fi
+fi
+
+if [ "$WITH_SNAPPY" = "yes" ];
+then
+    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LibSnappy${COLOR_SEPARATOR} ===========================================${COLOR_RESET}"
+    if [ ! -f "$INSTALL_ROOT/lib/libsnappy.a" ];
+    then
+        env_restore
+        cd "$SOURCES_ROOT"
+        if [ ! -d "snappy" ];
+        then
+            echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+            git clone https://github.com/google/snappy.git --recursive
+        fi
+        cd snappy
+        git checkout 1.1.7
+        echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+        mkdir -p build
+        cd build
+        $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+                -DSNAPPY_BUILD_TESTS=OFF ..
+        echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+        $MAKE ${PARALLEL_MAKE_OPTIONS}
+        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        cd "$SOURCES_ROOT"
+    else
+        echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+    fi
+fi
+
+if [ "$WITH_LEVELDB" = "yes" ];
+then
+    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LEVELDB${COLOR_SEPARATOR} ===========================================${COLOR_RESET}"
+    if [ ! -f "$INSTALL_ROOT/lib/libleveldb.a" ];
+    then
+        env_restore
+        cd "$SOURCES_ROOT"
+        if [ ! -d "leveldb" ];
+        then
+            echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+            git clone https://github.com/skalenetwork/leveldb.git --recursive
+        fi
+        cd leveldb
+        git checkout skale
+        echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+        mkdir -p build
+        cd build
+        $CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+				-DCMAKE_PREFIX_PATH="$INSTALL_ROOT" -DLEVELDB_BUILD_BENCHMARKS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
+        echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+        $MAKE ${PARALLEL_MAKE_OPTIONS}
+        $MAKE ${PARALLEL_MAKE_OPTIONS} install
+        cd "$SOURCES_ROOT"
+    else
+        echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+    fi
+fi
+
 
 echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
 echo -e "${COLOR_YELLOW}CONSENSUS dependencies build actions...${COLOR_RESET}"
