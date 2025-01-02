@@ -202,6 +202,14 @@ class Node {
     uint64_t minBlockIntervalMs = 0;
 
     uint64_t blockDBSize = 0;
+
+    uint64_t catchupTimeoutMs = 0;
+
+    uint64_t syncNodeCatchupTimeoutMs = 0;
+
+    uint64_t readJsonHeaderTimeoutMs = 0;
+
+    uint64_t syncNodeReadJsonHeaderTimeoutMs = 0;
     ;
     uint64_t proposalHashDBSize = 0;
     uint64_t proposalVectorDBSize = 0;

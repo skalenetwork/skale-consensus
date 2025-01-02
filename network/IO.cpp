@@ -264,7 +264,9 @@ nlohmann::json IO::readJsonHeader( file_descriptor descriptor, const char* _erro
     auto buf2 = make_shared< vector< uint8_t > >( sizeof( uint64_t ) );
 
     try {
-        uint32_t timeoutSec = sChain->getNode()->isSyncOnlyNode() ? 300 : 6;
+        uint32_t timeoutSec = sChain->getNode()->isSyncOnlyNode() ?
+                                getNode()->getSyncNodeReadJsonHeaderTimeoutMs() :
+                                getNode()->getReadJsonHeaderTimeoutMs();
         readBytes( descriptor, buf2, msg_len( sizeof( uint64_t ) ), timeoutSec );
     } catch ( ExitRequestedException& ) {
         throw;
