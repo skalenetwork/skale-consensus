@@ -203,13 +203,13 @@ class Node {
 
     uint64_t blockDBSize = 0;
 
-    uint64_t catchupTimeoutMs = 0;
+    uint64_t catchupTimeoutSec = 0;
 
-    uint64_t syncNodeCatchupTimeoutMs = 0;
+    uint64_t syncNodecatchupTimeoutSec = 0;
 
-    uint64_t readJsonHeaderTimeoutMs = 0;
+    uint64_t readJsonHeaderTimeoutSec = 0;
 
-    uint64_t syncNodeReadJsonHeaderTimeoutMs = 0;
+    uint64_t syncNodereadJsonHeaderTimeoutSec = 0;
     ;
     uint64_t proposalHashDBSize = 0;
     uint64_t proposalVectorDBSize = 0;
@@ -406,13 +406,13 @@ public:
 
     uint64_t getMinBlockIntervalMs() const;
     
-    uint64_t getCatchupTimeoutMs() const;
+    uint64_t getcatchupTimeoutSec() const;
 
-    uint64_t getSyncNodeCatchupTimeoutMs() const;
+    uint64_t getSyncNodecatchupTimeoutSec() const;
 
-    uint64_t getReadJsonHeaderTimeoutMs() const;
+    uint64_t getreadJsonHeaderTimeoutSec() const;
 
-    uint64_t getSyncNodeReadJsonHeaderTimeoutMs() const;
+    uint64_t getSyncNodereadJsonHeaderTimeoutSec() const;
 
     uint64_t getWaitAfterNetworkErrorMs();
 
