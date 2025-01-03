@@ -408,11 +408,11 @@ public:
     
     uint64_t getCatchupTimeoutSec() const;
 
-    uint64_t getSyncNodecatchupTimeoutSec() const;
+    uint64_t getSyncNodeCatchupTimeoutSec() const;
 
     uint64_t getReadJsonHeaderTimeoutSec() const;
 
-    uint64_t getSyncNodereadJsonHeaderTimeoutSec() const;
+    uint64_t getSyncNodeReadJsonHeaderTimeoutSec() const;
 
     uint64_t getWaitAfterNetworkErrorMs();
 
