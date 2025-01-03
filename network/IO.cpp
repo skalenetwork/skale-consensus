@@ -265,8 +265,8 @@ nlohmann::json IO::readJsonHeader( file_descriptor descriptor, const char* _erro
 
     try {
         uint32_t timeoutSec = sChain->getNode()->isSyncOnlyNode() ?
-                                sChain->getNode()->getSyncNodeReadJsonHeaderTimeoutMs() :
-                                sChain->getNode()->getReadJsonHeaderTimeoutMs();
+                                sChain->getNode()->getSyncNodereadJsonHeaderTimeoutSec() :
+                                sChain->getNode()->getreadJsonHeaderTimeoutSec();
         readBytes( descriptor, buf2, msg_len( sizeof( uint64_t ) ), timeoutSec );
     } catch ( ExitRequestedException& ) {
         throw;
