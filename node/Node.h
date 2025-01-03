@@ -406,11 +406,11 @@ public:
 
     uint64_t getMinBlockIntervalMs() const;
     
-    uint64_t getcatchupTimeoutSec() const;
+    uint64_t getCatchupTimeoutSec() const;
 
     uint64_t getSyncNodecatchupTimeoutSec() const;
 
-    uint64_t getreadJsonHeaderTimeoutSec() const;
+    uint64_t getReadJsonHeaderTimeoutSec() const;
 
     uint64_t getSyncNodereadJsonHeaderTimeoutSec() const;
 
