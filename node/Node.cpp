@@ -253,12 +253,12 @@ void Node::initParamsFromConfig() {
         getParamUint64( "maxTransactionsPerBlock", MAX_TRANSACTIONS_PER_BLOCK );
     minBlockIntervalMs = getParamUint64( "minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS );
     catchupTimeoutSec = getParamUint64( "catchupTimeoutSec", CATCHUP_TIMEOUT_SEC );
-    syncNodecatchupTimeoutSec =
-        getParamUint64( "syncNodecatchupTimeoutSec", SYNC_NODE_CATCHUP_TIMEOUT_SEC );
+    syncNodeCatchupTimeoutSec =
+        getParamUint64( "syncNodeCatchupTimeoutSec", SYNC_NODE_CATCHUP_TIMEOUT_SEC );
     readJsonHeaderTimeoutSec =
         getParamUint64( "readJsonHeaderTimeoutSec", READ_JSON_HEADER_TIMEOUT_SEC );
-    syncNodereadJsonHeaderTimeoutSec =
-        getParamUint64( "syncNodereadJsonHeaderTimeoutSec", SYNC_NODE_READ_JSON_HEADER_TIMEOUT_SEC );
+    syncNodeReadJsonHeaderTimeoutSec =
+        getParamUint64( "syncNodeReadJsonHeaderTimeoutSec", SYNC_NODE_READ_JSON_HEADER_TIMEOUT_SEC );
     testNet = ( getParamUint64( "isTestNet", 0 ) > 0 );
 
     blockDBSize = storageLimits->getBlockDbSize();

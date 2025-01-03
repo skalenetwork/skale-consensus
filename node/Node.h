@@ -205,11 +205,11 @@ class Node {
 
     uint64_t catchupTimeoutSec = 0;
 
-    uint64_t syncNodecatchupTimeoutSec = 0;
+    uint64_t syncNodeCatchupTimeoutSec = 0;
 
     uint64_t readJsonHeaderTimeoutSec = 0;
 
-    uint64_t syncNodereadJsonHeaderTimeoutSec = 0;
+    uint64_t syncNodeReadJsonHeaderTimeoutSec = 0;
     ;
     uint64_t proposalHashDBSize = 0;
     uint64_t proposalVectorDBSize = 0;
@@ -408,11 +408,11 @@ public:
     
     uint64_t getCatchupTimeoutSec() const;
 
-    uint64_t getSyncNodeCatchupTimeoutSec() const;
+    uint64_t getsyncNodeCatchupTimeoutSec() const;
 
     uint64_t getReadJsonHeaderTimeoutSec() const;
 
-    uint64_t getSyncNodeReadJsonHeaderTimeoutSec() const;
+    uint64_t getsyncNodeReadJsonHeaderTimeoutSec() const;
 
     uint64_t getWaitAfterNetworkErrorMs();
 

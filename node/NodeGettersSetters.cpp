@@ -434,14 +434,14 @@ uint64_t Node::getCatchupTimeoutSec() const {
     return catchupTimeoutSec;
 }
 
-uint64_t Node::getSyncNodeCatchupTimeoutSec() const {
-    return syncNodecatchupTimeoutSec;
+uint64_t Node::getsyncNodeCatchupTimeoutSec() const {
+    return syncNodeCatchupTimeoutSec;
 }
 
 uint64_t Node::getReadJsonHeaderTimeoutSec() const {
     return readJsonHeaderTimeoutSec;
 }
 
-uint64_t Node::getSyncNodeReadJsonHeaderTimeoutSec() const {
-    return syncNodereadJsonHeaderTimeoutSec;
+uint64_t Node::getsyncNodeReadJsonHeaderTimeoutSec() const {
+    return syncNodeReadJsonHeaderTimeoutSec;
 }
