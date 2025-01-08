@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
     message(STATUS "**********************")
@@ -20,12 +19,6 @@ if (NOT DEFINED DEPS_INSTALL_ROOT)
     set(DEPS_INSTALL_ROOT "${DEPS_SOURCES_ROOT}/deps_inst/x86_or_x64")
 endif ()
 message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
-
-include("cmake/HunterGate.cmake")
-include("cmake/precompiledheader.cmake")
-
-
-HunterGate(URL "https://github.com/ruslo/hunter/archive/v0.23.76.tar.gz" SHA1 "c7b60993e841850e2c449afd454f5d5aa4ec04e4")
 
 option( CONSENSUS_PROFILING "Build for profiling" OFF )
 if( SKALED_PROFILING )
@@ -63,20 +56,11 @@ include_directories("${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include
 link_directories("${DEPS_INSTALL_ROOT}/lib")
 set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
 
-# zeromq
-
-
-#find_package(оч CONFIG REQUIRED)
-
-
 #leveldb
-
-hunter_add_package(leveldb)
 find_package(leveldb CONFIG REQUIRED)
 
-
-#set (CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wreturn-type -Winit-self")
-
+find_package( Snappy CONFIG REQUIRED )
+find_package( Crc32c CONFIG REQUIRED )
 
 set(CMAKE_CXX_STANDARD 17)
 execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION )
@@ -95,7 +79,6 @@ add_definitions("-DZMQ_NONBLOCKING")
 
 
 if (CMAKE_PROJECT_NAME STREQUAL "consensus")
-    unset(SKALE_HAVE_BOOST_FROM_HUNTER)
     # to install compiler cache:  sudo apt-get install ccache
     find_program(CCACHE_FOUND ccache)
     if (CCACHE_FOUND)
@@ -201,16 +184,7 @@ include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/in
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 
 
-if (SKALE_HAVE_BOOST_FROM_HUNTER)
-    set(BOOST_LIBS_4_CONSENSUS
-            Boost::log Boost::thread Boost::system Boost::filesystem Boost::program_options
-            )
-else ()
-    set(BOOST_LIBS_4_CONSENSUS
-            #boost_log
-            boost_thread boost_system boost_filesystem boost_program_options
-            )
-endif ()
+set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options)
 
 set(DASH_D_SUFFIX "")
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
@@ -221,9 +195,11 @@ endif ()
 SET(LINK_LIBRARIES
         backtrace
         Threads::Threads
-        ${BOOST_LIBS_4_CONSENSUS}
+        ${BOOST_LIBS_FOR_CONSENSUS}
         ${LIB_NAME_cryptopp}
-        leveldb::leveldb
+        leveldb
+        snappy
+        crc32c
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-server.a"
         "${DEPS_INSTALL_ROOT}/lib/libmicrohttpd.a"

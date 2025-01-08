@@ -61,9 +61,12 @@ print("Starting build")
 buildType = sys.argv[1];
 print("BUILD_TYPE=" + buildType)
 run ("ccache -M 20G")
-run("cmake . -Bbuild -DCMAKE_BUILD_TYPE=" +  buildType +
+run("mkdir -p build")
+os.chdir("build")
+run("cmake .. -DCMAKE_BUILD_TYPE=" +  buildType +
                         " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
-run("cmake --build build -- -j$(nproc)")
+run("make -j$(nproc)")
+os.chdir("..")
 
 assert  os.path.isfile("build/consensust")
 assert  os.path.isfile("build/consensusd")

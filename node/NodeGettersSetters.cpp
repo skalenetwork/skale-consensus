@@ -429,3 +429,19 @@ void Node::setExitOnBlockBoundaryRequested() {
     LOG( info, "Set exit on block boundary" );
     exitOnBlockBoundaryRequested = true;
 }
+
+uint64_t Node::getCatchupTimeoutSec() const {
+    return catchupTimeoutSec;
+}
+
+uint64_t Node::getsyncNodeCatchupTimeoutSec() const {
+    return syncNodeCatchupTimeoutSec;
+}
+
+uint64_t Node::getReadJsonHeaderTimeoutSec() const {
+    return readJsonHeaderTimeoutSec;
+}
+
+uint64_t Node::getsyncNodeReadJsonHeaderTimeoutSec() const {
+    return syncNodeReadJsonHeaderTimeoutSec;
+}

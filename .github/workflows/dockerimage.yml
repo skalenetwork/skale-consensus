@@ -2,7 +2,7 @@ name: Build consensust container
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
 
       - name: Cancel Previous Runs
@@ -13,9 +13,9 @@ jobs:
       - name: Free disk space
         run: |
           sudo apt-get remove -yq cmake libjsoncpp-dev aria2 ansible azure-cli shellcheck rpm xorriso zsync \
-            clang-6.0 lldb-6.0 lld-6.0 clang-format-6.0 clang-8 lldb-8 lld-8 clang-format-8 \
-            clang-9 lldb-9 lld-9 clangd-9 clang-format-9 dotnet-sdk-3.0 dotnet-sdk-3.1=3.1.101-1 \
-            esl-erlang firefox g++-8 g++-9 gfortran-8 gfortran-9 google-chrome-stable \
+            clang-6.0 lldb-6.0 lld-6.0 clang-8 lldb-8 lld-8 \
+            clang-9 lldb-9 lld-9 clangd-9 clang-format-14 dotnet-sdk-3.0 dotnet-sdk-3.1=3.1.101-1 \
+            esl-erlang firefox g++-11 g++-11 gfortran-8 gfortran-9 google-chrome-stable \
             || true >/dev/null 2>&1;
 
       - name: Free more disk space
@@ -73,9 +73,8 @@ jobs:
         run: |
           sudo apt-get install -y software-properties-common; sudo apt-add-repository universe; \
           sudo apt-get update; sudo apt-get install -y software-properties-common apt-utils libprocps-dev \
-          gcc-9 g++-9 valgrind gawk sed libffi-dev ccache libgoogle-perftools-dev flex \
-          bison yasm texinfo \
-          autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm \
+          gcc-11 g++-11 valgrind gawk sed libffi-dev ccache libunwind-dev libgoogle-perftools-dev yasm texinfo \
+          autotools-dev autogen automake autoconf m4 shtool pkg-config sed gawk yasm nasm unzip \
           python3 python3-pip python-is-python3 \
           libtool build-essential \
           libgcrypt20-dev
@@ -83,14 +82,14 @@ jobs:
           # wget git libargtable2-dev \
           # libmicrohttpd-dev libhiredis-dev redis-server openssl  libssl-dev >/dev/null 2>&1;
 
-      - name: Use g++-9 and gcov-9 by default
+      - name: Use g++-11 and gcov-11 by default
         run: |
           echo "Updating all needed alternatives"
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 9
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 9
-          sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-9 9
-          sudo update-alternatives --install /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-9 9
-          sudo update-alternatives --install /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-9 9
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 11
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 11
+          sudo update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-11 11
+          sudo update-alternatives --install /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-11 11
+          sudo update-alternatives --install /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-11 11
           echo "Checking alternative for gcc"
           which gcc
           gcc --version
@@ -106,7 +105,7 @@ jobs:
           echo "Checking alternative for gcov-tool"
           which gcov-tool
           gcov-tool --version
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: submodule update
         run: git submodule update --init --recursive          
       - name: Build the Docker image(GH)
