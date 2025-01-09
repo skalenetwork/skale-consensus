@@ -2366,6 +2366,7 @@ if [ "$WITH_BLAKE3" = "yes" ]; then
             blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
             blake3_avx512_x86-64_unix.S
             ar rcs libblake3.a *.o
+        fi
       fi
       #$MAKE ${PARALLEL_MAKE_OPTIONS} depend
       #$MAKE depend
