@@ -397,10 +397,7 @@ CacheLevelDB::CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, 
     verify();
 }
 
-CacheLevelDB::~CacheLevelDB() {
-    if (options.block_cache)
-        delete options.block_cache;
-}
+CacheLevelDB::~CacheLevelDB() {}
 
 using namespace boost::filesystem;
 
