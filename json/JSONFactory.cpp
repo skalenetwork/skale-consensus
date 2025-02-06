@@ -570,7 +570,7 @@ void JSONFactory::checkSGXStatus( Json::Value& _result ) {
 
     if ( status != 0 ) {
         LOG( err, "SGX server returned error status:" << to_string( status ) );
-        LOG( err, _result.asString() );
+        LOG( err, _result["errorMessage"].asString() );
     }
 
     CHECK_STATE( status == 0 );

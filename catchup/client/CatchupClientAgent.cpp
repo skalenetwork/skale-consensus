@@ -269,10 +269,15 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks( ptr< ClientSock
 
 
         if ( blockSizes->size() > 1 ) {
-            LOG( info, "CATCHUP_GOT_BLOCKS:COUNT:"
+            if ( blockList->getBlocks()->size() > 1) {
+                LOG( info, "CATCHUP_GOT_BLOCKS:COUNT:"
                            << to_string( blockSizes->size() ) << ":STARTBLOCK:"
                            << string( blockList->getBlocks()->at( 0 )->getBlockID() )
                            << ":FROM_NODE:" << _socket->getIP() );
+            }
+            else {
+                LOG( err, "Could not deserialize blocks" );
+            }
         }
     } catch ( ExitRequestedException& ) {
         throw;
