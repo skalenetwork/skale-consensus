@@ -6,6 +6,7 @@
 
 Skale-consensus  is an **implementation of SKALE provable consensus spec** as described here https://docs.skale.network/technology/consensus-spec
 
+
 Key features of of SKALE consensus
 
 * **provably secure**
