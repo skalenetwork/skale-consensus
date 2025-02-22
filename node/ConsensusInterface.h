@@ -51,7 +51,17 @@ public:
     virtual ~ConsensusInterface() = default;
 
     virtual void parseFullConfigAndCreateNode(
-            const std::string &fullPathToConfigFile, const string &gethURL) = 0;
+            const std::string &fullPathToConfigFile,
+#ifdef BITE
+            // config file for the next epoch
+            // emty string means next epoch config is not yet known
+            const std::string &_fullPathToFutureConfigFile,
+#endif
+#ifndef BITE
+            // BITE does implement Oracle
+            const string &gethURL
+#endif
+            ) = 0;
 
 
     // If starting from a snapshot, start all will pass to consensus the last comitted
@@ -89,6 +99,8 @@ public:
 
     virtual consensus_engine_status getStatus() const = 0;
 
+#ifndef BITE
+// BITE does implement Oracle
 #define ORACLE_SUCCESS 0
 #define ORACLE_UNKNOWN_RECEIPT 1
 #define ORACLE_TIMEOUT 2
@@ -154,6 +166,7 @@ public:
 #define ORACLE_PARAMS_NO_ARRAY 61
 #define ORACLE_PARAMS_GAS_NOT_UINT64 62
 
+
     /*
      * Submit Oracle Request. This will return ORACLE_SUCCESS and a string receipt if everything
      * is. In case of an error, a non-zero error will be returned.
@@ -178,6 +191,7 @@ public:
 
     virtual uint64_t checkOracleResult(const string &_receipt, string &_result) = 0;
 
+#endif
 
     struct SyncInfo {
         // sync information as required by eth_syncing API request of geth
