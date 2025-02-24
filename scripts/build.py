@@ -62,13 +62,14 @@ def main():
     parser = argparse.ArgumentParser(description="Example script for argument parsing")
     parser.add_argument("buildType", type=str, help="Build type (release, debug)")
     parser.add_argument("-buildPl", action = "store_true", help="Build PL")
+    args = parser.parse_args()
 
     os.chdir("..")
     print("Starting build")
-    buildType = sys.buildType
+    buildType = args.buildType
     print("BUILD_TYPE=" + buildType)
-
-    buildPL = sys.buildPl;
+    buildPL = args.buildPl
+    print("buildPl=" + buildPL)
 
     run("ccache -M 20G")
     run("mkdir -p build")
