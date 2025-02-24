@@ -67,15 +67,15 @@ def main():
     os.chdir("..")
     print("Starting build")
     buildType = args.buildType
-    print("BUILD_TYPE=" + buildType)
+    print(f"BUILD_TYPE={buildType}")
     buildPL = args.buildPl
-    print("buildPl=" + buildPL)
+    print(f"buildPl={buildPL}")
 
     run("ccache -M 20G")
     run("mkdir -p build")
     os.chdir("build")
 
-    command : str = "cmake .. -DCMAKE_BUILD_TYPE=" + buildType + " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0"
+    command : str = f"cmake .. -DCMAKE_BUILD_TYPE={buildType} -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0"
     if buildPL:
         command += " -DPL=1"
 
