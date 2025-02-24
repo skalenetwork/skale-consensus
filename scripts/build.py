@@ -79,8 +79,7 @@ def main():
     if buildPL:
         command += " -DPL=1"
 
-    run("cmake .. -DCMAKE_BUILD_TYPE=" + buildType +
-        " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
+    run(command)
     run("make -j$(nproc)")
     os.chdir("..")
     assert os.path.isfile("build/consensust")
