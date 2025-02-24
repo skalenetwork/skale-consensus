@@ -333,14 +333,14 @@ void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
 #ifndef PL
     if ( msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST || msg->getMsgType() == MSG_ORACLE_RSP ) {
         sChain->getOracleResultAssemblyAgent()->postMessage( _me );
-    } else if ( sChain->getBlockConsensusInstance()->shouldPost( msg ) ) {
+    } else
+#endif
+        if ( sChain->getBlockConsensusInstance()->shouldPost( msg ) ) {
         sChain->postMessage( _me );
     } else {
-#endif
+
         addToDeferredMessageQueue( _me );
-#ifndef PL
     }
-#endif
 }
 
 void Network::trySendingDelayedSends() {
