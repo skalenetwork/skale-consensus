@@ -155,10 +155,12 @@ ptr< BlockConsensusAgent > Schain::getBlockConsensusInstance() {
     return blockConsensusInstance;
 }
 
+#ifndef PL
 ptr< OracleServerAgent > Schain::getOracleInstance() {
     CHECK_STATE( oracleServer != nullptr )
     return oracleServer;
 }
+#endif
 
 
 ptr< NodeInfo > Schain::getThisNodeInfo() const {
@@ -279,9 +281,11 @@ void Schain::createBlockConsensusInstance() {
     blockConsensusInstance = make_shared< BlockConsensusAgent >( *this );
 }
 
+#ifndef PL
 void Schain::createOracleInstance() {
     oracleServer = make_shared< OracleServerAgent >( *this );
 }
+#endif
 
 uint64_t Schain::getLastCommitTimeMs() {
     return lastCommitTimeMs;
@@ -334,9 +338,11 @@ void Schain::setLastCommittedBlockId( uint64_t _lastCommittedBlockId ) {
     lastCommittedBlockID = _lastCommittedBlockId;
 }
 
+#ifndef PL
 const ptr< OracleClient > Schain::getOracleClient() const {
     return oracleClient;
 }
+#endif
 
 bool Schain::isInCreateBlock() const {
     return inCreateBlock;

@@ -1134,7 +1134,7 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     return { tv, timeStampS, timeStampMs, currentPrice, stateRoot };
 }
 
-
+#ifndef PL
 uint64_t ConsensusEngine::submitOracleRequest(
     const string& _spec, string& _receipt, string& _errorMessage ) {
     if ( nodes.size() == 0 ) {
@@ -1205,7 +1205,7 @@ uint64_t ConsensusEngine::checkOracleResult( const string& _receipt, string& _re
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
 }
-
+#endif
 
 ptr< vector< uint8_t > > ConsensusEngine::getSerializedBlock( std::uint64_t _blockNumber ) {
     CHECK_STATE( nodes.size() > 0 );

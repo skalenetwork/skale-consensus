@@ -43,9 +43,13 @@ public:
 
     ConsensusExtFace::transactions_vector pendingTransactions( size_t _limit );
 
+#ifndef PL
+
     void sendTestRequestGet();
 
     void sendTestRequestPost();
 
     void sendTestRequestEthCall();
+
+#endif
 };

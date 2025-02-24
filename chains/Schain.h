@@ -133,8 +133,9 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
-
+#ifndef PL
     ptr< OracleResultAssemblyAgent > oracleResultAssemblyAgent;
+#endif
 
     ptr<OptimizerAgent> optimizerAgent;
 
@@ -245,9 +246,10 @@ public:
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
 
+#ifndef PL
     ptr< OracleServerAgent > oracleServer;
-
     ptr< OracleClient > oracleClient;
+#endif
 
     void createBlockConsensusInstance();
 
@@ -314,7 +316,9 @@ public:
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
+#ifndef PL
     ptr< OracleServerAgent > getOracleInstance();
+#endif
 
     ptr< NodeInfo > getThisNodeInfo() const;
 

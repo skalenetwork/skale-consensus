@@ -6,7 +6,6 @@
 
 Skale-consensus  is an **implementation of SKALE provable consensus spec** as described here https://docs.skale.network/technology/consensus-spec
 
-
 Key features of of SKALE consensus
 
 * **provably secure**
@@ -39,18 +38,16 @@ sudo apt install -yq libprocps-dev gcc-11 g++-11 valgrind gawk sed libffi-dev cc
 ```
 
 ### Building from source on Ubuntu (Development)
-
+ 
 Steps to build from source:
 
 ```bash
 # clone repo
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
 # build dependencies
-cd scripts && ./build_deps.sh 
- # Configure the Cmake build.
-cd .. && cmake . -Bbuild
-# now run hunter bug workaround
-mkdir -p "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/ && wget -O "${HOME}"/.hunter/_Base/Download/crc32c/1.0.5/dc7fa8c/hunter-1.0.5.tar.gz https://github.com/hunter-packages/crc32c/archive/refs/tags/hunter-1.0.5.tar.gz
+cd scripts && ./build.sh DEBUG=1 
+# Configure the Cmake build.
+cd .. && cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug
 #  now build all targets using all available CPU cores
 cmake --build build -- -j$(nproc) 
 ```

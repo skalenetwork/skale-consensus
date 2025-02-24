@@ -33,14 +33,18 @@
 #include "db/BlockProposalDB.h"
 #include "exceptions/FatalError.h"
 #include "messages/NetworkMessage.h"
+#ifndef PL
 #include "oracle/OracleRequestBroadcastMessage.h"
 #include "oracle/OracleResponseMessage.h"
+#endif
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "thirdparty/json.hpp"
 #include "thirdparty/lrucache.hpp"
+#ifndef PL
 #include "oracle/OracleResultAssemblyAgent.h"
+#endif
 #include <db/MsgDB.h>
 
 #include "unordered_set"
@@ -192,7 +196,7 @@ void Network::broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isF
     }
 }
 
-
+#ifndef PL
 void Network::broadcastOracleRequestMessage( const ptr< OracleRequestBroadcastMessage >& _msg ) {
     // Oracle messages are simply broadcast without resends
     CHECK_ARGUMENT( _msg );
@@ -239,6 +243,7 @@ void Network::sendOracleResponseMessage(
     }
 }
 
+#endif
 
 void Network::networkReadLoop() {
     setThreadName( "NtwkRdLoop", getSchain()->getNode()->getConsensusEngine() );
@@ -267,12 +272,13 @@ void Network::networkReadLoop() {
                 // already seen this message, dropping
                 continue;
             }
-
+#ifndef PL
             if ( msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
                  msg->getMsgType() == MSG_ORACLE_RSP ) {
                 sChain->getOracleResultAssemblyAgent()->postMessage( m );
                 continue;
             }
+#endif
 
             CHECK_STATE( sChain );
 
@@ -324,14 +330,17 @@ void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
     auto msg = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
 
     CHECK_STATE( msg );
-
+#ifndef PL
     if ( msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST || msg->getMsgType() == MSG_ORACLE_RSP ) {
         sChain->getOracleResultAssemblyAgent()->postMessage( _me );
     } else if ( sChain->getBlockConsensusInstance()->shouldPost( msg ) ) {
         sChain->postMessage( _me );
     } else {
+#endif
         addToDeferredMessageQueue( _me );
+#ifndef PL
     }
+#endif
 }
 
 void Network::trySendingDelayedSends() {

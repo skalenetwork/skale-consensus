@@ -298,11 +298,13 @@ public:
 
     static int getOpenDescriptors();
 
+#ifndef PL
     uint64_t submitOracleRequest(
         const string& _spec, string& _receipt, string& _errorMessage ) override;
 
 
     uint64_t checkOracleResult( const string& _receipt, string& _result ) override;
+#endif
 
 
     std::shared_ptr< std::vector< std::uint8_t > > getSerializedBlock( std::uint64_t _blockNumber );

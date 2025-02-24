@@ -90,11 +90,13 @@
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
+#ifndef PL
 #include "oracle/OracleClient.h"
 #include "oracle/OracleMessageThreadPool.h"
 #include "oracle/OracleResultAssemblyAgent.h"
 #include "oracle/OracleServerAgent.h"
 #include "oracle/OracleThreadPool.h"
+#endif
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
@@ -306,7 +308,9 @@ void Schain::constructChildAgents() {
 
     try {
         optimizerAgent = make_shared< OptimizerAgent >( *this );
+#ifndef PL
         oracleResultAssemblyAgent = make_shared< OracleResultAssemblyAgent >( *this );
+#endif
         pricingAgent = make_shared< PricingAgent >( *this );
         catchupClientAgent = make_shared< CatchupClientAgent >( *this );
 
@@ -320,8 +324,9 @@ void Schain::constructChildAgents() {
         blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
 
         testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
-
+#ifndef PL
         oracleClient = make_shared< OracleClient >( *this );
+#endif
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
@@ -1446,9 +1451,11 @@ u256 Schain::getRandomForBlockId( block_id _blockId ) {
 
 ptr< ofstream > Schain::visualizationDataStream = nullptr;
 
+#ifndef PL
 const ptr< OracleResultAssemblyAgent >& Schain::getOracleResultAssemblyAgent() const {
     return oracleResultAssemblyAgent;
 }
+#endif
 
 void Schain::addBlockErrorAnalyzer( ptr< BlockErrorAnalyzer > _blockErrorAnalyzer ) {
     {

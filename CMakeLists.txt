@@ -74,6 +74,18 @@ add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
 add_definitions("-DZMQ_NONBLOCKING")
 
+if (PL)
+    set(BITE)
+endif()
+
+if (PL)
+    add_definitions(-DPL)
+endif()
+
+if (BITE)
+    add_definitions(-DBITE)
+endif()
+
 
 #add_definitions(-DGOOGLE_PROFILE) // uncomment to profile
 
@@ -135,8 +147,12 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
-AUX_SOURCE_DIRECTORY(oracle oracle_src)
+if (NOT PL)
+     AUX_SOURCE_DIRECTORY(oracle oracle_src)
+endif()
 AUX_SOURCE_DIRECTORY(rlp rlp_src)
+
+
 
 
 SET(SRC_FILES
@@ -161,7 +177,6 @@ SET(SRC_FILES
         ${messages_src}
         ${network_src}
         ${node_src}
-        ${oracle_src}
         ${pendingqueue_src}
         ${pricing_src}
         ${protocols_src}
@@ -176,8 +191,11 @@ SET(SRC_FILES
         ${utils_src}
         ${statusserver_src}
         ${sgxclient_src}
-        Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
-        oracle/OracleClient.cpp oracle/OracleClient.h db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h)
+        Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h)
+
+if (NOT PL)
+    SET(SRC_FILES ${SRC_FILES}  ${oracle_src})
+endif()
 
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS

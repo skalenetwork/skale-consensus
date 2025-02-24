@@ -43,8 +43,10 @@
 #include "network/Buffer.h"
 #include "network/Network.h"
 #include "node/NodeInfo.h"
+#ifndef PL
 #include "oracle/OracleRequestBroadcastMessage.h"
 #include "oracle/OracleResponseMessage.h"
+#endif
 #include "protocols/ProtocolKey.h"
 #include "protocols/binconsensus/AUXBroadcastMessage.h"
 #include "protocols/binconsensus/BVBroadcastMessage.h"
@@ -356,6 +358,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 block_id( blockID ), schain_index( blockProposerIndex ), timeMs,
                 schain_id( sChainID ), msg_id( msgID ), sigShare, srcSchainIndex, ecdsaSig,
                 publicKey, pkSig, _sChain );
+#ifndef PL
         } else if ( type == BasicHeader::ORACLE_REQUEST_BROADCAST ) {
             string spec = getStringRapid( d, "spec" );
             CHECK_STATE( !spec.empty() )
@@ -374,7 +377,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
             nwkMsg = make_shared< OracleResponseMessage >( result, receipt, node_id( srcNodeID ),
                 block_id( blockID ), timeMs, schain_id( sChainID ), msg_id( msgID ), srcSchainIndex,
                 ecdsaSig, publicKey, pkSig, _sChain );
-
+#endif
         } else {
             LOG( warn, "Incorrect message type in received message:" << type );
             CHECK_STATE( false )
@@ -402,6 +405,7 @@ const char* NetworkMessage::getTypeString( MsgType _type ) {
     case MSG_BLOCK_SIGN_BROADCAST: {
         return BLOCK_SIG_BROADCAST;
     }
+#ifndef PL
     case MSG_ORACLE_REQ_BROADCAST: {
         return ORACLE_REQUEST_BROADCAST;
     }
@@ -409,6 +413,7 @@ const char* NetworkMessage::getTypeString( MsgType _type ) {
     case MSG_ORACLE_RSP: {
         return ORACLE_RESPONSE;
     }
+#endif
 
     default: {
         return "history";

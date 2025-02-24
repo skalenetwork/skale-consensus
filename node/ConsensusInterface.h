@@ -44,24 +44,24 @@ enum consensus_engine_status {
 
 
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
-        256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
+    256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
 
 class ConsensusInterface {
 public:
     virtual ~ConsensusInterface() = default;
 
     virtual void parseFullConfigAndCreateNode(
-            const std::string &fullPathToConfigFile,
-#ifdef BITE
+        const std::string &fullPathToConfigFile
+#ifdef PL
             // config file for the next epoch
             // emty string means next epoch config is not yet known
-            const std::string &_fullPathToFutureConfigFile,
+            , const std::string &_fullPathToFutureConfigFile
 #endif
-#ifndef BITE
-            // BITE does implement Oracle
-            const string &gethURL
+#ifndef PL
+        // L1 does implement Oracle
+        , const string &gethURL
 #endif
-            ) = 0;
+    ) = 0;
 
 
     // If starting from a snapshot, start all will pass to consensus the last comitted
@@ -95,12 +95,13 @@ public:
 
     virtual uint64_t getEmptyBlockIntervalMs() const { return -1; }
 
-    virtual void setEmptyBlockIntervalMs(uint64_t) {}
+    virtual void setEmptyBlockIntervalMs(uint64_t) {
+    }
 
     virtual consensus_engine_status getStatus() const = 0;
 
-#ifndef BITE
-// BITE does implement Oracle
+#ifndef PL
+// L1 does implement Oracle
 #define ORACLE_SUCCESS 0
 #define ORACLE_UNKNOWN_RECEIPT 1
 #define ORACLE_TIMEOUT 2
@@ -175,7 +176,7 @@ public:
      */
 
     virtual uint64_t submitOracleRequest(
-            const string &_spec, string &_receipt, string &_errorMessage) = 0;
+        const string &_spec, string &_receipt, string &_errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -202,14 +203,13 @@ public:
 
         std::string toString() {
             return std::to_string(isSyncing) + ":" + std::to_string(startingBlock) + ":" +
-            std::to_string(currentBlock) + ":" + std::to_string(highestBlock);
+                   std::to_string(currentBlock) + ":" + std::to_string(highestBlock);
         }
     };
 
     // return sync information as requested by eth_syncing API of geth
     // if isSyncing is false, all fields will be set to zero.
     virtual SyncInfo getSyncInfo() = 0;
-
 };
 
 /**
@@ -229,7 +229,8 @@ public:
 
     virtual ~ConsensusExtFace() = default;
 
-    virtual void terminateApplication() {};
+    virtual void terminateApplication() {
+    };
 };
 
 #endif  // CONSENSUSINTERFACE_H

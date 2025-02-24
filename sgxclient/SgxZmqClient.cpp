@@ -43,7 +43,10 @@
 
 shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
     Json::Value& _req, string& _description, bool _throwExceptionOnTimeout ) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     Json::FastWriter fastWriter;
+#pragma GCC diagnostic pop
     fastWriter.omitEndingLineFeed();
 
     static uint64_t i = 0;

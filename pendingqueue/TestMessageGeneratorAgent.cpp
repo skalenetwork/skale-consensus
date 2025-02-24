@@ -30,8 +30,10 @@
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
 #include "datastructures/Transaction.h"
+#ifndef PL
 #include "oracle/OracleClient.h"
 #include "oracle/OracleRequestSpec.h"
+#endif
 #include "utils/Time.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
 
@@ -78,6 +80,8 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     static atomic< uint64_t > iterations = 0;
     // send oracle test once from schain index 1
 
+
+#ifndef PL
     if ( getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
         if ( iterations.fetch_add( 1 ) == 2 ) {
             LOG( info, "Sending Oracle test eth_call " );
@@ -86,10 +90,12 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         }
     }
 
+#endif
     return result;
 };
 
 
+#ifndef PL
 void TestMessageGeneratorAgent::sendTestRequestGet() {
     string uri = "https://worldtimeapi.org/api/timezone/Europe/Kiev";
     vector< string > jsps{ "/unixtime", "/day_of_year", "/xxx" };
@@ -148,3 +154,5 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
+
+#endif
