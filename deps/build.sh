@@ -301,6 +301,11 @@ setup_variable WITH_CRC32 "yes"
 setup_variable WITH_SNAPPY "yes"
 setup_variable WITH_LEVELDB "yes"
 
+setup_variable WITH_FMT "yes"
+setup_variable WITH_FOLLY "yes"
+setup_variable WITH_PROXYGEN "yes"
+
+
 if [ -z "${PARALLEL_COUNT}" ];
 then
 	PARALLEL_COUNT=$NUMBER_OF_CPU_CORES
@@ -607,6 +612,9 @@ echo -e "${COLOR_VAR_NAME}WITH_PBC${COLOR_DOTS}...............${COLOR_VAR_DESC}L
 echo -e "${COLOR_VAR_NAME}WITH_CRC32${COLOR_DOTS}.............${COLOR_VAR_DESC}LibCrc32${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_CRC32${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_SNAPPY${COLOR_DOTS}............${COLOR_VAR_DESC}LibSnappy${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_SNAPPY${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_LEVELDB${COLOR_DOTS}...........${COLOR_VAR_DESC}LibLevelDB${COLOR_DOTS}.............................${COLOR_VAR_VAL}$WITH_LEVELDB${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_FMT${COLOR_DOTS}...............${COLOR_VAR_DESC}LibFMT${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_FMT${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_FOLLY${COLOR_DOTS}.............${COLOR_VAR_DESC}LibFolly${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_FOLLY${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_PROXYGEN${COLOR_DOTS}..........${COLOR_VAR_DESC}LibProxygen${COLOR_DOTS}............................${COLOR_VAR_VAL}$WITH_PROXYGEN${COLOR_RESET}"
 
 cd "$SOURCES_ROOT"
 
@@ -2460,6 +2468,164 @@ then
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
     fi
 fi
+
+#https://github.com/fmtlib/fmt
+#git@github.com:fmtlib/fmt.git
+#https://github.com/fmtlib/fmt.git
+if [ "$WITH_FMT" = "yes" ];
+then
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libFmt++${COLOR_SEPARATOR} =====================================${COLOR_RESET}"
+	if [ ! -f "$INSTALL_ROOT/lib/libfmt${DEBUG_D}.a" ];
+	then
+		env_restore
+		cd "$SOURCES_ROOT"
+		if [ ! -d "fmt" ];
+		then
+			if [ ! -f "fmt-from-git.tar.gz" ];
+			then
+				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+				eval git clone https://github.com/fmtlib/fmt.git --recursive
+				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+				eval tar -czf fmt-from-git.tar.gz ./fmt
+			else
+				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+				eval tar -xzf fmt-from-git.tar.gz
+			fi
+			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+			cd fmt
+                        git checkout 9158bea1e148c190aa3f9f084b82887ecb29d2f8
+			eval mkdir -p build
+			cd build
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			cd ..
+		else
+			cd fmt
+		fi
+		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+		cd build
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		cd "$SOURCES_ROOT"
+	else
+		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+	fi
+fi
+
+
+#https://github.com/facebook/folly
+#git@github.com:facebook/folly.git
+#https://github.com/facebook/folly.git
+if [ "$WITH_FOLLY" = "yes" ];
+then
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libFolly${COLOR_SEPARATOR} =====================================${COLOR_RESET}"
+	if [ ! -f "$INSTALL_ROOT/lib/libfolly.a" ];
+	then
+		env_restore
+		cd "$SOURCES_ROOT"
+		if [ ! -d "folly" ];
+		then
+			if [ ! -f "folly-from-git.tar.gz" ];
+			then
+				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+				eval git clone https://github.com/facebook/folly.git --recursive
+                                cd folly
+                                eval git checkout 5c8fc1b622422a1c73f46d6fb51ac1164d8efb0f
+                                cd ..
+                                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+                                eval tar -czf folly-from-git.tar.gz ./folly
+			else
+				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+				eval tar -xzf folly-from-git.tar.gz
+			fi
+			echo -e "${COLOR_INFO}fixing it${COLOR_DOTS}...${COLOR_RESET}"
+            sed -i 's/list(APPEND FOLLY_LINK_LIBRARIES ${LIBUNWIND_LIBRARIES})/list(APPEND FOLLY_LINK_LIBRARIES ${LIBUNWIND_LIBRARIES} lzma)/' ./folly/CMake/folly-deps.cmake
+			sed -i 's/google::InstallFailureFunction(abort);/google::InstallFailureFunction( reinterpret_cast < google::logging_fail_func_t > ( abort ) );/g' ./folly/folly/init/Init.cpp
+			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+			cd folly
+			eval mkdir -p build2
+                        cd build2
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+                                -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
+                                -DBoost_NO_BOOST_CMAKE=ON -DBoost_NO_WARN_NEW_VERSIONS=1 -DBoost_DEBUG=ON \
+				-DBUILD_SHARED_LIBS=OFF \
+				-DBUILD_TESTS=OFF -DBUILD_BROKEN_TESTS=OFF -DBUILD_HANGING_TESTS=OFF -DBUILD_SLOW_TESTS=OFF \
+                                -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
+                                -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
+                                -DCMAKE_PREFIX_PATH=${INSTALL_ROOT} \
+				..
+			cd ..
+		else
+			cd folly
+		fi
+		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+                cd build2
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		if [ "$DEBUG" = "0" ]; then
+            eval strip --strip-debug "${INSTALL_ROOT}"/lib/libfolly*.a
+        fi
+		cd "$SOURCES_ROOT"
+	else
+		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+	fi
+fi
+
+
+#https://github.com/facebook/proxygen
+#https://habr.com/ru/company/infopulse/blog/243181/
+#git@github.com:facebook/proxygen.git
+#https://github.com/facebook/proxygen.git
+if [ "$WITH_PROXYGEN" = "yes" ];
+then
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libProxygen${COLOR_SEPARATOR} ==================================${COLOR_RESET}"
+	if [ ! -f "$INSTALL_ROOT/lib/libproxygen.a" ];
+	then
+		env_restore
+		cd "$SOURCES_ROOT"
+		if [ ! -d "proxygen" ];
+		then
+			if [ ! -f "proxygen-from-git.tar.gz" ];
+			then
+				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+				eval git clone https://github.com/facebook/proxygen.git --recursive
+                                cd proxygen
+                                eval git checkout f666fe2d938a1b06a3281c958cdeb46743a2fa49
+                                cd ..
+				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+				eval tar -czf proxygen-from-git.tar.gz ./proxygen
+			else
+				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+				eval tar -xzf proxygen-from-git.tar.gz
+			fi
+			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+			cd proxygen
+			eval mkdir -p build2
+			cd build2
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+                                -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SAMPLES=OFF -DBUILD_SHARED_LIBS=OFF \
+                                -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
+                                -DBoost_NO_BOOST_CMAKE=ON -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
+                                -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
+                                -DCMAKE_PREFIX_PATH=${INSTALL_ROOT} \
+                                ..
+			cd ..
+		else
+			cd proxygen
+		fi
+		echo -e "${COLOR_INFO}fixing it${COLOR_DOTS}...${COLOR_RESET}"
+		sed -i 's/DEFINE_bool(/   \/*   DEFINE_bool(   /g' ./proxygen/httpserver/samples/echo/EchoHandler.cpp
+		sed -i 's/"Include request sequence number in response");/   "Include request sequence number in response");   *\/   /g' ./proxygen/httpserver/samples/echo/EchoHandler.cpp
+        sed -i 's/if (FLAGS_request_number)/   \/*   if (FLAGS_request_number)   *\/   /g' ./proxygen/httpserver/samples/echo/EchoHandler.cpp
+		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+		cd build2
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		cd "$SOURCES_ROOT"
+	else
+		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+	fi
+fi
+
 
 
 echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"

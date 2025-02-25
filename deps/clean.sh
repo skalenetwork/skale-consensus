@@ -139,6 +139,9 @@ rm -rf ./libsodium
 rm -rf ./crc32c
 rm -rf ./snappy
 rm -rf ./leveldb
+rm -rf ./fmt
+rm -rf ./folly
+rm -rf ./proxygen
 echo "Done (all clean)."
 
 #finish

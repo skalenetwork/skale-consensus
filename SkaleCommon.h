@@ -245,7 +245,7 @@ enum port_type {
     MTA = 6,
     STATUS = 10
 #ifdef BITE
-    BITE = 11
+    , BITE_SERVER = 11
 #endif
 };
 
