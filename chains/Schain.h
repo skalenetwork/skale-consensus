@@ -90,6 +90,10 @@ class StatusServer;
 class OracleClient;
 class OracleResultAssemblyAgent;
 
+#ifdef BITE
+class BiteBlockFinalizeAndDecryptServer;
+#endif
+
 class Schain : public Agent {
     queue< ptr< MessageEnvelope > > messageQueue;
 
@@ -115,7 +119,11 @@ class Schain : public Agent {
 
     ptr< BlockProposalServerAgent > blockProposalServerAgent;
 
-    ptr< CatchupServerAgent > catchupServerAgent;
+    ptr<  CatchupServerAgent > catchupServerAgent;
+
+#ifdef BITE
+    ptr <BiteBlockFinalizeAndDecryptServer> biteBlockFinalizeAndDecryptServer;
+#endif
 
     ptr< MonitoringAgent > monitoringAgent;
 

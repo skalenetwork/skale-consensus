@@ -5,7 +5,7 @@
 #ifndef SKALED_BITEMANAGER_H
 #define SKALED_BITEMANAGER_H
 
-#include "BITEClient.h"
+#include "bite/client/BITEClient.h"
 
 class BITEManager {
 

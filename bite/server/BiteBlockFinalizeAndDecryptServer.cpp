@@ -27,25 +27,13 @@
 #include "chains/Schain.h"
 #include "exceptions/FatalError.h"
 #include "node/Node.h"
-#include "node/NodeInfo.h"
-#include <db/MsgDB.h>
-
-#include "unordered_set"
 
 
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/InvalidMessageFormatException.h"
-#include "protocols/blockconsensus/BlockConsensusAgent.h"
 
-#include "utils/Time.h"
-#include "threads/GlobalThreadRegistry.h"
 
 #include "BiteBlockFinalizeAndDecryptServer.h"
-
-void BiteBlockFinalizeAndDecryptServer::startThreads() {
-}
-
-
 
 BiteBlockFinalizeAndDecryptServer::BiteBlockFinalizeAndDecryptServer( Schain& _sChain )
     : Agent( _sChain,  true ) {

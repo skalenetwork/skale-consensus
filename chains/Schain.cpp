@@ -102,7 +102,15 @@
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
 
 
+#ifdef BITE
+#include "bite/server/BiteBlockFinalizeAndDecryptServer.h"
+#endif
+
+
 #include "Schain.h"
+
+#include <statusserver/StatusServer.h>
+
 #include "SchainMessageThreadPool.h"
 #include "SchainTest.h"
 #include "TestConfig.h"
@@ -1226,6 +1234,10 @@ void Schain::constructServers( const ptr< Sockets >& _sockets ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     catchupServerAgent = make_shared< CatchupServerAgent >( *this, _sockets->catchupSocket );
+
+#ifdef BITE
+    biteBlockFinalizeAndDecryptServer = make_shared< BiteBlockFinalizeAndDecryptServer >( *this);
+#endif
 
 
     if ( getNode()->isSyncOnlyNode() )

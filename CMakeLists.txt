@@ -74,17 +74,20 @@ add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
 add_definitions("-DZMQ_NONBLOCKING")
 
-if (PL)
-    set(BITE)
+
+
+if (DEFINED PL)
+    add_definitions("-DPL")
+    set(BITE ON)
 endif()
 
-if (PL)
-    add_definitions(-DPL)
+
+if (DEFINED BITE)
+    add_definitions("-DBITE")
 endif()
 
-if (BITE)
-    add_definitions(-DBITE)
-endif()
+message(STATUS "PL value is: ${PL}")
+message(STATUS "BITE value is: ${BITE}")
 
 
 #add_definitions(-DGOOGLE_PROFILE) // uncomment to profile
@@ -146,10 +149,10 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
-if (NOT PL)
+if (NOT DEFINED PL)
      AUX_SOURCE_DIRECTORY(oracle oracle_src)
 endif()
-if (BITE)
+if (DEFINED BITE)
     AUX_SOURCE_DIRECTORY( bite bite_src)
     AUX_SOURCE_DIRECTORY( bite/client bite_client_src)
     AUX_SOURCE_DIRECTORY( bite/server bite_server_src)
@@ -197,11 +200,11 @@ SET(SRC_FILES
         ${sgxclient_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h)
 
-if (NOT PL)
+if (NOT DEFINED PL)
     SET(SRC_FILES ${SRC_FILES}  ${oracle_src})
 endif()
 
-if (BITE`)
+if (DEFINED BITE)
     SET(SRC_FILES ${SRC_FILES}  ${bite_src} ${bite_client_src} ${bite_server_src})
 endif()
 

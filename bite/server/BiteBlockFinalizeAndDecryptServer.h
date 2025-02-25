@@ -28,17 +28,12 @@
 class Schain;
 class Node;
 
-enum TransportType { ZMQ };
 
 class BiteBlockFinalizeAndDecryptServer : public Agent {
-protected:
-
-
-    explicit BiteBlockFinalizeAndDecryptServer( Schain& _sChain );
-
 
 public:
-    void startThreads();
+
+    explicit BiteBlockFinalizeAndDecryptServer( Schain& _sChain );
 
     ~BiteBlockFinalizeAndDecryptServer() override;
 
