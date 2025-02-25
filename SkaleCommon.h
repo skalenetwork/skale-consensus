@@ -244,6 +244,9 @@ enum port_type {
     ZMQ_BROADCAST = 5,
     MTA = 6,
     STATUS = 10
+#ifdef BITE
+    BITE = 11
+#endif
 };
 
 
