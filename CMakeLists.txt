@@ -119,7 +119,6 @@ AUX_SOURCE_DIRECTORY(abstracttcpserver abstractcpserver_src)
 AUX_SOURCE_DIRECTORY(abstracttcpclient abstractcpclient_src)
 AUX_SOURCE_DIRECTORY(blockproposal/pusher blockproposalpusher_src)
 AUX_SOURCE_DIRECTORY(blockfinalize/client blockfinalizeclient_src)
-AUX_SOURCE_DIRECTORY(blockfinalize/received blockfinalizereceived_src)
 AUX_SOURCE_DIRECTORY(blockproposal/server blockproposalserver_src)
 AUX_SOURCE_DIRECTORY(blockproposal/received blockproposalreceived_src)
 AUX_SOURCE_DIRECTORY(blockproposal blockproposal_src)
@@ -149,6 +148,11 @@ AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
 if (NOT PL)
      AUX_SOURCE_DIRECTORY(oracle oracle_src)
+endif()
+if (BITE)
+    AUX_SOURCE_DIRECTORY( bite bite_src)
+    AUX_SOURCE_DIRECTORY( bite/client bite_client_src)
+    AUX_SOURCE_DIRECTORY( bite/server bite_server_src)
 endif()
 AUX_SOURCE_DIRECTORY(rlp rlp_src)
 
@@ -195,6 +199,10 @@ SET(SRC_FILES
 
 if (NOT PL)
     SET(SRC_FILES ${SRC_FILES}  ${oracle_src})
+endif()
+
+if (BITE`)
+    SET(SRC_FILES ${SRC_FILES}  ${bite_src} ${bite_client_src} ${bite_server_src})
 endif()
 
 
