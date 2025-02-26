@@ -142,6 +142,8 @@ rm -rf ./leveldb
 rm -rf ./fmt
 rm -rf ./folly
 rm -rf ./proxygen
+rm -rf double-conversion  fizz  glog  libevent  libunwind wangle zstd
+
 echo "Done (all clean)."
 
 #finish
