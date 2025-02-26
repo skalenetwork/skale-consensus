@@ -22,7 +22,18 @@
 */
 
 
-#include "Log.h"
+
+// remove conflict with Google LOG macro definition
+#pragma push_macro("LOG")
+#undef LOG
+#include <proxygen/httpserver/HTTPServer.h>
+#include <proxygen/httpserver/RequestHandler.h>
+#include <proxygen/httpserver/RequestHandlerFactory.h>
+#include <proxygen/httpserver/ResponseBuilder.h>
+#include <folly/io/IOBuf.h>
+#pragma pop_macro("LOG")
+
+
 #include "SkaleCommon.h"
 #include "chains/Schain.h"
 #include "exceptions/FatalError.h"
@@ -35,6 +46,33 @@
 
 #include "BiteBlockFinalizeAndDecryptServer.h"
 
+
+class FlatBufferHandlerFactory : public RequestHandlerFactory {
+ public:
+  void onServerStart(folly::EventBase* /*evb*/) noexcept override {}
+  void onServerStop() noexcept override {}
+
+  RequestHandler* onRequest(RequestHandler*, HTTPMessage*) noexcept override {
+    return nullptr;
+  }
+};
+
+
+/*
+int main1(int argc, char* ) {
+  std::vector<HTTPServer::IPConfig> ipConfigs = {
+      {SocketAddress("0.0.0.0", 8080, true), HTTPServer::Protocol::HTTP}}
+  ;
+
+  HTTPServer server(std::make_unique<FlatBufferHandlerFactory>());
+  server.bind(ipConfigs);
+  server.start();
+
+  return 0;
+}
+*/
+
+
 BiteBlockFinalizeAndDecryptServer::BiteBlockFinalizeAndDecryptServer( Schain& _sChain )
     : Agent( _sChain,  true ) {
 
@@ -43,4 +81,28 @@ BiteBlockFinalizeAndDecryptServer::BiteBlockFinalizeAndDecryptServer( Schain& _s
 }
 
 BiteBlockFinalizeAndDecryptServer::~BiteBlockFinalizeAndDecryptServer() {
+}
+
+
+void BiteBlockFinalizeAndDecryptServer::onBody(std::unique_ptr<IOBuf> _body) noexcept  {
+            // Parse incoming FlatBuffers message
+            const uint8_t* data = _body->data();
+           // auto requestMsg = GetRequestMessage(data);
+
+            // Extract data from FlatBuffer (replace with your schema fields)
+            //std::string message = requestMsg->message()->str();
+
+            // Create response FlatBuffer
+            //flatbuffers::FlatBufferBuilder builder;
+            //auto responseMessage = builder.CreateString("Response to: " + message);
+            //auto response = CreateResponseMessage(builder, responseMessage);
+            //builder.Finish(response);
+
+            //auto responseBuffer = IOBuf::copyBuffer(builder.GetBufferPointer(), builder.GetSize());
+            auto responseBuffer = "";
+                ResponseBuilder(downstream_)
+                .status(200, "OK")
+                .header("Content-Type", "application/octet-stream")
+                .body(std::move(responseBuffer))
+                .sendWithEOM();
 }

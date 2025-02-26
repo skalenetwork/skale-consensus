@@ -23,13 +23,24 @@
 
 #pragma once
 
+
+// remove conflict with Google LOG macro definition
+#pragma push_macro("LOG")
+#undef LOG
+#include <proxygen/httpserver/RequestHandler.h>
+#pragma pop_macro("LOG")
+
+
 #include "Agent.h"
 
 class Schain;
 class Node;
 
+using namespace proxygen;
+using namespace folly;
 
-class BiteBlockFinalizeAndDecryptServer : public Agent {
+
+class BiteBlockFinalizeAndDecryptServer : public Agent, RequestHandler {
 
 public:
 
@@ -37,4 +48,25 @@ public:
 
     ~BiteBlockFinalizeAndDecryptServer() override;
 
+
+        void onRequest(std::unique_ptr<HTTPMessage> ) noexcept override {
+            // Handle initial request headers
+        }
+
+        void onBody(std::unique_ptr<IOBuf> _body) noexcept override;
+
+        void onEOM() noexcept override {
+            // Handle end of message
+        }
+
+        void onUpgrade(UpgradeProtocol ) noexcept override {}
+
+        void requestComplete() noexcept override {
+            delete this;
+        }
+
+        void onError(ProxygenError ) noexcept override {
+            delete this;
+        }
 };
+
