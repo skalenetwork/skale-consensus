@@ -3,20 +3,9 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cppzmq" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/deps/BLAKE3" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/deps/libcryptopp" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/deps/libsodium" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/jsoncpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/deps/argtable2" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/deps/curl" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/deps/libff" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/ate-pairing" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/gtest" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/deps/libmicrohttpd" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/openssl" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libBLS/deps/zlib" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libjson-rpc-cpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet" vcs="Git" />
@@ -27,7 +16,6 @@
     <mapping directory="$PROJECT_DIR$/sgxwallet/libzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/linux-sgx-driver" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/rapidjson" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/sgxwallet/rapidjson/thirdparty/gtest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/sgx-gmp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/sgx-software-enable" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/spdlog" vcs="Git" />
