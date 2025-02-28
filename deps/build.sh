@@ -2572,58 +2572,7 @@ then
 fi
 
 
-if [ "$WITH_EVENT" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libEvent${COLOR_SEPARATOR} =====================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libevent.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		export PKG_CONFIG_PATH_SAVED=$PKG_CONFIG_PATH
-		export PKG_CONFIG_PATH=/$INSTALL_ROOT/lib/pkgconfig:$PKG_CONFIG_PATH
-		if [ ! -d "libevent" ];
-		then
-			if [ ! -f "libevent-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/libevent/libevent.git
-				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf libevent-from-git.tar.gz ./libevent
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf libevent-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd libevent
-			#eval mkdir -p build
-			#cd build
-			#OS_SPECIFIC_LIB_EVENT_FLAGS=""
-			#if [ ${ARCH} = "arm" ]
-			#then
-			#    OS_SPECIFIC_LIB_EVENT_FLAGS="-DEVENT__DISABLE_SAMPLES=ON -DEVENT__DISABLE_TESTS=ON -DEVENT__DISABLE_BENCHMARK=ON -DEVENT__DISABLE_REGRESS=ON"
-			#fi
-			#eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" "${OS_SPECIFIC_LIB_EVENT_FLAGS}" \
-			#	-DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-			#        -DEVENT__DISABLE_MBEDTLS=ON \
-			#		..
-			#cd ../..
-			eval ./autogen.sh
-                        eval ./configure "${CONF_CROSSCOMPILING_OPTS_GENERIC}" --enable-static --disable-shared --disable-samples --prefix="$INSTALL_ROOT" "${CONF_DEBUG_OPTIONS}"
-			cd ..
-		fi
-		#cd libevent/build
-		cd libevent
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd ..
-		#cd ../..
-		cd "$SOURCES_ROOT"
-		export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
-		export PKG_CONFIG_PATH_SAVED=
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
+
 
 
 if [ "$WITH_UNWIND" = "yes" ];
