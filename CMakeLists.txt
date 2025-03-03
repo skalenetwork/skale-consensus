@@ -267,7 +267,12 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
             "${DEPS_INSTALL_ROOT}/lib/libglogd.a"
     )
 else()
-
+    set( LINK_LIBRARIES ${LINK_LIBRARIES}
+            "${DEPS_INSTALL_ROOT}/lib/libevent.a"
+            "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
+            "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
+            "${DEPS_INSTALL_ROOT}/lib/libglog.a"
+    )
 endif()
 
 # consensus library
