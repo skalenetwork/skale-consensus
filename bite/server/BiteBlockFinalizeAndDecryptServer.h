@@ -40,7 +40,7 @@ using namespace proxygen;
 using namespace folly;
 
 
-class BiteBlockFinalizeAndDecryptServer : public Agent, RequestHandler {
+class BiteBlockFinalizeAndDecryptServer : public RequestHandler {
 
 public:
 

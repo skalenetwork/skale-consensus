@@ -73,8 +73,7 @@ int main1(int argc, char* ) {
 */
 
 
-BiteBlockFinalizeAndDecryptServer::BiteBlockFinalizeAndDecryptServer( Schain& _sChain )
-    : Agent( _sChain,  true ) {
+BiteBlockFinalizeAndDecryptServer::BiteBlockFinalizeAndDecryptServer( Schain& _sChain ) {
 
     auto cfg = _sChain.getNode()->getCfg();
 
