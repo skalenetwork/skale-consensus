@@ -1235,13 +1235,15 @@ void Schain::constructServers( const ptr< Sockets >& _sockets ) {
 
     catchupServerAgent = make_shared< CatchupServerAgent >( *this, _sockets->catchupSocket );
 
+
+    if ( getNode()->isSyncOnlyNode() )
+        return;
+
+
 #ifdef BITE
     biteBlockFinalizeAndDecryptServer = make_shared< BiteBlockFinalizeAndDecryptServer >( *this);
 #endif
 
-
-    if ( getNode()->isSyncOnlyNode() )
-        return;
 
     blockProposalServerAgent =
         make_shared< BlockProposalServerAgent >( *this, _sockets->blockProposalSocket );
