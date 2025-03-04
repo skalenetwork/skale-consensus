@@ -310,7 +310,6 @@ setup_variable WITH_FMT "yes"
 setup_variable WITH_DOUBLE_CONVERSION "yes"
 setup_variable WITH_GFLAGS "yes"
 setup_variable WITH_FOLLY "yes"
-setup_variable WITH_PROXYGEN "yes"
 setup_variable WITH_GOOGLE_LOG "yes"
 setup_variable WITH_WANGLE "yes"
 setup_variable WITH_FIZZ "yes"
@@ -626,7 +625,6 @@ echo -e "${COLOR_VAR_NAME}WITH_SNAPPY${COLOR_DOTS}............${COLOR_VAR_DESC}L
 echo -e "${COLOR_VAR_NAME}WITH_LEVELDB${COLOR_DOTS}...........${COLOR_VAR_DESC}LibLevelDB${COLOR_DOTS}.............................${COLOR_VAR_VAL}$WITH_LEVELDB${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_FMT${COLOR_DOTS}...............${COLOR_VAR_DESC}LibFMT${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_FMT${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_FOLLY${COLOR_DOTS}.............${COLOR_VAR_DESC}LibFolly${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_FOLLY${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_PROXYGEN${COLOR_DOTS}..........${COLOR_VAR_DESC}LibProxygen${COLOR_DOTS}............................${COLOR_VAR_VAL}$WITH_PROXYGEN${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_DOUBLE_CONVERSION${COLOR_DOTS}.${COLOR_VAR_DESC}LibDoubleConversion${COLOR_DOTS}....................${COLOR_VAR_VAL}$WITH_DOUBLE_CONVERSION${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_EVENT${COLOR_DOTS}.............${COLOR_VAR_DESC}libEvent${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_EVENT${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_UNWIND${COLOR_DOTS}............${COLOR_VAR_DESC}Unwind${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_UNWIND${COLOR_RESET}"
@@ -1392,36 +1390,6 @@ then
 				-DZLIB_INCLUDE_DIR="$INSTALL_ROOT/include" \
 				..
 			export CFLAGS=$SAVED_CFLAGS
-			#
-			#
-			#-DLWS_WITH_HTTP2=ON
-			#
-			#-DLWS_SSL_SERVER_WITH_ECDH_CERT=OFF ???
-			#-DLWS_WITH_CGI=OFF
-			#-DLWS_HAVE_OPENSSL_ECDH_H=1 ???
-			#-DLWS_HAVE_SSL_CTX_set1_param=1 ???
-			#-DLWS_HAVE_RSA_SET0_KEY=   ???
-			#-DLWS_WITH_HTTP_PROXY=OFF ???
-			#-DLWS_WITH_LEJP=OFF ???
-			#-DLWS_WITH_LEJP_CONF=OFF ???
-			#-DLWS_WITH_SMTP=OFF ???
-			#-DLWS_WITH_GENERIC_SESSIONS=OFF ??? ??? ???
-			#-DLWS_WITH_RANGES=ON ???
-			#-DLWS_WITH_ZIP_FOPS = ON ???
-			#-DLWS_AVOID_SIGPIPE_IGN = OFF ??? ??? ???
-			#-DLWS_WITH_STATS=OFF ??? ??? ???
-			#-DLWS_WITH_SOCKS5=OFF ???
-			#-DLWS_HAVE_LIBCAP=  ???
-			#-DLWS_WITH_PEER_LIMITS=OFF ??? ??? ???
-			#-DLIBHUBBUB_LIBRARIES=    ???
-			#-DPLUGINS=     ???
-			#-DLWS_ROLE_DBUS=1
-			#-DLWS_WITH_LWSAC=1
-			#-DLWS_WITH_LWSAC=1
-			#-DLWS_WITH_HTTP_STREAM_COMPRESSION=1 for gzip
-			#-DLWS_WITH_HTTP_BROTLI=1 for preferred br brotli compression
-			#-DLWS_WITH_HTTP_PROXY=1 and -DLWS_UNIX_SOCK=1
-			#-DLWS_AVOID_SIGPIPE_IGN ???
 			cd ../..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
@@ -1473,37 +1441,6 @@ then
 		fi
 fi
 
-# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}ASIO${COLOR_SEPARATOR} ======================================${COLOR_RESET}"
-# 	if [ ! -d "$INSTALL_ROOT/include/asio" ];
-# 	then
-# 		# (required for libssh)
-#		env_restore
-# 		cd "$SOURCES_ROOT"
-# 		if [ ! -d "asio" ]; then
-# 			if [ ! -f "asio-from-git.tar.gz" ]; then
-# 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-# 				git clone https://github.com/chriskohlhoff/asio.git
-# 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-# 				tar -cvzf asio-from-git.tar.gz ./asio
-# 			else
-# 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-# 				tar -xvzf asio-from-git.tar.gz
-# 			fi
-# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-# 			cd asio/asio
-# 			./autogen.sh
-# 			./configure --prefix="$INSTALL_ROOT" --without-boost --with-openssl=$SOURCES_ROOT/openssl ${CONF_DEBUG_OPTIONS}
-# 			cd ../..
-# 		fi
-# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-# 		cd asio/asio
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
-# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
-# 		cd ../..
-# 		cd "$SOURCES_ROOT"
-# 	else
-# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-# 	fi
 
 if [ "$WITH_BOOST" = "yes" ];
 then
@@ -2778,65 +2715,6 @@ then
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
-
-
-
-
-#https://github.com/facebook/proxygen
-#https://habr.com/ru/company/infopulse/blog/243181/
-#git@github.com:facebook/proxygen.git
-#https://github.com/facebook/proxygen.git
-if [ "$WITH_PROXYGEN" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libProxygen${COLOR_SEPARATOR} ==================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libproxygen.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "proxygen" ];
-		then
-			if [ ! -f "proxygen-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/facebook/proxygen.git --recursive
-                                cd proxygen
-                                eval git checkout f666fe2d938a1b06a3281c958cdeb46743a2fa49
-                                cd ..
-				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf proxygen-from-git.tar.gz ./proxygen
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf proxygen-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd proxygen
-			eval mkdir -p build2
-			cd build2
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-                                -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SAMPLES=OFF -DBUILD_SHARED_LIBS=OFF \
-                                -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
-                                -DBoost_NO_BOOST_CMAKE=ON -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
-                                -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
-                                -DCMAKE_PREFIX_PATH=${INSTALL_ROOT} \
-                                ..
-			cd ..
-		else
-			cd proxygen
-		fi
-		echo -e "${COLOR_INFO}fixing it${COLOR_DOTS}...${COLOR_RESET}"
-		sed -i 's/DEFINE_bool(/   \/*   DEFINE_bool(   /g' ./proxygen/httpserver/samples/echo/EchoHandler.cpp
-		sed -i 's/"Include request sequence number in response");/   "Include request sequence number in response");   *\/   /g' ./proxygen/httpserver/samples/echo/EchoHandler.cpp
-        sed -i 's/if (FLAGS_request_number)/   \/*   if (FLAGS_request_number)   *\/   /g' ./proxygen/httpserver/samples/echo/EchoHandler.cpp
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build2
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
-
 
 
 echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"

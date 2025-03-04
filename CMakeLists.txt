@@ -246,7 +246,6 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
         "${DEPS_INSTALL_ROOT}/lib/libssl.a"
-        "${DEPS_INSTALL_ROOT}/lib/libproxygen.a"
         "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
         "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
         ${BOOST_LIBS_FOR_CONSENSUS}
@@ -256,7 +255,6 @@ SET(LINK_LIBRARIES
         idn2
         blake3
         event
-        folly
         )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")

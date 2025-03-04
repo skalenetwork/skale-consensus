@@ -41,32 +41,30 @@ using namespace folly;
 
 
 class BiteBlockFinalizeAndDecryptServer : public RequestHandler {
-
 public:
-
-    explicit BiteBlockFinalizeAndDecryptServer( Schain& _sChain );
+    explicit BiteBlockFinalizeAndDecryptServer(Schain &_sChain);
 
     ~BiteBlockFinalizeAndDecryptServer() override;
 
 
-        void onRequest(std::unique_ptr<HTTPMessage> ) noexcept override {
-            // Handle initial request headers
-        }
+    void onRequest(std::unique_ptr<HTTPMessage>) noexcept override {
+        // Handle initial request headers
+    }
 
-        void onBody(std::unique_ptr<IOBuf> _body) noexcept override;
+    void onBody(std::unique_ptr<IOBuf> _body) noexcept override;
 
-        void onEOM() noexcept override {
-            // Handle end of message
-        }
+    void onEOM() noexcept override {
+        // Handle end of message
+    }
 
-        void onUpgrade(UpgradeProtocol ) noexcept override {}
+    void onUpgrade(UpgradeProtocol) noexcept override {
+    }
 
-        void requestComplete() noexcept override {
-            delete this;
-        }
+    void requestComplete() noexcept override {
+        delete this;
+    }
 
-        void onError(ProxygenError ) noexcept override {
-            delete this;
-        }
+    void onError(ProxygenError) noexcept override {
+        delete this;
+    }
 };
-

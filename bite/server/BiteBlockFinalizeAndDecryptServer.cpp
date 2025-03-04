@@ -22,7 +22,6 @@
 */
 
 
-
 // remove conflict with Google LOG macro definition
 #pragma push_macro("LOG")
 #undef LOG
@@ -48,13 +47,16 @@
 
 
 class FlatBufferHandlerFactory : public RequestHandlerFactory {
- public:
-  void onServerStart(folly::EventBase* /*evb*/) noexcept override {}
-  void onServerStop() noexcept override {}
+public:
+    void onServerStart(folly::EventBase * /*evb*/) noexcept override {
+    }
 
-  RequestHandler* onRequest(RequestHandler*, HTTPMessage*) noexcept override {
-    return nullptr;
-  }
+    void onServerStop() noexcept override {
+    }
+
+    RequestHandler *onRequest(RequestHandler *, HTTPMessage *) noexcept override {
+        return nullptr;
+    }
 };
 
 
@@ -73,35 +75,33 @@ int main1(int argc, char* ) {
 */
 
 
-BiteBlockFinalizeAndDecryptServer::BiteBlockFinalizeAndDecryptServer( Schain& _sChain ) {
-
+BiteBlockFinalizeAndDecryptServer::BiteBlockFinalizeAndDecryptServer(Schain &_sChain) {
     auto cfg = _sChain.getNode()->getCfg();
-
 }
 
 BiteBlockFinalizeAndDecryptServer::~BiteBlockFinalizeAndDecryptServer() {
 }
 
 
-void BiteBlockFinalizeAndDecryptServer::onBody(std::unique_ptr<IOBuf> _body) noexcept  {
-            // Parse incoming FlatBuffers message
-            const uint8_t* data = _body->data();
-           // auto requestMsg = GetRequestMessage(data);
+void BiteBlockFinalizeAndDecryptServer::onBody(std::unique_ptr<IOBuf> _body) noexcept {
+    // Parse incoming FlatBuffers message
+    const uint8_t *data = _body->data();
+    // auto requestMsg = GetRequestMessage(data);
 
-            // Extract data from FlatBuffer (replace with your schema fields)
-            //std::string message = requestMsg->message()->str();
+    // Extract data from FlatBuffer (replace with your schema fields)
+    //std::string message = requestMsg->message()->str();
 
-            // Create response FlatBuffer
-            //flatbuffers::FlatBufferBuilder builder;
-            //auto responseMessage = builder.CreateString("Response to: " + message);
-            //auto response = CreateResponseMessage(builder, responseMessage);
-            //builder.Finish(response);
+    // Create response FlatBuffer
+    //flatbuffers::FlatBufferBuilder builder;
+    //auto responseMessage = builder.CreateString("Response to: " + message);
+    //auto response = CreateResponseMessage(builder, responseMessage);
+    //builder.Finish(response);
 
-            //auto responseBuffer = IOBuf::copyBuffer(builder.GetBufferPointer(), builder.GetSize());
-            auto responseBuffer = "";
-                ResponseBuilder(downstream_)
-                .status(200, "OK")
-                .header("Content-Type", "application/octet-stream")
-                .body(std::move(responseBuffer))
-                .sendWithEOM();
+    //auto responseBuffer = IOBuf::copyBuffer(builder.GetBufferPointer(), builder.GetSize());
+    auto responseBuffer = "";
+    ResponseBuilder(downstream_)
+            .status(200, "OK")
+            .header("Content-Type", "application/octet-stream")
+            .body(std::move(responseBuffer))
+            .sendWithEOM();
 }
