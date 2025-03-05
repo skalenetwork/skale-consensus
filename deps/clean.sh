@@ -139,6 +139,7 @@ rm -rf ./libsodium
 rm -rf ./crc32c
 rm -rf ./snappy
 rm -rf ./leveldb
+rm -rf ./grpc
 echo "Done (all clean)."
 
 #finish
