@@ -2,8 +2,6 @@
 
 set -e
 
-
-export SKALED_DEPS_CHAIN=1
 export CONSENSUS_DEPS_CHAIN=1
 
 env_save_original() {
@@ -255,7 +253,6 @@ setup_variable() {
 #setup_variable "WITH_SOMETHING" "yeah!!!"
 #echo "WITH_SOMETHING outside is " $WITH_SOMETHING
 
-
 setup_variable WITH_ZLIB "yes"
 setup_variable WITH_BLAKE3 "yes"
 setup_variable WITH_OPENSSL "no"
@@ -270,7 +267,7 @@ setup_variable WITH_SDL_TTF "no"
 
 # notice: WITH_EV and WITH_EVENT should not be used at a same time
 setup_variable WITH_EV "no"
-setup_variable WITH_EVENT "yes"
+setup_variable WITH_EVENT "no"
 setup_variable WITH_UV "no"
 setup_variable WITH_LWS "no"
 
@@ -278,10 +275,8 @@ setup_variable WITH_V8 "no"
 setup_variable WITH_SOURCEY "no"
 
 setup_variable WITH_BOOST "no"
-setup_variable WITH_GRPC "yes"
 setup_variable WITH_PUPNP "no"
 setup_variable WITH_ARGTABLE2 "yes"
-setup_variable WITH_UNWIND "yes"
 
 #
 # notice: nettle and gnutls are needed for microhttpd on ubuntu 18.04
@@ -305,17 +300,7 @@ setup_variable WITH_PBC "no"
 setup_variable WITH_CRC32 "yes"
 setup_variable WITH_SNAPPY "yes"
 setup_variable WITH_LEVELDB "yes"
-
-setup_variable WITH_FMT "yes"
-setup_variable WITH_DOUBLE_CONVERSION "yes"
-setup_variable WITH_GFLAGS "yes"
-setup_variable WITH_FOLLY "yes"
-setup_variable WITH_GOOGLE_LOG "yes"
-setup_variable WITH_WANGLE "yes"
-setup_variable WITH_FIZZ "yes"
-setup_variable WITH_ZSTD "yes"
-
-
+setup_variable WITH_GRPC "yes"
 
 if [ -z "${PARALLEL_COUNT}" ];
 then
@@ -623,17 +608,7 @@ echo -e "${COLOR_VAR_NAME}WITH_PBC${COLOR_DOTS}...............${COLOR_VAR_DESC}L
 echo -e "${COLOR_VAR_NAME}WITH_CRC32${COLOR_DOTS}.............${COLOR_VAR_DESC}LibCrc32${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_CRC32${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_SNAPPY${COLOR_DOTS}............${COLOR_VAR_DESC}LibSnappy${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_SNAPPY${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_LEVELDB${COLOR_DOTS}...........${COLOR_VAR_DESC}LibLevelDB${COLOR_DOTS}.............................${COLOR_VAR_VAL}$WITH_LEVELDB${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_FMT${COLOR_DOTS}...............${COLOR_VAR_DESC}LibFMT${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_FMT${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_FOLLY${COLOR_DOTS}.............${COLOR_VAR_DESC}LibFolly${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_FOLLY${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_DOUBLE_CONVERSION${COLOR_DOTS}.${COLOR_VAR_DESC}LibDoubleConversion${COLOR_DOTS}....................${COLOR_VAR_VAL}$WITH_DOUBLE_CONVERSION${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_EVENT${COLOR_DOTS}.............${COLOR_VAR_DESC}libEvent${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_EVENT${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_UNWIND${COLOR_DOTS}............${COLOR_VAR_DESC}Unwind${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_UNWIND${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_GOOGLE_LOG${COLOR_DOTS}........${COLOR_VAR_DESC}LibGLOG${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_GOOGLE_LOG${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_WANGLE${COLOR_DOTS}............${COLOR_VAR_DESC}LibWangle${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_WANGLE${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_FIZZ${COLOR_DOTS}..............${COLOR_VAR_DESC}LibFIZZ${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_FIZZ${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_ZSTD${COLOR_DOTS}..............${COLOR_VAR_DESC}LibZSTD${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_ZSTD${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_GFLAGS${COLOR_DOTS}............${COLOR_VAR_DESC}LibGFLAGS${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_GFLAGS${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_Grpc${COLOR_DOTS}............${COLOR_VAR_DESC}LibGRPC${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_GRPC${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_GRPC${COLOR_DOTS}...........${COLOR_VAR_DESC}LibGRPC${COLOR_DOTS}.............................${COLOR_VAR_VAL}$WITH_GRPC${COLOR_RESET}"
 
 cd "$SOURCES_ROOT"
 
@@ -1014,7 +989,7 @@ then
 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
 		if [ "$DEBUG" = "1" ];
 		then
-			cp "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
+			mv "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
 		fi
 		cd ..
 		export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
@@ -1390,6 +1365,36 @@ then
 				-DZLIB_INCLUDE_DIR="$INSTALL_ROOT/include" \
 				..
 			export CFLAGS=$SAVED_CFLAGS
+			#
+			#
+			#-DLWS_WITH_HTTP2=ON
+			#
+			#-DLWS_SSL_SERVER_WITH_ECDH_CERT=OFF ???
+			#-DLWS_WITH_CGI=OFF
+			#-DLWS_HAVE_OPENSSL_ECDH_H=1 ???
+			#-DLWS_HAVE_SSL_CTX_set1_param=1 ???
+			#-DLWS_HAVE_RSA_SET0_KEY=   ???
+			#-DLWS_WITH_HTTP_PROXY=OFF ???
+			#-DLWS_WITH_LEJP=OFF ???
+			#-DLWS_WITH_LEJP_CONF=OFF ???
+			#-DLWS_WITH_SMTP=OFF ???
+			#-DLWS_WITH_GENERIC_SESSIONS=OFF ??? ??? ???
+			#-DLWS_WITH_RANGES=ON ???
+			#-DLWS_WITH_ZIP_FOPS = ON ???
+			#-DLWS_AVOID_SIGPIPE_IGN = OFF ??? ??? ???
+			#-DLWS_WITH_STATS=OFF ??? ??? ???
+			#-DLWS_WITH_SOCKS5=OFF ???
+			#-DLWS_HAVE_LIBCAP=  ???
+			#-DLWS_WITH_PEER_LIMITS=OFF ??? ??? ???
+			#-DLIBHUBBUB_LIBRARIES=    ???
+			#-DPLUGINS=     ???
+			#-DLWS_ROLE_DBUS=1
+			#-DLWS_WITH_LWSAC=1
+			#-DLWS_WITH_LWSAC=1
+			#-DLWS_WITH_HTTP_STREAM_COMPRESSION=1 for gzip
+			#-DLWS_WITH_HTTP_BROTLI=1 for preferred br brotli compression
+			#-DLWS_WITH_HTTP_PROXY=1 and -DLWS_UNIX_SOCK=1
+			#-DLWS_AVOID_SIGPIPE_IGN ???
 			cd ../..
 		fi
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
@@ -1441,6 +1446,37 @@ then
 		fi
 fi
 
+# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}ASIO${COLOR_SEPARATOR} ======================================${COLOR_RESET}"
+# 	if [ ! -d "$INSTALL_ROOT/include/asio" ];
+# 	then
+# 		# (required for libssh)
+#		env_restore
+# 		cd "$SOURCES_ROOT"
+# 		if [ ! -d "asio" ]; then
+# 			if [ ! -f "asio-from-git.tar.gz" ]; then
+# 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+# 				git clone https://github.com/chriskohlhoff/asio.git
+# 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+# 				tar -cvzf asio-from-git.tar.gz ./asio
+# 			else
+# 				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+# 				tar -xvzf asio-from-git.tar.gz
+# 			fi
+# 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+# 			cd asio/asio
+# 			./autogen.sh
+# 			./configure --prefix="$INSTALL_ROOT" --without-boost --with-openssl=$SOURCES_ROOT/openssl ${CONF_DEBUG_OPTIONS}
+# 			cd ../..
+# 		fi
+# 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+# 		cd asio/asio
+# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
+# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+# 		cd ../..
+# 		cd "$SOURCES_ROOT"
+# 	else
+# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+# 	fi
 
 if [ "$WITH_BOOST" = "yes" ];
 then
@@ -1465,7 +1501,6 @@ then
 		echo -e "${COLOR_INFO}configuring and building it${COLOR_DOTS}...${COLOR_RESET}"
 
 		./bootstrap.sh --prefix="$INSTALL_ROOT" --with-libraries=system,thread,filesystem,regex,atomic
-
 
 	if [ ${ARCH} = "arm" ]
 	then
@@ -2305,415 +2340,6 @@ then
     else
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
     fi
-fi
-
-#https://github.com/fmtlib/fmt
-#git@github.com:fmtlib/fmt.git
-#https://github.com/fmtlib/fmt.git
-if [ "$WITH_FMT" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libFmt++${COLOR_SEPARATOR} =====================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libfmt${DEBUG_D}.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "fmt" ];
-		then
-			if [ ! -f "fmt-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/fmtlib/fmt.git --recursive
-				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf fmt-from-git.tar.gz ./fmt
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf fmt-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd fmt
-                        git checkout 9158bea1e148c190aa3f9f084b82887ecb29d2f8
-			eval mkdir -p build
-			cd build
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
-			cd ..
-		else
-			cd fmt
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
-
-
-#https://github.com/google/double-conversion
-#git@github.com:google/double-conversion.git
-#https://github.com/google/double-conversion.git
-if [ "$WITH_DOUBLE_CONVERSION" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libDoubleConversion${COLOR_SEPARATOR} ==========================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libdouble-conversion.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "double-conversion" ];
-		then
-			if [ ! -f "double-conversion-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/google/double-conversion.git --recursive
-				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf double-conversion-from-git.tar.gz ./double-conversion
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf double-conversion-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd double-conversion
-			eval mkdir -p build
-			cd build
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
-			cd ..
-		else
-			cd double-conversion
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
-
-
-
-
-
-if [ "$WITH_UNWIND" = "yes" ];
- then
-    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}UNWIND${COLOR_SEPARATOR} =======================================${COLOR_RESET}"
-    if [ ! -f "$INSTALL_ROOT/lib/libunwind.a" ];
-    then
-        env_restore
-        cd "$SOURCES_ROOT"
-        if [ ! -d "libunwind" ];
-        then
-            if [ ! -f "libunwind-from-git.tar.gz" ];
-            then
-                echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-                eval git clone https://github.com/libunwind/libunwind.git
-                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-                eval tar -czf libunwind-from-git.tar.gz ./libunwind
-            else
-                echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-                eval tar -xzf libunwind-from-git.tar.gz
-            fi
-            echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-            cd libunwind
-            #eval aclocal
-            #eval autoconf
-            #eval autoheader
-            #eval automake --add-missing
-            eval autoreconf -i
-            eval ./configure --disable-shared --disable-tests --prefix="$INSTALL_ROOT"
-            cd ..
-        fi
-        echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-        cd libunwind
-        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-        cd ..
-        cd "$SOURCES_ROOT"
-    else
-        echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-    fi
-fi
-
-
-#https://github.com/google/glog
-#git@github.com:google/glog.git
-if [ "$WITH_GOOGLE_LOG" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libGLOG${COLOR_SEPARATOR} ======================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libglog${DEBUG_D}.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "glog" ];
-		then
-			if [ ! -f "glog-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/google/glog.git --recursive
-                                cd glog
-                                eval git checkout ee6faf13b20de9536f456bd84584f4ab4db1ceb4
-                                cd ..
-                                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf glog-from-git.tar.gz ./glog
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf glog-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd glog
-			eval mkdir -p build
-			cd build
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-                                -DBUILD_SHARED_LIBS=OFF -DWITH_UNWIND=OFF -DWITH_GTEST=OFF \
-				..
-			cd ..
-		else
-			cd glog
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
-
-
-#https://github.com/gflags/gflags
-#git@github.com:gflags/gflags.git
-#https://github.com/gflags/gflags.git
-if [ "$WITH_GFLAGS" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libGFLAGS${COLOR_SEPARATOR} ====================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libgflags${DEBUG__DEBUG}.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "gflags" ];
-		then
-			echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-			eval unzip -o "$PREDOWNLOADED_ROOT/gflags-master.zip"
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd gflags-master
-			eval mkdir -p build
-			cd build
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-				-DBUILD_SHARED_LIBS=OFF \
-				..
-			cd ..
-		else
-			cd gflags-master
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
-
-#https://github.com/facebook/folly
-#git@github.com:facebook/folly.git
-#https://github.com/facebook/folly.git
-if [ "$WITH_FOLLY" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libFolly${COLOR_SEPARATOR} =====================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libfolly.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "folly" ];
-		then
-			if [ ! -f "folly-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/facebook/folly.git --recursive
-                                cd folly
-                                eval git checkout 5c8fc1b622422a1c73f46d6fb51ac1164d8efb0f
-                                cd ..
-                                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-                                eval tar -czf folly-from-git.tar.gz ./folly
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf folly-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}fixing it${COLOR_DOTS}...${COLOR_RESET}"
-            sed -i 's/list(APPEND FOLLY_LINK_LIBRARIES ${LIBUNWIND_LIBRARIES})/list(APPEND FOLLY_LINK_LIBRARIES ${LIBUNWIND_LIBRARIES} lzma)/' ./folly/CMake/folly-deps.cmake
-			sed -i 's/google::InstallFailureFunction(abort);/google::InstallFailureFunction( reinterpret_cast < google::logging_fail_func_t > ( abort ) );/g' ./folly/folly/init/Init.cpp
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd folly
-			eval mkdir -p build2
-                        cd build2
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-                                -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
-                                -DBoost_NO_BOOST_CMAKE=ON -DBoost_NO_WARN_NEW_VERSIONS=1 -DBoost_DEBUG=ON \
-				-DBUILD_SHARED_LIBS=OFF \
-				-DBUILD_TESTS=OFF -DBUILD_BROKEN_TESTS=OFF -DBUILD_HANGING_TESTS=OFF -DBUILD_SLOW_TESTS=OFF \
-                                -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
-                                -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
-                                -DCMAKE_PREFIX_PATH=${INSTALL_ROOT} \
-				..
-			cd ..
-		else
-			cd folly
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-                cd build2
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		if [ "$DEBUG" = "0" ]; then
-            eval strip --strip-debug "${INSTALL_ROOT}"/lib/libfolly*.a
-        fi
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
-
-
-#https://github.com/facebook/zstd
-#git@github.com:facebook/zstd.git
-#https://github.com/facebook/zstd.git
-if [ "$WITH_ZSTD" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libZSTD${COLOR_SEPARATOR} ======================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libzstd.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "zstd" ];
-		then
-			if [ ! -f "zstd-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/facebook/zstd.git --recursive
-				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf zstd-from-git.tar.gz ./zstd
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf zstd-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd zstd
-			eval mkdir -p build2
-			cd build2
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ../build/cmake
-			cd ..
-		else
-			cd zstd
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build2
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
-
-
-#https://github.com/facebookincubator/fizz
-#https://github.com/facebookincubator/fizz.git
-if [ "$WITH_FIZZ" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libFIZZ${COLOR_SEPARATOR} ======================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libfizz.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "fizz" ];
-		then
-			if [ ! -f "fizz-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/facebookincubator/fizz.git --recursive
-                                cd fizz
-                                eval git checkout 93003f4161f7cebe1c121b3232215db8314c2ce7
-                                cd ..
-                                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf fizz-from-git.tar.gz ./fizz
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf fizz-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd fizz/fizz
-			eval mkdir -p build2
-			cd build2
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-                                -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF \
-                                -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
-                                -DBoost_NO_BOOST_CMAKE=ON -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
-                                -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
-                                -DCMAKE_PREFIX_PATH=${INSTALL_ROOT} \
-				..
-			cd ..
-		else
-			cd fizz/fizz
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build2
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
-
-
-#https://github.com/facebook/wangle.git
-if [ "$WITH_WANGLE" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libWangle${COLOR_SEPARATOR} ====================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libwangle.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "wangle" ];
-		then
-			if [ ! -f "wangle-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/facebook/wangle.git --recursive
-                                cd wangle
-                                eval git checkout 7249d3f8d18bcd4bc13649d13654ccb2a771f7b3
-                                cd ..
-                                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf wangle-from-git.tar.gz ./wangle
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf wangle-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd wangle/wangle
-			eval mkdir -p build2
-			cd build2
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-                                -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF \
-                                -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
-                                -DBoost_NO_BOOST_CMAKE=ON -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
-                                -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
-                                -DCMAKE_PREFIX_PATH=${INSTALL_ROOT} \
-                                ..
-			cd ..
-		else
-			cd wangle/wangle
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build2
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
 fi
 
 

@@ -213,7 +213,7 @@ include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/in
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 
 
-set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options boost_context)
+set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options)
 
 set(DASH_D_SUFFIX "")
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
@@ -225,6 +225,7 @@ endif ()
 SET(LINK_LIBRARIES
         backtrace
         Threads::Threads
+        ${BOOST_LIBS_FOR_CONSENSUS}
         ${LIB_NAME_cryptopp}
         leveldb
         snappy
@@ -246,32 +247,14 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
         "${DEPS_INSTALL_ROOT}/lib/libssl.a"
-        "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
-        "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
-        ${BOOST_LIBS_FOR_CONSENSUS}
+        "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
         dl
         z
         pthread
         idn2
         blake3
-        event
         )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set( LINK_LIBRARIES ${LINK_LIBRARIES}
-            "${DEPS_INSTALL_ROOT}/lib/libeventd.a"
-            "${DEPS_INSTALL_ROOT}/lib/libgflags_debug.a"
-            "${DEPS_INSTALL_ROOT}/lib/libfmtd.a"
-            "${DEPS_INSTALL_ROOT}/lib/libglogd.a"
-    )
-else()
-    set( LINK_LIBRARIES ${LINK_LIBRARIES}
-            "${DEPS_INSTALL_ROOT}/lib/libevent.a"
-            "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
-            "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
-            "${DEPS_INSTALL_ROOT}/lib/libglog.a"
-    )
-endif()
 
 # consensus library
 
@@ -300,6 +283,9 @@ add_executable(consensust Consensust.h Consensust.cpp datastructures/Serializati
 
 target_compile_options( consensust PRIVATE -Wno-error=unused-variable )
 
+# disable unused parameter warning for grpc auto geherated C++ file
+set_source_files_properties(bite/server/block_finalize.grpc.pb.cc PROPERTIES COMPILE_FLAGS "-Wno-error=unused-parameter")
+
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")
 #     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
@@ -307,3 +293,4 @@ target_compile_options( consensust PRIVATE -Wno-error=unused-variable )
 # else ()
 target_link_libraries(consensust consensus)
 # endif ()
+
