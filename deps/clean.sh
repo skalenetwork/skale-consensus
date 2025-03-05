@@ -139,11 +139,6 @@ rm -rf ./libsodium
 rm -rf ./crc32c
 rm -rf ./snappy
 rm -rf ./leveldb
-rm -rf ./fmt
-rm -rf ./folly
-rm -rf ./proxygen
-rm -rf double-conversion  fizz  glog  libevent  libunwind wangle zstd gflags-master
-
 echo "Done (all clean)."
 
 #finish

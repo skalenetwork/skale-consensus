@@ -75,21 +75,6 @@ add_definitions("-DZMQ_EXPERIMENTAL")
 add_definitions("-DZMQ_NONBLOCKING")
 
 
-
-if (DEFINED PL)
-    add_definitions("-DPL")
-    set(BITE ON)
-endif()
-
-
-if (DEFINED BITE)
-    add_definitions("-DBITE")
-endif()
-
-message(STATUS "PL value is: ${PL}")
-message(STATUS "BITE value is: ${BITE}")
-
-
 #add_definitions(-DGOOGLE_PROFILE) // uncomment to profile
 
 
@@ -122,6 +107,7 @@ AUX_SOURCE_DIRECTORY(abstracttcpserver abstractcpserver_src)
 AUX_SOURCE_DIRECTORY(abstracttcpclient abstractcpclient_src)
 AUX_SOURCE_DIRECTORY(blockproposal/pusher blockproposalpusher_src)
 AUX_SOURCE_DIRECTORY(blockfinalize/client blockfinalizeclient_src)
+AUX_SOURCE_DIRECTORY(blockfinalize/received blockfinalizereceived_src)
 AUX_SOURCE_DIRECTORY(blockproposal/server blockproposalserver_src)
 AUX_SOURCE_DIRECTORY(blockproposal/received blockproposalreceived_src)
 AUX_SOURCE_DIRECTORY(blockproposal blockproposal_src)
@@ -149,17 +135,8 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
-if (NOT DEFINED PL)
-     AUX_SOURCE_DIRECTORY(oracle oracle_src)
-endif()
-if (DEFINED BITE)
-    AUX_SOURCE_DIRECTORY( bite bite_src)
-    AUX_SOURCE_DIRECTORY( bite/client bite_client_src)
-    AUX_SOURCE_DIRECTORY( bite/server bite_server_src)
-endif()
+AUX_SOURCE_DIRECTORY(oracle oracle_src)
 AUX_SOURCE_DIRECTORY(rlp rlp_src)
-
-
 
 
 SET(SRC_FILES
@@ -184,6 +161,7 @@ SET(SRC_FILES
         ${messages_src}
         ${network_src}
         ${node_src}
+        ${oracle_src}
         ${pendingqueue_src}
         ${pricing_src}
         ${protocols_src}
@@ -198,15 +176,8 @@ SET(SRC_FILES
         ${utils_src}
         ${statusserver_src}
         ${sgxclient_src}
-        Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h)
-
-if (NOT DEFINED PL)
-    SET(SRC_FILES ${SRC_FILES}  ${oracle_src})
-endif()
-
-if (DEFINED BITE)
-    SET(SRC_FILES ${SRC_FILES}  ${bite_src} ${bite_client_src} ${bite_server_src})
-endif()
+        Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
+        oracle/OracleClient.cpp oracle/OracleClient.h db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h)
 
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
@@ -219,7 +190,6 @@ set(DASH_D_SUFFIX "")
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
     set(DASH_SUFFIX "-d")
 endif ()
-
 
 
 SET(LINK_LIBRARIES
@@ -244,15 +214,16 @@ SET(LINK_LIBRARIES
         gcov
         gnutls
         gcrypt
-        "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
         "${DEPS_INSTALL_ROOT}/lib/libssl.a"
         "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
+        "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
         dl
         z
         pthread
         idn2
         blake3
+        ssl
         )
 
 
@@ -283,9 +254,6 @@ add_executable(consensust Consensust.h Consensust.cpp datastructures/Serializati
 
 target_compile_options( consensust PRIVATE -Wno-error=unused-variable )
 
-# disable unused parameter warning for grpc auto geherated C++ file
-set_source_files_properties(bite/server/block_finalize.grpc.pb.cc PROPERTIES COMPILE_FLAGS "-Wno-error=unused-parameter")
-
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")
 #     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
@@ -293,4 +261,3 @@ set_source_files_properties(bite/server/block_finalize.grpc.pb.cc PROPERTIES COM
 # else ()
 target_link_libraries(consensust consensus)
 # endif ()
-
