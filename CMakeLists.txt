@@ -9,8 +9,6 @@ if(DEFINED BITE)
 set_source_files_properties(flatbuffers/block_finalize.grpc.pb.cc PROPERTIES
         COMPILE_FLAGS "-Wno-error=unused-parameter"
 )
-else()
-    message(FATAL_ERROR "Assertion failed: MY_VAR is not defined!")
 endif()
 
 
@@ -131,7 +129,7 @@ AUX_SOURCE_DIRECTORY(chains chains_src)
 AUX_SOURCE_DIRECTORY(crypto crypto_src)
 AUX_SOURCE_DIRECTORY(datastructures datastructures_src)
 AUX_SOURCE_DIRECTORY(db db_src)
-if(DEFINED PL)
+if(DEFINED BITE)
 AUX_SOURCE_DIRECTORY(flatbuffers flatbuffers_src)
 endif()
 AUX_SOURCE_DIRECTORY(log log_src)
