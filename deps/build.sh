@@ -1548,27 +1548,20 @@ fi
 if [ "$WITH_GRPC" = "yes" ];
 then
 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libGRPC${COLOR_SEPARATOR} ==================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libgrpc${DEBUG_D}.a" ];
+	if [ ! -f "$INSTALL_ROOT/lib/libgrpc.a" ];
 	then
 		env_restore
 		cd "$SOURCES_ROOT"
 		if [ ! -d "grpc" ];
 		then
 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-      git clone --recurse-submodule https://github.com/grpc/grpc.git
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd grpc
-			mkdir -p build
-			cd build
-			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
-			cd ..
-		else
-			cd grpc
-			mkdir -p build
-      cd build
-			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
-			cd ..
+        git clone --recurse-submodule https://github.com/grpc/grpc.git
 		fi
+		cd grpc
+    mkdir -p build
+    cd build
+    $CMAKE  -DgRPC_SSL_PROVIDER=package -DOPENSSL_ROOT_DIR=../libBLS/deps/openssl "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+    cd ..
 		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
 		cd build
 		$MAKE ${PARALLEL_MAKE_OPTIONS}

@@ -215,15 +215,17 @@ SET(LINK_LIBRARIES
         gnutls
         gcrypt
         "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
+        "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
         "${DEPS_INSTALL_ROOT}/lib/libssl.a"
         "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
         "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
+        "${DEPS_INSTALL_ROOT}/lib/libssl.a"
+        "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
         dl
         z
         pthread
         idn2
         blake3
-        ssl
         )
 
 
