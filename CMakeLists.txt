@@ -7,7 +7,7 @@ endif()
 
 if(DEFINED BITE)
 set_source_files_properties(flatbuffers/block_finalize.grpc.pb.cc PROPERTIES
-        COMPILE_FLAGS "-Wno-error=unused-parameter"
+        COMPILE_FLAGS "-Wno-unused-parameter"
 )
 endif()
 

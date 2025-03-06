@@ -1558,6 +1558,7 @@ then
         git clone --recurse-submodule https://github.com/grpc/grpc.git
 		fi
 		cd grpc
+		git checkout v1.70.1
     mkdir -p build
     cd build
     $CMAKE  -DgRPC_SSL_PROVIDER=package -DOPENSSL_ROOT_DIR=../libBLS/deps/openssl "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
