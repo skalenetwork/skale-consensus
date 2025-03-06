@@ -117,6 +117,7 @@ AUX_SOURCE_DIRECTORY(chains chains_src)
 AUX_SOURCE_DIRECTORY(crypto crypto_src)
 AUX_SOURCE_DIRECTORY(datastructures datastructures_src)
 AUX_SOURCE_DIRECTORY(db db_src)
+AUX_SOURCE_DIRECTORY(flatbuffers flatbuffers_src)
 AUX_SOURCE_DIRECTORY(log log_src)
 AUX_SOURCE_DIRECTORY(messages messages_src)
 AUX_SOURCE_DIRECTORY(network network_src)
@@ -156,6 +157,7 @@ SET(SRC_FILES
         ${crypto_src}
         ${datastructures_src}
         ${db_src}
+        ${flatbuffers_src}
         ${headers_src}
         ${log_src}
         ${messages_src}
