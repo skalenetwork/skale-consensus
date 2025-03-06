@@ -10,10 +10,10 @@ jobs:
         access_token: ${{ github.token }}
 
     - name: checkout
-      uses: actions/checkout@v1
-
-    - name: submodule update
-      run: git submodule update --init --recursive
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+        fetch-depth: 1  # Shallow clone both repo and submodules
 
     - name: ls
       run: ls
