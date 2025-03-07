@@ -300,7 +300,6 @@ setup_variable WITH_PBC "no"
 setup_variable WITH_CRC32 "yes"
 setup_variable WITH_SNAPPY "yes"
 setup_variable WITH_LEVELDB "yes"
-setup_variable WITH_GRPC "yes"
 
 if [ -z "${PARALLEL_COUNT}" ];
 then
@@ -608,7 +607,6 @@ echo -e "${COLOR_VAR_NAME}WITH_PBC${COLOR_DOTS}...............${COLOR_VAR_DESC}L
 echo -e "${COLOR_VAR_NAME}WITH_CRC32${COLOR_DOTS}.............${COLOR_VAR_DESC}LibCrc32${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_CRC32${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_SNAPPY${COLOR_DOTS}............${COLOR_VAR_DESC}LibSnappy${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_SNAPPY${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_LEVELDB${COLOR_DOTS}...........${COLOR_VAR_DESC}LibLevelDB${COLOR_DOTS}.............................${COLOR_VAR_VAL}$WITH_LEVELDB${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_GRPC${COLOR_DOTS}...........${COLOR_VAR_DESC}LibGRPC${COLOR_DOTS}.............................${COLOR_VAR_VAL}$WITH_GRPC${COLOR_RESET}"
 
 cd "$SOURCES_ROOT"
 
@@ -976,7 +974,7 @@ then
 			mkdir -p build
 			cd build
 			#$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCMAKE_USE_LIBSSH2=OFF -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCURL_STATICLIB=ON -DOPENSSL_CRYPTO_LIBRARY="$INSTALL_ROOT/lib/libcrypto.a" -DOPENSSL_INCLUDE_DIR="$INSTALL_ROOT/include" -DOPENSSL_SSL_LIBRARY="$INSTALL_ROOT/lib/libssl.a" CMAKE_C_COMPILER_WORKS=ON CMAKE_CXX_COMPILER_WORKS=ON ..
-			cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DOPENSSL_SSL_LIBRARY="$INSTALL_ROOT/lib/libssl.a" -DOPENSSL_CRYPTO_LIBRARY="$INSTALL_ROOT/lib/libcrypto.a" -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl" -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCMAKE_USE_LIBSSH2=OFF -DBUILD_SHARED_LIBS=OFF -DCURL_DISABLE_LDAP=ON -DCURL_STATICLIB=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			cmake "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DOPENSSL_ROOT_DIR="$SOURCES_ROOT/openssl" -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCMAKE_USE_LIBSSH2=OFF -DBUILD_SHARED_LIBS=OFF -DCURL_DISABLE_LDAP=ON -DCURL_STATICLIB=ON -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
 			echo " " >> lib/curl_config.h
 			echo "#define HAVE_POSIX_STRERROR_R 1" >> lib/curl_config.h
 			echo " " >> lib/curl_config.h
@@ -1545,33 +1543,160 @@ then
 fi
 
 
-if [ "$WITH_GRPC" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libGRPC${COLOR_SEPARATOR} ==================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libgrpc.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "grpc" ];
-		then
-			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-        git clone --recurse-submodule https://github.com/grpc/grpc.git
-		fi
-		cd grpc
-		git checkout v1.70.1
-    mkdir -p build
-    cd build
-    $CMAKE  -DgRPC_SSL_PROVIDER=package -DOPENSSL_ROOT_DIR=../libBLS/deps/openssl "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
-    cd ..
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build
-		$MAKE ${PARALLEL_MAKE_OPTIONS}
-		$MAKE ${PARALLEL_MAKE_OPTIONS} install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
+#echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}READLINE${COLOR_SEPARATOR} ======================${COLOR_RESET}"
+#if [ ! -f "$INSTALL_ROOT/lib/libreadline.a" ];
+#then
+#	env_restore
+#    cd "$SOURCES_ROOT"
+#    if [ ! -d "readline-7.0" ];
+#    then
+#        if [ ! -f "readline-7.0.tar.gz" ];
+#        then
+#            echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
+#            $WGET https://ftp.gnu.org/gnu/readline/readline-7.0.tar.gz
+#        fi
+#        echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+#        tar -xzf readline-7.0.tar.gz
+#        echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+#        cd readline-7.0
+#        mkdir -p build
+#        cd build
+#        ../configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --host=arm-linux --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+#        cd "$SOURCES_ROOT"
+#    fi
+#    cd readline-7.0
+#    cd build
+#    make ${PARALLEL_MAKE_OPTIONS}
+#    make ${PARALLEL_MAKE_OPTIONS} install
+#    cd ..
+#    cd "$SOURCES_ROOT"
+#else
+#	echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+#fi
+
+# echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LIBXML2${COLOR_SEPARATOR} ======================${COLOR_RESET}"
+# if [ ! -f "$INSTALL_ROOT/lib/libxml2.so" ];
+# then
+# 	env_restore
+# 	cd "$SOURCES_ROOT"
+# 	if [ ! -d "libxml2-2.9.7" ];
+# 	then
+# 		if [ ! -f "libxml2-2.9.7.tar.gz" ];
+# 		then
+# 			echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
+# 			$WGET http://xmlsoft.org/sources/libxml2-2.9.7.tar.gz
+# 		fi
+# 		echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+# 		tar -xzf libxml2-2.9.7.tar.gz
+# 		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+# 		cd libxml2-2.9.7
+# 		mkdir -p build
+# 		cd build
+# 		../configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --host=arm-linux --without-html --without-python --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+# 		cd "$SOURCES_ROOT"
+# 	fi
+# 	cd libxml2-2.9.7
+# 	cd build
+# 	make ${PARALLEL_MAKE_OPTIONS}
+# 	make ${PARALLEL_MAKE_OPTIONS} install
+# 	cd ..
+# 	cd "$SOURCES_ROOT"
+# else
+# 	echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+# fi
+
+# echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LIBARCHIVE${COLOR_SEPARATOR} ======================${COLOR_RESET}"
+# if [ ! -f "$INSTALL_ROOT/lib/libarchive.so" ];
+# then
+# 	env_restore
+# 	cd "$SOURCES_ROOT"
+# 	if [ ! -d "libarchive-3.3.2" ];
+# 	then
+# 		if [ ! -f "libarchive-3.3.2.tar.gz" ];
+# 		then
+# 			echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
+# 			$WGET https://www.libarchive.org/downloads/libarchive-3.3.2.tar.gz
+# 		fi
+# 		echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+# 		tar -xzf libarchive-3.3.2.tar.gz
+# 		echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+# 		cd libarchive-3.3.2
+# 		mkdir -p build
+# 		cd build
+# 		../configure ${CONF_CROSSCOMPILING_OPTS_GENERIC} --host=arm-linux --prefix="$INSTALL_ROOT" ${CONF_DEBUG_OPTIONS}
+# 		cd "$SOURCES_ROOT"
+# 	fi
+# 	cd libarchive-3.3.2/build
+# 	make ${PARALLEL_MAKE_OPTIONS}
+# 	make ${PARALLEL_MAKE_OPTIONS} install
+# 	cd ..
+# 	cd "$SOURCES_ROOT"
+# else
+# 	echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+# fi
+
+
+# if [ "$WITH_GTEST" = "1" ];
+# then
+# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}GTEST${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
+#
+# 	if [ ! -f "$INSTALL_ROOT/lib/libgtest.a" ];
+# 	then
+# 		env_restore
+# 		cd "$SOURCES_ROOT"
+#
+# 		if [ ! -d gtest ];
+# 		then
+# 			git clone https://github.com/google/googletest.git gtest
+# 		fi
+#
+# 		cd gtest
+#
+# 		mkdir -p build
+# 		cd build
+#
+# 		$CMAKE_CROSSCOMPILING_OPTS -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+# 		$MAKE ${PARALLEL_MAKE_OPTIONS}
+# 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
+#
+# 		if [ $DEBUG = "1" ];
+# 		then
+# 			mv "$LIBRARIES_ROOT/libgtestd.a" "$LIBRARIES_ROOT/libgtest.a"
+# 			mv "$LIBRARIES_ROOT/libgtest_maind.a" "$LIBRARIES_ROOT/libgtest_main.a"
+# 			mv "$LIBRARIES_ROOT/libgmockd.a" "$LIBRARIES_ROOT/libgmock.a"
+# 			mv "$LIBRARIES_ROOT/libgmock_maind.a" "$LIBRARIES_ROOT/libgmock_main.a"
+# 		fi
+#
+# 		cd "$SOURCES_ROOT"
+# 	else
+# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+# 	fi
+# fi
+#
+# if [[ "$WITH_V8" = "yes" ]]
+# then
+# 	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}V8${COLOR_SEPARATOR} ========================================${COLOR_RESET}"
+# 	if [ ! -d v8 ];
+# 	then
+# 		git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+# 		export SAVED_PATH=$PATH
+# 		export PATH=$PATH:$(realpath depot_tools)
+#
+# 		gclient
+# 		fetch v8
+# 		cd v8
+#
+# 		gn gen out/x64/Release --args='is_debug=false is_clang=false target_cpu="x64" treat_warnings_as_errors=false is_component_build=false use_custom_libcxx=false v8_use_snapshot=false v8_static_library=true'
+# 		ninja -C out/x64/Release
+#
+# 		export PATH=$SAVED_PATH
+# 		rm -rf depot_tools
+# 		rm .gclient
+# 		rm .gclient_entries
+# 	else
+# 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+# 	fi
+# fi
 
 
 #https://github.com/jonathanmarvens/argtable2

@@ -17,10 +17,11 @@ table BlockFinalizeRequest {
 // Represents a successful block finalization
 
 table SuccessResponse {
-  blockHash: string;
-  blockSize: ulong;
-  daProofSig: string (optional);
-  fragment: [ubyte] (optional);
+  blockHash: string (required);
+  blockSize: uint64 (required);
+  daProof: string (required);
+  fragment: [ubyte] (required);
+  fragmentMerkleProof: [ubyte[32]];
 }
 
 // ErrorResponse
