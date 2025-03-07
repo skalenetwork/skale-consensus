@@ -1,0 +1,49 @@
+namespace block_finalize;
+
+// BlockFinalizeRequest
+// Represents a request to finalize a block
+
+table BlockFinalizeRequest {
+  schainID: ulong;
+  proposerIndex: ulong;
+  blockID: ulong;
+  nodeID: ulong;
+  needDAProof: bool;
+  needDecryptionShares: bool;
+  fragmentIndex: uint32 (optional);
+}
+
+// SuccessResponse
+// Represents a successful block finalization
+
+table SuccessResponse {
+  blockHash: string;
+  blockSize: ulong;
+  daProofSig: string (optional);
+  fragment: [ubyte] (optional);
+}
+
+// ErrorResponse
+// Represents an error response
+
+table ErrorResponse {
+  status: uint;
+  substatus: uint;
+  message: string (optional);
+}
+
+// BlockFinalizeResponse
+// Contains either a success or an error response
+
+table BlockFinalizeResponse {
+  success: SuccessResponse (optional);
+  error: ErrorResponse (optional);
+}
+
+// Root Service Request and Response
+table BlockFinalizeService {
+  request: BlockFinalizeRequest;
+  response: BlockFinalizeResponse;
+}
+
+root_type BlockFinalizeService;

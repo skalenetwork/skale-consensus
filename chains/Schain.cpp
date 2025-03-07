@@ -103,7 +103,7 @@
 
 
 #ifdef BITE
-#include "bite/server/BiteBlockFinalizeAndDecryptServer.h"
+#include "bite/server/BiteBlockFinalizeServer.h"
 #endif
 
 
@@ -1241,7 +1241,7 @@ void Schain::constructServers( const ptr< Sockets >& _sockets ) {
 
 
 #ifdef BITE
-    biteBlockFinalizeAndDecryptServer = make_shared< BiteBlockFinalizeAndDecryptServer >( *this);
+    biteBlockFinalizeAndDecryptServer = make_shared< BiteBlockFinalizeServer >(*this);
 #endif
 
 

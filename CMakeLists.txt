@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
 
-if(PL)
+if (PL)
     set(BITE "1")  # Replace "some_value" with the desired value
     add_definitions(-DBITE)
-endif()
+endif ()
 
-if(DEFINED BITE)
-set_source_files_properties(flatbuffers/block_finalize.grpc.pb.cc PROPERTIES
-        COMPILE_FLAGS "-Wno-unused-parameter"
-)
-endif()
+if (DEFINED BITE)
+    set_source_files_properties(flatbuffers/block_finalize.grpc.pb.cc PROPERTIES
+            COMPILE_FLAGS "-Wno-unused-parameter"
+    )
+endif ()
 
 
 option(COVERAGE "Build with code coverage support" OFF)
@@ -32,32 +32,32 @@ if (NOT DEFINED DEPS_INSTALL_ROOT)
 endif ()
 message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
 
-option( CONSENSUS_PROFILING "Build for profiling" OFF )
-if( SKALED_PROFILING )
-    set( CONSENSUS_PROFILING ON )
-endif()
-if( CONSENSUS_PROFILING )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -pg" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg" )
-    set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg" )
-    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg" )
-endif()
+option(CONSENSUS_PROFILING "Build for profiling" OFF)
+if (SKALED_PROFILING)
+    set(CONSENSUS_PROFILING ON)
+endif ()
+if (CONSENSUS_PROFILING)
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
+endif ()
 
-if( CMAKE_BUILD_TYPE STREQUAL "Release" )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
-elseif( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
-elseif( CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Os" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os" )
-elseif( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O0" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0" )
-else()
-	message( INFO "---- CMAKE_BUILD_TYPE = ${DEPS_INSTALL_ROOT} is not supported explicitly" )
-endif()
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+elseif (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Os")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+else ()
+    message(INFO "---- CMAKE_BUILD_TYPE = ${DEPS_INSTALL_ROOT} is not supported explicitly")
+endif ()
 
 add_subdirectory(libBLS)
 
@@ -71,16 +71,16 @@ set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
 #leveldb
 find_package(leveldb CONFIG REQUIRED)
 
-find_package( Snappy CONFIG REQUIRED )
-find_package( Crc32c CONFIG REQUIRED )
+find_package(Snappy CONFIG REQUIRED)
+find_package(Crc32c CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 17)
-execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION )
-message( STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}" )
-add_compile_options( -Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-sign-compare)
-if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    add_compile_options( -Wall -Wextra -Werror )
-endif()
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION)
+message(STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}")
+add_compile_options(-Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-sign-compare)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-Wall -Wextra -Werror)
+endif ()
 add_definitions("-DZMQ_BUILD_DRAFT_API")
 add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
@@ -129,12 +129,12 @@ AUX_SOURCE_DIRECTORY(chains chains_src)
 AUX_SOURCE_DIRECTORY(crypto crypto_src)
 AUX_SOURCE_DIRECTORY(datastructures datastructures_src)
 AUX_SOURCE_DIRECTORY(db db_src)
-if(DEFINED BITE)
-AUX_SOURCE_DIRECTORY(flatbuffers flatbuffers_src)
-AUX_SOURCE_DIRECTORY(bite bite_src)
-AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
-AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
-endif()
+if (DEFINED BITE)
+    AUX_SOURCE_DIRECTORY(flatbuffers flatbuffers_src)
+    AUX_SOURCE_DIRECTORY(bite bite_src)
+    AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
+    AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
+endif ()
 AUX_SOURCE_DIRECTORY(log log_src)
 AUX_SOURCE_DIRECTORY(messages messages_src)
 AUX_SOURCE_DIRECTORY(network network_src)
@@ -199,7 +199,8 @@ SET(SRC_FILES
         ${statusserver_src}
         ${sgxclient_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
-        oracle/OracleClient.cpp oracle/OracleClient.h db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h)
+        oracle/OracleClient.cpp oracle/OracleClient.h db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h
+        bite/server/BlockFinalizeServiceImpl.h)
 
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
@@ -248,14 +249,29 @@ SET(LINK_LIBRARIES
         pthread
         idn2
         blake3
-        )
+)
 
+if (DEFINED BITE)
+    # Link grpc server
+    # Find all Ggrpc and Abseil static libraries (*.a)
+    file(GLOB GRPC_LIBS "${DEPS_INSTALL_ROOT}/lib/libgrpc*.a")
+    file(GLOB ABSL_LIBS "${DEPS_INSTALL_ROOT}/lib/libabsl*.a")
+    file(GLOB UPB_LIBS "${DEPS_INSTALL_ROOT}/lib/libupb*.a")
+    file(GLOB PROTO_LIBS "${DEPS_INSTALL_ROOT}/lib/libproto*.a")
+    file(GLOB UTF_LIBS "${DEPS_INSTALL_ROOT}/lib/libutf*.a")
+
+
+
+    SET(LINK_LIBRARIES ${GRPC_LIBS} "${DEPS_INSTALL_ROOT}/lib/libgpr.a"
+            ${ABSL_LIBS} ${UPB_LIBS}  ${PROTO_LIBS} "${DEPS_INSTALL_ROOT}/lib/libre2.a"
+            ${UTF_LIBS} ${LINK_LIBRARIES})
+endif ()
 
 # consensus library
 
 add_library(consensus STATIC ${SRC_FILES})
 
-target_compile_options( consensus PRIVATE -Wno-error=unused-variable )
+target_compile_options(consensus PRIVATE -Wno-error=unused-variable)
 
 target_link_libraries(consensus ${LINK_LIBRARIES})
 
@@ -263,7 +279,7 @@ target_link_libraries(consensus ${LINK_LIBRARIES})
 
 add_executable(consensusd Consensusd.h Consensusd.cpp)
 
-target_compile_options( consensusd PRIVATE -Wno-error=unused-variable )
+target_compile_options(consensusd PRIVATE -Wno-error=unused-variable)
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")
@@ -276,7 +292,7 @@ target_link_libraries(consensusd consensus)
 
 add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
 
-target_compile_options( consensust PRIVATE -Wno-error=unused-variable )
+target_compile_options(consensust PRIVATE -Wno-error=unused-variable)
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")

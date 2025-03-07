@@ -91,7 +91,7 @@ class OracleClient;
 class OracleResultAssemblyAgent;
 
 #ifdef BITE
-class BiteBlockFinalizeAndDecryptServer;
+class BiteBlockFinalizeServer;
 #endif
 
 class Schain : public Agent {
@@ -122,7 +122,7 @@ class Schain : public Agent {
     ptr<  CatchupServerAgent > catchupServerAgent;
 
 #ifdef BITE
-    ptr <BiteBlockFinalizeAndDecryptServer> biteBlockFinalizeAndDecryptServer;
+    ptr <BiteBlockFinalizeServer> biteBlockFinalizeAndDecryptServer;
 #endif
 
     ptr< MonitoringAgent > monitoringAgent;
