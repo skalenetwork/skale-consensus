@@ -21,49 +21,49 @@
 #include <grpcpp/support/sync_stream.h>
 namespace block_finalize {
 
-static const char* BlockService_method_names[] = {
-  "/block_finalize.BlockService/GetBlockFinalizeInfo",
+static const char* BlockFinalizeService_method_names[] = {
+  "/block_finalize.BlockFinalizeService/GetBlockFinalizeInfo",
 };
 
-std::unique_ptr< BlockService::Stub> BlockService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
+std::unique_ptr< BlockFinalizeService::Stub> BlockFinalizeService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
   (void)options;
-  std::unique_ptr< BlockService::Stub> stub(new BlockService::Stub(channel, options));
+  std::unique_ptr< BlockFinalizeService::Stub> stub(new BlockFinalizeService::Stub(channel, options));
   return stub;
 }
 
-BlockService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
-  : channel_(channel), rpcmethod_GetBlockFinalizeInfo_(BlockService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+BlockFinalizeService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
+  : channel_(channel), rpcmethod_GetBlockFinalizeInfo_(BlockFinalizeService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
-::grpc::Status BlockService::Stub::GetBlockFinalizeInfo(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest& request, ::block_finalize::BlockFinalizeResponse* response) {
+::grpc::Status BlockFinalizeService::Stub::GetBlockFinalizeInfo(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest& request, ::block_finalize::BlockFinalizeResponse* response) {
   return ::grpc::internal::BlockingUnaryCall< ::block_finalize::BlockFinalizeRequest, ::block_finalize::BlockFinalizeResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_GetBlockFinalizeInfo_, context, request, response);
 }
 
-void BlockService::Stub::async::GetBlockFinalizeInfo(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest* request, ::block_finalize::BlockFinalizeResponse* response, std::function<void(::grpc::Status)> f) {
+void BlockFinalizeService::Stub::async::GetBlockFinalizeInfo(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest* request, ::block_finalize::BlockFinalizeResponse* response, std::function<void(::grpc::Status)> f) {
   ::grpc::internal::CallbackUnaryCall< ::block_finalize::BlockFinalizeRequest, ::block_finalize::BlockFinalizeResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetBlockFinalizeInfo_, context, request, response, std::move(f));
 }
 
-void BlockService::Stub::async::GetBlockFinalizeInfo(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest* request, ::block_finalize::BlockFinalizeResponse* response, ::grpc::ClientUnaryReactor* reactor) {
+void BlockFinalizeService::Stub::async::GetBlockFinalizeInfo(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest* request, ::block_finalize::BlockFinalizeResponse* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetBlockFinalizeInfo_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::block_finalize::BlockFinalizeResponse>* BlockService::Stub::PrepareAsyncGetBlockFinalizeInfoRaw(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::block_finalize::BlockFinalizeResponse>* BlockFinalizeService::Stub::PrepareAsyncGetBlockFinalizeInfoRaw(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest& request, ::grpc::CompletionQueue* cq) {
   return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::block_finalize::BlockFinalizeResponse, ::block_finalize::BlockFinalizeRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_GetBlockFinalizeInfo_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::block_finalize::BlockFinalizeResponse>* BlockService::Stub::AsyncGetBlockFinalizeInfoRaw(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::block_finalize::BlockFinalizeResponse>* BlockFinalizeService::Stub::AsyncGetBlockFinalizeInfoRaw(::grpc::ClientContext* context, const ::block_finalize::BlockFinalizeRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncGetBlockFinalizeInfoRaw(context, request, cq);
   result->StartCall();
   return result;
 }
 
-BlockService::Service::Service() {
+BlockFinalizeService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      BlockService_method_names[0],
+      BlockFinalizeService_method_names[0],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< BlockService::Service, ::block_finalize::BlockFinalizeRequest, ::block_finalize::BlockFinalizeResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](BlockService::Service* service,
+      new ::grpc::internal::RpcMethodHandler< BlockFinalizeService::Service, ::block_finalize::BlockFinalizeRequest, ::block_finalize::BlockFinalizeResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](BlockFinalizeService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::block_finalize::BlockFinalizeRequest* req,
              ::block_finalize::BlockFinalizeResponse* resp) {
@@ -71,10 +71,10 @@ BlockService::Service::Service() {
              }, this)));
 }
 
-BlockService::Service::~Service() {
+BlockFinalizeService::Service::~Service() {
 }
 
-::grpc::Status BlockService::Service::GetBlockFinalizeInfo(::grpc::ServerContext* context, const ::block_finalize::BlockFinalizeRequest* request, ::block_finalize::BlockFinalizeResponse* response) {
+::grpc::Status BlockFinalizeService::Service::GetBlockFinalizeInfo(::grpc::ServerContext* context, const ::block_finalize::BlockFinalizeRequest* request, ::block_finalize::BlockFinalizeResponse* response) {
   (void) context;
   (void) request;
   (void) response;

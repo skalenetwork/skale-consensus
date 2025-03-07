@@ -131,6 +131,9 @@ AUX_SOURCE_DIRECTORY(datastructures datastructures_src)
 AUX_SOURCE_DIRECTORY(db db_src)
 if(DEFINED BITE)
 AUX_SOURCE_DIRECTORY(flatbuffers flatbuffers_src)
+AUX_SOURCE_DIRECTORY(bite bite_src)
+AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
+AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
 endif()
 AUX_SOURCE_DIRECTORY(log log_src)
 AUX_SOURCE_DIRECTORY(messages messages_src)
@@ -172,6 +175,9 @@ SET(SRC_FILES
         ${datastructures_src}
         ${db_src}
         ${flatbuffers_src}
+        ${bite_src}
+        ${bite_server_src}
+        ${bite_client_src}
         ${headers_src}
         ${log_src}
         ${messages_src}

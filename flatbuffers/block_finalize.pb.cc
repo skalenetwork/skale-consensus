@@ -247,16 +247,17 @@ const char descriptor_table_protodef_block_5ffinalize_2eproto[] ABSL_ATTRIBUTE_S
     "ig\030\003 \001(\tH\000\210\001\001\022\025\n\010fragment\030\004 \001(\014H\001\210\001\001B\r\n\013"
     "_daProofSigB\013\n\t_fragment\"T\n\rErrorRespons"
     "e\022\016\n\006status\030\001 \001(\r\022\021\n\tsubstatus\030\002 \001(\r\022\024\n\007"
-    "message\030\003 \001(\tH\000\210\001\001B\n\n\010_message2s\n\014BlockS"
-    "ervice\022c\n\024GetBlockFinalizeInfo\022$.block_f"
-    "inalize.BlockFinalizeRequest\032%.block_fin"
-    "alize.BlockFinalizeResponseb\006proto3"
+    "message\030\003 \001(\tH\000\210\001\001B\n\n\010_message2{\n\024BlockF"
+    "inalizeService\022c\n\024GetBlockFinalizeInfo\022$"
+    ".block_finalize.BlockFinalizeRequest\032%.b"
+    "lock_finalize.BlockFinalizeResponseb\006pro"
+    "to3"
 };
 static ::absl::once_flag descriptor_table_block_5ffinalize_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_block_5ffinalize_2eproto = {
     false,
     false,
-    715,
+    723,
     descriptor_table_protodef_block_5ffinalize_2eproto,
     "block_finalize.proto",
     &descriptor_table_block_5ffinalize_2eproto_once,

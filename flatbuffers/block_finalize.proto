@@ -3,7 +3,7 @@ syntax = "proto3";
 package block_finalize;
 
 
-service BlockService {
+service BlockFinalizeService {
   rpc GetBlockFinalizeInfo(BlockFinalizeRequest) returns (BlockFinalizeResponse);
 }
 

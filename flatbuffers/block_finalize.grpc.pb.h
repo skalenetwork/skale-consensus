@@ -28,10 +28,10 @@
 
 namespace block_finalize {
 
-class BlockService final {
+class BlockFinalizeService final {
  public:
   static constexpr char const* service_full_name() {
-    return "block_finalize.BlockService";
+    return "block_finalize.BlockFinalizeService";
   }
   class StubInterface {
    public:
