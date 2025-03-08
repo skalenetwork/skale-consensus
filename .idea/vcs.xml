@@ -16,6 +16,7 @@
     <mapping directory="$PROJECT_DIR$/sgxwallet/libzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/linux-sgx-driver" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/rapidjson" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sgxwallet/rapidjson/thirdparty/gtest" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/sgx-gmp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/sgx-software-enable" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/spdlog" vcs="Git" />
