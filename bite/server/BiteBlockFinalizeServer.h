@@ -23,8 +23,6 @@
 
 #pragma once
 
-#include <grpcpp/grpcpp.h>
-
 #include "Agent.h"
 
 class Schain;
@@ -34,8 +32,6 @@ class BlockFinalizeServiceImpl;
 
 class BiteBlockFinalizeServer {
 
-    std::unique_ptr<BlockFinalizeServiceImpl> service;
-    std::unique_ptr<grpc::Server>  grpcServer;
 
 
 public:

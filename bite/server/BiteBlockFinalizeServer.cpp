@@ -22,8 +22,6 @@
 */
 
 
-#include "flatbuffers/block_finalize.grpc.pb.h"
-
 
 
 #include "SkaleCommon.h"
@@ -42,7 +40,6 @@
 
 BiteBlockFinalizeServer::BiteBlockFinalizeServer(Schain &_sChain) {
     auto cfg = _sChain.getNode()->getCfg();
-    service = std::make_unique<BlockFinalizeServiceImpl>();
 }
 
 
@@ -52,12 +49,6 @@ BiteBlockFinalizeServer::~BiteBlockFinalizeServer() {
 void BiteBlockFinalizeServer::start() {
 
     std::string server_address("0.0.0.0:50051");
-    grpc::ServerBuilder builder;
-    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    CHECK_STATE(service);
-    builder.RegisterService(&*service);
-
-    std::unique_ptr<Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << std::endl;
 }
 

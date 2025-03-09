@@ -254,17 +254,7 @@ SET(LINK_LIBRARIES
 if (DEFINED BITE)
     # Link grpc server
     # Find all Ggrpc and Abseil static libraries (*.a)
-    file(GLOB GRPC_LIBS "${DEPS_INSTALL_ROOT}/lib/libgrpc*.a")
-    file(GLOB ABSL_LIBS "${DEPS_INSTALL_ROOT}/lib/libabsl*.a")
-    file(GLOB UPB_LIBS "${DEPS_INSTALL_ROOT}/lib/libupb*.a")
-    file(GLOB PROTO_LIBS "${DEPS_INSTALL_ROOT}/lib/libproto*.a")
-    file(GLOB UTF_LIBS "${DEPS_INSTALL_ROOT}/lib/libutf*.a")
 
-
-
-    SET(LINK_LIBRARIES ${GRPC_LIBS} "${DEPS_INSTALL_ROOT}/lib/libgpr.a"
-            ${ABSL_LIBS} ${UPB_LIBS}  ${PROTO_LIBS} "${DEPS_INSTALL_ROOT}/lib/libre2.a"
-            ${UTF_LIBS} ${LINK_LIBRARIES})
 endif ()
 
 # consensus library
