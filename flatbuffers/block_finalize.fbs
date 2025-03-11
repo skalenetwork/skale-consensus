@@ -4,24 +4,54 @@ namespace block_finalize;
 // Represents a request to finalize a block
 
 table BlockFinalizeRequest {
-  schainID: ulong;
-  proposerIndex: ulong;
-  blockID: ulong;
-  nodeID: ulong;
-  needDAProof: bool;
-  needDecryptionShares: bool;
-  fragmentIndex: uint32 (optional);
+  schain_id: uint64;
+  epoch_id: uint64;
+  block_id: uint64;
+  node_id: uint64;
+  proposer_index: uint64;
+  need_da_proof: bool;
+  need_decryption_shares: bool;
+  fragment_index: uint64;
+}
+
+
+struct TruncatedHash {
+    data: [ubyte:20] ;
+}
+
+
+
+table MerkleProof {
+    data: [ubyte] (required);
+}
+
+
+
+table BlockFragment {
+    index: uint64;
+    data: [ubyte] (required);
+    merkle_proof: [MerkleProof] (required);
+}
+
+
+table DAProof {
+    data: [ubyte] (required);
+}
+
+
+table DecryptionShare {
+    transaction_index : uint64;
+    data: [ubyte] (required);
 }
 
 // SuccessResponse
 // Represents a successful block finalization
 
 table SuccessResponse {
-  blockHash: string (required);
-  blockSize: uint64 (required);
-  daProof: string (required);
-  fragment: [ubyte] (required);
-  fragmentMerkleProof: [ubyte[32]];
+  block_hash: [ubyte];
+  block_size: uint64;
+  da_proof:  DAProof;
+  block_fragment: BlockFragment;
 }
 
 // ErrorResponse
@@ -30,15 +60,15 @@ table SuccessResponse {
 table ErrorResponse {
   status: uint;
   substatus: uint;
-  message: string (optional);
+  message: string (required);
 }
 
 // BlockFinalizeResponse
 // Contains either a success or an error response
 
 table BlockFinalizeResponse {
-  success: SuccessResponse (optional);
-  error: ErrorResponse (optional);
+  success: SuccessResponse;
+  error: ErrorResponse;
 }
 
 // Root Service Request and Response
