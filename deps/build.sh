@@ -1015,7 +1015,7 @@ then
 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
 		if [ "$DEBUG" = "1" ];
 		then
-			mv "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
+			cp "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
 		fi
 		cd ..
 		export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
@@ -2576,6 +2576,10 @@ then
 		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
 		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
+		if [ "$DEBUG" = "1" ];
+		then
+			cp  "$INSTALL_ROOT/lib/libzstd.a" "$INSTALL_ROOT/lib/libzst.a"
+		fi
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
@@ -2704,7 +2708,7 @@ then
 		cd "$SOURCES_ROOT"
 		if [ "$DEBUG" = "1" ];
     		then
-    			mv "$INSTALL_ROOT/lib/libglogd.a" "$INSTALL_ROOT/lib/libglog.a"
+    			cp "$INSTALL_ROOT/lib/libglogd.a" "$INSTALL_ROOT/lib/libglog.a"
     fi
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
