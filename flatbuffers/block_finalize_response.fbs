@@ -10,6 +10,7 @@ table BlockFinalizeSuccessResponse {
     block_sig: [ubyte] (required);
     da_proof_sig: [ubyte];
     block_fragment: BlockFragment; // Directly included
+    decryption_shares: [DecryptionShare];
 }
 
 

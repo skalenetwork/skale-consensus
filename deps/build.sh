@@ -314,6 +314,7 @@ setup_variable WITH_GTEST "yes"
 setup_variable WITH_FIZZ "yes"
 setup_variable WITH_PROXYGEN "yes"
 setup_variable WITH_FLATBUFFERS "yes"
+setup_variable WITH_LZMA "yes"
 
 if [ -z "${PARALLEL_COUNT}" ];
 then
@@ -632,7 +633,7 @@ echo -e "${COLOR_VAR_NAME}WITH_WANGLE${COLOR_DOTS}............${COLOR_VAR_DESC}L
 echo -e "${COLOR_VAR_NAME}WITH_GTEST${COLOR_DOTS}.............${COLOR_VAR_DESC}LibGTEST${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_GTEST${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_FIZZ${COLOR_DOTS}..............${COLOR_VAR_DESC}LibFIZZ${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_FIZZ${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_FLATBUFFERS${COLOR_DOTS}..............${COLOR_VAR_DESC}LibFlatbuffers${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_FLATBUFFERS${COLOR_RESET}"
-
+echo -e "${COLOR_VAR_NAME}WITH_LZMA${COLOR_DOTS}..............${COLOR_VAR_DESC}LZMA${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_LZMA${COLOR_RESET}"
 
 
 cd "$SOURCES_ROOT"
@@ -1014,7 +1015,7 @@ then
 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
 		if [ "$DEBUG" = "1" ];
 		then
-			cp "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
+			mv "$INSTALL_ROOT/lib/libcurl-d.a" "$INSTALL_ROOT/lib/libcurl.a" &> /dev/null
 		fi
 		cd ..
 		export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_SAVED
@@ -1226,6 +1227,10 @@ then
 		$MAKE ${PARALLEL_MAKE_OPTIONS} install
 		cd ../..
 		cd "$SOURCES_ROOT"
+		if [ "$DEBUG" = "1" ];
+    then
+        cp "$INSTALL_ROOT/lib/libeventd.a" "$INSTALL_ROOT/lib/libevent.a"
+    fi
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
@@ -2617,50 +2622,6 @@ then
 	fi
 fi
 
-#https://github.com/google/glog
-#git@github.com:google/glog.git
-if [ "$WITH_GOOGLE_LOG" = "yes" ];
-then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libGLOG${COLOR_SEPARATOR} ======================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libglog${DEBUG_D}.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "glog" ];
-		then
-			if [ ! -f "glog-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/google/glog.git --recursive
-                                cd glog
-                                eval git checkout ee6faf13b20de9536f456bd84584f4ab4db1ceb4
-                                cd ..
-                                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf glog-from-git.tar.gz ./glog
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf glog-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd glog
-			eval mkdir -p build
-			cd build
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-                                -DBUILD_SHARED_LIBS=OFF -DWITH_UNWIND=OFF -DWITH_GTEST=OFF \
-				..
-			cd ..
-		else
-			cd glog
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
-fi
 
 #https://github.com/gflags/gflags
 #git@github.com:gflags/gflags.git
@@ -2692,10 +2653,65 @@ then
 		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
 		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
+		if [ "$DEBUG" = "1" ];
+    then
+         cp "$INSTALL_ROOT/lib/libgflags_debug.a" "$INSTALL_ROOT/lib/libgflags.a"
+    fi
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
+
+#https://github.com/google/glog
+#git@github.com:google/glog.git
+if [ "$WITH_GOOGLE_LOG" = "yes" ];
+then
+	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libGLOG${COLOR_SEPARATOR} ======================================${COLOR_RESET}"
+	if [ ! -f "$INSTALL_ROOT/lib/libglog${DEBUG_D}.a" ];
+	then
+		env_restore
+		cd "$SOURCES_ROOT"
+		if [ ! -d "glog" ];
+		then
+			if [ ! -f "glog-from-git.tar.gz" ];
+			then
+				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+				eval git clone https://github.com/google/glog.git --recursive
+                                cd glog
+                                eval git checkout ee6faf13b20de9536f456bd84584f4ab4db1ceb4
+                                cd ..
+                                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+				eval tar -czf glog-from-git.tar.gz ./glog
+			else
+				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+				eval tar -xzf glog-from-git.tar.gz
+			fi
+			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+			cd glog
+			eval mkdir -p build
+			cd build
+			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+                                -DBUILD_SHARED_LIBS=OFF -DWITH_UNWIND=OFF -DWITH_GTEST=OFF -DCMAKE_DEBUG_POSTFIX= \
+				..
+			cd ..
+		else
+			cd glog
+		fi
+		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+		cd build
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+		cd "$SOURCES_ROOT"
+		if [ "$DEBUG" = "1" ];
+    		then
+    			mv "$INSTALL_ROOT/lib/libglogd.a" "$INSTALL_ROOT/lib/libglog.a"
+    fi
+	else
+		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+	fi
+fi
+
+
 
 
 
@@ -2966,6 +2982,46 @@ then
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
+fi
+
+
+if [ "$WITH_LZMA" = "yes" ];
+then
+    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LZMA${COLOR_SEPARATOR} =========================================${COLOR_RESET}"
+    if [ ! -f "$INSTALL_ROOT/lib/liblzma.a" ];
+    then
+        env_restore
+        cd "$SOURCES_ROOT"
+        if [ ! -d "liblzma" ];
+        then
+            if [ ! -f "liblzma-from-git.tar.gz" ];
+            then
+                echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+                eval git clone https://github.com/kobolabs/liblzma.git
+                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+                eval tar -czf liblzma-from-git.tar.gz ./liblzma
+            else
+                echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+                eval tar -xzf liblzma-from-git.tar.gz
+            fi
+            echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+            cd liblzma
+            eval aclocal
+            eval autoconf
+            eval autoheader
+            eval automake --add-missing
+            eval ./configure --disable-shared --prefix="$INSTALL_ROOT"
+            cd ..
+        fi
+        echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+        cd liblzma
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+        cd ..
+        cd "$SOURCES_ROOT"
+    else
+        echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+    fi
 fi
 
 

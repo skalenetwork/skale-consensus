@@ -207,7 +207,7 @@ include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/in
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 
 
-set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options)
+set(BOOST_LIBS_FOR_CONSENSUS boost_thread  boost_system boost_filesystem boost_program_options boost_context)
 
 set(DASH_D_SUFFIX "")
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
@@ -238,10 +238,9 @@ SET(LINK_LIBRARIES
         gnutls
         gcrypt
         "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
-        "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
         "${DEPS_INSTALL_ROOT}/lib/libssl.a"
         "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
-        "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
+        "${DEPS_INSTALL_ROOT}/lib/libcurl.a"
         "${DEPS_INSTALL_ROOT}/lib/libssl.a"
         "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
         dl
@@ -252,9 +251,23 @@ SET(LINK_LIBRARIES
 )
 
 if (DEFINED BITE)
-    # Link grpc server
-    # Find all Ggrpc and Abseil static libraries (*.a)
-
+    SET(LINK_LIBRARIES ${LINK_LIBRARIES}
+            "${DEPS_INSTALL_ROOT}/lib/libproxygenhttpserver.a"
+            "${DEPS_INSTALL_ROOT}/lib/libproxygen.a"
+            "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
+            "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
+            "${DEPS_INSTALL_ROOT}/lib/libfizz.a"
+            "${DEPS_INSTALL_ROOT}/lib/libfmtd.a"
+            "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
+            "${DEPS_INSTALL_ROOT}/lib/libboost_context.a"
+            "${DEPS_INSTALL_ROOT}/lib/libevent.a"
+            "${DEPS_INSTALL_ROOT}/lib/libz.a"
+            "${DEPS_INSTALL_ROOT}/lib/libzstd.a"
+            "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
+            "${DEPS_INSTALL_ROOT}/lib/libglog.a"
+            "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
+            "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
+    )
 endif ()
 
 # consensus library

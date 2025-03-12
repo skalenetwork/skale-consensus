@@ -32,15 +32,15 @@ struct BlockHeader {
 // Flattened BlockFragment to remove unnecessary nesting
 table BlockFragment {
     index: uint64;
-    tx_truncated_hashes: [TruncatedHash];  // Already an inline array
-    left_proof: [Hash];
-    right_proof: [Hash];
+    tx_truncated_hashes: [TruncatedHash] (required);  // Already an inline array
+    left_proof: [Hash] (required);
+    right_proof: [Hash] (required);
 }
 
 // DecryptionShare is a struct since it has a fixed format
 table DecryptionShare {
     transaction_index: uint64;
-    data: [ubyte];
+    data: [ubyte] (required);
 }
 
 // ErrorResponse remains a table due to variable-length string

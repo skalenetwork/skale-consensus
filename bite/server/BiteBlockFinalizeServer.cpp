@@ -22,6 +22,11 @@
 */
 
 
+#include <flatbuffers/block_finalize_request_generated.h>
+#include <flatbuffers/block_finalize_response_generated.h>
+#include <flatbuffers/block_finalize_request_generated.h>
+#include <flatbuffers/block_transactions_request_generated.h>
+#include <flatbuffers/block_transactions_response_generated.h>
 
 
 #include "SkaleCommon.h"

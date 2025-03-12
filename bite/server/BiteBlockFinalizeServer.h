@@ -35,10 +35,10 @@ class BlockFinalizeServiceImpl;
 #pragma push_macro("LOG")
 #undef LOG
 #include <proxygen/httpserver/HTTPServer.h>
-#include <flatbuffers/block_finalize_generated.h>
+
+
 #pragma pop_macro("LOG")
 using namespace proxygen;
-using namespace block_finalize;
 using namespace std;
 
 class BiteBlockFinalizeServer {
