@@ -765,6 +765,7 @@ then
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
 				git clone https://github.com/madler/zlib.git
+        git -C zlib checkout 5a82f71ed1dfc0bec044d9702463dbdf84ea3b71  # Replace with your desired commit hash
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
 				tar -czf zlib-from-git.tar.gz ./zlib
 			else
@@ -1203,6 +1204,7 @@ then
 			then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
 				git clone git@github.com:libevent/libevent.git
+				git -C libevent  checkout 112421c8fa4840acd73502f2ab6a674fc025de37
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
 				tar -czf libevent-from-git.tar.gz ./libevent
 			else
@@ -1743,7 +1745,8 @@ then
 		if [ ! -d "argtable2" ];
 		then
 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-                        git clone https://github.com/jonathanmarvens/argtable2.git
+      git clone https://github.com/jonathanmarvens/argtable2.git
+      git -C argtable2 checkout b47cd9b9a13405f4d4656a89bde2c00896c98d82
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd argtable2
 			mkdir -p build
@@ -1964,6 +1967,7 @@ then
 		then
 			echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
             git clone https://github.com/scottjg/libmicrohttpd.git
+            git -C libmicrohttpd checkout 41a27cad4b697141cb4cedae5cecbfdb4c229213
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd libmicrohttpd
 			MHD_HTTPS_OPT=""
@@ -2192,6 +2196,7 @@ then
         then
             mkdir libcryptopp
             git clone https://github.com/DimaStebaev/cryptopp.git libcryptopp
+            git -C libcryptopp checkout fa9187ac7708952a5f2612ad4c24bf7383060946
             #git clone http://github.com/weidai11/cryptopp.git libcryptopp
             echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
         fi
@@ -2373,6 +2378,7 @@ if [ "$WITH_BLAKE3" = "yes" ]; then
       if [ ! -f "blake3-from-git.tar.gz" ]; then
         echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
         git clone https://github.com/BLAKE3-team/BLAKE3.git
+        git -C BLAKE3 checkout a31e519869d5751370f50c39a99340660ee95bf7
         echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
         tar -czf blake3-from-git.tar.gz ./BLAKE3
       else
@@ -2514,6 +2520,7 @@ then
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
 				eval git clone https://github.com/fmtlib/fmt.git --recursive
+				git -C fmt checkout 9158bea1e148c190aa3f9f084b82887ecb29d2f8
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
 				eval tar -czf fmt-from-git.tar.gz ./fmt
 			else
@@ -2522,7 +2529,6 @@ then
 			fi
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd fmt
-                        git checkout 9158bea1e148c190aa3f9f084b82887ecb29d2f8
 			eval mkdir -p build
 			cd build
 			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
@@ -2535,12 +2541,17 @@ then
 		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
 		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
+	  if [ "$DEBUG" = "1" ];
+    then
+      cp  "$INSTALL_ROOT/lib/libfmtd.a" "$INSTALL_ROOT/lib/libfmt.a"
+    fi
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
 fi
 
 #https://github.com/facebook/zstd
+#git@github.com:facebook/zstd.git
 #git@github.com:facebook/zstd.git
 #https://github.com/facebook/zstd.git
 if [ "$WITH_ZSTD" = "yes" ];
@@ -2556,6 +2567,7 @@ then
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
 				eval git clone https://github.com/facebook/zstd.git --recursive
+				git -C zstd checkout f9a6031963dee08620855545bdad7d519c208e8a
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
 				eval tar -czf zstd-from-git.tar.gz ./zstd
 			else
@@ -2576,10 +2588,6 @@ then
 		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
 		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
 		cd "$SOURCES_ROOT"
-		if [ "$DEBUG" = "1" ];
-		then
-			cp  "$INSTALL_ROOT/lib/libzstd.a" "$INSTALL_ROOT/lib/libzst.a"
-		fi
 	else
 		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 	fi
@@ -2601,6 +2609,7 @@ then
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
 				eval git clone https://github.com/google/double-conversion.git --recursive
+				git -C double-conversion checkщге f9a6031963dee08620855545bdad7d519c208e8a
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
 				eval tar -czf double-conversion-from-git.tar.gz ./double-conversion
 			else
@@ -2716,12 +2725,6 @@ then
 fi
 
 
-
-
-
-
-
-
 #https://github.com/facebook/folly
 #git@github.com:facebook/folly.git
 #https://github.com/facebook/folly.git
@@ -2753,7 +2756,7 @@ then
 			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
 			cd folly
 			eval mkdir -p build2
-                        cd build2
+      cd build2
 			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
                                 -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
                                 -DBoost_NO_BOOST_CMAKE=ON -DBoost_NO_WARN_NEW_VERSIONS=1 -DBoost_DEBUG=ON \
@@ -2957,6 +2960,7 @@ then
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
 				eval git clone https://github.com/google/flatbuffers.git --recursive
+				git -C flatbuffers checkout 1c514626e83c20fffa8557e75641848e1e15cd5e
         echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
 				eval tar -czf flatbuffers-from-git.tar.gz ./flatbuffers
 			else
@@ -3001,9 +3005,10 @@ then
             if [ ! -f "liblzma-from-git.tar.gz" ];
             then
                 echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-                eval git clone https://github.com/kobolabs/liblzma.git
+                git clone https://github.com/kobolabs/liblzma.git
+                git -C liblzma checkout 8a844d434f0eef87d972ae6406b00968f7c52944
                 echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-                eval tar -czf liblzma-from-git.tar.gz ./liblzma
+                tar -czf liblzma-from-git.tar.gz ./liblzma
             else
                 echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
                 eval tar -xzf liblzma-from-git.tar.gz

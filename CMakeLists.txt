@@ -257,7 +257,7 @@ if (DEFINED BITE)
             "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
             "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
             "${DEPS_INSTALL_ROOT}/lib/libfizz.a"
-            "${DEPS_INSTALL_ROOT}/lib/libfmtd.a"
+            "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
             "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
             "${DEPS_INSTALL_ROOT}/lib/libboost_context.a"
             "${DEPS_INSTALL_ROOT}/lib/libevent.a"
