@@ -1,71 +1,24 @@
+
+include "block_finalize_common_structures.fbs";
+
 namespace block_finalize;
 
 
-struct Hash {
-    data: [ubyte:32] ;
+// Flattened SuccessResponse
+table BlockFinalizeSuccessResponse {
+    block_header: BlockHeader (required);
+    block_sig: [ubyte] (required);
+    da_proof_sig: [ubyte];
+    block_fragment: BlockFragment; // Directly included
 }
 
-struct TruncatedHash {
-    data: [ubyte:20] ;
-}
-
-
-
-table MerkleIntervalProof {
-    left_proof: [Hash] (required);
-    right_proof: [Hash] (required);
-}
-
-
-
-table BlockFragment {
-    index: uint64;
-    data: [ubyte] (required);
-    merkle_interval_proof: [MerkleIntervalProof] (required);
-}
-
-
-table DataAvailabilityProof {
-    data: [ubyte] (required);
-}
-
-
-table DecryptionShare {
-    transaction_index : uint64;
-    data: [ubyte] (required);
-}
-
-// SuccessResponse
-// Represents a successful block finalization
-
-table SuccessResponse {
-  block_hash: [ubyte];
-  block_size: uint64;
-  da_proof:  DataAvailabilityProof;
-  block_fragment: BlockFragment;
-}
-
-// ErrorResponse
-// Represents an error response
-
-table ErrorResponse {
-  status: uint;
-  substatus: uint;
-  message: string (required);
-}
-
-// BlockFinalizeResponse
-// Contains either a success or an error response
 
 // Define a union for SuccessResponse and ErrorResponse
-union BlockFinalizeResult { SuccessResponse, ErrorResponse }
+union BlockFinalizeResult { BlockFinalizeSuccessResponse, ErrorResponse }
 
-// BlockFinalizeResponse
-// Contains either a success or an error response
-
+// BlockFinalizeResponse now only has a union for efficiency
 table BlockFinalizeResponse {
-  result: BlockFinalizeResult;  // Union field
+    result: BlockFinalizeResult;
 }
-
 
 root_type BlockFinalizeResponse;
