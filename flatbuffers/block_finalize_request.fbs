@@ -1,0 +1,18 @@
+namespace block_finalize;
+
+// BlockFinalizeRequest
+// Represents a request to finalize a block
+
+table BlockFinalizeRequest {
+  schain_id: uint64;
+  epoch_id: uint64;
+  block_id: uint64;
+  node_id: uint64;
+  proposer_index: uint64;
+  need_da_proof: bool;
+  need_decryption_shares: bool;
+  fragment_index: uint64;
+}
+
+
+root_type BlockFinalizeRequest;

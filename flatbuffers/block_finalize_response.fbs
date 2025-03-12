@@ -1,19 +1,9 @@
 namespace block_finalize;
 
-// BlockFinalizeRequest
-// Represents a request to finalize a block
 
-table BlockFinalizeRequest {
-  schain_id: uint64;
-  epoch_id: uint64;
-  block_id: uint64;
-  node_id: uint64;
-  proposer_index: uint64;
-  need_da_proof: bool;
-  need_decryption_shares: bool;
-  fragment_index: uint64;
+struct Hash {
+    data: [ubyte:32] ;
 }
-
 
 struct TruncatedHash {
     data: [ubyte:20] ;
@@ -21,8 +11,9 @@ struct TruncatedHash {
 
 
 
-table MerkleProof {
-    data: [ubyte] (required);
+table MerkleIntervalProof {
+    left_proof: [Hash] (required);
+    right_proof: [Hash] (required);
 }
 
 
@@ -30,11 +21,11 @@ table MerkleProof {
 table BlockFragment {
     index: uint64;
     data: [ubyte] (required);
-    merkle_proof: [MerkleProof] (required);
+    merkle_interval_proof: [MerkleIntervalProof] (required);
 }
 
 
-table DAProof {
+table DataAvailabilityProof {
     data: [ubyte] (required);
 }
 
@@ -50,7 +41,7 @@ table DecryptionShare {
 table SuccessResponse {
   block_hash: [ubyte];
   block_size: uint64;
-  da_proof:  DAProof;
+  da_proof:  DataAvailabilityProof;
   block_fragment: BlockFragment;
 }
 
@@ -66,15 +57,15 @@ table ErrorResponse {
 // BlockFinalizeResponse
 // Contains either a success or an error response
 
+// Define a union for SuccessResponse and ErrorResponse
+union BlockFinalizeResult { SuccessResponse, ErrorResponse }
+
+// BlockFinalizeResponse
+// Contains either a success or an error response
+
 table BlockFinalizeResponse {
-  success: SuccessResponse;
-  error: ErrorResponse;
+  result: BlockFinalizeResult;  // Union field
 }
 
-// Root Service Request and Response
-table BlockFinalizeService {
-  request: BlockFinalizeRequest;
-  response: BlockFinalizeResponse;
-}
 
-root_type BlockFinalizeService;
+root_type BlockFinalizeResponse;

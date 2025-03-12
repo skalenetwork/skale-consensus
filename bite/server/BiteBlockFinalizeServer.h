@@ -30,9 +30,20 @@ class Node;
 
 class BlockFinalizeServiceImpl;
 
+
+// avoid macro definition conflicts with proxygen LOG
+#pragma push_macro("LOG")
+#undef LOG
+#include <proxygen/httpserver/HTTPServer.h>
+#include <flatbuffers/block_finalize_generated.h>
+#pragma pop_macro("LOG")
+using namespace proxygen;
+using namespace block_finalize;
+using namespace std;
+
 class BiteBlockFinalizeServer {
 
-
+std::unique_ptr<HTTPServer> proxygenServerInstance;
 
 public:
     explicit BiteBlockFinalizeServer(Schain &_sChain);

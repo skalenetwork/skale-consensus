@@ -4,7 +4,7 @@ import subprocess
 
 
 def run_command():
-    command = "../deps/flatbuffers/build2/flatc --cpp  --gen-object-api block_finalize.fbs"
+    command = "../deps/flatbuffers/build2/flatc --cpp  --gen-object-api block_finalize_*.fbs"
 
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
