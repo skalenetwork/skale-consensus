@@ -35,20 +35,30 @@ class BlockFinalizeServiceImpl;
 #pragma push_macro("LOG")
 #undef LOG
 #include <proxygen/httpserver/HTTPServer.h>
+#include <proxygen/httpserver/ResponseBuilder.h>
 
 
 #pragma pop_macro("LOG")
 using namespace proxygen;
 using namespace std;
 
-class BiteBlockFinalizeServer {
+class  BiteBlockFinalizeServer : public proxygen::RequestHandler {
 
-std::unique_ptr<HTTPServer> proxygenServerInstance;
+    std::unique_ptr<HTTPServer> proxygenServerInstance;
+    Schain& sChain;
+    std::unique_ptr<HTTPServer::IPConfig> ipConfig;
+    folly::IOThreadPoolExecutor workerThreadPool;
 
 public:
     explicit BiteBlockFinalizeServer(Schain &_sChain);
 
     void start();
+
+    void executeTask(string i) {
+        std::cout << "Task " << i << " done by thread " << std::this_thread::get_id() << std::endl;
+    }
+
+
 
     ~BiteBlockFinalizeServer();
 

@@ -31,6 +31,7 @@
 
 #include "SkaleCommon.h"
 #include "chains/Schain.h"
+#include <folly/SocketAddress.h>
 #include "exceptions/FatalError.h"
 #include "node/Node.h"
 
@@ -39,20 +40,23 @@
 #include "exceptions/InvalidMessageFormatException.h"
 
 
-#include "BlockFinalizeServiceImpl.h"
+#include "BlockFinalizeRequestHandler.h"
 #include "BiteBlockFinalizeServer.h"
 
 
-BiteBlockFinalizeServer::BiteBlockFinalizeServer(Schain &_sChain) {
-    auto cfg = _sChain.getNode()->getCfg();
+BiteBlockFinalizeServer::BiteBlockFinalizeServer(Schain &_sChain) : sChain(_sChain) {
+    auto bindIP = _sChain.getNode()->getBindIP();
+    auto port = sChain.getNode()->getBasePort() + port_type::BITE_SERVER;
+    auto socketAddress = folly::SocketAddress(bindIP, (uint16_t) port, false);
+    ipConfig = std::make_unique<HTTPServer::IPConfig>(socketAddress, HTTPServer::Protocol::HTTP2);
+    auto threadFactory = std::make_shared<folly::NamedThreadFactory>("BlFinWorker");
+    folly::IOThreadPoolExecutor workerThreadPool(1, std::thread::hardware_concurrency(),threadFactory);
 }
-
 
 BiteBlockFinalizeServer::~BiteBlockFinalizeServer() {
 }
 
 void BiteBlockFinalizeServer::start() {
-
     std::string server_address("0.0.0.0:50051");
     std::cout << "Server listening on " << server_address << std::endl;
 }
