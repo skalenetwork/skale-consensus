@@ -24,37 +24,84 @@ void FlatBufferRequestHandler::onBody( std::unique_ptr< folly::IOBuf > _body ) n
 
 void FlatBufferRequestHandler::onEOM() noexcept {
     std::string responseMessage;
-
-
     std::string response;
 
-    // Merge chained buffers into a contiguous block (efficient if already contiguous)
-    auto coalescedBody = bodyQueue.move()->coalesce();
-
-    switch ( requestType ) {
-    case RequestType::BLOCK_FINALIZE: {
-        auto blockFinalizeRequest = GetBlockFinalizeRequest( coalescedBody.data() );
-        response = getBlockFinalizeResponse( blockFinalizeRequest );
-        break;
-    }
-    case RequestType::BLOCK_TXS: {
-        auto blockTransactionsRequest = GetBlockTransactionsRequest( coalescedBody.data() );
-        response = getBlockTransactionsResponse( blockTransactionsRequest );
-        break;
-    }
-    default:
-        sendErrorResponse();
+    if ( requestType == INVALID ) {
+        ResponseBuilder( downstream_ )
+            .status( 404, "Not Found" )
+            .body( "Unknown endpoint" )
+            .sendWithEOM();
         return;
     }
 
+    // Merge chained buffers into a contiguous block (efficient if already contiguous)
+    auto request = bodyQueue.move();
+    request->coalesce();
+
+    // do sanity check
+    if ( request->empty()) {
+        ResponseBuilder( downstream_ )
+            .status( 400, "Bad Request" )
+            .body( "Bad Request: Empty FlatBuffer data" )
+            .sendWithEOM();
+        return;
+    }
+
+    // Check for minimum valid FlatBuffer length (assumed 16 bytes)
+    if ( request->length() < 16 ) {
+        ResponseBuilder( downstream_ )
+            .status( 400, "Bad Request" )
+            .body( "Bad Request: Corrupt FlatBuffer: length " +
+                   std::to_string( request->length() ) )
+            .sendWithEOM();
+        return;
+    }
+
+    // Due to flatbuffer format the fourth byte is always zero
+    if ( request->data()[4] != 0 ) {
+        sendHTTPError(400, "Bad Request: Corrupt FlatBuffer");
+        return;
+    }
+
+
+    try {
+        switch ( requestType ) {
+        case RequestType::BLOCK_FINALIZE: {
+            response = getBlockFinalizeResponse( *request );
+            break;
+        }
+        case RequestType::BLOCK_TXS: {
+            auto blockTransactionsRequest = getBlockTransactionsResponse( *request );
+            break;
+        }
+        default:
+            // we should never get here
+            ResponseBuilder( downstream_ )
+                .status( 500, "Internal Server Error" )
+                .body( "Internal Server Error" )
+                .sendWithEOM();
+            return;
+        }
+    } catch (Exception& _e) {
+        //TODO
+    } catch (...) {
+        //TODO
+    }
+
     sendFlatBufferResponse( response );
+}
+void FlatBufferRequestHandler::sendHTTPError(uint32_t _errorCode, const std::string& _message) const {
+    ResponseBuilder( downstream_ )
+        .status( _errorCode, _message )
+        .body( _message)
+        .sendWithEOM();
 }
 
 void FlatBufferRequestHandler::onError( ProxygenError err ) noexcept {
     std::cerr << "Error: " << proxygen::getErrorString( err ) << std::endl;
 }
 
-void FlatBufferRequestHandler::sendFlatBufferResponse( const std::string& response ) {
+void FlatBufferRequestHandler::sendFlatBufferResponse( const std::string& response )  noexcept{
     ResponseBuilder( downstream_ )
         .status( 200, "OK" )
         .header( "Content-Type", "application/octet-stream" )
@@ -62,16 +109,9 @@ void FlatBufferRequestHandler::sendFlatBufferResponse( const std::string& respon
         .sendWithEOM();
 }
 
-void FlatBufferRequestHandler::sendErrorResponse() {
-    ResponseBuilder( downstream_ )
-        .status( 404, "Not Found" )
-        .body( "Unknown endpoint" )
-        .sendWithEOM();
-}
-
 
 std::string FlatBufferRequestHandler::getBlockFinalizeResponse(
-    const BlockFinalizeRequest* _request ) {
+    const folly::IOBuf& _request ) noexcept {
     FlatBufferBuilder builder;
     // auto msg = builder.CreateString( message );
     // auto response = CreateBlockFinalizeResponse( builder, msg );
@@ -81,8 +121,8 @@ std::string FlatBufferRequestHandler::getBlockFinalizeResponse(
 }
 
 
-std::string FlatBufferRequestHandler::getBlockTransactionsResponse(
-    const BlockTransactionsRequest* _request ) {
+std::string FlatBufferRequestHandler::getBlockTransactionsResponse (
+    const folly::IOBuf& _request) noexcept {
     FlatBufferBuilder builder;
     // auto msg = builder.CreateString( message );
     // auto response = CreateBlockFinalizeResponse( builder, msg );

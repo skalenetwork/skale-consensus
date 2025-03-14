@@ -11,6 +11,7 @@
 #include <string>
 
 #include "proxygen//httpserver/RequestHandler.h"
+#include "BlockFinalizeRequestObject.h"
 
 class BlockFinalizeService : public proxygen::RequestHandler {
 

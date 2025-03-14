@@ -5,12 +5,6 @@ if (PL)
     add_definitions(-DBITE)
 endif ()
 
-if (DEFINED BITE)
-    set_source_files_properties(flatbuffers/block_finalize.grpc.pb.cc PROPERTIES
-            COMPILE_FLAGS "-Wno-unused-parameter"
-    )
-endif ()
-
 
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
@@ -130,7 +124,7 @@ AUX_SOURCE_DIRECTORY(crypto crypto_src)
 AUX_SOURCE_DIRECTORY(datastructures datastructures_src)
 AUX_SOURCE_DIRECTORY(db db_src)
 if (DEFINED BITE)
-    AUX_SOURCE_DIRECTORY(flatbuffers flatbuffers_src)
+    AUX_SOURCE_DIRECTORY(flatb flatb_src)
     AUX_SOURCE_DIRECTORY(bite bite_src)
     AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
     AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
@@ -174,7 +168,7 @@ SET(SRC_FILES
         ${crypto_src}
         ${datastructures_src}
         ${db_src}
-        ${flatbuffers_src}
+        ${flatb_src}
         ${bite_src}
         ${bite_server_src}
         ${bite_client_src}

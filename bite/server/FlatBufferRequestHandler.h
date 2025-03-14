@@ -13,11 +13,11 @@
 #include "folly/init/Init.h"
 #include "folly/io/async/EventBaseManager.h"
 
-#include "flatbuffers/block_finalize_common_structures_generated.h"
-#include "flatbuffers/block_finalize_request_generated.h"
-#include "flatbuffers/block_finalize_response_generated.h"
-#include "flatbuffers/block_transactions_request_generated.h"
-#include "flatbuffers/block_transactions_response_generated.h"
+#include "flatb/block_finalize_common_structures_generated.h"
+#include "flatb/block_finalize_request_generated.h"
+#include "flatb/block_finalize_response_generated.h"
+#include "flatb/block_transactions_request_generated.h"
+#include "flatb/block_transactions_response_generated.h"
 
 
 using namespace proxygen;
@@ -41,20 +41,18 @@ public:
 
     void onError( ProxygenError err ) noexcept override;
 
-    void sendFlatBufferResponse( const std::string& response );
+    void sendFlatBufferResponse( const std::string& response ) noexcept;
 
-    void sendErrorResponse();
+    std::string getBlockFinalizeResponse( const folly::IOBuf& _request ) noexcept;
 
-    std::string getBlockFinalizeResponse( const BlockFinalizeRequest* _request );
-
-
-    std::string getBlockTransactionsResponse( const BlockTransactionsRequest* _request );
+    std::string getBlockTransactionsResponse(const folly::IOBuf& _request) noexcept;
 
     void onUpgrade(proxygen::UpgradeProtocol prot)  noexcept override {};
 
     void requestComplete()  noexcept override {};
 
 
+    void sendHTTPError(uint32_t _errorCode, const std::string& _message) const;
 };
 
 
