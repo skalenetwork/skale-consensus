@@ -2609,7 +2609,7 @@ then
 			then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
 				eval git clone https://github.com/google/double-conversion.git --recursive
-				git -C double-conversion checkщге f9a6031963dee08620855545bdad7d519c208e8a
+				git -C double-conversion checkout e2fd4e0accd436d920fb00beec084501d0ae0c4e
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
 				eval tar -czf double-conversion-from-git.tar.gz ./double-conversion
 			else

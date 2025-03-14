@@ -42,7 +42,7 @@ class BlockFinalizeServiceImpl;
 using namespace proxygen;
 using namespace std;
 
-class  BiteBlockFinalizeServer : public proxygen::RequestHandler {
+class  BiteBlockFinalizeServer  {
 
     std::unique_ptr<HTTPServer> proxygenServerInstance;
     Schain& sChain;
@@ -53,12 +53,6 @@ public:
     explicit BiteBlockFinalizeServer(Schain &_sChain);
 
     void start();
-
-    void executeTask(string i) {
-        std::cout << "Task " << i << " done by thread " << std::this_thread::get_id() << std::endl;
-    }
-
-
 
     ~BiteBlockFinalizeServer();
 
