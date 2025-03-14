@@ -102,11 +102,6 @@
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
 
 
-#ifdef BITE
-#include "bite/server/BiteBlockFinalizeServer.h"
-#endif
-
-
 #include "Schain.h"
 
 #include <statusserver/StatusServer.h>

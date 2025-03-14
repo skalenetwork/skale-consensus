@@ -24,15 +24,8 @@
 #pragma once
 
 
-// avoid macro definition conflicts with proxygen LOG
-#pragma push_macro("LOG")
-#pragma push_macro("CHECK")
-#undef LOG
-#undef CHECK
 #include <proxygen/httpserver/HTTPServer.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
-#pragma pop_macro("LOG")
-#pragma pop_macro("CHECK")
 
 
 
