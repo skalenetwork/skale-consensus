@@ -46,20 +46,8 @@ BiteBlockFinalizeServer::BiteBlockFinalizeServer(Schain &_sChain) : sChain(_sCha
     auto socketAddress = folly::SocketAddress(bindIP, (uint16_t) port, false);
     proxygen::HTTPServer::IPConfig ipConfig(socketAddress, proxygen::HTTPServer::Protocol::HTTP2);
 
-    // Use a dynamic thread pool instead of a fixed thread count
-    auto maxThreads = std::thread::hardware_concurrency();
-    auto ioExecutor = std::make_shared<folly::IOThreadPoolExecutor>(
-        1,  // Min threads
-        maxThreads,  // Max threads
-        std::chrono::seconds(10)  // Threads are removed if idle for 10 sec
-    );
-
-
-
     proxygen::HTTPServerOptions options;
     options.threads = 8;
-    options.idleTimeout = std::chrono::milliseconds(60000);
-    options.enableContentCompression = false;
     proxygenServerInstance = make_unique<proxygen::HTTPServer>(std::move(options));
     proxygenServerInstance->bind({ipConfig});
 }
@@ -79,10 +67,11 @@ void BiteBlockFinalizeServer::exitProxygenServer() {
         return;
     }
     this->proxygenServerInstance->stopListening();  // Stop new connections
+    ConsensusEngine::log(info, string("Proxygen server stopped listening"), __CLASS_NAME__);
     // give on-going requests a little time to complete
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     this->proxygenServerInstance->stop();  // Shutdown completely
-    this->runServerThread->join();
+    ConsensusEngine::log(info, string("Proxygen server stopped"), __CLASS_NAME__);
 }
 
 
@@ -90,6 +79,7 @@ void BiteBlockFinalizeServer::runServer() {
     CHECK(proxygenServerInstance);
     try {
         proxygenServerInstance->start();
+        ConsensusEngine::log(info, string("Proxygen server exited"), __CLASS_NAME__);
     } catch (const std::exception& e) {
         ConsensusEngine::log(critical, string("Proxygen exception: ") + e.what(), __CLASS_NAME__);
         throw;

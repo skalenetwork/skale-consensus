@@ -590,6 +590,7 @@ void Node::exitImmediately() {
 
     getSchain()->stopStatusServer();
 
+
     LOG( info, "Status server stopped" );
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
@@ -657,6 +658,13 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         sockets->getConsensusZMQSockets()->closeAndCleanupAll();
         LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
     }
+
+#ifdef BITE
+    if ( biteBlockFinalizeServer ) {
+        biteBlockFinalizeServer->exitProxygenServer();
+        LOG( info, "consensus engine exiting: exitProxygenServer called" );
+    }
+#endif
 }
 
 /*
