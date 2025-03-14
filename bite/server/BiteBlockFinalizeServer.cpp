@@ -38,6 +38,7 @@
 #include <threads/GlobalThreadRegistry.h>
 #include "chains/Schain.h"
 
+#include "BlockFinalizeHandlerFactory.h"
 #include "BiteBlockFinalizeServer.h"
 
 BiteBlockFinalizeServer::BiteBlockFinalizeServer(Schain &_sChain) : sChain(_sChain) {
@@ -48,6 +49,7 @@ BiteBlockFinalizeServer::BiteBlockFinalizeServer(Schain &_sChain) : sChain(_sCha
 
     proxygen::HTTPServerOptions options;
     options.threads = 8;
+    options.handlerFactories = proxygen::RequestHandlerChain().addThen<BlockFinalizeHandlerFactory>().build();
     proxygenServerInstance = make_unique<proxygen::HTTPServer>(std::move(options));
     proxygenServerInstance->bind({ipConfig});
 }
