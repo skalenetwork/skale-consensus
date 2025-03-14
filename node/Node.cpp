@@ -25,12 +25,14 @@
 #include <chrono>
 #include "leveldb/db.h"
 
-#include "SkaleCommon.h"
-#include "Log.h"
 
 #ifdef BITE
 #include "bite/server/BiteBlockFinalizeServer.h"
 #endif
+
+#include "SkaleCommon.h"
+#include "Log.h"
+
 
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
