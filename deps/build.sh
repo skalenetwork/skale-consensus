@@ -3006,7 +3006,7 @@ then
             then
                 echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
                 git clone https://github.com/kobolabs/liblzma.git
-                git -C liblzma checkout 8a844d434f0eef87d972ae6406b00968f7c52944
+                git -C liblzma checkout 87b7682ce4b1c849504e2b3641cebaad62aaef87
                 echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
                 tar -czf liblzma-from-git.tar.gz ./liblzma
             else
