@@ -366,7 +366,7 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
 #ifdef BITE
         biteBlockFinalizeServer = make_shared< BiteBlockFinalizeServer >(*sChain);
         LOG( trace, " Starting bite server" );
-        biteBlockFinalizeServer->start();
+        biteBlockFinalizeServer->startProxygenServer();
 #endif
 
     }

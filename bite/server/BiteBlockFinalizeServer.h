@@ -34,12 +34,17 @@ class Schain;
 class BiteBlockFinalizeServer {
     Schain& sChain;
     std::unique_ptr< proxygen::HTTPServer > proxygenServerInstance;
-    std::unique_ptr< proxygen::HTTPServer::IPConfig > ipConfig;
+    std::shared_ptr<std::thread> runServerThread;
+
+    void runServer();
 
 public:
     explicit BiteBlockFinalizeServer( Schain& _sChain );
 
-    void start();
+    void startProxygenServer();
+
+    void exitProxygenServer();
 
     ~BiteBlockFinalizeServer();
+
 };
