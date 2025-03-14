@@ -23,44 +23,30 @@
 
 #pragma once
 
-#include "Agent.h"
-
-class Schain;
-class Node;
-
-class BlockFinalizeServiceImpl;
-
 
 // avoid macro definition conflicts with proxygen LOG
 #pragma push_macro("LOG")
+#pragma push_macro("CHECK")
 #undef LOG
+#undef CHECK
 #include <proxygen/httpserver/HTTPServer.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
-
-
 #pragma pop_macro("LOG")
-using namespace proxygen;
-using namespace std;
+#pragma pop_macro("CHECK")
 
-class  BiteBlockFinalizeServer  {
 
-    std::unique_ptr<HTTPServer> proxygenServerInstance;
+
+class Schain;
+
+class BiteBlockFinalizeServer {
     Schain& sChain;
-    std::unique_ptr<HTTPServer::IPConfig> ipConfig;
-    folly::IOThreadPoolExecutor workerThreadPool;
+    std::unique_ptr< proxygen::HTTPServer > proxygenServerInstance;
+    std::unique_ptr< proxygen::HTTPServer::IPConfig > ipConfig;
 
 public:
-    explicit BiteBlockFinalizeServer(Schain &_sChain);
+    explicit BiteBlockFinalizeServer( Schain& _sChain );
 
     void start();
 
     ~BiteBlockFinalizeServer();
-
-
 };
-
-
-
-
-
-

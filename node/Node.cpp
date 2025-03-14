@@ -28,6 +28,9 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 
+#ifdef BITE
+#include "bite/server/BiteBlockFinalizeServer.h"
+#endif
 
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
@@ -46,6 +49,7 @@
 #include "ConsensusInterface.h"
 
 #include "blockproposal/server/BlockProposalServerAgent.h"
+
 #include "catchup/server/CatchupServerAgent.h"
 #include "chains/Schain.h"
 #include "datastructures/CommittedBlock.h"
@@ -338,7 +342,7 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
     auto lastCommittedBlockIDInConsensus = getBlockDB()->readLastCommittedBlockID();
     sChain->setLastCommittedBlockId( ( uint64_t ) lastCommittedBlockIDInConsensus );
 
-    LOG( info, "Starting node on" );
+    LOG( info, "Starting node" );
 
     LOG( trace, "Initing sockets" );
 
@@ -354,10 +358,15 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
 
     if ( !isSyncOnlyNode() ) {
         network = make_shared< ZMQNetwork >( *sChain );
-
         LOG( trace, " Starting consensus messaging" );
-
         network->startThreads();
+
+#ifdef BITE
+        biteBlockFinalizeServer = make_shared< BiteBlockFinalizeServer >(*sChain);
+        LOG( trace, " Starting bite server" );
+        biteBlockFinalizeServer->start();
+#endif
+
     }
 
     LOG( trace, "Starting schain" );

@@ -16,10 +16,14 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file TransportBiteBlockFinalizeAndDecryptServer.cpp
+
     @author Stan Kladko
-    @date 2018-
+    @date 2025-
 */
+
+
+
+// avoid macro definition conflicts with proxygen LOG
 
 
 #include <flatbuffers/block_finalize_request_generated.h>
@@ -31,16 +35,7 @@
 
 #include "SkaleCommon.h"
 #include "chains/Schain.h"
-#include <folly/SocketAddress.h>
-#include "exceptions/FatalError.h"
-#include "node/Node.h"
 
-
-#include "exceptions/ExitRequestedException.h"
-#include "exceptions/InvalidMessageFormatException.h"
-
-
-#include "BlockFinalizeRequestHandler.h"
 #include "BiteBlockFinalizeServer.h"
 
 
@@ -48,9 +43,7 @@ BiteBlockFinalizeServer::BiteBlockFinalizeServer(Schain &_sChain) : sChain(_sCha
     auto bindIP = _sChain.getNode()->getBindIP();
     auto port = sChain.getNode()->getBasePort() + port_type::BITE_SERVER;
     auto socketAddress = folly::SocketAddress(bindIP, (uint16_t) port, false);
-    ipConfig = std::make_unique<HTTPServer::IPConfig>(socketAddress, HTTPServer::Protocol::HTTP2);
-    auto threadFactory = std::make_shared<folly::NamedThreadFactory>("BlFinWorker");
-    folly::IOThreadPoolExecutor workerThreadPool(1, std::thread::hardware_concurrency(),threadFactory);
+    ipConfig = std::make_unique<proxygen::HTTPServer::IPConfig>(socketAddress, proxygen::HTTPServer::Protocol::HTTP2);
 }
 
 BiteBlockFinalizeServer::~BiteBlockFinalizeServer() {

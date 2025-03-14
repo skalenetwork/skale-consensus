@@ -1239,12 +1239,6 @@ void Schain::constructServers( const ptr< Sockets >& _sockets ) {
     if ( getNode()->isSyncOnlyNode() )
         return;
 
-
-#ifdef BITE
-    biteBlockFinalizeAndDecryptServer = make_shared< BiteBlockFinalizeServer >(*this);
-#endif
-
-
     blockProposalServerAgent =
         make_shared< BlockProposalServerAgent >( *this, _sockets->blockProposalSocket );
 }

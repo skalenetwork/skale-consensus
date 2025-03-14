@@ -121,9 +121,6 @@ class Schain : public Agent {
 
     ptr<  CatchupServerAgent > catchupServerAgent;
 
-#ifdef BITE
-    ptr <BiteBlockFinalizeServer> biteBlockFinalizeAndDecryptServer;
-#endif
 
     ptr< MonitoringAgent > monitoringAgent;
 
