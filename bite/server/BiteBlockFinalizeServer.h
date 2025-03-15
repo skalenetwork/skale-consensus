@@ -23,10 +23,16 @@
 
 #pragma once
 
+#include <memory>
 
-#include <proxygen/httpserver/HTTPServer.h>
-#include <proxygen/httpserver/ResponseBuilder.h>
 
+namespace proxygen {
+class HTTPServer;
+}
+
+namespace std {
+class thread;
+}
 
 
 class Schain;
@@ -34,7 +40,7 @@ class Schain;
 class BiteBlockFinalizeServer {
     Schain& sChain;
     std::unique_ptr< proxygen::HTTPServer > proxygenServerInstance;
-    std::shared_ptr<std::thread> runServerThread;
+    std::shared_ptr< std::thread > runServerThread;
 
     void runServer();
 
@@ -46,5 +52,4 @@ public:
     void exitProxygenServer();
 
     ~BiteBlockFinalizeServer();
-
 };

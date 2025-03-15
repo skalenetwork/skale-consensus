@@ -280,6 +280,9 @@ BOOST_STRONG_TYPEDEF( uint64_t, node_id );
 
 BOOST_STRONG_TYPEDEF( uint64_t, schain_id );
 
+#ifdef BITE
+BOOST_STRONG_TYPEDEF( uint64_t, epoch_id );
+#endif
 
 BOOST_STRONG_TYPEDEF( unsigned int, tcp_connection );
 
