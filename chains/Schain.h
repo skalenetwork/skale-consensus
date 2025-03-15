@@ -107,6 +107,11 @@ class Schain : public Agent {
     ConsensusExtFace* extFace = nullptr;
 
     schain_id schainID = 0;
+
+#ifdef BITE
+    epoch_id epochID = 0;
+#endif
+
     string schainName;
 
     ptr< jsonrpc::HttpServer > httpserver;
@@ -318,6 +323,10 @@ public:
     node_id getNodeIDByIndex( schain_index _index );
 
     schain_id getSchainID();
+
+#ifdef BITE
+    epoch_id getEpochID();
+#endif
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 

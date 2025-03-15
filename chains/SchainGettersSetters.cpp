@@ -138,6 +138,12 @@ schain_id Schain::getSchainID() {
     return schainID;
 }
 
+#ifdef BITE
+epoch_id Schain::getEpochID() {
+    return epochID;
+}
+#endif
+
 node_id Schain::getNodeIDByIndex( schain_index _index ) {
     if ( ( ( uint64_t ) _index ) > ( uint64_t ) this->getNodeCount() ) {
         BOOST_THROW_EXCEPTION(

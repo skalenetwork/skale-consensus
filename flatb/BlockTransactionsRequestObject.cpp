@@ -13,8 +13,8 @@
 
 using namespace block_finalize;
 
-unique_ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::deserialize(
-    const folly::IOBuf& _buffer ) {
+unique_ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::deserializeAndVerify(
+    const folly::IOBuf& _buffer, schain_id _sChainId ) {
     const block_finalize::BlockTransactionsRequest* request = nullptr;
     VERIFY_AND_GET_REQUEST( _buffer, BlockTransactionsRequest, request );
 
@@ -24,7 +24,9 @@ unique_ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::des
         throw std::invalid_argument("Null transaction indices in BlockTransactionsRequest request");
     }
 
-    return std::make_unique< BlockTransactionsRequestObject >( request->schain_id(),
+    auto result =  std::make_unique< BlockTransactionsRequestObject >( request->schain_id(),
         request->epoch_id(), request->block_id(), request->node_id(), request->proposer_index(),
         *transactionIndices);
+    result->verify(_sChainId);
+    return result;
 }

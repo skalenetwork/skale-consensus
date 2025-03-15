@@ -34,7 +34,8 @@ public:
           needFragment(needFragment),
           fragmentIndex(fragmentIndex) {}
 
-    std::unique_ptr<BlockFinalizeRequestObject> deserialize( const folly::IOBuf& _buffer ) noexcept(false);
+    std::unique_ptr<BlockFinalizeRequestObject> deserializeAndVerify( const folly::IOBuf& _buffer,
+        schain_id _sChainId) noexcept(false);
 };
 }
 

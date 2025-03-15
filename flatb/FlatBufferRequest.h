@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+class Schain;
+
 namespace block_finalize {
 
 class FlatBufferRequest {
@@ -26,22 +28,28 @@ private:
     block_id blockId;
     node_id nodeId;
     schain_index proposerIndex;
+
+protected:
+    void verify( schain_id _sChainId ) noexcept( false );
 };
 
-}
+}  // namespace block_finalize
 
 
-#define VERIFY_AND_GET_REQUEST(_buffer, RequestType, request) \
-    do { \
-        static_assert(std::is_pointer_v<decltype(request)>, "Request variable must be a pointer."); \
-        flatbuffers::Verifier verifier(_buffer.data(), _buffer.length()); \
-        if (!block_finalize::Verify##RequestType##Buffer(verifier)) { \
-            throw std::invalid_argument("Invalid FlatBuffer data: verification failed for " #RequestType); \
-        } \
-        request = flatbuffers::GetRoot<block_finalize::RequestType>(_buffer.data()); \
-        if (!request) { \
-            throw std::invalid_argument("Invalid FlatBuffer data: failed to parse " #RequestType); \
-        } \
-    } while (0)
+#define VERIFY_AND_GET_REQUEST( _buffer, RequestType, request )                                \
+    do {                                                                                       \
+        static_assert(                                                                         \
+            std::is_pointer_v< decltype( request ) >, "Request variable must be a pointer." ); \
+        flatbuffers::Verifier verifier( _buffer.data(), _buffer.length() );                    \
+        if ( !block_finalize::Verify##RequestType##Buffer( verifier ) ) {                      \
+            throw std::invalid_argument(                                                       \
+                "Invalid FlatBuffer data: verification failed for " #RequestType );            \
+        }                                                                                      \
+        request = flatbuffers::GetRoot< block_finalize::RequestType >( _buffer.data() );       \
+        if ( !request ) {                                                                      \
+            throw std::invalid_argument(                                                       \
+                "Invalid FlatBuffer data: failed to parse " #RequestType );                    \
+        }                                                                                      \
+    } while ( 0 )
 
 #endif  // SKALED_FLATBUFFERREQUEST_H

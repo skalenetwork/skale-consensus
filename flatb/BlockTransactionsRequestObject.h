@@ -8,6 +8,7 @@
 
 #include "FlatBufferRequest.h"
 
+class Schain;
 
 namespace block_finalize {
 
@@ -27,7 +28,9 @@ public:
     [[nodiscard]] const std::vector< uint64_t >& getTransactionIndices() const { return transactionIndices; }
 
     // Deserialize function
-    static std::unique_ptr< BlockTransactionsRequestObject > deserialize(const folly::IOBuf& _buffer ) noexcept( false );
+    static std::unique_ptr< BlockTransactionsRequestObject > deserializeAndVerify(const folly::IOBuf& _buffer,
+        schain_id _schainId) noexcept( false );
+
 };
 
 }  // namespace block_finalize
