@@ -47,7 +47,7 @@ public:
 
     std::string getBlockTransactionsResponse(const folly::IOBuf& _request) noexcept;
 
-    void onUpgrade(proxygen::UpgradeProtocol prot)  noexcept override {};
+    void onUpgrade(proxygen::UpgradeProtocol)  noexcept override {};
 
     void requestComplete()  noexcept override {};
 
