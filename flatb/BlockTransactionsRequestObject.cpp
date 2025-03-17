@@ -16,7 +16,7 @@ using namespace block_finalize;
 unique_ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::deserializeAndVerify(
     const folly::IOBuf& _buffer, schain_id _sChainId ) {
     const block_finalize::BlockTransactionsRequest* request = nullptr;
-    VERIFY_AND_GET_REQUEST( _buffer, BlockTransactionsRequest, request );
+    VERIFY_AND_PARSE_FLATBUFFER( _buffer, BlockTransactionsRequest, request );
 
     auto transactionIndices = request->transaction_indices();
 

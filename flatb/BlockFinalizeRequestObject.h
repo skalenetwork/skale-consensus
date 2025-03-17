@@ -16,6 +16,23 @@ class IOBuf;
 namespace block_finalize {
 
 class BlockFinalizeRequestObject : public FlatBufferRequest {
+public:
+    [[nodiscard]] bool getNeedDaProofSig() const {
+        return needDaProofSig;
+    }
+
+    [[nodiscard]] bool getNeedDecryptionShares() const {
+        return needDecryptionShares;
+    }
+
+    [[nodiscard]] bool getNeedFragment() const {
+        return needFragment;
+    }
+
+    [[nodiscard]] fragment_index getNeedFragmentIndex() const {
+        return fragmentIndex;
+    }
+
 private:
 
     bool needDaProofSig;

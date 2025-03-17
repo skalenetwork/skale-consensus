@@ -8,9 +8,17 @@
 
 #include <iostream>
 
+#include "block_finalize_common_structures_generated.h"
+
 class Schain;
 
+namespace flatbuffers {
+    class Vector;
+}
+
 namespace block_finalize {
+
+class BlockFragment;
 
 class FlatBufferRequest {
 public:
@@ -31,24 +39,46 @@ private:
 
 protected:
     void verify( schain_id _sChainId ) noexcept( false );
+
+
+public:
+
+    static shared_ptr<std::vector<uint8_t>> copyByteVectorFromFlatBuffer(flatbuffers::Vector<uint8_t> * _fbVector) {
+        if (!_fbVector) {
+            return nullptr;
+        } else {
+            return make_shared<vector<uint8_t>>(_fbVector->begin(), _fbVector->end());
+        }
+    }
+
+    static shared_ptr<BlockFragment> copyBlockFragmentFromFlatBuffer(block_finalize::BlockFragment<uint8_t> * _blockFragment) {
+        if (!_blockFragment) {
+            return nullptr;
+        } else {
+            return make_shared<BlockFragment>(*_blockFragment);
+        }
+    }
+
+
+
 };
 
 }  // namespace block_finalize
 
 
-#define VERIFY_AND_GET_REQUEST( _buffer, RequestType, request )                                \
+#define VERIFY_AND_PARSE_FLATBUFFER( _buffer, FlatBufferType, request )                                \
     do {                                                                                       \
         static_assert(                                                                         \
             std::is_pointer_v< decltype( request ) >, "Request variable must be a pointer." ); \
         flatbuffers::Verifier verifier( _buffer.data(), _buffer.length() );                    \
-        if ( !block_finalize::Verify##RequestType##Buffer( verifier ) ) {                      \
+        if ( !block_finalize::Verify##FlatBufferType##Buffer( verifier ) ) {                      \
             throw std::invalid_argument(                                                       \
-                "Invalid FlatBuffer data: verification failed for " #RequestType );            \
+                "Invalid FlatBuffer data: verification failed for " #FlatBufferType );            \
         }                                                                                      \
-        request = flatbuffers::GetRoot< block_finalize::RequestType >( _buffer.data() );       \
+        request = flatbuffers::GetRoot< block_finalize::FlatBufferType >( _buffer.data() );       \
         if ( !request ) {                                                                      \
             throw std::invalid_argument(                                                       \
-                "Invalid FlatBuffer data: failed to parse " #RequestType );                    \
+                "Invalid FlatBuffer data: failed to parse " #FlatBufferType );                    \
         }                                                                                      \
     } while ( 0 )
 
