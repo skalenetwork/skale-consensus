@@ -405,6 +405,8 @@ struct ErrorResponseT : public ::flatbuffers::NativeTable {
   typedef ErrorResponse TableType;
   uint32_t status = 0;
   uint32_t substatus = 0;
+  uint64_t last_block = 0;
+  uint64_t last_block_timestamp = 0;
   std::string message{};
 };
 
@@ -414,13 +416,21 @@ struct ErrorResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_STATUS = 4,
     VT_SUBSTATUS = 6,
-    VT_MESSAGE = 8
+    VT_LAST_BLOCK = 8,
+    VT_LAST_BLOCK_TIMESTAMP = 10,
+    VT_MESSAGE = 12
   };
   uint32_t status() const {
     return GetField<uint32_t>(VT_STATUS, 0);
   }
   uint32_t substatus() const {
     return GetField<uint32_t>(VT_SUBSTATUS, 0);
+  }
+  uint64_t last_block() const {
+    return GetField<uint64_t>(VT_LAST_BLOCK, 0);
+  }
+  uint64_t last_block_timestamp() const {
+    return GetField<uint64_t>(VT_LAST_BLOCK_TIMESTAMP, 0);
   }
   const ::flatbuffers::String *message() const {
     return GetPointer<const ::flatbuffers::String *>(VT_MESSAGE);
@@ -429,6 +439,8 @@ struct ErrorResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_STATUS, 4) &&
            VerifyField<uint32_t>(verifier, VT_SUBSTATUS, 4) &&
+           VerifyField<uint64_t>(verifier, VT_LAST_BLOCK, 8) &&
+           VerifyField<uint64_t>(verifier, VT_LAST_BLOCK_TIMESTAMP, 8) &&
            VerifyOffsetRequired(verifier, VT_MESSAGE) &&
            verifier.VerifyString(message()) &&
            verifier.EndTable();
@@ -447,6 +459,12 @@ struct ErrorResponseBuilder {
   }
   void add_substatus(uint32_t substatus) {
     fbb_.AddElement<uint32_t>(ErrorResponse::VT_SUBSTATUS, substatus, 0);
+  }
+  void add_last_block(uint64_t last_block) {
+    fbb_.AddElement<uint64_t>(ErrorResponse::VT_LAST_BLOCK, last_block, 0);
+  }
+  void add_last_block_timestamp(uint64_t last_block_timestamp) {
+    fbb_.AddElement<uint64_t>(ErrorResponse::VT_LAST_BLOCK_TIMESTAMP, last_block_timestamp, 0);
   }
   void add_message(::flatbuffers::Offset<::flatbuffers::String> message) {
     fbb_.AddOffset(ErrorResponse::VT_MESSAGE, message);
@@ -467,8 +485,12 @@ inline ::flatbuffers::Offset<ErrorResponse> CreateErrorResponse(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t status = 0,
     uint32_t substatus = 0,
+    uint64_t last_block = 0,
+    uint64_t last_block_timestamp = 0,
     ::flatbuffers::Offset<::flatbuffers::String> message = 0) {
   ErrorResponseBuilder builder_(_fbb);
+  builder_.add_last_block_timestamp(last_block_timestamp);
+  builder_.add_last_block(last_block);
   builder_.add_message(message);
   builder_.add_substatus(substatus);
   builder_.add_status(status);
@@ -479,12 +501,16 @@ inline ::flatbuffers::Offset<ErrorResponse> CreateErrorResponseDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t status = 0,
     uint32_t substatus = 0,
+    uint64_t last_block = 0,
+    uint64_t last_block_timestamp = 0,
     const char *message = nullptr) {
   auto message__ = message ? _fbb.CreateString(message) : 0;
   return block_finalize::CreateErrorResponse(
       _fbb,
       status,
       substatus,
+      last_block,
+      last_block_timestamp,
       message__);
 }
 
@@ -591,6 +617,8 @@ inline void ErrorResponse::UnPackTo(ErrorResponseT *_o, const ::flatbuffers::res
   (void)_resolver;
   { auto _e = status(); _o->status = _e; }
   { auto _e = substatus(); _o->substatus = _e; }
+  { auto _e = last_block(); _o->last_block = _e; }
+  { auto _e = last_block_timestamp(); _o->last_block_timestamp = _e; }
   { auto _e = message(); if (_e) _o->message = _e->str(); }
 }
 
@@ -604,11 +632,15 @@ inline ::flatbuffers::Offset<ErrorResponse> CreateErrorResponse(::flatbuffers::F
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ErrorResponseT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _status = _o->status;
   auto _substatus = _o->substatus;
+  auto _last_block = _o->last_block;
+  auto _last_block_timestamp = _o->last_block_timestamp;
   auto _message = _fbb.CreateString(_o->message);
   return block_finalize::CreateErrorResponse(
       _fbb,
       _status,
       _substatus,
+      _last_block,
+      _last_block_timestamp,
       _message);
 }
 

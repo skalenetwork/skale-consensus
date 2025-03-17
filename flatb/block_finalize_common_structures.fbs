@@ -47,6 +47,8 @@ table DecryptionShare {
 table ErrorResponse {
     status: uint;
     substatus: uint;
+    last_block: uint64;
+    last_block_timestamp: uint64;
     message: string (required);
 }
 
