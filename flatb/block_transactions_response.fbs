@@ -5,17 +5,8 @@ namespace block_finalize;
 
 
 // Flattened SuccessResponse
-table BlockTransactionsSuccessResponse {
-    transactions: [Transaction];
-}
-
-
-// Define a union for SuccessResponse and ErrorResponse
-union BlockTransactionsResult { BlockTransactionsSuccessResponse, ErrorResponse }
-
-// BlockFinalizeResponse now only has a union for efficiency
 table BlockTransactionsResponse {
-    result: BlockTransactionsResult;
+    transactions: [Transaction];
 }
 
 root_type BlockTransactionsResponse;

@@ -16,7 +16,7 @@
 using namespace block_finalize;
 
 BlockTransactionsResponseObject::BlockTransactionsResponseObject(
-    std::shared_ptr<std::vector<std::vector<uint8_t>>> &_transactions) : transactions(_transactions) {
+    std::shared_ptr<std::vector<std::vector<uint8_t> > > &_transactions) : transactions(_transactions) {
     CHECK_STATE2(transactions, "Null transactions in response");
 }
 
@@ -24,34 +24,22 @@ std::unique_ptr<BlockTransactionsResponseObject> BlockTransactionsResponseObject
     const folly::IOBuf &_buffer, std::shared_ptr<BlockTransactionsRequestObject> &_request) {
     CHECK_STATE(_request);
 
-    const block_finalize::BlockTransactionsResponse *response = nullptr;
+    const BlockTransactionsResponse *response = nullptr;
     VERIFY_AND_PARSE_FLATBUFFER(_buffer, BlockTransactionsResponse, response);
 
-    if (response->result_type() == block_finalize::BlockTransactionsResult_BlockTransactionsSuccessResponse) {
-        const auto *successResponse = response->result_as_BlockTransactionsSuccessResponse();
-        CHECK_STATE(successResponse);
-
-        auto transactions = std::make_shared<std::vector<std::vector<uint8_t>>>();
+    auto transactions = std::make_shared<std::vector<std::vector<uint8_t> > >();
 
 
-        CHECK_STATE2(successResponse->transactions()->size() == _request->getTransactionIndices()->size(),
-            "Response transaction count not equal to request transaction count");
-        transactions->reserve(successResponse->transactions()->size());
+    CHECK_STATE2(response->transactions()->size() == _request->getTransactionIndices()->size(),
+                 "Response transaction count not equal to request transaction count");
+    transactions->reserve(response->transactions()->size());
 
-        for (const auto *fbTransaction : *successResponse->transactions()) {
-            CHECK_STATE(fbTransaction);
-            auto transactionData = FlatBufferRequest::copyFbByteVector(fbTransaction->data());
-            CHECK_STATE(transactionData);
-            transactions->push_back(*transactionData);
-        }
-
-        return std::make_unique<BlockTransactionsResponseObject>(transactions);
-    } else {
-        // TODO: Handle ErrorResponse case
-        /* const auto *errorResponse = response->result_as_ErrorResponse();
-           return std::make_unique<ErrorResponseObject>(
-               errorResponse->status(), errorResponse->substatus(), errorResponse->last_block(),
-               errorResponse->last_block_timestamp(), errorResponse->message()->str());
-        */
+    for (const auto&& fbTransaction: *response->transactions()) {
+        CHECK_STATE(fbTransaction);
+        auto transactionData = FlatBufferRequest::copyFbByteVector(fbTransaction->data());
+        CHECK_STATE(transactionData);
+        transactions->push_back(*transactionData);
     }
+
+    return std::make_unique<BlockTransactionsResponseObject>(transactions);
 }

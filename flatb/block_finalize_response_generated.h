@@ -17,138 +17,26 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
 
 namespace block_finalize {
 
-struct BlockFinalizeSuccessResponse;
-struct BlockFinalizeSuccessResponseBuilder;
-struct BlockFinalizeSuccessResponseT;
-
 struct BlockFinalizeResponse;
 struct BlockFinalizeResponseBuilder;
 struct BlockFinalizeResponseT;
 
-enum BlockFinalizeResult : uint8_t {
-  BlockFinalizeResult_NONE = 0,
-  BlockFinalizeResult_BlockFinalizeSuccessResponse = 1,
-  BlockFinalizeResult_ErrorResponse = 2,
-  BlockFinalizeResult_MIN = BlockFinalizeResult_NONE,
-  BlockFinalizeResult_MAX = BlockFinalizeResult_ErrorResponse
-};
-
-inline const BlockFinalizeResult (&EnumValuesBlockFinalizeResult())[3] {
-  static const BlockFinalizeResult values[] = {
-    BlockFinalizeResult_NONE,
-    BlockFinalizeResult_BlockFinalizeSuccessResponse,
-    BlockFinalizeResult_ErrorResponse
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesBlockFinalizeResult() {
-  static const char * const names[4] = {
-    "NONE",
-    "BlockFinalizeSuccessResponse",
-    "ErrorResponse",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameBlockFinalizeResult(BlockFinalizeResult e) {
-  if (::flatbuffers::IsOutRange(e, BlockFinalizeResult_NONE, BlockFinalizeResult_ErrorResponse)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesBlockFinalizeResult()[index];
-}
-
-template<typename T> struct BlockFinalizeResultTraits {
-  static const BlockFinalizeResult enum_value = BlockFinalizeResult_NONE;
-};
-
-template<> struct BlockFinalizeResultTraits<block_finalize::BlockFinalizeSuccessResponse> {
-  static const BlockFinalizeResult enum_value = BlockFinalizeResult_BlockFinalizeSuccessResponse;
-};
-
-template<> struct BlockFinalizeResultTraits<block_finalize::ErrorResponse> {
-  static const BlockFinalizeResult enum_value = BlockFinalizeResult_ErrorResponse;
-};
-
-template<typename T> struct BlockFinalizeResultUnionTraits {
-  static const BlockFinalizeResult enum_value = BlockFinalizeResult_NONE;
-};
-
-template<> struct BlockFinalizeResultUnionTraits<block_finalize::BlockFinalizeSuccessResponseT> {
-  static const BlockFinalizeResult enum_value = BlockFinalizeResult_BlockFinalizeSuccessResponse;
-};
-
-template<> struct BlockFinalizeResultUnionTraits<block_finalize::ErrorResponseT> {
-  static const BlockFinalizeResult enum_value = BlockFinalizeResult_ErrorResponse;
-};
-
-struct BlockFinalizeResultUnion {
-  BlockFinalizeResult type;
-  void *value;
-
-  BlockFinalizeResultUnion() : type(BlockFinalizeResult_NONE), value(nullptr) {}
-  BlockFinalizeResultUnion(BlockFinalizeResultUnion&& u) FLATBUFFERS_NOEXCEPT :
-    type(BlockFinalizeResult_NONE), value(nullptr)
-    { std::swap(type, u.type); std::swap(value, u.value); }
-  BlockFinalizeResultUnion(const BlockFinalizeResultUnion &);
-  BlockFinalizeResultUnion &operator=(const BlockFinalizeResultUnion &u)
-    { BlockFinalizeResultUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
-  BlockFinalizeResultUnion &operator=(BlockFinalizeResultUnion &&u) FLATBUFFERS_NOEXCEPT
-    { std::swap(type, u.type); std::swap(value, u.value); return *this; }
-  ~BlockFinalizeResultUnion() { Reset(); }
-
-  void Reset();
-
-  template <typename T>
-  void Set(T&& val) {
-    typedef typename std::remove_reference<T>::type RT;
-    Reset();
-    type = BlockFinalizeResultUnionTraits<RT>::enum_value;
-    if (type != BlockFinalizeResult_NONE) {
-      value = new RT(std::forward<T>(val));
-    }
-  }
-
-  static void *UnPack(const void *obj, BlockFinalizeResult type, const ::flatbuffers::resolver_function_t *resolver);
-  ::flatbuffers::Offset<void> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
-
-  block_finalize::BlockFinalizeSuccessResponseT *AsBlockFinalizeSuccessResponse() {
-    return type == BlockFinalizeResult_BlockFinalizeSuccessResponse ?
-      reinterpret_cast<block_finalize::BlockFinalizeSuccessResponseT *>(value) : nullptr;
-  }
-  const block_finalize::BlockFinalizeSuccessResponseT *AsBlockFinalizeSuccessResponse() const {
-    return type == BlockFinalizeResult_BlockFinalizeSuccessResponse ?
-      reinterpret_cast<const block_finalize::BlockFinalizeSuccessResponseT *>(value) : nullptr;
-  }
-  block_finalize::ErrorResponseT *AsErrorResponse() {
-    return type == BlockFinalizeResult_ErrorResponse ?
-      reinterpret_cast<block_finalize::ErrorResponseT *>(value) : nullptr;
-  }
-  const block_finalize::ErrorResponseT *AsErrorResponse() const {
-    return type == BlockFinalizeResult_ErrorResponse ?
-      reinterpret_cast<const block_finalize::ErrorResponseT *>(value) : nullptr;
-  }
-};
-
-bool VerifyBlockFinalizeResult(::flatbuffers::Verifier &verifier, const void *obj, BlockFinalizeResult type);
-bool VerifyBlockFinalizeResultVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
-
-struct BlockFinalizeSuccessResponseT : public ::flatbuffers::NativeTable {
-  typedef BlockFinalizeSuccessResponse TableType;
+struct BlockFinalizeResponseT : public ::flatbuffers::NativeTable {
+  typedef BlockFinalizeResponse TableType;
   std::unique_ptr<block_finalize::BlockHeaderT> block_header{};
   std::vector<uint8_t> block_sig{};
   std::vector<uint8_t> da_proof_sig{};
   std::unique_ptr<block_finalize::BlockFragmentT> block_fragment{};
   std::vector<std::unique_ptr<block_finalize::DecryptionShareT>> decryption_shares{};
-  BlockFinalizeSuccessResponseT() = default;
-  BlockFinalizeSuccessResponseT(const BlockFinalizeSuccessResponseT &o);
-  BlockFinalizeSuccessResponseT(BlockFinalizeSuccessResponseT&&) FLATBUFFERS_NOEXCEPT = default;
-  BlockFinalizeSuccessResponseT &operator=(BlockFinalizeSuccessResponseT o) FLATBUFFERS_NOEXCEPT;
+  BlockFinalizeResponseT() = default;
+  BlockFinalizeResponseT(const BlockFinalizeResponseT &o);
+  BlockFinalizeResponseT(BlockFinalizeResponseT&&) FLATBUFFERS_NOEXCEPT = default;
+  BlockFinalizeResponseT &operator=(BlockFinalizeResponseT o) FLATBUFFERS_NOEXCEPT;
 };
 
-struct BlockFinalizeSuccessResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef BlockFinalizeSuccessResponseT NativeTableType;
-  typedef BlockFinalizeSuccessResponseBuilder Builder;
+struct BlockFinalizeResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BlockFinalizeResponseT NativeTableType;
+  typedef BlockFinalizeResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_BLOCK_HEADER = 4,
     VT_BLOCK_SIG = 6,
@@ -186,51 +74,51 @@ struct BlockFinalizeSuccessResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuff
            verifier.VerifyVectorOfTables(decryption_shares()) &&
            verifier.EndTable();
   }
-  BlockFinalizeSuccessResponseT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(BlockFinalizeSuccessResponseT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<BlockFinalizeSuccessResponse> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeSuccessResponseT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  BlockFinalizeResponseT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(BlockFinalizeResponseT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<BlockFinalizeResponse> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeResponseT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct BlockFinalizeSuccessResponseBuilder {
-  typedef BlockFinalizeSuccessResponse Table;
+struct BlockFinalizeResponseBuilder {
+  typedef BlockFinalizeResponse Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_block_header(::flatbuffers::Offset<block_finalize::BlockHeader> block_header) {
-    fbb_.AddOffset(BlockFinalizeSuccessResponse::VT_BLOCK_HEADER, block_header);
+    fbb_.AddOffset(BlockFinalizeResponse::VT_BLOCK_HEADER, block_header);
   }
   void add_block_sig(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> block_sig) {
-    fbb_.AddOffset(BlockFinalizeSuccessResponse::VT_BLOCK_SIG, block_sig);
+    fbb_.AddOffset(BlockFinalizeResponse::VT_BLOCK_SIG, block_sig);
   }
   void add_da_proof_sig(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> da_proof_sig) {
-    fbb_.AddOffset(BlockFinalizeSuccessResponse::VT_DA_PROOF_SIG, da_proof_sig);
+    fbb_.AddOffset(BlockFinalizeResponse::VT_DA_PROOF_SIG, da_proof_sig);
   }
   void add_block_fragment(::flatbuffers::Offset<block_finalize::BlockFragment> block_fragment) {
-    fbb_.AddOffset(BlockFinalizeSuccessResponse::VT_BLOCK_FRAGMENT, block_fragment);
+    fbb_.AddOffset(BlockFinalizeResponse::VT_BLOCK_FRAGMENT, block_fragment);
   }
   void add_decryption_shares(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<block_finalize::DecryptionShare>>> decryption_shares) {
-    fbb_.AddOffset(BlockFinalizeSuccessResponse::VT_DECRYPTION_SHARES, decryption_shares);
+    fbb_.AddOffset(BlockFinalizeResponse::VT_DECRYPTION_SHARES, decryption_shares);
   }
-  explicit BlockFinalizeSuccessResponseBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit BlockFinalizeResponseBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<BlockFinalizeSuccessResponse> Finish() {
+  ::flatbuffers::Offset<BlockFinalizeResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<BlockFinalizeSuccessResponse>(end);
-    fbb_.Required(o, BlockFinalizeSuccessResponse::VT_BLOCK_HEADER);
-    fbb_.Required(o, BlockFinalizeSuccessResponse::VT_BLOCK_SIG);
+    auto o = ::flatbuffers::Offset<BlockFinalizeResponse>(end);
+    fbb_.Required(o, BlockFinalizeResponse::VT_BLOCK_HEADER);
+    fbb_.Required(o, BlockFinalizeResponse::VT_BLOCK_SIG);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSuccessResponse(
+inline ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<block_finalize::BlockHeader> block_header = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> block_sig = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> da_proof_sig = 0,
     ::flatbuffers::Offset<block_finalize::BlockFragment> block_fragment = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<block_finalize::DecryptionShare>>> decryption_shares = 0) {
-  BlockFinalizeSuccessResponseBuilder builder_(_fbb);
+  BlockFinalizeResponseBuilder builder_(_fbb);
   builder_.add_decryption_shares(decryption_shares);
   builder_.add_block_fragment(block_fragment);
   builder_.add_da_proof_sig(da_proof_sig);
@@ -239,7 +127,7 @@ inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSu
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSuccessResponseDirect(
+inline ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponseDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<block_finalize::BlockHeader> block_header = 0,
     const std::vector<uint8_t> *block_sig = nullptr,
@@ -249,7 +137,7 @@ inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSu
   auto block_sig__ = block_sig ? _fbb.CreateVector<uint8_t>(*block_sig) : 0;
   auto da_proof_sig__ = da_proof_sig ? _fbb.CreateVector<uint8_t>(*da_proof_sig) : 0;
   auto decryption_shares__ = decryption_shares ? _fbb.CreateVector<::flatbuffers::Offset<block_finalize::DecryptionShare>>(*decryption_shares) : 0;
-  return block_finalize::CreateBlockFinalizeSuccessResponse(
+  return block_finalize::CreateBlockFinalizeResponse(
       _fbb,
       block_header,
       block_sig__,
@@ -258,87 +146,9 @@ inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSu
       decryption_shares__);
 }
 
-::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSuccessResponse(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeSuccessResponseT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct BlockFinalizeResponseT : public ::flatbuffers::NativeTable {
-  typedef BlockFinalizeResponse TableType;
-  block_finalize::BlockFinalizeResultUnion result{};
-};
-
-struct BlockFinalizeResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef BlockFinalizeResponseT NativeTableType;
-  typedef BlockFinalizeResponseBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_RESULT_TYPE = 4,
-    VT_RESULT = 6
-  };
-  block_finalize::BlockFinalizeResult result_type() const {
-    return static_cast<block_finalize::BlockFinalizeResult>(GetField<uint8_t>(VT_RESULT_TYPE, 0));
-  }
-  const void *result() const {
-    return GetPointer<const void *>(VT_RESULT);
-  }
-  template<typename T> const T *result_as() const;
-  const block_finalize::BlockFinalizeSuccessResponse *result_as_BlockFinalizeSuccessResponse() const {
-    return result_type() == block_finalize::BlockFinalizeResult_BlockFinalizeSuccessResponse ? static_cast<const block_finalize::BlockFinalizeSuccessResponse *>(result()) : nullptr;
-  }
-  const block_finalize::ErrorResponse *result_as_ErrorResponse() const {
-    return result_type() == block_finalize::BlockFinalizeResult_ErrorResponse ? static_cast<const block_finalize::ErrorResponse *>(result()) : nullptr;
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_RESULT_TYPE, 1) &&
-           VerifyOffset(verifier, VT_RESULT) &&
-           VerifyBlockFinalizeResult(verifier, result(), result_type()) &&
-           verifier.EndTable();
-  }
-  BlockFinalizeResponseT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(BlockFinalizeResponseT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<BlockFinalizeResponse> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeResponseT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-template<> inline const block_finalize::BlockFinalizeSuccessResponse *BlockFinalizeResponse::result_as<block_finalize::BlockFinalizeSuccessResponse>() const {
-  return result_as_BlockFinalizeSuccessResponse();
-}
-
-template<> inline const block_finalize::ErrorResponse *BlockFinalizeResponse::result_as<block_finalize::ErrorResponse>() const {
-  return result_as_ErrorResponse();
-}
-
-struct BlockFinalizeResponseBuilder {
-  typedef BlockFinalizeResponse Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_result_type(block_finalize::BlockFinalizeResult result_type) {
-    fbb_.AddElement<uint8_t>(BlockFinalizeResponse::VT_RESULT_TYPE, static_cast<uint8_t>(result_type), 0);
-  }
-  void add_result(::flatbuffers::Offset<void> result) {
-    fbb_.AddOffset(BlockFinalizeResponse::VT_RESULT, result);
-  }
-  explicit BlockFinalizeResponseBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<BlockFinalizeResponse> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<BlockFinalizeResponse>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    block_finalize::BlockFinalizeResult result_type = block_finalize::BlockFinalizeResult_NONE,
-    ::flatbuffers::Offset<void> result = 0) {
-  BlockFinalizeResponseBuilder builder_(_fbb);
-  builder_.add_result(result);
-  builder_.add_result_type(result_type);
-  return builder_.Finish();
-}
-
 ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeResponseT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-inline BlockFinalizeSuccessResponseT::BlockFinalizeSuccessResponseT(const BlockFinalizeSuccessResponseT &o)
+inline BlockFinalizeResponseT::BlockFinalizeResponseT(const BlockFinalizeResponseT &o)
       : block_header((o.block_header) ? new block_finalize::BlockHeaderT(*o.block_header) : nullptr),
         block_sig(o.block_sig),
         da_proof_sig(o.da_proof_sig),
@@ -347,51 +157,13 @@ inline BlockFinalizeSuccessResponseT::BlockFinalizeSuccessResponseT(const BlockF
   for (const auto &decryption_shares_ : o.decryption_shares) { decryption_shares.emplace_back((decryption_shares_) ? new block_finalize::DecryptionShareT(*decryption_shares_) : nullptr); }
 }
 
-inline BlockFinalizeSuccessResponseT &BlockFinalizeSuccessResponseT::operator=(BlockFinalizeSuccessResponseT o) FLATBUFFERS_NOEXCEPT {
+inline BlockFinalizeResponseT &BlockFinalizeResponseT::operator=(BlockFinalizeResponseT o) FLATBUFFERS_NOEXCEPT {
   std::swap(block_header, o.block_header);
   std::swap(block_sig, o.block_sig);
   std::swap(da_proof_sig, o.da_proof_sig);
   std::swap(block_fragment, o.block_fragment);
   std::swap(decryption_shares, o.decryption_shares);
   return *this;
-}
-
-inline BlockFinalizeSuccessResponseT *BlockFinalizeSuccessResponse::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<BlockFinalizeSuccessResponseT>(new BlockFinalizeSuccessResponseT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void BlockFinalizeSuccessResponse::UnPackTo(BlockFinalizeSuccessResponseT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = block_header(); if (_e) { if(_o->block_header) { _e->UnPackTo(_o->block_header.get(), _resolver); } else { _o->block_header = std::unique_ptr<block_finalize::BlockHeaderT>(_e->UnPack(_resolver)); } } else if (_o->block_header) { _o->block_header.reset(); } }
-  { auto _e = block_sig(); if (_e) { _o->block_sig.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->block_sig.begin()); } }
-  { auto _e = da_proof_sig(); if (_e) { _o->da_proof_sig.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->da_proof_sig.begin()); } }
-  { auto _e = block_fragment(); if (_e) { if(_o->block_fragment) { _e->UnPackTo(_o->block_fragment.get(), _resolver); } else { _o->block_fragment = std::unique_ptr<block_finalize::BlockFragmentT>(_e->UnPack(_resolver)); } } else if (_o->block_fragment) { _o->block_fragment.reset(); } }
-  { auto _e = decryption_shares(); if (_e) { _o->decryption_shares.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->decryption_shares[_i]) { _e->Get(_i)->UnPackTo(_o->decryption_shares[_i].get(), _resolver); } else { _o->decryption_shares[_i] = std::unique_ptr<block_finalize::DecryptionShareT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->decryption_shares.resize(0); } }
-}
-
-inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> BlockFinalizeSuccessResponse::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeSuccessResponseT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateBlockFinalizeSuccessResponse(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSuccessResponse(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeSuccessResponseT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BlockFinalizeSuccessResponseT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _block_header = _o->block_header ? CreateBlockHeader(_fbb, _o->block_header.get(), _rehasher) : 0;
-  auto _block_sig = _fbb.CreateVector(_o->block_sig);
-  auto _da_proof_sig = _o->da_proof_sig.size() ? _fbb.CreateVector(_o->da_proof_sig) : 0;
-  auto _block_fragment = _o->block_fragment ? CreateBlockFragment(_fbb, _o->block_fragment.get(), _rehasher) : 0;
-  auto _decryption_shares = _o->decryption_shares.size() ? _fbb.CreateVector<::flatbuffers::Offset<block_finalize::DecryptionShare>> (_o->decryption_shares.size(), [](size_t i, _VectorArgs *__va) { return CreateDecryptionShare(*__va->__fbb, __va->__o->decryption_shares[i].get(), __va->__rehasher); }, &_va ) : 0;
-  return block_finalize::CreateBlockFinalizeSuccessResponse(
-      _fbb,
-      _block_header,
-      _block_sig,
-      _da_proof_sig,
-      _block_fragment,
-      _decryption_shares);
 }
 
 inline BlockFinalizeResponseT *BlockFinalizeResponse::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -403,8 +175,11 @@ inline BlockFinalizeResponseT *BlockFinalizeResponse::UnPack(const ::flatbuffers
 inline void BlockFinalizeResponse::UnPackTo(BlockFinalizeResponseT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = result_type(); _o->result.type = _e; }
-  { auto _e = result(); if (_e) _o->result.value = block_finalize::BlockFinalizeResultUnion::UnPack(_e, result_type(), _resolver); }
+  { auto _e = block_header(); if (_e) { if(_o->block_header) { _e->UnPackTo(_o->block_header.get(), _resolver); } else { _o->block_header = std::unique_ptr<block_finalize::BlockHeaderT>(_e->UnPack(_resolver)); } } else if (_o->block_header) { _o->block_header.reset(); } }
+  { auto _e = block_sig(); if (_e) { _o->block_sig.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->block_sig.begin()); } }
+  { auto _e = da_proof_sig(); if (_e) { _o->da_proof_sig.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->da_proof_sig.begin()); } }
+  { auto _e = block_fragment(); if (_e) { if(_o->block_fragment) { _e->UnPackTo(_o->block_fragment.get(), _resolver); } else { _o->block_fragment = std::unique_ptr<block_finalize::BlockFragmentT>(_e->UnPack(_resolver)); } } else if (_o->block_fragment) { _o->block_fragment.reset(); } }
+  { auto _e = decryption_shares(); if (_e) { _o->decryption_shares.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->decryption_shares[_i]) { _e->Get(_i)->UnPackTo(_o->decryption_shares[_i].get(), _resolver); } else { _o->decryption_shares[_i] = std::unique_ptr<block_finalize::DecryptionShareT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->decryption_shares.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<BlockFinalizeResponse> BlockFinalizeResponse::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeResponseT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -415,104 +190,18 @@ inline ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BlockFinalizeResponseT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _result_type = _o->result.type;
-  auto _result = _o->result.Pack(_fbb);
+  auto _block_header = _o->block_header ? CreateBlockHeader(_fbb, _o->block_header.get(), _rehasher) : 0;
+  auto _block_sig = _fbb.CreateVector(_o->block_sig);
+  auto _da_proof_sig = _o->da_proof_sig.size() ? _fbb.CreateVector(_o->da_proof_sig) : 0;
+  auto _block_fragment = _o->block_fragment ? CreateBlockFragment(_fbb, _o->block_fragment.get(), _rehasher) : 0;
+  auto _decryption_shares = _o->decryption_shares.size() ? _fbb.CreateVector<::flatbuffers::Offset<block_finalize::DecryptionShare>> (_o->decryption_shares.size(), [](size_t i, _VectorArgs *__va) { return CreateDecryptionShare(*__va->__fbb, __va->__o->decryption_shares[i].get(), __va->__rehasher); }, &_va ) : 0;
   return block_finalize::CreateBlockFinalizeResponse(
       _fbb,
-      _result_type,
-      _result);
-}
-
-inline bool VerifyBlockFinalizeResult(::flatbuffers::Verifier &verifier, const void *obj, BlockFinalizeResult type) {
-  switch (type) {
-    case BlockFinalizeResult_NONE: {
-      return true;
-    }
-    case BlockFinalizeResult_BlockFinalizeSuccessResponse: {
-      auto ptr = reinterpret_cast<const block_finalize::BlockFinalizeSuccessResponse *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case BlockFinalizeResult_ErrorResponse: {
-      auto ptr = reinterpret_cast<const block_finalize::ErrorResponse *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    default: return true;
-  }
-}
-
-inline bool VerifyBlockFinalizeResultVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
-  if (!values || !types) return !values && !types;
-  if (values->size() != types->size()) return false;
-  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
-    if (!VerifyBlockFinalizeResult(
-        verifier,  values->Get(i), types->GetEnum<BlockFinalizeResult>(i))) {
-      return false;
-    }
-  }
-  return true;
-}
-
-inline void *BlockFinalizeResultUnion::UnPack(const void *obj, BlockFinalizeResult type, const ::flatbuffers::resolver_function_t *resolver) {
-  (void)resolver;
-  switch (type) {
-    case BlockFinalizeResult_BlockFinalizeSuccessResponse: {
-      auto ptr = reinterpret_cast<const block_finalize::BlockFinalizeSuccessResponse *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case BlockFinalizeResult_ErrorResponse: {
-      auto ptr = reinterpret_cast<const block_finalize::ErrorResponse *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    default: return nullptr;
-  }
-}
-
-inline ::flatbuffers::Offset<void> BlockFinalizeResultUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
-  (void)_rehasher;
-  switch (type) {
-    case BlockFinalizeResult_BlockFinalizeSuccessResponse: {
-      auto ptr = reinterpret_cast<const block_finalize::BlockFinalizeSuccessResponseT *>(value);
-      return CreateBlockFinalizeSuccessResponse(_fbb, ptr, _rehasher).Union();
-    }
-    case BlockFinalizeResult_ErrorResponse: {
-      auto ptr = reinterpret_cast<const block_finalize::ErrorResponseT *>(value);
-      return CreateErrorResponse(_fbb, ptr, _rehasher).Union();
-    }
-    default: return 0;
-  }
-}
-
-inline BlockFinalizeResultUnion::BlockFinalizeResultUnion(const BlockFinalizeResultUnion &u) : type(u.type), value(nullptr) {
-  switch (type) {
-    case BlockFinalizeResult_BlockFinalizeSuccessResponse: {
-      value = new block_finalize::BlockFinalizeSuccessResponseT(*reinterpret_cast<block_finalize::BlockFinalizeSuccessResponseT *>(u.value));
-      break;
-    }
-    case BlockFinalizeResult_ErrorResponse: {
-      value = new block_finalize::ErrorResponseT(*reinterpret_cast<block_finalize::ErrorResponseT *>(u.value));
-      break;
-    }
-    default:
-      break;
-  }
-}
-
-inline void BlockFinalizeResultUnion::Reset() {
-  switch (type) {
-    case BlockFinalizeResult_BlockFinalizeSuccessResponse: {
-      auto ptr = reinterpret_cast<block_finalize::BlockFinalizeSuccessResponseT *>(value);
-      delete ptr;
-      break;
-    }
-    case BlockFinalizeResult_ErrorResponse: {
-      auto ptr = reinterpret_cast<block_finalize::ErrorResponseT *>(value);
-      delete ptr;
-      break;
-    }
-    default: break;
-  }
-  value = nullptr;
-  type = BlockFinalizeResult_NONE;
+      _block_header,
+      _block_sig,
+      _da_proof_sig,
+      _block_fragment,
+      _decryption_shares);
 }
 
 inline const block_finalize::BlockFinalizeResponse *GetBlockFinalizeResponse(const void *buf) {

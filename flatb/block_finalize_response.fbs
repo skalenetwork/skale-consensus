@@ -5,21 +5,12 @@ namespace block_finalize;
 
 
 // Flattened SuccessResponse
-table BlockFinalizeSuccessResponse {
+table BlockFinalizeResponse {
     block_header: BlockHeader (required);
     block_sig: [uint8] (required);
     da_proof_sig: [uint8];
     block_fragment: BlockFragment; // Directly included
     decryption_shares: [DecryptionShare];
-}
-
-
-// Define a union for SuccessResponse and ErrorResponse
-union BlockFinalizeResult { BlockFinalizeSuccessResponse, ErrorResponse }
-
-// BlockFinalizeResponse now only has a union for efficiency
-table BlockFinalizeResponse {
-    result: BlockFinalizeResult;
 }
 
 root_type BlockFinalizeResponse;
