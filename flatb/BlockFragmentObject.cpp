@@ -2,7 +2,6 @@
 // Created by stan on 18-03-2025.
 //
 
-#include <folly/io/IOBuf.h>
 #include "block_finalize_request_generated.h"
 #include "SkaleCommon.h"
 #include "FlatBufferRequest.h"

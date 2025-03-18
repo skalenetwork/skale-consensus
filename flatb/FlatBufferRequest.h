@@ -4,7 +4,6 @@
 
 #include "block_finalize_common_structures_generated.h"
 
-class Schain;
 
 
 namespace block_finalize {

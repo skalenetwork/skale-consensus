@@ -38,7 +38,9 @@
 #include <threads/GlobalThreadRegistry.h>
 #include "chains/Schain.h"
 
+#undef LOG
 #include "BlockFinalizeHandlerFactory.h"
+
 #include <proxygen/httpserver/HTTPServer.h>
 #include <proxygen/httpserver/ResponseBuilder.h>
 #include "BiteBlockFinalizeServer.h"

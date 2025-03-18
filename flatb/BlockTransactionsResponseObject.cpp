@@ -5,10 +5,13 @@
 #include <iostream>
 #include <folly/io/IOBuf.h>
 #include "block_transactions_response_generated.h"
+
+#undef LOG // address incompatibility with folly
+#include "Log.h"
 #include "BlockTransactionsRequestObject.h"
 #include "BlockTransactionsResponseObject.h"
 #include "FlatBufferRequest.h"
-#include "Log.h"
+
 
 using namespace block_finalize;
 
@@ -30,10 +33,8 @@ std::unique_ptr<BlockTransactionsResponseObject> BlockTransactionsResponseObject
 
         auto transactions = std::make_shared<std::vector<std::vector<uint8_t>>>();
 
-        auto count = _request->getTransactionIndices()->
 
-
-        CHECK_STATE2(successResponse->transactions()->size() == _request->getTransactionIndices()->
+        CHECK_STATE2(successResponse->transactions()->size() == _request->getTransactionIndices()->size(),
             "Response transaction count not equal to request transaction count");
         transactions->reserve(successResponse->transactions()->size());
 
