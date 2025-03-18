@@ -14,7 +14,7 @@
 
 using namespace block_finalize;
 
-BlockFinalizeResponseObject::BlockFinalizeResponseObject(std::shared_ptr<BlockHeader> &_blockHeader,
+BlockFinalizeResponseObject::BlockFinalizeResponseObject(std::shared_ptr<BlockHeaderObject> &_blockHeader,
                                                          std::shared_ptr<vector<uint8_t> > &_blockSig,
                                                          std::shared_ptr<vector<uint8_t> > &_daProofSig,
                                                          std::shared_ptr<BlockFragment> &_blockFragment,
@@ -48,6 +48,8 @@ std::unique_ptr<BlockFinalizeResponseObject> BlockFinalizeResponseObject::deseri
         auto daProofSig = FlatBufferRequest::copyByteVectorFromFlatBuffer(successResponse->da_proof_sig());
         CHECK_STATE2(daProofSig || !_request->getNeedDaProofSig(), "No requested da proof sig in response");
 
+
+        successResponse->block_header();
 
         auto daProofSig = FlatBufferRequest::copyByteVectorFromFlatBuffer(successResponse->block_fragment());
         CHECK_STATE2(daProofSig || !_request->getNeedDaProofSig(), "No requested da proof sig in response");

@@ -25,6 +25,8 @@ namespace folly {
 
 namespace block_finalize {
     class BlockFinalizeRequestObject;
+    class BlockHeaderObject;
+    class BlockFragmentObject;
 
     class BlockFinalizeResponseObject {
     private:
@@ -35,7 +37,7 @@ namespace block_finalize {
         std::shared_ptr<std::vector<DecryptionShare> > decryptionShares;
 
     public:
-        BlockFinalizeResponseObject(std::shared_ptr<BlockHeader> &_blockHeader,
+        BlockFinalizeResponseObject(std::shared_ptr<BlockHeaderObject> &_blockHeader,
                                     std::shared_ptr<vector<uint8_t> > &_blockSig,
                                     std::shared_ptr<vector<uint8_t> > &_daProofSig,
                                     std::shared_ptr<BlockFragment> &_blockFragment,

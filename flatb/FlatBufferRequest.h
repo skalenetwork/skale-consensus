@@ -12,58 +12,40 @@
 
 class Schain;
 
-namespace flatbuffers {
-    class Vector;
-}
 
 namespace block_finalize {
+    class BlockFragment;
 
-class BlockFragment;
-
-class FlatBufferRequest {
-public:
-    FlatBufferRequest( schain_id schainId, epoch_id epochId, block_id blockId, node_id nodeId,
-        schain_index proposerIndex )
-        : schainId( schainId ),
-          epochId( epochId ),
-          blockId( blockId ),
-          nodeId( nodeId ),
-          proposerIndex( proposerIndex ) {}
-
-private:
-    schain_id schainId;
-    epoch_id epochId;
-    block_id blockId;
-    node_id nodeId;
-    schain_index proposerIndex;
-
-protected:
-    void verify( schain_id _sChainId ) noexcept( false );
-
-
-public:
-
-    static shared_ptr<std::vector<uint8_t>> copyByteVectorFromFlatBuffer(flatbuffers::Vector<uint8_t> * _fbVector) {
-        if (!_fbVector) {
-            return nullptr;
-        } else {
-            return make_shared<vector<uint8_t>>(_fbVector->begin(), _fbVector->end());
+    class FlatBufferRequest {
+    public:
+        FlatBufferRequest(schain_id schainId, epoch_id epochId, block_id blockId, node_id nodeId,
+                          schain_index proposerIndex)
+            : schainId(schainId),
+              epochId(epochId),
+              blockId(blockId),
+              nodeId(nodeId),
+              proposerIndex(proposerIndex) {
         }
-    }
 
-    static shared_ptr<BlockFragment> copyBlockFragmentFromFlatBuffer(block_finalize::BlockFragment<uint8_t> * _blockFragment) {
-        if (!_blockFragment) {
-            return nullptr;
-        } else {
-            return make_shared<BlockFragment>(*_blockFragment);
-        }
-    }
+    private:
+        schain_id schainId;
+        epoch_id epochId;
+        block_id blockId;
+        node_id nodeId;
+        schain_index proposerIndex;
 
+    protected:
+        void verify(schain_id _sChainId) noexcept( false );
 
+    public:
+        static shared_ptr<std::vector<uint8_t> > copyByteVectorFromFlatBuffer(flatbuffers::Vector<uint8_t> *_fbVector);
 
-};
+        static shared_ptr<BlockFragment> copyBlockHeaderFromFlatBuffer(block_finalize::BlockFragment *_blockFragment);
 
-}  // namespace block_finalize
+        template<typename T, typename U> static
+        void copyFbdata(const T *fb_data, U &dest);
+    };
+} // namespace block_finalize
 
 
 #define VERIFY_AND_PARSE_FLATBUFFER( _buffer, FlatBufferType, request )                                \

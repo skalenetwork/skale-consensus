@@ -7,8 +7,8 @@ namespace block_finalize;
 // Flattened SuccessResponse
 table BlockFinalizeSuccessResponse {
     block_header: BlockHeader (required);
-    block_sig: [ubyte] (required);
-    da_proof_sig: [ubyte];
+    block_sig: [uint8] (required);
+    da_proof_sig: [uint8];
     block_fragment: BlockFragment; // Directly included
     decryption_shares: [DecryptionShare];
 }

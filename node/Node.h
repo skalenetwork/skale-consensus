@@ -250,6 +250,13 @@ class Node {
 
     atomic< bool > exitOnBlockBoundaryRequested = false;
 
+#ifdef BITE
+    //provide a fast way to get schainId and node_count from
+    // anywhere in the count since they never change during the execution
+    static node_count nodeCount;
+    static schain_id schainId;
+#endif
+
 public:
     void checkForExitOnBlockBoundaryAndExitIfNeeded();
 
@@ -325,6 +332,10 @@ public:
     uint64_t getBlockProposalDBSize() const;
     uint64_t getInternalInfoDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
+#ifdef BITE
+    static node_count getNodeCount();
+    static schain_id getSchainId();
+#endif
 
     map< string, uint64_t > getDBUsage() const;
 

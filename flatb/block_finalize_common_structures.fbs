@@ -1,16 +1,16 @@
 namespace block_finalize;
 
 table Transaction {
-    data: [ubyte] (required);  // Each transaction is a byte array
+    data: [uint8] (required);  // Each transaction is a byte array
 }
 
 // Hashes should be structs for efficient memory layout
 struct Hash {
-    data: [ubyte:32];
+    data: [uint8:32];
 }
 
 struct TruncatedHash {
-    data: [ubyte:20];
+    data: [uint8:20];
 }
 
 struct BlockHeader {
@@ -40,7 +40,7 @@ table BlockFragment {
 // DecryptionShare is a struct since it has a fixed format
 table DecryptionShare {
     transaction_index: uint64;
-    data: [ubyte] (required);
+    data: [uint8] (required);
 }
 
 // ErrorResponse remains a table due to variable-length string

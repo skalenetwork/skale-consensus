@@ -199,6 +199,12 @@ static constexpr size_t HASH_LEN = 32;
 
 static constexpr size_t PARTIAL_HASH_LEN = 8;
 
+#ifdef BITE
+static constexpr size_t EXTRA_DATA_LEN = 32;
+#endif
+
+
+
 static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE = 0;
 // static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE  = 10000;
 static constexpr uint64_t SLOW_TEST_MESSAGE_INTERVAL = 10000;
@@ -261,6 +267,11 @@ using fs_path = boost::filesystem::path;  // #define fs_path boost::filesystem::
 
 
 typedef array< uint8_t, PARTIAL_HASH_LEN > partial_sha_hash;
+
+#ifdef BITE
+typedef array< uint8_t, HASH_LEN > sha_hash;
+typedef array< uint8_t, EXTRA_DATA_LEN > extra_data;
+#endif
 
 class SkaleCommon {
 public:

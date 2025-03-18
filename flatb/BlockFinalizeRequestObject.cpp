@@ -2,8 +2,6 @@
 // Created by stan on 15-03-2025.
 //
 
-#include <iostream>
-#include <array>
 #include <folly/io/IOBuf.h>
 #include "block_finalize_request_generated.h"
 #include "SkaleCommon.h"

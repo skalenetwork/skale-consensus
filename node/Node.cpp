@@ -470,14 +470,23 @@ void Node::initSchain( const ptr< Node >& _node, schain_index _schainIndex, scha
 
         _node->setSchain( chain );
 
+#ifdef BITE
+        nodeCount = chain->getNodeCount();
+        schainId = _schainId;
+        CHECK_STATE(nodeCount > 0);
+#endif
+
+
         if ( _node->isSyncOnlyNode() ) {
             return;
         }
+
 
         chain->createBlockConsensusInstance();
 #ifndef PL
         chain->createOracleInstance();
 #endif
+
 
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
