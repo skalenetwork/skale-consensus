@@ -26,7 +26,7 @@ struct BlockTransactionsRequestT : public ::flatbuffers::NativeTable {
   uint64_t block_id = 0;
   uint64_t node_id = 0;
   uint64_t proposer_index = 0;
-  std::vector<uint64_t> transaction_indices{};
+  std::vector<uint16_t> transaction_indices{};
 };
 
 struct BlockTransactionsRequest FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -55,8 +55,8 @@ struct BlockTransactionsRequest FLATBUFFERS_FINAL_CLASS : private ::flatbuffers:
   uint64_t proposer_index() const {
     return GetField<uint64_t>(VT_PROPOSER_INDEX, 0);
   }
-  const ::flatbuffers::Vector<uint64_t> *transaction_indices() const {
-    return GetPointer<const ::flatbuffers::Vector<uint64_t> *>(VT_TRANSACTION_INDICES);
+  const ::flatbuffers::Vector<uint16_t> *transaction_indices() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_TRANSACTION_INDICES);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -93,7 +93,7 @@ struct BlockTransactionsRequestBuilder {
   void add_proposer_index(uint64_t proposer_index) {
     fbb_.AddElement<uint64_t>(BlockTransactionsRequest::VT_PROPOSER_INDEX, proposer_index, 0);
   }
-  void add_transaction_indices(::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> transaction_indices) {
+  void add_transaction_indices(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> transaction_indices) {
     fbb_.AddOffset(BlockTransactionsRequest::VT_TRANSACTION_INDICES, transaction_indices);
   }
   explicit BlockTransactionsRequestBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
@@ -115,7 +115,7 @@ inline ::flatbuffers::Offset<BlockTransactionsRequest> CreateBlockTransactionsRe
     uint64_t block_id = 0,
     uint64_t node_id = 0,
     uint64_t proposer_index = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> transaction_indices = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> transaction_indices = 0) {
   BlockTransactionsRequestBuilder builder_(_fbb);
   builder_.add_proposer_index(proposer_index);
   builder_.add_node_id(node_id);
@@ -133,8 +133,8 @@ inline ::flatbuffers::Offset<BlockTransactionsRequest> CreateBlockTransactionsRe
     uint64_t block_id = 0,
     uint64_t node_id = 0,
     uint64_t proposer_index = 0,
-    const std::vector<uint64_t> *transaction_indices = nullptr) {
-  auto transaction_indices__ = transaction_indices ? _fbb.CreateVector<uint64_t>(*transaction_indices) : 0;
+    const std::vector<uint16_t> *transaction_indices = nullptr) {
+  auto transaction_indices__ = transaction_indices ? _fbb.CreateVector<uint16_t>(*transaction_indices) : 0;
   return block_finalize::CreateBlockTransactionsRequest(
       _fbb,
       schain_id,

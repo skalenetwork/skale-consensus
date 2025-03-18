@@ -1,10 +1,4 @@
-//
-// Created by stan on 15-03-2025.
-//
-
-#ifndef SKALED_BLOCKFINALIZEREQUESTOBJECT_H
-#define SKALED_BLOCKFINALIZEREQUESTOBJECT_H
-
+#pragma once
 
 #include "FlatBufferRequest.h"
 
@@ -55,6 +49,3 @@ public:
         schain_id _sChainId) noexcept(false);
 };
 }
-
-
-#endif  // SKALED_BLOCKFINALIZEREQUESTOBJECT_H

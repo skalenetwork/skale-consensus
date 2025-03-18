@@ -1,9 +1,4 @@
-//
-// Created by stan on 15-03-2025.
-//
-
-#ifndef SKALED_BLOCKTRANSACTIONSREQUESTOBJECT_H
-#define SKALED_BLOCKTRANSACTIONSREQUESTOBJECT_H
+#pragma once
 
 
 #include "FlatBufferRequest.h"
@@ -14,18 +9,20 @@ namespace block_finalize {
 
 class BlockTransactionsRequestObject : public FlatBufferRequest {
 private:
-    std::vector< uint64_t > transactionIndices;
+    ptr<vector< transaction_index >> transactionIndices;
 
 public:
     // Constructor
     BlockTransactionsRequestObject( schain_id schainId, epoch_id epochId, block_id blockId,
         node_id nodeId, schain_index proposerIndex,
-        const ::flatbuffers::Vector<uint64_t>& transactionIndices )
+        ptr<vector< transaction_index >>& transactionIndices )
         : FlatBufferRequest( schainId, epochId, blockId, nodeId, proposerIndex ),
-          transactionIndices( transactionIndices.begin(), transactionIndices.end() ) {}
+          transactionIndices( transactionIndices) {
+            CHECK_STATE(transactionIndices);
+        }
 
     // Getter for transactions
-    [[nodiscard]] const std::vector< uint64_t >& getTransactionIndices() const { return transactionIndices; }
+    [[nodiscard]] const ptr<vector< transaction_index >>& getTransactionIndices() const { return transactionIndices; }
 
     // Deserialize function
     static std::unique_ptr< BlockTransactionsRequestObject > deserializeAndVerify(const folly::IOBuf& _buffer,
@@ -34,6 +31,3 @@ public:
 };
 
 }  // namespace block_finalize
-
-
-#endif  // SKALED_BLOCKTRANSACTIONSREQUESTOBJECT_H

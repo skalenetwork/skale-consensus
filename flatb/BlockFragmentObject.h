@@ -1,10 +1,4 @@
-//
-// Created by kladko on 3/18/25.
-//
-
-
-#ifndef SKALED_BLOCKFRAGMENTOBJECT_H
-#define SKALED_BLOCKFRAGMENTOBJECT_H
+#pragma once
 
 #include "FlatBufferRequest.h"
 
@@ -37,5 +31,3 @@ namespace block_finalize {
     };
 
 }  // namespace block_finalize
-
-#endif

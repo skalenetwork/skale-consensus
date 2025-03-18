@@ -1,11 +1,4 @@
-//
-// Created by stan on 14-03-2025.
-//
-
-#ifndef SKALED_DESERIALIZATIONCLASSES_H
-#define SKALED_DESERIALIZATIONCLASSES_H
-
-
+#pragma once
 
 namespace block_finalize {
 
@@ -79,4 +72,3 @@ public:
 
 
 }
-#endif  // SKALED_DESERIALIZATIONCLASSES_H

@@ -36,7 +36,7 @@ std::unique_ptr<BlockFinalizeResponseObject> BlockFinalizeResponseObject::deseri
     const folly::IOBuf &_buffer, ptr<BlockFinalizeRequestObject>& _request) {
     CHECK_STATE(_request);
 
-    const block_finalize::BlockFinalizeResponse *response = nullptr;
+    const BlockFinalizeResponse *response = nullptr;
     VERIFY_AND_PARSE_FLATBUFFER(_buffer, BlockFinalizeResponse, response);
 
     if (response->result_type() == block_finalize::BlockFinalizeResult_BlockFinalizeSuccessResponse) {

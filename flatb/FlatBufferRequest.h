@@ -1,10 +1,4 @@
-//
-// Created by stan on 15-03-2025.
-//
-
-#ifndef SKALED_FLATBUFFERREQUEST_H
-#define SKALED_FLATBUFFERREQUEST_H
-
+#pragma once
 
 #include <iostream>
 
@@ -73,4 +67,3 @@ namespace block_finalize {
         }                                                                                      \
     } while ( 0 )
 
-#endif  // SKALED_FLATBUFFERREQUEST_H

@@ -1,9 +1,4 @@
-//
-// Created by stan on 15-03-2025.
-//
-
-#ifndef SKALED_BLOCKHEADEROBJECT_H
-#define SKALED_BLOCKHEADEROBJECT_H
+#pragma once
 
 #include "FlatBufferRequest.h"
 
@@ -53,4 +48,3 @@ public:
 
 }  // namespace block_finalize
 
-#endif  // SKALED_BLOCKHEADEROBJECT_H

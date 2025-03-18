@@ -9,6 +9,7 @@
 #include <folly/io/IOBuf.h>
 #include "block_transactions_request_generated.h"  // Include FlatBuffers-generated headers
 #include "SkaleCommon.h"
+#include "Log.h"
 #include "BlockTransactionsRequestObject.h"
 
 using namespace block_finalize;
@@ -18,15 +19,18 @@ unique_ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::des
     const block_finalize::BlockTransactionsRequest* request = nullptr;
     VERIFY_AND_PARSE_FLATBUFFER( _buffer, BlockTransactionsRequest, request );
 
-    auto transactionIndices = request->transaction_indices();
+    auto fbTransactionIndices = request->transaction_indices();
 
-    if (!transactionIndices) {
+    if (!fbTransactionIndices) {
         throw std::invalid_argument("Null transaction indices in BlockTransactionsRequest request");
     }
 
+    auto transactionIndices = FlatBufferRequest::copyFbIndexVector(fbTransactionIndices);
+    CHECK_STATE(transactionIndices);
+
     auto result =  std::make_unique< BlockTransactionsRequestObject >( request->schain_id(),
         request->epoch_id(), request->block_id(), request->node_id(), request->proposer_index(),
-        *transactionIndices);
+        transactionIndices);
     result->verify(_sChainId);
     return result;
 }

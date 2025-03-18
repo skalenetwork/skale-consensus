@@ -1,16 +1,4 @@
-//
-// Created by kladko on 3/17/25.
-//
-
-#ifndef BLOCKFINALIZERESPONSEOBJECT_H
-#define BLOCKFINALIZERESPONSEOBJECT_H
-
-/*
- * Created by stan on 15-03-2025.
- */
-
-#ifndef SKALED_BLOCKFINALIZERESPONSEOBJECT_H
-#define SKALED_BLOCKFINALIZERESPONSEOBJECT_H
+#pragma once
 
 #include "FlatBufferRequest.h"
 #include "block_finalize_response_generated.h"
@@ -49,7 +37,4 @@ namespace block_finalize {
     };
 }
 
-#endif  // SKALED_BLOCKFINALIZERESPONSEOBJECT_H
 
-
-#endif //BLOCKFINALIZERESPONSEOBJECT_H
