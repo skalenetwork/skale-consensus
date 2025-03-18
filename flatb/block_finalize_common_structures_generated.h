@@ -21,9 +21,13 @@ struct TransactionT;
 
 struct Hash;
 
+struct ExtraData;
+
 struct TruncatedHash;
 
 struct BlockHeader;
+struct BlockHeaderBuilder;
+struct BlockHeaderT;
 
 struct BlockFragment;
 struct BlockFragmentBuilder;
@@ -54,105 +58,39 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) Hash FLATBUFFERS_FINAL_CLASS {
 };
 FLATBUFFERS_STRUCT_END(Hash, 32);
 
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) ExtraData FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint8_t data_[32];
+
+ public:
+  ExtraData()
+      : data_() {
+  }
+  ExtraData(::flatbuffers::span<const uint8_t, 32> _data) {
+    ::flatbuffers::CastToArray(data_).CopyFromSpan(_data);
+  }
+  const ::flatbuffers::Array<uint8_t, 32> *data() const {
+    return &::flatbuffers::CastToArray(data_);
+  }
+};
+FLATBUFFERS_STRUCT_END(ExtraData, 32);
+
 FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) TruncatedHash FLATBUFFERS_FINAL_CLASS {
  private:
-  uint8_t data_[20];
+  uint8_t data_[8];
 
  public:
   TruncatedHash()
       : data_() {
   }
-  TruncatedHash(::flatbuffers::span<const uint8_t, 20> _data) {
+  TruncatedHash(::flatbuffers::span<const uint8_t, 8> _data) {
     ::flatbuffers::CastToArray(data_).CopyFromSpan(_data);
   }
-  const ::flatbuffers::Array<uint8_t, 20> *data() const {
+  const ::flatbuffers::Array<uint8_t, 8> *data() const {
     return &::flatbuffers::CastToArray(data_);
   }
 };
-FLATBUFFERS_STRUCT_END(TruncatedHash, 20);
-
-FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(8) BlockHeader FLATBUFFERS_FINAL_CLASS {
- private:
-  uint64_t schain_id_;
-  uint64_t epoch_id_;
-  uint64_t block_id_;
-  uint64_t proposer_index_;
-  uint64_t transaction_count_;
-  uint64_t time_stamp_s_;
-  uint64_t time_stamp_ms_;
-  block_finalize::Hash transactions_merkle_root_;
-  block_finalize::Hash parent_hash_;
-  uint8_t extra_data_[32];
-
- public:
-  BlockHeader()
-      : schain_id_(0),
-        epoch_id_(0),
-        block_id_(0),
-        proposer_index_(0),
-        transaction_count_(0),
-        time_stamp_s_(0),
-        time_stamp_ms_(0),
-        transactions_merkle_root_(),
-        parent_hash_(),
-        extra_data_() {
-  }
-  BlockHeader(uint64_t _schain_id, uint64_t _epoch_id, uint64_t _block_id, uint64_t _proposer_index, uint64_t _transaction_count, uint64_t _time_stamp_s, uint64_t _time_stamp_ms, const block_finalize::Hash &_transactions_merkle_root, const block_finalize::Hash &_parent_hash)
-      : schain_id_(::flatbuffers::EndianScalar(_schain_id)),
-        epoch_id_(::flatbuffers::EndianScalar(_epoch_id)),
-        block_id_(::flatbuffers::EndianScalar(_block_id)),
-        proposer_index_(::flatbuffers::EndianScalar(_proposer_index)),
-        transaction_count_(::flatbuffers::EndianScalar(_transaction_count)),
-        time_stamp_s_(::flatbuffers::EndianScalar(_time_stamp_s)),
-        time_stamp_ms_(::flatbuffers::EndianScalar(_time_stamp_ms)),
-        transactions_merkle_root_(_transactions_merkle_root),
-        parent_hash_(_parent_hash),
-        extra_data_() {
-  }
-  BlockHeader(uint64_t _schain_id, uint64_t _epoch_id, uint64_t _block_id, uint64_t _proposer_index, uint64_t _transaction_count, uint64_t _time_stamp_s, uint64_t _time_stamp_ms, const block_finalize::Hash &_transactions_merkle_root, const block_finalize::Hash &_parent_hash, ::flatbuffers::span<const uint8_t, 32> _extra_data)
-      : schain_id_(::flatbuffers::EndianScalar(_schain_id)),
-        epoch_id_(::flatbuffers::EndianScalar(_epoch_id)),
-        block_id_(::flatbuffers::EndianScalar(_block_id)),
-        proposer_index_(::flatbuffers::EndianScalar(_proposer_index)),
-        transaction_count_(::flatbuffers::EndianScalar(_transaction_count)),
-        time_stamp_s_(::flatbuffers::EndianScalar(_time_stamp_s)),
-        time_stamp_ms_(::flatbuffers::EndianScalar(_time_stamp_ms)),
-        transactions_merkle_root_(_transactions_merkle_root),
-        parent_hash_(_parent_hash) {
-    ::flatbuffers::CastToArray(extra_data_).CopyFromSpan(_extra_data);
-  }
-  uint64_t schain_id() const {
-    return ::flatbuffers::EndianScalar(schain_id_);
-  }
-  uint64_t epoch_id() const {
-    return ::flatbuffers::EndianScalar(epoch_id_);
-  }
-  uint64_t block_id() const {
-    return ::flatbuffers::EndianScalar(block_id_);
-  }
-  uint64_t proposer_index() const {
-    return ::flatbuffers::EndianScalar(proposer_index_);
-  }
-  uint64_t transaction_count() const {
-    return ::flatbuffers::EndianScalar(transaction_count_);
-  }
-  uint64_t time_stamp_s() const {
-    return ::flatbuffers::EndianScalar(time_stamp_s_);
-  }
-  uint64_t time_stamp_ms() const {
-    return ::flatbuffers::EndianScalar(time_stamp_ms_);
-  }
-  const block_finalize::Hash &transactions_merkle_root() const {
-    return transactions_merkle_root_;
-  }
-  const block_finalize::Hash &parent_hash() const {
-    return parent_hash_;
-  }
-  const ::flatbuffers::Array<uint8_t, 32> *extra_data() const {
-    return &::flatbuffers::CastToArray(extra_data_);
-  }
-};
-FLATBUFFERS_STRUCT_END(BlockHeader, 152);
+FLATBUFFERS_STRUCT_END(TruncatedHash, 8);
 
 struct TransactionT : public ::flatbuffers::NativeTable {
   typedef Transaction TableType;
@@ -217,9 +155,241 @@ inline ::flatbuffers::Offset<Transaction> CreateTransactionDirect(
 
 ::flatbuffers::Offset<Transaction> CreateTransaction(::flatbuffers::FlatBufferBuilder &_fbb, const TransactionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct BlockHeaderT : public ::flatbuffers::NativeTable {
+  typedef BlockHeader TableType;
+  uint64_t schain_id = 0;
+  uint64_t epoch_id = 0;
+  uint64_t block_id = 0;
+  uint64_t proposer_index = 0;
+  uint64_t transaction_count = 0;
+  uint64_t time_stamp_s = 0;
+  uint64_t time_stamp_ms = 0;
+  std::unique_ptr<block_finalize::Hash> transactions_merkle_root{};
+  std::unique_ptr<block_finalize::Hash> parent_hash{};
+  std::unique_ptr<block_finalize::ExtraData> extra_data{};
+  std::vector<block_finalize::Hash> committee_hash{};
+  std::vector<block_finalize::Hash> public_key_hash{};
+  std::vector<uint16_t> encrypted_transaction_indices{};
+  BlockHeaderT() = default;
+  BlockHeaderT(const BlockHeaderT &o);
+  BlockHeaderT(BlockHeaderT&&) FLATBUFFERS_NOEXCEPT = default;
+  BlockHeaderT &operator=(BlockHeaderT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct BlockHeader FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BlockHeaderT NativeTableType;
+  typedef BlockHeaderBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SCHAIN_ID = 4,
+    VT_EPOCH_ID = 6,
+    VT_BLOCK_ID = 8,
+    VT_PROPOSER_INDEX = 10,
+    VT_TRANSACTION_COUNT = 12,
+    VT_TIME_STAMP_S = 14,
+    VT_TIME_STAMP_MS = 16,
+    VT_TRANSACTIONS_MERKLE_ROOT = 18,
+    VT_PARENT_HASH = 20,
+    VT_EXTRA_DATA = 22,
+    VT_COMMITTEE_HASH = 24,
+    VT_PUBLIC_KEY_HASH = 26,
+    VT_ENCRYPTED_TRANSACTION_INDICES = 28
+  };
+  uint64_t schain_id() const {
+    return GetField<uint64_t>(VT_SCHAIN_ID, 0);
+  }
+  uint64_t epoch_id() const {
+    return GetField<uint64_t>(VT_EPOCH_ID, 0);
+  }
+  uint64_t block_id() const {
+    return GetField<uint64_t>(VT_BLOCK_ID, 0);
+  }
+  uint64_t proposer_index() const {
+    return GetField<uint64_t>(VT_PROPOSER_INDEX, 0);
+  }
+  uint64_t transaction_count() const {
+    return GetField<uint64_t>(VT_TRANSACTION_COUNT, 0);
+  }
+  uint64_t time_stamp_s() const {
+    return GetField<uint64_t>(VT_TIME_STAMP_S, 0);
+  }
+  uint64_t time_stamp_ms() const {
+    return GetField<uint64_t>(VT_TIME_STAMP_MS, 0);
+  }
+  const block_finalize::Hash *transactions_merkle_root() const {
+    return GetStruct<const block_finalize::Hash *>(VT_TRANSACTIONS_MERKLE_ROOT);
+  }
+  const block_finalize::Hash *parent_hash() const {
+    return GetStruct<const block_finalize::Hash *>(VT_PARENT_HASH);
+  }
+  const block_finalize::ExtraData *extra_data() const {
+    return GetStruct<const block_finalize::ExtraData *>(VT_EXTRA_DATA);
+  }
+  const ::flatbuffers::Vector<const block_finalize::Hash *> *committee_hash() const {
+    return GetPointer<const ::flatbuffers::Vector<const block_finalize::Hash *> *>(VT_COMMITTEE_HASH);
+  }
+  const ::flatbuffers::Vector<const block_finalize::Hash *> *public_key_hash() const {
+    return GetPointer<const ::flatbuffers::Vector<const block_finalize::Hash *> *>(VT_PUBLIC_KEY_HASH);
+  }
+  const ::flatbuffers::Vector<uint16_t> *encrypted_transaction_indices() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_ENCRYPTED_TRANSACTION_INDICES);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_SCHAIN_ID, 8) &&
+           VerifyField<uint64_t>(verifier, VT_EPOCH_ID, 8) &&
+           VerifyField<uint64_t>(verifier, VT_BLOCK_ID, 8) &&
+           VerifyField<uint64_t>(verifier, VT_PROPOSER_INDEX, 8) &&
+           VerifyField<uint64_t>(verifier, VT_TRANSACTION_COUNT, 8) &&
+           VerifyField<uint64_t>(verifier, VT_TIME_STAMP_S, 8) &&
+           VerifyField<uint64_t>(verifier, VT_TIME_STAMP_MS, 8) &&
+           VerifyFieldRequired<block_finalize::Hash>(verifier, VT_TRANSACTIONS_MERKLE_ROOT, 1) &&
+           VerifyFieldRequired<block_finalize::Hash>(verifier, VT_PARENT_HASH, 1) &&
+           VerifyFieldRequired<block_finalize::ExtraData>(verifier, VT_EXTRA_DATA, 1) &&
+           VerifyOffsetRequired(verifier, VT_COMMITTEE_HASH) &&
+           verifier.VerifyVector(committee_hash()) &&
+           VerifyOffsetRequired(verifier, VT_PUBLIC_KEY_HASH) &&
+           verifier.VerifyVector(public_key_hash()) &&
+           VerifyOffsetRequired(verifier, VT_ENCRYPTED_TRANSACTION_INDICES) &&
+           verifier.VerifyVector(encrypted_transaction_indices()) &&
+           verifier.EndTable();
+  }
+  BlockHeaderT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(BlockHeaderT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<BlockHeader> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BlockHeaderT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct BlockHeaderBuilder {
+  typedef BlockHeader Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_schain_id(uint64_t schain_id) {
+    fbb_.AddElement<uint64_t>(BlockHeader::VT_SCHAIN_ID, schain_id, 0);
+  }
+  void add_epoch_id(uint64_t epoch_id) {
+    fbb_.AddElement<uint64_t>(BlockHeader::VT_EPOCH_ID, epoch_id, 0);
+  }
+  void add_block_id(uint64_t block_id) {
+    fbb_.AddElement<uint64_t>(BlockHeader::VT_BLOCK_ID, block_id, 0);
+  }
+  void add_proposer_index(uint64_t proposer_index) {
+    fbb_.AddElement<uint64_t>(BlockHeader::VT_PROPOSER_INDEX, proposer_index, 0);
+  }
+  void add_transaction_count(uint64_t transaction_count) {
+    fbb_.AddElement<uint64_t>(BlockHeader::VT_TRANSACTION_COUNT, transaction_count, 0);
+  }
+  void add_time_stamp_s(uint64_t time_stamp_s) {
+    fbb_.AddElement<uint64_t>(BlockHeader::VT_TIME_STAMP_S, time_stamp_s, 0);
+  }
+  void add_time_stamp_ms(uint64_t time_stamp_ms) {
+    fbb_.AddElement<uint64_t>(BlockHeader::VT_TIME_STAMP_MS, time_stamp_ms, 0);
+  }
+  void add_transactions_merkle_root(const block_finalize::Hash *transactions_merkle_root) {
+    fbb_.AddStruct(BlockHeader::VT_TRANSACTIONS_MERKLE_ROOT, transactions_merkle_root);
+  }
+  void add_parent_hash(const block_finalize::Hash *parent_hash) {
+    fbb_.AddStruct(BlockHeader::VT_PARENT_HASH, parent_hash);
+  }
+  void add_extra_data(const block_finalize::ExtraData *extra_data) {
+    fbb_.AddStruct(BlockHeader::VT_EXTRA_DATA, extra_data);
+  }
+  void add_committee_hash(::flatbuffers::Offset<::flatbuffers::Vector<const block_finalize::Hash *>> committee_hash) {
+    fbb_.AddOffset(BlockHeader::VT_COMMITTEE_HASH, committee_hash);
+  }
+  void add_public_key_hash(::flatbuffers::Offset<::flatbuffers::Vector<const block_finalize::Hash *>> public_key_hash) {
+    fbb_.AddOffset(BlockHeader::VT_PUBLIC_KEY_HASH, public_key_hash);
+  }
+  void add_encrypted_transaction_indices(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> encrypted_transaction_indices) {
+    fbb_.AddOffset(BlockHeader::VT_ENCRYPTED_TRANSACTION_INDICES, encrypted_transaction_indices);
+  }
+  explicit BlockHeaderBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<BlockHeader> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<BlockHeader>(end);
+    fbb_.Required(o, BlockHeader::VT_TRANSACTIONS_MERKLE_ROOT);
+    fbb_.Required(o, BlockHeader::VT_PARENT_HASH);
+    fbb_.Required(o, BlockHeader::VT_EXTRA_DATA);
+    fbb_.Required(o, BlockHeader::VT_COMMITTEE_HASH);
+    fbb_.Required(o, BlockHeader::VT_PUBLIC_KEY_HASH);
+    fbb_.Required(o, BlockHeader::VT_ENCRYPTED_TRANSACTION_INDICES);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<BlockHeader> CreateBlockHeader(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t schain_id = 0,
+    uint64_t epoch_id = 0,
+    uint64_t block_id = 0,
+    uint64_t proposer_index = 0,
+    uint64_t transaction_count = 0,
+    uint64_t time_stamp_s = 0,
+    uint64_t time_stamp_ms = 0,
+    const block_finalize::Hash *transactions_merkle_root = nullptr,
+    const block_finalize::Hash *parent_hash = nullptr,
+    const block_finalize::ExtraData *extra_data = nullptr,
+    ::flatbuffers::Offset<::flatbuffers::Vector<const block_finalize::Hash *>> committee_hash = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<const block_finalize::Hash *>> public_key_hash = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> encrypted_transaction_indices = 0) {
+  BlockHeaderBuilder builder_(_fbb);
+  builder_.add_time_stamp_ms(time_stamp_ms);
+  builder_.add_time_stamp_s(time_stamp_s);
+  builder_.add_transaction_count(transaction_count);
+  builder_.add_proposer_index(proposer_index);
+  builder_.add_block_id(block_id);
+  builder_.add_epoch_id(epoch_id);
+  builder_.add_schain_id(schain_id);
+  builder_.add_encrypted_transaction_indices(encrypted_transaction_indices);
+  builder_.add_public_key_hash(public_key_hash);
+  builder_.add_committee_hash(committee_hash);
+  builder_.add_extra_data(extra_data);
+  builder_.add_parent_hash(parent_hash);
+  builder_.add_transactions_merkle_root(transactions_merkle_root);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<BlockHeader> CreateBlockHeaderDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t schain_id = 0,
+    uint64_t epoch_id = 0,
+    uint64_t block_id = 0,
+    uint64_t proposer_index = 0,
+    uint64_t transaction_count = 0,
+    uint64_t time_stamp_s = 0,
+    uint64_t time_stamp_ms = 0,
+    const block_finalize::Hash *transactions_merkle_root = nullptr,
+    const block_finalize::Hash *parent_hash = nullptr,
+    const block_finalize::ExtraData *extra_data = nullptr,
+    const std::vector<block_finalize::Hash> *committee_hash = nullptr,
+    const std::vector<block_finalize::Hash> *public_key_hash = nullptr,
+    const std::vector<uint16_t> *encrypted_transaction_indices = nullptr) {
+  auto committee_hash__ = committee_hash ? _fbb.CreateVectorOfStructs<block_finalize::Hash>(*committee_hash) : 0;
+  auto public_key_hash__ = public_key_hash ? _fbb.CreateVectorOfStructs<block_finalize::Hash>(*public_key_hash) : 0;
+  auto encrypted_transaction_indices__ = encrypted_transaction_indices ? _fbb.CreateVector<uint16_t>(*encrypted_transaction_indices) : 0;
+  return block_finalize::CreateBlockHeader(
+      _fbb,
+      schain_id,
+      epoch_id,
+      block_id,
+      proposer_index,
+      transaction_count,
+      time_stamp_s,
+      time_stamp_ms,
+      transactions_merkle_root,
+      parent_hash,
+      extra_data,
+      committee_hash__,
+      public_key_hash__,
+      encrypted_transaction_indices__);
+}
+
+::flatbuffers::Offset<BlockHeader> CreateBlockHeader(::flatbuffers::FlatBufferBuilder &_fbb, const BlockHeaderT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct BlockFragmentT : public ::flatbuffers::NativeTable {
   typedef BlockFragment TableType;
-  uint64_t index = 0;
+  uint16_t index = 0;
   std::vector<block_finalize::TruncatedHash> tx_truncated_hashes{};
   std::vector<block_finalize::Hash> left_proof{};
   std::vector<block_finalize::Hash> right_proof{};
@@ -234,8 +404,8 @@ struct BlockFragment FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_LEFT_PROOF = 8,
     VT_RIGHT_PROOF = 10
   };
-  uint64_t index() const {
-    return GetField<uint64_t>(VT_INDEX, 0);
+  uint16_t index() const {
+    return GetField<uint16_t>(VT_INDEX, 0);
   }
   const ::flatbuffers::Vector<const block_finalize::TruncatedHash *> *tx_truncated_hashes() const {
     return GetPointer<const ::flatbuffers::Vector<const block_finalize::TruncatedHash *> *>(VT_TX_TRUNCATED_HASHES);
@@ -248,7 +418,7 @@ struct BlockFragment FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint64_t>(verifier, VT_INDEX, 8) &&
+           VerifyField<uint16_t>(verifier, VT_INDEX, 2) &&
            VerifyOffsetRequired(verifier, VT_TX_TRUNCATED_HASHES) &&
            verifier.VerifyVector(tx_truncated_hashes()) &&
            VerifyOffsetRequired(verifier, VT_LEFT_PROOF) &&
@@ -266,8 +436,8 @@ struct BlockFragmentBuilder {
   typedef BlockFragment Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_index(uint64_t index) {
-    fbb_.AddElement<uint64_t>(BlockFragment::VT_INDEX, index, 0);
+  void add_index(uint16_t index) {
+    fbb_.AddElement<uint16_t>(BlockFragment::VT_INDEX, index, 0);
   }
   void add_tx_truncated_hashes(::flatbuffers::Offset<::flatbuffers::Vector<const block_finalize::TruncatedHash *>> tx_truncated_hashes) {
     fbb_.AddOffset(BlockFragment::VT_TX_TRUNCATED_HASHES, tx_truncated_hashes);
@@ -294,21 +464,21 @@ struct BlockFragmentBuilder {
 
 inline ::flatbuffers::Offset<BlockFragment> CreateBlockFragment(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t index = 0,
+    uint16_t index = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<const block_finalize::TruncatedHash *>> tx_truncated_hashes = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<const block_finalize::Hash *>> left_proof = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<const block_finalize::Hash *>> right_proof = 0) {
   BlockFragmentBuilder builder_(_fbb);
-  builder_.add_index(index);
   builder_.add_right_proof(right_proof);
   builder_.add_left_proof(left_proof);
   builder_.add_tx_truncated_hashes(tx_truncated_hashes);
+  builder_.add_index(index);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<BlockFragment> CreateBlockFragmentDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t index = 0,
+    uint16_t index = 0,
     const std::vector<block_finalize::TruncatedHash> *tx_truncated_hashes = nullptr,
     const std::vector<block_finalize::Hash> *left_proof = nullptr,
     const std::vector<block_finalize::Hash> *right_proof = nullptr) {
@@ -327,7 +497,7 @@ inline ::flatbuffers::Offset<BlockFragment> CreateBlockFragmentDirect(
 
 struct DecryptionShareT : public ::flatbuffers::NativeTable {
   typedef DecryptionShare TableType;
-  uint64_t transaction_index = 0;
+  uint16_t transaction_index = 0;
   std::vector<uint8_t> data{};
 };
 
@@ -338,15 +508,15 @@ struct DecryptionShare FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_TRANSACTION_INDEX = 4,
     VT_DATA = 6
   };
-  uint64_t transaction_index() const {
-    return GetField<uint64_t>(VT_TRANSACTION_INDEX, 0);
+  uint16_t transaction_index() const {
+    return GetField<uint16_t>(VT_TRANSACTION_INDEX, 0);
   }
   const ::flatbuffers::Vector<uint8_t> *data() const {
     return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_DATA);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint64_t>(verifier, VT_TRANSACTION_INDEX, 8) &&
+           VerifyField<uint16_t>(verifier, VT_TRANSACTION_INDEX, 2) &&
            VerifyOffsetRequired(verifier, VT_DATA) &&
            verifier.VerifyVector(data()) &&
            verifier.EndTable();
@@ -360,8 +530,8 @@ struct DecryptionShareBuilder {
   typedef DecryptionShare Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_transaction_index(uint64_t transaction_index) {
-    fbb_.AddElement<uint64_t>(DecryptionShare::VT_TRANSACTION_INDEX, transaction_index, 0);
+  void add_transaction_index(uint16_t transaction_index) {
+    fbb_.AddElement<uint16_t>(DecryptionShare::VT_TRANSACTION_INDEX, transaction_index, 0);
   }
   void add_data(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data) {
     fbb_.AddOffset(DecryptionShare::VT_DATA, data);
@@ -380,17 +550,17 @@ struct DecryptionShareBuilder {
 
 inline ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShare(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t transaction_index = 0,
+    uint16_t transaction_index = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data = 0) {
   DecryptionShareBuilder builder_(_fbb);
-  builder_.add_transaction_index(transaction_index);
   builder_.add_data(data);
+  builder_.add_transaction_index(transaction_index);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShareDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t transaction_index = 0,
+    uint16_t transaction_index = 0,
     const std::vector<uint8_t> *data = nullptr) {
   auto data__ = data ? _fbb.CreateVector<uint8_t>(*data) : 0;
   return block_finalize::CreateDecryptionShare(
@@ -540,6 +710,101 @@ inline ::flatbuffers::Offset<Transaction> CreateTransaction(::flatbuffers::FlatB
   return block_finalize::CreateTransaction(
       _fbb,
       _data);
+}
+
+inline BlockHeaderT::BlockHeaderT(const BlockHeaderT &o)
+      : schain_id(o.schain_id),
+        epoch_id(o.epoch_id),
+        block_id(o.block_id),
+        proposer_index(o.proposer_index),
+        transaction_count(o.transaction_count),
+        time_stamp_s(o.time_stamp_s),
+        time_stamp_ms(o.time_stamp_ms),
+        transactions_merkle_root((o.transactions_merkle_root) ? new block_finalize::Hash(*o.transactions_merkle_root) : nullptr),
+        parent_hash((o.parent_hash) ? new block_finalize::Hash(*o.parent_hash) : nullptr),
+        extra_data((o.extra_data) ? new block_finalize::ExtraData(*o.extra_data) : nullptr),
+        committee_hash(o.committee_hash),
+        public_key_hash(o.public_key_hash),
+        encrypted_transaction_indices(o.encrypted_transaction_indices) {
+}
+
+inline BlockHeaderT &BlockHeaderT::operator=(BlockHeaderT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(schain_id, o.schain_id);
+  std::swap(epoch_id, o.epoch_id);
+  std::swap(block_id, o.block_id);
+  std::swap(proposer_index, o.proposer_index);
+  std::swap(transaction_count, o.transaction_count);
+  std::swap(time_stamp_s, o.time_stamp_s);
+  std::swap(time_stamp_ms, o.time_stamp_ms);
+  std::swap(transactions_merkle_root, o.transactions_merkle_root);
+  std::swap(parent_hash, o.parent_hash);
+  std::swap(extra_data, o.extra_data);
+  std::swap(committee_hash, o.committee_hash);
+  std::swap(public_key_hash, o.public_key_hash);
+  std::swap(encrypted_transaction_indices, o.encrypted_transaction_indices);
+  return *this;
+}
+
+inline BlockHeaderT *BlockHeader::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<BlockHeaderT>(new BlockHeaderT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void BlockHeader::UnPackTo(BlockHeaderT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = schain_id(); _o->schain_id = _e; }
+  { auto _e = epoch_id(); _o->epoch_id = _e; }
+  { auto _e = block_id(); _o->block_id = _e; }
+  { auto _e = proposer_index(); _o->proposer_index = _e; }
+  { auto _e = transaction_count(); _o->transaction_count = _e; }
+  { auto _e = time_stamp_s(); _o->time_stamp_s = _e; }
+  { auto _e = time_stamp_ms(); _o->time_stamp_ms = _e; }
+  { auto _e = transactions_merkle_root(); if (_e) _o->transactions_merkle_root = std::unique_ptr<block_finalize::Hash>(new block_finalize::Hash(*_e)); }
+  { auto _e = parent_hash(); if (_e) _o->parent_hash = std::unique_ptr<block_finalize::Hash>(new block_finalize::Hash(*_e)); }
+  { auto _e = extra_data(); if (_e) _o->extra_data = std::unique_ptr<block_finalize::ExtraData>(new block_finalize::ExtraData(*_e)); }
+  { auto _e = committee_hash(); if (_e) { _o->committee_hash.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->committee_hash[_i] = *_e->Get(_i); } } else { _o->committee_hash.resize(0); } }
+  { auto _e = public_key_hash(); if (_e) { _o->public_key_hash.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->public_key_hash[_i] = *_e->Get(_i); } } else { _o->public_key_hash.resize(0); } }
+  { auto _e = encrypted_transaction_indices(); if (_e) { _o->encrypted_transaction_indices.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->encrypted_transaction_indices[_i] = _e->Get(_i); } } else { _o->encrypted_transaction_indices.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<BlockHeader> BlockHeader::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BlockHeaderT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CreateBlockHeader(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<BlockHeader> CreateBlockHeader(::flatbuffers::FlatBufferBuilder &_fbb, const BlockHeaderT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BlockHeaderT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _schain_id = _o->schain_id;
+  auto _epoch_id = _o->epoch_id;
+  auto _block_id = _o->block_id;
+  auto _proposer_index = _o->proposer_index;
+  auto _transaction_count = _o->transaction_count;
+  auto _time_stamp_s = _o->time_stamp_s;
+  auto _time_stamp_ms = _o->time_stamp_ms;
+  auto _transactions_merkle_root = _o->transactions_merkle_root ? _o->transactions_merkle_root.get() : nullptr;
+  auto _parent_hash = _o->parent_hash ? _o->parent_hash.get() : nullptr;
+  auto _extra_data = _o->extra_data ? _o->extra_data.get() : nullptr;
+  auto _committee_hash = _fbb.CreateVectorOfStructs(_o->committee_hash);
+  auto _public_key_hash = _fbb.CreateVectorOfStructs(_o->public_key_hash);
+  auto _encrypted_transaction_indices = _fbb.CreateVector(_o->encrypted_transaction_indices);
+  return block_finalize::CreateBlockHeader(
+      _fbb,
+      _schain_id,
+      _epoch_id,
+      _block_id,
+      _proposer_index,
+      _transaction_count,
+      _time_stamp_s,
+      _time_stamp_ms,
+      _transactions_merkle_root,
+      _parent_hash,
+      _extra_data,
+      _committee_hash,
+      _public_key_hash,
+      _encrypted_transaction_indices);
 }
 
 inline BlockFragmentT *BlockFragment::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

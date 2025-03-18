@@ -38,12 +38,21 @@ namespace block_finalize {
         void verify(schain_id _sChainId) noexcept( false );
 
     public:
-        static shared_ptr<std::vector<uint8_t> > copyByteVectorFromFlatBuffer(flatbuffers::Vector<uint8_t> *_fbVector);
+        static shared_ptr<std::vector<uint8_t> > copyFbByteVector(const flatbuffers::Vector<uint8_t> *_fbVector);
+        static shared_ptr<std::vector<transaction_index> > copyFbIndexVector(const flatbuffers::Vector<uint16_t> *_fbVector);
 
-        static shared_ptr<BlockFragment> copyBlockHeaderFromFlatBuffer(block_finalize::BlockFragment *_blockFragment);
+
+
 
         template<typename T, typename U> static
-        void copyFbdata(const T *fb_data, U &dest);
+        void copyFbArray(const T *_fbData, U &_dest);
+
+
+        // Function to copy hashes from source to destination
+        template <typename T, typename U> static
+        void copyFbHashList(const shared_ptr<vector<ptr<T>>>& _dest, const U& _src, size_t _expectedSize);
+
+
     };
 } // namespace block_finalize
 

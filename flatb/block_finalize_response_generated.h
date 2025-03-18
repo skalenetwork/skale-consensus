@@ -135,7 +135,7 @@ bool VerifyBlockFinalizeResultVector(::flatbuffers::Verifier &verifier, const ::
 
 struct BlockFinalizeSuccessResponseT : public ::flatbuffers::NativeTable {
   typedef BlockFinalizeSuccessResponse TableType;
-  std::unique_ptr<block_finalize::BlockHeader> block_header{};
+  std::unique_ptr<block_finalize::BlockHeaderT> block_header{};
   std::vector<uint8_t> block_sig{};
   std::vector<uint8_t> da_proof_sig{};
   std::unique_ptr<block_finalize::BlockFragmentT> block_fragment{};
@@ -157,7 +157,7 @@ struct BlockFinalizeSuccessResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuff
     VT_DECRYPTION_SHARES = 12
   };
   const block_finalize::BlockHeader *block_header() const {
-    return GetStruct<const block_finalize::BlockHeader *>(VT_BLOCK_HEADER);
+    return GetPointer<const block_finalize::BlockHeader *>(VT_BLOCK_HEADER);
   }
   const ::flatbuffers::Vector<uint8_t> *block_sig() const {
     return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_BLOCK_SIG);
@@ -173,7 +173,8 @@ struct BlockFinalizeSuccessResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuff
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyFieldRequired<block_finalize::BlockHeader>(verifier, VT_BLOCK_HEADER, 8) &&
+           VerifyOffsetRequired(verifier, VT_BLOCK_HEADER) &&
+           verifier.VerifyTable(block_header()) &&
            VerifyOffsetRequired(verifier, VT_BLOCK_SIG) &&
            verifier.VerifyVector(block_sig()) &&
            VerifyOffset(verifier, VT_DA_PROOF_SIG) &&
@@ -194,8 +195,8 @@ struct BlockFinalizeSuccessResponseBuilder {
   typedef BlockFinalizeSuccessResponse Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_block_header(const block_finalize::BlockHeader *block_header) {
-    fbb_.AddStruct(BlockFinalizeSuccessResponse::VT_BLOCK_HEADER, block_header);
+  void add_block_header(::flatbuffers::Offset<block_finalize::BlockHeader> block_header) {
+    fbb_.AddOffset(BlockFinalizeSuccessResponse::VT_BLOCK_HEADER, block_header);
   }
   void add_block_sig(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> block_sig) {
     fbb_.AddOffset(BlockFinalizeSuccessResponse::VT_BLOCK_SIG, block_sig);
@@ -224,7 +225,7 @@ struct BlockFinalizeSuccessResponseBuilder {
 
 inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSuccessResponse(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const block_finalize::BlockHeader *block_header = nullptr,
+    ::flatbuffers::Offset<block_finalize::BlockHeader> block_header = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> block_sig = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> da_proof_sig = 0,
     ::flatbuffers::Offset<block_finalize::BlockFragment> block_fragment = 0,
@@ -240,7 +241,7 @@ inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSu
 
 inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSuccessResponseDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const block_finalize::BlockHeader *block_header = nullptr,
+    ::flatbuffers::Offset<block_finalize::BlockHeader> block_header = 0,
     const std::vector<uint8_t> *block_sig = nullptr,
     const std::vector<uint8_t> *da_proof_sig = nullptr,
     ::flatbuffers::Offset<block_finalize::BlockFragment> block_fragment = 0,
@@ -338,7 +339,7 @@ inline ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(
 ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeResponseT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline BlockFinalizeSuccessResponseT::BlockFinalizeSuccessResponseT(const BlockFinalizeSuccessResponseT &o)
-      : block_header((o.block_header) ? new block_finalize::BlockHeader(*o.block_header) : nullptr),
+      : block_header((o.block_header) ? new block_finalize::BlockHeaderT(*o.block_header) : nullptr),
         block_sig(o.block_sig),
         da_proof_sig(o.da_proof_sig),
         block_fragment((o.block_fragment) ? new block_finalize::BlockFragmentT(*o.block_fragment) : nullptr) {
@@ -364,7 +365,7 @@ inline BlockFinalizeSuccessResponseT *BlockFinalizeSuccessResponse::UnPack(const
 inline void BlockFinalizeSuccessResponse::UnPackTo(BlockFinalizeSuccessResponseT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = block_header(); if (_e) _o->block_header = std::unique_ptr<block_finalize::BlockHeader>(new block_finalize::BlockHeader(*_e)); }
+  { auto _e = block_header(); if (_e) { if(_o->block_header) { _e->UnPackTo(_o->block_header.get(), _resolver); } else { _o->block_header = std::unique_ptr<block_finalize::BlockHeaderT>(_e->UnPack(_resolver)); } } else if (_o->block_header) { _o->block_header.reset(); } }
   { auto _e = block_sig(); if (_e) { _o->block_sig.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->block_sig.begin()); } }
   { auto _e = da_proof_sig(); if (_e) { _o->da_proof_sig.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->da_proof_sig.begin()); } }
   { auto _e = block_fragment(); if (_e) { if(_o->block_fragment) { _e->UnPackTo(_o->block_fragment.get(), _resolver); } else { _o->block_fragment = std::unique_ptr<block_finalize::BlockFragmentT>(_e->UnPack(_resolver)); } } else if (_o->block_fragment) { _o->block_fragment.reset(); } }
@@ -379,7 +380,7 @@ inline ::flatbuffers::Offset<BlockFinalizeSuccessResponse> CreateBlockFinalizeSu
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BlockFinalizeSuccessResponseT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _block_header = _o->block_header ? _o->block_header.get() : nullptr;
+  auto _block_header = _o->block_header ? CreateBlockHeader(_fbb, _o->block_header.get(), _rehasher) : 0;
   auto _block_sig = _fbb.CreateVector(_o->block_sig);
   auto _da_proof_sig = _o->da_proof_sig.size() ? _fbb.CreateVector(_o->da_proof_sig) : 0;
   auto _block_fragment = _o->block_fragment ? CreateBlockFragment(_fbb, _o->block_fragment.get(), _rehasher) : 0;

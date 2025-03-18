@@ -11,14 +11,18 @@
 #include "FlatBufferRequest.h"
 #include "BlockFinalizeRequestObject.h"
 #include "BlockFinalizeResponseObject.h"
+#include "BlockFragmentObject.h"
+#include "BlockHeaderObject.h"
+#include "DecryptionShareObject.h"
+
 
 using namespace block_finalize;
 
 BlockFinalizeResponseObject::BlockFinalizeResponseObject(std::shared_ptr<BlockHeaderObject> &_blockHeader,
                                                          std::shared_ptr<vector<uint8_t> > &_blockSig,
                                                          std::shared_ptr<vector<uint8_t> > &_daProofSig,
-                                                         std::shared_ptr<BlockFragment> &_blockFragment,
-                                                         std::shared_ptr<std::vector<DecryptionShare> > &
+                                                         std::shared_ptr<BlockFragmentObject> &_blockFragment,
+                                                         std::shared_ptr<std::vector<ptr<DecryptionShareObject>> > &
                                                          _decryptionShares): blockHeader(_blockHeader),
       blockSig(_blockSig),
       daProofSig(_daProofSig),
@@ -38,27 +42,58 @@ std::unique_ptr<BlockFinalizeResponseObject> BlockFinalizeResponseObject::deseri
     if (response->result_type() == block_finalize::BlockFinalizeResult_BlockFinalizeSuccessResponse) {
         const auto *successResponse = response->result_as_BlockFinalizeSuccessResponse();
         CHECK_STATE(successResponse);
-        auto blockHeaderInPlacepPointer = successResponse->block_header();
-        CHECK_STATE(blockHeaderInPlacepPointer);
-        auto blockHeader = make_shared<BlockHeader>(*blockHeaderInPlacepPointer);
+        auto blockHeader = BlockHeaderObject::deserializeAndVerify(successResponse->block_header());
 
-        auto blockSig = FlatBufferRequest::copyByteVectorFromFlatBuffer(successResponse->block_sig());
-        CHECK_STATE2(blockSig, 'No blocksig in response');
+        CHECK_STATE(blockHeader);
 
-        auto daProofSig = FlatBufferRequest::copyByteVectorFromFlatBuffer(successResponse->da_proof_sig());
+        auto blockSig = FlatBufferRequest::copyFbByteVector(successResponse->block_sig());
+        CHECK_STATE2(blockSig, "No blocksig in response");
+
+        auto daProofSig = FlatBufferRequest::copyFbByteVector(successResponse->da_proof_sig());
         CHECK_STATE2(daProofSig || !_request->getNeedDaProofSig(), "No requested da proof sig in response");
 
 
-        successResponse->block_header();
+        auto blockFragment = BlockFragmentObject::deserializeAndVerify(successResponse->block_fragment());
+        CHECK_STATE2(blockFragment || !_request->getNeedFragment(), "No requested block fragment in response");
 
-        auto daProofSig = FlatBufferRequest::copyByteVectorFromFlatBuffer(successResponse->block_fragment());
-        CHECK_STATE2(daProofSig || !_request->getNeedDaProofSig(), "No requested da proof sig in response");
 
+        auto fbDecryptionShares = successResponse->decryption_shares();
+        CHECK_STATE(fbDecryptionShares);
+
+        auto encryptedTransactionsCount = blockHeader->getEncryptedTransactionIndices()->size();
+        auto decryptionShares = make_shared<vector<ptr<DecryptionShareObject>>>();
+        decryptionShares->reserve(encryptedTransactionsCount);
+        CHECK_STATE2(fbDecryptionShares->size() == encryptedTransactionsCount,
+            "Decryption shares count does not match encrypted transactions count");
+
+
+
+
+        for (auto&& fbShare: *fbDecryptionShares) {
+            CHECK_STATE(fbShare);
+            auto decryptionShare = DecryptionShareObject::deserializeAndVerify(fbShare);
+            CHECK_STATE(decryptionShare);
+            if (decryptionShares->size() > 0) {
+                CHECK_STATE2(decryptionShare->getTransactionIndex() > decryptionShares->back()->getTransactionIndex(),
+                    "Decryption shares in unsorted order");
+            }
+            decryptionShares->push_back(decryptionShare);
+        }
+
+        CHECK_STATE(decryptionShares->size() == encryptedTransactionsCount);
+
+        for (uint64_t i = 0; i < encryptedTransactionsCount; i++) {
+            CHECK_STATE2(blockHeader->getEncryptedTransactionIndices()->at(i) ==
+                decryptionShares->at(i)->getTransactionIndex(), "Decryption shares contain transaction index not "
+                                                                "included in the header: " +
+                                                                to_string(decryptionShares->at(i)->getTransactionIndex()));
+        }
 
 
 
         return std::make_unique<BlockFinalizeResponseObject>(blockHeader,blockSig, daProofSig, blockFragment, decryptionShares);
     } else {
+        //TODO
         /*const auto *errorResponse = response->result_as_ErrorResponse();
         return std::make_unique<ErrorResponseObject>(
             errorResponse->status(), errorResponse->substatus(), errorResponse->last_block(),

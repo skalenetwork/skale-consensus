@@ -21,13 +21,18 @@ private:
     ptr<sha_hash> transactionsMerkleRoot;
     ptr<sha_hash> parentHash;
     ptr<extra_data> extraData;
+    ptr<sha_hash> commiteeHash;
+    ptr<sha_hash> publicKeyHash;
+    ptr<vector<transaction_index>> encryptedTransactionIndices;
+
+
 
 public:
-    // Constructor
-    BlockHeaderObject(schain_id schainId, epoch_id epochId, block_id blockId, schain_index proposerIndex,
-                      uint64_t transactionCount, uint64_t timeStampS, uint64_t timeStampMs,
-                      ptr<sha_hash>& transactionsMerkleRoot, ptr<sha_hash>& parentHash,
-                      ptr<extra_data>& extraData);
+    BlockHeaderObject(schain_id _schainId, epoch_id _epochId, block_id _blockId, schain_index _proposerIndex,
+                      uint64_t _transactionCount, uint64_t _timeStampS, uint64_t _timeStampMs,
+                      ptr<sha_hash>& _transactionsMerkleRoot, ptr<sha_hash>& _parentHash,
+                      ptr<extra_data>& _extraData, ptr<sha_hash>& _commiteeHash, ptr<sha_hash>& _publicKeyHash,
+                      ptr<vector<transaction_index>>& _encryptedTransactionIndices);
     // Getters
     [[nodiscard]] schain_id getSchainId() const { return schainId; }
     [[nodiscard]] epoch_id getEpochId() const { return epochId; }
@@ -39,9 +44,11 @@ public:
     [[nodiscard]] const ptr<sha_hash>& getTransactionsMerkleRoot() const { return transactionsMerkleRoot; }
     [[nodiscard]] const ptr<sha_hash>& getParentHash() const { return parentHash; }
     [[nodiscard]] const ptr<extra_data>& getExtraData() const { return extraData; }
+    [[nodiscard]] const ptr<vector<transaction_index>>& getEncryptedTransactionIndices() const{ return encryptedTransactionIndices; }
+    [[nodiscard]] const ptr<sha_hash>& getCommitteeHash() const{ return commiteeHash; }
+    [[nodiscard]] const ptr<sha_hash>& getPublicKeyHash() const{ return publicKeyHash; }
 
-    // Deserialize function
-    static std::unique_ptr<BlockHeaderObject> deserializeAndVerify(block_finalize::BlockHeader * _fbBlockHeader, schain_id _schainId) noexcept(false);
+    static ptr<BlockHeaderObject> deserializeAndVerify(const BlockHeader * _fbBlockHeader) noexcept(false);
 };
 
 }  // namespace block_finalize
