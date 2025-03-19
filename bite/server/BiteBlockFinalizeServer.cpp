@@ -22,7 +22,6 @@
 */
 
 
-
 // avoid macro definition conflicts with proxygen LOG
 
 
@@ -31,17 +30,18 @@
 #include <flatb/block_finalize_request_generated.h>
 #include <flatb/block_transactions_request_generated.h>
 #include <flatb/block_transactions_response_generated.h>
-
+#include <proxygen/httpserver/HTTPServer.h>
+#include "BlockFinalizeHandlerFactory.h"
+#undef LOG // avoid macro definition conflicts with proxygen LOG
+#undef CHECK // avoid macro definition conflicts with proxygen CHECK
 
 #include "SkaleCommon.h"
-
+#include "Log.h"
 #include <threads/GlobalThreadRegistry.h>
 #include "chains/Schain.h"
+#include "node/Node.h"
 
-#undef LOG
-#include "BlockFinalizeHandlerFactory.h"
 
-#include <proxygen/httpserver/HTTPServer.h>
 #include "BiteBlockFinalizeServer.h"
 
 BiteBlockFinalizeServer::BiteBlockFinalizeServer(Schain &_sChain) : sChain(_sChain) {
@@ -67,30 +67,35 @@ void BiteBlockFinalizeServer::startProxygenServer() {
     sChain.getThreadRegistry()->add(runServerThread);
 }
 
-void BiteBlockFinalizeServer::exitProxygenServer() {
+
+void BiteBlockFinalizeServer::exitProxygenServer() noexcept {
     if (!runServerThread) {
         return;
     }
-    this->proxygenServerInstance->stopListening();  // Stop new connections
-    ConsensusEngine::log(info, string("Proxygen server stopped listening"), __CLASS_NAME__);
+
+    LOG(info, "Exiting Proxygen server");
+
+    try {
+        proxygenServerInstance->stopListening(); // Stop new connection
+    } CATCH_AND_LOG_ANY_EXCEPTION(critical, "Exception in proxygen stopListening");
+
+    LOG(info, "Proxygen server stopped listening");
     // give on-going requests a little time to complete
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    this->proxygenServerInstance->stop();  // Shutdown completely
-    ConsensusEngine::log(info, string("Proxygen server stopped"), __CLASS_NAME__);
+
+    try {
+        proxygenServerInstance->stop(); // Shutdown completely
+    } CATCH_AND_LOG_ANY_EXCEPTION(critical, "Exception in proxygen stopListening");
+
+    LOG(info, "Proxygen server stopped");
 }
 
 
 void BiteBlockFinalizeServer::runServer() {
-    CHECK(proxygenServerInstance);
+    CHECK_STATE(proxygenServerInstance);
     try {
+        LOG(info, "Starting Proxygen server");
         proxygenServerInstance->start();
-        ConsensusEngine::log(info, string("Proxygen server exited"), __CLASS_NAME__);
-    } catch (const std::exception& e) {
-        ConsensusEngine::log(critical, string("Proxygen exception: ") + e.what(), __CLASS_NAME__);
-        throw;
-    } catch (...) {
-        ConsensusEngine::log(critical,  "Unknown exception occurred!",  __CLASS_NAME__);
-        throw;
-    }
+        LOG(info, "Proxygen server started");
+    } CATCH_AND_LOG_ANY_EXCEPTION(critical, "Exception in proxygen start");
 }
-

@@ -111,7 +111,7 @@
 #include "TestConfig.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSigShare.h"
-#include "crypto/bls_include.h"
+#include "chains/BlockErrorAnalyzer.h"
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"

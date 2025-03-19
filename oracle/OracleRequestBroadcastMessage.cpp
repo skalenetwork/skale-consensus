@@ -26,14 +26,13 @@
 #include "thirdparty/rapidjson/prettywriter.h"  // for stringify JSON
 
 #include "SkaleCommon.h"
+#include "Log.h"
 
 #include "exceptions/InvalidStateException.h"
 
 #include "messages/NetworkMessage.h"
 
 #include "chains/Schain.h"
-#include "utils/Time.h"
-#include "protocols/ProtocolKey.h"
 #include "OracleClient.h"
 #include "OracleServerAgent.h"
 #include "OracleRequestSpec.h"

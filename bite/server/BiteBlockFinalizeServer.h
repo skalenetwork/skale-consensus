@@ -49,7 +49,7 @@ public:
 
     void startProxygenServer();
 
-    void exitProxygenServer();
+    void exitProxygenServer() noexcept;
 
     ~BiteBlockFinalizeServer();
 };

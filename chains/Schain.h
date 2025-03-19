@@ -26,10 +26,9 @@
 #pragma once
 
 #include "Agent.h"
-#include "BlockErrorAnalyzer.h"
 #include "boost/lockfree/queue.hpp"
 #include "jsonrpccpp/server/connectors/httpserver.h"
-#include "statusserver/StatusServer.h"
+#include "datastructures/TimeStamp.h"
 
 class ThresholdSignature;
 class CommittedBlockList;
@@ -42,7 +41,7 @@ class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
 class DAProof;
-
+class BlockErrorAnalyzer;
 class BlockProposalClientAgent;
 class BlockProposalPusherThreadPool;
 

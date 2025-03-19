@@ -46,7 +46,7 @@ class SkaleException;
 
 
 namespace spdlog {
-class logger;
+    class logger;
 }
 
 #define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
@@ -61,34 +61,42 @@ class logger;
     }
 
 
+#define CATCH_AND_LOG_ANY_EXCEPTION(__LEVEL__, __MESSAGE__) \
+    catch (const std::exception& e) { \
+        ConsensusEngine::log(critical, string(__MESSAGE__) + ":" + e.what(), __CLASS_NAME__); \
+    } catch (...) { \
+        ConsensusEngine::log(critical, string(__MESSAGE__) + ": Unknown exception" , __CLASS_NAME__); \
+    }
+
+
 class SkaleLog {
-    ConsensusEngine* engine;
+    ConsensusEngine *engine;
 
     string prefix = "";
 
     node_id nodeID;
 
-    shared_ptr< spdlog::logger > mainLogger, proposalLogger, consensusLogger, catchupLogger,
-        netLogger, dataStructuresLogger, pendingQueueLogger;
+    shared_ptr<spdlog::logger> mainLogger, proposalLogger, consensusLogger, catchupLogger,
+            netLogger, dataStructuresLogger, pendingQueueLogger;
 
 public:
-    ConsensusEngine* getEngine() const;
+    ConsensusEngine *getEngine() const;
 
-    SkaleLog( node_id _nodeID, ConsensusEngine* _engine );
+    SkaleLog(node_id _nodeID, ConsensusEngine *_engine);
 
     const node_id getNodeID() const;
 
-    map< string, shared_ptr< spdlog::logger > > loggers;
+    map<string, shared_ptr<spdlog::logger> > loggers;
 
     level_enum globalLogLevel;
 
 
-    void setGlobalLogLevel( string& _s );
+    void setGlobalLogLevel(string &_s);
 
 
-    shared_ptr< spdlog::logger > loggerForClass( const char* _className );
+    shared_ptr<spdlog::logger> loggerForClass(const char *_className);
 
 
-    static level_enum logLevelFromString( string& _s );
+    static level_enum logLevelFromString(string &_s);
 };
 #endif

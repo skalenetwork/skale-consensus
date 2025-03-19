@@ -47,7 +47,7 @@
 #include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "utils/Time.h"
-
+#include "chains/BlockErrorAnalyzer.h"
 #include "BlockFinalizeDownloader.h"
 #include "BlockFinalizeDownloaderThreadPool.h"
 #include "crypto/CryptoManager.h"
