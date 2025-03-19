@@ -1,8 +1,9 @@
 #pragma once
 
-#include "FlatBufferRequest.h"
 
-namespace block_finalize {
+#include "common_structures_generated.h"
+
+namespace skale_fb {
 
 class BlockHeaderObject {
 private:
@@ -43,7 +44,7 @@ public:
     [[nodiscard]] const ptr<sha_hash>& getCommitteeHash() const{ return commiteeHash; }
     [[nodiscard]] const ptr<sha_hash>& getPublicKeyHash() const{ return publicKeyHash; }
 
-    static ptr<BlockHeaderObject> deserializeAndVerify(const BlockHeader * _fbBlockHeader) noexcept(false);
+    static ptr<BlockHeaderObject> deserializeAndVerify(const BlockHeader * _fbBlockHeader);
 };
 
 }  // namespace block_finalize

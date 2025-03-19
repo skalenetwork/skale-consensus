@@ -1,4 +1,4 @@
-namespace block_finalize;
+namespace skale_fb;
 
 table Transaction {
     data: [uint8] (required);  // Each transaction is a byte array
@@ -49,15 +49,5 @@ table BlockFragment {
 table DecryptionShare {
     transaction_index: uint16;
     data: [uint8] (required);
-}
-
-// ErrorResponse remains a table due to variable-length string
-table ErrorResponse {
-    status: uint;
-    substatus: uint;
-    last_block: uint64;
-    last_block_timestamp_s: uint64;
-    last_block_timestamp_ms: uint64;
-    message: string (required);
 }
 

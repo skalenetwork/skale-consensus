@@ -1,7 +1,4 @@
-namespace block_finalize;
-
-// BlockFinalizeRequest
-// Represents a request to finalize a block
+namespace skale_fb;
 
 table BlockFinalizeRequest {
   schain_id: uint64;

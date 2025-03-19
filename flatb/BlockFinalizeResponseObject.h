@@ -11,7 +11,7 @@ namespace folly {
 }
 
 
-namespace block_finalize {
+namespace skale_fb {
     class BlockFinalizeRequestObject;
     class BlockHeaderObject;
     class BlockFragmentObject;

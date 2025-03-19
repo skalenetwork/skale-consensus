@@ -13,11 +13,11 @@
 #include "Log.h"
 #include "BlockTransactionsRequestObject.h"
 
-using namespace block_finalize;
+using namespace skale_fb;
 
 ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::deserializeAndVerify(
     const folly::IOBuf& _buffer, schain_id _sChainId ) {
-    const block_finalize::BlockTransactionsRequest* request = nullptr;
+    const skale_fb::BlockTransactionsRequest* request = nullptr;
     VERIFY_AND_PARSE_FLATBUFFER( _buffer, BlockTransactionsRequest, request );
 
     auto fbTransactionIndices = request->transaction_indices();

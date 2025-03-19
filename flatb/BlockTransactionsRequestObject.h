@@ -5,7 +5,7 @@
 
 class Schain;
 
-namespace block_finalize {
+namespace skale_fb {
 
 class BlockTransactionsRequestObject : public FlatBufferRequest {
 private:

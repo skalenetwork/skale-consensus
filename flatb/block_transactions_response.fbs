@@ -1,10 +1,8 @@
 
-include "block_finalize_common_structures.fbs";
+include "common_structures.fbs";
 
-namespace block_finalize;
+namespace skale_fb;
 
-
-// Flattened SuccessResponse
 table BlockTransactionsResponse {
     transactions: [Transaction];
 }

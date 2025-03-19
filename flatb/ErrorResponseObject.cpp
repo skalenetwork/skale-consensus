@@ -1,14 +1,10 @@
-//
-// Created by kladko on 3/18/25.
-//
-
-#include "block_finalize_request_generated.h"
+#include "flatbuffers/flatbuffers.h"
+#include "flatb/error_response_generated.h"
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "FlatBufferRequest.h"
 #include "ErrorResponseObject.h"
 
-using namespace block_finalize;
+using namespace skale_fb;
 
 // Constructor
 ErrorResponseObject::ErrorResponseObject(uint32_t _status, uint32_t _substatus, uint64_t _lastBlock,
@@ -38,4 +34,18 @@ std::shared_ptr<ErrorResponseObject> ErrorResponseObject::deserializeAndVerify(c
 
     return std::make_shared<ErrorResponseObject>(status, substatus, lastBlock, lastBlockTimestampS,
         lastBlockTimestampMs, message);
+}
+
+
+ptr<string> ErrorResponseObject::serialize() noexcept(false) {
+    flatbuffers::FlatBufferBuilder builder;
+
+    auto fbMessage = builder.CreateString(message);
+
+    auto errorResponse = CreateErrorResponse(builder, status, substatus, lastBlock, lastBlockTimestampS, lastBlockTimestampMs,
+        fbMessage);
+
+    builder.Finish(errorResponse);
+
+    return make_shared<string>(reinterpret_cast<const char*>(builder.GetBufferPointer()), builder.GetSize());
 }

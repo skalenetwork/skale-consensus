@@ -2,7 +2,7 @@
 
 #include "FlatBufferRequest.h"
 
-namespace block_finalize {
+namespace skale_fb {
 
     class BlockFragmentObject {
     private:

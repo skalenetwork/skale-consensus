@@ -1,15 +1,14 @@
 
-include "block_finalize_common_structures.fbs";
+include "common_structures.fbs";
 
-namespace block_finalize;
+namespace skale_fb;
 
 
-// Flattened SuccessResponse
 table BlockFinalizeResponse {
     block_header: BlockHeader (required);
     block_sig: [uint8] (required);
     da_proof_sig: [uint8];
-    block_fragment: BlockFragment; // Directly included
+    block_fragment: BlockFragment;
     decryption_shares: [DecryptionShare];
 }
 

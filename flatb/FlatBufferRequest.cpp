@@ -9,7 +9,7 @@
 
 #include "BlockHeaderObject.h"
 
-using namespace block_finalize;
+using namespace skale_fb;
 
 FlatBufferRequest::FlatBufferRequest(schain_id _schainId, epoch_id _epochId, block_id _blockId, node_id _nodeId,
                                      schain_index _proposerIndex)

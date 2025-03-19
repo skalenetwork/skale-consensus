@@ -27,7 +27,6 @@
 
 #include <flatb/block_finalize_request_generated.h>
 #include <flatb/block_finalize_response_generated.h>
-#include <flatb/block_finalize_request_generated.h>
 #include <flatb/block_transactions_request_generated.h>
 #include <flatb/block_transactions_response_generated.h>
 #include <proxygen/httpserver/HTTPServer.h>
@@ -68,6 +67,15 @@ void BiteBlockFinalizeServer::startProxygenServer() {
 }
 
 
+void BiteBlockFinalizeServer::runServer() {
+    CHECK_STATE(proxygenServerInstance);
+    try {
+        LOG(info, "Starting Proxygen server");
+        proxygenServerInstance->start();
+        LOG(info, "Proxygen server started");
+    } CATCH_AND_LOG_ANY_EXCEPTION(critical, "Exception in proxygen start");
+}
+
 void BiteBlockFinalizeServer::exitProxygenServer() noexcept {
     if (!runServerThread) {
         return;
@@ -91,11 +99,4 @@ void BiteBlockFinalizeServer::exitProxygenServer() noexcept {
 }
 
 
-void BiteBlockFinalizeServer::runServer() {
-    CHECK_STATE(proxygenServerInstance);
-    try {
-        LOG(info, "Starting Proxygen server");
-        proxygenServerInstance->start();
-        LOG(info, "Proxygen server started");
-    } CATCH_AND_LOG_ANY_EXCEPTION(critical, "Exception in proxygen start");
-}
+

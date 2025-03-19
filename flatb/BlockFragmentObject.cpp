@@ -1,16 +1,13 @@
-//
-// Created by stan on 18-03-2025.
-//
 
+
+#include "common_structures_generated.h"
 #include "block_finalize_request_generated.h"
 #include "SkaleCommon.h"
 #include "FlatBufferRequest.h"
 #include "Log.h"
 #include "BlockFragmentObject.h"
 
-using namespace block_finalize;
-
-// Constructor
+using namespace skale_fb;
 
 
 BlockFragmentObject::BlockFragmentObject(uint32_t index, ptr<vector<ptr<partial_sha_hash>>> &_txTruncatedHashes,

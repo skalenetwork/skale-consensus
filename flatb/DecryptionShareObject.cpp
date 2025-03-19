@@ -10,7 +10,7 @@
 #include "FlatBufferRequest.h"
 #include "DecryptionShareObject.h"
 
-using namespace block_finalize;
+using namespace skale_fb;
 
 // Constructor
 DecryptionShareObject::DecryptionShareObject(uint32_t transactionIndex, ptr<vector<uint8_t>>& _data)

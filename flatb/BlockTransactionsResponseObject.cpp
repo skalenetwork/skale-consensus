@@ -13,7 +13,7 @@
 #include "FlatBufferRequest.h"
 
 
-using namespace block_finalize;
+using namespace skale_fb;
 
 BlockTransactionsResponseObject::BlockTransactionsResponseObject(
     std::shared_ptr<std::vector<std::vector<uint8_t> > > &_transactions) : transactions(_transactions) {

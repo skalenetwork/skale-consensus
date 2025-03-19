@@ -11,11 +11,11 @@
 #include "FlatBufferRequest.h"
 #include "BlockFinalizeRequestObject.h"
 
-using namespace block_finalize;
+using namespace skale_fb;
 
 ptr<BlockFinalizeRequestObject> BlockFinalizeRequestObject::deserializeAndVerify(
     const folly::IOBuf& _buffer) {
-    const block_finalize::BlockFinalizeRequest* request = nullptr;
+    const BlockFinalizeRequest* request = nullptr;
     VERIFY_AND_PARSE_FLATBUFFER( _buffer, BlockFinalizeRequest, request );
 
     auto result =  make_shared< BlockFinalizeRequestObject >( request->schain_id(),

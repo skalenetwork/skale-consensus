@@ -1,7 +1,4 @@
-namespace block_finalize;
-
-// BlockFinalizeRequest
-// Represents a request to finalize a block
+namespace skale_fb;
 
 table BlockTransactionsRequest {
   schain_id: uint64;
@@ -11,6 +8,5 @@ table BlockTransactionsRequest {
   proposer_index: uint64;
   transaction_indices :[uint16] (required);
 }
-
 
 root_type BlockTransactionsRequest;

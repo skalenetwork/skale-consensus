@@ -7,7 +7,7 @@ namespace folly {
 class IOBuf;
 }
 
-namespace block_finalize {
+namespace skale_fb {
 
 class BlockFinalizeRequestObject : public FlatBufferRequest {
 public:

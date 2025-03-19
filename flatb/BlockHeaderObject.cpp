@@ -14,7 +14,7 @@
 #include "Log.h"
 #include "BlockHeaderObject.h"
 
-using namespace block_finalize;
+using namespace skale_fb;
 
 
 // Constructor

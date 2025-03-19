@@ -1,9 +1,11 @@
 #pragma once
 
+#include "error_response_generated.h"
 #include "FlatBufferRequest.h"
 #include <string>
 
-namespace block_finalize {
+namespace skale_fb {
+
 
     class ErrorResponseObject {
     private:
@@ -26,7 +28,9 @@ namespace block_finalize {
         [[nodiscard]] uint64_t getLastBlockTimestampMs() const { return lastBlockTimestampMs; }
         [[nodiscard]] const std::string &getMessage() const { return message; }
 
-        static std::shared_ptr<ErrorResponseObject> deserializeAndVerify(const ErrorResponse* _fbErrorResponse) noexcept(false);
+        static std::shared_ptr<ErrorResponseObject> deserializeAndVerify(const skale_fb::ErrorResponse* _fbErrorResponse);
+
+        ptr<string> serialize();
     };
 
 }  // namespace block_finalize

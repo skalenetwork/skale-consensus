@@ -7,16 +7,18 @@
 #include "folly/init/Init.h"
 #include "folly/io/async/EventBaseManager.h"
 
-#include "flatb/block_finalize_common_structures_generated.h"
+#include "flatb/common_structures_generated.h"
 #include "flatb/block_finalize_request_generated.h"
 #include "flatb/block_finalize_response_generated.h"
 #include "flatb/block_transactions_request_generated.h"
 #include "flatb/block_transactions_response_generated.h"
 
+#include "abstracttcpserver/ConnectionStatus.h"
+
 
 using namespace proxygen;
 using namespace flatbuffers;
-using namespace block_finalize;
+using namespace skale_fb;
 
 
 enum RequestType { BLOCK_FINALIZE, BLOCK_TXS, INVALID };
@@ -35,7 +37,9 @@ public:
 
     void onError( ProxygenError err ) noexcept override;
 
-    void sendFlatBufferResponse( const std::string& response ) noexcept;
+    void sendFlatBufferSuccessResponse( const std::string& response ) noexcept;
+
+    void sendFlatBufferError(ConnectionSubStatus _substatus,std:: string _message);
 
     std::string getBlockFinalizeResponse( const folly::IOBuf& _request ) noexcept;
 
@@ -47,5 +51,7 @@ public:
 
 
     void sendHTTPError(uint32_t _errorCode, const std::string& _message) const;
+
+    void sendHTTPResponse(uint16_t _statusCode, const std::string& _statusMessage, const std::string& _body);
 };
 

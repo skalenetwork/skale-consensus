@@ -17,7 +17,7 @@
 #include "DecryptionShareObject.h"
 
 
-using namespace block_finalize;
+using namespace skale_fb;
 
 BlockFinalizeResponseObject::BlockFinalizeResponseObject(std::shared_ptr<BlockHeaderObject> &_blockHeader,
                                                          std::shared_ptr<vector<uint8_t> > &_blockSig,
