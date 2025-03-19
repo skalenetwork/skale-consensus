@@ -1,10 +1,4 @@
-//
-// Created by stan on 14-03-2025.
-//
-
-#ifndef SKALED_FLATBUFFERREQUESTHANDLER_H
-#define SKALED_FLATBUFFERREQUESTHANDLER_H
-
+#pragma once
 
 #include "proxygen/httpserver/RequestHandler.h"
 #include "proxygen/httpserver/RequestHandlerFactory.h"
@@ -55,5 +49,3 @@ public:
     void sendHTTPError(uint32_t _errorCode, const std::string& _message) const;
 };
 
-
-#endif  // SKALED_FLATBUFFERREQUESTHANDLER_H
