@@ -20,7 +20,7 @@ BlockTransactionsResponseObject::BlockTransactionsResponseObject(
     CHECK_STATE2(transactions, "Null transactions in response");
 }
 
-std::unique_ptr<BlockTransactionsResponseObject> BlockTransactionsResponseObject::deserializeAndVerify(
+ptr<BlockTransactionsResponseObject> BlockTransactionsResponseObject::deserializeAndVerify(
     const folly::IOBuf &_buffer, std::shared_ptr<BlockTransactionsRequestObject> &_request) {
     CHECK_STATE(_request);
 
@@ -41,5 +41,5 @@ std::unique_ptr<BlockTransactionsResponseObject> BlockTransactionsResponseObject
         transactions->push_back(*transactionData);
     }
 
-    return std::make_unique<BlockTransactionsResponseObject>(transactions);
+    return make_shared<BlockTransactionsResponseObject>(transactions);
 }

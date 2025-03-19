@@ -25,7 +25,7 @@ public:
     [[nodiscard]] const ptr<vector< transaction_index >>& getTransactionIndices() const { return transactionIndices; }
 
     // Deserialize function
-    static std::unique_ptr< BlockTransactionsRequestObject > deserializeAndVerify(const folly::IOBuf& _buffer,
+    static ptr< BlockTransactionsRequestObject > deserializeAndVerify(const folly::IOBuf& _buffer,
         schain_id _schainId) noexcept( false );
 
 };

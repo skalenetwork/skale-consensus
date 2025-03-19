@@ -32,7 +32,7 @@ namespace block_finalize {
                                     std::shared_ptr<BlockFragmentObject> &_blockFragment,
                                     std::shared_ptr<std::vector<ptr<DecryptionShareObject>> > &_decryptionShares) noexcept(false);
 
-        static std::unique_ptr<BlockFinalizeResponseObject> deserializeAndVerify(const folly::IOBuf &_buffer,
+        static ptr<BlockFinalizeResponseObject> deserializeAndVerify(const folly::IOBuf &_buffer,
             std::shared_ptr<BlockFinalizeRequestObject> &_request);
     };
 }

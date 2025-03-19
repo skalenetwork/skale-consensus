@@ -15,7 +15,7 @@
 
 using namespace block_finalize;
 
-unique_ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::deserializeAndVerify(
+ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::deserializeAndVerify(
     const folly::IOBuf& _buffer, schain_id _sChainId ) {
     const block_finalize::BlockTransactionsRequest* request = nullptr;
     VERIFY_AND_PARSE_FLATBUFFER( _buffer, BlockTransactionsRequest, request );
@@ -29,9 +29,8 @@ unique_ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::des
     auto transactionIndices = FlatBufferRequest::copyFbIndexVector(fbTransactionIndices);
     CHECK_STATE(transactionIndices);
 
-    auto result =  std::make_unique< BlockTransactionsRequestObject >( request->schain_id(),
+    auto result =  make_shared<BlockTransactionsRequestObject>( request->schain_id(),
         request->epoch_id(), request->block_id(), request->node_id(), request->proposer_index(),
         transactionIndices);
-    result->verify(_sChainId);
     return result;
 }

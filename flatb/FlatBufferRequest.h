@@ -11,14 +11,8 @@ namespace block_finalize {
 
     class FlatBufferRequest {
     public:
-        FlatBufferRequest(schain_id schainId, epoch_id epochId, block_id blockId, node_id nodeId,
-                          schain_index proposerIndex)
-            : schainId(schainId),
-              epochId(epochId),
-              blockId(blockId),
-              nodeId(nodeId),
-              proposerIndex(proposerIndex) {
-        }
+        FlatBufferRequest(schain_id _schainId, epoch_id epochId, block_id _blockId, node_id _nodeId,
+                          schain_index _proposerIndex);
 
     private:
         schain_id schainId;
@@ -27,8 +21,6 @@ namespace block_finalize {
         node_id nodeId;
         schain_index proposerIndex;
 
-    protected:
-        void verify(schain_id _sChainId) noexcept( false );
 
     public:
         static shared_ptr<std::vector<uint8_t> > copyFbByteVector(const flatbuffers::Vector<uint8_t> *_fbVector);

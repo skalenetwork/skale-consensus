@@ -33,7 +33,7 @@ BlockFinalizeResponseObject::BlockFinalizeResponseObject(std::shared_ptr<BlockHe
     CHECK_STATE2(_blockSig, "Null block sig in response");
 }
 
-std::unique_ptr<BlockFinalizeResponseObject> BlockFinalizeResponseObject::deserializeAndVerify(
+ptr<BlockFinalizeResponseObject> BlockFinalizeResponseObject::deserializeAndVerify(
     const folly::IOBuf &_buffer, ptr<BlockFinalizeRequestObject> &_request) {
     CHECK_STATE(_request);
 
@@ -87,6 +87,6 @@ std::unique_ptr<BlockFinalizeResponseObject> BlockFinalizeResponseObject::deseri
     }
 
 
-    return std::make_unique<BlockFinalizeResponseObject>(blockHeader, blockSig, daProofSig, blockFragment,
+    return make_shared<BlockFinalizeResponseObject>(blockHeader, blockSig, daProofSig, blockFragment,
                                                          decryptionShares);
 }

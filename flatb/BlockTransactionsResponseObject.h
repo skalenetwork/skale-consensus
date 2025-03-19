@@ -19,7 +19,7 @@ namespace block_finalize {
     public:
         BlockTransactionsResponseObject(std::shared_ptr<std::vector<std::vector<uint8_t>>> &_transactions) noexcept(false);
 
-        static std::unique_ptr<BlockTransactionsResponseObject> deserializeAndVerify(const folly::IOBuf &_buffer,
+        static ptr<BlockTransactionsResponseObject> deserializeAndVerify(const folly::IOBuf &_buffer,
             std::shared_ptr<BlockTransactionsRequestObject> &_request);
     };
 }
