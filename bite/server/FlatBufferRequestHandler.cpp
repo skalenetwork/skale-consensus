@@ -1,6 +1,3 @@
-
-
-
 #include "abstracttcpserver/ConnectionStatus.h"
 
 #include "FlatBufferRequestHandler.h"
@@ -12,36 +9,38 @@ using namespace std;
 
 constexpr uint64_t MIN_FLATBUFFER_REQUEST_LEN = 16;
 
-void FlatBufferRequestHandler::onRequest( std::unique_ptr< HTTPMessage > _headers ) noexcept {
+void FlatBufferRequestHandler::onRequest(std::unique_ptr<HTTPMessage> _headers) noexcept {
     auto requestPath = _headers->getPath();
-    if ( requestPath == "/block_finalize" ) {
+    if (requestPath == "/block_finalize") {
         requestType = RequestType::BLOCK_FINALIZE;
-    } else if ( requestPath == "/block_txs" ) {
+    } else if (requestPath == "/block_txs") {
         requestType = RequestType::BLOCK_TXS;
     } else {
         requestType = RequestType::INVALID;
     }
 }
 
-void FlatBufferRequestHandler::onBody( std::unique_ptr< folly::IOBuf > _body ) noexcept {
+void FlatBufferRequestHandler::onBody(std::unique_ptr<folly::IOBuf> _body) noexcept {
     // HTTP2 may send body in chunks, so we are accumulating
-    if ( _body ) {
-        bodyQueue.append( move( _body ) );  // Zero-copy accumulation
+    if (_body) {
+        bodyQueue.append(move(_body)); // Zero-copy accumulation
     }
 }
-
 
 
 void FlatBufferRequestHandler::onEOM() noexcept {
     string responseMessage;
     string response;
+    ConnectionSubStatus errorSubStatus = ConnectionSubStatus::CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
+    string errorMessage = "Unknown error";
+
 
     try {
-        if ( requestType == INVALID ) {
-            ResponseBuilder( downstream_ )
-                .status( 404, "Not Found" )
-                .body( "Unknown endpoint" )
-                .sendWithEOM();
+        if (requestType == INVALID) {
+            ResponseBuilder(downstream_)
+                    .status(404, "Not Found")
+                    .body("Unknown endpoint")
+                    .sendWithEOM();
             return;
         }
 
@@ -50,112 +49,126 @@ void FlatBufferRequestHandler::onEOM() noexcept {
         request->coalesce();
 
         // do sanity check
-        if ( request->empty()) {
-            ResponseBuilder( downstream_ )
-                .status( 400, "Bad Request" )
-                .body( "Bad Request: Empty FlatBuffer data" )
-                .sendWithEOM();
-            return;
+        if (request->empty()) {
+            errorSubStatus = ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_REQUEST;
+            errorMessage = "Bad Request: Empty FlatBuffer data";
+            goto send_error;
         }
 
         // Check for minimum valid FlatBuffer length (assumed 16 bytes)
-        if ( request->length() < MIN_FLATBUFFER_REQUEST_LEN ) {
-            sendFlatBufferError(ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_REQUEST,
-                "FlatBuffer request too short too parse: length: " + to_string( request->length() ) );
-            return;
+        if (request->length() < MIN_FLATBUFFER_REQUEST_LEN) {
+            errorSubStatus = ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_REQUEST;
+            errorMessage =  "FlatBuffer request too short too parse: length: " + to_string(request->length());
+            goto send_error;
         }
 
         // Due to flatbuffer format the fourth byte is always zero
-        if ( request->data()[4] != 0 ) {
-            sendHTTPError(400, "Bad Request: Corrupt FlatBuffer");
-            return;
+        if (request->data()[4] != 0) {
+            errorSubStatus = ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_REQUEST;
+            errorMessage =  "Bad Request: non-FlatBuffer format";
+            goto send_error;;
         }
 
 
         try {
-            switch ( requestType ) {
+            switch (requestType) {
                 case RequestType::BLOCK_FINALIZE: {
-                    response = getBlockFinalizeResponse( *request );
+                    response = getBlockFinalizeResponse(*request);
                     break;
                 }
                 case RequestType::BLOCK_TXS: {
-                    auto blockTransactionsRequest = getBlockTransactionsResponse( *request );
+                    auto blockTransactionsRequest = getBlockTransactionsResponse(*request);
                     break;
                 }
                 default:
-                    // we should never get here
-                        ResponseBuilder( downstream_ )
-                            .status( 500, "Internal Server Error" )
-                            .body( "Internal Server Error" )
-                            .sendWithEOM();
-                return;
+                    errorSubStatus = CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
+                    errorMessage = string(__CLASS_NAME__) + ":" + to_string(__LINE__) + "Unknown request type";
+                    goto send_error;
             }
-        } catch (Exception& _e) {
+        } catch (Exception &_e) {
             //TODO
         } catch (...) {
             //TODO
         }
 
-        sendFlatBufferSuccessResponse( response );
-    } CATCH_AND_LOG_ANY_EXCEPTION(error, "Error processing FlatBuffer request");
+        sendFlatBufferSuccessResponse(response);
+    } catch (std::exception &_e) {
+        // Something really bad happened so we could not send a response, even an error response
+        // tell client to disconnect
+        LOG(critical, "Could not send response, disconnecting client " + string( _e.what() ));
+        goto send_abort;
+    }
+    catch (...) {
+        // Something really bad happened so we could not send a response, even an error response
+        // tell client to disconnect
+        LOG(critical, "Could not send response, disconnecting client");
+        goto send_abort;
+    }
+
+send_error:
+    sendFlatBufferError(errorSubStatus, errorMessage);
+    return;
+
+send_abort:
+    downstream_->sendAbort();
+
 }
-void FlatBufferRequestHandler::sendHTTPError(uint32_t _errorCode, const string& _message) const {
-    ResponseBuilder( downstream_ )
-        .status( _errorCode, _message )
-        .body( _message)
-        .sendWithEOM();
+
+void FlatBufferRequestHandler::sendHTTPError(uint32_t _errorCode, const string &_message) const {
+    ResponseBuilder(downstream_)
+            .status(_errorCode, _message)
+            .body(_message)
+            .sendWithEOM();
 }
 
-void FlatBufferRequestHandler::sendHTTPResponse(uint16_t _statusCode, const string& _statusMessage,
-    const string& _body) {
-
-    ResponseBuilder( downstream_ )
-        .status( _statusCode, _statusMessage )
-        .header( "Content-Type", "application/octet-stream" )
-        .body( _body)
-        .sendWithEOM();
+void FlatBufferRequestHandler::sendHTTPResponse(uint16_t _statusCode, const string &_statusMessage,
+                                                const string &_body) {
+    ResponseBuilder(downstream_)
+            .status(_statusCode, _statusMessage)
+            .header("Content-Type", "application/octet-stream")
+            .body(_body)
+            .sendWithEOM();
 }
 
 
-
-void FlatBufferRequestHandler::onError( ProxygenError _err ) noexcept {
+void FlatBufferRequestHandler::onError(ProxygenError _err) noexcept {
     LOG(err, "Error in FlatBufferRequestHandler: " + to_string( _err ));
 }
 
-void FlatBufferRequestHandler::sendFlatBufferSuccessResponse( const string& response )  noexcept{
-    sendHTTPResponse(200, response, "OK" );
+void FlatBufferRequestHandler::sendFlatBufferSuccessResponse(const string &response) noexcept {
+    sendHTTPResponse(200, response, "OK");
 }
 
 void FlatBufferRequestHandler::sendFlatBufferError(ConnectionSubStatus _substatus, string _message) {
     ErrorResponseObject ero(ConnectionStatus::CONNECTION_ERROR, _substatus, 0, 0, 0,
-        _message);
+                            _message);
 
     auto fbError = ero.serialize();
 
-    ResponseBuilder( downstream_ )
-            .status( 400, _message  )
-            .body( *fbError )
+    ResponseBuilder(downstream_)
+            .status(400, _message)
+            .body(*fbError)
             .sendWithEOM();
 }
 
 
 string FlatBufferRequestHandler::getBlockFinalizeResponse(
-    const folly::IOBuf& _request ) noexcept {
+    const folly::IOBuf &_request) noexcept {
     FlatBufferBuilder builder;
     // auto msg = builder.CreateString( message );
     // auto response = CreateBlockFinalizeResponse( builder, msg );
     // builder.Finish( response );
     return string(
-        reinterpret_cast< const char* >( builder.GetBufferPointer() ), builder.GetSize() );
+        reinterpret_cast<const char *>(builder.GetBufferPointer()), builder.GetSize());
 }
 
 
-string FlatBufferRequestHandler::getBlockTransactionsResponse (
-    const folly::IOBuf& _request) noexcept {
+string FlatBufferRequestHandler::getBlockTransactionsResponse(
+    const folly::IOBuf &_request) noexcept {
     FlatBufferBuilder builder;
     // auto msg = builder.CreateString( message );
     // auto response = CreateBlockFinalizeResponse( builder, msg );
     // builder.Finish( response );
     return string(
-        reinterpret_cast< const char* >( builder.GetBufferPointer() ), builder.GetSize() );
+        reinterpret_cast<const char *>(builder.GetBufferPointer()), builder.GetSize());
 }
