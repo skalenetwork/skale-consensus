@@ -42,7 +42,6 @@
 #include "BlockFinalizeHandlerFactory.h"
 
 #include <proxygen/httpserver/HTTPServer.h>
-#include <proxygen/httpserver/ResponseBuilder.h>
 #include "BiteBlockFinalizeServer.h"
 
 BiteBlockFinalizeServer::BiteBlockFinalizeServer(Schain &_sChain) : sChain(_sChain) {

@@ -1,10 +1,4 @@
-//
-// Created by kladko on 21-02-2025.
-//
-
-#ifndef SKALED_BITEKEY_H
-#define SKALED_BITEKEY_H
-
+#pragma once
 
 #include <SkaleCommon.h>
 
@@ -14,4 +8,4 @@ class BITEKey {
     shared_ptr<vector<uint64_t> > encryptedKey;
 };
 
-#endif //SKALED_BITEKEY_H
+

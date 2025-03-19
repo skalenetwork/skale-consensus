@@ -2,8 +2,7 @@
 // Created by stan on 14-03-2025.
 //
 
-#ifndef SKALED_BLOCKFINALIZEHANDLERFACTORY_H
-#define SKALED_BLOCKFINALIZEHANDLERFACTORY_H
+#pragma once
 
 #include <proxygen/httpserver/RequestHandlerFactory.h>
 
@@ -18,4 +17,4 @@ public:
 };
 
 
-#endif  // SKALED_BLOCKFINALIZEHANDLERFACTORY_H
+

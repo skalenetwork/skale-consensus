@@ -1,7 +1,4 @@
-//
-// Created by kladko on 21-02-2025.
-//
-
+#pragma once
 
 #ifndef SKALED_BITETRANSACTION_H
 #define SKALED_BITETRANSACTION_H
@@ -52,6 +49,3 @@ public:
         return nullptr;
     }
 };
-
-
-#endif //SKALED_BITETRANSACTION_H

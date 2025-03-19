@@ -1,10 +1,4 @@
-//
-// Created by kladko on 07-03-2025.
-//
-
-#ifndef SKALED_BLOCKFINALIZESERVICEIMPL_H
-#define SKALED_BLOCKFINALIZESERVICEIMPL_H
-
+#pragma once
 
 #include <iostream>
 #include <memory>
@@ -50,7 +44,3 @@ public:
 };
 
 
-
-
-
-#endif //SKALED_BLOCKFINALIZESERVICEIMPL_H
