@@ -1,7 +1,7 @@
 #pragma once
 
-class AESKey;
 class ThresholdAESKeyDecryptionShare;
+class DecryptedAESKey;
 
 class ThresholdAESKeyDecryptionShareSet {
 public:
@@ -19,11 +19,11 @@ public:
 
     static int64_t getTotalObjects();
 
-    virtual ptr< AESKey > mergeAESKey() = 0;
+    virtual ptr< DecryptedAESKey >  mergeAESKey() = 0;
 
     virtual bool isEnough() = 0;
 
-    virtual bool addDecryptionhare( const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare ) = 0;
+    virtual bool addDecryptionShare( const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare ) = 0;
 };
 
 

@@ -7,13 +7,24 @@ protected:
     uint64_t totalDecryptors = 0;
     uint64_t requiredDecryptors = 0;
 
+    std::array< uint8_t, AES_KEY_LEN > aesKey;
+
 public:
-    DecryptedAESKey( const block_id& blockId, uint64_t _totalDecryptors, uint64_t _requiredDecryptors );
+    DecryptedAESKey( const string& _key, const block_id& blockId, uint64_t _totalDecryptors,
+        uint64_t _requiredDecryptors );
 
     [[nodiscard]] block_id getBlockId() const;
 
-    virtual string toString() = 0;
+    string toHex();
+
+    static BLAKE3Hash calculateHash( const ptr< vector< uint8_t > >& _data );
+
+    void print();
+
+
+    uint8_t at( uint32_t _position );
+
+    int compare( DecryptedAESKey& _key2 );
 
     virtual ~DecryptedAESKey();
 };
-
