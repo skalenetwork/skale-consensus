@@ -1359,6 +1359,9 @@ recursive_mutex CryptoManager::blsSignMutex;
 atomic< uint64_t > CryptoManager::blsSignTotal = 0;
 
 atomic< uint64_t > CryptoManager::blsCounter = 0;
+#ifdef BITE
+atomic< uint64_t > CryptoManager::teDecryptShareCounter = 0;
+#endif
 atomic< uint64_t > CryptoManager::ecdsaCounter = 0;
 
 void CryptoManager::addECDSASignStats( uint64_t _time ) {

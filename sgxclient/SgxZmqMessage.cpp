@@ -33,6 +33,10 @@
 #include "BLSSignRspMessage.h"
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
+#ifdef BITE
+#include "TEDecryptShareReqMessage.h"
+#include "TEDecryptShareRspMessage.h"
+#endif
 #include "SgxZmqClient.h"
 #include "sgxclient/SgxZmqMessage.h"
 
@@ -104,7 +108,13 @@ shared_ptr< SgxZmqMessage > SgxZmqMessage::buildRequest(
         return make_shared< BLSSignReqMessage >( _d );
     } else if ( _type == SgxZmqMessage::ECDSA_SIGN_REQ ) {
         return make_shared< ECDSASignReqMessage >( _d );
-    } else {
+    }
+#ifdef BITE
+    else if ( _type == SgxZmqMessage::TE_DECRYPT_SHARE_REQ ) {
+        return make_shared< TEDecryptShareReqMessage >( _d );
+    }
+#endif
+    else {
         CHECK_STATE2( false, "Incorrect zmq message type: " + string( _type ) );
     }
 }
@@ -115,7 +125,13 @@ shared_ptr< SgxZmqMessage > SgxZmqMessage::buildResponse(
         return make_shared< BLSSignRspMessage >( _d );
     } else if ( _type == SgxZmqMessage::ECDSA_SIGN_RSP ) {
         return make_shared< ECDSASignRspMessage >( _d );
-    } else {
+    }
+#ifdef BITE
+    else if ( _type == SgxZmqMessage::TE_DECRYPT_SHARE_RSP ) {
+        return make_shared< TEDecryptShareRspMessage >( _d );
+    }
+#endif
+    else {
         BOOST_THROW_EXCEPTION( InvalidStateException(
             "Incorrect zmq message request type: " + string( _type ), __CLASS_NAME__ ) );
     }

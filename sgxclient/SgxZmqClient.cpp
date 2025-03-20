@@ -32,6 +32,11 @@
 #include "BLSSignRspMessage.h"
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
+#ifdef BITE
+#include "TEDecryptShareReqMessage.h"
+#include "TEDecryptShareRspMessage.h"
+#endif
+
 #include "Log.h"
 #include "SgxZmqClient.h"
 #include "SkaleCommon.h"
@@ -343,6 +348,27 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
 
     return result->getSigShare();
 }
+
+
+#ifdef BITE
+string SgxZmqClient::teDecryptShare( int _base, const string& _keyShareName,
+    const string& _hexEncodedTEEncryptedAES256Key, bool _throwExceptionOnTimeout ) {
+    Json::Value p;
+    p["type"] = SgxZmqMessage::TE_DECRYPT_SHARE_REQ;
+    p["keyShareName"] = _keyShareName;
+    //  TODOBITE
+    // add TE fields to JSON object (see above)
+    // END TODOBITE
+
+    static string description( "TE decrypt share" );
+    auto result = dynamic_pointer_cast< TEDecryptShareRspMessage >(
+        doRequestReply( p, description, _throwExceptionOnTimeout ) );
+    CHECK_STATE( result );
+
+    return result->getTEAES256KeyDecryptShare();
+}
+#endif
+
 
 string SgxZmqClient::ecdsaSignMessageHash( int base, const std::string& keyName,
     const std::string& messageHash, bool _throwExceptionOnTimeout ) {

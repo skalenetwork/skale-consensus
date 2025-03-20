@@ -94,6 +94,13 @@ class CryptoManager {
     static atomic< uint64_t > blsSignTotal;
 
     static atomic< uint64_t > blsCounter;
+#ifdef BITE
+    static list< uint64_t > teDecryptShareTimes;
+    static recursive_mutex teDecryptShareMutex;
+    static atomic< uint64_t > teDecryptShareTotal;
+
+    static atomic< uint64_t > teDecryptShareCounter;
+#endif
     static atomic< uint64_t > ecdsaCounter;
 
 

@@ -53,6 +53,10 @@ public:
     static constexpr const char* BLS_SIGN_RSP = "BLSSignRsp";
     static constexpr const char* ECDSA_SIGN_REQ = "ECDSASignReq";
     static constexpr const char* ECDSA_SIGN_RSP = "ECDSASignRsp";
+#ifdef BITE
+    static constexpr const char* TE_DECRYPT_SHARE_REQ = "TEDecryptShareReq";
+    static constexpr const char* TE_DECRYPT_SHARE_RSP = "TEDecryptShareRsp";
+#endif
 
     explicit SgxZmqMessage( shared_ptr< rapidjson::Document >& _d );
     string getStringRapid( const char* _name );

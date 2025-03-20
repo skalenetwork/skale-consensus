@@ -35,6 +35,7 @@
 #define ZMQ_NO_SIG_IN_MESSAGE -95
 #define ZMQ_NO_CERT_IN_MESSAGE -96
 #define ZMQ_COULD_NOT_VERIFY_SIG -97
+#define ZMQ_COULD_NOT_DECRYPT_SHARE -98
 
 
 #include <openssl/pem.h>
@@ -124,8 +125,14 @@ public:
     string blsSignMessageHash( const string& _keyShareName, const string& _messageHash, int _t,
         int _n, bool _throwExceptionOnTimeout );
 
+#ifdef BITE
+    string teDecryptShare( int _base, const string& _keyName,
+        const string& _hexEncodedTEEncryptedAES256Key, bool _throwExceptionOnTimeout );
+#endif
+
     string ecdsaSignMessageHash( int _base, const string& _keyName, const string& _messageHash,
         bool _throwExceptionOnTimeout );
+
 
     void exit();
 
