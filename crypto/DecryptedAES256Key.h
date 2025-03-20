@@ -8,7 +8,7 @@ protected:
     uint64_t requiredNodes = 0;
 
 public:
-    DecryptedAES256Key( const block_id& blockId, uint64_t _totalNodes, uint64_t _requiredNodes );
+    DecryptedAES256Key( const block_id& blockId, uint64_t _totalDecryptors, uint64_t _requiredDecryptors );
 
     [[nodiscard]] block_id getBlockId() const;
 

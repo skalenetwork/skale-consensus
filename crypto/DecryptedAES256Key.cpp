@@ -12,5 +12,5 @@ block_id DecryptedAES256Key::getBlockId() const {
 DecryptedAES256Key::~DecryptedAES256Key() {}
 
 DecryptedAES256Key::DecryptedAES256Key(
-    const block_id& blockId, uint64_t _totalNodes, uint64_t _requiredNodes )
-    : blockId( blockId ), totalNodes( _totalNodes ), requiredNodes( _requiredNodes ) {}
+    const block_id& blockId, uint64_t _totalDecryptors, uint64_t _requiredDecryptors )
+    : blockId( blockId ), totalNodes( _totalDecryptors ), requiredNodes( _requiredDecryptors ) {}

@@ -10,8 +10,8 @@
 
 
 MockupDecryptedAES256Key::MockupDecryptedAES256Key(
-    const string& _s, block_id _blockID, size_t _totalNodes, size_t _requiredNodes )
-    : DecryptedAES256Key( _blockID, _totalNodes, _requiredNodes ) {
+    const string& _s, block_id _blockID, size_t _totalDecryptors, size_t _requiredDecryptors )
+    : DecryptedAES256Key( _blockID, _totalDecryptors, _requiredDecryptors ) {
     s = _s;
 }
 

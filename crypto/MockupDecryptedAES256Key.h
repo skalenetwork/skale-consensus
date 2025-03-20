@@ -7,7 +7,7 @@ class MockupDecryptedAES256Key : public DecryptedAES256Key {
 
 public:
     MockupDecryptedAES256Key(
-        const string& _s, block_id _blockID, size_t _totalNodes, size_t _requiredNodes );
+        const string& _s, block_id _blockID, size_t _totalDecryptors, size_t _requiredDecryptors );
 
     string toString() override;
 
