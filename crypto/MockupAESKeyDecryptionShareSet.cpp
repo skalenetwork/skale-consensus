@@ -64,11 +64,11 @@ bool MockupAESKeyDecryptionShareSet::addDecryptionShare(
         return false;
     }
 
-    auto mss = dynamic_pointer_cast< MockupAESKeyDecryptionShare >( _decryptionShare );
+    auto ds = dynamic_pointer_cast< MockupAESKeyDecryptionShare >( _decryptionShare );
 
-    CHECK_STATE( mss );
+    CHECK_STATE( ds );
 
-    decryptionShares[( uint64_t ) _decryptionShare->getDecryptorIndex()] = mss;
+    decryptionShares[( uint64_t ) _decryptionShare->getDecryptorIndex()] = ds;
 
     return true;
 }

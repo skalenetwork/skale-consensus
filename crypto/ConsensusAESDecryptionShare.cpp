@@ -40,7 +40,7 @@ ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare( const string& _d
 
 
 ptr< TEDecryptionShare > ConsensusAESKeyDecryptionShare::getTEDecryptionShare() const {
-    CHECK_STATE( this->aesKeyDecryptionShare );
+    CHECK_STATE( aesKeyDecryptionShare );
     return aesKeyDecryptionShare;
 }
 
