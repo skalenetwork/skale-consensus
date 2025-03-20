@@ -5,18 +5,18 @@
 #include "thirdparty/json.hpp"
 
 
-#include "MockupDecryptedAES256Key.h"
+#include "MockupDecryptedAESKey.h"
 #include "ThresholdSignature.h"
 
 
-MockupDecryptedAES256Key::MockupDecryptedAES256Key(
+MockupDecryptedAESKey::MockupDecryptedAESKey(
     const string& _s, block_id _blockID, size_t _totalDecryptors, size_t _requiredDecryptors )
-    : DecryptedAES256Key( _blockID, _totalDecryptors, _requiredDecryptors ) {
+    : DecryptedAESKey( _blockID, _totalDecryptors, _requiredDecryptors ) {
     s = _s;
 }
 
 
-string MockupDecryptedAES256Key::toString() {
+string MockupDecryptedAESKey::toString() {
     CHECK_STATE( s != "" );
     return s;
 };

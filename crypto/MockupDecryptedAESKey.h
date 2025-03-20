@@ -1,12 +1,12 @@
 #pragma once
 
-#include "DecryptedAES256Key.h"
+#include "DecryptedAESKey.h"
 
-class MockupDecryptedAES256Key : public DecryptedAES256Key {
+class MockupDecryptedAESKey : public DecryptedAESKey {
     string s;
 
 public:
-    MockupDecryptedAES256Key(
+    MockupDecryptedAESKey(
         const string& _s, block_id _blockID, size_t _totalDecryptors, size_t _requiredDecryptors );
 
     string toString() override;
