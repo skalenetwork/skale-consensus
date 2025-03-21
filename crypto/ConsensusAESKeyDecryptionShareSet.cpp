@@ -24,11 +24,11 @@
 #include "Log.h"
 #include "SkaleCommon.h"
 
-#include "ConsensusBLSSignature.h"
+
 
 #include "bls_include.h"
 #include "libBLS/threshold_encryption/TEDecryptSet.h"
-#include "exceptions/FatalError.h"
+#include "DecryptedAESKey.h"
 
 
 #include "ConsensusAESKeyDecryptionShare.h"
@@ -39,35 +39,37 @@
 using namespace std;
 
 
-ConsensusAESKeyDecryptionShareSet( block_id _blockId, size_t _totalDecryptors, size_t _requiredDecryptors )
-    : ThresholdAESKeyDecryptionShareSet( _blockId, TEDecryptSet, TEDecryptSet ) {};
+ConsensusAESKeyDecryptionShareSet::ConsensusAESKeyDecryptionShareSet(
+    block_id _blockId, size_t _totalDecryptors, size_t _requiredDecryptors )
+    : ThresholdAESKeyDecryptionShareSet( _blockId, _totalDecryptors, _requiredDecryptors ) {};
 
 ConsensusAESKeyDecryptionShareSet::~ConsensusAESKeyDecryptionShareSet() = default;
 
 
 ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::mergeAESKey() {
+    LOCK( decryptionSharesLock )
 
-        LOCK( decryptionSharesLock )
+    CHECK_STATE( isEnough() );
 
-        CHECK_STATE(isEnough());
+    uint processedShares = 0;
+    TEDecryptSet decryptSet( requiredDecryptors, totalDecryptors );
 
-        uint processedShares = 0;
-        TEDecryptSet decryptSet(requiredDecryptors, totalDecryptors);
-
-        for ( auto&& item : decryptionShares ) {
-            CHECK_STATE( item.second );
-            decryptSet.addDecryptShare(item.second->getTEDecryptionShare());
-            processedShares++;
-            if (processedShares == requiredDecryptors) {
-                break;
-            }
+    for ( auto&& item : decryptionShares ) {
+        CHECK_STATE( item.second );
+        decryptSet.addDecryptShare( *item.second->getTEDecryptionShare() );
+        processedShares++;
+        if ( processedShares == requiredDecryptors ) {
+            break;
         }
-        CHECK_STATE( decryptSet.canMerge());
+    }
+    CHECK_STATE( decryptSet.canMerge() );
 
-        auto key = decryptSet.
+    string key;
 
-        return make_shared< DecryptedAESKey >( key , blockId, totalDecryptors, requiredDecryptors );
+    //auto key =
+      //  decryptSet.
 
+    return make_shared< DecryptedAESKey >( key, blockId, totalDecryptors, requiredDecryptors );
 }
 
 bool ConsensusAESKeyDecryptionShareSet::isEnough() {
@@ -79,7 +81,7 @@ bool ConsensusAESKeyDecryptionShareSet::isEnough() {
 
 
 bool ConsensusAESKeyDecryptionShareSet::addDecryptionShare(
-    const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare )  {
+    const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare ) {
     CHECK_ARGUMENT( _decryptionShare );
 
     LOCK( decryptionSharesLock )
@@ -96,4 +98,6 @@ bool ConsensusAESKeyDecryptionShareSet::addDecryptionShare(
     CHECK_STATE( ds );
 
     decryptionShares[( uint64_t ) _decryptionShare->getDecryptorIndex()] = ds;
+
+    return true;
 }
