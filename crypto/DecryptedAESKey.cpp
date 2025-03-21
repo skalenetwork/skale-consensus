@@ -13,7 +13,8 @@ block_id DecryptedAESKey::getBlockId() const {
 
 DecryptedAESKey::~DecryptedAESKey() {}
 
-DecryptedAESKey::DecryptedAESKey( const string& _key, const block_id& blockId,
+DecryptedAESKey::DecryptedAESKey( const string& _key, const block_id blockId,
+    transaction_index _transactionIndex,
     uint64_t _totalDecryptors, uint64_t _requiredDecryptors )
     : blockId( blockId ),
       totalDecryptors( _totalDecryptors ),

@@ -14,12 +14,13 @@ class ConsensusAESKeyDecryptionShareSet : public ThresholdAESKeyDecryptionShareS
     recursive_mutex decryptionSharesLock;
 
 public:
-
-    ConsensusAESKeyDecryptionShareSet( block_id _blockId, size_t _totalDecryptors, size_t _requiredDecryptors );
+    ConsensusAESKeyDecryptionShareSet( block_id _blockId, transaction_index _transactionIndex,
+        size_t _totalDecryptors, size_t _requiredDecryptors );
 
     ptr< DecryptedAESKey > mergeAESKey() override;
 
-    virtual bool addDecryptionShare( const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare ) override;
+    virtual bool addDecryptionShare(
+        const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare ) override;
 
 
     bool isEnough() override;

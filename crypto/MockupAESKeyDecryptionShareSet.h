@@ -16,7 +16,8 @@ class MockupAESKeyDecryptionShareSet : public ThresholdAESKeyDecryptionShareSet 
     recursive_mutex decryptionSharesLock;
 
 public:
-    MockupAESKeyDecryptionShareSet( block_id _blockId, size_t _totalDecryptors, size_t _requiredDecryptors );
+    MockupAESKeyDecryptionShareSet( block_id _blockId, transaction_index _transactionIndex,
+        size_t _totalDecryptors, size_t _requiredDecryptors );
 
     ptr< DecryptedAESKey > mergeAESKey();
 

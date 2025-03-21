@@ -5,10 +5,12 @@ class DecryptedAESKey;
 
 class ThresholdAESKeyDecryptionShareSet {
 public:
-    ThresholdAESKeyDecryptionShareSet( block_id _blockId, uint64_t _totalDecryptors, uint64_t _requiredDecryptors );
+    ThresholdAESKeyDecryptionShareSet( block_id _blockId,
+        transaction_index _transactionIndex, uint64_t _totalDecryptors, uint64_t _requiredDecryptors );
 
 protected:
     block_id blockId = 0;
+    transaction_index transactionIndex = 0;
     uint64_t totalDecryptors = 0;
     uint64_t requiredDecryptors = 0;
 

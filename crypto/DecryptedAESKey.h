@@ -10,7 +10,8 @@ protected:
     std::array< uint8_t, AES_KEY_LEN > aesKey;
 
 public:
-    DecryptedAESKey( const string& _key, const block_id& blockId, uint64_t _totalDecryptors,
+    DecryptedAESKey( const string& _key, const block_id _blockId,
+        const transaction_index _transactionIndex, uint64_t _totalDecryptors,
         uint64_t _requiredDecryptors );
 
     [[nodiscard]] block_id getBlockId() const;

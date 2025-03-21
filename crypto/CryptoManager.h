@@ -47,6 +47,8 @@ class ThresholdSigShare;
 
 class BlockProposal;
 
+class EncryptedTransactionDataField;
+
 class ThresholdSignature;
 
 class StubClient;
@@ -179,6 +181,12 @@ class CryptoManager {
 
     ptr< ThresholdSigShare > signSigShare(
         BLAKE3Hash& _hash, block_id _blockId, bool _forceMockup );
+
+#ifdef BITE
+    ptr< ThresholdSigShare > decryptAESKeyShares(
+        ptr<vector<ptr<EncryptedTransactionDataField>>>& _encryptedTransactionDataField, block_id _blockId,
+        bool _forceMockup );
+#endif
 
     ptr< ThresholdSigShare > signDAProofSigShare(
         BLAKE3Hash& _hash, block_id _blockId, uint64_t _timestamp, bool _forceMockup );

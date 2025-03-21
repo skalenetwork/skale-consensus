@@ -25,7 +25,6 @@
 #include "SkaleCommon.h"
 
 
-
 #include "bls_include.h"
 #include "libBLS/threshold_encryption/TEDecryptSet.h"
 #include "DecryptedAESKey.h"
@@ -39,9 +38,10 @@
 using namespace std;
 
 
-ConsensusAESKeyDecryptionShareSet::ConsensusAESKeyDecryptionShareSet(
-    block_id _blockId, size_t _totalDecryptors, size_t _requiredDecryptors )
-    : ThresholdAESKeyDecryptionShareSet( _blockId, _totalDecryptors, _requiredDecryptors ) {};
+ConsensusAESKeyDecryptionShareSet::ConsensusAESKeyDecryptionShareSet( block_id _blockId,
+    transaction_index _transactionIndex, size_t _totalDecryptors, size_t _requiredDecryptors )
+    : ThresholdAESKeyDecryptionShareSet(
+          _blockId, _transactionIndex, _totalDecryptors, _requiredDecryptors ) {};
 
 ConsensusAESKeyDecryptionShareSet::~ConsensusAESKeyDecryptionShareSet() = default;
 
@@ -66,10 +66,11 @@ ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::mergeAESKey() {
 
     string key;
 
-    //auto key =
-      //  decryptSet.
+    // auto key =
+    //   decryptSet.
 
-    return make_shared< DecryptedAESKey >( key, blockId, totalDecryptors, requiredDecryptors );
+    return make_shared< DecryptedAESKey >(
+        key, blockId, transactionIndex, totalDecryptors, requiredDecryptors );
 }
 
 bool ConsensusAESKeyDecryptionShareSet::isEnough() {
