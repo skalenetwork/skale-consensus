@@ -33,7 +33,14 @@
 
 #include "datastructures/DataStructure.h"
 
+
+
 class BLAKE3Hash;
+
+
+#ifdef BITE
+class BITEDataField;
+#endif
 
 
 class Transaction : public DataStructure {
@@ -46,6 +53,9 @@ class Transaction : public DataStructure {
     BLAKE3Hash hash;
 
     ptr< partial_sha_hash > partialHash = nullptr;
+
+
+    bool containsBiteMagic();
 
 
 public:
@@ -76,4 +86,21 @@ public:
 
     static ptr< Transaction > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
         boost::random::uniform_int_distribution<>& _ubyte );
+
+#ifdef BITE
+#include "node/ConsensusInterface.h"
+
+    enum BITEStatus {
+        UNKNOWN = 0,
+        BITE_TRANSACTION = 1,
+        NON_BITE_TRANSACTION = 2
+    };
+
+    std::atomic<BITEStatus> biteStatus = BITEStatus::UNKNOWN;
+    ptr<BITEDataField> biteDataField;
+
+    // this returns nullptr for non-BITE transactions
+    ptr<BITEDataField> getBITEData(const std::vector<uint8_t> & _dataField);
+#endif
+
 };

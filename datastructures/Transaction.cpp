@@ -37,6 +37,12 @@
 #include "crypto/BLAKE3Hash.h"
 
 
+#ifdef  BITE
+#include <boost/algorithm/searching/boyer_moore.hpp>
+#include <folly/Range.h>
+#include "bite/BITEKey.h"
+#endif
+
 #include "Transaction.h"
 
 
@@ -167,4 +173,39 @@ ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::rando
 
 
     return Transaction::deserialize( sample, 0, sample->size(), false );
+}
+
+#ifdef BITE
+
+
+
+
+// High-performance function using boyer_moore algorithm for match
+bool Transaction::containsBiteMagic() {
+        CHECK_STATE(data);
+        if (data->size() < BITE_MAGIC_SIZE) return false;
+        // Use static searcher for precompiled Boyer-Moore
+        static const boost::algorithm::boyer_moore<const uint8_t*> searcher(
+            BITE_MAGIC_AS_BYTE_ARRAY,
+            BITE_MAGIC_AS_BYTE_ARRAY + BITE_MAGIC_SIZE
+        );
+        const auto it = searcher(data->data() , data->data()  + data->size() );
+        return it.first != data->data() + data->size() ;
+}
+
+
+ptr< BITEDataField > Transaction::getBITEData( const vector< uint8_t >& _dataField ) {
+    if (biteStatus == BITEStatus::UNKNOWN) {
+        // fast check that it is not BITE
+        if (!containsBiteMagic()) {
+            biteStatus == BITEStatus::NON_BITE_TRANSACTION;
+            return nullptr;
+        }
+
+        // now we know that we contain BITE magic. This means we will need to parse RL
+
+    }
+
+    return nullptr;
 };
+#endif

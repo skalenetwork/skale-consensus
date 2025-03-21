@@ -43,6 +43,15 @@ enum consensus_engine_status {
 };
 
 
+#ifdef BITE
+constexpr uint64_t BITE_MAGIC_SIZE = 16;
+constexpr string_view BITE_MAGIC_AS_STRING = "F3A9C7B1E4D5F28C7B1E9A3F5D2C8B0";
+constexpr uint8_t BITE_MAGIC_AS_BYTE_ARRAY[BITE_MAGIC_SIZE] = {0xF3, 0xA9, 0xC7, 0xB1, 0xE4, 0xD5, 0xF2, 0x8C, 0x7B, 0x1E,
+    0x9A, 0x3F, 0x5D, 0x2C, 0x8B, 0x0};
+#endif
+
+
+
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
         256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
 
