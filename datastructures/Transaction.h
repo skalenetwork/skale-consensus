@@ -40,8 +40,8 @@ class BLAKE3Hash;
 
 #ifdef BITE
 class BITEDataField;
+class ParsedEthTransaction;
 #endif
-
 
 class Transaction : public DataStructure {
     bool haveHash = false;
@@ -54,18 +54,15 @@ class Transaction : public DataStructure {
 
     ptr< partial_sha_hash > partialHash = nullptr;
 
-
-    bool containsBiteMagic();
-
-
 public:
     Transaction( const ptr< vector< uint8_t > >& _data, bool _includesPartialHash );
 
+    void validate();
 
     uint64_t getSerializedSize( bool _writePartialHash );
 
 
-    ptr< vector< uint8_t > > getData() const;
+    [[nodiscard]] ptr< vector< uint8_t > > getData() const;
 
 
     void serializeInto( const ptr< vector< uint8_t > >& _out, bool _writePartialHash );
@@ -75,7 +72,7 @@ public:
 
     ptr< partial_sha_hash > getPartialHash();
 
-    virtual ~Transaction();
+    ~Transaction() override;
 
 
     static ptr< Transaction > deserialize( const ptr< vector< uint8_t > >& _data,
@@ -90,17 +87,12 @@ public:
 #ifdef BITE
 #include "node/ConsensusInterface.h"
 
-    enum BITEStatus {
-        UNKNOWN = 0,
-        BITE_TRANSACTION = 1,
-        NON_BITE_TRANSACTION = 2
-    };
+    void parseAndValidate();
 
-    std::atomic<BITEStatus> biteStatus = BITEStatus::UNKNOWN;
-    ptr<BITEDataField> biteDataField;
+    ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
 
     // this returns nullptr for non-BITE transactions
-    ptr<BITEDataField> getBITEData(const std::vector<uint8_t> & _dataField);
+    ptr<BITEDataField> getBITEDataField();
 #endif
 
 };

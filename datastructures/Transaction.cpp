@@ -22,6 +22,7 @@
 */
 
 
+
 #define BOOST_PENDING_INTEGER_LOG2_HPP
 #include <boost/integer/integer_log2.hpp>
 #include <boost/random/mersenne_twister.hpp>
@@ -38,9 +39,8 @@
 
 
 #ifdef  BITE
-#include <boost/algorithm/searching/boyer_moore.hpp>
-#include <folly/Range.h>
-#include "bite/BITEKey.h"
+#include "rlp/ParsedEthTransaction.h"
+#include "bite/BITEDataFiled.h"
 #endif
 
 #include "Transaction.h"
@@ -177,35 +177,23 @@ ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::rando
 
 #ifdef BITE
 
+void Transaction::parseAndValidate() {
 
-
-
-// High-performance function using boyer_moore algorithm for match
-bool Transaction::containsBiteMagic() {
-        CHECK_STATE(data);
-        if (data->size() < BITE_MAGIC_SIZE) return false;
-        // Use static searcher for precompiled Boyer-Moore
-        static const boost::algorithm::boyer_moore<const uint8_t*> searcher(
-            BITE_MAGIC_AS_BYTE_ARRAY,
-            BITE_MAGIC_AS_BYTE_ARRAY + BITE_MAGIC_SIZE
-        );
-        const auto it = searcher(data->data() , data->data()  + data->size() );
-        return it.first != data->data() + data->size() ;
+    // thread safe
+    auto pt = std::atomic_load(&parsedAndValidatedEthTransaction );
+    if (pt)
+        return;
+    pt = ParsedEthTransaction::parse( *data);
+    CHECK_STATE(pt)
+    std::atomic_store(&parsedAndValidatedEthTransaction, pt );
 }
 
 
-ptr< BITEDataField > Transaction::getBITEData( const vector< uint8_t >& _dataField ) {
-    if (biteStatus == BITEStatus::UNKNOWN) {
-        // fast check that it is not BITE
-        if (!containsBiteMagic()) {
-            biteStatus == BITEStatus::NON_BITE_TRANSACTION;
-            return nullptr;
-        }
+ptr< BITEDataField > Transaction::getBITEDataField() {
+    parseAndValidate();
+    auto pt = std::atomic_load(&parsedAndValidatedEthTransaction )->getTransactionDataField();
 
-        // now we know that we contain BITE magic. This means we will need to parse RL
+    return BITEDataField::createIfMagicMatches(pt);
 
-    }
-
-    return nullptr;
 };
 #endif
