@@ -136,7 +136,11 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         } else {
             stateRootSample++;
             stateRoot = 7;
+#ifdef BITE
+            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactionsBITE(needMax);
+#else
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(needMax);
+#endif
         }
 
         auto finishTime = Time::getCurrentTimeMs();

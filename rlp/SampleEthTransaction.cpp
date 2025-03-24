@@ -266,11 +266,8 @@ ptr< vector< uint8_t > > SampleEthTransaction::generateSampleTx(bool _isByte) {
         currentTx.data = *biteDataField.getSerializedData();
     }
 
-    std::cout << "Signed Transaction: ";
     auto encodedTx = signAndEncodeTx( currentTx);
     CHECK_STATE( encodedTx );
-    for ( auto b : *encodedTx )
-        std::printf( "%02x", b );
 
     return encodedTx;
 }
