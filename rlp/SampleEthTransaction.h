@@ -42,6 +42,7 @@ class SampleEthTransaction {
 public:
 
     static ptr<vector<uint8_t>> generateSampleTx();
-    
 
+
+    static void uint64toVec( uint64_t v_value, vector< uint8_t >& v_vec );
 };
