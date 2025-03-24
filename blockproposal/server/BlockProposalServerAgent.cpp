@@ -79,6 +79,10 @@
 #include "headers/SubmitDAProofResponseHeader.h"
 
 
+#ifdef BITE
+#include "bite/BiteManager.h"
+#endif
+
 #include "BlockProposalServerAgent.h"
 #include "BlockProposalWorkerThreadPool.h"
 #include "crypto/ConsensusBLSSigShare.h"
@@ -417,6 +421,23 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processP
                 CONNECTION_ERROR, CONNECTION_SIGNATURE_DID_NOT_VERIFY );
             goto err;
         }
+
+#ifdef BITE
+        try {
+            auto subStatus =
+                getSchain()->getBiteManager()->verifyAndDecryptProposalTransactions( proposal );
+            if ( subStatus != ConnectionSubStatus::CONNECTION_OK ) {
+                finalResponseHeader =
+                    make_shared< FinalProposalResponseHeader >( CONNECTION_ERROR, subStatus );
+                goto err;
+            }
+        } catch ( ... ) {
+            finalResponseHeader = make_shared< FinalProposalResponseHeader >(
+                CONNECTION_ERROR, CONNECTION_ERROR_CANT_PROCESS_PROPOSAL_TRANSACTIONS );
+            goto err;
+        }
+#endif
+
 
         finalResponseHeader = createFinalResponseHeader( proposal );
 

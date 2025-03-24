@@ -122,7 +122,11 @@ BlockProposal::BlockProposal( schain_id _sChainId, node_id _proposerNodeId, bloc
     }
 
 
+#ifdef BITE
+    CHECK_STATE( timeStamp > MODERN_TIME || _proposerIndex == 0)
+#else
     CHECK_STATE( timeStamp > MODERN_TIME );
+#endif
 
     transactionCount = transactionList->getItems()->size();
     calculateHash();
