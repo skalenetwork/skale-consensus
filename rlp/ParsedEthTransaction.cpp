@@ -2,6 +2,349 @@
 
 #include "ParsedEthTransaction.h"
 
+
+#include <openssl/evp.h>
+#include <openssl/ec.h>
+#include <openssl/ecdsa.h>
+#include <openssl/obj_mac.h>
+#include <openssl/bn.h>
+#include <iostream>
+#include <vector>
+#include <random>
+#include <cstring>
+#include <variant>
+#include <optional>
+#include <sstream>
+#include <array>
+
+using uint256 = std::vector<uint8_t>;
+
+// --- Transaction Types ---
+
+struct LegacyTx {
+    uint256 nonce;
+    uint256 gasPrice;
+    uint256 gasLimit;
+    std::vector<uint8_t> to; // 20 bytes
+    uint256 value;
+    std::vector<uint8_t> data;
+};
+
+struct AccessListEntry {
+    std::vector<uint8_t> address; // 20 bytes
+    std::vector<std::vector<uint8_t>> storageKeys; // 32-byte keys
+};
+
+using AccessList = std::vector<AccessListEntry>;
+
+struct EIP2930Tx {
+    uint256 chainId;
+    uint256 nonce;
+    uint256 gasPrice;
+    uint256 gasLimit;
+    std::vector<uint8_t> to;
+    uint256 value;
+    std::vector<uint8_t> data;
+    AccessList accessList;
+};
+
+struct EIP1559Tx {
+    uint256 chainId;
+    uint256 nonce;
+    uint256 maxPriorityFeePerGas;
+    uint256 maxFeePerGas;
+    uint256 gasLimit;
+    std::vector<uint8_t> to;
+    uint256 value;
+    std::vector<uint8_t> data;
+    AccessList accessList;
+};
+
+struct EIP4844Tx {
+    uint256 chainId;
+    uint256 nonce;
+    uint256 maxPriorityFeePerGas;
+    uint256 maxFeePerGas;
+    uint256 gasLimit;
+    std::vector<uint8_t> to;
+    uint256 value;
+    std::vector<uint8_t> data;
+    AccessList accessList;
+    uint256 maxFeePerBlobGas;
+    std::vector<std::vector<uint8_t>> blobVersionedHashes;
+};
+
+using EthereumTx = std::variant<LegacyTx, EIP2930Tx, EIP1559Tx, EIP4844Tx>;
+
+// --- Helpers ---
+
+std::vector<uint8_t> generate_private_key() {
+    std::random_device rd;
+    std::vector<uint8_t> priv_key(32);
+    for (int i = 0; i < 32; ++i) {
+        priv_key[i] = rd() % 256;
+    }
+    return priv_key;
+}
+
+std::vector<uint8_t> keccak256(const std::vector<uint8_t>& data) {
+    std::vector<uint8_t> hash(32);
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(ctx, EVP_sha3_256(), NULL);
+    EVP_DigestUpdate(ctx, data.data(), data.size());
+    EVP_DigestFinal_ex(ctx, hash.data(), NULL);
+    EVP_MD_CTX_free(ctx);
+    return hash;
+}
+
+std::vector<uint8_t> hash_transaction(const std::vector<uint8_t>& tx) {
+    return keccak256(tx);
+}
+
+void rlp_encode_uint256(std::vector<uint8_t>& out, const uint256& value) {
+    size_t start = 0;
+    while (start < value.size() && value[start] == 0) ++start;
+    size_t len = value.size() - start;
+    if (len == 0) {
+        out.push_back(0x80);
+        return;
+    }
+    if (len == 1 && value[start] < 0x80) {
+        out.push_back(value[start]);
+    } else {
+        out.push_back(0x80 + len);
+        out.insert(out.end(), value.begin() + start, value.end());
+    }
+}
+
+
+void rlp_encode_bytes(std::vector<uint8_t>& out, const std::vector<uint8_t>& data) {
+    if (data.size() == 1 && data[0] < 0x80) {
+        out.push_back(data[0]);
+        return;
+    }
+    if (data.size() < 56) {
+        out.push_back(0x80 + data.size());
+    } else {
+        std::vector<uint8_t> len;
+        size_t sz = data.size();
+        while (sz) {
+            len.insert(len.begin(), static_cast<uint8_t>(sz & 0xFF));
+            sz >>= 8;
+        }
+        out.push_back(0xb7 + len.size());
+        out.insert(out.end(), len.begin(), len.end());
+    }
+    out.insert(out.end(), data.begin(), data.end());
+}
+
+void rlp_encode_list(std::vector<uint8_t>& out, const std::vector<std::vector<uint8_t>>& elements) {
+    std::vector<uint8_t> payload;
+    for (const auto& e : elements) {
+        payload.insert(payload.end(), e.begin(), e.end());
+    }
+    if (payload.size() < 56) {
+        out.push_back(0xc0 + payload.size());
+    } else {
+        std::vector<uint8_t> len;
+        size_t sz = payload.size();
+        while (sz) {
+            len.insert(len.begin(), static_cast<uint8_t>(sz & 0xFF));
+            sz >>= 8;
+        }
+        out.push_back(0xf7 + len.size());
+        out.insert(out.end(), len.begin(), len.end());
+    }
+    out.insert(out.end(), payload.begin(), payload.end());
+}
+
+std::vector<uint8_t> rlp_encode(const EthereumTx& tx) {
+    std::vector<std::vector<uint8_t>> fields;
+    std::visit([&](auto&& t) {
+        using T = std::decay_t<decltype(t)>;
+        std::vector<uint8_t> tmp;
+        if constexpr (std::is_same_v<T, LegacyTx>) {
+            rlp_encode_uint256(tmp, t.nonce); fields.push_back(tmp); tmp.clear();
+            rlp_encode_uint256(tmp, t.gasPrice); fields.push_back(tmp); tmp.clear();
+            rlp_encode_uint256(tmp, t.gasLimit); fields.push_back(tmp); tmp.clear();
+            rlp_encode_bytes(tmp, t.to); fields.push_back(tmp); tmp.clear();
+            rlp_encode_uint256(tmp, t.value); fields.push_back(tmp); tmp.clear();
+            rlp_encode_bytes(tmp, t.data); fields.push_back(tmp); tmp.clear();
+        }
+        else if constexpr (std::is_same_v<T, EIP1559Tx>) {
+            rlp_encode_uint256(tmp, t.chainId); fields.push_back(tmp); tmp.clear();
+            rlp_encode_uint256(tmp, t.nonce); fields.push_back(tmp); tmp.clear();
+            rlp_encode_uint256(tmp, t.maxPriorityFeePerGas); fields.push_back(tmp); tmp.clear();
+            rlp_encode_uint256(tmp, t.maxFeePerGas); fields.push_back(tmp); tmp.clear();
+            rlp_encode_uint256(tmp, t.gasLimit); fields.push_back(tmp); tmp.clear();
+            rlp_encode_bytes(tmp, t.to); fields.push_back(tmp); tmp.clear();
+            rlp_encode_uint256(tmp, t.value); fields.push_back(tmp); tmp.clear();
+            rlp_encode_bytes(tmp, t.data); fields.push_back(tmp); tmp.clear();
+        }
+    }, tx);
+    std::vector<uint8_t> encoded;
+    rlp_encode_list(encoded, fields);
+    return encoded;
+}
+
+
+std::vector<std::vector<uint8_t>> rlp_extract_fields(const EthereumTx& tx) {
+    std::vector<std::vector<uint8_t>> fields;
+
+    std::visit([&](auto&& t) {
+        using T = std::decay_t<decltype(t)>;
+
+        auto push_uint = [&](const uint256& val) {
+            std::vector<uint8_t> tmp;
+            rlp_encode_uint256(tmp, val);
+            fields.push_back(std::move(tmp));
+        };
+
+        auto push_bytes = [&](const std::vector<uint8_t>& val) {
+            std::vector<uint8_t> tmp;
+            rlp_encode_bytes(tmp, val);
+            fields.push_back(std::move(tmp));
+        };
+
+        if constexpr (std::is_same_v<T, LegacyTx>) {
+            push_uint(t.nonce);
+            push_uint(t.gasPrice);
+            push_uint(t.gasLimit);
+            push_bytes(t.to);
+            push_uint(t.value);
+            push_bytes(t.data);
+        }
+
+        else if constexpr (std::is_same_v<T, EIP1559Tx>) {
+            push_uint(t.chainId);
+            push_uint(t.nonce);
+            push_uint(t.maxPriorityFeePerGas);
+            push_uint(t.maxFeePerGas);
+            push_uint(t.gasLimit);
+            push_bytes(t.to);
+            push_uint(t.value);
+            push_bytes(t.data);
+
+            // Optional: encode access list if implemented
+            // push_access_list(t.accessList);
+        }
+
+        else if constexpr (std::is_same_v<T, EIP2930Tx>) {
+            push_uint(t.chainId);
+            push_uint(t.nonce);
+            push_uint(t.gasPrice);
+            push_uint(t.gasLimit);
+            push_bytes(t.to);
+            push_uint(t.value);
+            push_bytes(t.data);
+            // push_access_list(t.accessList);
+        }
+
+        else if constexpr (std::is_same_v<T, EIP4844Tx>) {
+            push_uint(t.chainId);
+            push_uint(t.nonce);
+            push_uint(t.maxPriorityFeePerGas);
+            push_uint(t.maxFeePerGas);
+            push_uint(t.gasLimit);
+            push_bytes(t.to);
+            push_uint(t.value);
+            push_bytes(t.data);
+            // push_access_list(t.accessList);
+            push_uint(t.maxFeePerBlobGas);
+            // push_blob_versioned_hashes(t.blobVersionedHashes);
+        }
+
+    }, tx);
+
+    return fields;
+}
+
+
+
+bool sign_transaction_generic(
+    const EthereumTx& tx,
+    std::vector<uint8_t>& out_signed_tx,
+    std::vector<uint8_t>& out_privkey
+) {
+    out_privkey = generate_private_key();
+
+    // 1. RLP encode transaction without signature
+    std::vector<uint8_t> encoded_tx = rlp_encode(tx);
+    std::vector<uint8_t> tx_hash = hash_transaction(encoded_tx);
+
+    // 2. Create EC key and private BIGNUM
+    EC_KEY* ec_key = EC_KEY_new_by_curve_name(NID_secp256k1);
+    if (!ec_key) throw std::runtime_error("Failed to create EC key");
+
+    BIGNUM* priv_bn = BN_bin2bn(out_privkey.data(), out_privkey.size(), NULL);
+    if (!priv_bn) {
+        EC_KEY_free(ec_key);
+        throw std::runtime_error("Failed to create private key BIGNUM");
+    }
+
+    if (!EC_KEY_set_private_key(ec_key, priv_bn)) {
+        BN_free(priv_bn);
+        EC_KEY_free(ec_key);
+        throw std::runtime_error("Failed to set private key on EC_KEY");
+    }
+
+    // 3. Derive and set public key
+    EC_POINT* pub_key = EC_POINT_new(EC_KEY_get0_group(ec_key));
+    if (!pub_key || !EC_POINT_mul(EC_KEY_get0_group(ec_key), pub_key, priv_bn, NULL, NULL, NULL) ||
+         !EC_KEY_set_public_key(ec_key, pub_key)) {
+        EC_POINT_free(pub_key);
+        BN_free(priv_bn);
+        EC_KEY_free(ec_key);
+        throw std::runtime_error("Failed to compute/set public key");
+    }
+    EC_POINT_free(pub_key);
+
+    // 4. Sign the hash
+    ECDSA_SIG* sig = ECDSA_do_sign(tx_hash.data(), tx_hash.size(), ec_key);
+    if (!sig) {
+        BN_free(priv_bn);
+        EC_KEY_free(ec_key);
+        return false;
+    }
+
+    // 5. Extract r and s
+    const BIGNUM *r = nullptr, *s = nullptr;
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+    r = sig->r;
+    s = sig->s;
+#else
+    ECDSA_SIG_get0(sig, &r, &s);
+#endif
+
+    std::vector<uint8_t> r_bytes(32);
+    std::vector<uint8_t> s_bytes(32);
+    BN_bn2binpad(r, r_bytes.data(), 32);
+    BN_bn2binpad(s, s_bytes.data(), 32);
+
+    // 6. Compute simplified v (real recovery ID logic is optional)
+    uint8_t v = 27;  // or: chain_id * 2 + 35 if using EIP-155
+
+    // 7. RLP encode signed transaction
+    std::vector<uint8_t> v_encoded, r_encoded, s_encoded;
+    rlp_encode_uint256(v_encoded, {v});
+    rlp_encode_uint256(r_encoded, r_bytes);
+    rlp_encode_uint256(s_encoded, s_bytes);
+
+    std::vector<std::vector<uint8_t>> fields = rlp_extract_fields(tx);
+    fields.push_back(v_encoded);
+    fields.push_back(r_encoded);
+    fields.push_back(s_encoded);
+
+    out_signed_tx.clear();
+    rlp_encode_list(out_signed_tx, fields);
+
+    // 8. Cleanup
+    ECDSA_SIG_free(sig);
+    BN_free(priv_bn);
+    EC_KEY_free(ec_key);
+    return true;
+}
+
 bool ParsedEthTransaction::isTypedTransaction( uint8_t prefix ) {
     return prefix == 0x01 || prefix == 0x02;
 }
@@ -231,3 +574,4 @@ void ParsedEthTransaction::testEthereumTxParser() {
         }
     }
 }
+

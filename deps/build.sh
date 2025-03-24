@@ -2,6 +2,19 @@
 
 set -e
 
+
+
+if [ "$UNIX_SYSTEM_NAME" = "Linux" ];
+then
+	export NUMBER_OF_CPU_CORES=$(grep -c ^processor /proc/cpuinfo)
+	export READLINK=readlink
+	export SO_EXT=so
+fi
+
+if [ "$SKALED_DEPS_CHAIN" != "1" ]; then
+    export BUILD_LIBSEC256K1=1
+fi
+
 export SKALED_DEPS_CHAIN=1
 export CONSENSUS_DEPS_CHAIN=1
 
@@ -315,6 +328,14 @@ setup_variable WITH_FIZZ "yes"
 setup_variable WITH_PROXYGEN "yes"
 setup_variable WITH_FLATBUFFERS "yes"
 setup_variable WITH_LZMA "yes"
+
+
+if [ "$BUILD_LIBSEC256K1" = "1" ]; then
+    setup_variable WITH_LIBSECP256K1 "yes"
+else
+    setup_variable WITH_LIBSECP256K1 "no"
+fi
+
 
 if [ -z "${PARALLEL_COUNT}" ];
 then
@@ -634,7 +655,7 @@ echo -e "${COLOR_VAR_NAME}WITH_GTEST${COLOR_DOTS}.............${COLOR_VAR_DESC}L
 echo -e "${COLOR_VAR_NAME}WITH_FIZZ${COLOR_DOTS}..............${COLOR_VAR_DESC}LibFIZZ${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_FIZZ${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_FLATBUFFERS${COLOR_DOTS}..............${COLOR_VAR_DESC}LibFlatbuffers${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_FLATBUFFERS${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_LZMA${COLOR_DOTS}..............${COLOR_VAR_DESC}LZMA${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_LZMA${COLOR_RESET}"
-
+echo -e "${COLOR_VAR_NAME}WITH_LIBSECP256K1${COLOR_DOTS}..............${COLOR_VAR_DESC}LIBSEC256K1${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_LZMA${COLOR_RESET}"
 
 cd "$SOURCES_ROOT"
 
@@ -3032,6 +3053,66 @@ then
         echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
     fi
 fi
+
+
+if [ "$WITH_LIBSECP256K1" = "yes" ]; then
+    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LZMA${COLOR_SEPARATOR} =========================================${COLOR_RESET}"
+
+    if [ ! -f "$INSTALL_ROOT/lib/libsecp256k1.a" ]; then
+        env_restore
+        cd "$SOURCES_ROOT"
+
+        if [ ! -d "secp256k1" ]; then
+            if [ ! -f "secp256k1-from-git.tar.gz" ]; then
+                echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+                git clone https://github.com/bitcoin-core/secp256k1
+                git -C secp256k1 checkout 70f149b
+
+                echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
+                tar -czf secp256k1-from-git.tar.gz ./secp256k1
+            else
+                echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+                tar -xzf secp256k1-from-git.tar.gz
+            fi
+
+            echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+            cd secp256k1
+            mkdir -p build2
+            cd build2
+
+            eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" \
+                -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" \
+                -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+                -DBUILD_TESTS=OFF \
+                -DBUILD_EXAMPLES=OFF \
+                -DBUILD_SHARED_LIBS=OFF \
+                -DBOOST_ROOT="$INSTALL_ROOT" \
+                -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" \
+                -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
+                -DBoost_NO_BOOST_CMAKE=ON \
+                -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
+                -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
+                -DCMAKE_PREFIX_PATH="$INSTALL_ROOT" -DSECP256K1_ENABLE_MODULE_RECOVERY=ON \
+                ..
+            cd ..
+        else
+            cd secp256k1
+        fi
+
+        echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+        cd build2
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+        eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+        cd "$SOURCES_ROOT"
+    else
+        echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+    fi
+else
+    echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+fi
+
+
+
 
 
 #env_restore
