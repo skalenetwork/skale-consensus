@@ -57,7 +57,7 @@ void SampleEthTransaction::rlp_encode_bytes(
         }
 
         if ( len_bytes.size() > 8 ) {
-            throw std::runtime_error( "rlp_encode_bytes: data too large (exceeds 2^64-1)" );
+            throw std::invalid_argument( "rlp_encode_bytes: data too large (exceeds 2^64-1)" );
         }
 
         out.push_back( static_cast< uint8_t >( 0xb7 + len_bytes.size() ) );
@@ -132,7 +132,7 @@ std::vector< uint8_t > SampleEthTransaction::rlp_encode( const LegacyTx& tx, boo
 
     if ( withSig ) {
         if ( !v_encoded || !r_encoded || !s_encoded )
-            throw std::runtime_error( "Signature components are missing" );
+            throw std::invalid_argument( "Signature components are missing" );
         fields.push_back( *v_encoded );
         fields.push_back( *r_encoded );
         fields.push_back( *s_encoded );
@@ -157,18 +157,66 @@ std::vector< uint8_t > SampleEthTransaction::generate_private_key() {
     std::vector< uint8_t > priv_key( 32 );
 
     if ( RAND_bytes( priv_key.data(), priv_key.size() ) != 1 ) {
-        throw std::runtime_error( "Failed to generate cryptographically secure private key" );
+        throw std::invalid_argument( "Failed to generate cryptographically secure private key" );
     }
 
     // Optional: verify key is valid for secp256k1
     secp256k1_context* ctx = secp256k1_context_create( SECP256K1_CONTEXT_SIGN );
     if ( !secp256k1_ec_seckey_verify( ctx, priv_key.data() ) ) {
         secp256k1_context_destroy( ctx );
-        throw std::runtime_error( "Generated private key is invalid for secp256k1" );
+        throw std::invalid_argument( "Generated private key is invalid for secp256k1" );
     }
     secp256k1_context_destroy( ctx );
 
     return priv_key;
+}
+
+void SampleEthTransaction::verifyEthSignature( const vector< uint8_t >& v_vec,
+    const vector< uint8_t >& r_bytes, const vector< uint8_t >& s_bytes,
+    const vector< uint8_t >& tx_hash)
+{
+    if (r_bytes.size() != 32 || s_bytes.size() != 32 || tx_hash.size() != 32)
+        throw std::invalid_argument("Invalid input sizes");
+
+    // Convert v_vec to uint64_t
+    uint64_t v = 0;
+    for (uint8_t byte : v_vec) {
+        v = (v << 8) | byte;
+    }
+
+    // Extract recovery ID from v (EIP-155)
+    // v = chain_id * 2 + 35 + rec_id  → rec_id = v % 2
+    int rec_id = static_cast<int>((v - 35) % 2);
+    if (rec_id < 0 || rec_id > 3)
+        throw std::invalid_argument("Invalid recovery ID");
+
+    // Create recoverable signature
+    uint8_t sig64[64];
+    std::copy(r_bytes.begin(), r_bytes.end(), sig64);
+    std::copy(s_bytes.begin(), s_bytes.end(), sig64 + 32);
+
+    secp256k1_ecdsa_recoverable_signature signature;
+    auto ctx = std::unique_ptr<secp256k1_context, decltype(&secp256k1_context_destroy)>(
+        secp256k1_context_create(SECP256K1_CONTEXT_VERIFY), &secp256k1_context_destroy);
+
+    if (!secp256k1_ecdsa_recoverable_signature_parse_compact(ctx.get(), &signature, sig64, rec_id)) {
+        throw std::invalid_argument("Failed to parse recoverable signature");
+    }
+
+    // Recover public key from signature
+    secp256k1_pubkey pubkey;
+    if (!secp256k1_ecdsa_recover(ctx.get(), &pubkey, &signature, tx_hash.data())) {
+        throw std::invalid_argument("Failed to recover public key from signature");
+    }
+
+    // Convert to normal signature and verify
+    secp256k1_ecdsa_signature normal_sig;
+    secp256k1_ecdsa_recoverable_signature_convert(ctx.get(), &normal_sig, &signature);
+
+    int verified = secp256k1_ecdsa_verify(ctx.get(), &normal_sig, tx_hash.data(), &pubkey);
+    if (verified != 1) {
+        throw std::invalid_argument("Signature did not verify");
+    }
 }
 
 ptr< vector< uint8_t > > SampleEthTransaction::signAndEncodeTx( const LegacyTx& tx ) {
@@ -178,7 +226,7 @@ ptr< vector< uint8_t > > SampleEthTransaction::signAndEncodeTx( const LegacyTx& 
     std::vector< uint8_t > encoded_tx = rlp_encode( tx, false, nullptr, nullptr, nullptr );
     std::vector< uint8_t > tx_hash = hash_transaction( encoded_tx );
     if ( tx_hash.size() != 32 ) {
-        throw std::runtime_error( "Invalid transaction hash size" );
+        throw std::invalid_argument( "Invalid transaction hash size" );
     }
 
     // unique pointer with autocleanup
@@ -189,13 +237,13 @@ ptr< vector< uint8_t > > SampleEthTransaction::signAndEncodeTx( const LegacyTx& 
 #pragma GCC diagnostic pop
 
     if ( !ctx )
-        throw std::runtime_error( "Failed to create secp256k1 context" );
+        throw std::invalid_argument( "Failed to create secp256k1 context" );
 
     // 3. Sign hash using recoverable signature
     secp256k1_ecdsa_recoverable_signature signature;
     if ( !secp256k1_ecdsa_sign_recoverable(
              ctx.get(), &signature, tx_hash.data(), privkey.data(), nullptr, nullptr ) ) {
-        throw std::runtime_error( "Failed to sign transaction" );
+        throw std::invalid_argument( "Failed to sign transaction" );
     }
 
     // 4. Extract r, s, recovery ID
@@ -224,6 +272,8 @@ ptr< vector< uint8_t > > SampleEthTransaction::signAndEncodeTx( const LegacyTx& 
     rlp_encode_uint256( s_encoded, s_bytes );
 
     auto result = rlp_encode( tx, true, &v_encoded, &r_encoded, &s_encoded );
+
+    verifyEthSignature(v_vec, r_bytes, s_bytes, tx_hash);
 
     return make_shared< vector< uint8_t > >( std::move( result ) );
 }
@@ -271,3 +321,4 @@ ptr< vector< uint8_t > > SampleEthTransaction::generateSampleTx( bool _isByte ) 
 
     return encodedTx;
 }
+

@@ -181,6 +181,7 @@ inline bool ParsedEthTransaction::isZero( const std::vector< uint8_t >& _data ) 
 }
 
 void ParsedEthTransaction::validateSignature() {
+    const auto& v = fields.at( fields.size() - 3 );
     const auto& r = fields.at( fields.size() - 2 );
     const auto& s = fields.at( fields.size() - 1 );
     if ( r.size() > 32 || s.size() > 32 ) {

@@ -45,4 +45,7 @@ public:
 
 
     static void uint64toVec( uint64_t v_value, vector< uint8_t >& v_vec );
+    static void verifyEthSignature( const vector< uint8_t >& v_vec,
+        const vector< uint8_t >& r_bytes, const vector< uint8_t >& s_bytes,
+        const vector< uint8_t >& tx_hash );
 };
