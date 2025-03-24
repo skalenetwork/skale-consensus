@@ -10,10 +10,10 @@
 #include "Log.h"
 #include "node/ConsensusInterface.h"
 #include "bite/BITEDataFiled.h"
-#include "SampleEthTransaction.h"
+#include "EthTransactionEncoder.h"
 
 
-std::vector< uint8_t > SampleEthTransaction::keccak256( const std::vector< uint8_t >& data ) {
+std::vector< uint8_t > EthTransactionEncoder::keccak256( const std::vector< uint8_t >& data ) {
     std::vector< uint8_t > hash( 32 );
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
     EVP_DigestInit_ex( ctx, EVP_sha3_256(), NULL );
@@ -23,12 +23,12 @@ std::vector< uint8_t > SampleEthTransaction::keccak256( const std::vector< uint8
     return hash;
 }
 
-std::vector< uint8_t > SampleEthTransaction::hash_transaction( const std::vector< uint8_t >& tx ) {
+std::vector< uint8_t > EthTransactionEncoder::hash_transaction( const std::vector< uint8_t >& tx ) {
     return keccak256( tx );
 }
 
 
-void SampleEthTransaction::rlp_encode_bytes(
+void EthTransactionEncoder::rlp_encode_bytes(
     std::vector< uint8_t >& out, const std::vector< uint8_t >& data ) {
     const size_t len = data.size();
 
@@ -69,7 +69,7 @@ void SampleEthTransaction::rlp_encode_bytes(
 }
 
 
-void SampleEthTransaction::rlp_encode_uint256(
+void EthTransactionEncoder::rlp_encode_uint256(
     std::vector< uint8_t >& out, const std::vector< uint8_t >& value ) {
     // Skip leading zeros
     size_t start = 0;
@@ -85,7 +85,7 @@ void SampleEthTransaction::rlp_encode_uint256(
 }
 
 
-void SampleEthTransaction::rlp_encode_list(
+void EthTransactionEncoder::rlp_encode_list(
     std::vector< uint8_t >& out, const std::vector< std::vector< uint8_t > >& elements ) {
     std::vector< uint8_t > payload;
     for ( const auto& e : elements ) {
@@ -106,7 +106,7 @@ void SampleEthTransaction::rlp_encode_list(
     out.insert( out.end(), payload.begin(), payload.end() );
 }
 
-std::vector< uint8_t > SampleEthTransaction::rlp_encode( const LegacyTx& tx, bool withSig,
+std::vector< uint8_t > EthTransactionEncoder::rlp_encode( const LegacyTx& tx, bool withSig,
     std::vector< uint8_t >* v_encoded, std::vector< uint8_t >* r_encoded,
     std::vector< uint8_t >* s_encoded ) {
     std::vector< std::vector< uint8_t > > fields;
@@ -153,7 +153,7 @@ std::vector< uint8_t > SampleEthTransaction::rlp_encode( const LegacyTx& tx, boo
 }
 
 
-std::vector< uint8_t > SampleEthTransaction::generate_private_key() {
+std::vector< uint8_t > EthTransactionEncoder::generate_private_key() {
     std::vector< uint8_t > priv_key( 32 );
 
     if ( RAND_bytes( priv_key.data(), priv_key.size() ) != 1 ) {
@@ -171,7 +171,7 @@ std::vector< uint8_t > SampleEthTransaction::generate_private_key() {
     return priv_key;
 }
 
-void SampleEthTransaction::verifyEthSignature( const vector< uint8_t >& v_vec,
+void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& v_vec,
     const vector< uint8_t >& r_bytes, const vector< uint8_t >& s_bytes,
     const vector< uint8_t >& tx_hash)
 {
@@ -219,7 +219,7 @@ void SampleEthTransaction::verifyEthSignature( const vector< uint8_t >& v_vec,
     }
 }
 
-ptr< vector< uint8_t > > SampleEthTransaction::signAndEncodeTx( const LegacyTx& tx ) {
+ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const LegacyTx& tx ) {
     std::vector< uint8_t > privkey = generate_private_key();
 
     // 1. RLP encode transaction with EIP-155 format (with chainId, 0, 0)
@@ -277,14 +277,14 @@ ptr< vector< uint8_t > > SampleEthTransaction::signAndEncodeTx( const LegacyTx& 
 
     return make_shared< vector< uint8_t > >( std::move( result ) );
 }
-void SampleEthTransaction::uint64toVec( uint64_t v_value, vector< uint8_t >& v_vec ) {
+void EthTransactionEncoder::uint64toVec( uint64_t v_value, vector< uint8_t >& v_vec ) {
     while ( v_value > 0 ) {
         v_vec.insert( v_vec.begin(), static_cast< uint8_t >( v_value & 0xFF ) );
         v_value >>= 8;
     }
 }
 
-ptr< vector< uint8_t > > SampleEthTransaction::generateSampleTx( bool _isByte ) {
+ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte ) {
     static atomic< uint64_t > nonce = 0;
 
     // just zero for now

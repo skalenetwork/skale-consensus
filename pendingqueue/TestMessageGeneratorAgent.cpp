@@ -35,7 +35,7 @@
 #include "oracle/OracleRequestSpec.h"
 #endif
 #ifdef BITE
-#include "rlp/SampleEthTransaction.h"
+#include "rlp/EthTransactionEncoder.h"
 #endif
 #include "utils/Time.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
@@ -174,7 +174,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         return result;
 
     for ( uint64_t i = 0; i < _limit; i++ ) {
-        auto tx = SampleEthTransaction::generateSampleTx( i % 2 );
+        auto tx = EthTransactionEncoder::generateSampleTx( i % 2 );
         result.emplace_back( *tx );
     }
 

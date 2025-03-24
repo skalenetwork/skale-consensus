@@ -3,7 +3,7 @@
 
 
 
-class SampleEthTransaction {
+class EthTransactionEncoder {
 
     using uint256 = std::vector< uint8_t >;
 
