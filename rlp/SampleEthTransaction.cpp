@@ -234,39 +234,39 @@ void SampleEthTransaction::uint64toVec( uint64_t v_value, vector< uint8_t >& v_v
     }
 }
 
-ptr< vector< uint8_t > > SampleEthTransaction::generateSampleTx(bool _isByte) {
-    static atomic<uint64_t>  nonce = 0;
+ptr< vector< uint8_t > > SampleEthTransaction::generateSampleTx( bool _isByte ) {
+    static atomic< uint64_t > nonce = 0;
 
     // just zero for now
     EncryptedAESKey encryptedAesKey;
 
-    static std::unique_ptr<LegacyTx> templateTx = std::make_unique<LegacyTx>(LegacyTx{
-        {},                          // chainId
-        {},                          // nonce
-        { 0x3b, 0x9a, 0xca, 0x00 },  // gasPrice
-        { 0x52, 0x08 },              // gasLimit
-        std::vector<uint8_t>(20, 0x12),  // to
+    static std::unique_ptr< LegacyTx > templateTx = std::make_unique< LegacyTx >( LegacyTx{
+        {},                                            // nonce
+        { 0x3b, 0x9a, 0xca, 0x00 },                    // gasPrice
+        { 0x52, 0x08 },                                // gasLimit
+        std::vector< uint8_t >( 20, 0x12 ),            // to
         { 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00 },  // value
-        { 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00,
-            0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00 }   // data
-    });
-
+        { 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00, 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64,
+            0x00 },  // data
+        {},          // chainId
+    } );
 
 
     auto currentTx = *templateTx;
 
-    auto currentNonce = nonce.fetch_add(1);
+    auto currentNonce = nonce.fetch_add( 1 );
 
-    uint64toVec(BITE_CHAIN_ID, currentTx.chainId);
+    uint64toVec( BITE_CHAIN_ID, currentTx.chainId );
 
-    uint64toVec(currentNonce, currentTx.nonce);
+    uint64toVec( currentNonce, currentTx.nonce );
 
-    if (_isByte) {
-        BITEDataField biteDataField(encryptedAesKey, make_shared<EncryptedData>(currentTx.data), 0);
+    if ( _isByte ) {
+        BITEDataField biteDataField(
+            encryptedAesKey, make_shared< EncryptedData >( currentTx.data ), 0 );
         currentTx.data = *biteDataField.getSerializedData();
     }
 
-    auto encodedTx = signAndEncodeTx( currentTx);
+    auto encodedTx = signAndEncodeTx( currentTx );
     CHECK_STATE( encodedTx );
 
     return encodedTx;
