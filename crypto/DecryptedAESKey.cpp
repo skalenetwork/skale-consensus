@@ -1,10 +1,8 @@
-
 #include "SkaleCommon.h"
 #include "Log.h"
+#include "node/ConsensusInterface.h"
 #include "BLAKE3Hash.h"
-
 #include "network/Utils.h"
-
 #include "DecryptedAESKey.h"
 
 block_id DecryptedAESKey::getBlockId() const {
@@ -19,14 +17,14 @@ DecryptedAESKey::DecryptedAESKey( const string& _key, const block_id blockId,
     : blockId( blockId ),
       totalDecryptors( _totalDecryptors ),
       requiredDecryptors( _requiredDecryptors ) {
-    CHECK_STATE( _key.size() == AES_KEY_LEN * 2 )
+    CHECK_STATE( _key.size() == BITE_AES_KEY_LEN * 2 )
 
-    Utils::cArrayFromHex( _key, this->aesKey.data(), AES_KEY_LEN );
+    Utils::cArrayFromHex( _key, this->aesKey.data(), BITE_AES_KEY_LEN );
 }
 
 
 void DecryptedAESKey::print() {
-    for ( size_t i = 0; i < AES_KEY_LEN; i++ ) {
+    for ( size_t i = 0; i < BITE_AES_KEY_LEN; i++ ) {
         cerr << to_string( aesKey.at( i ) );
     }
 }
@@ -37,7 +35,7 @@ uint8_t DecryptedAESKey::at( uint32_t _position ) {
 }
 
 string DecryptedAESKey::toHex() {
-    auto result = Utils::carray2Hex( aesKey.data(), AES_KEY_LEN );
+    auto result = Utils::carray2Hex( aesKey.data(), BITE_AES_KEY_LEN );
     CHECK_STATE( result != "" );
     return result;
 }

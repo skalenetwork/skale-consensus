@@ -9,6 +9,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusInterface.h"
+#include "bite/BITEDataFiled.h"
 #include "SampleEthTransaction.h"
 
 
@@ -181,8 +182,11 @@ ptr< vector< uint8_t > > SampleEthTransaction::signAndEncodeTx( const LegacyTx& 
     }
 
     // unique pointer with autocleanup
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-attributes"
     auto ctx = std::unique_ptr< secp256k1_context, decltype( &secp256k1_context_destroy ) >(
         secp256k1_context_create( SECP256K1_CONTEXT_SIGN ), &secp256k1_context_destroy );
+#pragma GCC diagnostic pop
 
     if ( !ctx )
         throw std::runtime_error( "Failed to create secp256k1 context" );
@@ -230,8 +234,11 @@ void SampleEthTransaction::uint64toVec( uint64_t v_value, vector< uint8_t >& v_v
     }
 }
 
-ptr< vector< uint8_t > > SampleEthTransaction::generateSampleTx() {
+ptr< vector< uint8_t > > SampleEthTransaction::generateSampleTx(bool _isByte) {
     static atomic<uint64_t>  nonce = 0;
+
+    // just zero for now
+    EncryptedAESKey encryptedAesKey;
 
     static std::unique_ptr<LegacyTx> templateTx = std::make_unique<LegacyTx>(LegacyTx{
         {},                          // chainId
@@ -253,6 +260,11 @@ ptr< vector< uint8_t > > SampleEthTransaction::generateSampleTx() {
     uint64toVec(BITE_CHAIN_ID, currentTx.chainId);
 
     uint64toVec(currentNonce, currentTx.nonce);
+
+    if (_isByte) {
+        BITEDataField biteDataField(encryptedAesKey, make_shared<EncryptedData>(currentTx.data), 0);
+        currentTx.data = *biteDataField.getSerializedData();
+    }
 
     std::cout << "Signed Transaction: ";
     auto encodedTx = signAndEncodeTx( currentTx);

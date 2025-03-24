@@ -7,7 +7,7 @@ protected:
     uint64_t totalDecryptors = 0;
     uint64_t requiredDecryptors = 0;
 
-    std::array< uint8_t, AES_KEY_LEN > aesKey;
+    std::array< uint8_t, BITE_AES_KEY_LEN > aesKey;
 
 public:
     DecryptedAESKey( const string& _key, const block_id _blockId,

@@ -34,7 +34,7 @@ ptr< DecryptedAESKey > MockupAESKeyDecryptionShareSet::mergeAESKey() {
     }
     CHECK_STATE( !h.empty() );
 
-    CHECK_STATE(h.size() == AES_KEY_LEN * 2);
+    CHECK_STATE(h.size() == BITE_AES_KEY_LEN * 2);
 
     return make_shared< DecryptedAESKey >( h, blockId, transactionIndex, totalDecryptors, requiredDecryptors );
 }
