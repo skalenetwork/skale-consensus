@@ -90,7 +90,11 @@ void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
                     if ( currentTime - blockProcessingStart <= BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS )
                         proposalReceiptTimedOut = false;
 
-                    if ( !proposalReceiptTimedOut && currentBlockId > 2 &&
+
+                    if ( !proposalReceiptTimedOut &&
+#ifndef BITE
+                         currentBlockId > 2 &&
+#endif
                          currentTime - blockProcessingStart > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
                         try {
                             _agent->getSchain()->blockProposalReceiptTimeoutArrived(

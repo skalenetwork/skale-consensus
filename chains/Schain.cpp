@@ -112,6 +112,9 @@
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSigShare.h"
 #include "chains/BlockErrorAnalyzer.h"
+#ifdef BITE
+#include "bite/BiteManager.h"
+#endif
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"
@@ -318,6 +321,10 @@ void Schain::constructChildAgents() {
         catchupClientAgent = make_shared< CatchupClientAgent >( *this );
 
         cryptoManager = make_shared< CryptoManager >( *this );
+
+#ifdef BITE
+        biteManager = make_shared< BiteManager >( *this );
+#endif
 
         if ( getNode()->isSyncOnlyNode() ) {
             return;

@@ -276,6 +276,13 @@ ptr< CryptoManager > Schain::getCryptoManager() const {
     return cryptoManager;
 }
 
+#ifdef BITE
+ptr< BiteManager > Schain::getBiteManager() const {
+    CHECK_STATE( biteManager );
+    return biteManager;
+}
+#endif
+
 
 ptr< OptimizerAgent > Schain::getOptimizerAgent() const {
     CHECK_STATE( optimizerAgent );

@@ -91,6 +91,7 @@ class OracleResultAssemblyAgent;
 
 #ifdef BITE
 class BiteBlockFinalizeServer;
+class BiteManager;
 #endif
 
 class Schain : public Agent {
@@ -152,6 +153,10 @@ class Schain : public Agent {
 
     // not null in regular mode
     ptr< CryptoManager > cryptoManager;
+
+#ifdef BITE
+    ptr< BiteManager > biteManager;
+#endif
 
     weak_ptr< Node > node;
 
@@ -363,6 +368,10 @@ public:
     u256 getPriceForBlockId( uint64_t _blockId );
 
     ptr< CryptoManager > getCryptoManager() const;
+
+#ifdef BITE
+    ptr< BiteManager > getBiteManager() const;
+#endif
 
     uint64_t getVerifyDaSigsPatchTimeStamp() const;
 

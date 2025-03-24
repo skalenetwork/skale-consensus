@@ -111,7 +111,7 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
             Header::getString( js, "sig" ), Header::getString( js, "pk" ),
             Header::getString( js, "pks" ) );
     } else {
-        LOG( err, "Proposal push failed:" << to_string( status ) << ":" << to_string( subStatus ) );
+        LOG( err, "Proposal push failed:Status:" << to_string( status ) << ":Substatus:" << to_string( subStatus ) );
         return make_shared< FinalProposalResponseHeader >( status, subStatus );
     }
 }
