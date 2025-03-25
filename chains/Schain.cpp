@@ -445,11 +445,19 @@ const atomic< bool >& Schain::getIsStateInitialized() const {
 }
 
 bool Schain::verifyDASigsPatch( uint64_t _blockTimeStampS ) {
+#ifdef BITE
+    return true;
+#else
     return verifyDaSigsPatchTimestamp != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestamp;
+#endif
 }
 
 bool Schain::verifyBlsSyncPatch( uint64_t _blockTimeStampS ) {
+#ifdef BITE
+    return true;
+#else
     return verifyBlsSyncPatchTimestamp != 0 && _blockTimeStampS >= verifyBlsSyncPatchTimestamp;
+#endif
 }
 
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
@@ -1529,7 +1537,11 @@ Schain::addDAProofToDBAndCalculateProposalVectorIfItsTimeToStartBinaryConsensus(
 
 // returns true if fastConsensusPatch ie enabled
 bool Schain::fastConsensusPatchEnabled(uint64_t _blockTimeStampSec ) {
+#ifdef BITE
+    return true;
+#else
     return fastConsensusPatchTimestamp != 0 && _blockTimeStampSec >= fastConsensusPatchTimestamp;
+#endif
 }
 
 // macro to set patchstamp variable from connfig
