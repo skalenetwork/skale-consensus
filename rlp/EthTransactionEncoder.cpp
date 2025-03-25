@@ -171,11 +171,28 @@ std::vector< uint8_t > EthTransactionEncoder::generate_private_key() {
     return priv_key;
 }
 
+auto EthTransactionEncoder::getSecp256k1SignContext() {
+    secp256k1_context* raw = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
+    CHECK_STATE(raw);
+    return std::unique_ptr<secp256k1_context, decltype(&secp256k1_context_destroy)>(
+        raw, &secp256k1_context_destroy
+    );
+};
+
+
+auto EthTransactionEncoder::getSecp256k1VerifyContext() {
+    secp256k1_context* raw = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
+    CHECK_STATE(raw);
+    return std::unique_ptr<secp256k1_context, decltype(&secp256k1_context_destroy)>(
+        raw, &secp256k1_context_destroy
+    );
+};
+
 void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& v_vec,
     const vector< uint8_t >& r_bytes, const vector< uint8_t >& s_bytes,
     const vector< uint8_t >& tx_hash)
 {
-    if (r_bytes.size() != 32 || s_bytes.size() != 32 || tx_hash.size() != 32)
+   if (r_bytes.size() != 32 || s_bytes.size() != 32 || tx_hash.size() != 32)
         throw std::invalid_argument("Invalid input sizes");
 
     // Convert v_vec to uint64_t
@@ -196,8 +213,11 @@ void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& v_vec,
     std::copy(s_bytes.begin(), s_bytes.end(), sig64 + 32);
 
     secp256k1_ecdsa_recoverable_signature signature;
-    auto ctx = std::unique_ptr<secp256k1_context, decltype(&secp256k1_context_destroy)>(
-        secp256k1_context_create(SECP256K1_CONTEXT_VERIFY), &secp256k1_context_destroy);
+
+    // Static secp256k1 context for verification. A single contect for each thread
+    // this is because context is not thread safe
+    thread_local auto ctx = getSecp256k1VerifyContext();
+
 
     if (!secp256k1_ecdsa_recoverable_signature_parse_compact(ctx.get(), &signature, sig64, rec_id)) {
         throw std::invalid_argument("Failed to parse recoverable signature");
@@ -229,15 +249,10 @@ ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const LegacyTx&
         throw std::invalid_argument( "Invalid transaction hash size" );
     }
 
-    // unique pointer with autocleanup
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wignored-attributes"
-    auto ctx = std::unique_ptr< secp256k1_context, decltype( &secp256k1_context_destroy ) >(
-        secp256k1_context_create( SECP256K1_CONTEXT_SIGN ), &secp256k1_context_destroy );
-#pragma GCC diagnostic pop
 
-    if ( !ctx )
-        throw std::invalid_argument( "Failed to create secp256k1 context" );
+    // thread local because it is not thread safe, but can be reusef
+    auto ctx = EthTransactionEncoder::getSecp256k1SignContext();
+
 
     // 3. Sign hash using recoverable signature
     secp256k1_ecdsa_recoverable_signature signature;

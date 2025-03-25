@@ -1,7 +1,3 @@
-#include "SkaleCommon.h"
-
-#include "ParsedEthTransaction.h"
-
 
 #include <openssl/evp.h>
 #include <openssl/ec.h>
@@ -17,6 +13,12 @@
 #include <sstream>
 #include <array>
 
+#include "SkaleCommon.h"
+#include "Log.h"
+
+#include "EthTransactionEncoder.h"
+#include "ParsedEthTransaction.h"
+
 
 bool ParsedEthTransaction::isTypedTransaction( uint8_t prefix ) {
     return prefix == 0x01 || prefix == 0x02;
@@ -25,7 +27,7 @@ bool ParsedEthTransaction::isTypedTransaction( uint8_t prefix ) {
 size_t ParsedEthTransaction::readLen(
     const std::vector< uint8_t >& _tx, size_t _offset, size_t _len ) {
     if ( _offset + _len > _tx.size() ) {
-        throw std::runtime_error( "readLen: out of bounds" );
+        throw std::invalid_argument( "readLen: out of bounds" );
     }
     size_t val = 0;
     for ( size_t i = 0; i < _len; ++i ) {
@@ -34,16 +36,17 @@ size_t ParsedEthTransaction::readLen(
     return val;
 }
 
-void ParsedEthTransaction::skipRlpListHeader( const std::vector< uint8_t >& _tx, uint64_t& _offset ) {
+void ParsedEthTransaction::skipRlpListHeader(
+    const std::vector< uint8_t >& _tx, uint64_t& _offset ) {
     if ( _offset >= _tx.size() )
-        throw std::runtime_error( "skipRlpListHeader: no bytes left" );
+        throw std::invalid_argument( "skipRlpListHeader: no bytes left" );
     uint8_t prefix = _tx.at( _offset );
     if ( prefix <= 0xf7 ) {
         _offset += 1;
     } else if ( prefix <= 0xff ) {
         size_t lenOfLen = prefix - 0xf7;
         if ( _offset + 1 + lenOfLen > _tx.size() ) {
-            throw std::runtime_error( "skipRlpListHeader: out of bounds" );
+            throw std::invalid_argument( "skipRlpListHeader: out of bounds" );
         }
         _offset += 1 + lenOfLen;
     } else {
@@ -54,7 +57,7 @@ void ParsedEthTransaction::skipRlpListHeader( const std::vector< uint8_t >& _tx,
 std::vector< uint8_t > ParsedEthTransaction::parseSingleByteVector(
     const std::vector< uint8_t >& _tx, uint64_t& _offset ) {
     if ( _offset >= _tx.size() )
-        throw std::runtime_error( "Short element: out of bounds" );
+        throw std::invalid_argument( "Short element: out of bounds" );
     return { _tx.at( _offset++ ) };
 }
 
@@ -63,7 +66,7 @@ std::vector< uint8_t > ParsedEthTransaction::parseShortByteVector(
     size_t len = _prefix - 0x80;
     _offset += 1;
     if ( _offset + len > _tx.size() ) {
-        throw std::runtime_error( "parseShortByteVector: slice out of bounds" );
+        throw std::invalid_argument( "parseShortByteVector: slice out of bounds" );
     }
     std::vector< uint8_t > out( _tx.begin() + _offset, _tx.begin() + _offset + len );
     _offset += len;
@@ -75,12 +78,12 @@ std::vector< uint8_t > ParsedEthTransaction::parseLongByteVector(
     const std::vector< uint8_t >& _tx, uint64_t& _offset, uint8_t _prefix ) {
     size_t lenOfLen = _prefix - 0xb7;
     if ( _offset + 1 + lenOfLen > _tx.size() ) {
-        throw std::runtime_error( "parseLongByteVector: lenOfLen out of bounds" );
+        throw std::invalid_argument( "parseLongByteVector: lenOfLen out of bounds" );
     }
     size_t len = readLen( _tx, _offset + 1, lenOfLen );
     _offset += 1 + lenOfLen;
     if ( _offset + len > _tx.size() ) {
-        throw std::runtime_error( "parseLongByteVector: slice out of bounds" );
+        throw std::invalid_argument( "parseLongByteVector: slice out of bounds" );
     }
     std::vector< uint8_t > out( _tx.begin() + _offset, _tx.begin() + _offset + len );
     _offset += len;
@@ -90,7 +93,7 @@ std::vector< uint8_t > ParsedEthTransaction::parseLongByteVector(
 std::vector< uint8_t > ParsedEthTransaction::parseByteVector(
     const std::vector< uint8_t >& _tx, uint64_t& _offset ) {
     if ( _offset >= _tx.size() )
-        throw std::runtime_error( "parseByteVector: no data left" );
+        throw std::invalid_argument( "parseByteVector: no data left" );
     uint8_t prefix = _tx.at( _offset );
     if ( prefix <= 0x7f )
         return parseSingleByteVector( _tx, _offset );
@@ -180,6 +183,17 @@ inline bool ParsedEthTransaction::isZero( const std::vector< uint8_t >& _data ) 
     return true;
 }
 
+std::vector<uint8_t> padTo32Bytes(const std::vector<uint8_t>& input) {
+    constexpr size_t TARGET_SIZE = 32;
+    std::vector<uint8_t> result(TARGET_SIZE, 0);  // initialize with zeros
+
+    CHECK_STATE(input.size() <= TARGET_SIZE);
+    // Copy input to the rightmost part of result
+    std::copy(input.begin(), input.end(), result.begin() + (TARGET_SIZE - input.size()));
+
+    return result;
+}
+
 void ParsedEthTransaction::validateSignature() {
     const auto& v = fields.at( fields.size() - 3 );
     const auto& r = fields.at( fields.size() - 2 );
@@ -191,7 +205,29 @@ void ParsedEthTransaction::validateSignature() {
     if ( isZero( r ) || isZero( s ) ) {
         throw invalid_argument( "Zero r/s" );
     }
+
+
+
+    EthTransactionEncoder::LegacyTx txWithoutSig;
+
+    txWithoutSig.nonce = fields.at( 0 );
+    txWithoutSig.gasPrice = fields.at( 1 );
+    txWithoutSig.gasLimit = fields.at( 2 );
+    txWithoutSig.to = fields.at( 3 );
+    txWithoutSig.value = fields.at( 4 );
+    txWithoutSig.data = fields.at( 5 );
+    EthTransactionEncoder::uint64toVec( BITE_CHAIN_ID, txWithoutSig.chainId );
+    std::vector< uint8_t > encoded_tx =
+        EthTransactionEncoder::rlp_encode( txWithoutSig, false, nullptr, nullptr, nullptr );
+    std::vector< uint8_t > tx_hash = EthTransactionEncoder::hash_transaction( encoded_tx );
+    auto r_padded = padTo32Bytes(r);
+    auto s_padded = padTo32Bytes(s);
+
+    EthTransactionEncoder::verifyEthSignature(v, r_padded, s_padded, tx_hash);
+
 }
+
+
 
 ptr< std::vector< uint8_t > > ParsedEthTransaction::getTransactionDataField() {
     size_t index;
@@ -248,4 +284,3 @@ void ParsedEthTransaction::testEthereumTxParser() {
         }
     }
 }
-
