@@ -25,7 +25,9 @@
 #include "SkaleCommon.h"
 
 #include "crypto/CryptoManager.h"
-#include "crypto/BLAKE3Hash.h"
+#ifdef BITE
+#include "bite/BiteManager.h"
+#endif
 #include "exceptions/InvalidStateException.h"
 #include "chains/Schain.h"
 #include "CommittedBlock.h"
@@ -83,6 +85,12 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
                         !block->getDaSig().empty(), "Catchup received a block without DA sig:" );
                 }
             }
+
+#ifdef BITE
+            _cryptoManager->getSchain()->getBiteManager()->verifyAndDecryptBlockTransactions( block );
+#endif
+
+
 
             blocks->push_back( block );
 
