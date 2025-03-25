@@ -13,6 +13,24 @@
 #include "EthTransactionEncoder.h"
 
 
+
+auto EthTransactionEncoder::getSecp256k1SignContext() {
+    secp256k1_context* raw = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
+    CHECK_STATE(raw);
+    return std::unique_ptr<secp256k1_context, decltype(&secp256k1_context_destroy)>(
+        raw, &secp256k1_context_destroy
+    );
+};
+
+
+auto EthTransactionEncoder::getSecp256k1VerifyContext() {
+    secp256k1_context* raw = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
+    CHECK_STATE(raw);
+    return std::unique_ptr<secp256k1_context, decltype(&secp256k1_context_destroy)>(
+        raw, &secp256k1_context_destroy
+    );
+};
+
 std::vector< uint8_t > EthTransactionEncoder::keccak256( const std::vector< uint8_t >& data ) {
     std::vector< uint8_t > hash( 32 );
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
@@ -153,6 +171,9 @@ std::vector< uint8_t > EthTransactionEncoder::rlp_encode( const LegacyTx& tx, bo
 }
 
 
+
+
+
 std::vector< uint8_t > EthTransactionEncoder::generate_private_key() {
     std::vector< uint8_t > priv_key( 32 );
 
@@ -161,32 +182,14 @@ std::vector< uint8_t > EthTransactionEncoder::generate_private_key() {
     }
 
     // Optional: verify key is valid for secp256k1
-    secp256k1_context* ctx = secp256k1_context_create( SECP256K1_CONTEXT_SIGN );
-    if ( !secp256k1_ec_seckey_verify( ctx, priv_key.data() ) ) {
-        secp256k1_context_destroy( ctx );
+    thread_local auto ctx = getSecp256k1SignContext();
+    if ( !secp256k1_ec_seckey_verify( ctx.get(), priv_key.data() ) ) {
         throw std::invalid_argument( "Generated private key is invalid for secp256k1" );
     }
-    secp256k1_context_destroy( ctx );
 
     return priv_key;
 }
 
-auto EthTransactionEncoder::getSecp256k1SignContext() {
-    secp256k1_context* raw = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
-    CHECK_STATE(raw);
-    return std::unique_ptr<secp256k1_context, decltype(&secp256k1_context_destroy)>(
-        raw, &secp256k1_context_destroy
-    );
-};
-
-
-auto EthTransactionEncoder::getSecp256k1VerifyContext() {
-    secp256k1_context* raw = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
-    CHECK_STATE(raw);
-    return std::unique_ptr<secp256k1_context, decltype(&secp256k1_context_destroy)>(
-        raw, &secp256k1_context_destroy
-    );
-};
 
 void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& v_vec,
     const vector< uint8_t >& r_bytes, const vector< uint8_t >& s_bytes,
