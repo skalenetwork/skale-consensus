@@ -218,8 +218,8 @@ void ParsedEthTransaction::validateSignature() {
     txWithoutSig.data = fields.at( 5 );
     EthTransactionEncoder::uint64toVec( BITE_CHAIN_ID, txWithoutSig.chainId );
     std::vector< uint8_t > encoded_tx =
-        EthTransactionEncoder::rlp_encode( txWithoutSig, false, nullptr, nullptr, nullptr );
-    std::vector< uint8_t > tx_hash = EthTransactionEncoder::hash_transaction( encoded_tx );
+        EthTransactionEncoder::rlpEncode( txWithoutSig, false, nullptr, nullptr, nullptr );
+    std::vector< uint8_t > tx_hash = EthTransactionEncoder::hashTransaction( encoded_tx );
     auto r_padded = padTo32Bytes(r);
     auto s_padded = padTo32Bytes(s);
 

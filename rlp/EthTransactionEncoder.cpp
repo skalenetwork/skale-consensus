@@ -12,7 +12,14 @@
 #include "bite/BITEDataFiled.h"
 #include "EthTransactionEncoder.h"
 
+#pragma GCC diagnostic push // make compiler happy
+#pragma GCC diagnostic ignored "-Wignored-attributes"
 
+auto EthTransactionEncoder::getHashContext() {
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    CHECK_STATE( ctx );  // Assuming this is a macro or function to check nullptr
+    return std::unique_ptr<EVP_MD_CTX, decltype(&EVP_MD_CTX_free)>( ctx, &EVP_MD_CTX_free);
+}
 
 auto EthTransactionEncoder::getSecp256k1SignContext() {
     secp256k1_context* raw = secp256k1_context_create(SECP256K1_CONTEXT_SIGN);
@@ -22,7 +29,6 @@ auto EthTransactionEncoder::getSecp256k1SignContext() {
     );
 };
 
-
 auto EthTransactionEncoder::getSecp256k1VerifyContext() {
     secp256k1_context* raw = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
     CHECK_STATE(raw);
@@ -31,22 +37,23 @@ auto EthTransactionEncoder::getSecp256k1VerifyContext() {
     );
 };
 
+#pragma GCC diagnostic pop
+
 std::vector< uint8_t > EthTransactionEncoder::keccak256( const std::vector< uint8_t >& data ) {
     std::vector< uint8_t > hash( 32 );
-    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
-    EVP_DigestInit_ex( ctx, EVP_sha3_256(), NULL );
-    EVP_DigestUpdate( ctx, data.data(), data.size() );
-    EVP_DigestFinal_ex( ctx, hash.data(), NULL );
-    EVP_MD_CTX_free( ctx );
+    thread_local auto ctx = getHashContext();
+    EVP_DigestInit_ex( ctx.get(), EVP_sha3_256(), NULL );
+    EVP_DigestUpdate( ctx.get(), data.data(), data.size() );
+    EVP_DigestFinal_ex( ctx.get(), hash.data(), NULL );
     return hash;
 }
 
-std::vector< uint8_t > EthTransactionEncoder::hash_transaction( const std::vector< uint8_t >& tx ) {
+std::vector< uint8_t > EthTransactionEncoder::hashTransaction( const std::vector< uint8_t >& tx ) {
     return keccak256( tx );
 }
 
 
-void EthTransactionEncoder::rlp_encode_bytes(
+void EthTransactionEncoder::rlpEncodeBytes(
     std::vector< uint8_t >& out, const std::vector< uint8_t >& data ) {
     const size_t len = data.size();
 
@@ -75,7 +82,7 @@ void EthTransactionEncoder::rlp_encode_bytes(
         }
 
         if ( len_bytes.size() > 8 ) {
-            throw std::invalid_argument( "rlp_encode_bytes: data too large (exceeds 2^64-1)" );
+            throw std::invalid_argument( "rlpEncodeBytes: data too large (exceeds 2^64-1)" );
         }
 
         out.push_back( static_cast< uint8_t >( 0xb7 + len_bytes.size() ) );
@@ -87,7 +94,7 @@ void EthTransactionEncoder::rlp_encode_bytes(
 }
 
 
-void EthTransactionEncoder::rlp_encode_uint256(
+void EthTransactionEncoder::rlpEncodeUint256(
     std::vector< uint8_t >& out, const std::vector< uint8_t >& value ) {
     // Skip leading zeros
     size_t start = 0;
@@ -99,11 +106,11 @@ void EthTransactionEncoder::rlp_encode_uint256(
     std::vector< uint8_t > stripped( value.begin() + start, value.end() );
 
     // Delegate to rlp_encode_bytes
-    rlp_encode_bytes( out, stripped );
+    rlpEncodeBytes( out, stripped );
 }
 
 
-void EthTransactionEncoder::rlp_encode_list(
+void EthTransactionEncoder::rlpEncodeList(
     std::vector< uint8_t >& out, const std::vector< std::vector< uint8_t > >& elements ) {
     std::vector< uint8_t > payload;
     for ( const auto& e : elements ) {
@@ -124,27 +131,27 @@ void EthTransactionEncoder::rlp_encode_list(
     out.insert( out.end(), payload.begin(), payload.end() );
 }
 
-std::vector< uint8_t > EthTransactionEncoder::rlp_encode( const LegacyTx& tx, bool withSig,
+std::vector< uint8_t > EthTransactionEncoder::rlpEncode( const LegacyTx& tx, bool withSig,
     std::vector< uint8_t >* v_encoded, std::vector< uint8_t >* r_encoded,
     std::vector< uint8_t >* s_encoded ) {
     std::vector< std::vector< uint8_t > > fields;
     std::vector< uint8_t > tmp;
-    rlp_encode_uint256( tmp, tx.nonce );
+    rlpEncodeUint256( tmp, tx.nonce );
     fields.push_back( tmp );
     tmp.clear();
-    rlp_encode_uint256( tmp, tx.gasPrice );
+    rlpEncodeUint256( tmp, tx.gasPrice );
     fields.push_back( tmp );
     tmp.clear();
-    rlp_encode_uint256( tmp, tx.gasLimit );
+    rlpEncodeUint256( tmp, tx.gasLimit );
     fields.push_back( tmp );
     tmp.clear();
-    rlp_encode_bytes( tmp, tx.to );
+    rlpEncodeBytes( tmp, tx.to );
     fields.push_back( tmp );
     tmp.clear();
-    rlp_encode_uint256( tmp, tx.value );
+    rlpEncodeUint256( tmp, tx.value );
     fields.push_back( tmp );
     tmp.clear();
-    rlp_encode_bytes( tmp, tx.data );
+    rlpEncodeBytes( tmp, tx.data );
     fields.push_back( tmp );
 
 
@@ -155,18 +162,18 @@ std::vector< uint8_t > EthTransactionEncoder::rlp_encode( const LegacyTx& tx, bo
         fields.push_back( *r_encoded );
         fields.push_back( *s_encoded );
     } else {
-        rlp_encode_uint256( tmp, tx.chainId );
+        rlpEncodeUint256( tmp, tx.chainId );
         fields.push_back( tmp );
         tmp.clear();
         std::vector< uint8_t > ZERO;
-        rlp_encode_uint256( tmp, ZERO );
+        rlpEncodeUint256( tmp, ZERO );
         fields.push_back( tmp );
         fields.push_back( tmp );
         tmp.clear();
     }
 
     std::vector< uint8_t > encoded;
-    rlp_encode_list( encoded, fields );
+    rlpEncodeList( encoded, fields );
     return encoded;
 }
 
@@ -174,7 +181,7 @@ std::vector< uint8_t > EthTransactionEncoder::rlp_encode( const LegacyTx& tx, bo
 
 
 
-std::vector< uint8_t > EthTransactionEncoder::generate_private_key() {
+std::vector< uint8_t > EthTransactionEncoder::generateRandomPrivateKey() {
     std::vector< uint8_t > priv_key( 32 );
 
     if ( RAND_bytes( priv_key.data(), priv_key.size() ) != 1 ) {
@@ -243,11 +250,11 @@ void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& v_vec,
 }
 
 ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const LegacyTx& tx ) {
-    std::vector< uint8_t > privkey = generate_private_key();
+    std::vector< uint8_t > privkey = generateRandomPrivateKey();
 
     // 1. RLP encode transaction with EIP-155 format (with chainId, 0, 0)
-    std::vector< uint8_t > encoded_tx = rlp_encode( tx, false, nullptr, nullptr, nullptr );
-    std::vector< uint8_t > tx_hash = hash_transaction( encoded_tx );
+    std::vector< uint8_t > encoded_tx = rlpEncode( tx, false, nullptr, nullptr, nullptr );
+    std::vector< uint8_t > tx_hash = hashTransaction( encoded_tx );
     if ( tx_hash.size() != 32 ) {
         throw std::invalid_argument( "Invalid transaction hash size" );
     }
@@ -285,11 +292,11 @@ ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const LegacyTx&
 
     // 6. RLP encode final signed transaction
     std::vector< uint8_t > v_encoded, r_encoded, s_encoded;
-    rlp_encode_uint256( v_encoded, v_vec );
-    rlp_encode_uint256( r_encoded, r_bytes );
-    rlp_encode_uint256( s_encoded, s_bytes );
+    rlpEncodeUint256( v_encoded, v_vec );
+    rlpEncodeUint256( r_encoded, r_bytes );
+    rlpEncodeUint256( s_encoded, s_bytes );
 
-    auto result = rlp_encode( tx, true, &v_encoded, &r_encoded, &s_encoded );
+    auto result = rlpEncode( tx, true, &v_encoded, &r_encoded, &s_encoded );
 
     verifyEthSignature(v_vec, r_bytes, s_bytes, tx_hash);
 
