@@ -193,8 +193,6 @@ SET(SRC_FILES
         ${statusserver_src}
         ${sgxclient_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
-        oracle/OracleClient.cpp oracle/OracleClient.h db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h
-        flatb/BlockFinalizeResponseObject.h
 )
 
 
