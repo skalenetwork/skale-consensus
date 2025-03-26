@@ -1,6 +1,7 @@
 #pragma once
 
 
+#include "EncryptedAESKey.h"
 #include "ThresholdAESKeyDecryptionShare.h"
 
 
@@ -10,12 +11,14 @@ class MockupAESKeyDecryptionShare: public ThresholdAESKeyDecryptionShare {
     string aesDecryptionShare;
 
 public:
-    MockupAESKeyDecryptionShare( const string& _aesKeyDecryptionShare, schain_id _schainID, block_id _blockID,
+    MockupAESKeyDecryptionShare( const string _aesKeyDecryptionShare, schain_id _schainID, block_id _blockID,
         transaction_index _transactionIndex,
         schain_index _decryptorIndex, size_t _totalDecryptors, size_t _requiredDecryptors );
 
     string toString() override;
 
     ~MockupAESKeyDecryptionShare() override;
+
+    static ptr<MockupAESKeyDecryptionShare> mockupDecrypt(ptr <EncryptedAESKey> _key);
 };
 

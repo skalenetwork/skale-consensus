@@ -1,5 +1,7 @@
 
 
+#include <chains/Schain.h>
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "datastructures/BlockProposal.h"
@@ -9,7 +11,9 @@
 #include "rlp/ParsedEthTransaction.h"
 
 #include "BiteManager.h"
-BiteManager::BiteManager( Schain& schain ) : schain( schain ) {}
+BiteManager::BiteManager( Schain& _schain ) : schain( _schain ) {
+    doRealCrypto = _schain.getNode()->verifyRealSignatures();
+}
 
 
 ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(

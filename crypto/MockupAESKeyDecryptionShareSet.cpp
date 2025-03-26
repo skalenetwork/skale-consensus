@@ -6,6 +6,8 @@
 #include "DecryptedAESKey.h"
 #include "MockupAESKeyDecryptionShareSet.h"
 
+#include <network/Utils.h>
+
 using namespace std;
 
 MockupAESKeyDecryptionShareSet::MockupAESKeyDecryptionShareSet(
@@ -33,10 +35,13 @@ ptr< DecryptedAESKey > MockupAESKeyDecryptionShareSet::mergeAESKey() {
         }
     }
     CHECK_STATE( !h.empty() );
+    CHECK_STATE(h.size() == BITE_ENCRYPTED_AES_KEY_LEN * 2);
 
-    CHECK_STATE(h.size() == BITE_AES_KEY_LEN * 2);
+    std::array<uint8_t, BITE_AES_KEY_LEN> decryptedKey;
 
-    return make_shared< DecryptedAESKey >( h, blockId, transactionIndex, totalDecryptors, requiredDecryptors );
+    Utils::cArrayFromHex(h, decryptedKey.data(), BITE_ENCRYPTED_AES_KEY_LEN);
+
+    return make_shared< DecryptedAESKey >(decryptedKey);
 }
 
 bool MockupAESKeyDecryptionShareSet::isEnough() {

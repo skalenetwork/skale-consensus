@@ -34,6 +34,8 @@
 
 #include "ConsensusAESKeyDecryptionShareSet.h"
 
+#include <oids.h>
+
 
 using namespace std;
 
@@ -64,13 +66,10 @@ ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::mergeAESKey() {
     }
     CHECK_STATE( decryptSet.canMerge() );
 
-    string key;
+     std::array< uint8_t, BITE_AES_KEY_LEN > aesKey;
 
-    // auto key =
-    //   decryptSet.
 
-    return make_shared< DecryptedAESKey >(
-        key, blockId, transactionIndex, totalDecryptors, requiredDecryptors );
+    return make_shared< DecryptedAESKey >(aesKey);
 }
 
 bool ConsensusAESKeyDecryptionShareSet::isEnough() {

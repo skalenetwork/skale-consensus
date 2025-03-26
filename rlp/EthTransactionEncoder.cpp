@@ -10,6 +10,7 @@
 #include "Log.h"
 #include "node/ConsensusInterface.h"
 #include "bite/BITEDataFiled.h"
+#include "crypto/EncryptedAESKey.h"
 #include "EthTransactionEncoder.h"
 
 #pragma GCC diagnostic push // make compiler happy
@@ -313,7 +314,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
     static atomic< uint64_t > nonce = 0;
 
     // just zero for now
-    EncryptedAESKey encryptedAesKey;
+    auto encryptedAesKey = make_shared<EncryptedAESKey>(make_shared<std::array<std::uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>());
 
     static std::unique_ptr< LegacyTx > templateTx = std::make_unique< LegacyTx >( LegacyTx{
         {},                                            // nonce

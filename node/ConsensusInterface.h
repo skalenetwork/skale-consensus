@@ -44,18 +44,20 @@ enum consensus_engine_status {
 
 
 #ifdef BITE
+#include <string_view>
 constexpr uint64_t BITE_CHAIN_ID = 0xD1D2D3;
-constexpr string_view BITE_CHAIN_ID_AS_STRING = "D1D2D3";
+constexpr std::string_view BITE_CHAIN_ID_AS_STRING = "D1D2D3";
 constexpr uint8_t BITE_CHAIN_ID_AS_BYTE_ARRAY[3] = {0xD2, 0xD2, 0xD3};
 
 constexpr uint64_t BITE_MAGIC_SIZE = 16;
-constexpr string_view BITE_MAGIC_AS_STRING = "F3A9C7B1E4D5F28C7B1E9A3F5D2C8B00";
+constexpr std::string_view BITE_MAGIC_AS_STRING = "F3A9C7B1E4D5F28C7B1E9A3F5D2C8B00";
 constexpr uint8_t BITE_MAGIC_AS_BYTE_ARRAY[BITE_MAGIC_SIZE] = {0xF3, 0xA9, 0xC7, 0xB1, 0xE4, 0xD5, 0xF2, 0x8C, 0x7B, 0x1E,
     0x9A, 0x3F, 0x5D, 0x2C, 0x8B, 0x0};
 
-static constexpr size_t BITE_EPOCH_ID_LEN = 8;
-static constexpr size_t BITE_AES_KEY_LEN = 32;
-static constexpr size_t BITE_ENCRYPTED_AES_KEY_LEN = 224;
+static constexpr uint64_t BITE_EPOCH_ID_LEN = 8;
+static constexpr uint64_t BITE_AES_KEY_LEN = 32;
+static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = 224;
+static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = 128;
 
 #endif
 
@@ -77,7 +79,7 @@ public:
 #endif
 #ifndef PL
         // PL does implement Oracle
-        , const string &gethURL
+        , const std::string &gethURL
 #endif
     ) = 0;
 
@@ -109,7 +111,7 @@ public:
 
     virtual u256 getRandomForBlockId(uint64_t _blockId) const = 0;
 
-    virtual map<string, uint64_t> getConsensusDbUsage() const = 0;
+    virtual std::map<std::string, uint64_t> getConsensusDbUsage() const = 0;
 
     virtual uint64_t getEmptyBlockIntervalMs() const { return -1; }
 
@@ -192,7 +194,7 @@ public:
      */
 
     virtual uint64_t submitOracleRequest(
-            const string &_spec, string &_receipt, string &_errorMessage) = 0;
+            const std::string &_spec, std::string &_receipt, std::string &_errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -206,7 +208,7 @@ public:
      */
 
 
-    virtual uint64_t checkOracleResult(const string &_receipt, string &_result) = 0;
+    virtual uint64_t checkOracleResult(const std::string &_receipt, std::string &_result) = 0;
 
 #endif
 
