@@ -37,9 +37,12 @@ ptr< DecryptedAESKey > MockupAESKeyDecryptionShareSet::mergeAESKey() {
     CHECK_STATE( !h.empty() );
     CHECK_STATE(h.size() == BITE_ENCRYPTED_AES_KEY_LEN * 2);
 
-    std::array<uint8_t, BITE_AES_KEY_LEN> decryptedKey;
+    std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> encryptedKey{};
+    std::array<uint8_t, BITE_AES_KEY_LEN> decryptedKey{};
 
-    Utils::cArrayFromHex(h, decryptedKey.data(), BITE_ENCRYPTED_AES_KEY_LEN);
+    Utils::cArrayFromHex(h, encryptedKey.data(), BITE_ENCRYPTED_AES_KEY_LEN);
+
+    std::copy_n(encryptedKey.begin() + 1, BITE_AES_KEY_LEN, decryptedKey.begin());
 
     return make_shared< DecryptedAESKey >(decryptedKey);
 }
