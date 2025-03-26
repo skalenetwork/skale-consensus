@@ -801,7 +801,7 @@ void Schain::cleanupUnneededMemoryBeforePushingToEvm( const ptr< CommittedBlock 
 }
 
 
-void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
+void Schain:: pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
     CHECK_ARGUMENT( _block );
 
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )

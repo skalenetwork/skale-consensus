@@ -58,6 +58,7 @@ static constexpr uint64_t BITE_EPOCH_ID_LEN = 8;
 static constexpr uint64_t BITE_AES_KEY_LEN = 32;
 static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = 224;
 static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = 128;
+static constexpr uint64_t BITE_TE_RANDOM_LEN = 32;
 
 #endif
 

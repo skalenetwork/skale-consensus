@@ -10,13 +10,15 @@
 
 ptr<EncryptedAESKey> MockupTEPublicKey::encryptAESKey(ptr<DecryptedAESKey>& _decryptedAESKey) {
     CHECK_STATE(_decryptedAESKey);
-    auto encryptedKeyBytes = make_shared<array<std::uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>();
-    encryptedKeyBytes->at(0) = 1;;
-    for (size_t i = 0; i < BITE_AES_KEY_LEN; i++) {
-        encryptedKeyBytes->at(i + 1) = _decryptedAESKey->at(i);
-    }
-    auto encryptedAESKey = make_shared<EncryptedAESKey>(encryptedKeyBytes);
-    return encryptedAESKey;
-}
+    auto encryptedKeyBytes = make_shared<std::array<std::uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>();
+    auto randomBytes = make_shared<std::array<std::uint8_t, BITE_TE_RANDOM_LEN>>();
+    std::iota(randomBytes->begin(), randomBytes->end(), 0);
 
+    encryptedKeyBytes->at(0) = 1;
+
+    std::copy(_decryptedAESKey->getAesKey(), _decryptedAESKey->getAesKey(), encryptedKeyBytes->begin() + 1);
+    std::copy(randomBytes->begin(), randomBytes->end(), encryptedKeyBytes->begin() + BITE_AES_KEY_LEN + 1);
+
+    return make_shared<EncryptedAESKey>(encryptedKeyBytes);
+}
 
