@@ -53,15 +53,11 @@ BITEBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(
     size_t size = builder.GetSize();
 
 
-    // 🔍 Verify the resulting buffer before returning
-    flatbuffers::Verifier verifier(raw, size);
-    CHECK_STATE(skale_fb::VerifyBlockProposalBuffer(verifier));
-
     auto buffer = std::make_shared< std::vector< uint8_t > >();
     buffer->resize( size );
     std::memcpy( buffer->data(), raw, size );  // unavoidable copy if caller requires vector
 
-    deserialize(buffer, nullptr, false);
+    serializedSanityCheck(buffer);
 
     return buffer;
 }

@@ -52,13 +52,10 @@ ptr< std::vector< uint8_t > > BITECommittedBlockSerializer::serializeTransaction
     size_t size = builder.GetSize();
 
 
-    // 🔍 Verify the resulting buffer before returning
-    flatbuffers::Verifier verifier(raw, size);
-    CHECK_STATE(skale_fb::VerifyCommittedBlockBuffer(verifier));
-
     auto buffer = std::make_shared< std::vector< uint8_t > >();
     buffer->resize( size );
     std::memcpy( buffer->data(), raw, size );  // unavoidable copy if caller requires vector
+    serializedSanityCheck(buffer);
 
     return buffer;
 }
