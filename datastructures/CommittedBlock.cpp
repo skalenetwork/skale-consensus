@@ -36,7 +36,7 @@
 #include "headers/CommittedBlockHeader.h"
 
 
-#include "bite/BITECommittedBlock.h"
+#include "bite/BITECommittedBlockSerializer.h"
 #include "BlockProposalFragment.h"
 #include "CommittedBlock.h"
 #include "TransactionList.h"
@@ -71,23 +71,16 @@ ptr< CommittedBlock > CommittedBlock::make( const schain_id _sChainId,
     CHECK_ARGUMENT( _transactions );
     CHECK_ARGUMENT( !_signature.empty() );
     CHECK_ARGUMENT( !_thresholdSig.empty() );
-
-#ifdef BITE
-    return ptr<CommittedBlock >( new BITECommittedBlock(_sChainId, _proposerNodeId, _blockId, _proposerIndex,
-        _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature, _thresholdSig, _daSig ));
-#else
     return ptr< CommittedBlock >( new CommittedBlock(_sChainId, _proposerNodeId, _blockId, _proposerIndex,
         _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature, _thresholdSig, _daSig ));
-#endif
 }
 
 
 void CommittedBlock::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
 #ifdef BITE
-    return BITECommittedBlock::serializedSanityCheck(_serializedBlock);
+    return BITECommittedBlockSerializer::serializedSanityCheck(_serializedBlock);
 #endif
     CHECK_ARGUMENT( _serializedBlock );
-
     CHECK_ARGUMENT( _serializedBlock->at( sizeof( uint64_t ) ) == '{' );
     CHECK_ARGUMENT( _serializedBlock->back() == '>' );
 };
@@ -135,8 +128,7 @@ ptr< CommittedBlock > CommittedBlock::deserialize( const ptr< vector< uint8_t > 
     const ptr< CryptoManager >& _manager, bool _verifySig ) {
 
 #ifdef BITE
-    // overriding static function
-    return BITECommittedBlock::deserialize(_serializedBlock, _manager, _verifySig);
+    return BITECommittedBlockSerializer::deserialize(_serializedBlock, _manager, _verifySig);
 #endif
 
     CHECK_ARGUMENT( _serializedBlock );

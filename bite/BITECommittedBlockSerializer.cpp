@@ -10,20 +10,11 @@
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
 #include "headers/CommittedBlockHeader.h"
-#include "BITECommittedBlock.h"
+#include "BITECommittedBlockSerializer.h"
 
 
-BITECommittedBlock::BITECommittedBlock( const schain_id& schainId, const node_id& proposerNodeId,
-    const block_id& blockId, const schain_index& proposerIndex,
-    const ptr< TransactionList >& transactions, const u256& stateRoot, uint64_t timeStamp,
-    __uint32_t timeStampMs, const string& signature, const string& thresholdSig,
-    const string& daSig )
-    : CommittedBlock( schainId, proposerNodeId, blockId, proposerIndex, transactions, stateRoot,
-          timeStamp, timeStampMs, signature, thresholdSig, daSig ) {}
-
-
-ptr< std::vector< uint8_t > > BITECommittedBlock::serializeTransactionsAndCompleteSerialization(
-    ptr< BasicHeader > _blockHeader ) {
+ptr< std::vector< uint8_t > > BITECommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
+    ptr< BasicHeader > _blockHeader, ptr<TransactionList> transactionList ) {
     CHECK_STATE( _blockHeader );
     CHECK_STATE( transactionList );
     
@@ -73,7 +64,7 @@ ptr< std::vector< uint8_t > > BITECommittedBlock::serializeTransactionsAndComple
 }
 
 
-void BITECommittedBlock::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
+void BITECommittedBlockSerializer::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
     // 🔍 Verify the resulting buffer before returning
     CHECK_STATE(_serializedBlock);
     flatbuffers::Verifier verifier(_serializedBlock->data(), _serializedBlock->size());
@@ -82,7 +73,7 @@ void BITECommittedBlock::serializedSanityCheck( const ptr< vector< uint8_t > >& 
 
 
 
-ptr< CommittedBlock > BITECommittedBlock::deserialize( const ptr< vector< uint8_t > >& _serializedBlock,
+ptr< CommittedBlock > BITECommittedBlockSerializer::deserialize( const ptr< vector< uint8_t > >& _serializedBlock,
 const ptr< CryptoManager >& _manager, bool _verifySig ) {
 
     CHECK_ARGUMENT( _serializedBlock );

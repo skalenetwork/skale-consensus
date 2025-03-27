@@ -9,21 +9,12 @@
 #include "network/Buffer.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
-#include "BITEBlockProposal.h"
-
-BITEBlockProposal::BITEBlockProposal( uint64_t timeStamp, uint32_t timeStampMs )
-    : BlockProposal( timeStamp, timeStampMs ) {}
-
-BITEBlockProposal::BITEBlockProposal( const schain_id& sChainId, const node_id& proposerNodeId,
-    const block_id& blockId, const schain_index& proposerIndex,
-    const ptr< TransactionList >& transactions, const u256& stateRoot, uint64_t timeStamp,
-    __uint32_t timeStampMs, const string& signature, const ptr< CryptoManager >& cryptoManager )
-    : BlockProposal( sChainId, proposerNodeId, blockId, proposerIndex, transactions, stateRoot,
-          timeStamp, timeStampMs, signature, cryptoManager ) {}
+#include "BITEBlockProposalSerializer.h"
 
 
-ptr< std::vector< uint8_t > > BITEBlockProposal::serializeTransactionsAndCompleteSerialization(
-    ptr< BasicHeader > _blockHeader ) {
+ptr< std::vector< uint8_t > >
+BITEBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(
+    ptr< BasicHeader > _blockHeader, ptr<TransactionList> transactionList ) {
     CHECK_STATE( _blockHeader );
     CHECK_STATE( transactionList );
 
@@ -72,13 +63,11 @@ ptr< std::vector< uint8_t > > BITEBlockProposal::serializeTransactionsAndComplet
 
     deserialize(buffer, nullptr, false);
 
-    cerr << "Deserialized" << endl;
-
     return buffer;
 }
 
 
-ptr< BlockProposal > BITEBlockProposal::deserialize(
+ptr< BlockProposal > BITEBlockProposalSerializer::deserialize(
     const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager,
     bool _verifySig ) {
     CHECK_ARGUMENT( _serializedProposal );
@@ -102,7 +91,7 @@ ptr< BlockProposal > BITEBlockProposal::deserialize(
     ptr< BlockProposalHeader > blockHeader;
 
     try {
-        blockHeader = parseBlockHeader( headerStr );
+        blockHeader = BlockProposal::parseBlockHeader( headerStr );
         CHECK_STATE( blockHeader );
     } catch ( ... ) {
         throw_with_nested(
@@ -155,7 +144,7 @@ ptr< BlockProposal > BITEBlockProposal::deserialize(
     return proposal;
 };
 
-void BITEBlockProposal::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
+void BITEBlockProposalSerializer::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
     CHECK_STATE(_serializedBlock);
     // 🔍 Verify the resulting buffer before returning
     flatbuffers::Verifier verifier(_serializedBlock->data(), _serializedBlock->size());

@@ -53,6 +53,7 @@ class BlockProposalFragmentList;
 #define SERIALIZE_AS_PROPOSAL 1
 
 class BlockProposal : public SendableItem {
+
     uint64_t creationTime;
 
     ptr< BlockProposalRequestHeader > cachedProposalRequestHeader = nullptr;  // tsafe
@@ -87,7 +88,7 @@ protected:
     void calculateHash();
 
 
-    virtual ptr< vector< uint8_t > > serializeTransactionsAndCompleteSerialization(
+    ptr< vector< uint8_t > > serializeTransactionsAndCompleteSerialization(
         ptr< BasicHeader > _blockHeader );
 
     static ptr< TransactionList > deserializeTransactions(
@@ -96,7 +97,7 @@ protected:
 
     static string extractHeader( const ptr< vector< uint8_t > >& _serializedBlock );
 
-    static ptr< BlockProposalHeader > parseBlockHeader( const string& _header );
+
 
 
     BlockProposal( uint64_t _timeStamp, uint32_t _timeStampMs );
@@ -107,6 +108,8 @@ protected:
         const ptr< CryptoManager >& _cryptoManager );
 
 public:
+
+    static ptr< BlockProposalHeader > parseBlockHeader( const string& _header );
 
     void setCachedSerializedProposal( const ptr< vector< uint8_t > >& _cachedSerializedProposal );
 

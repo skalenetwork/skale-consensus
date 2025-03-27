@@ -38,7 +38,7 @@
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
 #ifdef BITE
-#include "bite/BITEBlockProposal.h"
+#include "bite/BITEBlockProposalSerializer.h"
 #endif
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/CryptoManager.h"
@@ -254,6 +254,11 @@ ptr< vector< uint8_t > > BlockProposal::serializeProposal() {
 
 ptr< vector< uint8_t > > BlockProposal::serializeTransactionsAndCompleteSerialization(
     ptr< BasicHeader > _blockHeader ) {
+
+#ifdef BITE
+    return BITEBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(_blockHeader, transactionList);
+#endif
+
     CHECK_STATE( _blockHeader )
     auto block = make_shared< vector< uint8_t > >();
 
@@ -298,7 +303,7 @@ ptr< BlockProposal > BlockProposal::deserialize(
     bool _verifySig ) {
 #ifdef BITE
     // override static method
-    return BITEBlockProposal::deserialize(_serializedProposal, _manager, _verifySig);
+    return BITEBlockProposalSerializer::deserialize(_serializedProposal, _manager, _verifySig);
 #endif
 
     CHECK_ARGUMENT( _serializedProposal );
@@ -502,20 +507,13 @@ uint64_t BlockProposal::getTotalObjects() {
     return totalBlockProposalObjects;
 }
 
-
 ptr< BlockProposal > BlockProposal::make( schain_id _sChainId, node_id _proposerNodeId,
     block_id _blockID, schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
     u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
     const ptr< CryptoManager >& _cryptoManager ) {
-#ifdef BITE
-    return ptr< BITEBlockProposal >(
-        new BITEBlockProposal( _sChainId, _proposerNodeId, _blockID, _proposerIndex, _transactions,
-            _stateRoot, _timeStamp, _timeStampMs, _signature, _cryptoManager ) );
-#else
     return ptr< BlockProposal >(
         new BlockProposal( _sChainId, _proposerNodeId, _blockID, _proposerIndex, _transactions,
             _stateRoot, _timeStamp, _timeStampMs, _signature, _cryptoManager ) );
-#endif
 }
 void BlockProposal::setCachedSerializedProposal(
     const ptr< vector< uint8_t > >& cachedSerializedProposal ) {

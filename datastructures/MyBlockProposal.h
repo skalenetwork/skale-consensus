@@ -25,6 +25,9 @@
 
 
 #include "BlockProposal.h"
+#ifdef BITE
+#include "bite/BITEBlockProposalSerializer.h"
+#endif
 
 
 class MyBlockProposal : public BlockProposal {
