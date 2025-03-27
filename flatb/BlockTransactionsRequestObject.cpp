@@ -16,7 +16,7 @@
 using namespace skale_fb;
 
 ptr< BlockTransactionsRequestObject > BlockTransactionsRequestObject::deserializeAndVerify(
-    const folly::IOBuf& _buffer, schain_id _sChainId ) {
+    const folly::IOBuf& _buffer, schain_id  ) {
     const skale_fb::BlockTransactionsRequest* request = nullptr;
     VERIFY_AND_PARSE_FLATBUFFER( _buffer, BlockTransactionsRequest, request );
 

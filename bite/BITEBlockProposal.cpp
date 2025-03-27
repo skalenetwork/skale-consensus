@@ -40,6 +40,7 @@ ptr< std::vector< uint8_t > > BITEBlockProposal::serializeTransactionsAndComplet
     std::vector< flatbuffers::Offset< skale_fb::Transaction > > transactionsVec;
     transactionsVec.reserve( items.size() );
 
+
     for ( const auto& tx : items ) {
         const auto& txDataVec = *tx->getData();
         auto txData = builder.CreateVector( txDataVec.data(), txDataVec.size() );
@@ -69,6 +70,10 @@ ptr< std::vector< uint8_t > > BITEBlockProposal::serializeTransactionsAndComplet
     buffer->resize( size );
     std::memcpy( buffer->data(), raw, size );  // unavoidable copy if caller requires vector
 
+    deserialize(buffer, nullptr, false);
+
+    cerr << "Deserialized" << endl;
+
     return buffer;
 }
 
@@ -77,7 +82,7 @@ ptr< BlockProposal > BITEBlockProposal::deserialize(
     const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager,
     bool _verifySig ) {
     CHECK_ARGUMENT( _serializedProposal );
-    CHECK_ARGUMENT( _manager );
+    //CHECK_ARGUMENT( _manager );
 
 
     const skale_fb::BlockProposal* fbProposal = nullptr;
@@ -87,10 +92,9 @@ ptr< BlockProposal > BITEBlockProposal::deserialize(
 
     // Extract block header data
     auto fbHeaderVec = fbProposal->block_header();
-    CHECK_STATE( fbHeaderVec );
     size_t headerSize = fbHeaderVec->size();
-    string headerStr;
-    std::memcpy( headerStr.data(), fbHeaderVec->data(), headerSize );
+    CHECK_STATE(fbHeaderVec->data())
+    std::string headerStr(reinterpret_cast<const char*>(fbHeaderVec->data()), headerSize);
 
 
     CHECK_STATE( !headerStr.empty() );

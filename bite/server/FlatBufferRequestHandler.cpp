@@ -153,7 +153,7 @@ void FlatBufferRequestHandler::sendFlatBufferError(ConnectionSubStatus _substatu
 
 
 string FlatBufferRequestHandler::getBlockFinalizeResponse(
-    const folly::IOBuf &_request) noexcept {
+    const folly::IOBuf &) noexcept {
     FlatBufferBuilder builder;
     // auto msg = builder.CreateString( message );
     // auto response = CreateBlockFinalizeResponse( builder, msg );
@@ -164,7 +164,7 @@ string FlatBufferRequestHandler::getBlockFinalizeResponse(
 
 
 string FlatBufferRequestHandler::getBlockTransactionsResponse(
-    const folly::IOBuf &_request) noexcept {
+    const folly::IOBuf &) noexcept {
     FlatBufferBuilder builder;
     // auto msg = builder.CreateString( message );
     // auto response = CreateBlockFinalizeResponse( builder, msg );

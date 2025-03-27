@@ -351,8 +351,8 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
 
 
 #ifdef BITE
-string SgxZmqClient::teDecryptShare( int _base, const string& _keyShareName,
-    const string& _hexEncodedTEEncryptedAES256Key, bool _throwExceptionOnTimeout ) {
+string SgxZmqClient::teDecryptShare( int , const string& _keyShareName,
+    const string& , bool _throwExceptionOnTimeout ) {
     Json::Value p;
     p["type"] = SgxZmqMessage::TE_DECRYPT_SHARE_REQ;
     p["keyShareName"] = _keyShareName;

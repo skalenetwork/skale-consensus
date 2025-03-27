@@ -72,7 +72,7 @@ ptr< CommittedBlock > CommittedBlock::make( const schain_id _sChainId,
     CHECK_ARGUMENT( !_signature.empty() );
     CHECK_ARGUMENT( !_thresholdSig.empty() );
 
-#ifdef BITE1
+#ifdef BITE
     return ptr<CommittedBlock >( new BITECommittedBlock(_sChainId, _proposerNodeId, _blockId, _proposerIndex,
         _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature, _thresholdSig, _daSig ));
 #else
@@ -83,7 +83,7 @@ ptr< CommittedBlock > CommittedBlock::make( const schain_id _sChainId,
 
 
 void CommittedBlock::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
-#ifdef BITE1
+#ifdef BITE
     return BITECommittedBlock::serializedSanityCheck(_serializedBlock);
 #endif
     CHECK_ARGUMENT( _serializedBlock );
@@ -134,7 +134,7 @@ bool CommittedBlock::isLegacy() {
 ptr< CommittedBlock > CommittedBlock::deserialize( const ptr< vector< uint8_t > >& _serializedBlock,
     const ptr< CryptoManager >& _manager, bool _verifySig ) {
 
-#ifdef BITE1
+#ifdef BITE
     // overriding static function
     return BITECommittedBlock::deserialize(_serializedBlock, _manager, _verifySig);
 #endif

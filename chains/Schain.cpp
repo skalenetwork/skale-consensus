@@ -444,7 +444,11 @@ const atomic< bool >& Schain::getIsStateInitialized() const {
     return isStateInitialized;
 }
 
-bool Schain::verifyDASigsPatch( uint64_t _blockTimeStampS ) {
+bool Schain::verifyDASigsPatch( uint64_t
+#ifndef BITE
+        _blockTimeStampS
+#endif         
+            ) {
 #ifdef BITE
     return true;
 #else
@@ -452,7 +456,11 @@ bool Schain::verifyDASigsPatch( uint64_t _blockTimeStampS ) {
 #endif
 }
 
-bool Schain::verifyBlsSyncPatch( uint64_t _blockTimeStampS ) {
+bool Schain::verifyBlsSyncPatch( uint64_t
+#ifndef BITE
+        _blockTimeStampS
+#endif
+            ) {
 #ifdef BITE
     return true;
 #else
@@ -1536,7 +1544,11 @@ Schain::addDAProofToDBAndCalculateProposalVectorIfItsTimeToStartBinaryConsensus(
 }
 
 // returns true if fastConsensusPatch ie enabled
-bool Schain::fastConsensusPatchEnabled(uint64_t _blockTimeStampSec ) {
+bool Schain::fastConsensusPatchEnabled(uint64_t
+#ifndef BITE
+        _blockTimeStampSec
+#endif
+            ) {
 #ifdef BITE
     return true;
 #else

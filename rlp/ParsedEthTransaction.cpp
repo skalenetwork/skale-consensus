@@ -43,14 +43,12 @@ void ParsedEthTransaction::skipRlpListHeader(
     uint8_t prefix = _tx.at( _offset );
     if ( prefix <= 0xf7 ) {
         _offset += 1;
-    } else if ( prefix <= 0xff ) {
+    } else {
         size_t lenOfLen = prefix - 0xf7;
         if ( _offset + 1 + lenOfLen > _tx.size() ) {
             throw std::invalid_argument( "skipRlpListHeader: out of bounds" );
         }
         _offset += 1 + lenOfLen;
-    } else {
-        throw invalid_argument( "Invalid RLP list prefix" );
     }
 }
 
@@ -183,13 +181,13 @@ inline bool ParsedEthTransaction::isZero( const std::vector< uint8_t >& _data ) 
     return true;
 }
 
-std::vector<uint8_t> padTo32Bytes(const std::vector<uint8_t>& input) {
+std::vector< uint8_t > padTo32Bytes( const std::vector< uint8_t >& input ) {
     constexpr size_t TARGET_SIZE = 32;
-    std::vector<uint8_t> result(TARGET_SIZE, 0);  // initialize with zeros
+    std::vector< uint8_t > result( TARGET_SIZE, 0 );  // initialize with zeros
 
-    CHECK_STATE(input.size() <= TARGET_SIZE);
+    CHECK_STATE( input.size() <= TARGET_SIZE );
     // Copy input to the rightmost part of result
-    std::copy(input.begin(), input.end(), result.begin() + (TARGET_SIZE - input.size()));
+    std::copy( input.begin(), input.end(), result.begin() + ( TARGET_SIZE - input.size() ) );
 
     return result;
 }
@@ -207,7 +205,6 @@ void ParsedEthTransaction::validateSignature() {
     }
 
 
-
     EthTransactionEncoder::LegacyTx txWithoutSig;
 
     txWithoutSig.nonce = fields.at( 0 );
@@ -220,13 +217,11 @@ void ParsedEthTransaction::validateSignature() {
     std::vector< uint8_t > encoded_tx =
         EthTransactionEncoder::rlpEncode( txWithoutSig, false, nullptr, nullptr, nullptr );
     std::vector< uint8_t > tx_hash = EthTransactionEncoder::hashTransaction( encoded_tx );
-    auto r_padded = padTo32Bytes(r);
-    auto s_padded = padTo32Bytes(s);
+    auto r_padded = padTo32Bytes( r );
+    auto s_padded = padTo32Bytes( s );
 
-    EthTransactionEncoder::verifyEthSignature(v, r_padded, s_padded, tx_hash);
-
+    EthTransactionEncoder::verifyEthSignature( v, r_padded, s_padded, tx_hash );
 }
-
 
 
 ptr< std::vector< uint8_t > > ParsedEthTransaction::getTransactionDataField() {

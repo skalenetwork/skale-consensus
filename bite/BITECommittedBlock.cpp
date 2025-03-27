@@ -88,8 +88,6 @@ const ptr< CryptoManager >& _manager, bool _verifySig ) {
     CHECK_ARGUMENT( _serializedBlock );
     CHECK_ARGUMENT( _manager );
 
-    sleep(1000);
-
 
     const skale_fb::CommittedBlock* fbBlock = nullptr;
 
@@ -99,8 +97,8 @@ const ptr< CryptoManager >& _manager, bool _verifySig ) {
     auto fbHeaderVec = fbBlock->block_header();
     CHECK_STATE( fbHeaderVec );
     size_t headerSize = fbHeaderVec->size();
-    string headerStr;
-    std::memcpy( headerStr.data(), fbHeaderVec->data(), headerSize );
+    CHECK_STATE(fbHeaderVec->data())
+    std::string headerStr(reinterpret_cast<const char*>(fbHeaderVec->data()), headerSize);
 
 
     ptr< CommittedBlockHeader > blockHeader;
