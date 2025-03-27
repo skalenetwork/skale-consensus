@@ -1,0 +1,14 @@
+include "common_structures.fbs";
+
+namespace skale_fb;
+
+table CommittedBlock {
+  block_header: [uint8] (required);
+  transactions: [Transaction](required);
+  da_sig: [uint8] (required);
+  threshold_sig:[uint8](required);
+  aes_keys:[AesKey](required);
+}
+
+
+root_type CommittedBlock;

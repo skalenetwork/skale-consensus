@@ -37,6 +37,8 @@ struct DecryptionShare;
 struct DecryptionShareBuilder;
 struct DecryptionShareT;
 
+struct AesKey;
+
 FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) Hash FLATBUFFERS_FINAL_CLASS {
  private:
   uint8_t data_[32];
@@ -87,6 +89,33 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(1) TruncatedHash FLATBUFFERS_FINAL_CLASS {
   }
 };
 FLATBUFFERS_STRUCT_END(TruncatedHash, 8);
+
+FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(2) AesKey FLATBUFFERS_FINAL_CLASS {
+ private:
+  uint16_t transaction_index_;
+  uint8_t data_[32];
+
+ public:
+  AesKey()
+      : transaction_index_(0),
+        data_() {
+  }
+  AesKey(uint16_t _transaction_index)
+      : transaction_index_(::flatbuffers::EndianScalar(_transaction_index)),
+        data_() {
+  }
+  AesKey(uint16_t _transaction_index, ::flatbuffers::span<const uint8_t, 32> _data)
+      : transaction_index_(::flatbuffers::EndianScalar(_transaction_index)) {
+    ::flatbuffers::CastToArray(data_).CopyFromSpan(_data);
+  }
+  uint16_t transaction_index() const {
+    return ::flatbuffers::EndianScalar(transaction_index_);
+  }
+  const ::flatbuffers::Array<uint8_t, 32> *data() const {
+    return &::flatbuffers::CastToArray(data_);
+  }
+};
+FLATBUFFERS_STRUCT_END(AesKey, 34);
 
 struct TransactionT : public ::flatbuffers::NativeTable {
   typedef Transaction TableType;

@@ -51,3 +51,8 @@ table DecryptionShare {
     data: [uint8] (required);
 }
 
+// DecryptionShare is a struct since it has a fixed format
+struct AesKey {
+    transaction_index: uint16;
+    data: [uint8:32];
+}

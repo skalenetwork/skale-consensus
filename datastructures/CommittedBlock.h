@@ -36,12 +36,17 @@ class Schain;
 class BlockProposalHeader;
 class ThresholdSignature;
 class CommittedBlockHeader;
+class DecryptedAESKeyList;
 
 class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
     string thresholdSig;
     string daSig;
+#ifdef BITE
+    ptr<DecryptedAESKeyList> decryptedAesKeyList = nullptr;
+#endif
+
 
     ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;  // tsafe
 
