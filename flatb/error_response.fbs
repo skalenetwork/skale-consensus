@@ -7,7 +7,7 @@ table ErrorResponse {
     last_block: uint64;
     last_block_timestamp_s: uint64;
     last_block_timestamp_ms: uint64;
-    message: string (required);
+    message: string ;
 }
 
 
