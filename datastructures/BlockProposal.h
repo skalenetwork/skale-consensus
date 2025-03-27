@@ -93,13 +93,21 @@ protected:
 
     static ptr< BlockProposalHeader > parseBlockHeader( const string& _header );
 
-public:
+
     BlockProposal( uint64_t _timeStamp, uint32_t _timeStampMs );
 
     BlockProposal( schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
         schain_index _proposerIndex, const ptr< TransactionList >& _transactions, u256 _stateRoot,
         uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
         const ptr< CryptoManager >& _cryptoManager );
+
+public:
+
+    static ptr< BlockProposal > make( schain_id _sChainId, node_id _proposerNodeId,
+        block_id _blockID, schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
+        u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
+        const ptr< CryptoManager >& _cryptoManager );
+
 
     [[nodiscard]] uint64_t getTimeStampS() const;
 

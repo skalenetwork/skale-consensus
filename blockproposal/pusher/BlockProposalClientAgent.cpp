@@ -134,7 +134,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
 ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
     const ptr< BlockProposal >& _proposal, schain_index _index ) {
     if ( ( uint64_t ) _index % 2 == 0 ) {
-        auto proposal2 = make_shared< BlockProposal >( _proposal->getSchainID(),
+        auto proposal2 = BlockProposal::make( _proposal->getSchainID(),
             _proposal->getProposerNodeID(), _proposal->getBlockID(), _proposal->getProposerIndex(),
             make_shared< TransactionList >( make_shared< vector< ptr< Transaction > > >() ),
             _proposal->getStateRoot(), MODERN_TIME + 1, 1, nullptr,

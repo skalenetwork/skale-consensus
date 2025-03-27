@@ -37,6 +37,9 @@
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
+#ifdef BITE
+#include "bite/BITEBlockProposal.h"
+#endif
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/CryptoManager.h"
 #include "network/Buffer.h"
@@ -123,7 +126,7 @@ BlockProposal::BlockProposal( schain_id _sChainId, node_id _proposerNodeId, bloc
 
 
 #ifdef BITE
-    CHECK_STATE( timeStamp > MODERN_TIME || _proposerIndex == 0)
+    CHECK_STATE( timeStamp > MODERN_TIME || _proposerIndex == 0 )
 #else
     CHECK_STATE( timeStamp > MODERN_TIME );
 #endif
@@ -321,7 +324,7 @@ ptr< BlockProposal > BlockProposal::deserialize(
     CHECK_STATE( !sig.empty() );
 
     auto proposal =
-        make_shared< BlockProposal >( blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
+        BlockProposal::make( blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
             blockHeader->getBlockID(), blockHeader->getProposerIndex(), list,
             blockHeader->getStateRoot(), blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
             blockHeader->getSignature(), nullptr );
@@ -492,4 +495,20 @@ atomic< int64_t > BlockProposal::totalBlockProposalObjects( 0 );
 
 uint64_t BlockProposal::getTotalObjects() {
     return totalBlockProposalObjects;
+}
+
+
+ptr< BlockProposal > BlockProposal::make( schain_id _sChainId, node_id _proposerNodeId,
+    block_id _blockID, schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
+    u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
+    const ptr< CryptoManager >& _cryptoManager ) {
+#ifdef BITE
+    return ptr< BITEBlockProposal >(
+        new BITEBlockProposal( _sChainId, _proposerNodeId, _blockID, _proposerIndex, _transactions,
+            _stateRoot, _timeStamp, _timeStampMs, _signature, _cryptoManager ) );
+#else
+    return ptr< BlockProposal >(
+        new BlockProposal( _sChainId, _proposerNodeId, _blockID, _proposerIndex, _transactions,
+            _stateRoot, _timeStamp, _timeStampMs, _signature, _cryptoManager ) );
+#endif
 }

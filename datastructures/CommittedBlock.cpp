@@ -82,6 +82,7 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
 
 void CommittedBlock::serializedSanityCheck(const ptr<vector<uint8_t> > &_serializedBlock) {
     CHECK_ARGUMENT(_serializedBlock);
+
     CHECK_ARGUMENT(_serializedBlock->at( sizeof( uint64_t ) ) == '{');
     CHECK_ARGUMENT(_serializedBlock->back() == '>');
 };
@@ -99,8 +100,8 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
     u256 stateRoot = (uint64_t) _blockID + 1;
 
 
-    auto p = make_shared<BlockProposal>(
-        1, 1, _blockID, 1, list, stateRoot, MODERN_TIME + 1, 1, nullptr, _manager);
+    auto p = BlockProposal::make(
+        1, 1, _blockID, 1, list, stateRoot, MODERN_TIME + 1, 1, nullptr, _manager );
 
 
     return CommittedBlock::make(p->getSchainID(), p->getProposerNodeID(), p->getBlockID(),
