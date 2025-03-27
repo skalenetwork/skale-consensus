@@ -6,7 +6,7 @@ table BlockTransactionsRequest {
   block_id: uint64;
   node_id: uint64;
   proposer_index: uint64;
-  transaction_indices :[uint16] (required);
+  transaction_indices :[uint16] ;
 }
 
 root_type BlockTransactionsRequest;

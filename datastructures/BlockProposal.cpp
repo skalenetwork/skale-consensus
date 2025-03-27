@@ -296,6 +296,11 @@ ptr< vector< uint8_t > > BlockProposal::serializeTransactionsAndCompleteSerializ
 ptr< BlockProposal > BlockProposal::deserialize(
     const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager,
     bool _verifySig ) {
+#ifdef BITE
+    // override static method
+    return BITEBlockProposal::deserialize(_serializedProposal, _manager, _verifySig);
+#endif
+
     CHECK_ARGUMENT( _serializedProposal );
     CHECK_ARGUMENT( _manager );
 
@@ -511,4 +516,8 @@ ptr< BlockProposal > BlockProposal::make( schain_id _sChainId, node_id _proposer
         new BlockProposal( _sChainId, _proposerNodeId, _blockID, _proposerIndex, _transactions,
             _stateRoot, _timeStamp, _timeStampMs, _signature, _cryptoManager ) );
 #endif
+}
+void BlockProposal::setCachedSerializedProposal(
+    const ptr< vector< uint8_t > >& cachedSerializedProposal ) {
+    BlockProposal::cachedSerializedProposal = cachedSerializedProposal;
 }

@@ -65,7 +65,7 @@ struct BlockTransactionsRequest FLATBUFFERS_FINAL_CLASS : private ::flatbuffers:
            VerifyField<uint64_t>(verifier, VT_BLOCK_ID, 8) &&
            VerifyField<uint64_t>(verifier, VT_NODE_ID, 8) &&
            VerifyField<uint64_t>(verifier, VT_PROPOSER_INDEX, 8) &&
-           VerifyOffsetRequired(verifier, VT_TRANSACTION_INDICES) &&
+           VerifyOffset(verifier, VT_TRANSACTION_INDICES) &&
            verifier.VerifyVector(transaction_indices()) &&
            verifier.EndTable();
   }
@@ -103,7 +103,6 @@ struct BlockTransactionsRequestBuilder {
   ::flatbuffers::Offset<BlockTransactionsRequest> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<BlockTransactionsRequest>(end);
-    fbb_.Required(o, BlockTransactionsRequest::VT_TRANSACTION_INDICES);
     return o;
   }
 };
@@ -177,7 +176,7 @@ inline ::flatbuffers::Offset<BlockTransactionsRequest> CreateBlockTransactionsRe
   auto _block_id = _o->block_id;
   auto _node_id = _o->node_id;
   auto _proposer_index = _o->proposer_index;
-  auto _transaction_indices = _fbb.CreateVector(_o->transaction_indices);
+  auto _transaction_indices = _o->transaction_indices.size() ? _fbb.CreateVector(_o->transaction_indices) : 0;
   return skale_fb::CreateBlockTransactionsRequest(
       _fbb,
       _schain_id,

@@ -65,7 +65,7 @@ struct ErrorResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint64_t>(verifier, VT_LAST_BLOCK, 8) &&
            VerifyField<uint64_t>(verifier, VT_LAST_BLOCK_TIMESTAMP_S, 8) &&
            VerifyField<uint64_t>(verifier, VT_LAST_BLOCK_TIMESTAMP_MS, 8) &&
-           VerifyOffsetRequired(verifier, VT_MESSAGE) &&
+           VerifyOffset(verifier, VT_MESSAGE) &&
            verifier.VerifyString(message()) &&
            verifier.EndTable();
   }
@@ -103,7 +103,6 @@ struct ErrorResponseBuilder {
   ::flatbuffers::Offset<ErrorResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<ErrorResponse>(end);
-    fbb_.Required(o, ErrorResponse::VT_MESSAGE);
     return o;
   }
 };
@@ -177,7 +176,7 @@ inline ::flatbuffers::Offset<ErrorResponse> CreateErrorResponse(::flatbuffers::F
   auto _last_block = _o->last_block;
   auto _last_block_timestamp_s = _o->last_block_timestamp_s;
   auto _last_block_timestamp_ms = _o->last_block_timestamp_ms;
-  auto _message = _fbb.CreateString(_o->message);
+  auto _message = _o->message.empty() ? 0 : _fbb.CreateString(_o->message);
   return skale_fb::CreateErrorResponse(
       _fbb,
       _status,

@@ -57,13 +57,18 @@ class BlockProposal : public SendableItem {
 
     ptr< BlockProposalRequestHeader > cachedProposalRequestHeader = nullptr;  // tsafe
 
-    ptr< vector< uint8_t > > cachedSerializedProposal = nullptr;  // tsafe
+
 
     ptr< BasicHeader > createProposalHeader();
 
     static atomic< int64_t > totalBlockProposalObjects;
 
 protected:
+
+
+
+    ptr< vector< uint8_t > > cachedSerializedProposal = nullptr;  // tsafe
+
     schain_id schainID = 0;
     node_id proposerNodeID = 0;
     block_id blockID = 0;
@@ -82,7 +87,7 @@ protected:
     void calculateHash();
 
 
-    ptr< vector< uint8_t > > serializeTransactionsAndCompleteSerialization(
+    virtual ptr< vector< uint8_t > > serializeTransactionsAndCompleteSerialization(
         ptr< BasicHeader > _blockHeader );
 
     static ptr< TransactionList > deserializeTransactions(
@@ -102,6 +107,8 @@ protected:
         const ptr< CryptoManager >& _cryptoManager );
 
 public:
+
+    void setCachedSerializedProposal( const ptr< vector< uint8_t > >& _cachedSerializedProposal );
 
     static ptr< BlockProposal > make( schain_id _sChainId, node_id _proposerNodeId,
         block_id _blockID, schain_index _proposerIndex, const ptr< TransactionList >& _transactions,

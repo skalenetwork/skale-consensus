@@ -1,7 +1,7 @@
 namespace skale_fb;
 
 table Transaction {
-    data: [uint8] (required);  // Each transaction is a byte array
+    data: [uint8];  // Each transaction is a byte array
 }
 
 // Hashes should be structs for efficient memory layout
@@ -26,12 +26,12 @@ table BlockHeader {
     transaction_count: uint64;
     time_stamp_s: uint64;
     time_stamp_ms: uint64;
-    transactions_merkle_root : Hash (required);
-    parent_hash : Hash (required);
-    extra_data: ExtraData  (required);
-    committee_hash: [Hash] (required);
-    public_key_hash: [Hash] (required);
-    encrypted_transaction_indices: [uint16] (required);
+    transactions_merkle_root : Hash;
+    parent_hash : Hash ;
+    extra_data: ExtraData  ;
+    committee_hash: [Hash];
+    public_key_hash: [Hash];
+    encrypted_transaction_indices: [uint16];
 }
 
 
@@ -40,15 +40,15 @@ table BlockHeader {
 // Flattened BlockFragment to remove unnecessary nesting
 table BlockFragment {
     index: uint16;
-    tx_truncated_hashes: [TruncatedHash] (required);  // Already an inline array
-    left_proof: [Hash] (required);
-    right_proof: [Hash] (required);
+    tx_truncated_hashes: [TruncatedHash];  // Already an inline array
+    left_proof: [Hash];
+    right_proof: [Hash];
 }
 
 // DecryptionShare is a struct since it has a fixed format
 table DecryptionShare {
     transaction_index: uint16;
-    data: [uint8] (required);
+    data: [uint8] ;
 }
 
 // DecryptionShare is a struct since it has a fixed format

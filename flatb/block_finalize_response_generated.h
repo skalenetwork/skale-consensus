@@ -61,9 +61,9 @@ struct BlockFinalizeResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_BLOCK_HEADER) &&
+           VerifyOffset(verifier, VT_BLOCK_HEADER) &&
            verifier.VerifyTable(block_header()) &&
-           VerifyOffsetRequired(verifier, VT_BLOCK_SIG) &&
+           VerifyOffset(verifier, VT_BLOCK_SIG) &&
            verifier.VerifyVector(block_sig()) &&
            VerifyOffset(verifier, VT_DA_PROOF_SIG) &&
            verifier.VerifyVector(da_proof_sig()) &&
@@ -105,8 +105,6 @@ struct BlockFinalizeResponseBuilder {
   ::flatbuffers::Offset<BlockFinalizeResponse> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<BlockFinalizeResponse>(end);
-    fbb_.Required(o, BlockFinalizeResponse::VT_BLOCK_HEADER);
-    fbb_.Required(o, BlockFinalizeResponse::VT_BLOCK_SIG);
     return o;
   }
 };
@@ -191,7 +189,7 @@ inline ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BlockFinalizeResponseT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _block_header = _o->block_header ? CreateBlockHeader(_fbb, _o->block_header.get(), _rehasher) : 0;
-  auto _block_sig = _fbb.CreateVector(_o->block_sig);
+  auto _block_sig = _o->block_sig.size() ? _fbb.CreateVector(_o->block_sig) : 0;
   auto _da_proof_sig = _o->da_proof_sig.size() ? _fbb.CreateVector(_o->da_proof_sig) : 0;
   auto _block_fragment = _o->block_fragment ? CreateBlockFragment(_fbb, _o->block_fragment.get(), _rehasher) : 0;
   auto _decryption_shares = _o->decryption_shares.size() ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::DecryptionShare>> (_o->decryption_shares.size(), [](size_t i, _VectorArgs *__va) { return CreateDecryptionShare(*__va->__fbb, __va->__o->decryption_shares[i].get(), __va->__rehasher); }, &_va ) : 0;

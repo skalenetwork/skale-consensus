@@ -332,12 +332,16 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 }
             }
 
+            sleep(1);
+
+            /*
             try {
                 nextFragment = _agent->downloadFragment( _dstIndex, nextFragment );
                 if ( nextFragment == 0 ) {
                     // all fragments have been downloaded
                     return;
                 }
+
             } catch ( ExitRequestedException& ) {
                 return;
             } catch ( ConnectionRefusedException& e ) {
@@ -351,6 +355,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                     return;
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             }
+             */
         }
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );

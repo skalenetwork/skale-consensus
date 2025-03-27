@@ -133,7 +133,7 @@ struct Transaction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_DATA) &&
+           VerifyOffset(verifier, VT_DATA) &&
            verifier.VerifyVector(data()) &&
            verifier.EndTable();
   }
@@ -156,7 +156,6 @@ struct TransactionBuilder {
   ::flatbuffers::Offset<Transaction> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<Transaction>(end);
-    fbb_.Required(o, Transaction::VT_DATA);
     return o;
   }
 };
@@ -267,14 +266,14 @@ struct BlockHeader FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint64_t>(verifier, VT_TRANSACTION_COUNT, 8) &&
            VerifyField<uint64_t>(verifier, VT_TIME_STAMP_S, 8) &&
            VerifyField<uint64_t>(verifier, VT_TIME_STAMP_MS, 8) &&
-           VerifyFieldRequired<skale_fb::Hash>(verifier, VT_TRANSACTIONS_MERKLE_ROOT, 1) &&
-           VerifyFieldRequired<skale_fb::Hash>(verifier, VT_PARENT_HASH, 1) &&
-           VerifyFieldRequired<skale_fb::ExtraData>(verifier, VT_EXTRA_DATA, 1) &&
-           VerifyOffsetRequired(verifier, VT_COMMITTEE_HASH) &&
+           VerifyField<skale_fb::Hash>(verifier, VT_TRANSACTIONS_MERKLE_ROOT, 1) &&
+           VerifyField<skale_fb::Hash>(verifier, VT_PARENT_HASH, 1) &&
+           VerifyField<skale_fb::ExtraData>(verifier, VT_EXTRA_DATA, 1) &&
+           VerifyOffset(verifier, VT_COMMITTEE_HASH) &&
            verifier.VerifyVector(committee_hash()) &&
-           VerifyOffsetRequired(verifier, VT_PUBLIC_KEY_HASH) &&
+           VerifyOffset(verifier, VT_PUBLIC_KEY_HASH) &&
            verifier.VerifyVector(public_key_hash()) &&
-           VerifyOffsetRequired(verifier, VT_ENCRYPTED_TRANSACTION_INDICES) &&
+           VerifyOffset(verifier, VT_ENCRYPTED_TRANSACTION_INDICES) &&
            verifier.VerifyVector(encrypted_transaction_indices()) &&
            verifier.EndTable();
   }
@@ -333,12 +332,6 @@ struct BlockHeaderBuilder {
   ::flatbuffers::Offset<BlockHeader> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<BlockHeader>(end);
-    fbb_.Required(o, BlockHeader::VT_TRANSACTIONS_MERKLE_ROOT);
-    fbb_.Required(o, BlockHeader::VT_PARENT_HASH);
-    fbb_.Required(o, BlockHeader::VT_EXTRA_DATA);
-    fbb_.Required(o, BlockHeader::VT_COMMITTEE_HASH);
-    fbb_.Required(o, BlockHeader::VT_PUBLIC_KEY_HASH);
-    fbb_.Required(o, BlockHeader::VT_ENCRYPTED_TRANSACTION_INDICES);
     return o;
   }
 };
@@ -444,11 +437,11 @@ struct BlockFragment FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_INDEX, 2) &&
-           VerifyOffsetRequired(verifier, VT_TX_TRUNCATED_HASHES) &&
+           VerifyOffset(verifier, VT_TX_TRUNCATED_HASHES) &&
            verifier.VerifyVector(tx_truncated_hashes()) &&
-           VerifyOffsetRequired(verifier, VT_LEFT_PROOF) &&
+           VerifyOffset(verifier, VT_LEFT_PROOF) &&
            verifier.VerifyVector(left_proof()) &&
-           VerifyOffsetRequired(verifier, VT_RIGHT_PROOF) &&
+           VerifyOffset(verifier, VT_RIGHT_PROOF) &&
            verifier.VerifyVector(right_proof()) &&
            verifier.EndTable();
   }
@@ -480,9 +473,6 @@ struct BlockFragmentBuilder {
   ::flatbuffers::Offset<BlockFragment> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<BlockFragment>(end);
-    fbb_.Required(o, BlockFragment::VT_TX_TRUNCATED_HASHES);
-    fbb_.Required(o, BlockFragment::VT_LEFT_PROOF);
-    fbb_.Required(o, BlockFragment::VT_RIGHT_PROOF);
     return o;
   }
 };
@@ -542,7 +532,7 @@ struct DecryptionShare FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_TRANSACTION_INDEX, 2) &&
-           VerifyOffsetRequired(verifier, VT_DATA) &&
+           VerifyOffset(verifier, VT_DATA) &&
            verifier.VerifyVector(data()) &&
            verifier.EndTable();
   }
@@ -568,7 +558,6 @@ struct DecryptionShareBuilder {
   ::flatbuffers::Offset<DecryptionShare> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<DecryptionShare>(end);
-    fbb_.Required(o, DecryptionShare::VT_DATA);
     return o;
   }
 };
@@ -616,7 +605,7 @@ inline ::flatbuffers::Offset<Transaction> CreateTransaction(::flatbuffers::FlatB
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const TransactionT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _data = _fbb.CreateVector(_o->data);
+  auto _data = _o->data.size() ? _fbb.CreateVector(_o->data) : 0;
   return skale_fb::CreateTransaction(
       _fbb,
       _data);
@@ -697,9 +686,9 @@ inline ::flatbuffers::Offset<BlockHeader> CreateBlockHeader(::flatbuffers::FlatB
   auto _transactions_merkle_root = _o->transactions_merkle_root ? _o->transactions_merkle_root.get() : nullptr;
   auto _parent_hash = _o->parent_hash ? _o->parent_hash.get() : nullptr;
   auto _extra_data = _o->extra_data ? _o->extra_data.get() : nullptr;
-  auto _committee_hash = _fbb.CreateVectorOfStructs(_o->committee_hash);
-  auto _public_key_hash = _fbb.CreateVectorOfStructs(_o->public_key_hash);
-  auto _encrypted_transaction_indices = _fbb.CreateVector(_o->encrypted_transaction_indices);
+  auto _committee_hash = _o->committee_hash.size() ? _fbb.CreateVectorOfStructs(_o->committee_hash) : 0;
+  auto _public_key_hash = _o->public_key_hash.size() ? _fbb.CreateVectorOfStructs(_o->public_key_hash) : 0;
+  auto _encrypted_transaction_indices = _o->encrypted_transaction_indices.size() ? _fbb.CreateVector(_o->encrypted_transaction_indices) : 0;
   return skale_fb::CreateBlockHeader(
       _fbb,
       _schain_id,
@@ -741,9 +730,9 @@ inline ::flatbuffers::Offset<BlockFragment> CreateBlockFragment(::flatbuffers::F
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BlockFragmentT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _index = _o->index;
-  auto _tx_truncated_hashes = _fbb.CreateVectorOfStructs(_o->tx_truncated_hashes);
-  auto _left_proof = _fbb.CreateVectorOfStructs(_o->left_proof);
-  auto _right_proof = _fbb.CreateVectorOfStructs(_o->right_proof);
+  auto _tx_truncated_hashes = _o->tx_truncated_hashes.size() ? _fbb.CreateVectorOfStructs(_o->tx_truncated_hashes) : 0;
+  auto _left_proof = _o->left_proof.size() ? _fbb.CreateVectorOfStructs(_o->left_proof) : 0;
+  auto _right_proof = _o->right_proof.size() ? _fbb.CreateVectorOfStructs(_o->right_proof) : 0;
   return skale_fb::CreateBlockFragment(
       _fbb,
       _index,
@@ -774,7 +763,7 @@ inline ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShare(::flatbuffer
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DecryptionShareT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _transaction_index = _o->transaction_index;
-  auto _data = _fbb.CreateVector(_o->data);
+  auto _data = _o->data.size() ? _fbb.CreateVector(_o->data) : 0;
   return skale_fb::CreateDecryptionShare(
       _fbb,
       _transaction_index,

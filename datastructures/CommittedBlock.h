@@ -41,6 +41,8 @@ class DecryptedAESKeyList;
 class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
+
+
     string thresholdSig;
     string daSig;
 #ifdef BITE
@@ -53,19 +55,25 @@ class CommittedBlock : public BlockProposal {
     bool isLegacy();
 
 
-    static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
+
 
     ptr< BasicHeader > createBlockHeader();
 
-public:
-    CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
+
+
+protected:
 
     CommittedBlock( const schain_id& _schainId, const node_id& _proposerNodeId,
         const block_id& _blockId, const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& _stateRoot, uint64_t _timeStamp,
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
         const string& _daSig );
+
+public:
+
+    static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
+
 
     [[nodiscard]] string getThresholdSig() const;
 

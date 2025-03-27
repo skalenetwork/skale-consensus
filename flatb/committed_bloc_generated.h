@@ -61,16 +61,16 @@ struct CommittedBlock FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffsetRequired(verifier, VT_BLOCK_HEADER) &&
+           VerifyOffset(verifier, VT_BLOCK_HEADER) &&
            verifier.VerifyVector(block_header()) &&
-           VerifyOffsetRequired(verifier, VT_TRANSACTIONS) &&
+           VerifyOffset(verifier, VT_TRANSACTIONS) &&
            verifier.VerifyVector(transactions()) &&
            verifier.VerifyVectorOfTables(transactions()) &&
-           VerifyOffsetRequired(verifier, VT_DA_SIG) &&
+           VerifyOffset(verifier, VT_DA_SIG) &&
            verifier.VerifyVector(da_sig()) &&
-           VerifyOffsetRequired(verifier, VT_THRESHOLD_SIG) &&
+           VerifyOffset(verifier, VT_THRESHOLD_SIG) &&
            verifier.VerifyVector(threshold_sig()) &&
-           VerifyOffsetRequired(verifier, VT_AES_KEYS) &&
+           VerifyOffset(verifier, VT_AES_KEYS) &&
            verifier.VerifyVector(aes_keys()) &&
            verifier.EndTable();
   }
@@ -105,11 +105,6 @@ struct CommittedBlockBuilder {
   ::flatbuffers::Offset<CommittedBlock> Finish() {
     const auto end = fbb_.EndTable(start_);
     auto o = ::flatbuffers::Offset<CommittedBlock>(end);
-    fbb_.Required(o, CommittedBlock::VT_BLOCK_HEADER);
-    fbb_.Required(o, CommittedBlock::VT_TRANSACTIONS);
-    fbb_.Required(o, CommittedBlock::VT_DA_SIG);
-    fbb_.Required(o, CommittedBlock::VT_THRESHOLD_SIG);
-    fbb_.Required(o, CommittedBlock::VT_AES_KEYS);
     return o;
   }
 };
@@ -195,11 +190,11 @@ inline ::flatbuffers::Offset<CommittedBlock> CreateCommittedBlock(::flatbuffers:
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CommittedBlockT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _block_header = _fbb.CreateVector(_o->block_header);
-  auto _transactions = _fbb.CreateVector<::flatbuffers::Offset<skale_fb::Transaction>> (_o->transactions.size(), [](size_t i, _VectorArgs *__va) { return CreateTransaction(*__va->__fbb, __va->__o->transactions[i].get(), __va->__rehasher); }, &_va );
-  auto _da_sig = _fbb.CreateVector(_o->da_sig);
-  auto _threshold_sig = _fbb.CreateVector(_o->threshold_sig);
-  auto _aes_keys = _fbb.CreateVectorOfStructs(_o->aes_keys);
+  auto _block_header = _o->block_header.size() ? _fbb.CreateVector(_o->block_header) : 0;
+  auto _transactions = _o->transactions.size() ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::Transaction>> (_o->transactions.size(), [](size_t i, _VectorArgs *__va) { return CreateTransaction(*__va->__fbb, __va->__o->transactions[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _da_sig = _o->da_sig.size() ? _fbb.CreateVector(_o->da_sig) : 0;
+  auto _threshold_sig = _o->threshold_sig.size() ? _fbb.CreateVector(_o->threshold_sig) : 0;
+  auto _aes_keys = _o->aes_keys.size() ? _fbb.CreateVectorOfStructs(_o->aes_keys) : 0;
   return skale_fb::CreateCommittedBlock(
       _fbb,
       _block_header,

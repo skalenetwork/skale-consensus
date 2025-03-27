@@ -3,8 +3,8 @@ include "common_structures.fbs";
 namespace skale_fb;
 
 table BlockProposal {
-  block_header: [uint8] (required);
-  transactions: [Transaction](required);
+  block_header: [uint8] ;
+  transactions: [Transaction];
 }
 
 
