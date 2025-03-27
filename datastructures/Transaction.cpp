@@ -86,7 +86,7 @@ Transaction::Transaction( const ptr< vector< uint8_t > >& _trx, bool _includesPa
         CHECK_ARGUMENT( _trx->size() > PARTIAL_HASH_LEN );
 
         std::copy(
-            _trx->begin() + +_trx->size() - PARTIAL_HASH_LEN, _trx->end(), incomingHash.begin() );
+            _trx->begin() + _trx->size() - PARTIAL_HASH_LEN, _trx->end(), incomingHash.begin() );
 
 
         _trx->resize( _trx->size() - PARTIAL_HASH_LEN );
