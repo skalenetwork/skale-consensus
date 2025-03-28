@@ -50,7 +50,13 @@ class CommittedBlock : public BlockProposal {
 #endif
 
 
-    ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;  // tsafe
+    ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;
+
+public:
+    void setCachedSerializedBlock( const ptr< vector< uint8_t > >& cachedSerializedBlock );
+
+private:
+    // tsafe
 
     bool isLegacy();
 
@@ -72,8 +78,7 @@ protected:
 
 public:
 
-    static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
-
+    static ptr< CommittedBlockHeader > parseBlockHeader( const string_view& _header );
 
     [[nodiscard]] string getThresholdSig() const;
 

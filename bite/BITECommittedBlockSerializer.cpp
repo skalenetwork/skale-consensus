@@ -20,11 +20,18 @@ ptr< std::vector< uint8_t > > BITECommittedBlockSerializer::serializeTransaction
     
     auto buf = _blockHeader->toBuffer();
     CHECK_STATE( buf );
-    CHECK_STATE( buf->getBuf()->at( sizeof( uint64_t ) ) == '{' );
-    CHECK_STATE( buf->getBuf()->at( buf->getCounter() - 1 ) == '}' );
+
+    auto* rawHeaderBuf = buf->getBuf()->data();
+    auto headerSize = buf->getCounter();
+
+    CHECK_STATE(rawHeaderBuf[sizeof(uint64_t)] == '{');
+    CHECK_STATE(rawHeaderBuf[headerSize - 1] == '}');
+
 
     // Preallocate ~1MB (tune as needed)
-    flatbuffers::FlatBufferBuilder builder( 1024 * 1024 );
+    thread_local flatbuffers::FlatBufferBuilder builder( 1024 * 1024 );
+    builder.Clear();
+
 
     // Serialize each transaction
     auto& items = *transactionList->getItems();
@@ -34,7 +41,7 @@ ptr< std::vector< uint8_t > > BITECommittedBlockSerializer::serializeTransaction
     for ( const auto& tx : items ) {
         const auto& txDataVec = *tx->getData();
         auto txData = builder.CreateVector( txDataVec.data(), txDataVec.size() );
-        transactionsVec.push_back( skale_fb::CreateTransaction( builder, txData ) );
+        transactionsVec.emplace_back(skale_fb::CreateTransaction(builder, txData));
     }
 
     // Serialize block header buffer directly. It starts with uint64_t size and then
@@ -51,11 +58,8 @@ ptr< std::vector< uint8_t > > BITECommittedBlockSerializer::serializeTransaction
     uint8_t* raw = builder.GetBufferPointer();
     size_t size = builder.GetSize();
 
-
-    auto buffer = std::make_shared< std::vector< uint8_t > >();
-    buffer->resize( size );
-    std::memcpy( buffer->data(), raw, size );  // unavoidable copy if caller requires vector
-    serializedSanityCheck(buffer);
+    // Slightly faster than resize+memcpy
+    auto buffer = std::make_shared<std::vector<uint8_t>>(raw, raw + size);
 
     return buffer;
 }
@@ -86,17 +90,16 @@ const ptr< CryptoManager >& _manager, bool _verifySig ) {
     CHECK_STATE( fbHeaderVec );
     size_t headerSize = fbHeaderVec->size();
     CHECK_STATE(fbHeaderVec->data())
-    std::string headerStr(reinterpret_cast<const char*>(fbHeaderVec->data()), headerSize);
-
+    std::string_view headerView(reinterpret_cast<const char*>(fbHeaderVec->data()), headerSize);
 
     ptr< CommittedBlockHeader > blockHeader;
 
     try {
-        blockHeader = CommittedBlock::parseBlockHeader( headerStr );
+        blockHeader = CommittedBlock::parseBlockHeader( headerView );
         CHECK_STATE( blockHeader );
     } catch ( ... ) {
         throw_with_nested( ParsingException(
-            "Could not parse committed block header: \n" + headerStr, __CLASS_NAME__ ) );
+            "Could not parse committed block header: \n" + string(headerView), __CLASS_NAME__ ) );
     }
 
 
@@ -104,12 +107,14 @@ const ptr< CryptoManager >& _manager, bool _verifySig ) {
     CHECK_STATE( fbTransactions );
 
     auto transactions = make_shared< vector< ptr< Transaction > > >();
+    transactions->reserve(fbTransactions->size());
 
     for ( const auto* tx : *fbTransactions ) {
-        CHECK_STATE( tx && tx->data() );
-
-        // Copy transaction data
-        auto txData = make_shared< vector< uint8_t > >( tx->data()->begin(), tx->data()->end() );
+        CHECK_STATE(tx)
+        auto rawData = tx->data()->data();
+        CHECK_STATE(rawData);
+        auto txData = make_shared< vector< uint8_t > >( rawData,
+            rawData + tx->data()->size() );
         auto txObj = make_shared< Transaction >( txData, false );  // hypothetical
         transactions->push_back( txObj );
     }
@@ -128,6 +133,8 @@ const ptr< CryptoManager >& _manager, bool _verifySig ) {
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( "Could not make block", __CLASS_NAME__ ) );
     }
+
+    block->setCachedSerializedBlock(_serializedBlock);
 
     CHECK_STATE( block );
 

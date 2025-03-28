@@ -214,13 +214,13 @@ ptr< CommittedBlock > CommittedBlock::deserialize( const ptr< vector< uint8_t > 
     return block;
 }
 
-ptr< CommittedBlockHeader > CommittedBlock::parseBlockHeader( const string& _header ) {
+ptr< CommittedBlockHeader > CommittedBlock::parseBlockHeader( const string_view& _header ) {
     CHECK_ARGUMENT( !_header.empty() );
     CHECK_ARGUMENT( _header.size() > 2 );
-    CHECK_ARGUMENT2( _header.at( 0 ) == '{', "Block header does not start with {" );
-    CHECK_ARGUMENT2( _header.at( _header.size() - 1 ) == '}', "Block header does not end with }" );
+    CHECK_ARGUMENT2( _header.front() == '{', "Block header does not start with {" );
+    CHECK_ARGUMENT2( _header.back() == '}', "Block header does not end with }" );
 
-    auto js = nlohmann::json::parse( _header );
+    auto js = nlohmann::json::parse( _header.data(), _header.data() + _header.size() );
 
     return make_shared< CommittedBlockHeader >( js );
 }
@@ -290,4 +290,8 @@ void CommittedBlock::verifyDaSig( ptr< CryptoManager > _cryptoManager ) {
         throw_with_nested(
             InvalidStateException( "Could not verify block DA sig:", __CLASS_NAME__ ) );
     }
+}
+void CommittedBlock::setCachedSerializedBlock(
+    const ptr< vector< uint8_t > >& cachedSerializedBlock ) {
+    CommittedBlock::cachedSerializedBlock = cachedSerializedBlock;
 }

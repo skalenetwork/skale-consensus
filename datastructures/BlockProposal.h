@@ -109,7 +109,7 @@ protected:
 
 public:
 
-    static ptr< BlockProposalHeader > parseBlockHeader( const string& _header );
+    static ptr< BlockProposalHeader > parseBlockHeader( const string_view& _header );
 
     void setCachedSerializedProposal( const ptr< vector< uint8_t > >& _cachedSerializedProposal );
 

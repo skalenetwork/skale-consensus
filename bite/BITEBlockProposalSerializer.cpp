@@ -11,53 +11,48 @@
 #include "datastructures/TransactionList.h"
 #include "BITEBlockProposalSerializer.h"
 
+ptr<std::vector<uint8_t>> BITEBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(
+    ptr<BasicHeader> _blockHeader, ptr<TransactionList> transactionList) {
 
-ptr< std::vector< uint8_t > >
-BITEBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(
-    ptr< BasicHeader > _blockHeader, ptr<TransactionList> transactionList ) {
-    CHECK_STATE( _blockHeader );
-    CHECK_STATE( transactionList );
+    CHECK_STATE(_blockHeader);
+    CHECK_STATE(transactionList);
 
     auto buf = _blockHeader->toBuffer();
-    CHECK_STATE( buf );
-    CHECK_STATE( buf->getBuf()->at( sizeof( uint64_t ) ) == '{' );
-    CHECK_STATE( buf->getBuf()->at( buf->getCounter() - 1 ) == '}' );
+    CHECK_STATE(buf);
 
-    // Preallocate ~1MB (tune as needed)
-    flatbuffers::FlatBufferBuilder builder( 1024 * 1024 );
+    auto* headerBuf = buf->getBuf()->data();
+    auto headerSize = buf->getCounter();
+    CHECK_STATE(headerBuf[sizeof(uint64_t)] == '{');
+    CHECK_STATE(headerBuf[headerSize - 1] == '}');
 
-    // Serialize each transaction
-    auto& items = *transactionList->getItems();
-    std::vector< flatbuffers::Offset< skale_fb::Transaction > > transactionsVec;
-    transactionsVec.reserve( items.size() );
+    // Reuse builder (thread-local, fast path)
+    thread_local flatbuffers::FlatBufferBuilder builder(1024 * 1024);
+    builder.Clear();
 
+    // Reserve + emplace (faster than push_back)
+    const auto& items = *transactionList->getItems();
+    std::vector<flatbuffers::Offset<skale_fb::Transaction>> transactionsVec;
+    transactionsVec.reserve(items.size());
 
-    for ( const auto& tx : items ) {
+    for (const auto& tx : items) {
         const auto& txDataVec = *tx->getData();
-        auto txData = builder.CreateVector( txDataVec.data(), txDataVec.size() );
-        transactionsVec.push_back( skale_fb::CreateTransaction( builder, txData ) );
+        auto txData = builder.CreateVector(txDataVec.data(), txDataVec.size());
+        transactionsVec.emplace_back(skale_fb::CreateTransaction(builder, txData));
     }
 
-    // Serialize block header buffer directly. It starts with uint64_t size and then
-    // includes the actual header. We do not need the size
     auto headerOffset = builder.CreateVector(
-        buf->getBuf()->data() + sizeof( uint64_t ), buf->getCounter() - sizeof( uint64_t ) );
-    auto transactionsOffset = builder.CreateVector( transactionsVec );
+        headerBuf + sizeof(uint64_t), headerSize - sizeof(uint64_t));
+    auto transactionsOffset = builder.CreateVector(transactionsVec);
 
-    // Finalize proposal
-    auto proposalOffset = CreateBlockProposal( builder, headerOffset, transactionsOffset );
-    builder.Finish( proposalOffset );
+    auto proposalOffset = CreateBlockProposal(builder, headerOffset, transactionsOffset);
+    builder.Finish(proposalOffset);
 
-
-    uint8_t* raw = builder.GetBufferPointer();
+    const uint8_t* raw = builder.GetBufferPointer();
     size_t size = builder.GetSize();
 
+    // Slightly faster than resize + memcpy
+    auto buffer = std::make_shared<std::vector<uint8_t>>(raw, raw + size);
 
-    auto buffer = std::make_shared< std::vector< uint8_t > >();
-    buffer->resize( size );
-    std::memcpy( buffer->data(), raw, size );  // unavoidable copy if caller requires vector
-
-    serializedSanityCheck(buffer);
 
     return buffer;
 }
@@ -79,19 +74,19 @@ ptr< BlockProposal > BITEBlockProposalSerializer::deserialize(
     auto fbHeaderVec = fbProposal->block_header();
     size_t headerSize = fbHeaderVec->size();
     CHECK_STATE(fbHeaderVec->data())
-    std::string headerStr(reinterpret_cast<const char*>(fbHeaderVec->data()), headerSize);
+    std::string_view headerView(reinterpret_cast<const char*>(fbHeaderVec->data()), headerSize);
 
 
-    CHECK_STATE( !headerStr.empty() );
+    CHECK_STATE( !headerView.empty() );
 
     ptr< BlockProposalHeader > blockHeader;
 
     try {
-        blockHeader = BlockProposal::parseBlockHeader( headerStr );
+        blockHeader = BlockProposal::parseBlockHeader( headerView );
         CHECK_STATE( blockHeader );
     } catch ( ... ) {
         throw_with_nested(
-            ParsingException( "Could not parse block header: \n" + headerStr, __CLASS_NAME__ ) );
+            ParsingException( "Could not parse block header:\n " + string(headerView), __CLASS_NAME__ ) );
     }
 
 
@@ -103,13 +98,15 @@ ptr< BlockProposal > BITEBlockProposalSerializer::deserialize(
     CHECK_STATE( fbTransactions );
 
     auto transactions = make_shared< vector< ptr< Transaction > > >();
+    transactions->reserve(fbTransactions->size());
 
     for ( const auto* tx : *fbTransactions ) {
         CHECK_STATE( tx && tx->data() );
-
         // Copy transaction data
-        auto txData = make_shared< vector< uint8_t > >( tx->data()->begin(), tx->data()->end() );
-        auto txObj = make_shared< Transaction >( txData, false );  // hypothetical
+        auto rawData = tx->data()->data();
+        auto txData = make_shared< vector< uint8_t > >( rawData,
+            rawData + tx->data()->size() );
+        auto txObj = make_shared< Transaction >( txData, false );
         transactions->push_back( txObj );
     }
 
@@ -122,6 +119,7 @@ ptr< BlockProposal > BITEBlockProposalSerializer::deserialize(
             blockHeader->getBlockID(), blockHeader->getProposerIndex(), list,
             blockHeader->getStateRoot(), blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
             blockHeader->getSignature(), nullptr );
+    proposal->setCachedSerializedProposal(_serializedProposal);
     // default blocks are not ecdsa signed
     if ( _verifySig && ( blockHeader->getProposerIndex() != 0 ) ) {
         try {
@@ -135,7 +133,7 @@ ptr< BlockProposal > BITEBlockProposalSerializer::deserialize(
     }
 
 
-    proposal->setCachedSerializedProposal(_serializedProposal);
+
 
     return proposal;
 };

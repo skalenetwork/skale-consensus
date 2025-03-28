@@ -476,13 +476,13 @@ string BlockProposal::extractHeader( const ptr< vector< uint8_t > >& _serialized
 }
 
 
-ptr< BlockProposalHeader > BlockProposal::parseBlockHeader( const string& _header ) {
-    CHECK_ARGUMENT( _header != "" );
+ptr< BlockProposalHeader > BlockProposal::parseBlockHeader( const string_view& _header ) {
+    CHECK_ARGUMENT( !_header.empty() );
     CHECK_ARGUMENT( _header.size() > 2 );
-    CHECK_ARGUMENT2( _header.at( 0 ) == '{', "Block header does not start with {" );
-    CHECK_ARGUMENT2( _header.at( _header.size() - 1 ) == '}', "Block header does not end with }" );
+    CHECK_ARGUMENT2( _header.front() == '{', "Block header does not start with {" );
+    CHECK_ARGUMENT2( _header.back() == '}', "Block header does not end with }" );
 
-    auto js = nlohmann::json::parse( _header );
+    auto js = nlohmann::json::parse( _header.data(), _header.data() + _header.size() );
 
     return make_shared< BlockProposalHeader >( js );
 }
@@ -516,6 +516,6 @@ ptr< BlockProposal > BlockProposal::make( schain_id _sChainId, node_id _proposer
             _stateRoot, _timeStamp, _timeStampMs, _signature, _cryptoManager ) );
 }
 void BlockProposal::setCachedSerializedProposal(
-    const ptr< vector< uint8_t > >& cachedSerializedProposal ) {
-    BlockProposal::cachedSerializedProposal = cachedSerializedProposal;
+    const ptr< vector< uint8_t > >& _cachedSerializedProposal ) {
+    cachedSerializedProposal = _cachedSerializedProposal;
 }
