@@ -73,7 +73,7 @@ execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARI
 message(STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}")
 add_compile_options(-Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-sign-compare)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-#    add_compile_options(-Wall -Wextra -Werror)
+    add_compile_options(-Wall -Wextra -Werror)
 endif ()
 add_definitions("-DZMQ_BUILD_DRAFT_API")
 add_definitions("-DUSER_SPACE")

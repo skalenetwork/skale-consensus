@@ -36,6 +36,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <string_view>
 
 enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0,
@@ -43,11 +44,9 @@ enum consensus_engine_status {
 };
 
 
-#ifdef BITE
-#include <string_view>
 constexpr uint64_t BITE_CHAIN_ID = 0xD1D2D3;
 constexpr std::string_view BITE_CHAIN_ID_AS_STRING = "D1D2D3";
-constexpr uint8_t BITE_CHAIN_ID_AS_BYTE_ARRAY[3] = {0xD2, 0xD2, 0xD3};
+constexpr uint8_t BITE_CHAIN_ID_AS_BYTE_ARRAY[3] = {0xD1, 0xD2, 0xD3};
 
 constexpr uint64_t BITE_MAGIC_SIZE = 16;
 constexpr std::string_view BITE_MAGIC_AS_STRING = "F3A9C7B1E4D5F28C7B1E9A3F5D2C8B00";
@@ -59,9 +58,6 @@ static constexpr uint64_t BITE_AES_KEY_LEN = 32;
 static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = 224;
 static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = 128;
 static constexpr uint64_t BITE_TE_RANDOM_LEN = 32;
-
-#endif
-
 
 
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
