@@ -132,9 +132,6 @@ ptr< BlockProposal > BITEBlockProposalSerializer::deserialize(
         }
     }
 
-
-
-
     return proposal;
 };
 

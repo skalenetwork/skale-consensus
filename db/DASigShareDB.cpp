@@ -46,6 +46,8 @@
 #include "SigDB.h"
 #include "DASigShareDB.h"
 
+#include <crypto/ThresholdAESKeyDecryptionShare.h>
+
 
 using namespace std;
 
@@ -73,6 +75,48 @@ ptr< DAProof > DASigShareDB::addAndMergeSigShareAndVerifySig(
 
     auto result = this->writeStringToSet(
         _sigShare->toString(), _sigShare->getBlockId(), _sigShare->getSignerIndex() );
+
+    if ( result != nullptr ) {
+        auto set = sChain->getCryptoManager()->createDAProofSigShareSet(
+            _sigShare->getBlockId(), _proposal->getTimeStampS() );
+
+        for ( auto&& entry : *result ) {
+            auto share = sChain->getCryptoManager()->createDAProofSigShare( entry.second,
+                sChain->getSchainID(), _proposal->getBlockID(), entry.first,
+                _proposal->getTimeStampS(), false );
+
+            set->addSigShare( share );
+        }
+
+
+        LOG( trace, "Merged signature" );
+        auto sig = set->mergeSignature();
+        CHECK_STATE( sig );
+
+
+        auto h = _proposal->getHash();
+
+        sChain->getCryptoManager()->verifyDAProofThresholdSig(
+            h, sig->toString(), _sigShare->getBlockId(), _proposal->getTimeStampS() );
+        auto proof = make_shared< DAProof >( _proposal, sig );
+        return proof;
+    }
+
+    return nullptr;
+}
+
+// return not-null if _sigShare completes sig, null otherwise (both if not enough and too much)
+ptr< DAProof > DASigShareDB::verifyAddAndMergeTEDecryptionShareAndVeryfiDecryptipn(
+    const ptr< ThresholdAESKeyDecryptionShare >& _sigShare, const ptr< BlockProposal >& _proposal ) {
+    CHECK_ARGUMENT( _sigShare );
+    CHECK_ARGUMENT( _proposal );
+
+    LOCK( sigShareMutex )
+
+    LOG( trace, "Adding sigshare" );
+
+    auto result = this->writeStringToSet(
+        _sigShare->toString(), _sigShare->getBlockId(), _sigShare->getDecryptorIndex() );
 
     if ( result != nullptr ) {
         auto set = sChain->getCryptoManager()->createDAProofSigShareSet(
