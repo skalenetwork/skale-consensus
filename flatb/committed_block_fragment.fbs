@@ -1,0 +1,15 @@
+include "common_structures.fbs";
+
+namespace skale_fb;
+
+
+table CommittedBlockFragment {
+    left_proof: [Hash];
+    right_proof: [Hash];
+    decryption_shares: [DecryptionShare];
+    finalization_sig[uint8];
+    data: [uint8];
+}
+
+
+root_type CommittedBlockFragment;

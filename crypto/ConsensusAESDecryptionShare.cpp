@@ -10,6 +10,7 @@
 
 #include "ConsensusAESKeyDecryptionShare.h"
 
+using namespace libBLS;
 
 ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
     const ptr< TEDecryptionShare >& _decryptionShare, schain_id _schainId, block_id _blockID,

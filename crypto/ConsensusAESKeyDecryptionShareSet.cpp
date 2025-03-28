@@ -54,7 +54,7 @@ ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::mergeAESKey() {
     CHECK_STATE( isEnough() );
 
     uint processedShares = 0;
-    TEDecryptSet decryptSet( requiredDecryptors, totalDecryptors );
+    libBLS::TEDecryptSet decryptSet( requiredDecryptors, totalDecryptors );
 
     for ( auto&& item : decryptionShares ) {
         CHECK_STATE( item.second );

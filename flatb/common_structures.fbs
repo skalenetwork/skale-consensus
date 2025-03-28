@@ -34,6 +34,11 @@ table BlockHeader {
     encrypted_transaction_indices: [uint16];
 }
 
+// DecryptionShare is a struct since it has a fixed format
+table DecryptionShare {
+    transaction_index: uint16;
+    data: [uint8] ;
+}
 
 
 
@@ -45,11 +50,7 @@ table BlockFragment {
     right_proof: [Hash];
 }
 
-// DecryptionShare is a struct since it has a fixed format
-table DecryptionShare {
-    transaction_index: uint16;
-    data: [uint8] ;
-}
+
 
 // DecryptionShare is a struct since it has a fixed format
 struct AesKey {
