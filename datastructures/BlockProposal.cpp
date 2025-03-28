@@ -386,6 +386,7 @@ ptr< BlockProposalFragment > BlockProposal::getFragment(
 
     uint64_t fragmentStandardSize;
 
+    // this function is ceiling division of blockSize / _totalFragments
     if ( blockSize % _totalFragments == 0 ) {
         fragmentStandardSize = sp->size() / _totalFragments;
     } else {
@@ -405,7 +406,6 @@ ptr< BlockProposalFragment > BlockProposal::getFragment(
         fragmentData->insert( fragmentData->begin(), sp->begin() + startIndex,
             sp->begin() + startIndex + fragmentStandardSize );
     }
-
 
     return make_shared< BlockProposalFragment >(
         getBlockID(), _totalFragments, _index, fragmentData, nullptr, sp->size(), getHash().toHex() );
