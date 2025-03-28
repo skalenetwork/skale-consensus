@@ -63,19 +63,6 @@ public:
                        const fragment_index& fragmentIndex, const ptr< vector< uint8_t > >& _data,
                        ptr<ThresholdAESKeyDecryptionShareList> _decryptionShares,
                        uint64_t _blockSize, const string& _blockHash );
-#endif
-
-    [[nodiscard]] block_id getBlockId() const;
-
-    [[nodiscard]] uint64_t getTotalFragments() const;
-
-    [[nodiscard]] fragment_index getIndex() const;
-
-    [[nodiscard]] ptr< vector< uint8_t > > serialize();
-
-    [[nodiscard]] uint64_t getBlockSize() const;
-
-    [[nodiscard]] string getBlockHash() const;
 
     [[nodiscard]] uint64_t size() const {
         CHECK_STATE(this->fbBlockFragment);
@@ -90,6 +77,21 @@ public:
     auto getData() {
         return fbBlockFragment->data();
     }
+#endif
+
+    [[nodiscard]] block_id getBlockId() const;
+
+    [[nodiscard]] uint64_t getTotalFragments() const;
+
+    [[nodiscard]] fragment_index getIndex() const;
+
+    [[nodiscard]] ptr< vector< uint8_t > > serialize();
+
+    [[nodiscard]] uint64_t getBlockSize() const;
+
+    [[nodiscard]] string getBlockHash() const;
+
+
 };
 
 
