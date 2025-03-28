@@ -33,10 +33,6 @@ struct DecryptionShare;
 struct DecryptionShareBuilder;
 struct DecryptionShareT;
 
-struct CommittedBlockFragment;
-struct CommittedBlockFragmentBuilder;
-struct CommittedBlockFragmentT;
-
 struct BlockFragment;
 struct BlockFragmentBuilder;
 struct BlockFragmentT;
@@ -484,118 +480,6 @@ inline ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShareDirect(
 
 ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShare(::flatbuffers::FlatBufferBuilder &_fbb, const DecryptionShareT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct CommittedBlockFragmentT : public ::flatbuffers::NativeTable {
-  typedef CommittedBlockFragment TableType;
-  std::vector<skale_fb::Hash> left_proof{};
-  std::vector<skale_fb::Hash> right_proof{};
-  std::vector<std::unique_ptr<skale_fb::DecryptionShareT>> decryption_shares{};
-  std::vector<uint8_t> data{};
-  CommittedBlockFragmentT() = default;
-  CommittedBlockFragmentT(const CommittedBlockFragmentT &o);
-  CommittedBlockFragmentT(CommittedBlockFragmentT&&) FLATBUFFERS_NOEXCEPT = default;
-  CommittedBlockFragmentT &operator=(CommittedBlockFragmentT o) FLATBUFFERS_NOEXCEPT;
-};
-
-struct CommittedBlockFragment FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CommittedBlockFragmentT NativeTableType;
-  typedef CommittedBlockFragmentBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_LEFT_PROOF = 4,
-    VT_RIGHT_PROOF = 6,
-    VT_DECRYPTION_SHARES = 8,
-    VT_DATA = 10
-  };
-  const ::flatbuffers::Vector<const skale_fb::Hash *> *left_proof() const {
-    return GetPointer<const ::flatbuffers::Vector<const skale_fb::Hash *> *>(VT_LEFT_PROOF);
-  }
-  const ::flatbuffers::Vector<const skale_fb::Hash *> *right_proof() const {
-    return GetPointer<const ::flatbuffers::Vector<const skale_fb::Hash *> *>(VT_RIGHT_PROOF);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>> *decryption_shares() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>> *>(VT_DECRYPTION_SHARES);
-  }
-  const ::flatbuffers::Vector<uint8_t> *data() const {
-    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_DATA);
-  }
-  bool Verify(::flatbuffers::Verifier &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_LEFT_PROOF) &&
-           verifier.VerifyVector(left_proof()) &&
-           VerifyOffset(verifier, VT_RIGHT_PROOF) &&
-           verifier.VerifyVector(right_proof()) &&
-           VerifyOffset(verifier, VT_DECRYPTION_SHARES) &&
-           verifier.VerifyVector(decryption_shares()) &&
-           verifier.VerifyVectorOfTables(decryption_shares()) &&
-           VerifyOffset(verifier, VT_DATA) &&
-           verifier.VerifyVector(data()) &&
-           verifier.EndTable();
-  }
-  CommittedBlockFragmentT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(CommittedBlockFragmentT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<CommittedBlockFragment> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CommittedBlockFragmentT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-struct CommittedBlockFragmentBuilder {
-  typedef CommittedBlockFragment Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_left_proof(::flatbuffers::Offset<::flatbuffers::Vector<const skale_fb::Hash *>> left_proof) {
-    fbb_.AddOffset(CommittedBlockFragment::VT_LEFT_PROOF, left_proof);
-  }
-  void add_right_proof(::flatbuffers::Offset<::flatbuffers::Vector<const skale_fb::Hash *>> right_proof) {
-    fbb_.AddOffset(CommittedBlockFragment::VT_RIGHT_PROOF, right_proof);
-  }
-  void add_decryption_shares(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>>> decryption_shares) {
-    fbb_.AddOffset(CommittedBlockFragment::VT_DECRYPTION_SHARES, decryption_shares);
-  }
-  void add_data(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data) {
-    fbb_.AddOffset(CommittedBlockFragment::VT_DATA, data);
-  }
-  explicit CommittedBlockFragmentBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<CommittedBlockFragment> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<CommittedBlockFragment>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<CommittedBlockFragment> CreateCommittedBlockFragment(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<const skale_fb::Hash *>> left_proof = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<const skale_fb::Hash *>> right_proof = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>>> decryption_shares = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data = 0) {
-  CommittedBlockFragmentBuilder builder_(_fbb);
-  builder_.add_data(data);
-  builder_.add_decryption_shares(decryption_shares);
-  builder_.add_right_proof(right_proof);
-  builder_.add_left_proof(left_proof);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<CommittedBlockFragment> CreateCommittedBlockFragmentDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<skale_fb::Hash> *left_proof = nullptr,
-    const std::vector<skale_fb::Hash> *right_proof = nullptr,
-    const std::vector<::flatbuffers::Offset<skale_fb::DecryptionShare>> *decryption_shares = nullptr,
-    const std::vector<uint8_t> *data = nullptr) {
-  auto left_proof__ = left_proof ? _fbb.CreateVectorOfStructs<skale_fb::Hash>(*left_proof) : 0;
-  auto right_proof__ = right_proof ? _fbb.CreateVectorOfStructs<skale_fb::Hash>(*right_proof) : 0;
-  auto decryption_shares__ = decryption_shares ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::DecryptionShare>>(*decryption_shares) : 0;
-  auto data__ = data ? _fbb.CreateVector<uint8_t>(*data) : 0;
-  return skale_fb::CreateCommittedBlockFragment(
-      _fbb,
-      left_proof__,
-      right_proof__,
-      decryption_shares__,
-      data__);
-}
-
-::flatbuffers::Offset<CommittedBlockFragment> CreateCommittedBlockFragment(::flatbuffers::FlatBufferBuilder &_fbb, const CommittedBlockFragmentT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
 struct BlockFragmentT : public ::flatbuffers::NativeTable {
   typedef BlockFragment TableType;
   uint16_t index = 0;
@@ -848,57 +732,6 @@ inline ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShare(::flatbuffer
   return skale_fb::CreateDecryptionShare(
       _fbb,
       _transaction_index,
-      _data);
-}
-
-inline CommittedBlockFragmentT::CommittedBlockFragmentT(const CommittedBlockFragmentT &o)
-      : left_proof(o.left_proof),
-        right_proof(o.right_proof),
-        data(o.data) {
-  decryption_shares.reserve(o.decryption_shares.size());
-  for (const auto &decryption_shares_ : o.decryption_shares) { decryption_shares.emplace_back((decryption_shares_) ? new skale_fb::DecryptionShareT(*decryption_shares_) : nullptr); }
-}
-
-inline CommittedBlockFragmentT &CommittedBlockFragmentT::operator=(CommittedBlockFragmentT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(left_proof, o.left_proof);
-  std::swap(right_proof, o.right_proof);
-  std::swap(decryption_shares, o.decryption_shares);
-  std::swap(data, o.data);
-  return *this;
-}
-
-inline CommittedBlockFragmentT *CommittedBlockFragment::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<CommittedBlockFragmentT>(new CommittedBlockFragmentT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void CommittedBlockFragment::UnPackTo(CommittedBlockFragmentT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = left_proof(); if (_e) { _o->left_proof.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->left_proof[_i] = *_e->Get(_i); } } else { _o->left_proof.resize(0); } }
-  { auto _e = right_proof(); if (_e) { _o->right_proof.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->right_proof[_i] = *_e->Get(_i); } } else { _o->right_proof.resize(0); } }
-  { auto _e = decryption_shares(); if (_e) { _o->decryption_shares.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->decryption_shares[_i]) { _e->Get(_i)->UnPackTo(_o->decryption_shares[_i].get(), _resolver); } else { _o->decryption_shares[_i] = std::unique_ptr<skale_fb::DecryptionShareT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->decryption_shares.resize(0); } }
-  { auto _e = data(); if (_e) { _o->data.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->data.begin()); } }
-}
-
-inline ::flatbuffers::Offset<CommittedBlockFragment> CommittedBlockFragment::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CommittedBlockFragmentT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CreateCommittedBlockFragment(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<CommittedBlockFragment> CreateCommittedBlockFragment(::flatbuffers::FlatBufferBuilder &_fbb, const CommittedBlockFragmentT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CommittedBlockFragmentT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _left_proof = _o->left_proof.size() ? _fbb.CreateVectorOfStructs(_o->left_proof) : 0;
-  auto _right_proof = _o->right_proof.size() ? _fbb.CreateVectorOfStructs(_o->right_proof) : 0;
-  auto _decryption_shares = _o->decryption_shares.size() ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::DecryptionShare>> (_o->decryption_shares.size(), [](size_t i, _VectorArgs *__va) { return CreateDecryptionShare(*__va->__fbb, __va->__o->decryption_shares[i].get(), __va->__rehasher); }, &_va ) : 0;
-  auto _data = _o->data.size() ? _fbb.CreateVector(_o->data) : 0;
-  return skale_fb::CreateCommittedBlockFragment(
-      _fbb,
-      _left_proof,
-      _right_proof,
-      _decryption_shares,
       _data);
 }
 

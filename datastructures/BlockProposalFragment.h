@@ -23,8 +23,19 @@
 #ifndef SKALED_BLOCKPROPOSALFRAGMENT_H
 #define SKALED_BLOCKPROPOSALFRAGMENT_H
 
+
+#ifdef BITE
+#include <flatb/committed_block_fragment_generated.h>
+#include <crypto/ThresholdAESKeyDecryptionShare.h>
+class ThresholdAESKeyDecryptionShare;
+
+namespace skale_fb {
+    struct CommittedBlockFragment;
+}
+#endif
+
 class BlockProposalFragment {
-    const ptr< vector< uint8_t > > data;  // tsafe
+    ptr< vector< uint8_t > > data;  // tsafe
 
     const block_id blockId = 0;
     const uint64_t blockSize = 0;
@@ -33,10 +44,26 @@ class BlockProposalFragment {
     const uint64_t totalFragments = 0;
     const fragment_index fragmentIndex = 0;
 
+#ifdef BITE
+    const skale_fb::CommittedBlockFragment* fbBlockFragment = nullptr;
+    ptr<ThresholdAESKeyDecryptionShareList> decryptionShares;
+    ptr<vector<uint8_t>> _fbSerializedBlockFragment;
+    void deserializeFromFlatBuffer();
+#endif
+
 public:
+    // used to deserialze fragment coming from the network
     BlockProposalFragment( const block_id& _blockId, uint64_t _totalFragments,
-        const fragment_index& fragmentIndex, const ptr< vector< uint8_t > >& _data,
-        uint64_t _blockSize, const string& _blockHash );
+                           const fragment_index& fragmentIndex, const ptr< vector< uint8_t > >& _data,
+                           uint64_t _blockSize, const string& _blockHash );
+
+#ifdef BITE
+    // used to create and serialize a fragment to be sent to the network
+    BlockProposalFragment( const block_id& _blockId, uint64_t _totalFragments,
+                       const fragment_index& fragmentIndex, const ptr< vector< uint8_t > >& _data,
+                       ptr<ThresholdAESKeyDecryptionShareList> _decryptionShares,
+                       uint64_t _blockSize, const string& _blockHash );
+#endif
 
     [[nodiscard]] block_id getBlockId() const;
 
@@ -44,11 +71,25 @@ public:
 
     [[nodiscard]] fragment_index getIndex() const;
 
-    [[nodiscard]] ptr< vector< uint8_t > > serialize() const;
+    [[nodiscard]] ptr< vector< uint8_t > > serialize();
 
     [[nodiscard]] uint64_t getBlockSize() const;
 
     [[nodiscard]] string getBlockHash() const;
+
+    [[nodiscard]] uint64_t size() const {
+        CHECK_STATE(this->fbBlockFragment);
+        auto data = fbBlockFragment->data();
+        if (!data) {
+            return 0;
+        } else {
+            return data->size();
+        }
+    }
+
+    auto getData() {
+        return fbBlockFragment->data();
+    }
 };
 
 

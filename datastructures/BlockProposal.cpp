@@ -398,16 +398,29 @@ ptr< BlockProposalFragment > BlockProposal::getFragment(
 
     fragmentData->reserve( fragmentStandardSize + 2 );
 
-    fragmentData->push_back( '<' );
+#ifdef BITE
+    if ( _index == _totalFragments ) {
+        fragmentData->insert( fragmentData->begin(), sp->begin() + startIndex, sp->end() );
+    } else {
+        fragmentData->insert( fragmentData->begin(), sp->begin() + startIndex,
+            sp->begin() + startIndex + fragmentStandardSize );
+    }
 
+
+    return make_shared< BlockProposalFragment >(
+        getBlockID(), _totalFragments, _index, fragmentData, nullptr, sp->size(), getHash().toHex() );
+#else
+    fragmentData->push_back( '<' );
     if ( _index == _totalFragments ) {
         fragmentData->insert( fragmentData->begin() + 1, sp->begin() + startIndex, sp->end() );
     } else {
         fragmentData->insert( fragmentData->begin() + 1, sp->begin() + startIndex,
             sp->begin() + startIndex + fragmentStandardSize );
     }
-
     fragmentData->push_back( '>' );
+    return make_shared< BlockProposalFragment >(
+        getBlockID(), _totalFragments, _index, fragmentData, sp->size(), getHash().toHex() );
+#endif
 
     return make_shared< BlockProposalFragment >(
         getBlockID(), _totalFragments, _index, fragmentData, sp->size(), getHash().toHex() );

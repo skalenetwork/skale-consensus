@@ -1,5 +1,8 @@
 #pragma once
 
+
+#include <boost/container/flat_map.hpp>
+
 class BLAKE3Hash;
 
 
@@ -29,3 +32,4 @@ public:
     BLAKE3Hash computeHash();
 };
 
+using ThresholdAESKeyDecryptionShareList = boost::container::flat_map<transaction_index, ptr< ThresholdAESKeyDecryptionShare>>;

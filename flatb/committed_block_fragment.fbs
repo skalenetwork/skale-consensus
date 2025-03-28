@@ -7,7 +7,7 @@ table CommittedBlockFragment {
     left_proof: [Hash];
     right_proof: [Hash];
     decryption_shares: [DecryptionShare];
-    finalization_sig[uint8];
+    finalization_sig:[uint8];
     data: [uint8];
 }
 
