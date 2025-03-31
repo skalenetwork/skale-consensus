@@ -5,6 +5,9 @@ namespace skale_fb;
 table BlockProposal {
   block_header: [uint8] ;
   transactions: [Transaction];
+// when a block is proposed, the node that receives the proposal verifies that
+// it can decrypt tne transactions and saves its decryption shares
+  my_decryption_share: [DecryptionShare];
 }
 
 
