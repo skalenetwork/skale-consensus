@@ -1,11 +1,11 @@
 #pragma once
 
-class ThresholdAESKeyDecryptionShare;
+class AESKeyDecryptionShare;
 class DecryptedAESKey;
 
-class ThresholdAESKeyDecryptionShareSet {
+class AESKeyDecryptionShareSet {
 public:
-    ThresholdAESKeyDecryptionShareSet( block_id _blockId,
+    AESKeyDecryptionShareSet( block_id _blockId,
         transaction_index _transactionIndex, uint64_t _totalDecryptors, uint64_t _requiredDecryptors );
 
 protected:
@@ -17,7 +17,7 @@ protected:
     static atomic< int64_t > totalObjects;
 
 public:
-    virtual ~ThresholdAESKeyDecryptionShareSet();
+    virtual ~AESKeyDecryptionShareSet();
 
     static int64_t getTotalObjects();
 
@@ -25,7 +25,7 @@ public:
 
     virtual bool isEnough() = 0;
 
-    virtual bool addDecryptionShare( const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare ) = 0;
+    virtual bool addDecryptionShare( const ptr< AESKeyDecryptionShare >& _decryptionShare ) = 0;
 };
 
 

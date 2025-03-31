@@ -149,7 +149,7 @@ void BlockProposalFragment::deserializeFromFlatBuffer() {
 
 BlockProposalFragment::BlockProposalFragment(const block_id &_blockId, uint64_t _totalFragments,
                                              const fragment_index &_fragmentIndex, const ptr<vector<uint8_t> > &_data,
-                                             ptr<ThresholdAESKeyDecryptionShareList>,
+                                             ptr<AESKeyDecryptionShareList>,
                                              uint64_t _blockSize, const string &_blockHash) : data(_data),
     blockId(_blockId),
     blockSize(_blockSize),

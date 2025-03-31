@@ -25,7 +25,7 @@
 
 
 #include <memory>
-#include <crypto/ThresholdAESKeyDecryptionShare.h>
+#include <crypto/AESKeyDecryptionShare.h>
 
 #include "Agent.h"
 
@@ -50,7 +50,7 @@ public:
         const ptr< ThresholdSigShare >& _sigShare, const ptr< BlockProposal >& _proposal );
 
     ptr<DAProof> verifyAddAndMergeTEDecryptionShareAndVeryfiDecryptipn(
-        const ptr<ThresholdAESKeyDecryptionShare> &_sigShare,
+        const ptr<AESKeyDecryptionShare> &_sigShare,
         const ptr<BlockProposal> &_proposal);
 
     const string& getFormatVersion();

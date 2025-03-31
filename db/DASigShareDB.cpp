@@ -46,7 +46,7 @@
 #include "SigDB.h"
 #include "DASigShareDB.h"
 
-#include <crypto/ThresholdAESKeyDecryptionShare.h>
+#include <crypto/AESKeyDecryptionShare.h>
 
 
 using namespace std;
@@ -107,7 +107,7 @@ ptr< DAProof > DASigShareDB::addAndMergeSigShareAndVerifySig(
 
 // return not-null if _sigShare completes sig, null otherwise (both if not enough and too much)
 ptr< DAProof > DASigShareDB::verifyAddAndMergeTEDecryptionShareAndVeryfiDecryptipn(
-    const ptr< ThresholdAESKeyDecryptionShare >& _sigShare, const ptr< BlockProposal >& _proposal ) {
+    const ptr< AESKeyDecryptionShare >& _sigShare, const ptr< BlockProposal >& _proposal ) {
     CHECK_ARGUMENT( _sigShare );
     CHECK_ARGUMENT( _proposal );
 

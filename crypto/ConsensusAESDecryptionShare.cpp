@@ -13,9 +13,9 @@
 using namespace libBLS;
 
 ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
-    const ptr< TEDecryptionShare >& _decryptionShare, schain_id _schainId, block_id _blockID,
-    transaction_index _transactionIndex)
-    : ThresholdAESKeyDecryptionShare( _schainId, _blockID, _transactionIndex, 1 ) {
+    const ptr< TEDecryptionShare >& _decryptionShare, block_id _blockID,
+    transaction_index _transactionIndex, schain_index _decryptorIndex, bool _decryptionFailed )
+    : AESKeyDecryptionShare(_blockID, _transactionIndex, _decryptorIndex, _decryptionFailed) {
     CHECK_ARGUMENT( _decryptionShare);
     this->decryptorIndex = _decryptionShare->getSignerIndex();
     aesKeyDecryptionShare = _decryptionShare;
@@ -23,10 +23,11 @@ ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
 
 
 
-ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare( const string& _decryptionShare, schain_id _schainId,
-    block_id _blockID, transaction_index _transactionIndex, schain_index _decryptorIndex, uint64_t ,
+ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare( const string& _decryptionShare,
+    block_id _blockID, transaction_index _transactionIndex, schain_index _decryptorIndex,
+    bool _decryptionFailed, uint64_t ,
     uint64_t  )
-    : ThresholdAESKeyDecryptionShare( _schainId, _blockID, _transactionIndex, _decryptorIndex) {
+    : AESKeyDecryptionShare( _blockID, _transactionIndex, _decryptorIndex, _decryptionFailed) {
     CHECK_ARGUMENT( _decryptionShare != "" );
 
     try {

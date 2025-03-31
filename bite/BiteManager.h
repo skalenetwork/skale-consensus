@@ -4,6 +4,7 @@
 class Schain;
 class BlockProposal;
 class CommittedBlock;
+class DecryptedAESKeyList;
 
 
 class BiteManager {
@@ -16,6 +17,10 @@ public:
     static ConnectionSubStatus verifyAndDecryptProposalTransactions(const ptr< BlockProposal >& _proposal);
 
     void verifyAndDecryptBlockTransactions(const ptr<CommittedBlock> &_block);
+
+
+    ptr<DecryptedAESKeyList> mergeDecryptionSharesSetFromDB(ptr<map<schain_index, string>>& _decryptionShareList);
+
 
 };
 

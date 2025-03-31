@@ -3,34 +3,30 @@
 
 #include "Agent.h"
 
-class ConsensusSigShareSet;
-class ConsensusBLSSignature;
 class Schain;
-class ConsensusBLSSigShare;
-class ThresholdSigShareSet;
-class ThresholdSignature;
-class ThresholdSigShare;
-class BooleanProposalVector;
-class DAProof;
+class DecryptedAESKeyList;
+
 class BlockProposal;
+
+class AESKeyDecryptionShareList;
 
 #include "CacheLevelDB.h"
 
 
 class TEDecryptionDB : public CacheLevelDB {
-    recursive_mutex daProofMutex;
+    recursive_mutex teDecryptionMutex;
 
 public:
     explicit TEDecryptionDB(
         Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    ptr< BooleanProposalVector > addDAProof( const ptr< DAProof >& _daProof );
+    ptr<DecryptedAESKeyList> addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 
     const string& getFormatVersion();
 
-    bool haveDAProof( const ptr< BlockProposal >& _proposal );
+    bool haveDecryptions( const ptr< BlockProposal >& _proposal );
 
-    bool isEnoughProofs( block_id _blockID );
+    bool isEnoughDecrypttions( block_id _blockID );
 
-    string getDASig( block_id _blockId, schain_index _proposerIndex );
+    ptr<AESKeyDecryptionShareList> getDecryptions( block_id _blockId, schain_index _decryptorIndex );
 };

@@ -26,8 +26,9 @@
 
 #ifdef BITE
 #include <flatb/committed_block_fragment_generated.h>
-#include <crypto/ThresholdAESKeyDecryptionShare.h>
-class ThresholdAESKeyDecryptionShare;
+#include <crypto/AESKeyDecryptionShare.h>
+class AESKeyDecryptionShare;
+class AESKeyDecryptionShareList;
 
 namespace skale_fb {
     struct CommittedBlockFragment;
@@ -46,7 +47,7 @@ class BlockProposalFragment {
 
 #ifdef BITE
     const skale_fb::CommittedBlockFragment* fbBlockFragment = nullptr;
-    ptr<ThresholdAESKeyDecryptionShareList> decryptionShares;
+    ptr<AESKeyDecryptionShareList> decryptionShares;
     ptr<vector<uint8_t>> _fbSerializedBlockFragment;
     void deserializeFromFlatBuffer();
 #endif
@@ -61,7 +62,7 @@ public:
     // used to create and serialize a fragment to be sent to the network
     BlockProposalFragment( const block_id& _blockId, uint64_t _totalFragments,
                        const fragment_index& fragmentIndex, const ptr< vector< uint8_t > >& _data,
-                       ptr<ThresholdAESKeyDecryptionShareList> _decryptionShares,
+                       ptr<AESKeyDecryptionShareList> _decryptionShares,
                        uint64_t _blockSize, const string& _blockHash );
 
     [[nodiscard]] uint64_t size() const {

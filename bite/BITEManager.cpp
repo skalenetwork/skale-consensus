@@ -54,7 +54,11 @@ void BiteManager::verifyAndDecryptBlockTransactions(
             tx->parseAndValidate();
         }
     } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse transaction");
+}
 
 
 
+ptr<DecryptedAESKeyList> BiteManager::mergeDecryptionSharesSetFromDB(ptr<map<schain_index, string>>& _decryptionShareList) {
+    CHECK_STATE(_decryptionShareList);
+    return nullptr;
 }
