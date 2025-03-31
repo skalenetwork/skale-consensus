@@ -25,7 +25,6 @@ struct BlockProposalT : public ::flatbuffers::NativeTable {
   typedef BlockProposal TableType;
   std::vector<uint8_t> block_header{};
   std::vector<std::unique_ptr<skale_fb::TransactionT>> transactions{};
-  std::vector<std::unique_ptr<skale_fb::DecryptionShareT>> my_decryption_share{};
   BlockProposalT() = default;
   BlockProposalT(const BlockProposalT &o);
   BlockProposalT(BlockProposalT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -37,17 +36,13 @@ struct BlockProposal FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef BlockProposalBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_BLOCK_HEADER = 4,
-    VT_TRANSACTIONS = 6,
-    VT_MY_DECRYPTION_SHARE = 8
+    VT_TRANSACTIONS = 6
   };
   const ::flatbuffers::Vector<uint8_t> *block_header() const {
     return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_BLOCK_HEADER);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::Transaction>> *transactions() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::Transaction>> *>(VT_TRANSACTIONS);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>> *my_decryption_share() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>> *>(VT_MY_DECRYPTION_SHARE);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -56,9 +51,6 @@ struct BlockProposal FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_TRANSACTIONS) &&
            verifier.VerifyVector(transactions()) &&
            verifier.VerifyVectorOfTables(transactions()) &&
-           VerifyOffset(verifier, VT_MY_DECRYPTION_SHARE) &&
-           verifier.VerifyVector(my_decryption_share()) &&
-           verifier.VerifyVectorOfTables(my_decryption_share()) &&
            verifier.EndTable();
   }
   BlockProposalT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -76,9 +68,6 @@ struct BlockProposalBuilder {
   void add_transactions(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::Transaction>>> transactions) {
     fbb_.AddOffset(BlockProposal::VT_TRANSACTIONS, transactions);
   }
-  void add_my_decryption_share(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>>> my_decryption_share) {
-    fbb_.AddOffset(BlockProposal::VT_MY_DECRYPTION_SHARE, my_decryption_share);
-  }
   explicit BlockProposalBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -93,10 +82,8 @@ struct BlockProposalBuilder {
 inline ::flatbuffers::Offset<BlockProposal> CreateBlockProposal(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> block_header = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::Transaction>>> transactions = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>>> my_decryption_share = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::Transaction>>> transactions = 0) {
   BlockProposalBuilder builder_(_fbb);
-  builder_.add_my_decryption_share(my_decryption_share);
   builder_.add_transactions(transactions);
   builder_.add_block_header(block_header);
   return builder_.Finish();
@@ -105,16 +92,13 @@ inline ::flatbuffers::Offset<BlockProposal> CreateBlockProposal(
 inline ::flatbuffers::Offset<BlockProposal> CreateBlockProposalDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const std::vector<uint8_t> *block_header = nullptr,
-    const std::vector<::flatbuffers::Offset<skale_fb::Transaction>> *transactions = nullptr,
-    const std::vector<::flatbuffers::Offset<skale_fb::DecryptionShare>> *my_decryption_share = nullptr) {
+    const std::vector<::flatbuffers::Offset<skale_fb::Transaction>> *transactions = nullptr) {
   auto block_header__ = block_header ? _fbb.CreateVector<uint8_t>(*block_header) : 0;
   auto transactions__ = transactions ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::Transaction>>(*transactions) : 0;
-  auto my_decryption_share__ = my_decryption_share ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::DecryptionShare>>(*my_decryption_share) : 0;
   return skale_fb::CreateBlockProposal(
       _fbb,
       block_header__,
-      transactions__,
-      my_decryption_share__);
+      transactions__);
 }
 
 ::flatbuffers::Offset<BlockProposal> CreateBlockProposal(::flatbuffers::FlatBufferBuilder &_fbb, const BlockProposalT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -123,14 +107,11 @@ inline BlockProposalT::BlockProposalT(const BlockProposalT &o)
       : block_header(o.block_header) {
   transactions.reserve(o.transactions.size());
   for (const auto &transactions_ : o.transactions) { transactions.emplace_back((transactions_) ? new skale_fb::TransactionT(*transactions_) : nullptr); }
-  my_decryption_share.reserve(o.my_decryption_share.size());
-  for (const auto &my_decryption_share_ : o.my_decryption_share) { my_decryption_share.emplace_back((my_decryption_share_) ? new skale_fb::DecryptionShareT(*my_decryption_share_) : nullptr); }
 }
 
 inline BlockProposalT &BlockProposalT::operator=(BlockProposalT o) FLATBUFFERS_NOEXCEPT {
   std::swap(block_header, o.block_header);
   std::swap(transactions, o.transactions);
-  std::swap(my_decryption_share, o.my_decryption_share);
   return *this;
 }
 
@@ -145,7 +126,6 @@ inline void BlockProposal::UnPackTo(BlockProposalT *_o, const ::flatbuffers::res
   (void)_resolver;
   { auto _e = block_header(); if (_e) { _o->block_header.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->block_header.begin()); } }
   { auto _e = transactions(); if (_e) { _o->transactions.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->transactions[_i]) { _e->Get(_i)->UnPackTo(_o->transactions[_i].get(), _resolver); } else { _o->transactions[_i] = std::unique_ptr<skale_fb::TransactionT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->transactions.resize(0); } }
-  { auto _e = my_decryption_share(); if (_e) { _o->my_decryption_share.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->my_decryption_share[_i]) { _e->Get(_i)->UnPackTo(_o->my_decryption_share[_i].get(), _resolver); } else { _o->my_decryption_share[_i] = std::unique_ptr<skale_fb::DecryptionShareT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->my_decryption_share.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<BlockProposal> BlockProposal::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BlockProposalT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -158,12 +138,10 @@ inline ::flatbuffers::Offset<BlockProposal> CreateBlockProposal(::flatbuffers::F
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BlockProposalT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _block_header = _o->block_header.size() ? _fbb.CreateVector(_o->block_header) : 0;
   auto _transactions = _o->transactions.size() ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::Transaction>> (_o->transactions.size(), [](size_t i, _VectorArgs *__va) { return CreateTransaction(*__va->__fbb, __va->__o->transactions[i].get(), __va->__rehasher); }, &_va ) : 0;
-  auto _my_decryption_share = _o->my_decryption_share.size() ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::DecryptionShare>> (_o->my_decryption_share.size(), [](size_t i, _VectorArgs *__va) { return CreateDecryptionShare(*__va->__fbb, __va->__o->my_decryption_share[i].get(), __va->__rehasher); }, &_va ) : 0;
   return skale_fb::CreateBlockProposal(
       _fbb,
       _block_header,
-      _transactions,
-      _my_decryption_share);
+      _transactions);
 }
 
 inline const skale_fb::BlockProposal *GetBlockProposal(const void *buf) {
