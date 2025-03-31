@@ -103,6 +103,8 @@ public:
 
     static leveldb::Options getDAProofDBOptions() { return getSmallDBOptions(); }
 
+    static leveldb::Options getTEDecryptionDBOptions() { return getSmallDBOptions(); }
+
     static leveldb::Options getConsensusStateDBOptions() { return getSmallDBOptions(); }
 
 
