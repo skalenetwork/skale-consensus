@@ -34,31 +34,28 @@
 
 using namespace std;
 
-CatchupResponseHeader::CatchupResponseHeader() : Header( Header::BLOCK_CATCHUP_RSP ) {}
+CatchupResponseHeader::CatchupResponseHeader() : Header(Header::BLOCK_CATCHUP_RSP) {}
 
-void CatchupResponseHeader::setBlockSizes( const ptr< list< uint64_t > >& _blockSizes ) {
-    CHECK_ARGUMENT( _blockSizes );
-
-    blockCount = _blockSizes->size();
+void CatchupResponseHeader::setBlockSizesAndLatestBlockInfo(
+        const ptr<list<uint64_t> > &_blockSizes, block_id _lastCommittedBlockId,
+        uint64_t _lastCommittedBlockTimestampS) {
+    CHECK_ARGUMENT(_blockSizes);
+    CHECK_STATE(!complete)
 
     blockSizes = _blockSizes;
-
+    lastCommittedBlockId = (uint64_t) _lastCommittedBlockId;
+    lastCommittedBlockTimestampS = _lastCommittedBlockTimestampS;
     complete = true;
 }
 
-void CatchupResponseHeader::addFields( nlohmann::json& _j ) {
-    Header::addFields( _j );
+void CatchupResponseHeader::addFields(nlohmann::json &_j) {
+    Header::addFields(_j);
 
-    _j["count"] = blockCount;
 
-    if ( blockSizes != nullptr )
+    _j["count"] = blockSizes ? blockSizes->size() : 0;
+    _j["lastBid"] = lastCommittedBlockId;
+    _j["lastTs"] = lastCommittedBlockTimestampS;
+
+    if (blockSizes != nullptr)
         _j["sizes"] = *blockSizes;
-}
-
-uint64_t CatchupResponseHeader::getBlockCount() const {
-    return blockCount;
-}
-
-void CatchupResponseHeader::setBlockCount( uint64_t _blockCount ) {
-    CatchupResponseHeader::blockCount = _blockCount;
 }

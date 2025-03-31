@@ -46,6 +46,7 @@
 #include "messages/NetworkMessage.h"
 #include "messages/NetworkMessageEnvelope.h"
 #include "messages/ParentMessage.h"
+#include "monitoring/OptimizerAgent.h"
 #include "network/Network.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
@@ -105,7 +106,18 @@ void BlockConsensusAgent::startConsensusProposal(
 
         LOG( debug, "CONSENSUS START:BLOCK:" << to_string( _blockID ) );
 
-
+        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockID,
+                 getSchain()->getLastCommittedBlockTimeStamp().getS())) {
+            //  Optimized consensus. Start N binary consensuses
+            // for optimized block consensus, we only propose and initiated binary consensus
+            // for the last block winner
+            auto lastWinner = getSchain()->getOptimizerAgent()->getPreviousWinner( _blockID );
+            auto x =
+                bin_consensus_value(_proposal->getProposalValue(schain_index(lastWinner)) ? 1 : 0);
+            propose(x, lastWinner, _blockID);
+            return;
+        }
+        // normal consensus. Start N binary consensuses
         for ( uint64_t i = 1; i <= ( uint64_t ) getSchain()->getNodeCount(); i++ ) {
             if ( getSchain()->getNode()->isExitRequested() )
                 return;
@@ -225,78 +237,27 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(
             return;
         }
 
-        if ( _msg->getValue() ) {
-            if ( !trueDecisions->exists( ( uint64_t ) blockID ) )
-                trueDecisions->putIfDoesNotExist( ( uint64_t ) blockID,
-                    make_shared< map< schain_index, ptr< ChildBVDecidedMessage > > >() );
-
-            auto map = trueDecisions->get( ( uint64_t ) blockID );
-            map->emplace( blockProposerIndex, _msg );
-
-        } else {
-            if ( !falseDecisions->exists( ( uint64_t ) blockID ) )
-                falseDecisions->putIfDoesNotExist( ( uint64_t ) blockID,
-                    make_shared< map< schain_index, ptr< ChildBVDecidedMessage > > >() );
-
-            auto map = falseDecisions->get( ( uint64_t ) blockID );
-            map->emplace( blockProposerIndex, _msg );
-        }
-
-
-        if ( auto result = trueDecisions->getIfExists( ( uint64_t ) blockID );
-             !result.has_value() ||
-             any_cast< ptr< map< schain_index, ptr< ChildBVDecidedMessage > > > >( result )
-                 ->empty() ) {
-            if ( auto result2 = falseDecisions->getIfExists( ( uint64_t ) blockID );
-                 result2.has_value() &&
-                 any_cast< ptr< map< schain_index, ptr< ChildBVDecidedMessage > > > >( result2 )
-                         ->size() == nodeCount ) {
-                decideDefaultBlock( blockID );
-            }
+        // if we are doing optimized consensus
+        // we are only running a single binary consensus for the last
+        // winner and ignoring all other messages, even if someone sends them by mistake
+        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(blockID,
+                                                                   getSchain()->getLastCommittedBlockTimeStamp().getS()) &&
+            (uint64_t) blockProposerIndex !=
+                 getSchain()->getOptimizerAgent()->getPreviousWinner( blockID )) {
+            LOG(warn, "Consensus got ChildBVBroadcastMessage for non-winner in optimized round:" + blockProposerIndex);
             return;
         }
 
-        uint64_t seed;
+        // record that the binary consensus completion reported by the msg
+        recordBinaryDecision( _msg, blockProposerIndex, blockID );
 
-        if ( blockID <= 1 ) {
-            seed = 1;
+        if (getSchain()->getOptimizerAgent()->doOptimizedConsensus( blockID, getSchain()->getLastCommittedBlockTimeStamp().getS()) ) {
+            decideOptimizedBlockConsensusIfCan( blockID );
         } else {
-            CHECK_STATE( blockID - 1 <= getSchain()->getLastCommittedBlockID() );
-            auto previousBlock = getSchain()->getBlock( blockID - 1 );
-            if ( previousBlock == nullptr )
-                BOOST_THROW_EXCEPTION( InvalidStateException(
-                    "Can not read block " + to_string( blockID - 1 ) + " from LevelDB",
-                    __CLASS_NAME__ ) );
-            seed = *( ( uint64_t* ) previousBlock->getHash().data() );
+            decideNormalBlockConsensusIfCan( blockID );
         }
 
-        auto random = ( ( uint64_t ) seed ) % nodeCount;
 
-
-        for ( uint64_t i = random; i < random + nodeCount; i++ ) {
-            auto index = schain_index( i % nodeCount ) + 1;
-
-            if ( auto result = trueDecisions->getIfExists( ( ( uint64_t ) blockID ) );
-                 result.has_value() &&
-                 any_cast< ptr< map< schain_index, ptr< ChildBVDecidedMessage > > > >( result )
-                         ->count( index ) > 0 ) {
-                string statsString = buildStats( blockID );
-
-                CHECK_STATE( !statsString.empty() );
-
-                decideBlock( blockID, index, statsString );
-
-                return;
-            }
-
-
-            if ( auto result = falseDecisions->getIfExists( ( uint64_t ) blockID );
-                 !result.has_value() ||
-                 any_cast< ptr< map< schain_index, ptr< ChildBVDecidedMessage > > > >( result )
-                         ->count( index ) == 0 ) {
-                return;
-            }
-        }
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( SkaleException& e ) {
@@ -342,12 +303,6 @@ void BlockConsensusAgent::routeAndProcessMessage( const ptr< MessageEnvelope >& 
     try {
         CHECK_ARGUMENT( _me->getMessage()->getBlockId() > 0 );
         CHECK_ARGUMENT( _me->getOrigin() != ORIGIN_PARENT );
-        /*
-        if (_me->getMessage()->getBlockProposerIndex() == 0) {
-            cerr << (uint64_t ) _me->getOrigin() << ":" << _me->getMessage()->getMsgType() << endl;
-            exit(-12);
-        }
-         */
 
         auto blockID = _me->getMessage()->getBlockId();
 
@@ -512,4 +467,113 @@ string BlockConsensusAgent::buildStats( block_id _blockID ) {
     }
 
     return resultStr;
+}
+
+bool BlockConsensusAgent::haveTrueDecision(block_id _blockId, schain_index _proposerIndex) {
+    CHECK_STATE(trueDecisions)
+    auto result = trueDecisions->getIfExists(((uint64_t) _blockId));
+    if (!result.has_value()) {
+        return false;
+    }
+    auto trueMap = any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage> > > >(result);
+    return trueMap->count((uint64_t) _proposerIndex) > 0;
+}
+
+bool BlockConsensusAgent::haveFalseDecision(block_id _blockId, schain_index _proposerIndex) {
+    CHECK_STATE(falseDecisions);
+    auto result = falseDecisions->getIfExists(((uint64_t) _blockId));
+    if (!result.has_value()) {
+        return false;
+    }
+    auto trueMap = any_cast<ptr<map<schain_index, ptr<ChildBVDecidedMessage> > > >(result);
+    return trueMap->count((uint64_t) _proposerIndex) > 0;
+}
+
+
+void BlockConsensusAgent::decideNormalBlockConsensusIfCan(block_id _blockId) {
+
+    auto nodeCount = (uint64_t ) getSchain()->getNodeCount();
+
+    uint64_t priorityLeader =
+        getSchain()->getOptimizerAgent()->getPriorityLeaderForBlock( _blockId );
+
+
+    // we iterate over binary decisions starting from the priority leader, to
+    // see if we have a sequence like 1 or 01, or 001, or 0001 etc without gaps
+    // the first 1 in the sequence is the winning proposer
+    // note, priorityLeader variable is numbered from 0 to N-1
+    for (uint64_t i = priorityLeader; i < priorityLeader + nodeCount; i++) {
+        auto proposerIndex = schain_index(i % nodeCount) + 1;
+
+        if (haveTrueDecision(_blockId, proposerIndex)) {
+            // found first 1. decide
+            decideBlock(_blockId, proposerIndex, buildStats(_blockId));
+            return;
+        }
+
+        if (!haveFalseDecision(_blockId, proposerIndex)) {
+            // found a gap that is not yet 1 or 0
+            // cant decide on the winning proposal yet
+            return;
+        }
+        // if we are here we found 0, so we keep iterating until we find 1 or gap
+    }
+
+    // if we got to this point without returning , it means we iterated through all nodes and did
+    // not see 1 or a gap. it means that all binary consensuses completed with zeroes, and we
+    // need to decide a default block. There is no winner.
+
+    // verify sanity
+    for (uint64_t j = 1; j <= nodeCount; j++) {
+        CHECK_STATE(haveFalseDecision(_blockId, j));
+    }
+
+    decideDefaultBlock(_blockId);
+}
+
+void BlockConsensusAgent::decideOptimizedBlockConsensusIfCan( block_id _blockId ) {
+    // for optimized consensus  there is only one proposer
+    // which is the previous winner of normal consensus
+    // the block is decided if there is either 1 or 0 consensus for the previous winner
+
+    schain_index lastWinner = getSchain()->getOptimizerAgent()->getPreviousWinner( _blockId );
+
+    CHECK_STATE(lastWinner > 0)
+
+    if ( haveTrueDecision(_blockId, lastWinner) ) {
+        // last winner consensus completed with 1
+        decideBlock(_blockId, lastWinner, buildStats(_blockId));
+        return;
+    } else if ( haveFalseDecision( _blockId, lastWinner ) ) {
+        // last winner consensus completed with 0
+        // since this is the only consensus we are running in optimized round
+        // we need to produce default block
+        // This will happen in rare situations when the last winner crashed
+        decideDefaultBlock( _blockId );
+    }
+
+    // we do not yet have 1 ofr 0 for the last winner, we can not decide yet,
+    // so we just return
+
+}
+
+
+void BlockConsensusAgent::recordBinaryDecision(const ptr<ChildBVDecidedMessage> &_msg, schain_index &blockProposerIndex,
+                                               const block_id &blockID) {
+    if (_msg->getValue()) {
+        if (!trueDecisions->exists((uint64_t) blockID))
+            trueDecisions->putIfDoesNotExist((uint64_t) blockID,
+                                             make_shared<map<schain_index, ptr<ChildBVDecidedMessage> > >());
+
+        auto map = trueDecisions->get( (uint64_t) blockID );
+        map->emplace( blockProposerIndex, _msg );
+
+    } else {
+        if (!falseDecisions->exists((uint64_t) blockID))
+            falseDecisions->putIfDoesNotExist( (uint64_t) blockID,
+                                               make_shared<map<schain_index, ptr<ChildBVDecidedMessage> > >() );
+
+        auto map = falseDecisions->get( (uint64_t) blockID );
+        map->emplace( blockProposerIndex, _msg );
+    }
 }

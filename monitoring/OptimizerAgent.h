@@ -16,42 +16,33 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file StuckDetectionAgent.h
+    @file OptimizerAgent.h
     @author Stan Kladko
-    @date 2020
+    @date 2024 -
 */
 
 #pragma once
 
-
+class Agent;
 class Schain;
 
-class StuckDetectionThreadPool;
-class LivelinessMonitor;
 
-class StuckDetectionAgent : public Agent {
-    ptr< StuckDetectionThreadPool > stuckDetectionThreadPool = nullptr;
+class OptimizerAgent : public Agent {
+
+    uint64_t nodeCount;
 
 public:
-    explicit StuckDetectionAgent( Schain& _sChain );
+    explicit OptimizerAgent( Schain& _sChain );
 
-    static void StuckDetectionLoop( StuckDetectionAgent* agent );
 
-    void join();
+    // we determine consensus winner each 16 blocks
+    [[nodiscard]] bool doOptimizedConsensus(block_id _blockId, uint64_t _lastBlockTimeStamp);
 
-    uint64_t doStuckCheckAndReturnTimeWhenToRestart(uint64_t _restartIteration );
+    schain_index getPreviousWinner(block_id _blockId );
 
-    void restart( uint64_t _baseRestartTimeMs, uint64_t _iteration );
 
-    void createStuckRestartFile( uint64_t _iteration );
+    bool skipSendingProposalToTheNetwork(block_id _blockId);
 
-    void cleanupState();
 
-    string restartFileName(uint64_t _iteration );
-
-    bool checkNodesAreOnline();
-
-    uint64_t getNumberOfPreviousRestarts();
-
-    bool stuckCheck( uint64_t _restartIntervalMs, uint64_t _timeStamp );
+    uint64_t getPriorityLeaderForBlock( block_id& _blockID );
 };

@@ -754,10 +754,14 @@ void CryptoManager::verifyBlockSig(
         }
 
         if ( verifyRealSignatures ) {
-            auto _signature = make_shared< ConsensusBLSSignature >(
-                _sigStr, _blockId, totalSigners, requiredSigners );
+            if ( !getSchain()->getNode()->isSyncOnlyNode() ||
+                 ( getSchain()->getNode()->isSyncOnlyNode() &&
+                   getSchain()->verifyBlsSyncPatch( _ts.getS() ) ) ) {
+                auto _signature = make_shared< ConsensusBLSSignature >(
+                    _sigStr, _blockId, totalSigners, requiredSigners );
 
-            verifyThresholdSig( _signature, _hash, _ts );
+                verifyThresholdSig( _signature, _hash, _ts );
+            }
         }
 
     } catch ( ... ) {
@@ -880,7 +884,8 @@ void CryptoManager::verifyThresholdSig(
 
         MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-        if ( verifyRealSignatures ) {
+        if ( verifyRealSignatures && ( !getSchain()->getNode()->isSyncOnlyNode() ||
+                                       getSchain()->verifyBlsSyncPatch( _ts.getS() ) ) ) {
             auto blsSig = dynamic_pointer_cast< ConsensusBLSSignature >( _signature );
 
             CHECK_STATE( blsSig );
@@ -907,7 +912,6 @@ void CryptoManager::verifyThresholdSig(
                         make_shared< array< uint8_t, HASH_LEN > >( _hash.getHash() ), libBlsSig ),
                     "BLS sig verification failed using both current and previous key" );
             }
-
         } else {
             // mockups sigs are not verified
         }
@@ -1262,10 +1266,11 @@ void CryptoManager::generateSSLClientCertAndKey( string& _fullPathToDir ) {
     std::string random_string;
     std::generate_n( std::back_inserter( random_string ), 10,
         [&]() { return VALID_CHARS[distribution( generator )]; } );
-    system(
+    int res = system(
         ( "/usr/bin/openssl req -new -sha256 -nodes -out " + _fullPathToDir +
             "/csr  -newkey rsa:2048 -keyout " + _fullPathToDir + "/key -subj /CN=" + random_string )
             .data() );
+    CHECK_STATE(res == 0);
     string str, csr;
     ifstream file;
     file.open( _fullPathToDir + "/csr" );

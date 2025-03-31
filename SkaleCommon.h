@@ -183,6 +183,14 @@ static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
 static constexpr uint64_t CONNECTION_REFUSED_LOG_INTERVAL_MS = 10 * 60 * 1000;
 
+static constexpr uint64_t CATCHUP_TIMEOUT_SEC = 30;
+
+static constexpr uint64_t SYNC_NODE_CATCHUP_TIMEOUT_SEC = 300;
+
+static constexpr uint64_t READ_JSON_HEADER_TIMEOUT_SEC = 6;
+
+static constexpr uint64_t SYNC_NODE_READ_JSON_HEADER_TIMEOUT_SEC = 300;
+
 // Non-tunable params
 
 static constexpr uint32_t SOCKET_BACKLOG = 64;

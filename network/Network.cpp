@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "SkaleCommon.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "catchup/client/CatchupClientAgent.h"
 #include "chains/Schain.h"
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/ConsensusBLSSigShare.h"
@@ -256,6 +257,7 @@ void Network::networkReadLoop() {
             auto msg = dynamic_pointer_cast< NetworkMessage >( m->getMessage() );
 
 
+            // catchup test
             if ( msg->getBlockID() <= catchupBlocks ) {
                 continue;
             }

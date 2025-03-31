@@ -36,6 +36,7 @@
 #include "exceptions/FatalError.h"
 #include "leveldb/db.h"
 #include "monitoring/LivelinessMonitor.h"
+#include "monitoring/OptimizerAgent.h"
 #include "node/Node.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "thirdparty/json.hpp"
@@ -79,8 +80,17 @@ void BlockProposalDB::addBlockProposal( const ptr< BlockProposal > _proposal ) {
 
     addProposalToCacheIfDoesNotExist( _proposal );
 
+
     // save own proposal to levelDB
     if ( _proposal->getProposerIndex() == getSchain()->getSchainIndex() ) {
+
+        // for optimized consensus only previous winner proposed.
+        // non-winners skip sending proposal and do not need to save it to the db
+        // since saving proposal to the db is done to be able to resend it in case of a
+        // crash
+        if (getSchain()->getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposal->getBlockID()))
+                return;
+
         serializeProposalAndSaveItToLevelDB( _proposal );
     }
 }

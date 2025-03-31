@@ -76,7 +76,7 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
                         "EMPTY_DA_SIG_ON_CATCHUP:BLOCK_STAMP:"
                             << to_string( block->getTimeStampS() ) << ":PATCH_STAMP:"
                             << to_string(
-                                   _cryptoManager->getSchain()->getVerifyDaSigsPatchTimestampS() )
+                                    _cryptoManager->getSchain()->getVerifyDaSigsPatchTimeStamp() )
                             << ":PRPS:" << to_string( block->getProposerIndex() ) );
 
                     CHECK_STATE2(

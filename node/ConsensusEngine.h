@@ -287,7 +287,7 @@ public:
         // array of BLS public key shares of all nodes, including this node
         // each BLS public key share is a vector of 4 strings.
         ptr< vector< ptr< vector< string > > > >& _blsPublicKeyShares, uint64_t _requiredSigners,
-        uint64_t _totalSigners );
+        uint64_t _totalSigners, bool _isSyncNode );
 
 
     void setRotationHistory( ptr< map< uint64_t, vector< string > > > _previousBLSKeys,
@@ -306,4 +306,10 @@ public:
 
 
     std::shared_ptr< std::vector< std::uint8_t > > getSerializedBlock( std::uint64_t _blockNumber );
+
+    // return sync information as requested by eth_syncing API of geth
+    // if isSyncing is false, all fields will be set to zero.
+
+    [[nodiscard]] SyncInfo getSyncInfo() override;
+
 };

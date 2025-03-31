@@ -43,15 +43,15 @@ enum consensus_engine_status {
 };
 
 
-using u256 = boost::multiprecision::number< boost::multiprecision::backends::cpp_int_backend< 256,
-    256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void > >;
+using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
+        256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
 
 class ConsensusInterface {
 public:
     virtual ~ConsensusInterface() = default;
 
     virtual void parseFullConfigAndCreateNode(
-        const std::string& fullPathToConfigFile, const string& gethURL ) = 0;
+            const std::string &fullPathToConfigFile, const string &gethURL) = 0;
 
 
     // If starting from a snapshot, start all will pass to consensus the last comitted
@@ -77,15 +77,15 @@ public:
 
     virtual void exitGracefully() = 0;
 
-    virtual u256 getPriceForBlockId( uint64_t _blockId ) const = 0;
+    virtual u256 getPriceForBlockId(uint64_t _blockId) const = 0;
 
-    virtual u256 getRandomForBlockId( uint64_t _blockId ) const = 0;
+    virtual u256 getRandomForBlockId(uint64_t _blockId) const = 0;
 
-    virtual map< string, uint64_t > getConsensusDbUsage() const = 0;
+    virtual map<string, uint64_t> getConsensusDbUsage() const = 0;
 
     virtual uint64_t getEmptyBlockIntervalMs() const { return -1; }
 
-    virtual void setEmptyBlockIntervalMs( uint64_t ) {}
+    virtual void setEmptyBlockIntervalMs(uint64_t) {}
 
     virtual consensus_engine_status getStatus() const = 0;
 
@@ -162,7 +162,7 @@ public:
      */
 
     virtual uint64_t submitOracleRequest(
-        const string& _spec, string& _receipt, string& _errorMessage ) = 0;
+            const string &_spec, string &_receipt, string &_errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -176,15 +176,26 @@ public:
      */
 
 
-    virtual uint64_t checkOracleResult( const string& _receipt, string& _result ) = 0;
+    virtual uint64_t checkOracleResult(const string &_receipt, string &_result) = 0;
 
 
-    /*
-     * This will return a consensus block serialized as byte array from consensus db.
-     * Returns nullptr if the block is not in consensus DB
-     */
-    // virtual std::shared_ptr<std::vector<std::uint8_t>> getSerializedBlock(
-    //  std::uint64_t _blockNumber)  = 0;
+    struct SyncInfo {
+        // sync information as required by eth_syncing API request of geth
+        bool isSyncing = false;
+        std::uint64_t startingBlock = 0;
+        std::uint64_t currentBlock = 0;
+        std::uint64_t highestBlock = 0;
+
+        std::string toString() {
+            return std::to_string(isSyncing) + ":" + std::to_string(startingBlock) + ":" +
+            std::to_string(currentBlock) + ":" + std::to_string(highestBlock);
+        }
+    };
+
+    // return sync information as requested by eth_syncing API of geth
+    // if isSyncing is false, all fields will be set to zero.
+    virtual SyncInfo getSyncInfo() = 0;
+
 };
 
 /**
@@ -192,19 +203,19 @@ public:
  */
 class ConsensusExtFace {
 public:
-    typedef std::vector< std::vector< uint8_t > > transactions_vector;
+    typedef std::vector<std::vector<uint8_t> > transactions_vector;
 
     // Returns hashes and bytes of new transactions as well as state root to put into block proposal
-    virtual transactions_vector pendingTransactions( size_t _limit, u256& _stateRoot ) = 0;
+    virtual transactions_vector pendingTransactions(size_t _limit, u256 &_stateRoot) = 0;
 
     // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock( const transactions_vector& _approvedTransactions, uint64_t _timeStamp,
-        uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
-        uint64_t _winningNodeIndex ) = 0;
+    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp,
+                             uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
+                             uint64_t _winningNodeIndex) = 0;
 
     virtual ~ConsensusExtFace() = default;
 
-    virtual void terminateApplication(){};
+    virtual void terminateApplication() {};
 };
 
 #endif  // CONSENSUSINTERFACE_H

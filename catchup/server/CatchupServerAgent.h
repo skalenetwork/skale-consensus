@@ -44,8 +44,9 @@ class BlockFinalizeResponseHeader;
 class CatchupServerAgent : public AbstractServerAgent {
     ptr< CatchupWorkerThreadPool > catchupWorkerThreadPool;
 
-    ptr< vector< uint8_t > > createBlockCatchupResponse( nlohmann::json _jsonRequest,
-        const ptr< CatchupResponseHeader >& _responseHeader, block_id _blockID );
+    ptr< vector< uint8_t > > createBlockCatchupResponse( const ptr< ServerConnection >& _connectionEnvelope,
+        nlohmann::json _jsonRequest, const ptr< CatchupResponseHeader >& _responseHeader,
+        block_id _blockID );
 
 
     ptr< vector< uint8_t > > createBlockFinalizeResponse( nlohmann::json _jsonRequest,

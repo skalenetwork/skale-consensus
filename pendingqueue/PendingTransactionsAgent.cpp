@@ -53,51 +53,65 @@
 using namespace std;
 
 
-PendingTransactionsAgent::PendingTransactionsAgent( Schain& ref_sChain )
-    : Agent( ref_sChain, false ) {}
+PendingTransactionsAgent::PendingTransactionsAgent(Schain &ref_sChain)
+        : Agent(ref_sChain, false) {}
 
-ptr< BlockProposal > PendingTransactionsAgent::buildBlockProposal(
-    block_id _blockID, TimeStamp& _previousBlockTimeStamp, bool _isCalledAfterCatchup ) {
-    MICROPROFILE_ENTERI( "PendingTransactionsAgent", "sleep", MP_DIMGRAY );
-    usleep( getNode()->getMinBlockIntervalMs() * 1000 );
+ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
+        block_id _blockID, TimeStamp &_previousBlockTimeStamp, bool _isCalledAfterCatchup) {
+    MICROPROFILE_ENTERI("PendingTransactionsAgent", "sleep", MP_DIMGRAY);
+    usleep(getNode()->getMinBlockIntervalMs() * 1000);
     MICROPROFILE_LEAVE();
 
-    auto result = createTransactionsListForProposal( _isCalledAfterCatchup );
+    auto result = createTransactionsListForProposal(_isCalledAfterCatchup);
     transactionListReceivedTimeMs = Time::getCurrentTimeMs();
     auto transactions = result.first;
-    CHECK_STATE( transactions );
+    CHECK_STATE(transactions);
     auto stateRoot = result.second;
 
-    while ( Time::getCurrentTimeMs() <=
-            _previousBlockTimeStamp.getS() * 1000 + _previousBlockTimeStamp.getMs() ) {
-        usleep( 10 );
+    while (Time::getCurrentTimeMs() <=
+           _previousBlockTimeStamp.getS() * 1000 + _previousBlockTimeStamp.getMs()) {
+        usleep(10);
     }
 
-    auto transactionList = make_shared< TransactionList >( transactions );
+    auto transactionList = make_shared<TransactionList>(transactions);
 
     auto stamp = TimeStamp::getCurrentTimeStamp();
 
-    auto myBlockProposal = make_shared< MyBlockProposal >( *sChain, _blockID,
-        sChain->getSchainIndex(), transactionList, stateRoot, stamp.getS(), stamp.getMs(),
-        getSchain()->getCryptoManager() );
+    auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID,
+                                                        sChain->getSchainIndex(), transactionList, stateRoot,
+                                                        stamp.getS(), stamp.getMs(),
+                                                        getSchain()->getCryptoManager());
 
-    LOG( trace, "Created proposal, transactions:" << to_string( transactions->size() ) );
+    LOG(trace, "Created proposal, transactions:" << to_string(transactions->size()));
 
     auto pHashesList = myBlockProposal->createPartialHashesList();
-    CHECK_STATE( pHashesList );
+    CHECK_STATE(pHashesList);
 
-    transactionCounter += ( uint64_t ) pHashesList->getTransactionCount();
+    transactionCounter += (uint64_t) pHashesList->getTransactionCount();
 
     return myBlockProposal;
 }
 
-pair< ptr< vector< ptr< Transaction > > >, u256 >
-PendingTransactionsAgent::createTransactionsListForProposal( bool _isCalledAfterCatchup ) {
-    MONITOR2( __CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime() )
+pair<ptr<vector<ptr<Transaction> > >, u256>
+PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterCatchup) {
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime())
 
-    auto result = make_shared< vector< ptr< Transaction > > >();
+    auto result = make_shared<vector<ptr<Transaction> > >();
 
-    size_t needMax = getNode()->getMaxTransactionsPerBlock();
+    size_t needMax;
+
+
+    auto env = getenv("TEST_TRANSACTIONS_PER_BLOCK");
+
+    if (env) {
+        needMax = strtoul(env, nullptr, 10);
+
+        CHECK_STATE(needMax > 0)
+
+    } else {
+        needMax = getNode()->getMaxTransactionsPerBlock();
+    }
+
 
     ConsensusExtFace::transactions_vector txVector;
 
@@ -109,12 +123,12 @@ PendingTransactionsAgent::createTransactionsListForProposal( bool _isCalledAfter
     uint64_t waitTimeMs = 10;
 
 
-    while ( txVector.empty() ) {
+    while (txVector.empty()) {
         getSchain()->getNode()->exitCheck();
 
-        if ( sChain->getExtFace() ) {
+        if (sChain->getExtFace()) {
             getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
-            txVector = sChain->getExtFace()->pendingTransactions( needMax, stateRoot );
+            txVector = sChain->getExtFace()->pendingTransactions(needMax, stateRoot);
             // block boundary is the safest place for exit
             // exit immediately if exit has been requested
             // this will initiate immediate exit and throw ExitRequestedException
@@ -122,7 +136,7 @@ PendingTransactionsAgent::createTransactionsListForProposal( bool _isCalledAfter
         } else {
             stateRootSample++;
             stateRoot = 7;
-            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions( needMax );
+            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(needMax);
         }
 
         auto finishTime = Time::getCurrentTimeMs();
@@ -130,22 +144,22 @@ PendingTransactionsAgent::createTransactionsListForProposal( bool _isCalledAfter
 
         uint64_t emptyBlockTimeMs;
 
-        if ( _isCalledAfterCatchup ) {
+        if (_isCalledAfterCatchup) {
             // chose the smaller of two intervals. This is just to be able to force
             // empty block in tests by setting only emptyBlockInterval to zero
-            emptyBlockTimeMs = std::min( getNode()->getEmptyBlockIntervalAfterCatchupMs(),
-                getNode()->getEmptyBlockIntervalMs() );
+            emptyBlockTimeMs = std::min(getNode()->getEmptyBlockIntervalAfterCatchupMs(),
+                                        getNode()->getEmptyBlockIntervalMs());
         } else {
             emptyBlockTimeMs = getNode()->getEmptyBlockIntervalMs();
         }
 
-        if ( this->sChain->getLastCommittedBlockID() == 0 || diffTime >= emptyBlockTimeMs ) {
+        if (this->sChain->getLastCommittedBlockID() == 0 || diffTime >= emptyBlockTimeMs) {
             break;
         }
 
-        usleep( waitTimeMs * 1000 );
+        usleep(waitTimeMs * 1000);
 
-        if ( waitTimeMs < 10 * 32 ) {
+        if (waitTimeMs < 10 * 32) {
             waitTimeMs *= 2;
         }
 
@@ -155,58 +169,58 @@ PendingTransactionsAgent::createTransactionsListForProposal( bool _isCalledAfter
 
     transactionListWaitTime = finishTimeMs - startTimeMs;
 
-    for ( const auto& e : txVector ) {
-        ptr< Transaction > pt = Transaction::deserialize(
-            make_shared< std::vector< uint8_t > >( e ), 0, e.size(), false );
-        result->push_back( pt );
-        pushKnownTransaction( pt );
+    for (const auto &e: txVector) {
+        ptr<Transaction> pt = Transaction::deserialize(
+                make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
+        result->push_back(pt);
+        pushKnownTransaction(pt);
     }
 
-    return { result, stateRoot };
+    return {result, stateRoot};
 }
 
 
-ptr< Transaction > PendingTransactionsAgent::getKnownTransactionByPartialHash(
-    const ptr< partial_sha_hash > hash ) {
-    READ_LOCK( transactionsMutex );
-    if ( knownTransactions.count( hash ) )
-        return knownTransactions.at( hash );
+ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(
+        const ptr<partial_sha_hash> hash) {
+    READ_LOCK(transactionsMutex);
+    if (knownTransactions.count(hash))
+        return knownTransactions.at(hash);
     return nullptr;
 }
 
-void PendingTransactionsAgent::pushKnownTransaction( const ptr< Transaction >& _transaction ) {
-    CHECK_ARGUMENT( _transaction );
+void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction> &_transaction) {
+    CHECK_ARGUMENT(_transaction);
 
-    WRITE_LOCK( transactionsMutex );
+    WRITE_LOCK(transactionsMutex);
 
-    if ( knownTransactions.count( _transaction->getPartialHash() ) ) {
-        LOG( trace, "Duplicate transaction pushed to known transactions" );
+    if (knownTransactions.count(_transaction->getPartialHash())) {
+        LOG(trace, "Duplicate transaction pushed to known transactions");
         return;
     }
 
     auto partialHash = _transaction->getPartialHash();
 
-    CHECK_STATE( partialHash );
+    CHECK_STATE(partialHash);
 
     knownTransactions[partialHash] = _transaction;
-    knownTransactionsQueue.push( _transaction );
-    CHECK_STATE( knownTransactions.size() == knownTransactionsQueue.size() );
-    knownTransactionsTotalSize += ( _transaction->getData()->size() + PARTIAL_HASH_LEN );
+    knownTransactionsQueue.push(_transaction);
+    CHECK_STATE(knownTransactions.size() == knownTransactionsQueue.size());
+    knownTransactionsTotalSize += (_transaction->getData()->size() + PARTIAL_HASH_LEN);
 
-    while ( knownTransactions.size() > KNOWN_TRANSACTIONS_HISTORY ||
-            knownTransactionsTotalSize > MAX_KNOWN_TRANSACTIONS_TOTAL_SIZE ) {
+    while (knownTransactions.size() > KNOWN_TRANSACTIONS_HISTORY ||
+           knownTransactionsTotalSize > MAX_KNOWN_TRANSACTIONS_TOTAL_SIZE) {
         auto tx = knownTransactionsQueue.front();
-        CHECK_STATE( tx );
-        knownTransactionsTotalSize -= ( tx->getData()->size() + PARTIAL_HASH_LEN );
-        CHECK_STATE( knownTransactions.count( tx->getPartialHash() ) > 0 );
-        knownTransactions.erase( tx->getPartialHash() );
+        CHECK_STATE(tx);
+        knownTransactionsTotalSize -= (tx->getData()->size() + PARTIAL_HASH_LEN);
+        CHECK_STATE(knownTransactions.count(tx->getPartialHash()) > 0);
+        knownTransactions.erase(tx->getPartialHash());
         knownTransactionsQueue.pop();
     }
 }
 
 
 uint64_t PendingTransactionsAgent::getKnownTransactionsSize() {
-    READ_LOCK( transactionsMutex );
-    CHECK_STATE( knownTransactions.size() == knownTransactionsQueue.size() );
+    READ_LOCK(transactionsMutex);
+    CHECK_STATE(knownTransactions.size() == knownTransactionsQueue.size());
     return knownTransactions.size();
 }

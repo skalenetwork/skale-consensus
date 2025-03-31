@@ -94,8 +94,9 @@ uint64_t Consensust::getRunningTimeS() {
     if ( runningTimeS == 0 ) {
         auto env = getenv( "TEST_TIME_S" );
 
-        if ( env != NULL ) {
-            runningTimeS = strtoul( env, NULL, 10 );
+        if ( env ) {
+            runningTimeS = strtoul( env, nullptr, 10 );
+            CHECK_STATE(runningTimeS);
         } else {
             runningTimeS = DEFAULT_RUNNING_TIME_S;
         }

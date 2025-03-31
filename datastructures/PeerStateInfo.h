@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+    Copyright (C) 2023- SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -16,32 +16,27 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file BooleanProposalVector.h
-    @author Stan Kladko
-    @date 2018
 */
+
 
 #pragma once
 
-#include "DataStructure.h"
 
-class BooleanProposalVector : public DataStructure {
-    vector< bool > proposals;  // thread safe
 
-    uint64_t nodeCount = 0;
-    uint64_t trueCount = 0;
+class PeerStateInfo {
+
+    block_id lastBlockId = 0;
+    uint64_t lastBlockTimestampS = 0;
 
 public:
-    BooleanProposalVector(
-        node_count _nodeCount, const ptr< map< schain_index, string > >& _receivedDAProofs );
+    const block_id &getLastBlockId() const;
 
-    BooleanProposalVector( node_count _nodeCount, const string& _vectorStr );
+    uint64_t getLastBlockTimestampS() const;
 
-    BooleanProposalVector( node_count _nodeCount, schain_index _singleWinner );
+    PeerStateInfo(const block_id &lastBlockId, uint64_t lastBlockTimestampS);
 
-    bool getProposalValue( schain_index _index );
+    static ptr<PeerStateInfo> extract(nlohmann::json _catchupResponseHeasder);
 
-    [[nodiscard]] uint64_t getTrueCount() const;
-
-    string toString();
 };
+
+

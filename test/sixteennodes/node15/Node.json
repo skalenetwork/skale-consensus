@@ -2,5 +2,7 @@
   "nodeName": "Node15",
   "nodeID": 1125,
   "bindIP": "127.0.0.15",
-  "basePort":1231
+  "basePort":1231,
+  "fastConsensusPatchTimestamp": 1,
+  "verifyDaSigsPatchTimeStamp": 1
 }
