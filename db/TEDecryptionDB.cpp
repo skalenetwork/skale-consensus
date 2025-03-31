@@ -21,6 +21,7 @@
     @date 2019
 */
 
+#ifdef BITE
 
 #include "TEDecryptionDB.h"
 
@@ -46,53 +47,52 @@ using namespace std;
 
 
 TEDecryptionDB::TEDecryptionDB(
-    Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId, uint64_t _maxDBSize)
-    : CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize,
-                   LevelDBOptions::getTEDecryptionDBOptions(), false) {
-}
+    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getTEDecryptionDBOptions(), false ) {}
 
-const string &TEDecryptionDB::getFormatVersion() {
+const string& TEDecryptionDB::getFormatVersion() {
     static const string version = "1.0";
     return version;
 }
 
 
-bool TEDecryptionDB::haveDecryptions(const ptr<BlockProposal> &_proposal) {
-    CHECK_ARGUMENT(_proposal)
-    return keyExistsInSet(_proposal->getBlockID(), _proposal->getProposerIndex());
+bool TEDecryptionDB::haveDecryptions( const ptr< BlockProposal >& _proposal ) {
+    CHECK_ARGUMENT( _proposal )
+    return keyExistsInSet( _proposal->getBlockID(), _proposal->getProposerIndex() );
 }
 
 
-ptr<AESKeyDecryptionShareList> TEDecryptionDB::getDecryptions(block_id _blockId, schain_index _decryptorIndex) {
+ptr<AESKeyDecryptionShareList> TEDecryptionDB::getDecryptions( block_id _blockId, schain_index _decryptorIndex ) {
     return make_shared<AESKeyDecryptionShareList>(_blockId, _decryptorIndex);
     //return readStringFromSet( _blockId, _decryptorIndex );
 }
 
 
 // return not-null if _daProof completes set, null otherwise (both if not enough and too much)
-ptr<DecryptedAESKeyList> TEDecryptionDB::addDecryptionShares(
-    const ::std::shared_ptr<AESKeyDecryptionShareList> &_decryptionShareList) {
-    CHECK_ARGUMENT(_decryptionShareList)
+ptr<DecryptedAESKeyList> TEDecryptionDB::addDecryptionShares(const ::std::shared_ptr<AESKeyDecryptionShareList> &_decryptionShareList) {
+    CHECK_ARGUMENT( _decryptionShareList )
 
-    LOG(trace, "Adding daProof");
+    LOG( trace, "Adding daProof" );
 
-    auto _decryptionShareListSet = this->writeStringToSet(_decryptionShareList->serializeToString(),
-                                                          _decryptionShareList->getBlockId(),
-                                                          _decryptionShareList->getDecryptorIndex());
+    auto _decryptionShareListSet = this->writeStringToSet( _decryptionShareList->serializeToString(),
+        _decryptionShareList->getBlockId(), _decryptionShareList->getDecryptorIndex());
 
-    if (_decryptionShareListSet == nullptr) {
+    if ( _decryptionShareListSet  == nullptr ) {
         return nullptr;
     }
 
-    CHECK_STATE(_decryptionShareListSet->size() == requiredSigners)
+    CHECK_STATE( _decryptionShareListSet->size() == requiredSigners )
 
     auto proposalVector = getSchain()->getBiteManager()->mergeDecryptionSharesSetFromDB(_decryptionShareListSet);
-    LOG(trace, "Created proposal vector");
+    LOG( trace, "Created proposal vector" );
 
     return proposalVector;
 }
 
 
-bool TEDecryptionDB::isEnoughDecrypttions(block_id _blockID) {
-    return isEnough(_blockID);
+bool TEDecryptionDB::isEnoughDecrypttions( block_id _blockID ) {
+    return isEnough( _blockID );
 }
+
+#endif
