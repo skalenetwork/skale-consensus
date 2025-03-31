@@ -43,6 +43,10 @@
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
 #include "db/CommittedTransactionDB.h"
+#ifdef BITE
+#include "bite/BiteManager.h"
+#endif
+
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
@@ -81,6 +85,25 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
                                                         sChain->getSchainIndex(), transactionList, stateRoot,
                                                         stamp.getS(), stamp.getMs(),
                                                         getSchain()->getCryptoManager());
+
+#ifdef BITE
+    auto status = getSchain()->getBiteManager()->verifyAndDecryptProposalTransactions(myBlockProposal);
+    if (status != ConnectionSubStatus::CONNECTION_OK) {
+        LOG(err, "Could not decrypt BITE transactions, this means something is wrong with the SGX");
+        LOG(err, "Proposing empty transactions instead");
+        // could not decrypt proposals, this means something is wrong with the SGX
+        // do an empty proposal instead
+        // TODO proposa non-BITE transactions
+        myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID,
+                                                       sChain->getSchainIndex(), make_shared<TransactionList>(make_shared<vector<ptr<Transaction> > >()),
+                                                       stateRoot, stamp.getS(), stamp.getMs(),
+                                                       getSchain()->getCryptoManager());
+    }
+    // could not decrypt proposals, this means something is wrong with the SGX
+
+
+
+#endif
 
     LOG(trace, "Created proposal, transactions:" << to_string(transactions->size()));
 
@@ -176,7 +199,14 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
     for (const auto &e: txVector) {
         ptr<Transaction> pt = Transaction::deserialize(
                 make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
-        result->push_back(pt);
+#ifdef BITE
+        try {
+            pt->parseAndValidateBITEDataField();
+            result->push_back(pt);
+        } catch (std::exception&) {
+            LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my propopsal.");
+        }
+#endif
         pushKnownTransaction(pt);
     }
 
