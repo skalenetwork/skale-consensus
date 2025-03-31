@@ -52,6 +52,12 @@ class BlockProposalFragmentList;
 
 #define SERIALIZE_AS_PROPOSAL 1
 
+#ifdef BITE
+class AESKeyDecryptionShareList;
+#endif
+
+
+
 class BlockProposal : public SendableItem {
 
     uint64_t creationTime;
@@ -164,4 +170,27 @@ public:
     uint64_t getCreationTime() const;
 
     static uint64_t getTotalObjects();
+
+#ifdef BITE
+    // For BITE protocol when a node receives a block proposal, it verifies and decrypts BITE shares for this proposal
+    // using the SGX server
+    // the resulting AESKeyDecryptionShareList is then saved together with the block proposal.
+
+private:
+    ptr<AESKeyDecryptionShareList> myDecryptionShares = nullptr;
+
+public:
+    [[nodiscard]] ptr<AESKeyDecryptionShareList> getMyDecryptionShares() const {
+        auto result = std::atomic_load(&myDecryptionShares);
+        return result;
+    }
+
+
+    void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
+        CHECK_STATE(_myDecryptionShares);
+        // verify we are not setting it twice
+        CHECK_STATE(std::atomic_load(&myDecryptionShares) == nullptr);
+        std::atomic_store(&myDecryptionShares, _myDecryptionShares);
+    }
+#endif
 };

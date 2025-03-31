@@ -92,7 +92,7 @@ public:
     ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
 
     // this returns nullptr for non-BITE transactions
-    ptr<BITEDataField> getBITEDataField();
+    ptr<BITEDataField> parseAndValidateBITEDataField();
 #endif
 
 };

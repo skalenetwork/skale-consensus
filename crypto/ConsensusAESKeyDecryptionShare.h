@@ -19,14 +19,12 @@ class ConsensusAESKeyDecryptionShare : public AESKeyDecryptionShare {
 
 public:
     ConsensusAESKeyDecryptionShare(
-        const ptr<libBLS::TEDecryptionShare> &_decryptionShare, block_id _blockID,
-        transaction_index _transactionIndex, schain_index _decryptorIndex, bool _decryptionFailed);
+        const ptr<libBLS::TEDecryptionShare> &_decryptionShare, schain_index _decryptorIndex, bool _decryptionFailed);
 
 
     ConsensusAESKeyDecryptionShare(const string &_decryptionShare,
-                                   block_id _blockID, transaction_index _transactionIndex, schain_index _decryptorIndex,
-                                   bool _decryptionFailed, uint64_t _totalDecryptors,
-                                   uint64_t _requiredDecryptors);
+                                  schain_index _decryptorIndex,
+                                   bool _decryptionFailed);
 
 
     [[nodiscard]] ptr<libBLS::TEDecryptionShare> getTEDecryptionShare() const;

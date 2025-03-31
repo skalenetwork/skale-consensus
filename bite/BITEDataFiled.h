@@ -6,6 +6,7 @@ using EncryptedData = vector< std::uint8_t >;
 class EncryptedAESKey;
 
 class BITEDataField {
+
     ptr<EncryptedAESKey> encryptedAESKey;
     std::shared_ptr<EncryptedData> encryptedData;
     uint64_t epoch = 0;

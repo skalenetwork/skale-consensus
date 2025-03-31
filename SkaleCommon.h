@@ -293,7 +293,7 @@ BOOST_STRONG_TYPEDEF( uint64_t, schain_id );
 
 
 BOOST_STRONG_TYPEDEF( uint64_t, epoch_id );
-BOOST_STRONG_TYPEDEF( uint16_t, transaction_index );
+BOOST_STRONG_TYPEDEF( uint32_t, transaction_index );
 
 BOOST_STRONG_TYPEDEF( unsigned int, tcp_connection );
 

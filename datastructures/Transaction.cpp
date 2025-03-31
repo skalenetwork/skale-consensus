@@ -178,7 +178,6 @@ ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::rando
 #ifdef BITE
 
 void Transaction::parseAndValidate() {
-
     // thread safe
     auto pt = std::atomic_load(&parsedAndValidatedEthTransaction );
     if (pt)
@@ -189,7 +188,7 @@ void Transaction::parseAndValidate() {
 }
 
 
-ptr< BITEDataField > Transaction::getBITEDataField() {
+ptr< BITEDataField > Transaction::parseAndValidateBITEDataField() {
     parseAndValidate();
     auto pt = std::atomic_load(&parsedAndValidatedEthTransaction )->getTransactionDataField();
 

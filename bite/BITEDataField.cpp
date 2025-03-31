@@ -9,15 +9,19 @@
 #include "BITEDataFiled.h"
 
 
+const auto BITE_HEADER_LEN = BITE_MAGIC_SIZE + sizeof(uint64_t) + BITE_ENCRYPTED_AES_KEY_LEN;
+
 BITEDataField::BITEDataField(const std::shared_ptr<std::vector<uint8_t> > &_data) {
-    CHECK_STATE(_data && _data->size() >= BITE_MAGIC_SIZE + BITE_ENCRYPTED_AES_KEY_LEN);
+    CHECK_STATE(_data)
+    CHECK_STATE(_data->size() >= BITE_MAGIC_SIZE + sizeof(uint64_t) + BITE_ENCRYPTED_AES_KEY_LEN);
 
     auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
 
-    std::copy_n(_data->begin() + BITE_MAGIC_SIZE, BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
+    std::copy_n(_data->begin() + BITE_MAGIC_SIZE + sizeof(uint64_t), BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
 
-    auto encryptedDataStart = _data->begin() + BITE_MAGIC_SIZE + BITE_ENCRYPTED_AES_KEY_LEN;
-    encryptedData = std::make_shared<EncryptedData>(encryptedDataStart, _data->end());
+    auto encryptedDataStart = _data->begin() + BITE_HEADER_LEN;
+    encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
+    encryptedData = make_shared<EncryptedData>(encryptedDataStart, _data->end());
     serializedData = _data;
 }
 
@@ -34,15 +38,23 @@ uint64_t BITEDataField::getEpoch() {
     return epoch;
 }
 
+
+
 ptr<BITEDataField> BITEDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data) {
+
+
     CHECK_STATE(_data)
-    if (_data->size() < BITE_MAGIC_SIZE + BITE_ENCRYPTED_AES_KEY_LEN)
+
+    if (_data->size() < BITE_MAGIC_SIZE)
         return nullptr;
 
     if (!std::equal(BITE_MAGIC_AS_BYTE_ARRAY, BITE_MAGIC_AS_BYTE_ARRAY + BITE_MAGIC_SIZE,
                     _data->begin())) {
         return nullptr;
     }
+
+    CHECK_STATE2 (_data->size() >= BITE_HEADER_LEN,
+        "Icorrectly formattted BITE transaction: Dsta size too short" + to_string(_data->size()));
 
     return ptr<BITEDataField>(new BITEDataField(_data));
 }
@@ -54,11 +66,13 @@ BITEDataField::BITEDataField(const ptr<EncryptedAESKey>& _encryptedAESKey,
     CHECK_STATE(_encryptedAESKey);
 
     serializedData = make_shared<vector<uint8_t> >();
-    serializedData->reserve(
-        BITE_MAGIC_SIZE + BITE_ENCRYPTED_AES_KEY_LEN + _encryptedData->size());
-    serializedData->insert(serializedData->end(), BITE_MAGIC_AS_BYTE_ARRAY,
-                           BITE_MAGIC_AS_BYTE_ARRAY + BITE_MAGIC_SIZE);
+    serializedData->reserve(BITE_HEADER_LEN + _encryptedData->size());
+    serializedData->insert(serializedData->end(), BITE_MAGIC_AS_BYTE_ARRAY,BITE_MAGIC_AS_BYTE_ARRAY + BITE_MAGIC_SIZE);
+    uint64_t epochBE = boost::endian::native_to_big(_epoch);
+    uint8_t* epochBytes = reinterpret_cast<uint8_t*>(&epochBE);
+    serializedData->insert(serializedData->end(), epochBytes, epochBytes + sizeof(epochBE));
     serializedData->insert(serializedData->end(), encryptedAESKey->getKey()->begin(), encryptedAESKey->getKey()->end());
+    CHECK_STATE(serializedData->size() == BITE_HEADER_LEN);
     serializedData->insert(serializedData->end(), encryptedData->begin(), encryptedData->end());
 }
 
