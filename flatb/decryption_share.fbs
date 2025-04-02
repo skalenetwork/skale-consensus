@@ -1,5 +1,0 @@
-include "common_structures.fbs";
-
-namespace skale_fb;
-
-root_type DecryptionShare;

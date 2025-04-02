@@ -23,11 +23,14 @@ public:
         const ptr<BlockProposal> &_proposal);
 
     std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> decryptBiteDataFields(
-        block_id _blockId, const std::map<transaction_index, ptr<BITEDataField> > &_biteDataFields);
+        block_id _blockId, schain_index _proposerIndex,  const std::map<transaction_index, ptr<BITEDataField> > &_biteDataFields);
 
     ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeys(vector<ptr<BITEDataField>> &_dataFiuelds);
 
     void verifyAndDecryptBlockTransactions(const ptr<CommittedBlock> &_block);
 
     ptr<DecryptedAESKeyList> mergeDecryptionSharesSetFromDB(ptr<map<schain_index, string> > &_decryptionShareList);
+
+    static ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare, schain_index _decryptorIndex,
+                                                        bool _decryptionFailed);
 };

@@ -9,15 +9,21 @@ class AESKeyDecryptionShare;
 
 class AESKeyDecryptionShareList {
     block_id blockId;
+    schain_index proposerIndex;
     schain_index encryptorIndex;
 
     boost::container::flat_map<transaction_index, ptr<AESKeyDecryptionShare> > decryptionShares;
     std::atomic<bool> isComplete = false;
 
 public:
-    AESKeyDecryptionShareList(const block_id &block_id, const schain_index &encryptor_index)
-        : blockId(block_id),
-          encryptorIndex(encryptor_index) {
+    AESKeyDecryptionShareList(const block_id &_blockId, schain_index _proposerIndex, const schain_index &_encryptorIndex)
+        : blockId(_blockId),
+          proposerIndex(_proposerIndex),
+          encryptorIndex(_encryptorIndex) {
+    }
+
+    [[nodiscard]] schain_index getProposerIndex() const {
+        return proposerIndex;
     }
 
     block_id getBlockId() const;
@@ -34,7 +40,7 @@ public:
 
 
     // Optional: Add public access methods
-    void addKey(transaction_index _index, const ptr<AESKeyDecryptionShare> &_decryptShare);
+    void addShare(transaction_index _index, const ptr<AESKeyDecryptionShare> &_decryptShare);
 
     ptr<AESKeyDecryptionShare> getDecryptionShare(uint64_t id) const;
 

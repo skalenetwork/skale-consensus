@@ -38,6 +38,7 @@ table BlockHeader {
 table DecryptionShare {
     transaction_index: uint32;
     data: [uint8] ;
+    decryptionFailed: bool;
 }
 
 

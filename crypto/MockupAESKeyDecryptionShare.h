@@ -10,7 +10,7 @@ class MockupAESKeyDecryptionShare: public AESKeyDecryptionShare {
 
 public:
     MockupAESKeyDecryptionShare( const string _aesKeyDecryptionShare,
-        schain_index _decryptorIndex,bool _decryptionFailed) ;
+        schain_index _decryptorIndex, bool _decryptionFailed) ;
 
     string toString() override;
 

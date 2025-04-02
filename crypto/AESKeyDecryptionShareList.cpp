@@ -12,7 +12,7 @@ schain_index AESKeyDecryptionShareList::getDecryptorIndex() const {
 
 
 // Optional: Add public access methods
-void AESKeyDecryptionShareList::addKey(transaction_index _index, const ptr<AESKeyDecryptionShare> &_decryptShare) {
+void AESKeyDecryptionShareList::addShare(transaction_index _index, const ptr<AESKeyDecryptionShare> &_decryptShare) {
     decryptionShares.emplace(_index, _decryptShare);
 }
 

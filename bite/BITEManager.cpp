@@ -46,7 +46,7 @@ ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
 
     ptr<AESKeyDecryptionShareList> decryptionShareList = nullptr;
     try {
-        auto result =  decryptBiteDataFields(_proposal->getBlockID(), biteDataFields);
+        auto result =  decryptBiteDataFields(_proposal->getBlockID(), _proposal->getProposerIndex(), biteDataFields);
         auto status = result.second;
         if (status != ConnectionSubStatus::CONNECTION_OK) {
             return status;
@@ -79,8 +79,8 @@ ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
 
 
 std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> BiteManager::decryptBiteDataFields(
-    block_id _blockId, const std::map<transaction_index, ptr<BITEDataField> > &_biteDataFields) {
-    auto decryptionShareList = make_shared<AESKeyDecryptionShareList>(_blockId, schain.getSchainIndex());;
+    block_id _blockId, schain_index _proposerIndex, const std::map<transaction_index, ptr<BITEDataField> > &_biteDataFields) {
+    auto decryptionShareList = make_shared<AESKeyDecryptionShareList>(_blockId, _proposerIndex, schain.getSchainIndex());;
 
     if (_biteDataFields.empty()) {
         return {decryptionShareList, ConnectionSubStatus::CONNECTION_OK};
@@ -105,7 +105,7 @@ std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> BiteManager::decr
     auto arrayIndex = 0;
     for (auto &&iterator: _biteDataFields) {
         auto AESKeyDecryptionShare = (*decryptiondSharesVector)[arrayIndex];
-        decryptionShareList->addKey(iterator.first, decryptiondSharesVector->at(arrayIndex) );
+        decryptionShareList->addShare(iterator.first, decryptiondSharesVector->at(arrayIndex) );
         arrayIndex++;
     }
 
@@ -153,3 +153,11 @@ ptr<DecryptedAESKeyList> BiteManager::mergeDecryptionSharesSetFromDB(
     CHECK_STATE(_decryptionShareList);
     return nullptr;
 }
+
+
+ptr <AESKeyDecryptionShare> BiteManager::createAESDecryptionShare(const string _aesKeyDecryptionShare,
+        schain_index _decryptorIndex, bool _decryptionFailed) {
+    return make_shared<MockupAESKeyDecryptionShare>(_aesKeyDecryptionShare, _decryptorIndex, _decryptionFailed);
+}
+
+
