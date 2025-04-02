@@ -346,10 +346,18 @@ ptr<BlockSigShareDB> Node::getBlockSigShareDB() const {
     return blockSigShareDB;
 }
 
+
 ptr<DASigShareDB> Node::getDaSigShareDB() const {
     CHECK_STATE(daSigShareDB);
     return daSigShareDB;
 }
+
+#ifdef BITE
+ptr<TEDecryptionDB> Node::getTEDecryptionDB() const {
+    CHECK_STATE(teDecryptionDB);
+    return teDecryptionDB;
+}
+#endif
 
 ptr<DAProofDB> Node::getDaProofDB() const {
     CHECK_STATE(daProofDB);
@@ -377,6 +385,12 @@ uint64_t Node::getInternalInfoDBSize() const {
     return internalInfoDBSize;
 }
 
+#ifdef BITE
+uint64_t Node::getTEDecryptionDBSize() const {
+    return teDecryptionDBSize;
+}
+#endif
+
 map<string, uint64_t> Node::getDBUsage() const {
     map<string, uint64_t> ret;
 
@@ -395,6 +409,9 @@ map<string, uint64_t> Node::getDBUsage() const {
     ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getFullDBSize();
     ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getFullDBSize();
     ret["random.db_disk_usage"] = getRandomDB()->getFullDBSize();
+    ret["te_decryptshare.db_disk_usage"] = getRandomDB()->getFullDBSize();
+#ifdef BITE
+#endif
 
     return ret;
 }
