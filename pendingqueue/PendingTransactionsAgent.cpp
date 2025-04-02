@@ -201,7 +201,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
                 make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
 #ifdef BITE
         try {
-            pt->parseAndValidateBITEDataField();
+            pt->parseAndValidateBiteDataField();
             result->push_back(pt);
         } catch (std::exception&) {
             LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my propopsal.");

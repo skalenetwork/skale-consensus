@@ -7,7 +7,7 @@
 #include <crypto/AESKeyDecryptionShareList.h>
 #include <crypto/MockupAESKeyDecryptionShareSet.h>
 
-#include "BITEDataFiled.h"
+#include "BiteDataFiled.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/Transaction.h"
@@ -28,16 +28,16 @@ ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
     CHECK_STATE(transactions);
 
 
-    std::map<transaction_index, ptr<BITEDataField> > biteDataFields;
+    std::map<transaction_index, ptr<BiteDataField> > biteDataFields;
 
     try {
         transaction_index index = 0;
 
         for (auto &tx: *transactions) {
             tx->parseAndValidate();
-            auto biteDataField = tx->parseAndValidateBITEDataField();
-            if (tx->parseAndValidateBITEDataField()) {
-                biteDataFields.emplace(index, tx->parseAndValidateBITEDataField());
+            auto biteDataField = tx->parseAndValidateBiteDataField();
+            if (tx->parseAndValidateBiteDataField()) {
+                biteDataFields.emplace(index, tx->parseAndValidateBiteDataField());
             }
             index = index + 1;
         }
@@ -81,14 +81,14 @@ ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
 
 
 std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> BiteManager::decryptBiteDataFields(
-    block_id _blockId, schain_index _proposerIndex, const std::map<transaction_index, ptr<BITEDataField> > &_biteDataFields) {
+    block_id _blockId, schain_index _proposerIndex, const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields) {
     auto decryptionShareList = make_shared<AESKeyDecryptionShareList>(_blockId, _proposerIndex, schain.getSchainIndex());;
 
     if (_biteDataFields.empty()) {
         return {decryptionShareList, ConnectionSubStatus::CONNECTION_OK};
     };
 
-    vector<ptr<BITEDataField> > dataFieldsAsVector;
+    vector<ptr<BiteDataField> > dataFieldsAsVector;
     dataFieldsAsVector.reserve(_biteDataFields.size());
 
     for (auto &&iterator: _biteDataFields) {
@@ -115,7 +115,7 @@ std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> BiteManager::decr
 }
 
 
-ptr<vector<ptr<AESKeyDecryptionShare>>> BiteManager::decryptAESKeys(vector<ptr<BITEDataField> >& _dataFields) {
+ptr<vector<ptr<AESKeyDecryptionShare>>> BiteManager::decryptAESKeys(vector<ptr<BiteDataField> >& _dataFields) {
     CHECK_STATE(!_dataFields.empty())
 
     auto result = make_shared<vector<ptr<AESKeyDecryptionShare> > >();

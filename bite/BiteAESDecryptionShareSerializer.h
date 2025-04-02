@@ -4,7 +4,7 @@
 
 class AESKeyDecryptionShareList;
 
-class BITEAESDecryptionShareSerializer {
+class BiteAESDecryptionShareSerializer {
 
 public:
 

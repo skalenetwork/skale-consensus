@@ -38,7 +38,7 @@
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
 #ifdef BITE
-#include "bite/BITEBlockProposalSerializer.h"
+#include "bite/BiteBlockProposalSerializer.h"
 #endif
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/CryptoManager.h"
@@ -256,7 +256,7 @@ ptr< vector< uint8_t > > BlockProposal::serializeTransactionsAndCompleteSerializ
     ptr< BasicHeader > _blockHeader ) {
 
 #ifdef BITE
-    return BITEBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(_blockHeader, transactionList);
+    return BiteBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(_blockHeader, transactionList);
 #endif
 
     CHECK_STATE( _blockHeader )
@@ -303,7 +303,7 @@ ptr< BlockProposal > BlockProposal::deserialize(
     bool _verifySig ) {
 #ifdef BITE
     // override static method
-    return BITEBlockProposalSerializer::deserialize(_serializedProposal, _manager, _verifySig);
+    return BiteBlockProposalSerializer::deserialize(_serializedProposal, _manager, _verifySig);
 #endif
 
     CHECK_ARGUMENT( _serializedProposal );

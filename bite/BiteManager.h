@@ -12,22 +12,22 @@ class BlockProposal;
 class CommittedBlock;
 class DecryptedAESKeyList;
 class AESKeyDecryptionShareList;
-class BITEDataField;
+class BiteDataField;
 
 class BiteManager {
     Schain &schain;
     bool doRealCrypto = false;
 
 public:
-    explicit BiteManager(Schain &schain);
+    explicit BiteManager(Schain &_schain);
 
     ConnectionSubStatus verifyAndDecryptProposalTransactions(
         const ptr<BlockProposal> &_proposal);
 
     std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> decryptBiteDataFields(
-        block_id _blockId, schain_index _proposerIndex,  const std::map<transaction_index, ptr<BITEDataField> > &_biteDataFields);
+        block_id _blockId, schain_index _proposerIndex,  const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields);
 
-    ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeys(vector<ptr<BITEDataField>> &_dataFiuelds);
+    ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeys(vector<ptr<BiteDataField>> &_dataFields);
 
     void verifyAndDecryptBlockTransactions(const ptr<CommittedBlock> &_block);
 

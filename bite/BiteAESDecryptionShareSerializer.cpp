@@ -8,11 +8,11 @@
 #include "headers/BlockProposalHeader.h"
 #include "crypto/AESKeyDecryptionShare.h"
 #include "crypto/AESKeyDecryptionShareList.h"
-#include "BITEAESDecryptionShareSerializer.h"
+#include "BiteAESDecryptionShareSerializer.h"
 
 
 
-ptr<std::vector<uint8_t> > BITEAESDecryptionShareSerializer::serialize(
+ptr<std::vector<uint8_t> > BiteAESDecryptionShareSerializer::serialize(
     ptr<AESKeyDecryptionShareList> _decryptionShareList) {
     CHECK_STATE(_decryptionShareList);
 
@@ -50,7 +50,7 @@ ptr<std::vector<uint8_t> > BITEAESDecryptionShareSerializer::serialize(
 }
 
 
-void BITEAESDecryptionShareSerializer::serializedSanityCheck(const ptr<vector<uint8_t> > &_serializedDecryptionShares) {
+void BiteAESDecryptionShareSerializer::serializedSanityCheck(const ptr<vector<uint8_t> > &_serializedDecryptionShares) {
     // 🔍 Verify the resulting buffer before returning
     CHECK_STATE(_serializedDecryptionShares);
     flatbuffers::Verifier verifier(_serializedDecryptionShares->data(), _serializedDecryptionShares->size());
@@ -58,7 +58,7 @@ void BITEAESDecryptionShareSerializer::serializedSanityCheck(const ptr<vector<ui
 }
 
 
-ptr<AESKeyDecryptionShareList> BITEAESDecryptionShareSerializer::deserialize(
+ptr<AESKeyDecryptionShareList> BiteAESDecryptionShareSerializer::deserialize(
     const ptr<vector<uint8_t> >  &_serializedDecryptionShares,
     const ptr<CryptoManager> &_manager, bool) {
     CHECK_ARGUMENT(_serializedDecryptionShares);

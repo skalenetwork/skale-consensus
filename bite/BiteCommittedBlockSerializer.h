@@ -2,7 +2,7 @@
 
 #include "datastructures/CommittedBlock.h"
 
-class BITECommittedBlockSerializer {
+class BiteCommittedBlockSerializer {
 
 public:
 

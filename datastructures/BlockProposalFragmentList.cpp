@@ -31,7 +31,7 @@
 #include "SkaleCommon.h"
 #include "exceptions/SerializeException.h"
 #ifdef BITE
-#include "bite/BITEBlockProposalSerializer.h"
+#include "bite/BiteBlockProposalSerializer.h"
 #endif
 
 #include "BlockProposalFragment.h"
@@ -192,7 +192,7 @@ const ptr< vector< uint8_t > > BlockProposalFragmentList::serialize() {
 
 
 #ifdef BITE
-    BITEBlockProposalSerializer::serializedSanityCheck(result);
+    BiteBlockProposalSerializer::serializedSanityCheck(result);
     return result;
 #else
     CHECK_STATE( result->size() == totalLen );

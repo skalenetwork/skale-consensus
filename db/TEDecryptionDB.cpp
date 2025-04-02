@@ -42,7 +42,7 @@
 
 
 #include <bite/BiteManager.h>
-#include <bite/BITEAESDecryptionShareSerializer.h>
+#include <bite/BiteAESDecryptionShareSerializer.h>
 #include <crypto/AESKeyDecryptionShareSet.h>
 #include "TEDecryptionDB.h"
 
@@ -73,7 +73,7 @@ ptr<AESKeyDecryptionShareList> TEDecryptionDB::deserializeDecryptionShareFromStr
         reinterpret_cast<const uint8_t *>(decryptions.data()),
         reinterpret_cast<const uint8_t *>(decryptions.data()) + decryptions.size()
     );
-    return BITEAESDecryptionShareSerializer::deserialize(decryptionsVec,
+    return BiteAESDecryptionShareSerializer::deserialize(decryptionsVec,
                                                          getSchain()->getCryptoManager(), false);
 }
 
@@ -89,7 +89,7 @@ ptr<DecryptedAESKeyList> TEDecryptionDB::addDecryptionShares(
 
     LOG(trace, "Adding daProof");
 
-    auto serializedList = BITEAESDecryptionShareSerializer::serialize(_decryptionShareList);
+    auto serializedList = BiteAESDecryptionShareSerializer::serialize(_decryptionShareList);
     CHECK_STATE(serializedList);
 
 

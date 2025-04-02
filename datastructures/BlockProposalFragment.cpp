@@ -27,7 +27,7 @@
 #ifdef BITE
 #include "flatb/FlatBufferRequest.h"
 #include "flatb/committed_block_fragment_generated.h"
-#include "bite/BITEBlockProposalSerializer.h"
+#include "bite/BiteBlockProposalSerializer.h"
 #endif
 
 #include "BlockProposalFragment.h"

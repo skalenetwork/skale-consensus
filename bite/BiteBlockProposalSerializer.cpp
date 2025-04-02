@@ -9,9 +9,9 @@
 #include "network/Buffer.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
-#include "BITEBlockProposalSerializer.h"
+#include "BiteBlockProposalSerializer.h"
 
-ptr<std::vector<uint8_t>> BITEBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(
+ptr<std::vector<uint8_t>> BiteBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(
     ptr<BasicHeader> _blockHeader, ptr<TransactionList> transactionList) {
 
     CHECK_STATE(_blockHeader);
@@ -58,7 +58,7 @@ ptr<std::vector<uint8_t>> BITEBlockProposalSerializer::serializeTransactionsAndC
 }
 
 
-ptr< BlockProposal > BITEBlockProposalSerializer::deserialize(
+ptr< BlockProposal > BiteBlockProposalSerializer::deserialize(
     const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager,
     bool _verifySig ) {
     CHECK_ARGUMENT( _serializedProposal );
@@ -135,7 +135,7 @@ ptr< BlockProposal > BITEBlockProposalSerializer::deserialize(
     return proposal;
 };
 
-void BITEBlockProposalSerializer::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
+void BiteBlockProposalSerializer::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
     CHECK_STATE(_serializedBlock);
     // 🔍 Verify the resulting buffer before returning
     flatbuffers::Verifier verifier(_serializedBlock->data(), _serializedBlock->size());

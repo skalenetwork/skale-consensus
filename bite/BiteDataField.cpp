@@ -6,12 +6,12 @@
 #include "Log.h"
 #include <crypto/EncryptedAESKey.h>
 
-#include "BITEDataFiled.h"
+#include "BiteDataFiled.h"
 
 
 const auto BITE_HEADER_LEN = BITE_MAGIC_SIZE + sizeof(uint64_t) + BITE_ENCRYPTED_AES_KEY_LEN;
 
-BITEDataField::BITEDataField(const std::shared_ptr<std::vector<uint8_t> > &_data) {
+BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data) {
     CHECK_STATE(_data)
     CHECK_STATE(_data->size() >= BITE_MAGIC_SIZE + sizeof(uint64_t) + BITE_ENCRYPTED_AES_KEY_LEN);
 
@@ -25,22 +25,22 @@ BITEDataField::BITEDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     serializedData = _data;
 }
 
-ptr<EncryptedAESKey> &BITEDataField::getEncryptedAESKey() {
+ptr<EncryptedAESKey> &BiteDataField::getEncryptedAESKey() {
     return encryptedAESKey;
 }
 
-ptr<EncryptedData> &BITEDataField::getEncryptedData() {
+ptr<EncryptedData> &BiteDataField::getEncryptedData() {
     CHECK_STATE(encryptedData)
     return encryptedData;
 }
 
-uint64_t BITEDataField::getEpoch() {
+uint64_t BiteDataField::getEpoch() {
     return epoch;
 }
 
 
 
-ptr<BITEDataField> BITEDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data) {
+ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data) {
 
 
     CHECK_STATE(_data)
@@ -56,10 +56,10 @@ ptr<BITEDataField> BITEDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_d
     CHECK_STATE2 (_data->size() >= BITE_HEADER_LEN,
         "Icorrectly formattted BITE transaction: Dsta size too short" + to_string(_data->size()));
 
-    return ptr<BITEDataField>(new BITEDataField(_data));
+    return ptr<BiteDataField>(new BiteDataField(_data));
 }
 
-BITEDataField::BITEDataField(const ptr<EncryptedAESKey>& _encryptedAESKey,
+BiteDataField::BiteDataField(const ptr<EncryptedAESKey>& _encryptedAESKey,
                              const shared_ptr<EncryptedData> &_encryptedData, uint64_t _epoch)
     : encryptedAESKey(_encryptedAESKey), encryptedData(_encryptedData), epoch(_epoch) {
     CHECK_STATE(_encryptedData);
@@ -76,6 +76,6 @@ BITEDataField::BITEDataField(const ptr<EncryptedAESKey>& _encryptedAESKey,
     serializedData->insert(serializedData->end(), encryptedData->begin(), encryptedData->end());
 }
 
-ptr<vector<uint8_t> > &BITEDataField::getSerializedData() {
+ptr<vector<uint8_t> > &BiteDataField::getSerializedData() {
     return serializedData;
 }
