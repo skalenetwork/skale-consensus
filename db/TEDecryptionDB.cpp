@@ -22,6 +22,7 @@
 */
 
 
+#include <oids.h>
 #ifdef BITE
 
 #include "TEDecryptionDB.h"
@@ -145,6 +146,8 @@ ptr<DecryptedAESKeyList> TEDecryptionDB::addDecryptionShares(
         CHECK_STATE(key);
         aesKeys->addKey(it.first, *key);
     }
+
+    aesKeys->markComplete();
 
     return aesKeys;
 }

@@ -87,6 +87,8 @@ ptr<AESKeyDecryptionShareList> BiteAESDecryptionShareSerializer::deserialize(
         shares->addShare(fbdecryptionShareHandle->transaction_index(), decryptionShare);
     }
 
+    shares->markComplete();
+
     return shares;
 
 }

@@ -44,7 +44,7 @@ public:
     }
 
 
-    // Optional: Add public access methods
+
     void addShare(transaction_index _index, const ptr<AESKeyDecryptionShare> &_decryptShare);
 
     ptr<AESKeyDecryptionShare> getDecryptionShare(transaction_index _transactionIndex) const;

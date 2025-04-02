@@ -13,6 +13,7 @@ public:
 
     // Optional: Add public access methods
     void addKey(transaction_index _index, const DecryptedAESKey& key) {
+        CHECK_STATE(!isComplete)
         decryptedAESKeys.emplace(_index, key);
     }
 

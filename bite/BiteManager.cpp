@@ -111,6 +111,8 @@ std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> BiteManager::decr
         arrayIndex++;
     }
 
+    decryptionShareList->markComplete();
+
     return {decryptionShareList, ConnectionSubStatus::CONNECTION_OK};
 }
 
