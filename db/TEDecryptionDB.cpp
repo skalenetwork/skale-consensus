@@ -64,7 +64,7 @@ bool TEDecryptionDB::haveDecryptions( const ptr< BlockProposal >& _proposal ) {
 
 
 ptr<AESKeyDecryptionShareList> TEDecryptionDB::getDecryptions( block_id _blockId, schain_index _decryptorIndex ) {
-    return make_shared<AESKeyDecryptionShareList>(_blockId, _decryptorIndex);
+    return make_shared<AESKeyDecryptionShareList>(_blockId, 1, _decryptorIndex);
     //return readStringFromSet( _blockId, _decryptorIndex );
 }
 
