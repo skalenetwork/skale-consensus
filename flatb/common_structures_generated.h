@@ -409,6 +409,7 @@ struct DecryptionShareT : public ::flatbuffers::NativeTable {
   typedef DecryptionShare TableType;
   uint32_t transaction_index = 0;
   std::vector<uint8_t> data{};
+  bool decryptionFailed = false;
 };
 
 struct DecryptionShare FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -416,7 +417,8 @@ struct DecryptionShare FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef DecryptionShareBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_TRANSACTION_INDEX = 4,
-    VT_DATA = 6
+    VT_DATA = 6,
+    VT_DECRYPTIONFAILED = 8
   };
   uint32_t transaction_index() const {
     return GetField<uint32_t>(VT_TRANSACTION_INDEX, 0);
@@ -424,11 +426,15 @@ struct DecryptionShare FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::Vector<uint8_t> *data() const {
     return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_DATA);
   }
+  bool decryptionFailed() const {
+    return GetField<uint8_t>(VT_DECRYPTIONFAILED, 0) != 0;
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_TRANSACTION_INDEX, 4) &&
            VerifyOffset(verifier, VT_DATA) &&
            verifier.VerifyVector(data()) &&
+           VerifyField<uint8_t>(verifier, VT_DECRYPTIONFAILED, 1) &&
            verifier.EndTable();
   }
   DecryptionShareT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -446,6 +452,9 @@ struct DecryptionShareBuilder {
   void add_data(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data) {
     fbb_.AddOffset(DecryptionShare::VT_DATA, data);
   }
+  void add_decryptionFailed(bool decryptionFailed) {
+    fbb_.AddElement<uint8_t>(DecryptionShare::VT_DECRYPTIONFAILED, static_cast<uint8_t>(decryptionFailed), 0);
+  }
   explicit DecryptionShareBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -460,22 +469,26 @@ struct DecryptionShareBuilder {
 inline ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShare(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t transaction_index = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> data = 0,
+    bool decryptionFailed = false) {
   DecryptionShareBuilder builder_(_fbb);
   builder_.add_data(data);
   builder_.add_transaction_index(transaction_index);
+  builder_.add_decryptionFailed(decryptionFailed);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShareDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t transaction_index = 0,
-    const std::vector<uint8_t> *data = nullptr) {
+    const std::vector<uint8_t> *data = nullptr,
+    bool decryptionFailed = false) {
   auto data__ = data ? _fbb.CreateVector<uint8_t>(*data) : 0;
   return skale_fb::CreateDecryptionShare(
       _fbb,
       transaction_index,
-      data__);
+      data__,
+      decryptionFailed);
 }
 
 ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShare(::flatbuffers::FlatBufferBuilder &_fbb, const DecryptionShareT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -717,6 +730,7 @@ inline void DecryptionShare::UnPackTo(DecryptionShareT *_o, const ::flatbuffers:
   (void)_resolver;
   { auto _e = transaction_index(); _o->transaction_index = _e; }
   { auto _e = data(); if (_e) { _o->data.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->data.begin()); } }
+  { auto _e = decryptionFailed(); _o->decryptionFailed = _e; }
 }
 
 inline ::flatbuffers::Offset<DecryptionShare> DecryptionShare::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DecryptionShareT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -729,10 +743,12 @@ inline ::flatbuffers::Offset<DecryptionShare> CreateDecryptionShare(::flatbuffer
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DecryptionShareT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _transaction_index = _o->transaction_index;
   auto _data = _o->data.size() ? _fbb.CreateVector(_o->data) : 0;
+  auto _decryptionFailed = _o->decryptionFailed;
   return skale_fb::CreateDecryptionShare(
       _fbb,
       _transaction_index,
-      _data);
+      _data,
+      _decryptionFailed);
 }
 
 inline BlockFragmentT *BlockFragment::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
