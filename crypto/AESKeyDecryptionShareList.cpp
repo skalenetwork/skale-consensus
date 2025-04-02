@@ -26,8 +26,5 @@ void AESKeyDecryptionShareList::markComplete() {
     isComplete = true;
 }
 
-string AESKeyDecryptionShareList::serializeToString() {
-    // Serialize the object to a string
-    return "";
-}
+
 

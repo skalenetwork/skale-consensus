@@ -45,6 +45,4 @@ public:
     ptr<AESKeyDecryptionShare> getDecryptionShare(uint64_t id) const;
 
     void markComplete();
-
-    string serializeToString();
 };

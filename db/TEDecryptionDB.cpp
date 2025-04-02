@@ -33,13 +33,14 @@
 #include "crypto/DecryptedAESKeyList.h"
 #include "crypto/AESKeyDecryptionShareList.h"
 
-#include "node/Node.h"
+
 #include "leveldb/db.h"
 #include "crypto/ThresholdSigShare.h"
 #include "LevelDBOptions.h"
 
 
 #include <bite/BiteManager.h>
+#include <bite/BITEAESDecryptionShareSerializer.h>
 #include "TEDecryptionDB.h"
 
 
@@ -64,8 +65,13 @@ bool TEDecryptionDB::haveDecryptions( const ptr< BlockProposal >& _proposal ) {
 
 
 ptr<AESKeyDecryptionShareList> TEDecryptionDB::getDecryptions( block_id _blockId, schain_index _decryptorIndex ) {
-    return make_shared<AESKeyDecryptionShareList>(_blockId, 1, _decryptorIndex);
-    //return readStringFromSet( _blockId, _decryptorIndex );
+    auto decryptions = readStringFromSet(_blockId, _decryptorIndex);
+    auto decryptionsVec = std::make_shared<std::vector<uint8_t>>(
+        reinterpret_cast<const uint8_t*>(decryptions.data()),
+        reinterpret_cast<const uint8_t*>(decryptions.data()) + decryptions.size()
+    );
+    return BITEAESDecryptionShareSerializer::deserialize(decryptionsVec,
+        getSchain()->getCryptoManager(), false);
 }
 
 
@@ -75,7 +81,11 @@ ptr<DecryptedAESKeyList> TEDecryptionDB::addDecryptionShares(const ::std::shared
 
     LOG( trace, "Adding daProof" );
 
-    auto _decryptionShareListSet = this->writeStringToSet( _decryptionShareList->serializeToString(),
+    auto serializedList =  BITEAESDecryptionShareSerializer::serialize(_decryptionShareList);
+    CHECK_STATE(serializedList);
+
+
+    auto _decryptionShareListSet = this->writeByteArrayToSet(reinterpret_cast<char *>(serializedList->data()), serializedList->size(),
         _decryptionShareList->getBlockId(), _decryptionShareList->getDecryptorIndex());
 
     if ( _decryptionShareListSet  == nullptr ) {
@@ -84,14 +94,14 @@ ptr<DecryptedAESKeyList> TEDecryptionDB::addDecryptionShares(const ::std::shared
 
     CHECK_STATE( _decryptionShareListSet->size() == requiredSigners )
 
-    auto proposalVector = getSchain()->getBiteManager()->mergeDecryptionSharesSetFromDB(_decryptionShareListSet);
+    auto decryptedAESKeyList = getSchain()->getBiteManager()->mergeDecryptionSharesSetFromDB(_decryptionShareListSet);
     LOG( trace, "Created proposal vector" );
 
-    return proposalVector;
+    return decryptedAESKeyList;
 }
 
 
-bool TEDecryptionDB::isEnoughDecrypttions( block_id _blockID ) {
+bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
     return isEnough( _blockID );
 }
 

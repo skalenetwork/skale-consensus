@@ -59,7 +59,7 @@ void BITEAESDecryptionShareSerializer::serializedSanityCheck(const ptr<vector<ui
 
 
 ptr<AESKeyDecryptionShareList> BITEAESDecryptionShareSerializer::deserialize(
-    const ptr<vector<uint8_t> > &_serializedDecryptionShares,
+    const ptr<vector<uint8_t> >  &_serializedDecryptionShares,
     const ptr<CryptoManager> &_manager, bool) {
     CHECK_ARGUMENT(_serializedDecryptionShares);
     CHECK_ARGUMENT(_manager);
