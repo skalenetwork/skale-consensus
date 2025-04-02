@@ -22,7 +22,9 @@ public:
 
     ptr<DecryptedAESKeyList> addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 
-    ptr<DecryptedAESKeyList> addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
+    void addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
+
+    ptr<AESKeyDecryptionShareList> getMyDecryptionShares(block_id _blockId, schain_index _proposerIndex);
 
     const string& getFormatVersion();
 
