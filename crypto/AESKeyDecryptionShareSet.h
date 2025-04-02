@@ -5,8 +5,7 @@ class DecryptedAESKey;
 
 class AESKeyDecryptionShareSet {
 public:
-    AESKeyDecryptionShareSet( block_id _blockId,
-        transaction_index _transactionIndex, uint64_t _totalDecryptors, uint64_t _requiredDecryptors );
+    AESKeyDecryptionShareSet( block_id _blockId, transaction_index _transactionIndex, uint64_t _totalDecryptors, uint64_t _requiredDecryptors );
 
 protected:
     block_id blockId = 0;
@@ -19,7 +18,9 @@ protected:
 public:
     virtual ~AESKeyDecryptionShareSet();
 
-    static int64_t getTotalObjects();
+    static int64_t getTotalObjects() {
+        return totalObjects;
+    }
 
     virtual ptr< DecryptedAESKey >  mergeAESKey() = 0;
 

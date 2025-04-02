@@ -12,7 +12,7 @@ public:
     DecryptedAESKeyList() = default;
 
     // Optional: Add public access methods
-    void addKey(uint64_t _index, const DecryptedAESKey& key) {
+    void addKey(transaction_index _index, const DecryptedAESKey& key) {
         decryptedAESKeys.emplace(_index, key);
     }
 
@@ -28,7 +28,7 @@ public:
 
 
 private:
-    boost::container::flat_map<uint64_t, DecryptedAESKey> decryptedAESKeys;
+    boost::container::flat_map<transaction_index, DecryptedAESKey> decryptedAESKeys;
     std::atomic<bool> isComplete = false;
 };
 

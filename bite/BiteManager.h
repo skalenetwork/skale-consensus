@@ -1,8 +1,10 @@
 #pragma once
 
 #include <memory>
+#include <memory>
 #include <vector>
 #include <crypto/AESKeyDecryptionShare.h>
+#include <crypto/AESKeyDecryptionShareSet.h>
 
 #include "abstracttcpserver/ConnectionStatus.h"
 class Schain;
@@ -29,8 +31,8 @@ public:
 
     void verifyAndDecryptBlockTransactions(const ptr<CommittedBlock> &_block);
 
-    ptr<DecryptedAESKeyList> mergeDecryptionSharesSetFromDB(ptr<map<schain_index, string> > &_decryptionShareList);
-
     static ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare, schain_index _decryptorIndex,
                                                         bool _decryptionFailed);
+
+     ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
 };

@@ -7,6 +7,12 @@ AESKeyDecryptionShareSet::AESKeyDecryptionShareSet( const block_id _blockId,
     : blockId( _blockId ),
       transactionIndex( _transactionIndex ),
       totalDecryptors( _totalDecryptors ),
-      requiredDecryptors( _requiredDecryptors ) {};
+      requiredDecryptors( _requiredDecryptors ) {
+    totalObjects++;
+};
 
-AESKeyDecryptionShareSet::~AESKeyDecryptionShareSet() = default;
+AESKeyDecryptionShareSet::~AESKeyDecryptionShareSet() {
+    totalObjects--;
+}
+
+atomic< int64_t > AESKeyDecryptionShareSet::totalObjects = 0;

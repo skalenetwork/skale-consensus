@@ -2,8 +2,10 @@
 
 #include <chains/Schain.h>
 #include <crypto/AESKeyDecryptionShare.h>
+#include <crypto/AESKeyDecryptionShareSet.h>
 #include "crypto/MockupAESKeyDecryptionShare.h"
 #include <crypto/AESKeyDecryptionShareList.h>
+#include <crypto/MockupAESKeyDecryptionShareSet.h>
 
 #include "BITEDataFiled.h"
 #include "datastructures/BlockProposal.h"
@@ -148,11 +150,6 @@ void BiteManager::verifyAndDecryptBlockTransactions(
 }
 
 
-ptr<DecryptedAESKeyList> BiteManager::mergeDecryptionSharesSetFromDB(
-    ptr<map<schain_index, string> > &_decryptionShareList) {
-    CHECK_STATE(_decryptionShareList);
-    return nullptr;
-}
 
 
 ptr <AESKeyDecryptionShare> BiteManager::createAESDecryptionShare(const string _aesKeyDecryptionShare,
@@ -160,4 +157,8 @@ ptr <AESKeyDecryptionShare> BiteManager::createAESDecryptionShare(const string _
     return make_shared<MockupAESKeyDecryptionShare>(_aesKeyDecryptionShare, _decryptorIndex, _decryptionFailed);
 }
 
+
+ptr <AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex ) {
+    return make_shared<MockupAESKeyDecryptionShareSet>(_blockId, _transactionIndex, schain.getTotalSigners(), schain.getRequiredSigners());
+}
 

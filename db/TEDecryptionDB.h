@@ -26,6 +26,8 @@ public:
 
     bool haveDecryptions( const ptr< BlockProposal >& _proposal );
 
+    ptr<AESKeyDecryptionShareList> deserializeDecryptionShareFromString(string decryptions);
+
     bool isEnoughDecryptions( block_id _blockID );
 
     ptr<AESKeyDecryptionShareList> getDecryptions( block_id _blockId, schain_index _decryptorIndex );

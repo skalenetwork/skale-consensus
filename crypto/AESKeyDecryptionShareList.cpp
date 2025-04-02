@@ -13,12 +13,13 @@ schain_index AESKeyDecryptionShareList::getDecryptorIndex() const {
 
 // Optional: Add public access methods
 void AESKeyDecryptionShareList::addShare(transaction_index _index, const ptr<AESKeyDecryptionShare> &_decryptShare) {
+    CHECK_STATE(!isComplete);
     decryptionShares.emplace(_index, _decryptShare);
 }
 
-ptr<AESKeyDecryptionShare> AESKeyDecryptionShareList::getDecryptionShare(uint64_t id) const {
+ptr<AESKeyDecryptionShare> AESKeyDecryptionShareList::getDecryptionShare(transaction_index _transactionIndex) const {
     CHECK_STATE(isComplete);
-    auto it = decryptionShares.find(id);
+    auto it = decryptionShares.find(_transactionIndex);
     return (it != decryptionShares.end()) ? it->second : nullptr;
 }
 
