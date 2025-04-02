@@ -352,6 +352,8 @@ static const uint64_t ZMQ_RECEIVE_RETRY_MS = 10;
 
 static const uint64_t DEFAULT_MIN_PRICE = 100000;
 
+static const uint64_t CONSTANT_PRICING_DEFAULT_PRICE = 100 * 1000;
+
 static const uint64_t COMMON_COIN_ROUND = 4;
 
 static const uint64_t ORACLE_RECEIPTS_MAP_SIZE = 100000;

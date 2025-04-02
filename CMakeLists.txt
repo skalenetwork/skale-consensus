@@ -47,6 +47,10 @@ else()
 	message( INFO "---- CMAKE_BUILD_TYPE = ${DEPS_INSTALL_ROOT} is not supported explicitly" )
 endif()
 
+if (PL)
+    add_definitions(-DPL=1)
+endif()
+
 add_subdirectory(libBLS)
 
 project(consensus)
