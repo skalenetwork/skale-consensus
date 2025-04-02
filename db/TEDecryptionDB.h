@@ -22,6 +22,8 @@ public:
 
     ptr<DecryptedAESKeyList> addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 
+    ptr<DecryptedAESKeyList> addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
+
     const string& getFormatVersion();
 
     bool haveDecryptions( const ptr< BlockProposal >& _proposal );

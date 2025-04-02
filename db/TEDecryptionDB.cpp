@@ -155,6 +155,78 @@ ptr<DecryptedAESKeyList> TEDecryptionDB::addDecryptionShares(
 }
 
 
+ptr<DecryptedAESKeyList> TEDecryptionDB::addMyDecryptionShares(
+    const ::std::shared_ptr<AESKeyDecryptionShareList> &_decryptionShareList) {
+    CHECK_ARGUMENT(_decryptionShareList)
+
+    LOG(trace, "Adding daProof");
+
+    auto serializedList = BiteAESDecryptionShareSerializer::serialize(_decryptionShareList);
+    CHECK_STATE(serializedList);
+
+
+    auto decryptionShareListSet = this->writeByteArrayToSet(reinterpret_cast<char *>(serializedList->data()),
+                                                            serializedList->size(),
+                                                            _decryptionShareList->getBlockId(),
+                                                            _decryptionShareList->getDecryptorIndex());
+
+    if (!decryptionShareListSet) {
+        return nullptr;
+    }
+
+    CHECK_STATE(decryptionShareListSet->size() == requiredSigners)
+
+    map<schain_index, ptr<AESKeyDecryptionShareList> > decryptionShareLists;
+
+    for (auto &&decryptionShareIterator: *decryptionShareListSet) {
+        auto decryptionShare = deserializeDecryptionShareFromString(decryptionShareIterator.second);
+        CHECK_STATE(decryptionShare);
+        decryptionShareLists[decryptionShareIterator.first] = decryptionShare;
+    }
+
+    auto myDecryptionShareList = decryptionShareLists.at(sChain->getSchainIndex());
+    CHECK_STATE(myDecryptionShareList);
+
+    map<transaction_index, ptr<AESKeyDecryptionShareSet> > decryptionShareSets;
+
+
+    for (auto &&decryptionShareIterator: myDecryptionShareList->getDecryptionShares()) {
+        decryptionShareSets[decryptionShareIterator.first] = sChain->getBiteManager()->createAESDecryptionShareSet(
+            _decryptionShareList->getBlockId(),
+            decryptionShareIterator.first);
+    }
+
+    for (auto &&decryptionShareIterator: myDecryptionShareList->getDecryptionShares()) {
+        decryptionShareSets[decryptionShareIterator.first] = sChain->getBiteManager()->createAESDecryptionShareSet(
+            _decryptionShareList->getBlockId(),
+            decryptionShareIterator.first);
+    }
+
+    for (auto&& it : decryptionShareLists) {
+        auto decryptionSharesList = it.second;
+        CHECK_STATE(decryptionSharesList);
+        for (auto&& shareIterator : decryptionSharesList->getDecryptionShares()) {
+            CHECK_STATE(decryptionShareSets.count(shareIterator.first > 0));
+            auto decryptionSharesSet = decryptionShareSets.at(shareIterator.first);
+            decryptionSharesSet->addDecryptionShare(shareIterator.second);
+        }
+    }
+
+
+    auto aesKeys = make_shared<DecryptedAESKeyList>();
+
+    for (auto&& it : decryptionShareSets) {
+        CHECK_STATE(it.second->isEnough());
+        auto key = it.second->mergeAESKey();
+        CHECK_STATE(key);
+        aesKeys->addKey(it.first, *key);
+    }
+
+    return aesKeys;
+
+}
+
+
 bool TEDecryptionDB::isEnoughDecryptions(block_id _blockID) {
     return isEnough(_blockID);
 }
