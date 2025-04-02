@@ -24,6 +24,7 @@ ptr<AESKeyDecryptionShare> AESKeyDecryptionShareList::getDecryptionShare(transac
 }
 
 void AESKeyDecryptionShareList::markComplete() {
+    CHECK_STATE(!isComplete)
     isComplete = true;
 }
 

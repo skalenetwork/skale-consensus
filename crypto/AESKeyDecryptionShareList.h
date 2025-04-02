@@ -12,10 +12,6 @@ class AESKeyDecryptionShareList {
     schain_index proposerIndex;
     schain_index encryptorIndex;
 
-public:
-    [[nodiscard]] boost::container::flat_map<transaction_index, ptr<AESKeyDecryptionShare>> decryption_shares1() const {
-        return decryptionShares;
-    }
 
 private:
     boost::container::flat_map<transaction_index, ptr<AESKeyDecryptionShare> > decryptionShares;
@@ -38,10 +34,12 @@ public:
     schain_index getDecryptorIndex() const;
 
     size_t getSize() const {
+        CHECK_STATE(isComplete)
         return decryptionShares.size();
     }
 
     [[nodiscard]] const boost::container::flat_map<transaction_index, ptr<AESKeyDecryptionShare>>& getDecryptionShares() const {
+        CHECK_STATE(isComplete)
         return decryptionShares;
     }
 
@@ -52,5 +50,9 @@ public:
     ptr<AESKeyDecryptionShare> getDecryptionShare(transaction_index _transactionIndex) const;
 
     void markComplete();
+
+
+
+
 };
 
