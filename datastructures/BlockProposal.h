@@ -182,6 +182,7 @@ private:
 public:
     [[nodiscard]] ptr<AESKeyDecryptionShareList> getMyDecryptionShares() const {
         auto result = std::atomic_load(&myDecryptionShares);
+        CHECK_STATE(myDecryptionShares);
         return result;
     }
 

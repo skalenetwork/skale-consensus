@@ -118,6 +118,10 @@
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
+
 #include "libBLS/bls/BLSPrivateKeyShare.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "monitoring/TimeoutAgent.h"
@@ -961,6 +965,7 @@ void Schain::tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const
 
 void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
+    CHECK_STATE(_proposal);
 
     if ( _proposal->getBlockID() <= getLastCommittedBlockID() )
         return;
@@ -968,6 +973,11 @@ void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
     CHECK_STATE( _proposal->getSignature() != "" );
 
     getNode()->getBlockProposalDB()->addBlockProposal( _proposal );
+#ifdef BITE
+    auto myDecryptionShares = _proposal->getMyDecryptionShares();
+    CHECK_STATE(myDecryptionShares);
+    getNode()->getTEDecryptionDB()->addMyDecryptionShares(myDecryptionShares);
+#endif
 }
 
 
