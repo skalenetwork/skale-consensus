@@ -166,10 +166,12 @@ void TEDecryptionDB::addMyDecryptionShares(
 
 
     auto key = createKey( ( _decryptionShareList->getBlockId() ),
-        _decryptionShareList->getProposerIndex(), sChain->getSchainIndex() );
+        _decryptionShareList->getProposerIndex());
 
 
     writeByteArray( key, serializedList );
+
+    getMyDecryptionShares(_decryptionShareList->getBlockId(), _decryptionShareList->getProposerIndex());
 }
 
 ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
