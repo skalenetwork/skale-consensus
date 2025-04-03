@@ -12,7 +12,7 @@
 
 
 ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
-    const ptr< TEDecryptionShare >& _decryptionShare, schain_id _schainId, block_id _blockID,
+    const ptr< libBLS::TEDecryptionShare >& _decryptionShare, schain_id _schainId, block_id _blockID,
     transaction_index _transactionIndex)
     : ThresholdAESKeyDecryptionShare( _schainId, _blockID, _transactionIndex, 1 ) {
     CHECK_ARGUMENT( _decryptionShare);
@@ -29,22 +29,17 @@ ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare( const string& _d
     CHECK_ARGUMENT( _decryptionShare != "" );
 
     try {
-        aesKeyDecryptionShare = std::make_shared< TEDecryptionShare >(
-            ( uint64_t ) _decryptorIndex, _decryptionShare );
-        CHECK_STATE2( aesKeyDecryptionShare->validate(), "Validation of decrypt share failed");
-    } catch ( ... ) {
-        throw_with_nested(
-            InvalidStateException( "Could not create BLSSDecryptionShare", __CLASS_NAME__ ) );
-    }
+        aesKeyDecryptionShare = std::make_shared< libBLS::TEDecryptionShare >(
+            _decryptionShare, ( uint64_t ) _decryptorIndex );
+        aesKeyDecryptionShare->validate();
+    } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not create decryption share");
 }
 
 
-ptr< TEDecryptionShare > ConsensusAESKeyDecryptionShare::getTEDecryptionShare() const {
+ptr< libBLS::TEDecryptionShare > ConsensusAESKeyDecryptionShare::getTEDecryptionShare() const {
     CHECK_STATE( aesKeyDecryptionShare );
     return aesKeyDecryptionShare;
 }
-
-
 
 
 ConsensusAESKeyDecryptionShare::~ConsensusAESKeyDecryptionShare() {}

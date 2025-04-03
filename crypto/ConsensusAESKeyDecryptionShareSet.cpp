@@ -21,20 +21,18 @@
     @date 2019
 */
 
-#include "Log.h"
-#include "SkaleCommon.h"
 
 
 #include "bls_include.h"
+#include <oids.h>
+#include "Log.h"
+#include "SkaleCommon.h"
 #include "libBLS/threshold_encryption/TEDecryptSet.h"
-#include "DecryptedAESKey.h"
 
 
 #include "ConsensusAESKeyDecryptionShare.h"
-
 #include "ConsensusAESKeyDecryptionShareSet.h"
-
-#include <oids.h>
+#include "DecryptedAESKey.h"
 
 
 using namespace std;
@@ -54,7 +52,7 @@ ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::mergeAESKey() {
     CHECK_STATE( isEnough() );
 
     uint processedShares = 0;
-    TEDecryptSet decryptSet( requiredDecryptors, totalDecryptors );
+    libBLS::TEDecryptSet decryptSet( requiredDecryptors, totalDecryptors );
 
     for ( auto&& item : decryptionShares ) {
         CHECK_STATE( item.second );
@@ -69,7 +67,7 @@ ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::mergeAESKey() {
      std::array< uint8_t, BITE_AES_KEY_LEN > aesKey;
 
 
-    return make_shared< DecryptedAESKey >(aesKey);
+    return std::make_shared< DecryptedAESKey >(aesKey);
 }
 
 bool ConsensusAESKeyDecryptionShareSet::isEnough() {
