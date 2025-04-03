@@ -23,6 +23,9 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 
 ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
     const ptr<BlockProposal> &_proposal) {
+    CHECK_STATE(_proposal);
+    // check we are not verifying twice
+    CHECK_STATE(!_proposal->getMyDecryptionShares())
     auto transactions = _proposal->getTransactionList()->getItems();
 
     CHECK_STATE(transactions);
