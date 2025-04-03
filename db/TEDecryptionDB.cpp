@@ -157,6 +157,9 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::addDecryptionShares(
 
 void TEDecryptionDB::addMyDecryptionShares(
     const ::std::shared_ptr< AESKeyDecryptionShareList >& _decryptionShareList ) {
+
+    cerr << to_string(_decryptionShareList->getBlockId()) << ":Decryption shares:" << endl;
+
     CHECK_ARGUMENT( _decryptionShareList )
 
     LOG( trace, "Adding daProof" );
