@@ -1358,19 +1358,11 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
             if ( proposal )  // Nullptr means catchup happened first
                 getNode()->getBlockProposalDB()->addBlockProposal( proposal );
+
         }
 
         if ( proposal ) {
-#ifdef BITE
-           if ( getNode()->getTEDecryptionDB()->getMyDecryptionShares(
-                     proposal->getBlockID(), proposal->getProposerIndex() ) == nullptr ) {
-                getBiteManager()->verifyAndDecryptProposalTransactions( proposal );
-                auto myDecryptionShares = proposal->getMyDecryptionShares();
-                CHECK_STATE( myDecryptionShares );
-                getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );
-                getNode()->getTEDecryptionDB()->addDecryptionShares(myDecryptionShares);
-            };
-#endif
+
 
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
         }

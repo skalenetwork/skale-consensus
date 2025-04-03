@@ -53,6 +53,7 @@
 #include "chains/BlockErrorAnalyzer.h"
 #include "BlockFinalizeDownloader.h"
 #include "BlockFinalizeDownloaderThreadPool.h"
+#include "bite/BiteManager.h"
 #include "crypto/CryptoManager.h"
 
 
@@ -411,6 +412,19 @@ ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
                     CHECK_STATE2( block->getHash().compare( h ) == 0, "Incorrect block hash" );
                 }
             }
+
+#ifdef BITE
+            // since we did not have the proposal, we did not have
+            // the decryptions for it. Decrypt
+            if ( getNode()->getTEDecryptionDB()->getMyDecryptionShares(
+                         block->getBlockID(), block->getProposerIndex() ) == nullptr ) {
+                sChain->getBiteManager()->verifyAndDecryptProposalTransactions( block );
+                auto myDecryptionShares = block->getMyDecryptionShares();
+                CHECK_STATE( myDecryptionShares );
+                getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );
+                getNode()->getTEDecryptionDB()->addDecryptionShares(myDecryptionShares);
+            };
+#endif
             return block;
         } else {
             return nullptr;
