@@ -366,7 +366,7 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         CHECK_STATE( !daSig.empty() );
 
 
-#ifdef BITE1
+#ifdef BITE
         auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares( proposal->getBlockID(),
             proposal->getProposerIndex());
         if (!myDecryptionShares) {

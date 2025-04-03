@@ -92,7 +92,6 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::addDecryptionShares(
     CHECK_STATE( serializedList );
 
 
-
     auto decryptionShareListSet = writeByteArrayToSet(
         reinterpret_cast< char* >( serializedList->data() ), serializedList->size(),
         _decryptionShareList->getBlockId(), _decryptionShareList->getDecryptorIndex() );
@@ -130,8 +129,8 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::addDecryptionShares(
     for ( auto&& it : decryptionShareLists ) {
         auto decryptionSharesList = it.second;
         CHECK_STATE( decryptionSharesList );
-        CHECK_STATE(
-            decryptionSharesList->getProposerIndex() = firstDecryptionShareList->getProposerIndex() );
+        CHECK_STATE( decryptionSharesList->getProposerIndex() =
+                         firstDecryptionShareList->getProposerIndex() );
         for ( auto&& shareIterator : decryptionSharesList->getDecryptionShares() ) {
             CHECK_STATE( decryptionShareSets.count( shareIterator.first > 0 ) );
             auto decryptionSharesSet = decryptionShareSets.at( shareIterator.first );
@@ -157,9 +156,6 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::addDecryptionShares(
 
 void TEDecryptionDB::addMyDecryptionShares(
     const ::std::shared_ptr< AESKeyDecryptionShareList >& _decryptionShareList ) {
-
-    cerr << to_string(_decryptionShareList->getBlockId()) << ":Decryption shares:" << endl;
-
     CHECK_ARGUMENT( _decryptionShareList )
 
     LOG( trace, "Adding daProof" );
@@ -168,13 +164,14 @@ void TEDecryptionDB::addMyDecryptionShares(
     CHECK_STATE( serializedList );
 
 
-    auto key = createKey( ( _decryptionShareList->getBlockId() ),
-        _decryptionShareList->getProposerIndex());
+    auto key = createKey(
+        ( _decryptionShareList->getBlockId() ), _decryptionShareList->getProposerIndex() );
 
 
     writeByteArray( key, serializedList );
 
-    getMyDecryptionShares(_decryptionShareList->getBlockId(), _decryptionShareList->getProposerIndex());
+    getMyDecryptionShares(
+        _decryptionShareList->getBlockId(), _decryptionShareList->getProposerIndex() );
 }
 
 ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
