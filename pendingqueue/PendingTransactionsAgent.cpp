@@ -87,7 +87,8 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
                                                         getSchain()->getCryptoManager());
 
 #ifdef BITE
-    auto status = getSchain()->getBiteManager()->verifyAndDecryptProposalTransactions(myBlockProposal);
+    auto status =
+        getSchain()->getBiteManager()->verifyAndDecryptProposalTransactions( myBlockProposal );
     if (status != ConnectionSubStatus::CONNECTION_OK) {
         LOG(err, "Could not decrypt BITE transactions, this means something is wrong with the SGX");
         LOG(err, "Proposing empty transactions instead");
