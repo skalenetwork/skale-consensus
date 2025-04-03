@@ -86,6 +86,8 @@ public:
     }
 
     auto getFBSerializedData() { return fbBlockFragment->data(); }
+
+    const ptr< AESKeyDecryptionShareList >& getDecryptionShares() const;
 #endif
 
     [[nodiscard]] block_id getBlockId() const;
@@ -99,6 +101,8 @@ public:
     [[nodiscard]] uint64_t getBlockSize() const;
 
     [[nodiscard]] string getBlockHash() const;
+
+
 };
 
 

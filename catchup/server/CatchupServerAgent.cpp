@@ -38,6 +38,9 @@
 
 #include "db/BlockDB.h"
 #include "db/DAProofDB.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
@@ -361,6 +364,18 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         }
 
         CHECK_STATE( !daSig.empty() );
+
+
+#ifdef BITE
+        auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares( proposal->getBlockID(),
+            proposal->getProposerIndex());
+        if (!myDecryptionShares) {
+            _responseHeader->setStatusSubStatus(
+                CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES );
+            _responseHeader->setComplete();
+            return nullptr;
+        }
+#endif
 
 
         auto fragment =

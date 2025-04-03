@@ -183,4 +183,7 @@ BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
       fragmentIndex( _fragmentIndex ) {
     // Reuse builder (thread-local, fast path)
 }
+const ptr< AESKeyDecryptionShareList >& BlockProposalFragment::getDecryptionShares() const {
+    return decryptionShares;
+}
 #endif

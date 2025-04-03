@@ -21,9 +21,8 @@
     @date 2019-
 */
 
-
+#include "Log.h"
 #include <exceptions/ConnectionRefusedException.h>
-
 #include "exceptions/ExitRequestedException.h"
 
 
@@ -44,6 +43,7 @@
 #include "db/DAProofDB.h"
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
+#include "crypto/AESKeyDecryptionShareList.h"
 #endif
 #include "headers/BlockFinalizeRequestHeader.h"
 #include "headers/BlockProposalRequestHeader.h"
@@ -175,6 +175,14 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
             throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
         }
 
+#ifdef BITE
+        auto decryptionShares = blockFragment->getDecryptionShares();
+        CHECK_STATE2(decryptionShares, "The finalization response did not include decryptionshares");
+
+        try {
+            getNode()->getTEDecryptionDB()->addDecryptionShares(decryptionShares);
+        } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not add decryption shares to DB");
+#endif
 
         uint64_t next = 0;
 
