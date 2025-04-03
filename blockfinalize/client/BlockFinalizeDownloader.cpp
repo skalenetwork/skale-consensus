@@ -180,7 +180,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
         auto decryptionShares = blockFragment->getDecryptionShares();
         CHECK_STATE2(decryptionShares, "The finalization response did not include decryptionshares");
 
-        try {
+        try {hmj
             getNode()->getTEDecryptionDB()->addDecryptionShares(decryptionShares);
         } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not add decryption shares to DB");
 #endif

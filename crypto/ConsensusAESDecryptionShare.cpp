@@ -10,6 +10,8 @@
 
 #include "ConsensusAESKeyDecryptionShare.h"
 
+#ifdef BITE
+
 using namespace libBLS;
 
 ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
@@ -53,3 +55,4 @@ string ConsensusAESKeyDecryptionShare::toString() {
             InvalidStateException( "Could not toString() decryption share", __CLASS_NAME__ ) );
     }
 }
+#endif
