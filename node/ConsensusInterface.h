@@ -231,8 +231,13 @@ public:
     virtual transactions_vector pendingTransactions(size_t _limit, u256 &_stateRoot) = 0;
 
     // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp,
-                             uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
+    virtual void createBlock(const transactions_vector &_approvedTransactions,
+#ifdef BITE
+        // map of transaction index in the block starting from 0 to transaction
+        // empty mapped is passed for now
+        shared_ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactions,
+#endif
+        uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
                              uint64_t _winningNodeIndex) = 0;
 
     virtual ~ConsensusExtFace() = default;

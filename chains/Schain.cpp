@@ -840,9 +840,13 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
         if ( extFace ) {
             try {
                 inCreateBlock = true;
-                extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
+                extFace->createBlock( *tv,
+#ifdef BITE
+                    make_shared<map<uint64_t, shared_ptr<vector<uint8_t>>>>(),
+#endif
+                          _block->getTimeStampS(), _block->getTimeStampMs(),
                     ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
-                    ( uint64_t ) _block->getProposerIndex() );
+                    ( uint64_t ) _block->getProposerIndex());
                 inCreateBlock = false;
             } catch ( ... ) {
                 inCreateBlock = false;
