@@ -27,28 +27,36 @@
 #ifdef BITE
 #include "flatb/FlatBufferRequest.h"
 #include "flatb/committed_block_fragment_generated.h"
+#include "crypto/AESKeyDecryptionShare.h"
+#include "crypto/AESKeyDecryptionShareList.h"
 #include "bite/BiteBlockProposalSerializer.h"
+#include "bite/BiteManager.h"
+#include "bite/BiteAESDecryptionShareSerializer.h"
 #endif
 
 #include "BlockProposalFragment.h"
 
 
-BlockProposalFragment::BlockProposalFragment(const block_id &_blockId,
-                                             const uint64_t _totalFragments, const fragment_index &_fragmentIndex,
-                                             const ptr<vector<uint8_t> > &_data, uint64_t _blockSize,
-                                             const string &_blockHash)
-    : data(_data),
-      blockId(_blockId),
-      blockSize(_blockSize),
-      blockHash(_blockHash),
-      totalFragments(_totalFragments),
-      fragmentIndex(_fragmentIndex) {
-    CHECK_ARGUMENT(!_blockHash.empty());
-    CHECK_ARGUMENT(_data);
-    CHECK_ARGUMENT(_totalFragments > 0);
-    CHECK_ARGUMENT(_fragmentIndex <= _totalFragments);
-    CHECK_ARGUMENT(_blockId > 0);
-    CHECK_ARGUMENT(_data->size() > 0);
+BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
+#ifdef BITE
+    const schain_index _proposerIndex, const schain_index _decryptorIndex,
+#endif
+    const uint64_t _totalFragments, const fragment_index& _fragmentIndex,
+    const ptr< vector< uint8_t > >& _data, uint64_t _blockSize, const string& _blockHash )
+    : data( _data ),
+      blockId( _blockId ),
+      proposerIndex( _proposerIndex ),
+      decryptorIndex( _decryptorIndex ),
+      blockSize( _blockSize ),
+      blockHash( _blockHash ),
+      totalFragments( _totalFragments ),
+      fragmentIndex( _fragmentIndex ) {
+    CHECK_ARGUMENT( !_blockHash.empty() );
+    CHECK_ARGUMENT( _data );
+    CHECK_ARGUMENT( _totalFragments > 0 );
+    CHECK_ARGUMENT( _fragmentIndex <= _totalFragments );
+    CHECK_ARGUMENT( _blockId > 0 );
+    CHECK_ARGUMENT( _data->size() > 0 );
 
 
 #ifdef BITE
@@ -77,7 +85,7 @@ uint64_t BlockProposalFragment::getBlockSize() const {
 }
 
 string BlockProposalFragment::getBlockHash() const {
-    CHECK_STATE(!blockHash.empty());
+    CHECK_STATE( !blockHash.empty() );
     return blockHash;
 }
 
@@ -94,47 +102,48 @@ fragment_index BlockProposalFragment::getIndex() const {
     return fragmentIndex;
 }
 
-ptr<vector<uint8_t> > BlockProposalFragment::serialize() {
+ptr< vector< uint8_t > > BlockProposalFragment::serialize() {
 #ifdef BITE
 
 
-   if (auto cachedSerializedBuffer= std::atomic_load(&_fbSerializedBlockFragment)) {
-       if (cachedSerializedBuffer) {
-           return cachedSerializedBuffer;
-       }
-   }
+    if ( auto cachedSerializedBuffer = std::atomic_load( &_fbSerializedBlockFragment ) ) {
+        if ( cachedSerializedBuffer ) {
+            return cachedSerializedBuffer;
+        }
+    }
 
-    thread_local flatbuffers::FlatBufferBuilder builder(1024 * 1024);
+    thread_local flatbuffers::FlatBufferBuilder builder( 1024 * 1024 );
     builder.Clear();
 
 
-    flatbuffers::Offset<flatbuffers::Vector<unsigned char> > fbData;
-    if (data) {
-        fbData = builder.CreateVector(*data);
+    flatbuffers::Offset< flatbuffers::Vector< unsigned char > > fbData;
+    if ( data ) {
+        fbData = builder.CreateVector( *data );
     }
 
     // ✅ Create empty vector of raw pointers for Hash*
-    auto emptyHashVec = builder.CreateVector<const skale_fb::Hash *>({});
-    auto emptyDecryptionShares = builder.CreateVector<flatbuffers::Offset<skale_fb::DecryptionShare> >({});
-    auto emptySig = builder.CreateVector(std::vector<uint8_t>{});
+    auto emptyHashVec = builder.CreateVector< const skale_fb::Hash* >( {} );
+    auto emptyDecryptionShares =
+        builder.CreateVector< flatbuffers::Offset< skale_fb::DecryptionShare > >( {} );
+    auto emptySig = builder.CreateVector( std::vector< uint8_t >{} );
 
 
-    auto proposalOffset = skale_fb::CreateCommittedBlockFragment(builder, emptyHashVec, emptyHashVec,
-                                                                 emptyDecryptionShares, emptySig, fbData);
-    builder.Finish(proposalOffset);
+    auto proposalOffset = skale_fb::CreateCommittedBlockFragment(
+        builder, emptyHashVec, emptyHashVec, emptyDecryptionShares, emptySig, fbData );
+    builder.Finish( proposalOffset );
 
-    const uint8_t *raw = builder.GetBufferPointer();
+    const uint8_t* raw = builder.GetBufferPointer();
     size_t size = builder.GetSize();
 
     // Slightly faster than resize + memcpy
-    auto buffer = std::make_shared<std::vector<uint8_t> >(raw, raw + size);
+    auto buffer = std::make_shared< std::vector< uint8_t > >( raw, raw + size );
 
-    std::atomic_store(&_fbSerializedBlockFragment, buffer);
+    std::atomic_store( &_fbSerializedBlockFragment, buffer );
 
     return buffer;
 
 #else
-    CHECK_STATE(data);
+    CHECK_STATE( data );
     return data;
 #endif
 }
@@ -142,20 +151,36 @@ ptr<vector<uint8_t> > BlockProposalFragment::serialize() {
 
 #ifdef BITE
 void BlockProposalFragment::deserializeFromFlatBuffer() {
-    CHECK_STATE(data)
-    VERIFY_AND_PARSE_FLATBUFFER_FROM_VECTOR(*data, CommittedBlockFragment, fbBlockFragment);
+    CHECK_STATE( data )
+
+
+    VERIFY_AND_PARSE_FLATBUFFER_FROM_VECTOR( *data, CommittedBlockFragment, fbBlockFragment );
+
+
+    auto fbDecryptionSharesHandle = fbBlockFragment->decryption_shares();
+
+    CHECK_STATE( fbDecryptionSharesHandle );
+
+    decryptionShares = BiteAESDecryptionShareSerializer::getDecryptionShares(
+        blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle );
 }
 
 
-BlockProposalFragment::BlockProposalFragment(const block_id &_blockId, uint64_t _totalFragments,
-                                             const fragment_index &_fragmentIndex, const ptr<vector<uint8_t> > &_data,
-                                             ptr<AESKeyDecryptionShareList>,
-                                             uint64_t _blockSize, const string &_blockHash) : data(_data),
-    blockId(_blockId),
-    blockSize(_blockSize),
-    blockHash(_blockHash),
-    totalFragments(_totalFragments),
-    fragmentIndex(_fragmentIndex) {
+BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
+#ifdef BITE
+    const schain_index _proposerIndex, const schain_index _decryptorIndex,
+#endif
+    uint64_t _totalFragments, const fragment_index& _fragmentIndex,
+    const ptr< vector< uint8_t > >& _data, ptr< AESKeyDecryptionShareList >, uint64_t _blockSize,
+    const string& _blockHash )
+    : data( _data ),
+      blockId( _blockId ),
+      proposerIndex( _proposerIndex ),
+      decryptorIndex( _decryptorIndex ),
+      blockSize( _blockSize ),
+      blockHash( _blockHash ),
+      totalFragments( _totalFragments ),
+      fragmentIndex( _fragmentIndex ) {
     // Reuse builder (thread-local, fast path)
 }
 #endif

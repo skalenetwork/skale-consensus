@@ -364,7 +364,11 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
 
 
         auto fragment =
-                proposal->getFragment( ( uint64_t ) getSchain()->getNodeCount() - 1, fragmentIndex );
+                proposal->getFragment( ( uint64_t ) getSchain()->getNodeCount() - 1, fragmentIndex
+#ifdef BITE
+                , getSchain()->getSchainIndex()
+#endif
+                );
 
 
         CHECK_STATE( fragment );

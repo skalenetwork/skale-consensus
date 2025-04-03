@@ -155,7 +155,11 @@ public:
 
     ptr< vector< uint8_t > > serializeProposal();
 
-    ptr< BlockProposalFragment > getFragment( uint64_t _totalFragments, fragment_index _index );
+    ptr< BlockProposalFragment > getFragment( uint64_t _totalFragments, fragment_index _index
+#ifdef BITE
+    , schain_index _decryptorIndex
+#endif
+        );
 
     [[nodiscard]] u256 getStateRoot() const;
 

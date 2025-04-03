@@ -177,7 +177,7 @@ const ptr< vector< uint8_t > > BlockProposalFragmentList::serialize() {
             auto fragment = item.second;
             CHECK_STATE( fragment );
 #ifdef BITE
-            auto data = fragment->getData();
+            auto data = fragment->getFBSerializedData();
             if (data) {
                 result->insert( result->end(), data->data(), data->data() + data->size());
             }

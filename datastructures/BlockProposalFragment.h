@@ -26,12 +26,11 @@
 
 #ifdef BITE
 #include <flatb/committed_block_fragment_generated.h>
-#include <crypto/AESKeyDecryptionShare.h>
 class AESKeyDecryptionShare;
 class AESKeyDecryptionShareList;
 
 namespace skale_fb {
-    struct CommittedBlockFragment;
+struct CommittedBlockFragment;
 }
 #endif
 
@@ -39,6 +38,10 @@ class BlockProposalFragment {
     ptr< vector< uint8_t > > data;  // tsafe
 
     const block_id blockId = 0;
+#ifdef BITE
+    const schain_index proposerIndex = 0;
+    const schain_index decryptorIndex = 0;
+#endif
     const uint64_t blockSize = 0;
     string blockHash;
 
@@ -47,37 +50,42 @@ class BlockProposalFragment {
 
 #ifdef BITE
     const skale_fb::CommittedBlockFragment* fbBlockFragment = nullptr;
-    ptr<AESKeyDecryptionShareList> decryptionShares;
-    ptr<vector<uint8_t>> _fbSerializedBlockFragment;
+    ptr< AESKeyDecryptionShareList > decryptionShares;
+    ptr< vector< uint8_t > > _fbSerializedBlockFragment;
     void deserializeFromFlatBuffer();
 #endif
 
 public:
     // used to deserialze fragment coming from the network
-    BlockProposalFragment( const block_id& _blockId, uint64_t _totalFragments,
-                           const fragment_index& fragmentIndex, const ptr< vector< uint8_t > >& _data,
-                           uint64_t _blockSize, const string& _blockHash );
+    BlockProposalFragment( const block_id& _blockId,
+#ifdef BITE
+        const schain_index _proposerIndex, const schain_index _decryptorIndex,
+#endif
+        uint64_t _totalFragments, const fragment_index& fragmentIndex,
+        const ptr< vector< uint8_t > >& _data, uint64_t _blockSize, const string& _blockHash );
+
+
+    // used to create and serialize a fragment to be sent to the network
+    BlockProposalFragment( const block_id& _blockId,
+#ifdef BITE
+        const schain_index _proposerIndex, const schain_index _decryptorIndex,
+#endif
+        uint64_t _totalFragments, const fragment_index& fragmentIndex,
+        const ptr< vector< uint8_t > >& _data, ptr< AESKeyDecryptionShareList > _decryptionShares,
+        uint64_t _blockSize, const string& _blockHash );
 
 #ifdef BITE
-    // used to create and serialize a fragment to be sent to the network
-    BlockProposalFragment( const block_id& _blockId, uint64_t _totalFragments,
-                       const fragment_index& fragmentIndex, const ptr< vector< uint8_t > >& _data,
-                       ptr<AESKeyDecryptionShareList> _decryptionShares,
-                       uint64_t _blockSize, const string& _blockHash );
-
     [[nodiscard]] uint64_t size() const {
-        CHECK_STATE(this->fbBlockFragment);
-        auto data = fbBlockFragment->data();
-        if (!data) {
+        CHECK_STATE( this->fbBlockFragment );
+        auto d = fbBlockFragment->data();
+        if ( !d ) {
             return 0;
         } else {
             return data->size();
         }
     }
 
-    auto getData() {
-        return fbBlockFragment->data();
-    }
+    auto getFBSerializedData() { return fbBlockFragment->data(); }
 #endif
 
     [[nodiscard]] block_id getBlockId() const;
@@ -91,8 +99,6 @@ public:
     [[nodiscard]] uint64_t getBlockSize() const;
 
     [[nodiscard]] string getBlockHash() const;
-
-
 };
 
 

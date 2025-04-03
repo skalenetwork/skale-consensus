@@ -7,7 +7,7 @@ block_id AESKeyDecryptionShareList::getBlockId() const {
 }
 
 schain_index AESKeyDecryptionShareList::getDecryptorIndex() const {
-    return encryptorIndex;
+    return decryptorIndex;
 }
 
 

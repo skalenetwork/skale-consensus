@@ -71,7 +71,12 @@ public:
 
 
     ptr< BlockProposalFragment > readBlockFragment( const ptr< ClientSocket >& _socket,
-        nlohmann::json responseHeader, fragment_index _fragmentIndex, node_count _nodeCount );
+        nlohmann::json responseHeader, fragment_index _fragmentIndex, node_count _nodeCount
+#ifdef BITE
+        , schain_index _proposerIndex
+        , schain_index _destinationIndex
+#endif
+    );
 
     static uint64_t readFragmentSize( nlohmann::json _responseHeader );
 

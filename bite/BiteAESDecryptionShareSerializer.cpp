@@ -80,20 +80,27 @@ ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::deserialize(
 
     CHECK_STATE( fbDecryptionSharesHandle );
 
-    auto shares =
-        make_shared< AESKeyDecryptionShareList >( blockId, proposerIndex, decryptorIndex );
+    return getDecryptionShares(blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle);
+}
 
-    for ( const auto* fbdecryptionShareHandle : *fbDecryptionSharesHandle ) {
+
+shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDecryptionShares(
+    const block_id _blockId, const schain_index _proposerIndex, const schain_index _decryptorIndex,
+    const flatbuffers::Vector< ::flatbuffers::Offset< skale_fb::DecryptionShare > >*
+        _fbDecryptionSharesHandle ) {
+    auto shares =
+        make_shared< AESKeyDecryptionShareList >( _blockId, _proposerIndex, _decryptorIndex );
+
+    for ( const auto* fbdecryptionShareHandle : *_fbDecryptionSharesHandle ) {
         CHECK_STATE( fbdecryptionShareHandle )
         auto rawData = fbdecryptionShareHandle->data()->data();
         CHECK_STATE( rawData );
         string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
         auto decryptionShare = BiteManager::createAESDecryptionShare(
-            decryptionShareStr, decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
+            decryptionShareStr, _decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
         shares->addShare( fbdecryptionShareHandle->transaction_index(), decryptionShare );
     }
 
     shares->markComplete();
-
     return shares;
 }

@@ -42,6 +42,9 @@
 #include "datastructures/CommittedBlock.h"
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
 #include "headers/BlockFinalizeRequestHeader.h"
 #include "headers/BlockProposalRequestHeader.h"
 #include "monitoring/LivelinessMonitor.h"
@@ -158,7 +161,11 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
 
         try {
             blockFragment =
-                readBlockFragment( socket, response, _fragmentIndex, getSchain()->getNodeCount() );
+                readBlockFragment( socket, response, _fragmentIndex, getSchain()->getNodeCount()
+#ifdef BITE
+                , proposerIndex, _dstIndex
+#endif
+                    );
             CHECK_ARGUMENT( blockFragment )
         } catch ( ExitRequestedException& ) {
             throw;
@@ -218,7 +225,12 @@ string BlockFinalizeDownloader::readDAProofSig( nlohmann::json _responseHeader )
 
 ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
     const ptr< ClientSocket >& _socket, nlohmann::json _responseHeader,
-    fragment_index _fragmentIndex, node_count _nodeCount ) {
+    fragment_index _fragmentIndex, node_count _nodeCount
+#ifdef BITE
+    , schain_index _proposerIndex
+    , schain_index _destinationIndex
+#endif
+    ) {
     CHECK_ARGUMENT( _socket )
 
     CHECK_ARGUMENT( _responseHeader > 0 )
@@ -267,7 +279,13 @@ ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
     ptr< BlockProposalFragment > fragment = nullptr;
 
     try {
-        fragment = make_shared< BlockProposalFragment >( blockId, ( uint64_t ) _nodeCount - 1,
+        fragment = make_shared< BlockProposalFragment >( blockId,
+#ifdef BITE
+            _proposerIndex,
+            _destinationIndex,
+#endif
+
+            ( uint64_t ) _nodeCount - 1,
             _fragmentIndex, serializedFragment, blockSize, blockHash );
     } catch ( ExitRequestedException& ) {
         throw;
@@ -327,7 +345,11 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 // BlockproposalServerAgent
                 // then we need to stop working
                 auto proposal = proposalDB->getBlockProposal( blockId, proposerIndex );
-                if ( proposal && daProofDB->haveDAProof( proposal ) ) {
+                if ( proposal && daProofDB->haveDAProof( proposal )
+#ifdef BITE1
+                && node->getTEDecryptionDB()->isEnoughDecryptions(blockId)
+#endif
+                    ) {
                     return;
                 }
             }

@@ -10,7 +10,7 @@ class AESKeyDecryptionShare;
 class AESKeyDecryptionShareList {
     block_id blockId;
     schain_index proposerIndex;
-    schain_index encryptorIndex;
+    schain_index decryptorIndex;
 
 
 private:
@@ -18,10 +18,9 @@ private:
     std::atomic<bool> isComplete = false;
 
 public:
-    AESKeyDecryptionShareList(const block_id &_blockId, schain_index _proposerIndex, const schain_index &_encryptorIndex)
+    AESKeyDecryptionShareList(const block_id &_blockId, schain_index _proposerIndex, const schain_index & _decryptorIndex )
         : blockId(_blockId),
-          proposerIndex(_proposerIndex),
-          encryptorIndex(_encryptorIndex) {
+          proposerIndex(_proposerIndex), decryptorIndex( _decryptorIndex ) {
     }
 
     [[nodiscard]] schain_index getProposerIndex() const {

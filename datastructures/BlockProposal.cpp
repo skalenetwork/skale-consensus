@@ -373,7 +373,11 @@ ptr< BlockProposal > BlockProposal::defragment(
 }
 
 ptr< BlockProposalFragment > BlockProposal::getFragment(
-    uint64_t _totalFragments, fragment_index _index ) {
+    uint64_t _totalFragments, fragment_index _index
+#ifdef BITE
+    , schain_index _decryptorIndex
+#endif
+) {
     CHECK_ARGUMENT( _totalFragments > 0 );
     CHECK_ARGUMENT( _index <= _totalFragments );
     LOCK( m )
@@ -408,7 +412,8 @@ ptr< BlockProposalFragment > BlockProposal::getFragment(
     }
 
     return make_shared< BlockProposalFragment >(
-        getBlockID(), _totalFragments, _index, fragmentData, nullptr, sp->size(), getHash().toHex() );
+        getBlockID(), getProposerIndex(), _decryptorIndex,
+        _totalFragments, _index, fragmentData, nullptr, sp->size(), getHash().toHex() );
 #else
     fragmentData->push_back( '<' );
     if ( _index == _totalFragments ) {
@@ -421,9 +426,6 @@ ptr< BlockProposalFragment > BlockProposal::getFragment(
     return make_shared< BlockProposalFragment >(
         getBlockID(), _totalFragments, _index, fragmentData, sp->size(), getHash().toHex() );
 #endif
-
-    return make_shared< BlockProposalFragment >(
-        getBlockID(), _totalFragments, _index, fragmentData, sp->size(), getHash().toHex() );
 }
 
 ptr< TransactionList > BlockProposal::deserializeTransactions(
