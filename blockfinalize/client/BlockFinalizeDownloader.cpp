@@ -391,7 +391,6 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
 
 ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
-
     {
         threadPool = make_shared< BlockFinalizeDownloaderThreadPool >(
             ( uint64_t ) getSchain()->getNodeCount(), this );

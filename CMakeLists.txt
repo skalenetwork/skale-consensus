@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-if (PL)
+if (BITE)
     set(BITE "1")  # Replace "some_value" with the desired value
     add_definitions(-DBITE)
 endif ()

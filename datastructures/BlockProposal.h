@@ -192,7 +192,7 @@ public:
 
 
     void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
-        CHECK_STATE(_myDecryptionShares);
+        CHECK_STATE( _myDecryptionShares );
         // verify we are not setting it twice
         CHECK_STATE(std::atomic_load(&myDecryptionShares) == nullptr);
         std::atomic_store(&myDecryptionShares, _myDecryptionShares);

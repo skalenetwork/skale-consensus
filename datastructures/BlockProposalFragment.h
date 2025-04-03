@@ -69,9 +69,9 @@ public:
     BlockProposalFragment( const block_id& _blockId,
 #ifdef BITE
         const schain_index _proposerIndex, const schain_index _decryptorIndex,
-#endif
         uint64_t _totalFragments, const fragment_index& fragmentIndex,
         const ptr< vector< uint8_t > >& _data, ptr< AESKeyDecryptionShareList > _decryptionShares,
+#endif
         uint64_t _blockSize, const string& _blockHash );
 
 #ifdef BITE

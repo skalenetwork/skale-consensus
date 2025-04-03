@@ -69,15 +69,7 @@ public:
 
     virtual void parseFullConfigAndCreateNode(
         const std::string &fullPathToConfigFile
-#ifdef PL
-            // config file for the next epoch
-            // emty string means next epoch config is not yet known
-            , const std::string &_fullPathToFutureConfigFile
-#endif
-#ifndef PL
-        // PL does implement Oracle
         , const std::string &gethURL
-#endif
     ) = 0;
 
 
