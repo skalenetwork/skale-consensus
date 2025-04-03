@@ -139,7 +139,7 @@ void CatchupServerAgent::processNextAvailableConnection(
         } catch ( ... ) {
         }
         throw_with_nested( CouldNotSendMessageException(
-                "Could not create catchup response header", __CLASS_NAME__ ) );
+                "Could not create response header", __CLASS_NAME__ ) );
     }
 
 
@@ -366,7 +366,7 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         CHECK_STATE( !daSig.empty() );
 
 
-#ifdef BITE
+#ifdef BITE1
         auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares( proposal->getBlockID(),
             proposal->getProposerIndex());
         if (!myDecryptionShares) {
