@@ -355,7 +355,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 // then we need to stop working
                 auto proposal = proposalDB->getBlockProposal( blockId, proposerIndex );
                 if ( proposal && daProofDB->haveDAProof( proposal )
-#ifdef BITE1
+#ifdef BITE
                 && node->getTEDecryptionDB()->isEnoughDecryptions(blockId)
 #endif
                     ) {

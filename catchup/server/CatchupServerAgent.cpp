@@ -334,7 +334,11 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
 
         // did not find the proposal or we do not have da proof from it
         // try committed block
-        if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal ) ) {
+        if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal )
+#ifdef BITE
+            || !getNode()->getTEDecryptionDB()->isEnoughDecryptions(proposal->getBlockID())
+#endif
+            ) {
             // Could not find proposal with DA proof. Try committed block
 
             auto committedBlock = getSchain()->getBlock( _blockID );
