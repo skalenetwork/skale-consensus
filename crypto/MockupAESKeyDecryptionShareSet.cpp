@@ -12,7 +12,7 @@ using namespace std;
 
 MockupAESKeyDecryptionShareSet::MockupAESKeyDecryptionShareSet(
     block_id _blockId, transaction_index _transactionIndex, size_t _totalDecryptors, size_t _requiredDecryptors )
-    : ThresholdAESKeyDecryptionShareSet( _blockId, _transactionIndex, _totalDecryptors, _requiredDecryptors ) {
+    : AESKeyDecryptionShareSet( _blockId, _transactionIndex, _totalDecryptors, _requiredDecryptors ) {
     CHECK_ARGUMENT( _requiredDecryptors > 0 );
     CHECK_ARGUMENT( _requiredDecryptors <= totalDecryptors );
 
@@ -56,7 +56,7 @@ bool MockupAESKeyDecryptionShareSet::isEnough() {
 
 
 bool MockupAESKeyDecryptionShareSet::addDecryptionShare(
-    const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare ) {
+    const ptr< AESKeyDecryptionShare >& _decryptionShare ) {
     CHECK_ARGUMENT( _decryptionShare );
 
     LOCK( decryptionSharesLock )
@@ -76,3 +76,4 @@ bool MockupAESKeyDecryptionShareSet::addDecryptionShare(
 
     return true;
 }
+

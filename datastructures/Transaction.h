@@ -39,7 +39,7 @@ class BLAKE3Hash;
 
 
 #ifdef BITE
-class BITEDataField;
+class BiteDataField;
 class ParsedEthTransaction;
 #endif
 
@@ -92,7 +92,7 @@ public:
     ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
 
     // this returns nullptr for non-BITE transactions
-    ptr<BITEDataField> getBITEDataField();
+    ptr<BiteDataField> parseAndValidateBiteDataField();
 #endif
 
 };

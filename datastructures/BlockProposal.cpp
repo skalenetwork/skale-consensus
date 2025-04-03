@@ -38,7 +38,7 @@
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
 #ifdef BITE
-#include "bite/BITEBlockProposalSerializer.h"
+#include "bite/BiteBlockProposalSerializer.h"
 #endif
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/CryptoManager.h"
@@ -256,7 +256,7 @@ ptr< vector< uint8_t > > BlockProposal::serializeTransactionsAndCompleteSerializ
     ptr< BasicHeader > _blockHeader ) {
 
 #ifdef BITE
-    return BITEBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(_blockHeader, transactionList);
+    return BiteBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(_blockHeader, transactionList);
 #endif
 
     CHECK_STATE( _blockHeader )
@@ -303,7 +303,7 @@ ptr< BlockProposal > BlockProposal::deserialize(
     bool _verifySig ) {
 #ifdef BITE
     // override static method
-    return BITEBlockProposalSerializer::deserialize(_serializedProposal, _manager, _verifySig);
+    return BiteBlockProposalSerializer::deserialize(_serializedProposal, _manager, _verifySig);
 #endif
 
     CHECK_ARGUMENT( _serializedProposal );
@@ -386,6 +386,7 @@ ptr< BlockProposalFragment > BlockProposal::getFragment(
 
     uint64_t fragmentStandardSize;
 
+    // this function is ceiling division of blockSize / _totalFragments
     if ( blockSize % _totalFragments == 0 ) {
         fragmentStandardSize = sp->size() / _totalFragments;
     } else {
@@ -398,16 +399,28 @@ ptr< BlockProposalFragment > BlockProposal::getFragment(
 
     fragmentData->reserve( fragmentStandardSize + 2 );
 
-    fragmentData->push_back( '<' );
+#ifdef BITE
+    if ( _index == _totalFragments ) {
+        fragmentData->insert( fragmentData->begin(), sp->begin() + startIndex, sp->end() );
+    } else {
+        fragmentData->insert( fragmentData->begin(), sp->begin() + startIndex,
+            sp->begin() + startIndex + fragmentStandardSize );
+    }
 
+    return make_shared< BlockProposalFragment >(
+        getBlockID(), _totalFragments, _index, fragmentData, nullptr, sp->size(), getHash().toHex() );
+#else
+    fragmentData->push_back( '<' );
     if ( _index == _totalFragments ) {
         fragmentData->insert( fragmentData->begin() + 1, sp->begin() + startIndex, sp->end() );
     } else {
         fragmentData->insert( fragmentData->begin() + 1, sp->begin() + startIndex,
             sp->begin() + startIndex + fragmentStandardSize );
     }
-
     fragmentData->push_back( '>' );
+    return make_shared< BlockProposalFragment >(
+        getBlockID(), _totalFragments, _index, fragmentData, sp->size(), getHash().toHex() );
+#endif
 
     return make_shared< BlockProposalFragment >(
         getBlockID(), _totalFragments, _index, fragmentData, sp->size(), getHash().toHex() );

@@ -36,14 +36,12 @@
 #include "headers/CommittedBlockHeader.h"
 
 
-#include "bite/BITECommittedBlockSerializer.h"
-#include "BlockProposalFragment.h"
+#include "bite/BiteCommittedBlockSerializer.h"
+
 #include "CommittedBlock.h"
 #include "TransactionList.h"
-#include "datastructures/Transaction.h"
-#include "network/Buffer.h"
 #include "exceptions/InvalidSignatureException.h"
-#include "exceptions/NetworkProtocolException.h"
+
 
 
 ptr< CommittedBlock > CommittedBlock::makeFromProposal( const ptr< BlockProposal >& _proposal,
@@ -78,7 +76,7 @@ ptr< CommittedBlock > CommittedBlock::make( const schain_id _sChainId,
 
 void CommittedBlock::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
 #ifdef BITE
-    return BITECommittedBlockSerializer::serializedSanityCheck(_serializedBlock);
+    return BiteCommittedBlockSerializer::serializedSanityCheck(_serializedBlock);
 #endif
     CHECK_ARGUMENT( _serializedBlock );
     CHECK_ARGUMENT( _serializedBlock->at( sizeof( uint64_t ) ) == '{' );
@@ -128,7 +126,7 @@ ptr< CommittedBlock > CommittedBlock::deserialize( const ptr< vector< uint8_t > 
     const ptr< CryptoManager >& _manager, bool _verifySig ) {
 
 #ifdef BITE
-    return BITECommittedBlockSerializer::deserialize(_serializedBlock, _manager, _verifySig);
+    return BiteCommittedBlockSerializer::deserialize(_serializedBlock, _manager, _verifySig);
 #endif
 
     CHECK_ARGUMENT( _serializedBlock );

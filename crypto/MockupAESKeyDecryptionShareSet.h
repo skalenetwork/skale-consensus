@@ -1,17 +1,17 @@
 #pragma once
 
 #include "datastructures/DataStructure.h"
-#include "ThresholdAESKeyDecryptionShareSet.h"
+#include "AESKeyDecryptionShareSet.h"
 
 
 class PartialHashesList;
 class Schain;
 class MockupAESKeyDecryptionShare;
-class ThresholdAESKeyDecryptionShare;
+class AESKeyDecryptionShare;
 class DecryptedAESKey;
 class BLAKE3Hash;
 
-class MockupAESKeyDecryptionShareSet : public ThresholdAESKeyDecryptionShareSet {
+class MockupAESKeyDecryptionShareSet : public AESKeyDecryptionShareSet {
     std::map< size_t, ptr< MockupAESKeyDecryptionShare > > decryptionShares;  // tsafe
     recursive_mutex decryptionSharesLock;
 
@@ -21,7 +21,7 @@ public:
 
     ptr< DecryptedAESKey > mergeAESKey();
 
-    bool addDecryptionShare( const ptr< ThresholdAESKeyDecryptionShare >& _sigShare );
+    bool addDecryptionShare( const ptr< AESKeyDecryptionShare >& _sigShare );
 
     bool isEnough();
 

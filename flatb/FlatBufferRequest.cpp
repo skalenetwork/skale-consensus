@@ -34,7 +34,7 @@ shared_ptr<std::vector<uint8_t> > FlatBufferRequest::copyFbByteVector(
 }
 
 shared_ptr<std::vector<transaction_index> > FlatBufferRequest::copyFbIndexVector(
-    const flatbuffers::Vector<uint16_t> *_fbVector) {
+    const flatbuffers::Vector<uint32_t> *_fbVector) {
     if (!_fbVector) {
         return nullptr;
     } else {

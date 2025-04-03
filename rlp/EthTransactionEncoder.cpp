@@ -9,7 +9,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusInterface.h"
-#include "bite/BITEDataFiled.h"
+#include "bite/BiteDataFiled.h"
 #include "crypto/EncryptedAESKey.h"
 #include "EthTransactionEncoder.h"
 
@@ -337,7 +337,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
     uint64toVec( currentNonce, currentTx.nonce );
 
     if ( _isByte ) {
-        BITEDataField biteDataField(
+        BiteDataField biteDataField(
             encryptedAesKey, make_shared< EncryptedData >( currentTx.data ), 0 );
         currentTx.data = *biteDataField.getSerializedData();
     }

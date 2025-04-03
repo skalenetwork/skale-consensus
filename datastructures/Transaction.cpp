@@ -40,7 +40,7 @@
 
 #ifdef  BITE
 #include "rlp/ParsedEthTransaction.h"
-#include "bite/BITEDataFiled.h"
+#include "bite/BiteDataFiled.h"
 #endif
 
 #include "Transaction.h"
@@ -178,7 +178,6 @@ ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::rando
 #ifdef BITE
 
 void Transaction::parseAndValidate() {
-
     // thread safe
     auto pt = std::atomic_load(&parsedAndValidatedEthTransaction );
     if (pt)
@@ -189,11 +188,11 @@ void Transaction::parseAndValidate() {
 }
 
 
-ptr< BITEDataField > Transaction::getBITEDataField() {
+ptr< BiteDataField > Transaction::parseAndValidateBiteDataField() {
     parseAndValidate();
     auto pt = std::atomic_load(&parsedAndValidatedEthTransaction )->getTransactionDataField();
 
-    return BITEDataField::createIfMagicMatches(pt);
+    return BiteDataField::createIfMagicMatches(pt);
 
 };
 #endif

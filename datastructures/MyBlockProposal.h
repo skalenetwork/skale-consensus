@@ -26,7 +26,7 @@
 
 #include "BlockProposal.h"
 #ifdef BITE
-#include "bite/BITEBlockProposalSerializer.h"
+#include "bite/BiteBlockProposalSerializer.h"
 #endif
 
 

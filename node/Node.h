@@ -56,6 +56,9 @@ class TestConfig;
 class BlockSigShareDB;
 class DASigShareDB;
 class DAProofDB;
+#ifdef BITE
+    class TEDecryptionDB;
+#endif
 class InternalInfoDB;
 class BiteBlockFinalizeServer;
 
@@ -177,6 +180,10 @@ class Node {
 
     ptr< DASigShareDB > daSigShareDB;
 
+#ifdef BITE
+    ptr <TEDecryptionDB> teDecryptionDB;
+#endif
+
     ptr< DAProofDB > daProofDB;
 
     ptr< BlockProposalDB > blockProposalDB;
@@ -229,7 +236,11 @@ class Node {
     uint64_t priceDBSize = 0;
     uint64_t blockProposalDBSize = 0;
     uint64_t internalInfoDBSize = 0;
+#ifdef BITE
+    uint64_t teDecryptionDBSize = 0;
+#endif
     uint64_t visualizationType = 0;
+
 
     string gethURL = "";
     bool testNet = false;
@@ -312,6 +323,10 @@ public:
 
     ptr< DASigShareDB > getDaSigShareDB() const;
 
+#ifdef BITE
+    ptr< TEDecryptionDB > getTEDecryptionDB() const;
+#endif
+
     ptr< DAProofDB > getDaProofDB() const;
 
     ptr< BlockProposalDB > getBlockProposalDB() const;
@@ -330,9 +345,12 @@ public:
     uint64_t getDaSigShareDBSize() const;
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
-    uint64_t getInternalInfoDBSize() const;
+    uint64_t  getInternalInfoDBSize() const;
+
+
     uint64_t getSimulateNetworkWriteDelayMs() const;
 #ifdef BITE
+    uint64_t getTEDecryptionDBSize() const;
     static node_count getNodeCount();
     static schain_id getSchainId();
 #endif

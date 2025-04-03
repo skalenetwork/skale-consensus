@@ -10,33 +10,32 @@
 
 #include "ConsensusAESKeyDecryptionShare.h"
 
+using namespace libBLS;
 
 ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
-    const ptr< libBLS::TEDecryptionShare >& _decryptionShare, schain_id _schainId, block_id _blockID,
-    transaction_index _transactionIndex)
-    : ThresholdAESKeyDecryptionShare( _schainId, _blockID, _transactionIndex, 1 ) {
-    CHECK_ARGUMENT( _decryptionShare);
+    const ptr< TEDecryptionShare >& _decryptionShare, schain_index _decryptorIndex,
+    bool _decryptionFailed )
+    : AESKeyDecryptionShare( _decryptorIndex, _decryptionFailed ) {
+    CHECK_ARGUMENT( _decryptionShare );
     this->decryptorIndex = _decryptionShare->getSignerIndex();
     aesKeyDecryptionShare = _decryptionShare;
 }
 
 
-
-ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare( const string& _decryptionShare, schain_id _schainId,
-    block_id _blockID, transaction_index _transactionIndex, schain_index _decryptorIndex, uint64_t ,
-    uint64_t  )
-    : ThresholdAESKeyDecryptionShare( _schainId, _blockID, _transactionIndex, _decryptorIndex) {
+ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
+    const string& _decryptionShare, schain_index _decryptorIndex, bool _decryptionFailed )
+    : AESKeyDecryptionShare( _decryptorIndex, _decryptionFailed ) {
     CHECK_ARGUMENT( _decryptionShare != "" );
 
     try {
-        aesKeyDecryptionShare = std::make_shared< libBLS::TEDecryptionShare >(
-            _decryptionShare, ( uint64_t ) _decryptorIndex );
+        aesKeyDecryptionShare =
+            std::make_shared< TEDecryptionShare >( _decryptionShare, ( uint64_t ) _decryptorIndex );
         aesKeyDecryptionShare->validate();
-    } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not create decryption share");
+    } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION( err, "Could not create BLSSDecryptionShare" );
 }
 
 
-ptr< libBLS::TEDecryptionShare > ConsensusAESKeyDecryptionShare::getTEDecryptionShare() const {
+ptr< TEDecryptionShare > ConsensusAESKeyDecryptionShare::getTEDecryptionShare() const {
     CHECK_STATE( aesKeyDecryptionShare );
     return aesKeyDecryptionShare;
 }

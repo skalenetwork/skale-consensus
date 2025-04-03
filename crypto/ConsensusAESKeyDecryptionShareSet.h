@@ -1,16 +1,16 @@
 #pragma once
 
 #include "DecryptedAESKey.h"
-#include "ThresholdAESKeyDecryptionShareSet.h"
+#include "AESKeyDecryptionShareSet.h"
 
 
 class PartialHashesList;
 class Schain;
-class ThresholdAESKeyDecryptionShare;
+class AESKeyDecryptionShare;
 class BLAKE3Hash;
 
 
-class ConsensusAESKeyDecryptionShareSet : public ThresholdAESKeyDecryptionShareSet {
+class ConsensusAESKeyDecryptionShareSet : public AESKeyDecryptionShareSet {
     std::map< size_t, ptr< ConsensusAESKeyDecryptionShare > > decryptionShares;  // tsafe
     recursive_mutex decryptionSharesLock;
 
@@ -21,7 +21,7 @@ public:
     ptr<DecryptedAESKey> mergeAESKey() override;
 
     virtual bool addDecryptionShare(
-        const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare ) override;
+        const ptr< AESKeyDecryptionShare >& _decryptionShare ) override;
 
 
     bool isEnough() override;

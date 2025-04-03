@@ -40,7 +40,7 @@ using namespace std;
 
 ConsensusAESKeyDecryptionShareSet::ConsensusAESKeyDecryptionShareSet( block_id _blockId,
     transaction_index _transactionIndex, size_t _totalDecryptors, size_t _requiredDecryptors )
-    : ThresholdAESKeyDecryptionShareSet(
+    : AESKeyDecryptionShareSet(
           _blockId, _transactionIndex, _totalDecryptors, _requiredDecryptors ) {};
 
 ConsensusAESKeyDecryptionShareSet::~ConsensusAESKeyDecryptionShareSet() = default;
@@ -79,7 +79,7 @@ bool ConsensusAESKeyDecryptionShareSet::isEnough() {
 
 
 bool ConsensusAESKeyDecryptionShareSet::addDecryptionShare(
-    const ptr< ThresholdAESKeyDecryptionShare >& _decryptionShare ) {
+    const ptr< AESKeyDecryptionShare >& _decryptionShare ) {
     CHECK_ARGUMENT( _decryptionShare );
 
     LOCK( decryptionSharesLock )

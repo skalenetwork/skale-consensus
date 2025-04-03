@@ -31,9 +31,7 @@
 #include "utils/Time.h"
 #include "Transaction.h"
 
-#ifdef BITE
-#include "bite/BITEBlockProposalSerializer.h"
-#endif
+
 
 #include "MyBlockProposal.h"
 

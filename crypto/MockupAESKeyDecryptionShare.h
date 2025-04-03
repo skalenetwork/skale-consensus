@@ -2,23 +2,20 @@
 
 
 #include "EncryptedAESKey.h"
-#include "ThresholdAESKeyDecryptionShare.h"
+#include "AESKeyDecryptionShare.h"
 
 
-class MockupAESKeyDecryptionShare: public ThresholdAESKeyDecryptionShare {
-    uint64_t totalDecryptors = 0;
-    uint64_t requiredDecryptors = 0;
+class MockupAESKeyDecryptionShare: public AESKeyDecryptionShare {
     string aesDecryptionShare;
 
 public:
-    MockupAESKeyDecryptionShare( const string _aesKeyDecryptionShare, schain_id _schainID, block_id _blockID,
-        transaction_index _transactionIndex,
-        schain_index _decryptorIndex, size_t _totalDecryptors, size_t _requiredDecryptors );
+    MockupAESKeyDecryptionShare( const string _aesKeyDecryptionShare,
+        schain_index _decryptorIndex, bool _decryptionFailed) ;
 
     string toString() override;
 
     ~MockupAESKeyDecryptionShare() override;
 
-    static ptr<MockupAESKeyDecryptionShare> mockupDecrypt(ptr <EncryptedAESKey> _key);
+    static ptr<MockupAESKeyDecryptionShare> mockupDecrypt(ptr <EncryptedAESKey> _key, schain_index _decryptorIndex);
 };
 

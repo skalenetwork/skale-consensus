@@ -50,10 +50,11 @@
 using namespace std;
 
 
-DASigShareDB::DASigShareDB(
-    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
-    : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
-          LevelDBOptions::getDASigShareDBOptions() ){};
+DASigShareDB::DASigShareDB(Schain *_sChain, string &_dirName, string &_prefix, node_id _nodeId,
+    uint64_t _maxDBSize) :
+      CacheLevelDB(_sChain, _dirName, _prefix, _nodeId, _maxDBSize,
+          LevelDBOptions::getDASigShareDBOptions()) {
+};
 
 const string& DASigShareDB::getFormatVersion() {
     static const string version = "1.0";
@@ -62,43 +63,48 @@ const string& DASigShareDB::getFormatVersion() {
 
 
 // return not-null if _sigShare completes sig, null otherwise (both if not enough and too much)
-ptr< DAProof > DASigShareDB::addAndMergeSigShareAndVerifySig(
-    const ptr< ThresholdSigShare >& _sigShare, const ptr< BlockProposal >& _proposal ) {
-    CHECK_ARGUMENT( _sigShare );
-    CHECK_ARGUMENT( _proposal );
+ptr<DAProof> DASigShareDB::addAndMergeSigShareAndVerifySig(const ptr<ThresholdSigShare>& _sigShare,
+                                                           const ptr<BlockProposal>& _proposal) {
 
-    LOCK( sigShareMutex )
+    CHECK_ARGUMENT(_sigShare);
+    CHECK_ARGUMENT(_proposal);
 
-    LOG( trace, "Adding sigshare" );
+    LOCK(sigShareMutex)
 
-    auto result = this->writeStringToSet(
-        _sigShare->toString(), _sigShare->getBlockId(), _sigShare->getSignerIndex() );
+    LOG(trace, "Adding sigshare");
 
-    if ( result != nullptr ) {
-        auto set = sChain->getCryptoManager()->createDAProofSigShareSet(
-            _sigShare->getBlockId(), _proposal->getTimeStampS() );
+    auto result = this->writeStringToSet(_sigShare->toString(),
+            _sigShare->getBlockId(), _sigShare->getSignerIndex());
 
-        for ( auto&& entry : *result ) {
-            auto share = sChain->getCryptoManager()->createDAProofSigShare( entry.second,
-                sChain->getSchainID(), _proposal->getBlockID(), entry.first,
-                _proposal->getTimeStampS(), false );
+    if (result != nullptr) {
 
-            set->addSigShare( share );
+        auto set = sChain->getCryptoManager()->createDAProofSigShareSet(_sigShare->getBlockId(), _proposal->getTimeStampS());
+
+        for (auto && entry : *result) {
+            auto share = sChain->getCryptoManager()->createDAProofSigShare(
+                entry.second, sChain->getSchainID(), _proposal->getBlockID(), entry.first, _proposal->getTimeStampS(), false );
+
+            set->addSigShare(share);
         }
 
 
-        LOG( trace, "Merged signature" );
+        LOG(trace, "Merged signature");
         auto sig = set->mergeSignature();
-        CHECK_STATE( sig );
+        CHECK_STATE(sig);
+
 
 
         auto h = _proposal->getHash();
 
         sChain->getCryptoManager()->verifyDAProofThresholdSig(
-            h, sig->toString(), _sigShare->getBlockId(), _proposal->getTimeStampS() );
-        auto proof = make_shared< DAProof >( _proposal, sig );
+                h, sig->toString(), _sigShare->getBlockId(), _proposal->getTimeStampS());
+        auto proof = make_shared<DAProof>(_proposal, sig);
         return proof;
     }
 
     return nullptr;
 }
+
+
+
+

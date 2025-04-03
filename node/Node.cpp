@@ -67,6 +67,9 @@
 #include "db/ProposalHashDB.h"
 #include "db/ProposalVectorDB.h"
 #include "db/RandomDB.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
 #include "db/SigDB.h"
 #include "messages/Message.h"
 #include "messages/NetworkMessageEnvelope.h"
@@ -180,6 +183,9 @@ void Node::initLevelDBs() {
     string daProofDBPrefix = "/da_proofs_" + to_string( nodeID ) + ".db";
     string blockProposalDBPrefix = "/block_proposals_" + to_string( nodeID ) + ".db";
     string internalInfoDBPrefix = "/internal_info_" + to_string( nodeID ) + ".db";
+#ifdef BITE
+    string teDecryptionDBPrefix = "/te_decryptshares_" + to_string( nodeID ) + ".db";
+#endif
 
 
     blockDB =
@@ -207,6 +213,7 @@ void Node::initLevelDBs() {
         getSchain(), dbDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize() );
     daSigShareDB = make_shared< DASigShareDB >(
         getSchain(), dbDir, daSigShareDBPrefix, getNodeID(), getDaSigShareDBSize() );
+
     daProofDB = make_shared< DAProofDB >(
         getSchain(), dbDir, daProofDBPrefix, getNodeID(), getDaProofDBSize() );
     blockProposalDB = make_shared< BlockProposalDB >(
@@ -214,6 +221,13 @@ void Node::initLevelDBs() {
 
     internalInfoDB = make_shared< InternalInfoDB >(
         getSchain(), dbDir, internalInfoDBPrefix, getNodeID(), getInternalInfoDBSize() );
+
+
+#ifdef BITE
+    teDecryptionDB = make_shared< TEDecryptionDB >(
+        getSchain(), dbDir, teDecryptionDBPrefix, getNodeID(), getTEDecryptionDBSize() );
+#endif
+
 }
 
 void Node::initLogging() {
@@ -280,6 +294,9 @@ void Node::initParamsFromConfig() {
     priceDBSize = storageLimits->getPriceDbSize();
     blockProposalDBSize = storageLimits->getBlockProposalDbSize();
     internalInfoDBSize = storageLimits->getInternalInfoDbSize();
+#ifdef  BITE
+    teDecryptionDBSize = storageLimits->getTEDecryptionDbSize();
+#endif
 
     visualizationType = getParamUint64( "visualizationType", 0 );
 

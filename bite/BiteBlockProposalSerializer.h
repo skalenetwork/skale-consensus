@@ -4,7 +4,7 @@
 #include "datastructures/BlockProposal.h"
 
 
-class BITEBlockProposalSerializer {
+class BiteBlockProposalSerializer {
 
 public:
 

@@ -32,7 +32,7 @@ public:
     static shared_ptr< std::vector< uint8_t > > copyFbByteVector(
         const flatbuffers::Vector< uint8_t >* _fbVector );
     static shared_ptr< std::vector< transaction_index > > copyFbIndexVector(
-        const flatbuffers::Vector< uint16_t >* _fbVector );
+        const flatbuffers::Vector< uint32_t >* _fbVector );
 };
 }  // namespace skale_fb
 

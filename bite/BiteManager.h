@@ -1,22 +1,38 @@
 #pragma once
 
+#include <memory>
+#include <memory>
+#include <vector>
+#include <crypto/AESKeyDecryptionShare.h>
+#include <crypto/AESKeyDecryptionShareSet.h>
+
 #include "abstracttcpserver/ConnectionStatus.h"
 class Schain;
 class BlockProposal;
 class CommittedBlock;
-
+class DecryptedAESKeyList;
+class AESKeyDecryptionShareList;
+class BiteDataField;
 
 class BiteManager {
-    Schain& schain;
+    Schain &schain;
     bool doRealCrypto = false;
 
 public:
-    explicit BiteManager( Schain& schain );
+    explicit BiteManager(Schain &_schain);
 
-    static ConnectionSubStatus verifyAndDecryptProposalTransactions(const ptr< BlockProposal >& _proposal);
+    ConnectionSubStatus verifyAndDecryptProposalTransactions(
+        const ptr<BlockProposal> &_proposal);
+
+    std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> decryptBiteDataFields(
+        block_id _blockId, schain_index _proposerIndex,  const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields);
+
+    ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeys(vector<ptr<BiteDataField>> &_dataFields);
 
     void verifyAndDecryptBlockTransactions(const ptr<CommittedBlock> &_block);
 
+    static ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare, schain_index _decryptorIndex,
+                                                        bool _decryptionFailed);
+
+     ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
 };
-
-

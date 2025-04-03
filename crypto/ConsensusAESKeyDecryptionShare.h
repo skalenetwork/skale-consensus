@@ -3,10 +3,10 @@
 
 #include "libBLS/threshold_encryption/TEDecryptionShare.h"
 
-#include "ThresholdAESKeyDecryptionShare.h"
+#include "AESKeyDecryptionShare.h"
 
 namespace libff {
-class alt_bn128_G2;
+    class alt_bn128_G2;
 }
 
 namespace libBLS {
@@ -14,26 +14,22 @@ namespace libBLS {
 }
 
 
-class ConsensusAESKeyDecryptionShare : public ThresholdAESKeyDecryptionShare {
-    ptr<libBLS::TEDecryptionShare > aesKeyDecryptionShare;
+class ConsensusAESKeyDecryptionShare : public AESKeyDecryptionShare {
+    ptr<libBLS::TEDecryptionShare> aesKeyDecryptionShare;
 
 public:
-
-
     ConsensusAESKeyDecryptionShare(
-        const ptr< libBLS::TEDecryptionShare >& _decryptionShare, schain_id _schainId, block_id _blockID,
-        transaction_index _transactionIndex);
+        const ptr<libBLS::TEDecryptionShare> &_decryptionShare, schain_index _decryptorIndex, bool _decryptionFailed);
 
 
-    ConsensusAESKeyDecryptionShare( const string& _decryptionShare, schain_id _schainID, block_id _blockID,
-        transaction_index _transactionIndex, schain_index _decryptorIndex, uint64_t _totalDecryptors, uint64_t _requiredDecryptors );
+    ConsensusAESKeyDecryptionShare(const string &_decryptionShare,
+                                  schain_index _decryptorIndex,
+                                   bool _decryptionFailed);
 
 
-    [[nodiscard]] ptr< libBLS::TEDecryptionShare > getTEDecryptionShare() const;
+    [[nodiscard]] ptr<libBLS::TEDecryptionShare> getTEDecryptionShare() const;
 
     string toString() override;
 
     ~ConsensusAESKeyDecryptionShare() override;
 };
-
-
