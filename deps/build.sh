@@ -610,23 +610,20 @@ echo -e "${COLOR_VAR_NAME}NM${COLOR_DOTS}.......................................
 echo -e "${COLOR_VAR_NAME}OBJCOPY${COLOR_DOTS}.......................................................${COLOR_VAR_VAL}$OBJCOPY${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}OBJDUMP${COLOR_DOTS}.......................................................${COLOR_VAR_VAL}$OBJDUMP${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_ZLIB${COLOR_DOTS}..............${COLOR_VAR_DESC}Zlib${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_ZLIB${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_BLAKE3${COLOR_DOTS}..............${COLOR_VAR_DESC}BLAKE3${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_BLAKE3${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_BLAKE3${COLOR_DOTS}............${COLOR_VAR_DESC}BLAKE3${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_BLAKE3${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_OPENSSL${COLOR_DOTS}...........${COLOR_VAR_DESC}OpenSSL${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_OPENSSL${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_CURL${COLOR_DOTS}..............${COLOR_VAR_DESC}CURL${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_CURL${COLOR_RESET}"
-#echo -e "${COLOR_VAR_NAME}WITH_LZMA${COLOR_DOTS}..............${COLOR_VAR_DESC}LZMA${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_LZMA${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_SSH${COLOR_DOTS}...............${COLOR_VAR_DESC}SSH${COLOR_DOTS}....................................${COLOR_VAR_VAL}$WITH_SSH${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_SODIUM${COLOR_DOTS}............${COLOR_VAR_DESC}LibSodium${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_SODIUM${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_ZMQ${COLOR_DOTS}...............${COLOR_VAR_DESC}ZeroMQ${COLOR_DOTS}.................................${COLOR_VAR_VAL}$WITH_ZMQ${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_SDL${COLOR_DOTS}...............${COLOR_VAR_DESC}SDL${COLOR_DOTS}....................................${COLOR_VAR_VAL}$WITH_SDL${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_SDL_TTF${COLOR_DOTS}...........${COLOR_VAR_DESC}SDL-TTF${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_SDL_TTF${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_EV${COLOR_DOTS}................${COLOR_VAR_DESC}libEv${COLOR_DOTS}..................................${COLOR_VAR_VAL}$WITH_EV${COLOR_RESET}"
-#echo -e "${COLOR_VAR_NAME}WITH_EVENT${COLOR_DOTS}.............${COLOR_VAR_DESC}libEvent${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_EVENT${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_UV${COLOR_DOTS}................${COLOR_VAR_DESC}libUV${COLOR_DOTS}..................................${COLOR_VAR_VAL}$WITH_UV${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_LWS${COLOR_DOTS}...............${COLOR_VAR_DESC}libWevSockets${COLOR_DOTS}..........................${COLOR_VAR_VAL}$WITH_LWS${COLOR_RESET}"
 #echo -e "${COLOR_VAR_NAME}WITH_SOURCEY${COLOR_DOTS}...........${COLOR_VAR_DESC}libSourcey${COLOR_DOTS}.............................${COLOR_VAR_VAL}$WITH_SOURCEY${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_BOOST${COLOR_DOTS}.............${COLOR_VAR_DESC}libBoostC++${COLOR_DOTS}............................${COLOR_VAR_VAL}$WITH_BOOST${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_PUPNP${COLOR_DOTS}.............${COLOR_VAR_DESC}libpupnp${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_PUPNP${COLOR_RESET}"
-#echo -e "${COLOR_VAR_NAME}WITH_GTEST${COLOR_DOTS}.............${COLOR_VAR_DESC}GTEST${COLOR_DOTS}..................................${COLOR_VAR_VAL}$WITH_GTEST${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_ARGTABLE2${COLOR_DOTS}.........${COLOR_VAR_DESC}libArgTable${COLOR_DOTS}............................${COLOR_VAR_VAL}$WITH_ARGTABLE2${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_NETTLE${COLOR_DOTS}............${COLOR_VAR_DESC}LibNettle${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_NETTLE${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_TASN1${COLOR_DOTS}.............${COLOR_VAR_DESC}libTASN1${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_TASN1${COLOR_RESET}"
@@ -653,9 +650,9 @@ echo -e "${COLOR_VAR_NAME}WITH_FOLLY${COLOR_DOTS}.............${COLOR_VAR_DESC}L
 echo -e "${COLOR_VAR_NAME}WITH_WANGLE${COLOR_DOTS}............${COLOR_VAR_DESC}LibWangle${COLOR_DOTS}..............................${COLOR_VAR_VAL}$WITH_WANGLE${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_GTEST${COLOR_DOTS}.............${COLOR_VAR_DESC}LibGTEST${COLOR_DOTS}...............................${COLOR_VAR_VAL}$WITH_GTEST${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_FIZZ${COLOR_DOTS}..............${COLOR_VAR_DESC}LibFIZZ${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_FIZZ${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_FLATBUFFERS${COLOR_DOTS}..............${COLOR_VAR_DESC}LibFlatbuffers${COLOR_DOTS}................................${COLOR_VAR_VAL}$WITH_FLATBUFFERS${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_FLATBUFFERS${COLOR_DOTS}.......${COLOR_VAR_DESC}LibFlatbuffers${COLOR_DOTS}.........................${COLOR_VAR_VAL}$WITH_FLATBUFFERS${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WITH_LZMA${COLOR_DOTS}..............${COLOR_VAR_DESC}LZMA${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_LZMA${COLOR_RESET}"
-echo -e "${COLOR_VAR_NAME}WITH_LIBSECP256K1${COLOR_DOTS}..............${COLOR_VAR_DESC}LIBSEC256K1${COLOR_DOTS}...................................${COLOR_VAR_VAL}$WITH_LZMA${COLOR_RESET}"
+echo -e "${COLOR_VAR_NAME}WITH_LIBSECP256K1${COLOR_DOTS}......${COLOR_VAR_DESC}LIBSEC256K1${COLOR_DOTS}............................${COLOR_VAR_VAL}$WITH_LIBSECP256K1${COLOR_RESET}"
 
 cd "$SOURCES_ROOT"
 
@@ -2961,56 +2958,49 @@ then
 	fi
 fi
 
-echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
-echo -e "${COLOR_YELLOW}CONSENSUS dependencies build actions...${COLOR_RESET}"
-echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}FINISH${COLOR_SEPARATOR} =======================================${COLOR_RESET}"
-echo -e " "
-echo -e " "
-echo -e " "
-
 if [ "$WITH_FLATBUFFERS" = "yes" ];
 then
-	echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libFlatbuffers${COLOR_SEPARATOR} ====================================${COLOR_RESET}"
-	if [ ! -f "$INSTALL_ROOT/lib/libflatbuffers.a" ];
-	then
-		env_restore
-		cd "$SOURCES_ROOT"
-		if [ ! -d "flatbuffers" ];
-		then
-			if [ ! -f "flatbuffers-from-git.tar.gz" ];
-			then
-				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
-				eval git clone https://github.com/google/flatbuffers.git --recursive
-				git -C flatbuffers checkout 1c514626e83c20fffa8557e75641848e1e15cd5e
+        echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libFlatbuffers${COLOR_SEPARATOR} ====================================${COLOR_RESET}"
+        if [ ! -f "$INSTALL_ROOT/lib/libflatbuffers.a" ];
+        then
+                env_restore
+                cd "$SOURCES_ROOT"
+                if [ ! -d "flatbuffers" ];
+                then
+                        if [ ! -f "flatbuffers-from-git.tar.gz" ];
+                        then
+                                echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
+                                eval git clone https://github.com/google/flatbuffers.git --recursive
+                                git -C flatbuffers checkout 1c514626e83c20fffa8557e75641848e1e15cd5e
         echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -czf flatbuffers-from-git.tar.gz ./flatbuffers
-			else
-				echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
-				eval tar -xzf flatbuffers-from-git.tar.gz
-			fi
-			echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
-			cd flatbuffers
-			eval mkdir -p build2
-			cd build2
-			eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
+                                eval tar -czf flatbuffers-from-git.tar.gz ./flatbuffers
+                        else
+                                echo -e "${COLOR_INFO}unpacking it${COLOR_DOTS}...${COLOR_RESET}"
+                                eval tar -xzf flatbuffers-from-git.tar.gz
+                        fi
+                        echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
+                        cd flatbuffers
+                        eval mkdir -p build2
+                        cd build2
+                        eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
                                 -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF \
                                 -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
                                 -DBoost_NO_BOOST_CMAKE=ON -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
                                 -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
                                 -DCMAKE_PREFIX_PATH=${INSTALL_ROOT} \
                                 ..
-			cd ..
-		else
-			cd flatbuffers
-		fi
-		echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
-		cd build2
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
-		eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
-		cd "$SOURCES_ROOT"
-	else
-		echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
-	fi
+                        cd ..
+                else
+                        cd flatbuffers
+                fi
+                echo -e "${COLOR_INFO}building it${COLOR_DOTS}...${COLOR_RESET}"
+                cd build2
+                eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}"
+                eval "$MAKE" "${PARALLEL_MAKE_OPTIONS}" install
+                cd "$SOURCES_ROOT"
+        else
+                echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
+        fi
 fi
 
 
@@ -3056,7 +3046,7 @@ fi
 
 
 if [ "$WITH_LIBSECP256K1" = "yes" ]; then
-    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LZMA${COLOR_SEPARATOR} =========================================${COLOR_RESET}"
+    echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}LibSecp256k1${COLOR_SEPARATOR} =========================================${COLOR_RESET}"
 
     if [ ! -f "$INSTALL_ROOT/lib/libsecp256k1.a" ]; then
         env_restore
@@ -3083,15 +3073,8 @@ if [ "$WITH_LIBSECP256K1" = "yes" ]; then
             eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" \
                 -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" \
                 -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
-                -DBUILD_TESTS=OFF \
-                -DBUILD_EXAMPLES=OFF \
                 -DBUILD_SHARED_LIBS=OFF \
-                -DBOOST_ROOT="$INSTALL_ROOT" \
-                -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" \
-                -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
-                -DBoost_NO_BOOST_CMAKE=ON \
                 -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
-                -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
                 -DCMAKE_PREFIX_PATH="$INSTALL_ROOT" -DSECP256K1_ENABLE_MODULE_RECOVERY=ON \
                 ..
             cd ..
@@ -3111,9 +3094,12 @@ else
     echo -e "${COLOR_SUCCESS}SKIPPED${COLOR_RESET}"
 fi
 
-
-
-
+echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
+echo -e "${COLOR_YELLOW}CONSENSUS dependencies build actions...${COLOR_RESET}"
+echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}FINISH${COLOR_SEPARATOR} =======================================${COLOR_RESET}"
+echo -e " "
+echo -e " "
+echo -e " "
 
 #env_restore
 #cd "$CUSTOM_BUILD_ROOT"

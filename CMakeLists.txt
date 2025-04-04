@@ -198,7 +198,9 @@ SET(SRC_FILES
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
-
+if (NOT CMAKE_PROJECT_NAME STREQUAL "consensus")
+    include_directories(${PARENT_BINARY_DIR}/deps/include)
+endif()
 
 set(BOOST_LIBS_FOR_CONSENSUS boost_thread  boost_system boost_filesystem boost_program_options boost_context)
 
@@ -260,8 +262,12 @@ if (DEFINED BITE)
             "${DEPS_INSTALL_ROOT}/lib/libglog.a"
             "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
             "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
-            "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a"
+#            "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a"
     )
+    if (CMAKE_PROJECT_NAME STREQUAL "consensus")
+        SET(LINK_LIBRARIES ${LINK_LIBRARIES} "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a")
+    else()
+        SET(LINK_LIBRARIES ${LINK_LIBRARIES} Secp256k1)
 endif ()
 
 # consensus library

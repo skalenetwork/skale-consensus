@@ -169,7 +169,7 @@ jobs:
     - name: build dependencies
       run: |
         sudo apt-get install -y nettle-dev gnutls-dev
-        cd deps && ./build.sh && cd ..
+        cd deps && ./build.sh BUILD_LIBSEC256K1=1 && cd ..
 
     - name: verify jsonrpc has been built
       run: ls libBLS/deps/deps_inst/x86_or_x64/include/jsonrpccpp/client.h
