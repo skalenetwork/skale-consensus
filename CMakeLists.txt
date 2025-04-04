@@ -268,6 +268,7 @@ if (DEFINED BITE)
         SET(LINK_LIBRARIES ${LINK_LIBRARIES} "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a")
     else()
         SET(LINK_LIBRARIES ${LINK_LIBRARIES} Secp256k1)
+    endif ()
 endif ()
 
 # consensus library
