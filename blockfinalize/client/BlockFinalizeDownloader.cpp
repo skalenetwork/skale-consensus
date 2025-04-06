@@ -356,11 +356,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 // BlockproposalServerAgent
                 // then we need to stop working
                 auto proposal = proposalDB->getBlockProposal( blockId, proposerIndex );
-                if ( proposal && daProofDB->haveDAProof( proposal )
-#ifdef BITE1
-                && node->getTEDecryptionDB()->isEnoughDecryptions(blockId)
-#endif
-                    ) {
+                if ( proposal && daProofDB->haveDAProof( proposal )) {
                     return;
                 }
             }
@@ -383,9 +379,6 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
                 SkaleException::logNested( e );
                 if ( _agent->fragmentList.isComplete()
-#ifdef BITE1
-                && _agent->getSchain()->getNode()->getTEDecryptionDB()->isEnoughDecryptions(blockId)
-#endif
                     )
                     return;
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
