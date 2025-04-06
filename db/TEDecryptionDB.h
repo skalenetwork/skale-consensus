@@ -37,5 +37,6 @@ public:
     ptr<AESKeyDecryptionShareList> deserializeDecryptionShareFromString(string decryptions);
 
     bool isEnoughDecryptions( block_id _blockID );
-    bool getDecryptionsCount( block_id _blockID );
+
+    uint64_t getDecryptionsCount( block_id _blockID );
 };

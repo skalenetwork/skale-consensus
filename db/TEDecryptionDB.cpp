@@ -203,7 +203,7 @@ bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
     return this->decryptionSets[_blockID].size() == requiredSigners;
 };
 
-bool TEDecryptionDB::getDecryptionsCount( block_id _blockID ) {
+uint64_t TEDecryptionDB::getDecryptionsCount( block_id _blockID ) {
     return this->decryptionSets[_blockID].size();
 };
 
