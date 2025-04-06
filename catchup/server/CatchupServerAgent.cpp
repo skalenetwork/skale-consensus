@@ -217,6 +217,8 @@ ptr< vector< uint8_t > > CatchupServerAgent::createResponseHeaderAndBinary(
 
             serializedBinary = createBlockFinalizeResponse( _jsonRequest,
                                                             dynamic_pointer_cast< BlockFinalizeResponseHeader >( _responseHeader ), blockID );
+
+            cerr << _responseHeader->serializeToString() << endl;
         }
 
 
@@ -334,11 +336,7 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
 
         // did not find the proposal or we do not have da proof from it
         // try committed block
-        if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal )
-#ifdef BITE
-            || !getNode()->getTEDecryptionDB()->isEnoughDecryptions(proposal->getBlockID())
-#endif
-            ) {
+        if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal )) {
             // Could not find proposal with DA proof. Try committed block
 
             auto committedBlock = getSchain()->getBlock( _blockID );
