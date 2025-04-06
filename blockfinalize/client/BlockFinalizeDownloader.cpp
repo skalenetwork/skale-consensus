@@ -105,7 +105,6 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
         CHECK_STATE( _dstIndex != ( uint64_t ) getSchain()->getSchainIndex() )
         if ( getSchain()->getDeathTimeMs( ( uint64_t ) _dstIndex ) + NODE_DEATH_INTERVAL_MS >
              Time::getCurrentTimeMs() ) {
-            usleep( 100000 );  // emulate timeout
             BOOST_THROW_EXCEPTION( ConnectionRefusedException(
                 "Dead node:" + to_string( _dstIndex ), 5, __CLASS_NAME__ ) );
         }
