@@ -158,6 +158,7 @@ void TEDecryptionDB::addMyDecryptionShares(
     const ::std::shared_ptr< AESKeyDecryptionShareList >& _decryptionShareList ) {
     CHECK_ARGUMENT( _decryptionShareList )
 
+    cerr << "Adding decryption shares for " << to_string(_decryptionShareList->getProposerIndex()) << endl;
 
     auto serializedList = BiteAESDecryptionShareSerializer::serialize( _decryptionShareList );
     CHECK_STATE( serializedList );
@@ -169,8 +170,8 @@ void TEDecryptionDB::addMyDecryptionShares(
 
     writeByteArray( key, serializedList );
 
-    getMyDecryptionShares(
-        _decryptionShareList->getBlockId(), _decryptionShareList->getProposerIndex() );
+    CHECK_STATE(getMyDecryptionShares(
+        _decryptionShareList->getBlockId(), _decryptionShareList->getProposerIndex() ));
 
 }
 
@@ -181,7 +182,8 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
     auto key = createKey( _blockId, _proposerIndex );
 
     std::string result = readString( key );
-    if ( !result.empty() ) {
+
+    if ( result.empty() ) {
         return nullptr;
     }
 
