@@ -1400,6 +1400,8 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
                 getNode()->getTEDecryptionDB()->getDecryptionsCount( proposal->getBlockID() );
 
             CHECK_STATE( count >= getRequiredSigners() )
+
+            auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys( proposal->getBlockID() );
 #endif
 
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
