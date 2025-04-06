@@ -357,7 +357,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 // then we need to stop working
                 auto proposal = proposalDB->getBlockProposal( blockId, proposerIndex );
                 if ( proposal && daProofDB->haveDAProof( proposal )
-#ifdef BITE
+#ifdef BITE1
                 && node->getTEDecryptionDB()->isEnoughDecryptions(blockId)
 #endif
                     ) {
@@ -383,7 +383,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
                 SkaleException::logNested( e );
                 if ( _agent->fragmentList.isComplete()
-#ifdef BITE
+#ifdef BITE1
                 && _agent->getSchain()->getNode()->getTEDecryptionDB()->isEnoughDecryptions(blockId)
 #endif
                     )

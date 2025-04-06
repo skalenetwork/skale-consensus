@@ -1317,24 +1317,24 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
 
 
-        if (_proposerIndex == getSchain()->getSchainIndex()) {
-            cerr << "FINALIZING OWN!!!!!!" << endl;
-            // we should have own decryption
-        }
 
         proposal = getNode()->getBlockProposalDB()->getBlockProposal( _blockId, _proposerIndex );
 
 #ifdef BITE
+        auto myDecryptionShares =
+            getNode()->getTEDecryptionDB()->getMyDecryptionShares( _blockId, _proposerIndex );
         if (proposal) {
             // if we have the proposal, we already have own decryptins for this set
             // add them
-            auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(_blockId,
-                _proposerIndex);
-            CHECK_STATE(myDecryptionShares);
+            CHECK_STATE( myDecryptionShares );
             // add my decryption shares to the counting set
-            getNode()->getTEDecryptionDB()->addDecryptionShares(myDecryptionShares);
-#endif
+            getNode()->getTEDecryptionDB()->addDecryptionShares( myDecryptionShares );
+        } else {
+            // we should not have decryption shares yet
+            CHECK_STATE(!myDecryptionShares);
         }
+#endif
+
 
 
         // Figure out if we need to download proposal
@@ -1343,7 +1343,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
         if ( proposal ) {
             auto daProofSig = getNode()->getDaProofDB()->getDASig( _blockId, _proposerIndex );
-#ifdef BITE
+#ifdef BITE1
             auto enoughDecryptions = getNode()->getTEDecryptionDB()->isEnoughDecryptions(_blockId);
             // a proposal without a  DA proof is not trusted and has to be
             downloadProposal = daProofSig.empty() || !enoughDecryptions;
