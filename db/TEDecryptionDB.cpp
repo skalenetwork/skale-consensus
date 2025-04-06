@@ -158,7 +158,6 @@ void TEDecryptionDB::addMyDecryptionShares(
     const ::std::shared_ptr< AESKeyDecryptionShareList >& _decryptionShareList ) {
     CHECK_ARGUMENT( _decryptionShareList )
 
-    LOG( trace, "Adding daProof" );
 
     auto serializedList = BiteAESDecryptionShareSerializer::serialize( _decryptionShareList );
     CHECK_STATE( serializedList );
@@ -172,6 +171,7 @@ void TEDecryptionDB::addMyDecryptionShares(
 
     getMyDecryptionShares(
         _decryptionShareList->getBlockId(), _decryptionShareList->getProposerIndex() );
+
 }
 
 ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(

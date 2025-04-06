@@ -429,7 +429,6 @@ ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
                 auto myDecryptionShares = block->getMyDecryptionShares();
                 CHECK_STATE( myDecryptionShares );
                 getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );
-                getNode()->getTEDecryptionDB()->addDecryptionShares(myDecryptionShares);
             };
 #endif
             return block;
