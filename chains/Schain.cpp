@@ -1399,13 +1399,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             auto count =
                 getNode()->getTEDecryptionDB()->getDecryptionsCount( proposal->getBlockID() );
 
-            CHECK_STATE( count > 0 )
-
-            cerr << "Have decryptions on end "
-                 << to_string( getNode()->getTEDecryptionDB()->getDecryptionsCount(
-                        proposal->getBlockID() ) )
-                 << endl;
-
+            CHECK_STATE( count >= getRequiredSigners() )
 #endif
 
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
