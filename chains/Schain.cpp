@@ -1369,23 +1369,25 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
         if ( proposal ) {
 #ifdef BITE
+            auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(
+                proposal->getBlockID(), proposal->getProposerIndex() );
+
             // if we did not yet decrypt this block, decrypt it
             if ( getNode()->getTEDecryptionDB()->getMyDecryptionShares(
                      proposal->getBlockID(), proposal->getProposerIndex() ) == nullptr ) {
                 sChain->getBiteManager()->verifyAndDecryptProposalTransactions( proposal );
-                auto myDecryptionShares = proposal->getMyDecryptionShares();
+                myDecryptionShares = proposal->getMyDecryptionShares();
                 CHECK_STATE( myDecryptionShares );
                 getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );
-            };
-
-            // the proposal did no come from the downloader
-            if (proposal->getProposerIndex() == getSchainIndex()) {
-                getNode()->getTEDecryptionDB()->addDecryptionShares(
-                    proposal->getMyDecryptionShares() );
             }
 
-            cerr << "Have decryptions on end " << to_string(getNode()->getTEDecryptionDB()->readCount(
-                                                     proposal->getBlockID())) << endl;
+            getNode()->getTEDecryptionDB()->addDecryptionShares( myDecryptionShares );
+
+
+            cerr << "Have decryptions on end "
+                 << to_string( getNode()->getTEDecryptionDB()->getDecryptionsCount(
+                        proposal->getBlockID() ) )
+                 << endl;
 #endif
 
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
