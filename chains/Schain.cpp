@@ -842,11 +842,11 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
                 inCreateBlock = true;
                 extFace->createBlock( *tv,
 #ifdef BITE
-                    make_shared<map<uint64_t, shared_ptr<vector<uint8_t>>>>(),
+                    make_shared< map< uint64_t, shared_ptr< vector< uint8_t > > > >(),
 #endif
-                          _block->getTimeStampS(), _block->getTimeStampMs(),
+                    _block->getTimeStampS(), _block->getTimeStampMs(),
                     ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
-                    ( uint64_t ) _block->getProposerIndex());
+                    ( uint64_t ) _block->getProposerIndex() );
                 inCreateBlock = false;
             } catch ( ... ) {
                 inCreateBlock = false;
@@ -1312,6 +1312,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
             return;
         }
 
+
         ptr< BlockProposal > proposal = nullptr;
         ptr< ThresholdSignature > daSig;
 
@@ -1324,14 +1325,9 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
         if ( proposal ) {
             auto daProofSig = getNode()->getDaProofDB()->getDASig( _blockId, _proposerIndex );
-#ifdef BITE1
-            auto enoughDecryptions = getNode()->getTEDecryptionDB()->isEnoughDecryptions(_blockId);
-            // a proposal without a  DA proof is not trusted and has to be
-            downloadProposal = daProofSig.empty() || !enoughDecryptions;
-#else
-            // a proposal without a  DA proof is not trusted and has to be
+
             downloadProposal = daProofSig.empty();
-#endif
+
             if ( !downloadProposal ) {
                 auto hash = proposal->getHash();
                 daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
@@ -1368,30 +1364,30 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
             if ( proposal )  // Nullptr means catchup happened first
                 getNode()->getBlockProposalDB()->addBlockProposal( proposal );
-
         }
-
-
-#ifdef BITE
-        auto myDecryptionShares =
-            getNode()->getTEDecryptionDB()->getMyDecryptionShares( _blockId, _proposerIndex );
-        auto teDB = getNode()->getTEDecryptionDB();
-        if (proposal) {
-            // if we have the proposal, we already have own decryptions for this set
-            // add them
-            CHECK_STATE( myDecryptionShares );
-            // add my decryption shares to the counting set
-            teDB->addDecryptionShares( myDecryptionShares );
-        } else {
-            // we should not have decryption shares yet
-            CHECK_STATE(!myDecryptionShares);
-        }
-
-        cerr << "Have decryptions on end:" <<  teDB->readCount(_blockId) << endl;
-#endif
 
 
         if ( proposal ) {
+#ifdef BITE
+            // if we did not yet decrypt this block, decrypt it
+            if ( getNode()->getTEDecryptionDB()->getMyDecryptionShares(
+                     proposal->getBlockID(), proposal->getProposerIndex() ) == nullptr ) {
+                sChain->getBiteManager()->verifyAndDecryptProposalTransactions( proposal );
+                auto myDecryptionShares = proposal->getMyDecryptionShares();
+                CHECK_STATE( myDecryptionShares );
+                getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );
+            };
+
+            // the proposal did no come from the downloader
+            if (proposal->getProposerIndex() == getSchainIndex()) {
+                getNode()->getTEDecryptionDB()->addDecryptionShares(
+                    proposal->getMyDecryptionShares() );
+            }
+
+            cerr << "Have decryptions on end " << to_string(getNode()->getTEDecryptionDB()->readCount(
+                                                     proposal->getBlockID())) << endl;
+#endif
+
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
         }
 
@@ -1594,7 +1590,7 @@ bool Schain::fastConsensusPatchEnabled( uint64_t
 #endif
 ) {
 #ifdef BITE
-    return true; //
+    return true;  //
 #else
     return fastConsensusPatchTimestamp != 0 && _blockTimeStampSec >= fastConsensusPatchTimestamp;
 #endif

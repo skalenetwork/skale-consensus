@@ -413,17 +413,6 @@ ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
                 }
             }
 
-#ifdef BITE
-            // since we did not have the proposal, we did not have
-            // the decryptions for it. Decrypt
-            if ( getNode()->getTEDecryptionDB()->getMyDecryptionShares(
-                         block->getBlockID(), block->getProposerIndex() ) == nullptr ) {
-                sChain->getBiteManager()->verifyAndDecryptProposalTransactions( block );
-                auto myDecryptionShares = block->getMyDecryptionShares();
-                CHECK_STATE( myDecryptionShares );
-                getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );
-            };
-#endif
             return block;
         } else {
             return nullptr;

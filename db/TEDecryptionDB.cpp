@@ -165,7 +165,8 @@ void TEDecryptionDB::addMyDecryptionShares(
 
 
     auto key = createKey(
-        ( _decryptionShareList->getBlockId() ), _decryptionShareList->getProposerIndex() );
+        ( _decryptionShareList->getBlockId() ), _decryptionShareList->getProposerIndex() ) +
+               ".my";
 
 
     writeByteArray( key, serializedList );
@@ -179,7 +180,7 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
     block_id _blockId, schain_index _proposerIndex ) {
     CHECK_STATE( _proposerIndex > 0 );
 
-    auto key = createKey( _blockId, _proposerIndex );
+    auto key = createKey( _blockId, _proposerIndex ) + ".my";
 
     std::string result = readString( key );
 
