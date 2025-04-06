@@ -1315,6 +1315,12 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
         ptr< BlockProposal > proposal = nullptr;
         ptr< ThresholdSignature > daSig;
 
+
+
+        if (_proposerIndex == getSchain()->getSchainIndex()) {
+            cerr << "FINALIZING OWN!!!!!!" << endl;
+        }
+
         proposal = getNode()->getBlockProposalDB()->getBlockProposal( _blockId, _proposerIndex );
 
 
@@ -1325,7 +1331,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
         if ( proposal ) {
             auto daProofSig = getNode()->getDaProofDB()->getDASig( _blockId, _proposerIndex );
 #ifdef BITE
-            auto enoughDecryptions = getNode()->getDaProofDB()->isEnoughProofs(_blockId);
+            auto enoughDecryptions = getNode()->getTEDecryptionDB()->isEnoughDecryptions(_blockId);
             // a proposal without a  DA proof is not trusted and has to be
             downloadProposal = daProofSig.empty() || !enoughDecryptions;
 #else
@@ -1576,7 +1582,7 @@ bool Schain::fastConsensusPatchEnabled( uint64_t
 #endif
 ) {
 #ifdef BITE
-    return false; // disable for now
+    return true; //
 #else
     return fastConsensusPatchTimestamp != 0 && _blockTimeStampSec >= fastConsensusPatchTimestamp;
 #endif
