@@ -380,8 +380,13 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                     return;
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             } catch ( exception& e ) {
+                LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
                 SkaleException::logNested( e );
-                if ( _agent->fragmentList.isComplete() )
+                if ( _agent->fragmentList.isComplete()
+#ifdef BITE
+                && _agent->getSchain()->getNode()->getTEDecryptionDB()->isEnoughDecryptions(blockId)
+#endif
+                    )
                     return;
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             }
