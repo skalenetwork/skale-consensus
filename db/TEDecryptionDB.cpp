@@ -62,10 +62,6 @@ const string& TEDecryptionDB::getFormatVersion() {
 }
 
 
-bool TEDecryptionDB::haveDecryptions( const ptr< BlockProposal >& _proposal ) {
-    CHECK_ARGUMENT( _proposal )
-    return keyExistsInSet( _proposal->getBlockID(), _proposal->getProposerIndex() );
-}
 
 
 ptr< AESKeyDecryptionShareList > TEDecryptionDB::deserializeDecryptionShareFromString(
@@ -77,14 +73,9 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::deserializeDecryptionShareFromS
         decryptionsVec, getSchain()->getCryptoManager(), false );
 }
 
-ptr< AESKeyDecryptionShareList > TEDecryptionDB::getDecryptions(
-    block_id _blockId, schain_index _decryptorIndex ) {
-    auto decryptions = readStringFromSet( _blockId, _decryptorIndex );
-    return deserializeDecryptionShareFromString( decryptions );
-}
 
 
-ptr< DecryptedAESKeyList > TEDecryptionDB::addDecryptionShares(
+void TEDecryptionDB::addDecryptionShares(
     const ::std::shared_ptr< AESKeyDecryptionShareList >& _decryptionShareList ) {
     CHECK_ARGUMENT( _decryptionShareList )
 
@@ -92,23 +83,34 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::addDecryptionShares(
     CHECK_STATE( serializedList );
 
 
-    auto decryptionShareListSet = writeByteArrayToSet(
-        reinterpret_cast< char* >( serializedList->data() ), serializedList->size(),
-        _decryptionShareList->getBlockId(), _decryptionShareList->getDecryptorIndex() );
+    /*    auto decryptionShareListSet = writeByteArrayToSet(
+            reinterpret_cast< char* >( serializedList->data() ), serializedList->size(),
+            _decryptionShareList->getBlockId(), _decryptionShareList->getDecryptorIndex() );
+    */
 
-    if ( !decryptionShareListSet ) {
-        return nullptr;
+
+    map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
+        decryptionSets[_decryptionShareList->getBlockId()];
+
+
+    if ( decryptionShareListSet.size() >= requiredSigners ) {
+        return;
     }
 
-    CHECK_STATE( decryptionShareListSet->size() == requiredSigners )
+    decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
+};
+
+ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
+
+    map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
+        decryptionSets[_blockId];
+
+    CHECK_STATE( decryptionShareListSet.size() == requiredSigners )
 
     map< schain_index, ptr< AESKeyDecryptionShareList > > decryptionShareLists;
 
-    for ( auto&& decryptionShareIterator : *decryptionShareListSet ) {
-        auto decryptionShare =
-            deserializeDecryptionShareFromString( decryptionShareIterator.second );
-        CHECK_STATE( decryptionShare );
-        decryptionShareLists[decryptionShareIterator.first] = decryptionShare;
+    for ( auto&& decryptionShareIterator : decryptionShareListSet ) {
+        decryptionShareLists[decryptionShareIterator.first] = decryptionShareIterator.second;
     }
 
 
@@ -122,7 +124,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::addDecryptionShares(
     for ( auto&& decryptionShareIterator : firstDecryptionShareList->getDecryptionShares() ) {
         decryptionShareSets[decryptionShareIterator.first] =
             sChain->getBiteManager()->createAESDecryptionShareSet(
-                _decryptionShareList->getBlockId(), decryptionShareIterator.first );
+                _blockId, decryptionShareIterator.first );
     }
 
 
@@ -158,22 +160,22 @@ void TEDecryptionDB::addMyDecryptionShares(
     const ::std::shared_ptr< AESKeyDecryptionShareList >& _decryptionShareList ) {
     CHECK_ARGUMENT( _decryptionShareList )
 
-    cerr << "Adding decryption shares for " << to_string(_decryptionShareList->getProposerIndex()) << endl;
+    cerr << "Adding decryption shares for " << to_string( _decryptionShareList->getProposerIndex() )
+         << endl;
 
     auto serializedList = BiteAESDecryptionShareSerializer::serialize( _decryptionShareList );
     CHECK_STATE( serializedList );
 
 
-    auto key = createKey(
-        ( _decryptionShareList->getBlockId() ), _decryptionShareList->getProposerIndex() ) +
+    auto key = createKey( ( _decryptionShareList->getBlockId() ),
+                   _decryptionShareList->getProposerIndex() ) +
                ".my";
 
 
     writeByteArray( key, serializedList );
 
-    CHECK_STATE(getMyDecryptionShares(
-        _decryptionShareList->getBlockId(), _decryptionShareList->getProposerIndex() ));
-
+    CHECK_STATE( getMyDecryptionShares(
+        _decryptionShareList->getBlockId(), _decryptionShareList->getProposerIndex() ) );
 }
 
 ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
@@ -198,8 +200,11 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
 
 
 bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
-    return isEnough( _blockID );
-}
+    return this->decryptionSets[_blockID].size() == requiredSigners;
+};
 
+bool TEDecryptionDB::getDecryptionsCount( block_id _blockID ) {
+    return this->decryptionSets[_blockID].size();
+};
 
 #endif

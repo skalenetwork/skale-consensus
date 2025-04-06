@@ -16,11 +16,16 @@ class AESKeyDecryptionShareList;
 class TEDecryptionDB : public CacheLevelDB {
     recursive_mutex teDecryptionMutex;
 
+    map<block_id, map<schain_index, ptr< AESKeyDecryptionShareList>>> decryptionSets;
+
 public:
     explicit TEDecryptionDB(
         Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-    ptr<DecryptedAESKeyList> addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
+     void addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
+
+     ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId);
+
 
     void addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 
@@ -28,11 +33,9 @@ public:
 
     const string& getFormatVersion();
 
-    bool haveDecryptions( const ptr< BlockProposal >& _proposal );
 
     ptr<AESKeyDecryptionShareList> deserializeDecryptionShareFromString(string decryptions);
 
     bool isEnoughDecryptions( block_id _blockID );
-
-    ptr<AESKeyDecryptionShareList> getDecryptions( block_id _blockId, schain_index _decryptorIndex );
+    bool getDecryptionsCount( block_id _blockID );
 };
