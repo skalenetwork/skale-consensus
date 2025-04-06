@@ -224,7 +224,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createResponseHeaderAndBinary(
     } catch ( ExitRequestedException& e ) {
         throw;
     } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+        throw_with_nested( InvalidStateException( __PRETTY_FUNCTION__ , __CLASS_NAME__ ) );
     }
 }
 
@@ -405,6 +405,6 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
     } catch ( ExitRequestedException& e ) {
         throw;
     } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+        throw_with_nested( InvalidStateException(__PRETTY_FUNCTION__, __CLASS_NAME__ ) );
     }
 }

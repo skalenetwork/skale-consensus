@@ -440,7 +440,7 @@ ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
         throw;
     } catch ( exception& e ) {
         SkaleException::logNested( e );
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+        throw_with_nested( InvalidStateException( __PRETTY_FUNCTION__ , __CLASS_NAME__ ) );
     }
 }
 
