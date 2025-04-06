@@ -1292,7 +1292,6 @@ ptr< BlockProposal > Schain::createDefaultEmptyBlockProposal( block_id _blockId 
 
 void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig ) {
-
 #ifdef BITE
     std::thread( [=]() {
         finalizeDecidedAndSignedBlockInThread( _blockId, _proposerIndex, _thresholdSig );
@@ -1303,7 +1302,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig ) {
 #endif
-        CHECK_ARGUMENT( _thresholdSig != nullptr );
+    CHECK_ARGUMENT( _thresholdSig != nullptr );
 
 
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
@@ -1350,7 +1349,11 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
 
         if ( downloadProposal ||
              // downloaded from others this switch is for testing only
-             getNode()->getTestConfig()->isFinalizationDownloadOnly() ) {
+             getNode()->getTestConfig()->isFinalizationDownloadOnly()
+#ifdef BITE
+             || !getNode()->getTEDecryptionDB()->isEnoughDecryptionsMinusOne( _blockId )
+#endif
+        ) {
             // did not receive proposal from the proposer, pull it in parallel from other hosts
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posess the proposal
@@ -1384,7 +1387,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
                 proposal->getBlockID(), proposal->getProposerIndex() );
 
             // if we did not yet decrypt this block, decrypt it
-            if (myDecryptionShares == nullptr ) {
+            if ( myDecryptionShares == nullptr ) {
                 sChain->getBiteManager()->verifyAndDecryptProposalTransactions( proposal );
                 myDecryptionShares = proposal->getMyDecryptionShares();
                 CHECK_STATE( myDecryptionShares );
@@ -1393,13 +1396,15 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
 
             getNode()->getTEDecryptionDB()->addDecryptionShares( myDecryptionShares );
 
-            auto count = getNode()->getTEDecryptionDB()->getDecryptionsCount(
-                proposal->getBlockID());
+            auto count =
+                getNode()->getTEDecryptionDB()->getDecryptionsCount( proposal->getBlockID() );
 
-            CHECK_STATE(count > 0)
+            CHECK_STATE( count > 0 )
 
-            cerr << "Have decryptions on end " << to_string( getNode()->getTEDecryptionDB()->getDecryptionsCount(
-                                proposal->getBlockID() ) ) << endl;
+            cerr << "Have decryptions on end "
+                 << to_string( getNode()->getTEDecryptionDB()->getDecryptionsCount(
+                        proposal->getBlockID() ) )
+                 << endl;
 
 #endif
 

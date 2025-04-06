@@ -317,10 +317,14 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     auto node = sChain->getNode();
     auto proposalDB = node->getBlockProposalDB();
     auto daProofDB = node->getDaProofDB();
-    auto blockId = _agent->getBlockId();
-    auto proposerIndex = _agent->getProposerIndex();
+
     auto sChainIndex = sChain->getSchainIndex();
+
+#ifndef BITE
+    auto proposerIndex = _agent->getProposerIndex();
+    auto blockId = _agent->getBlockId();
     bool testFinalizationDownloadOnly = node->getTestConfig()->isFinalizationDownloadOnly();
+#endif
 
     setThreadName( "BlckFinLoop", node->getConsensusEngine() );
 
@@ -343,6 +347,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
 
     try {
         while ( !node->isExitRequested() && !_agent->fragmentList.isComplete() ) {
+#ifndef BITE
             if ( !testFinalizationDownloadOnly ) {
                 // take into account that the block can
                 //  be in parallel committed through catchup
@@ -359,6 +364,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                     return;
                 }
             }
+#endif
 
             try {
                 nextFragment = _agent->downloadFragment( _dstIndex, nextFragment );

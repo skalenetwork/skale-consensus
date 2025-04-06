@@ -89,6 +89,8 @@ void TEDecryptionDB::addDecryptionShares(
     */
 
 
+    WRITE_LOCK(decryptionSetsMutex)
+
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
         decryptionSets[_decryptionShareList->getBlockId()];
 
@@ -97,6 +99,7 @@ void TEDecryptionDB::addDecryptionShares(
         return;
     }
 
+
     decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
 };
 
@@ -104,6 +107,8 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
 
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
         decryptionSets[_blockId];
+
+    READ_LOCK(decryptionSetsMutex)
 
     CHECK_STATE( decryptionShareListSet.size() == requiredSigners )
 
@@ -160,8 +165,6 @@ void TEDecryptionDB::addMyDecryptionShares(
     const ::std::shared_ptr< AESKeyDecryptionShareList >& _decryptionShareList ) {
     CHECK_ARGUMENT( _decryptionShareList )
 
-    cerr << "Adding decryption shares for " << to_string( _decryptionShareList->getProposerIndex() )
-         << endl;
 
     auto serializedList = BiteAESDecryptionShareSerializer::serialize( _decryptionShareList );
     CHECK_STATE( serializedList );
@@ -200,15 +203,18 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
 
 
 bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
+    READ_LOCK(decryptionSetsMutex)
     return this->decryptionSets[_blockID].size() == requiredSigners;
 };
 
 bool TEDecryptionDB::isEnoughDecryptionsMinusOne( block_id _blockID ) {
+    READ_LOCK(decryptionSetsMutex)
     return this->decryptionSets[_blockID].size() >= requiredSigners - 1;
 };
 
 
 uint64_t TEDecryptionDB::getDecryptionsCount( block_id _blockID ) {
+    READ_LOCK(decryptionSetsMutex)
     return this->decryptionSets[_blockID].size();
 };
 

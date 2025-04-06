@@ -218,7 +218,6 @@ ptr< vector< uint8_t > > CatchupServerAgent::createResponseHeaderAndBinary(
             serializedBinary = createBlockFinalizeResponse( _jsonRequest,
                                                             dynamic_pointer_cast< BlockFinalizeResponseHeader >( _responseHeader ), blockID );
 
-            cerr << _responseHeader->serializeToString() << endl;
         }
 
 
