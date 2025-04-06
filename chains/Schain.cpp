@@ -1316,26 +1316,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
         ptr< ThresholdSignature > daSig;
 
 
-
-
         proposal = getNode()->getBlockProposalDB()->getBlockProposal( _blockId, _proposerIndex );
-
-#ifdef BITE
-        auto myDecryptionShares =
-            getNode()->getTEDecryptionDB()->getMyDecryptionShares( _blockId, _proposerIndex );
-        if (proposal) {
-            // if we have the proposal, we already have own decryptins for this set
-            // add them
-            CHECK_STATE( myDecryptionShares );
-            // add my decryption shares to the counting set
-            getNode()->getTEDecryptionDB()->addDecryptionShares( myDecryptionShares );
-        } else {
-            // we should not have decryption shares yet
-            CHECK_STATE(!myDecryptionShares);
-        }
-#endif
-
-
 
         // Figure out if we need to download proposal
 
@@ -1390,9 +1371,27 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
         }
 
+
+#ifdef BITE
+        auto myDecryptionShares =
+            getNode()->getTEDecryptionDB()->getMyDecryptionShares( _blockId, _proposerIndex );
+        auto teDB = getNode()->getTEDecryptionDB();
+        if (proposal) {
+            // if we have the proposal, we already have own decryptions for this set
+            // add them
+            CHECK_STATE( myDecryptionShares );
+            // add my decryption shares to the counting set
+            teDB->addDecryptionShares( myDecryptionShares );
+        } else {
+            // we should not have decryption shares yet
+            CHECK_STATE(!myDecryptionShares);
+        }
+
+        cerr << "Have decryptions on end:" <<  teDB->readCount(_blockId) << endl;
+#endif
+
+
         if ( proposal ) {
-
-
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
         }
 
