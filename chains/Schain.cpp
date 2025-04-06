@@ -1292,7 +1292,18 @@ ptr< BlockProposal > Schain::createDefaultEmptyBlockProposal( block_id _blockId 
 
 void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig ) {
-    CHECK_ARGUMENT( _thresholdSig != nullptr );
+
+#ifdef BITE
+    std::thread( [=]() {
+        finalizeDecidedAndSignedBlockInThread( _blockId, _proposerIndex, _thresholdSig );
+    } ).detach();
+};
+
+
+void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
+    const ptr< ThresholdSignature >& _thresholdSig ) {
+#endif
+        CHECK_ARGUMENT( _thresholdSig != nullptr );
 
 
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
@@ -1373,8 +1384,7 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
                 proposal->getBlockID(), proposal->getProposerIndex() );
 
             // if we did not yet decrypt this block, decrypt it
-            if ( getNode()->getTEDecryptionDB()->getMyDecryptionShares(
-                     proposal->getBlockID(), proposal->getProposerIndex() ) == nullptr ) {
+            if (myDecryptionShares == nullptr ) {
                 sChain->getBiteManager()->verifyAndDecryptProposalTransactions( proposal );
                 myDecryptionShares = proposal->getMyDecryptionShares();
                 CHECK_STATE( myDecryptionShares );
@@ -1383,11 +1393,14 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
             getNode()->getTEDecryptionDB()->addDecryptionShares( myDecryptionShares );
 
+            auto count = getNode()->getTEDecryptionDB()->getDecryptionsCount(
+                proposal->getBlockID());
 
-            cerr << "Have decryptions on end "
-                 << to_string( getNode()->getTEDecryptionDB()->getDecryptionsCount(
-                        proposal->getBlockID() ) )
-                 << endl;
+            CHECK_STATE(count > 0)
+
+            cerr << "Have decryptions on end " << to_string( getNode()->getTEDecryptionDB()->getDecryptionsCount(
+                                proposal->getBlockID() ) ) << endl;
+
 #endif
 
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
