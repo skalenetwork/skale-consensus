@@ -97,6 +97,8 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
     schain_index _dstIndex, fragment_index _fragmentIndex ) {
     LOG( debug, "BLCK_FRG_DWNLD:" << to_string( _fragmentIndex ) << ":" << to_string( _dstIndex ) );
 
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
     try {
         auto header = make_shared< BlockFinalizeRequestHeader >(
             *sChain, blockId, proposerIndex, this->getNode()->getNodeID(), _fragmentIndex );
