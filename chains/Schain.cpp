@@ -1409,8 +1409,10 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
 
     } catch ( ExitRequestedException& e ) {
         throw;
+    } catch (exception &e) {
+        SkaleException::logNested(e);
     } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+        LOG(err, "Unknown exception in finalizeDecidedAndSignedBlock");
     }
 }
 
