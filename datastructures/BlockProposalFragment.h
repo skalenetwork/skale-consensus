@@ -53,6 +53,7 @@ class BlockProposalFragment {
     ptr< AESKeyDecryptionShareList > decryptionShares;
     ptr< vector< uint8_t > > _fbSerializedBlockFragment;
     void deserializeFromFlatBuffer();
+
 #endif
 
 public:
@@ -87,7 +88,13 @@ public:
 
     auto getFBSerializedData() { return fbBlockFragment->data(); }
 
-    const ptr< AESKeyDecryptionShareList >& getDecryptionShares() const;
+    void setDecryptionShares(
+        const ptr< AESKeyDecryptionShareList >& _decryptionShares ) {
+        decryptionShares = _decryptionShares;
+    }
+
+
+    const ptr< AESKeyDecryptionShareList >& getDecryptionShares() const { return decryptionShares; }
 #endif
 
     [[nodiscard]] block_id getBlockId() const;
@@ -101,8 +108,6 @@ public:
     [[nodiscard]] uint64_t getBlockSize() const;
 
     [[nodiscard]] string getBlockHash() const;
-
-
 };
 
 

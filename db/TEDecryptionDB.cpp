@@ -92,7 +92,7 @@ void TEDecryptionDB::addDecryptionShares(
     WRITE_LOCK(decryptionSetsMutex)
 
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
-        decryptionSets[_decryptionShareList->getBlockId()];
+        decryptionsStore[_decryptionShareList->getBlockId()];
 
 
     if ( decryptionShareListSet.size() >= requiredSigners ) {
@@ -105,23 +105,26 @@ void TEDecryptionDB::addDecryptionShares(
 
 ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
 
-    map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
-        decryptionSets[_blockId];
-
     READ_LOCK(decryptionSetsMutex)
 
-    CHECK_STATE( decryptionShareListSet.size() == requiredSigners )
+    map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareLists =
+        decryptionsStore[_blockId];
 
-    map< schain_index, ptr< AESKeyDecryptionShareList > > decryptionShareLists;
 
-    for ( auto&& decryptionShareIterator : decryptionShareListSet ) {
-        decryptionShareLists[decryptionShareIterator.first] = decryptionShareIterator.second;
-    }
+    CHECK_STATE( decryptionShareLists.size() >= requiredSigners )
 
 
     auto firstDecryptionShareList = decryptionShareLists.begin()->second;
     // TODO - count of decryption shares need to be in DA header
     CHECK_STATE( firstDecryptionShareList );
+    auto size = firstDecryptionShareList->getSize();
+
+
+    for (auto&& it : decryptionShareLists) {
+        auto list = it.second;
+        CHECK_STATE(list->getSize() == size);
+    }
+
 
     map< transaction_index, ptr< AESKeyDecryptionShareSet > > decryptionShareSets;
 
@@ -156,6 +159,8 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
     }
 
     aesKeys->markComplete();
+
+    cerr << "Merged!" << endl;
 
     return aesKeys;
 }
@@ -204,18 +209,18 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
 
 bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
     READ_LOCK(decryptionSetsMutex)
-    return this->decryptionSets[_blockID].size() == requiredSigners;
+    return this->decryptionsStore[_blockID].size() == requiredSigners;
 };
 
 bool TEDecryptionDB::isEnoughDecryptionsMinusOne( block_id _blockID ) {
     READ_LOCK(decryptionSetsMutex)
-    return this->decryptionSets[_blockID].size() >= requiredSigners - 1;
+    return this->decryptionsStore[_blockID].size() >= requiredSigners - 1;
 };
 
 
 uint64_t TEDecryptionDB::getDecryptionsCount( block_id _blockID ) {
     READ_LOCK(decryptionSetsMutex)
-    return this->decryptionSets[_blockID].size();
+    return this->decryptionsStore[_blockID].size();
 };
 
 #endif

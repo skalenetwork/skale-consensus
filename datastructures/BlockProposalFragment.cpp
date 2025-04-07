@@ -123,13 +123,27 @@ ptr< vector< uint8_t > > BlockProposalFragment::serialize() {
 
     // ✅ Create empty vector of raw pointers for Hash*
     auto emptyHashVec = builder.CreateVector< const skale_fb::Hash* >( {} );
-    auto emptyDecryptionShares =
-        builder.CreateVector< flatbuffers::Offset< skale_fb::DecryptionShare > >( {} );
+    std::vector< flatbuffers::Offset< skale_fb::DecryptionShare > > decryptionShareOffsets;
+
+
+    for ( const auto& decryptionShare : decryptionShares->getDecryptionShares() ) {
+        uint32_t transactionIndex = ( uint32_t ) decryptionShare.first;
+        const auto decryptionData =
+            decryptionShare.second->toString();  // Assumes std::string or std::vector<uint8_t>
+        auto dataOffset =
+            builder.CreateVector( reinterpret_cast< const uint8_t* >( decryptionData.data() ), decryptionData.size() );
+
+        auto shareOffset = skale_fb::CreateDecryptionShare( builder, transactionIndex, dataOffset );
+
+        decryptionShareOffsets.emplace_back( shareOffset );
+    }
+
     auto emptySig = builder.CreateVector( std::vector< uint8_t >{} );
+    auto decryptionShareVec = builder.CreateVector( decryptionShareOffsets );
 
 
     auto proposalOffset = skale_fb::CreateCommittedBlockFragment(
-        builder, emptyHashVec, emptyHashVec, emptyDecryptionShares, emptySig, fbData );
+        builder, emptyHashVec, emptyHashVec, decryptionShareVec, emptySig, fbData );
     builder.Finish( proposalOffset );
 
     const uint8_t* raw = builder.GetBufferPointer();
@@ -181,9 +195,7 @@ BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
       blockHash( _blockHash ),
       totalFragments( _totalFragments ),
       fragmentIndex( _fragmentIndex ) {
-    // Reuse builder (thread-local, fast path)
 }
-const ptr< AESKeyDecryptionShareList >& BlockProposalFragment::getDecryptionShares() const {
-    return decryptionShares;
-}
+
+
 #endif

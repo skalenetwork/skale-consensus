@@ -16,7 +16,7 @@ class AESKeyDecryptionShareList;
 class TEDecryptionDB : public CacheLevelDB {
     recursive_mutex teDecryptionMutex;
 
-    map<block_id, map<schain_index, ptr< AESKeyDecryptionShareList>>> decryptionSets;
+    map<block_id, map<schain_index, ptr< AESKeyDecryptionShareList>>> decryptionsStore;
     shared_mutex decryptionSetsMutex;
 
 public:
