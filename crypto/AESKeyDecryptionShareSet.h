@@ -22,7 +22,7 @@ public:
         return totalObjects;
     }
 
-    virtual ptr< DecryptedAESKey >  mergeAESKey() = 0;
+    virtual ptr< DecryptedAESKey >  verifyAndMergeAESKey() = 0;
 
     virtual bool isEnough() = 0;
 

@@ -46,7 +46,7 @@ ConsensusAESKeyDecryptionShareSet::ConsensusAESKeyDecryptionShareSet( block_id _
 ConsensusAESKeyDecryptionShareSet::~ConsensusAESKeyDecryptionShareSet() = default;
 
 
-ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::mergeAESKey() {
+ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKey() {
     LOCK( decryptionSharesLock )
 
     CHECK_STATE( isEnough() );

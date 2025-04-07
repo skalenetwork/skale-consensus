@@ -18,7 +18,7 @@ public:
     ConsensusAESKeyDecryptionShareSet( block_id _blockId, transaction_index _transactionIndex,
         size_t _totalDecryptors, size_t _requiredDecryptors );
 
-    ptr<DecryptedAESKey> mergeAESKey() override;
+    ptr<DecryptedAESKey> verifyAndMergeAESKey() override;
 
     virtual bool addDecryptionShare(
         const ptr< AESKeyDecryptionShare >& _decryptionShare ) override;
