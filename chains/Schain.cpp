@@ -1411,8 +1411,10 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
         throw;
     } catch (exception &e) {
         SkaleException::logNested(e);
+        LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
     } catch ( ... ) {
-        LOG(err, "Unknown exception in finalizeDecidedAndSignedBlock");
+        LOG(critical, "Unknown exception in finalizeDecidedAndSignedBlock");
+        LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
     }
 }
 
