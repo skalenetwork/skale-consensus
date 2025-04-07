@@ -110,6 +110,7 @@ class Schain : public Agent {
 
 #ifdef BITE
     epoch_id epochID = 0;
+    std::thread blockProcessingThread;
 #endif
 
     string schainName;
