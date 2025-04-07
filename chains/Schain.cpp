@@ -1407,8 +1407,8 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
         }
 
-    } catch ( ExitRequestedException& e ) {
-        throw;
+    } catch ( ExitRequestedException&) {
+        return;
     } catch (exception &e) {
         SkaleException::logNested(e);
         LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
