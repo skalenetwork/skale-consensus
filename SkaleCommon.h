@@ -394,7 +394,7 @@ extern std::string getThreadName();
 #define CHECK_ARGUMENT( _EXPRESSION_ )                                                         \
     if ( !( _EXPRESSION_ ) ) {                                                                 \
         auto __msg__ = string( "Argument Check failed:" ) + #_EXPRESSION_ + "\n" +             \
-                       __CLASS_NAME__ + ":" + __FUNCTION__ + +" " + string( __FILE__ ) + ":" + \
+                       __CLASS_NAME__ + ":" + __PRETTY_FUNCTION__ + +" " + string( __FILE__ ) + ":" + \
                        to_string( __LINE__ );                                                  \
         throw InvalidArgumentException( __msg__, __CLASS_NAME__ );                             \
     }
@@ -402,7 +402,7 @@ extern std::string getThreadName();
 #define CHECK_STATE( _EXPRESSION_ )                                             \
     if ( !( _EXPRESSION_ ) ) {                                                  \
         auto __msg__ = string( "State check failed::" ) + #_EXPRESSION_ + " " + \
-                       string( __FILE__ ) + ":" + to_string( __LINE__ );        \
+                       __CLASS_NAME__ + ":" + __PRETTY_FUNCTION__ + " " + string( __FILE__ ) + ":" + to_string( __LINE__ );        \
         throw InvalidStateException( __msg__, __CLASS_NAME__ );                 \
     }
 

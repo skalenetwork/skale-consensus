@@ -1,79 +1,91 @@
-#include "SkaleCommon.h"
-#include "Log.h"
+    #include "SkaleCommon.h"
+    #include "Log.h"
 
-#include "bls_include.h"
-#include "MockupAESKeyDecryptionShare.h"
-#include "DecryptedAESKey.h"
-#include "MockupAESKeyDecryptionShareSet.h"
+    #include "bls_include.h"
+    #include "MockupAESKeyDecryptionShare.h"
+    #include "DecryptedAESKey.h"
+    #include "MockupAESKeyDecryptionShareSet.h"
 
-#include <network/Utils.h>
+    #include <network/Utils.h>
 
-using namespace std;
+    using namespace std;
 
-MockupAESKeyDecryptionShareSet::MockupAESKeyDecryptionShareSet(
-    block_id _blockId, transaction_index _transactionIndex, size_t _totalDecryptors, size_t _requiredDecryptors )
-    : AESKeyDecryptionShareSet( _blockId, _transactionIndex, _totalDecryptors, _requiredDecryptors ) {
-    CHECK_ARGUMENT( _requiredDecryptors > 0 );
-    CHECK_ARGUMENT( _requiredDecryptors <= totalDecryptors );
+    MockupAESKeyDecryptionShareSet::MockupAESKeyDecryptionShareSet(
+        block_id _blockId, transaction_index _transactionIndex, size_t _totalDecryptors, size_t _requiredDecryptors )
+        : AESKeyDecryptionShareSet( _blockId, _transactionIndex, _totalDecryptors, _requiredDecryptors ) {
+        CHECK_ARGUMENT( _requiredDecryptors > 0 );
+        CHECK_ARGUMENT( _requiredDecryptors <= totalDecryptors );
 
-    totalObjects++;
-}
+        totalObjects++;
+    }
 
-MockupAESKeyDecryptionShareSet::~MockupAESKeyDecryptionShareSet() {
-    totalObjects--;
-}
+    MockupAESKeyDecryptionShareSet::~MockupAESKeyDecryptionShareSet() {
+        totalObjects--;
+    }
 
-ptr< DecryptedAESKey > MockupAESKeyDecryptionShareSet::mergeAESKey() {
-    string h( "" );
+    ptr< DecryptedAESKey > MockupAESKeyDecryptionShareSet::verifyAndMergeAESKey() {
+        string h( "" );
 
-    LOCK( decryptionSharesLock )
+        READ_LOCK( decryptionSharesLock )
 
-    for ( auto&& item : decryptionShares ) {
-        CHECK_STATE( item.second );
-        if ( h.empty() ) {
-            h = item.second->toString();
+        CHECK_STATE(decryptionShares.size() >= requiredDecryptors);
+
+
+        //check all shares are the same
+
+        std::string first;
+        for (auto&& item : decryptionShares) {
+            CHECK_STATE(item.second);
+            if (first.empty()) {
+                first = item.second->toString();
+            } else {
+                CHECK_STATE(item.second->toString() == first);  // Add this line
+            }
         }
-    }
-    CHECK_STATE( !h.empty() );
-    CHECK_STATE(h.size() == BITE_ENCRYPTED_AES_KEY_LEN * 2);
+        CHECK_STATE( !first.empty() );
+        CHECK_STATE(first.size() == BITE_ENCRYPTED_AES_KEY_LEN * 2);
 
-    std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> encryptedKey{};
-    std::array<uint8_t, BITE_AES_KEY_LEN> decryptedKey{};
+        std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> encryptedKey{};
+        std::array<uint8_t, BITE_AES_KEY_LEN> decryptedKey{};
 
-    Utils::cArrayFromHex(h, encryptedKey.data(), BITE_ENCRYPTED_AES_KEY_LEN);
+        Utils::cArrayFromHex(first, encryptedKey.data(), BITE_ENCRYPTED_AES_KEY_LEN);
 
-//    CHECK_STATE(encryptedKey.at(0) == 1);
+        CHECK_STATE(encryptedKey.at(0) == 0);
 
-    std::copy_n(encryptedKey.begin() + 1, BITE_AES_KEY_LEN, decryptedKey.begin());
+        std::copy_n(encryptedKey.begin(), BITE_AES_KEY_LEN, decryptedKey.begin());
 
-    return make_shared< DecryptedAESKey >(decryptedKey);
-}
-
-bool MockupAESKeyDecryptionShareSet::isEnough() {
-    LOCK( decryptionSharesLock )
-    return ( decryptionShares.size() >= requiredDecryptors );
-}
-
-
-bool MockupAESKeyDecryptionShareSet::addDecryptionShare(
-    const ptr< AESKeyDecryptionShare >& _decryptionShare ) {
-    CHECK_ARGUMENT( _decryptionShare );
-
-    LOCK( decryptionSharesLock )
-
-    if ( isEnough() )
-        return false;
-
-    if ( decryptionShares.count( ( uint64_t ) _decryptionShare->getDecryptorIndex() ) > 0 ) {
-        return false;
+        return make_shared< DecryptedAESKey >(decryptedKey);
     }
 
-    auto ds = dynamic_pointer_cast< MockupAESKeyDecryptionShare >( _decryptionShare );
+    bool MockupAESKeyDecryptionShareSet::isEnough() {
+        READ_LOCK( decryptionSharesLock )
+        return ( decryptionShares.size() >= requiredDecryptors );
+    }
 
-    CHECK_STATE( ds );
+    bool MockupAESKeyDecryptionShareSet::isEnoughUnsafe() {
+        return ( decryptionShares.size() >= requiredDecryptors );
+    }
 
-    decryptionShares[( uint64_t ) _decryptionShare->getDecryptorIndex()] = ds;
 
-    return true;
-}
+    bool MockupAESKeyDecryptionShareSet::addDecryptionShare(
+        const ptr< AESKeyDecryptionShare >& _decryptionShare ) {
+        CHECK_ARGUMENT( _decryptionShare );
+
+        WRITE_LOCK( decryptionSharesLock )
+
+        if ( isEnoughUnsafe() )
+            return false;
+
+        if ( decryptionShares.count( ( uint64_t ) _decryptionShare->getDecryptorIndex() ) > 0 ) {
+            return false;
+        }
+
+        auto ds = dynamic_pointer_cast< MockupAESKeyDecryptionShare >( _decryptionShare );
+
+        CHECK_STATE( ds );
+
+        decryptionShares[( uint64_t ) _decryptionShare->getDecryptorIndex()] = ds;
+
+        return true;
+    }
 
