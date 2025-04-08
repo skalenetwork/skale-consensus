@@ -41,7 +41,7 @@ enum MsgType {
     MSG_BLOCK_PROPOSAL = 13,
     MSG_BLOCK_COMMIT = 14,
     MSG_DA_PROOF = 15,
-#ifndef PL
+#ifndef BITE
     MSG_ORACLE_REQ_BROADCAST = 16,
     MSG_ORACLE_RSP = 17
 #endif

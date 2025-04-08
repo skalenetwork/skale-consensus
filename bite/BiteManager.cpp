@@ -9,12 +9,13 @@
 
 #include "BiteDataFiled.h"
 #include "datastructures/BlockProposal.h"
-#include "datastructures/CommittedBlock.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
 #include "rlp/ParsedEthTransaction.h"
 
 #include "BiteManager.h"
+
+#include <crypto/DecryptedAESKeyList.h>
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
@@ -51,7 +52,7 @@ ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
 
     ptr<AESKeyDecryptionShareList> decryptionShareList = nullptr;
     try {
-        auto result =  decryptBiteDataFields(_proposal->getBlockID(), _proposal->getProposerIndex(), biteDataFields);
+        auto result = decryptBiteDataFields(_proposal->getBlockID(), _proposal->getProposerIndex(), biteDataFields);
         auto status = result.second;
         if (status != ConnectionSubStatus::CONNECTION_OK) {
             return status;
@@ -65,7 +66,7 @@ ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
     }
 
     // now check if some enncryptions failed
-    for (auto iterator : decryptionShareList->getDecryptionShares()) {
+    for (auto iterator: decryptionShareList->getDecryptionShares()) {
         CHECK_STATE(iterator.second)
         if (iterator.second->isDecryptionFailed()) {
             LOG(err, "Decryption failed for transaction:" + to_string(iterator.first));
@@ -84,8 +85,10 @@ ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
 
 
 std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> BiteManager::decryptBiteDataFields(
-    block_id _blockId, schain_index _proposerIndex, const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields) {
-    auto decryptionShareList = make_shared<AESKeyDecryptionShareList>(_blockId, _proposerIndex, schain.getSchainIndex());;
+    block_id _blockId, schain_index _proposerIndex,
+    const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields) {
+    auto decryptionShareList = make_shared<
+        AESKeyDecryptionShareList>(_blockId, _proposerIndex, schain.getSchainIndex());;
 
     if (_biteDataFields.empty()) {
         return {decryptionShareList, ConnectionSubStatus::CONNECTION_OK};
@@ -110,7 +113,7 @@ std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> BiteManager::decr
     auto arrayIndex = 0;
     for (auto &&iterator: _biteDataFields) {
         auto AESKeyDecryptionShare = (*decryptiondSharesVector)[arrayIndex];
-        decryptionShareList->addShare(iterator.first, decryptiondSharesVector->at(arrayIndex) );
+        decryptionShareList->addShare(iterator.first, decryptiondSharesVector->at(arrayIndex));
         arrayIndex++;
     }
 
@@ -120,17 +123,17 @@ std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> BiteManager::decr
 }
 
 
-ptr<vector<ptr<AESKeyDecryptionShare>>> BiteManager::decryptAESKeys(vector<ptr<BiteDataField> >& _dataFields) {
+ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeys(vector<ptr<BiteDataField> > &_dataFields) {
     CHECK_STATE(!_dataFields.empty())
 
     auto result = make_shared<vector<ptr<AESKeyDecryptionShare> > >();
     result->reserve(_dataFields.size());
 
-    for (auto&& field : _dataFields) {
+    for (auto &&field: _dataFields) {
         auto encryptedAESKey = field->getEncryptedAESKey();
         CHECK_STATE(encryptedAESKey);
         auto keyDecryptionShare = MockupAESKeyDecryptionShare::mockupDecrypt(encryptedAESKey,
-            schain.getSchainIndex());
+                                                                             schain.getSchainIndex());
         CHECK_STATE(keyDecryptionShare)
         result->push_back(keyDecryptionShare);
     }
@@ -138,32 +141,44 @@ ptr<vector<ptr<AESKeyDecryptionShare>>> BiteManager::decryptAESKeys(vector<ptr<B
     CHECK_STATE(result->size() == _dataFields.size());
 
     return result;
-
 }
 
-void BiteManager::verifyAndDecryptBlockTransactions(
-    const ptr<CommittedBlock> &_block) {
-    auto transactions = _block->getTransactionList()->getItems();
 
-    CHECK_STATE(transactions);
+ptr<DecryptedTransactions> BiteManager::verifyAndDecryptTransactionList(ptr<TransactionList> _transactionList,
+                                                           ptr<DecryptedAESKeyList> _aesKeys) {
+    CHECK_STATE(_transactionList);
+
+    auto decryptedTransactions = make_shared<DecryptedTransactions>();
+
+    auto txs = _transactionList->getItems();
+    CHECK_STATE(txs);
 
     try {
-        for (auto &tx: *transactions) {
-            tx->parseAndValidate();
+        for (uint64_t i = 0; i < _transactionList->size(); i++) {
+            auto tx = txs->at(i);
+            auto bite = tx->parseAndValidateBiteDataField();
+            if (bite) {
+                CHECK_STATE(_aesKeys->getKey(i));
+                decryptedTransactions->emplace(i, tx->getData());
+            } else {
+                CHECK_STATE(!_aesKeys->getKey(i));
+            }
+            // TODO implement actual decryption later
         }
     } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse transaction");
+
+    return decryptedTransactions;
 }
 
 
-
-
-ptr <AESKeyDecryptionShare> BiteManager::createAESDecryptionShare(const string _aesKeyDecryptionShare,
-        schain_index _decryptorIndex, bool _decryptionFailed) {
+ptr<AESKeyDecryptionShare> BiteManager::createAESDecryptionShare(const string _aesKeyDecryptionShare,
+                                                                 schain_index _decryptorIndex, bool _decryptionFailed) {
     return make_shared<MockupAESKeyDecryptionShare>(_aesKeyDecryptionShare, _decryptorIndex, _decryptionFailed);
 }
 
 
-ptr <AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex ) {
-    return make_shared<MockupAESKeyDecryptionShareSet>(_blockId, _transactionIndex, schain.getTotalSigners(), schain.getRequiredSigners());
+ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(block_id _blockId,
+                                                                       transaction_index _transactionIndex) {
+    return make_shared<MockupAESKeyDecryptionShareSet>(_blockId, _transactionIndex, schain.getTotalSigners(),
+                                                       schain.getRequiredSigners());
 }
-

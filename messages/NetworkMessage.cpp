@@ -43,7 +43,7 @@
 #include "network/Buffer.h"
 #include "network/Network.h"
 #include "node/NodeInfo.h"
-#ifndef PL
+#ifndef BITE
 #include "oracle/OracleRequestBroadcastMessage.h"
 #include "oracle/OracleResponseMessage.h"
 #endif
@@ -358,7 +358,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 block_id( blockID ), schain_index( blockProposerIndex ), timeMs,
                 schain_id( sChainID ), msg_id( msgID ), sigShare, srcSchainIndex, ecdsaSig,
                 publicKey, pkSig, _sChain );
-#ifndef PL
+#ifndef BITE
         } else if ( type == BasicHeader::ORACLE_REQUEST_BROADCAST ) {
             string spec = getStringRapid( d, "spec" );
             CHECK_STATE( !spec.empty() )
@@ -405,7 +405,7 @@ const char* NetworkMessage::getTypeString( MsgType _type ) {
     case MSG_BLOCK_SIGN_BROADCAST: {
         return BLOCK_SIG_BROADCAST;
     }
-#ifndef PL
+#ifndef BITE
     case MSG_ORACLE_REQ_BROADCAST: {
         return ORACLE_REQUEST_BROADCAST;
     }

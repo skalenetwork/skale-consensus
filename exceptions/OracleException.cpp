@@ -22,7 +22,7 @@
 */
 
 
-#ifndef PL
+#ifndef BITE
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "OracleException.h"

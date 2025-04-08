@@ -108,7 +108,7 @@ public:
 
     virtual consensus_engine_status getStatus() const = 0;
 
-#ifndef PL
+#ifndef BITE
 // PL does implement Oracle
 #define ORACLE_SUCCESS 0
 #define ORACLE_UNKNOWN_RECEIPT 1

@@ -47,11 +47,11 @@ class CommittedBlock : public BlockProposal {
     string daSig;
 #ifdef BITE
     ptr<DecryptedAESKeyList> decryptedAesKeyList = nullptr;
+    ptr< map<uint64_t, shared_ptr<vector<uint8_t>>>> decryptedTransactions = nullptr;
 #endif
 
 
     ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;
-
 public:
     void setCachedSerializedBlock( const ptr< vector< uint8_t > >& cachedSerializedBlock );
 

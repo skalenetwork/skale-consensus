@@ -48,7 +48,7 @@ public:
 #endif
 
 
-#ifndef PL
+#ifndef BITE
 
     void sendTestRequestGet();
 

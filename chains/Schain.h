@@ -25,6 +25,7 @@
 
 #pragma once
 
+
 #include "Agent.h"
 #include "boost/lockfree/queue.hpp"
 #include "jsonrpccpp/server/connectors/httpserver.h"
@@ -145,7 +146,7 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
-#ifndef PL
+#ifndef BITE
     ptr< OracleResultAssemblyAgent > oracleResultAssemblyAgent;
 #endif
 
@@ -262,7 +263,7 @@ public:
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
 
-#ifndef PL
+#ifndef BITE
     ptr< OracleServerAgent > oracleServer;
     ptr< OracleClient > oracleClient;
 #endif
@@ -303,7 +304,7 @@ public:
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef BITE
-        , ptr< DecryptedAESKeyList > _aesKeyList
+        , ptr< DecryptedAESKeyList > _aesKeyList, ptr< map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactions
 #endif
         );
 
@@ -340,7 +341,7 @@ public:
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
-#ifndef PL
+#ifndef BITE
     ptr< OracleServerAgent > getOracleInstance();
 #endif
 

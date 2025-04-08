@@ -298,7 +298,7 @@ public:
 
     static int getOpenDescriptors();
 
-#ifndef PL
+#ifndef BITE
     uint64_t submitOracleRequest(
         const string& _spec, string& _receipt, string& _errorMessage ) override;
 

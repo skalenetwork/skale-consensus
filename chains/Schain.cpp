@@ -90,7 +90,7 @@
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
-#ifndef PL
+#ifndef BITE
 #include "oracle/OracleClient.h"
 #include "oracle/OracleMessageThreadPool.h"
 #include "oracle/OracleResultAssemblyAgent.h"
@@ -318,7 +318,7 @@ void Schain::constructChildAgents() {
 
     try {
         optimizerAgent = make_shared< OptimizerAgent >( *this );
-#ifndef PL
+#ifndef BITE
         oracleResultAssemblyAgent = make_shared< OracleResultAssemblyAgent >( *this );
 #endif
         pricingAgent = make_shared< PricingAgent >( *this );
@@ -338,7 +338,7 @@ void Schain::constructChildAgents() {
         blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
 
         testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
-#ifndef PL
+#ifndef BITE
         oracleClient = make_shared< OracleClient >( *this );
 #endif
     } catch ( ... ) {
@@ -477,7 +477,7 @@ bool Schain::verifyBlsSyncPatch( uint64_t
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactrions
 #endif
     ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
@@ -487,6 +487,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList || _proposerIndex)
+    CHECK_ARGUMENT(_decryptedTransactrions || _proposerIndex)
 #endif
 
     // wait until the schain state is fully initialized and startup
@@ -1328,7 +1329,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             // default empty block
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, nullptr
 #ifdef BITE
-            , nullptr
+            , nullptr, nullptr
 #endif
                 );
             return;
@@ -1414,11 +1415,19 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             CHECK_STATE( count >= getRequiredSigners() )
 
             auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys( proposal->getBlockID() );
+
+            CHECK_STATE(keys);
+
+            auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(proposal->getTransactionList(), keys);
+
+            CHECK_STATE(decryptedTransactions);
+
 #endif
+
 
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig
 #ifdef BITE
-            , keys
+            , keys, decryptedTransactions
 #endif
             );
         }
@@ -1553,7 +1562,7 @@ u256 Schain::getRandomForBlockId( block_id _blockId ) {
 
 ptr< ofstream > Schain::visualizationDataStream = nullptr;
 
-#ifndef PL
+#ifndef BITE
 const ptr< OracleResultAssemblyAgent >& Schain::getOracleResultAssemblyAgent() const {
     return oracleResultAssemblyAgent;
 }

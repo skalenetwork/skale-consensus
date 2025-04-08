@@ -86,12 +86,6 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
                 }
             }
 
-#ifdef BITE
-            _cryptoManager->getSchain()->getBiteManager()->verifyAndDecryptBlockTransactions( block );
-#endif
-
-
-
             blocks->push_back( block );
 
             index = endIndex;

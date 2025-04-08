@@ -34,7 +34,7 @@ ptr< ProtocolKey > Message::createProtocolKey() {
     CHECK_STATE( msgType == PARENT_COMPLETED || msgType == MSG_BVB_BROADCAST ||
                  msgType == MSG_AUX_BROADCAST || msgType == BIN_CONSENSUS_COMMIT ||
                  msgType == MSG_BLOCK_SIGN_BROADCAST
-#ifndef PL
+#ifndef BITE
                  || msgType == MSG_ORACLE_REQ_BROADCAST
                  || msgType == MSG_ORACLE_RSP
 #endif

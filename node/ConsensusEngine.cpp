@@ -1134,7 +1134,7 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     return { tv, timeStampS, timeStampMs, currentPrice, stateRoot };
 }
 
-#ifndef PL
+#ifndef BITE
 uint64_t ConsensusEngine::submitOracleRequest(
     const string& _spec, string& _receipt, string& _errorMessage ) {
     if ( nodes.size() == 0 ) {

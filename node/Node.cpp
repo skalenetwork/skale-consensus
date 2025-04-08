@@ -500,7 +500,7 @@ void Node::initSchain( const ptr< Node >& _node, schain_index _schainIndex, scha
 
 
         chain->createBlockConsensusInstance();
-#ifndef PL
+#ifndef BITE
         chain->createOracleInstance();
 #endif
 
