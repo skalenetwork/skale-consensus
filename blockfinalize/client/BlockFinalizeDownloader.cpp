@@ -43,7 +43,6 @@
 #include "db/DAProofDB.h"
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
-#include "crypto/AESKeyDecryptionShareList.h"
 #endif
 #include "headers/BlockFinalizeRequestHeader.h"
 #include "headers/BlockProposalRequestHeader.h"

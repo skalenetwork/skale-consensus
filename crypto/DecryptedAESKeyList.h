@@ -27,6 +27,10 @@ public:
         isComplete = true;
     }
 
+    uint64_t getSize() const {
+        return decryptedAESKeys.size();
+    }
+
 
 private:
     boost::container::flat_map<transaction_index, DecryptedAESKey> decryptedAESKeys;

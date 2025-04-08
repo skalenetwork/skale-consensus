@@ -477,7 +477,7 @@ bool Schain::verifyBlsSyncPatch( uint64_t
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactrions
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactions
 #endif
     ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
@@ -487,7 +487,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList || _proposerIndex)
-    CHECK_ARGUMENT(_decryptedTransactrions || _proposerIndex)
+    CHECK_ARGUMENT(_decryptedTransactions || _proposerIndex)
 #endif
 
     // wait until the schain state is fully initialized and startup
@@ -536,7 +536,11 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         CHECK_STATE( committedProposal );
 
         auto newCommittedBlock =
-            CommittedBlock::makeFromProposal( committedProposal, _thresholdSig, _daSig );
+            CommittedBlock::makeFromProposal( committedProposal, _thresholdSig, _daSig
+#ifdef BITE
+            , _aesKeyList, _decryptedTransactions
+#endif
+            );
 
         CHECK_STATE( getLastCommittedBlockTimeStamp() < newCommittedBlock->getTimeStamp() );
 

@@ -28,7 +28,10 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
-#include "BlockProposalFragmentList.h"
+#ifdef BITE
+using DecryptedTransactions = map<uint64_t, shared_ptr<vector<uint8_t>>>;
+#endif
+
 
 #include "BlockProposal.h"
 
@@ -74,7 +77,11 @@ protected:
         const block_id& _blockId, const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& _stateRoot, uint64_t _timeStamp,
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
-        const string& _daSig );
+        const string& _daSig
+#ifdef  BITE
+, ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactions
+#endif
+        );
 
 public:
 
@@ -86,12 +93,20 @@ public:
 
 
     static ptr< CommittedBlock > makeFromProposal( const ptr< BlockProposal >& _proposal,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig );
+        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+#ifdef  BITE
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactions
+#endif
+        );
 
     static ptr< CommittedBlock > make( schain_id _sChainId, node_id _proposerNodeId,
         block_id _blockId, schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
-        const string& _signature, const string& _thresholdSig, const string& _daSig );
+        const string& _signature, const string& _thresholdSig, const string& _daSig
+#ifdef  BITE
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactrions
+#endif
+        );
 
 
     static ptr< CommittedBlock > deserialize( const ptr< vector< uint8_t > >& _serializedBlock,

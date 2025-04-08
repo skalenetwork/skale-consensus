@@ -42,7 +42,6 @@
 #include "headers/CatchupResponseHeader.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"
-#include "network/Network.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "sys/random.h"
 #include "utils/Time.h"

@@ -38,9 +38,7 @@
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSigShare.h"
 #include "datastructures/BlockProposal.h"
-#include "datastructures/CommittedBlock.h"
 #include "datastructures/DAProof.h"
-#include "datastructures/MyBlockProposal.h"
 #include "exceptions/NetworkProtocolException.h"
 #include "headers/BlockProposalRequestHeader.h"
 #include "headers/FinalProposalResponseHeader.h"
@@ -49,8 +47,6 @@
 #include "headers/SubmitDAProofRequestHeader.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"
-#include "network/Network.h"
-#include "network/ServerConnection.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -60,7 +56,7 @@
 #include "BlockProposalPusherThreadPool.h"
 #include "abstracttcpclient/AbstractClientAgent.h"
 #include "exceptions/ExitRequestedException.h"
-#include "exceptions/PingException.h"
+
 
 BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
     : AbstractClientAgent( _sChain, PROPOSAL ) {
