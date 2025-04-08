@@ -147,7 +147,9 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
+if (NOT DEFINED BITE)
 AUX_SOURCE_DIRECTORY(oracle oracle_src)
+endif ()
 AUX_SOURCE_DIRECTORY(rlp rlp_src)
 
 

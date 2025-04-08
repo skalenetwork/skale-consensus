@@ -33,7 +33,7 @@
 #include "db/BlockProposalDB.h"
 #include "exceptions/FatalError.h"
 #include "messages/NetworkMessage.h"
-#ifndef PL
+#ifndef BITE
 #include "oracle/OracleRequestBroadcastMessage.h"
 #include "oracle/OracleResponseMessage.h"
 #endif
@@ -42,7 +42,7 @@
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "thirdparty/json.hpp"
 #include "thirdparty/lrucache.hpp"
-#ifndef PL
+#ifndef BITE
 #include "oracle/OracleResultAssemblyAgent.h"
 #endif
 #include <db/MsgDB.h>
@@ -196,7 +196,7 @@ void Network::broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isF
     }
 }
 
-#ifndef PL
+#ifndef BITE
 void Network::broadcastOracleRequestMessage( const ptr< OracleRequestBroadcastMessage >& _msg ) {
     // Oracle messages are simply broadcast without resends
     CHECK_ARGUMENT( _msg );
@@ -272,7 +272,7 @@ void Network::networkReadLoop() {
                 // already seen this message, dropping
                 continue;
             }
-#ifndef PL
+#ifndef BITE
             if ( msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST ||
                  msg->getMsgType() == MSG_ORACLE_RSP ) {
                 sChain->getOracleResultAssemblyAgent()->postMessage( m );
@@ -330,7 +330,7 @@ void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
     auto msg = dynamic_pointer_cast< NetworkMessage >( _me->getMessage() );
 
     CHECK_STATE( msg );
-#ifndef PL
+#ifndef BITE
     if ( msg->getMsgType() == MSG_ORACLE_REQ_BROADCAST || msg->getMsgType() == MSG_ORACLE_RSP ) {
         sChain->getOracleResultAssemblyAgent()->postMessage( _me );
         return;
