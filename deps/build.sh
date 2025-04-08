@@ -1221,7 +1221,7 @@ then
 			if [ ! -f "libevent-from-git.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				git clone git@github.com:libevent/libevent.git
+				git clone https://github.com/libevent/libevent.git
 				git -C libevent  checkout 112421c8fa4840acd73502f2ab6a674fc025de37
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
 				tar -czf libevent-from-git.tar.gz ./libevent
@@ -2984,8 +2984,7 @@ then
                         cd build2
                         eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
                                 -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF \
-                                -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
-                                -DBoost_NO_BOOST_CMAKE=ON -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
+                                -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
                                 -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
                                 -DCMAKE_PREFIX_PATH=${INSTALL_ROOT} \
                                 ..
