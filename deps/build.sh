@@ -281,7 +281,6 @@ setup_variable WITH_SDL_TTF "no"
 
 # notice: WITH_EV and WITH_EVENT should not be used at a same time
 setup_variable WITH_EV "no"
-setup_variable WITH_EVENT "no"
 setup_variable WITH_UV "no"
 setup_variable WITH_LWS "no"
 
