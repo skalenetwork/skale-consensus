@@ -81,18 +81,6 @@ then
 	export SO_EXT=dylib
 fi
 
-# detect working directories, change if needed
-WORKING_DIR_OLD=$(pwd)
-WORKING_DIR_NEW="$(dirname "$0")"
-WORKING_DIR_OLD=$("$READLINK" -f "$WORKING_DIR_OLD")
-WORKING_DIR_NEW=$("$READLINK" -f "$WORKING_DIR_NEW")
-cd "$WORKING_DIR_NEW"
-
-cd "$WORKING_DIR_NEW/../libBLS/deps"
-./build.sh
-echo "BLS deps visible build result" $?
-cd ../../deps
-
 #
 # MUST HAVE: make, git, svn, nasm, yasm, wget, cmake, ccmake, libtool, libtool_bin, autogen, automake, autopoint, gperf, awk (mawk or gawk), sed, shtool, texinfo, pkg-config
 #
@@ -114,6 +102,18 @@ done
 #
 #
 #
+
+# detect working directories, change if needed
+WORKING_DIR_OLD=$(pwd)
+WORKING_DIR_NEW="$(dirname "$0")"
+WORKING_DIR_OLD=$("$READLINK" -f "$WORKING_DIR_OLD")
+WORKING_DIR_NEW=$("$READLINK" -f "$WORKING_DIR_NEW")
+cd "$WORKING_DIR_NEW"
+
+cd "$WORKING_DIR_NEW/../libBLS/deps"
+./build.sh DEBUG=$DEBUG
+echo "BLS deps visible build result" $?
+cd ../../deps
 
 simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_optional("yes" or "no")
 	echo -e "checking for tool program: $1"
