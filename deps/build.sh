@@ -81,18 +81,6 @@ then
 	export SO_EXT=dylib
 fi
 
-# detect working directories, change if needed
-WORKING_DIR_OLD=$(pwd)
-WORKING_DIR_NEW="$(dirname "$0")"
-WORKING_DIR_OLD=$("$READLINK" -f "$WORKING_DIR_OLD")
-WORKING_DIR_NEW=$("$READLINK" -f "$WORKING_DIR_NEW")
-cd "$WORKING_DIR_NEW"
-
-cd "$WORKING_DIR_NEW/../libBLS/deps"
-./build.sh
-echo "BLS deps visible build result" $?
-cd ../../deps
-
 #
 # MUST HAVE: make, git, svn, nasm, yasm, wget, cmake, ccmake, libtool, libtool_bin, autogen, automake, autopoint, gperf, awk (mawk or gawk), sed, shtool, texinfo, pkg-config
 #
@@ -114,6 +102,18 @@ done
 #
 #
 #
+
+# detect working directories, change if needed
+WORKING_DIR_OLD=$(pwd)
+WORKING_DIR_NEW="$(dirname "$0")"
+WORKING_DIR_OLD=$("$READLINK" -f "$WORKING_DIR_OLD")
+WORKING_DIR_NEW=$("$READLINK" -f "$WORKING_DIR_NEW")
+cd "$WORKING_DIR_NEW"
+
+cd "$WORKING_DIR_NEW/../libBLS/deps"
+./build.sh DEBUG=$DEBUG
+echo "BLS deps visible build result" $?
+cd ../../deps
 
 simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_optional("yes" or "no")
 	echo -e "checking for tool program: $1"
@@ -281,7 +281,6 @@ setup_variable WITH_SDL_TTF "no"
 
 # notice: WITH_EV and WITH_EVENT should not be used at a same time
 setup_variable WITH_EV "no"
-setup_variable WITH_EVENT "no"
 setup_variable WITH_UV "no"
 setup_variable WITH_LWS "no"
 
@@ -1221,7 +1220,7 @@ then
 			if [ ! -f "libevent-from-git.tar.gz" ];
 			then
 				echo -e "${COLOR_INFO}downloading it${COLOR_DOTS}...${COLOR_RESET}"
-				git clone git@github.com:libevent/libevent.git
+				git clone https://github.com/libevent/libevent.git
 				git -C libevent  checkout 112421c8fa4840acd73502f2ab6a674fc025de37
 				echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
 				tar -czf libevent-from-git.tar.gz ./libevent
@@ -2984,8 +2983,7 @@ then
                         cd build2
                         eval "$CMAKE" "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" \
                                 -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=OFF \
-                                -DBOOST_ROOT="$INSTALL_ROOT" -DBOOST_INCLUDEDIR="${INSTALL_ROOT}/include" -DBOOST_LIBRARYDIR="$INSTALL_ROOT/lib" \
-                                -DBoost_NO_BOOST_CMAKE=ON -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
+                                -DCMAKE_INCLUDE_PATH="${INSTALL_ROOT}/include" \
                                 -DCMAKE_LIBRARY_PATH="${INSTALL_ROOT}/lib" \
                                 -DCMAKE_PREFIX_PATH=${INSTALL_ROOT} \
                                 ..
