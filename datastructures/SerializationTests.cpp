@@ -88,18 +88,18 @@ void test_committed_block_fragment_defragment( bool _fail ) {
 
         for ( int j = 1; j < i; j++ ) {
             next = 0;
-            list->addFragment( t->getFragment( i, j,
+            list->addFragment( t->getFragment( i, j
 #ifdef BITE
-                                   1
+                                   , 1
 #endif
                                    ), next );
             REQUIRE( next != 0 );
         }
 
 
-        list->addFragment( t->getFragment( i, i,
+        list->addFragment( t->getFragment( i, i
 #ifdef BITE
-                               1
+                               , 1
 #endif
                                ), next );
         REQUIRE( next == 0 );

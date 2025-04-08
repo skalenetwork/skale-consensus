@@ -40,13 +40,16 @@
 BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
 #ifdef BITE
     const schain_index _proposerIndex, const schain_index _decryptorIndex,
-    const uint64_t _totalFragments, const fragment_index& _fragmentIndex,
 #endif
+    const uint64_t _totalFragments, const fragment_index& _fragmentIndex,
+
     const ptr< vector< uint8_t > >& _data, uint64_t _blockSize, const string& _blockHash )
     : data( _data ),
       blockId( _blockId ),
+#ifdef BITE
       proposerIndex( _proposerIndex ),
       decryptorIndex( _decryptorIndex ),
+#endif
       blockSize( _blockSize ),
       blockHash( _blockHash ),
       totalFragments( _totalFragments ),

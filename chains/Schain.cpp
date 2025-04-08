@@ -475,11 +475,19 @@ bool Schain::verifyBlsSyncPatch( uint64_t
 }
 
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-    const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig ) {
+    const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+#ifdef  BITE
+    , ptr< DecryptedAESKeyList > _aesKeyList
+#endif
+    ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     CHECK_ARGUMENT( _thresholdSig )
     CHECK_ARGUMENT( _daSig || _proposerIndex == 0 )
+
+#ifdef BITE
+    CHECK_ARGUMENT(_aesKeyList || _proposerIndex)
+#endif
 
     // wait until the schain state is fully initialized and startup
     // otherwise last committed block id is not fully initialized and the chain can not accept
@@ -1318,7 +1326,11 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
     try {
         if ( _proposerIndex == 0 ) {
             // default empty block
-            blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, nullptr );
+            blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, nullptr
+#ifdef BITE
+            , nullptr
+#endif
+                );
             return;
         }
 
@@ -1404,7 +1416,11 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys( proposal->getBlockID() );
 #endif
 
-            blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
+            blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig
+#ifdef BITE
+            , keys
+#endif
+            );
         }
 
     } catch ( ExitRequestedException&) {

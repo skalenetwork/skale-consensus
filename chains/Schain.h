@@ -92,6 +92,7 @@ class OracleResultAssemblyAgent;
 #ifdef BITE
 class BiteBlockFinalizeServer;
 class BiteManager;
+class DecryptedAESKeyList;
 #endif
 
 class Schain : public Agent {
@@ -300,7 +301,11 @@ public:
     void blockProposalReceiptTimeoutArrived( block_id _blockID );
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig );
+        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+#ifdef BITE
+        , ptr< DecryptedAESKeyList > _aesKeyList
+#endif
+        );
 
 
     [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup(
