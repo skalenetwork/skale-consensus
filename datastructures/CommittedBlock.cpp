@@ -55,11 +55,9 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
     CHECK_ARGUMENT(_thresholdSig);
     CHECK_ARGUMENT(_daSig || _proposal->getProposerIndex() == 0)
 #ifdef BITE
-    if (_proposal->getProposerIndex() != 0) {
-        CHECK_ARGUMENT(_aesKeyList);
-        CHECK_ARGUMENT(_decryptedTransactions);
-        CHECK_ARGUMENT(_decryptedTransactions->size() == _aesKeyList->getSize())
-    }
+    CHECK_ARGUMENT(_aesKeyList);
+    CHECK_ARGUMENT(_decryptedTransactions);
+    CHECK_ARGUMENT(_decryptedTransactions->size() == _aesKeyList->getSize())
 #endif
 
 
@@ -68,6 +66,12 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
     if (_proposal->getProposerIndex() > 0) {
         daSig = _daSig->toString();
     }
+
+#ifdef BITE
+        // default proposal has no keys or transa
+
+#endif
+
     return CommittedBlock::make(_proposal->getSchainID(), _proposal->getProposerNodeID(),
                                 _proposal->getBlockID(), _proposal->getProposerIndex(), _proposal->getTransactionList(),
                                 _proposal->getStateRoot(), _proposal->getTimeStampS(), _proposal->getTimeStampMs(),
@@ -95,18 +99,22 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
     CHECK_ARGUMENT(!_thresholdSig.empty());
 
 #ifdef BITE
-    if (_proposerIndex != 0) {
-        CHECK_ARGUMENT(_aesKeyList);
-        CHECK_ARGUMENT(_decryptedTransactions);
-        CHECK_ARGUMENT(_decryptedTransactions->size() == _aesKeyList->getSize())
-    }
+    CHECK_ARGUMENT(_aesKeyList);
+    CHECK_ARGUMENT(_decryptedTransactions);
+    CHECK_ARGUMENT(_decryptedTransactions->size() == _aesKeyList->getSize())
 #endif
 
 
     return ptr<CommittedBlock>(new CommittedBlock(_sChainId, _proposerNodeId, _blockId, _proposerIndex,
                                                   _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature,
-                                                  _thresholdSig, _daSig, make_shared<DecryptedAESKeyList>(),
-                                                  make_shared<DecryptedTransactions>()));
+                                                  _thresholdSig, _daSig,
+
+#ifdef BITE
+    _aesKeyList,
+    _decryptedTransactions
+#endif
+
+    ));
 }
 
 
@@ -162,9 +170,13 @@ bool CommittedBlock::isLegacy() {
 }
 
 ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_serializedBlock,
-                                                const ptr<CryptoManager> &_manager, bool _verifySig) {
+                                                const ptr<CryptoManager> &_manager,
 #ifdef BITE
-    return BiteCommittedBlockSerializer::deserialize(_serializedBlock, _manager, _verifySig);
+                                                const ptr<BiteManager> &_biteManager,
+#endif
+                                                bool _verifySig) {
+#ifdef BITE
+    return BiteCommittedBlockSerializer::deserialize(_serializedBlock, _manager, _biteManager, _verifySig);
 #endif
 
     CHECK_ARGUMENT(_serializedBlock);
@@ -282,11 +294,9 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
     CHECK_ARGUMENT(!_signature.empty());
     CHECK_ARGUMENT(!_thresholdSig.empty());
 #ifdef BITE
-    if (_proposerIndex != 0) {
-        CHECK_ARGUMENT(_aesKeyList);
-        CHECK_ARGUMENT(_decryptedTransactions);
-        CHECK_ARGUMENT(_decryptedTransactions->size() == _aesKeyList->getSize())
-    }
+    CHECK_ARGUMENT(_aesKeyList);
+    CHECK_ARGUMENT(_decryptedTransactions);
+    CHECK_ARGUMENT(_decryptedTransactions->size() == _aesKeyList->getSize())
 #endif
 
     this->thresholdSig = _thresholdSig;
@@ -305,9 +315,12 @@ ptr<vector<uint8_t> > CommittedBlock::serialize() {
     auto blockHeader = createBlockHeader();
 
     CHECK_STATE(blockHeader);
+
 #ifdef BITE
+    CHECK_STATE(transactionList);
+    CHECK_STATE(decryptedAesKeyList);
     cachedSerializedBlock = BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
-        blockHeader, transactionList, decryptedAesKeyList, getProposerIndex());
+        *blockHeader, *transactionList, *decryptedAesKeyList);
 #else
     cachedSerializedBlock = serializeTransactionsAndCompleteSerialization(blockHeader);
 #endif

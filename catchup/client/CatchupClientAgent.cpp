@@ -263,7 +263,11 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks( ptr< ClientSock
         // During node rotation, some block sigs may not verify durign catchup
         // in such a case we return a partial block list, up to the first non-verifying block
         blockList = CommittedBlockList::deserialize(
-            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0, true );
+            getSchain()->getCryptoManager(),
+#ifdef BITE
+       getSchain()->getBiteManager(),
+#endif
+            blockSizes, serializedBlocks, 0, true );
         CHECK_STATE( blockList )
 
 

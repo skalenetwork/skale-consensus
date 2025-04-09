@@ -33,6 +33,9 @@
 #include "SkaleCommon.h"
 #include "exceptions/ParsingException.h"
 #include "crypto/CryptoManager.h"
+#ifdef BITE
+#include "bite/BiteManager.h"
+#endif
 #include "chains/Schain.h"
 
 #include "CommittedBlock.h"
@@ -201,6 +204,9 @@ void test_committed_block_serialize_deserialize( bool _fail ) {
 
     Schain chain;
     auto cryptoManager = make_shared< CryptoManager >( chain );
+#ifdef BITE
+    auto biteManager = make_shared< BiteManager >( chain );
+#endif
 
     boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
@@ -220,12 +226,20 @@ void test_committed_block_serialize_deserialize( bool _fail ) {
             REQUIRE( out != nullptr );
 
             if ( _fail ) {
-                REQUIRE_THROWS( CommittedBlock::deserialize( out, cryptoManager, false ) );
+                REQUIRE_THROWS( CommittedBlock::deserialize( out, cryptoManager,
+#ifdef BITE
+                biteManager,
+#endif
+                false ));
             } else {
                 ptr< CommittedBlock > imp = nullptr;
 
                 try {
-                    imp = CommittedBlock::deserialize( out, cryptoManager, false );
+                    imp = CommittedBlock::deserialize( out, cryptoManager,
+#ifdef BITE
+                biteManager,
+#endif
+                    false );
                 } catch ( ParsingException& e ) {
                     SkaleException::logNested( e, err );
                     throw( e );
@@ -242,6 +256,10 @@ void test_committed_block_list_serialize_deserialize() {
 
     Schain chain;
     auto cryptoManager = make_shared< CryptoManager >( chain );
+#ifdef BITE
+    auto biteManager = make_shared< BiteManager >( chain );
+#endif
+
 
     boost::random::uniform_int_distribution<> ubyte( 0, 255 );
 
@@ -258,7 +276,11 @@ void test_committed_block_list_serialize_deserialize() {
             ptr< CommittedBlockList > imp = nullptr;
 
             try {
-                imp = CommittedBlockList::deserialize( cryptoManager, t->createSizes(), out, 0 );
+                imp = CommittedBlockList::deserialize( cryptoManager,
+#ifdef BITE
+                biteManager,
+#endif
+                    t->createSizes(), out, 0 );
             } catch ( ParsingException& e ) {
                 SkaleException::logNested( e, err );
                 throw( e );

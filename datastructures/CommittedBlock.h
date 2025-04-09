@@ -30,6 +30,7 @@
 
 #ifdef BITE
 using DecryptedTransactions = map<uint64_t, shared_ptr<vector<uint8_t>>>;
+class BiteManager;
 #endif
 
 
@@ -115,7 +116,11 @@ public:
 
 
     static ptr< CommittedBlock > deserialize( const ptr< vector< uint8_t > >& _serializedBlock,
-        const ptr< CryptoManager >& _manager, bool _verifySig );
+        const ptr< CryptoManager >& _manager,
+#ifdef BITE
+                                                const ptr<BiteManager> &_biteManager,
+#endif
+        bool _verifySig );
 
 
     static ptr< CommittedBlock > createRandomSample( const ptr< CryptoManager >& _manager,

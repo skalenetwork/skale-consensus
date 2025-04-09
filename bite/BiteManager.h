@@ -33,7 +33,7 @@ public:
 
     ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeys(vector<ptr<BiteDataField>> &_dataFields);
 
-    ptr<DecryptedTransactions> verifyAndDecryptTransactionList(ptr<TransactionList> _transactionList, ptr<DecryptedAESKeyList> _aesKeys);
+    ptr<DecryptedTransactions> verifyAndDecryptTransactionList(TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys);
 
     static ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare, schain_index _decryptorIndex,
                                                         bool _decryptionFailed);

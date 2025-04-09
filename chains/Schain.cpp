@@ -114,6 +114,7 @@
 #include "chains/BlockErrorAnalyzer.h"
 #ifdef BITE
 #include "bite/BiteManager.h"
+#include "crypto/DecryptedAESKeyList.h"
 #endif
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
@@ -486,8 +487,8 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
     CHECK_ARGUMENT( _daSig || _proposerIndex == 0 )
 
 #ifdef BITE
-    CHECK_ARGUMENT(_aesKeyList || _proposerIndex)
-    CHECK_ARGUMENT(_decryptedTransactions || _proposerIndex)
+    CHECK_ARGUMENT(_aesKeyList)
+    CHECK_ARGUMENT(_decryptedTransactions)
 #endif
 
     // wait until the schain state is fully initialized and startup
@@ -1338,7 +1339,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             // default empty block
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, nullptr
 #ifdef BITE
-            , nullptr, nullptr
+            , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactions>()
 #endif
                 );
             return;
@@ -1427,7 +1428,8 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
 
             CHECK_STATE(keys);
 
-            auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(proposal->getTransactionList(), keys);
+            auto transactions = proposal->getTransactionList();
+            auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
 
             CHECK_STATE(decryptedTransactions);
 

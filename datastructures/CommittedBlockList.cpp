@@ -41,10 +41,16 @@ CommittedBlockList::CommittedBlockList( const ptr< vector< ptr< CommittedBlock >
 }
 
 
-CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManager,
+CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManager
+#ifdef BITE
+   , const ptr< BiteManager >& _biteManager,
+#endif
     const ptr< vector< uint64_t > >& _blockSizes, const ptr< vector< uint8_t > >& _serializedBlocks,
     uint64_t _offset, bool _createPartialListIfSomeSignaturesDontVerify ) {
     CHECK_ARGUMENT( _cryptoManager );
+#ifdef BITE
+    CHECK_ARGUMENT(_biteManager)
+#endif
     CHECK_ARGUMENT( _blockSizes );
     CHECK_ARGUMENT( _serializedBlocks );
 
@@ -69,7 +75,11 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
             auto blockData = make_shared< vector< uint8_t > >(
                 _serializedBlocks->begin() + index, _serializedBlocks->begin() + endIndex );
 
-            auto block = CommittedBlock::deserialize( blockData, _cryptoManager, true );
+            auto block = CommittedBlock::deserialize( blockData, _cryptoManager,
+#ifdef BITE
+                _biteManager,
+#endif
+            true );
 
             if ( _cryptoManager->getSchain()->verifyDASigsPatch( block->getTimeStampS() ) ) {
                 // a default block has a zero proposer index and no DA sig
@@ -156,7 +166,11 @@ ptr< CommittedBlockList > CommittedBlockList::createRandomSample(
 }
 
 ptr< CommittedBlockList > CommittedBlockList::deserialize(
-    const ptr< CryptoManager >& _cryptoManager, const ptr< vector< uint64_t > >& _blockSizes,
+    const ptr< CryptoManager >& _cryptoManager,
+#ifdef BITE
+    const ptr< BiteManager >& _biteManager,
+#endif
+    const ptr< vector< uint64_t > >& _blockSizes,
     const ptr< vector< uint8_t > >& _serializedBlocks, uint64_t _offset,
     bool _createPartialListIfSomeSignaturesDontVerify ) {
     if ( _serializedBlocks->at( 0 ) != '[' ) {
@@ -164,7 +178,11 @@ ptr< CommittedBlockList > CommittedBlockList::deserialize(
             InvalidStateException( "Serialized blocks do not start with [", __CLASS_NAME__ ) );
     }
 
-    return ptr< CommittedBlockList >( new CommittedBlockList( _cryptoManager, _blockSizes,
+    return ptr< CommittedBlockList >( new CommittedBlockList( _cryptoManager,
+#ifdef BITE
+       _biteManager,
+#endif
+    _blockSizes,
         _serializedBlocks, _offset, _createPartialListIfSomeSignaturesDontVerify ) );
 }
 

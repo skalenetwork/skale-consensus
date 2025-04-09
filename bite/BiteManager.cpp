@@ -144,32 +144,30 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeys(vector<ptr
 }
 
 
-ptr<DecryptedTransactions> BiteManager::verifyAndDecryptTransactionList(ptr<TransactionList> _transactionList,
-                                                           ptr<DecryptedAESKeyList> _aesKeys) {
-    CHECK_STATE(_transactionList);
-    CHECK_STATE(_aesKeys);
+ptr<DecryptedTransactions> BiteManager::verifyAndDecryptTransactionList(TransactionList &_transactionList,
+                                                                        DecryptedAESKeyList &_aesKeys) {
 
     auto decryptedTransactions = make_shared<DecryptedTransactions>();
 
-    auto txs = _transactionList->getItems();
+    auto txs = _transactionList.getItems();
     CHECK_STATE(txs);
 
     try {
-        for (uint64_t i = 0; i < _transactionList->size(); i++) {
+        for (uint64_t i = 0; i < _transactionList.size(); i++) {
             auto tx = txs->at(i);
             auto bite = tx->parseAndValidateBiteDataField();
             if (bite) {
-                CHECK_STATE(_aesKeys->getKey(i));
+                CHECK_STATE(_aesKeys.getKey(i));
                 decryptedTransactions->emplace(i, tx->getData());
             } else {
-                CHECK_STATE(!_aesKeys->getKey(i));
+                CHECK_STATE(!_aesKeys.getKey(i));
             }
             // TODO implement actual decryption later
         }
     } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse transaction");
 
-    if (_transactionList->size() > 0)
-        LOG(info, "BITE_TRANSACTIONS_DECRYPTED:" + to_string(_aesKeys->getSize()));
+    if (_transactionList.size() > 0)
+        LOG(info, "BITE_TRANSACTIONS_DECRYPTED:" + to_string(_aesKeys.getSize()));
 
     return decryptedTransactions;
 }

@@ -17,23 +17,12 @@
 
 
 ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
-    ptr<BasicHeader> _blockHeader, ptr<TransactionList> transactionList,
-    ptr<DecryptedAESKeyList> _decryptedAesKeyList, schain_index _proposerIndex) {
-
+    BasicHeader& _blockHeader, TransactionList& transactionList,
+    DecryptedAESKeyList& _decryptedAesKeyList) {
     static_assert(BITE_AES_KEY_LEN == 32, "FlatBuffer AesKey requires 32-byte AES keys");
 
-    CHECK_STATE(_blockHeader);
-    CHECK_STATE(transactionList);
 
-    if (_proposerIndex > 0) {
-        CHECK_STATE(_decryptedAesKeyList)
-    } else {
-        CHECK_STATE(!_decryptedAesKeyList)
-        _decryptedAesKeyList = make_shared<DecryptedAESKeyList>();
-    }
-
-
-    auto buf = _blockHeader->toBuffer();
+    auto buf = _blockHeader.toBuffer();
     CHECK_STATE(buf);
 
     auto *rawHeaderBuf = buf->getBuf()->data();
@@ -49,7 +38,7 @@ ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAn
 
 
     // Serialize each transaction
-    auto &items = *transactionList->getItems();
+    auto &items = *transactionList.getItems();
     std::vector<flatbuffers::Offset<skale_fb::Transaction> > transactionsVec;
     transactionsVec.reserve(items.size());
 
@@ -71,10 +60,7 @@ ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAn
     // ---- Serialize AES Keys ----
     std::vector<skale_fb::AesKey> aesKeysVec;
 
-    CHECK_STATE(_decryptedAesKeyList);
-
-
-    for (auto &&it: _decryptedAesKeyList->getKeys()) {
+    for (auto &&it: _decryptedAesKeyList.getKeys()) {
         auto key = it.second;
 
         auto rawKey = key.getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
@@ -117,9 +103,11 @@ void BiteCommittedBlockSerializer::serializedSanityCheck(const ptr<vector<uint8_
 
 
 ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<uint8_t> > &_serializedBlock,
-                                                              const ptr<CryptoManager> &_manager, bool _verifySig) {
+                                                              const ptr<CryptoManager> &_cryptoManager,
+                                                              const ptr<BiteManager> _biteManager, bool _verifySig) {
     CHECK_ARGUMENT(_serializedBlock);
-    CHECK_ARGUMENT(_manager);
+    CHECK_ARGUMENT(_cryptoManager);
+    CHECK_ARGUMENT(_biteManager);
 
 
     const skale_fb::CommittedBlock *fbBlock = nullptr;
@@ -160,20 +148,40 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
         transactions->push_back(txObj);
     }
 
-    auto list = std::make_shared<TransactionList>(transactions);
+    auto transactionList = std::make_shared<TransactionList>(transactions);
+
+    // now deserialize AES keys
+
+    ptr<DecryptedAESKeyList> decryptedAesKeyList = make_shared<DecryptedAESKeyList>();
+
+    auto fbAesKeys = fbBlock->aes_keys();
+
+    CHECK_STATE(fbAesKeys)
+
+    if (fbAesKeys) {
+        for (const auto *aesKey: *fbAesKeys) {
+            CHECK_STATE(aesKey->data() && aesKey->data()->size() == BITE_AES_KEY_LEN);
+            std::array<uint8_t, BITE_AES_KEY_LEN> rawKey;
+            std::memcpy(rawKey.data(), aesKey->data()->data(), BITE_AES_KEY_LEN);
+
+            DecryptedAESKey key(rawKey);
+            decryptedAesKeyList->addKey(aesKey->transaction_index(), key);
+        }
+    }
 
 
+    auto decryptedTransactions = _biteManager->verifyAndDecryptTransactionList(*transactionList, *decryptedAesKeyList);
     ptr<CommittedBlock> block = nullptr;
 
     try {
         block = CommittedBlock::make(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
-                                     blockHeader->getBlockID(), blockHeader->getProposerIndex(), list,
+                                     blockHeader->getBlockID(), blockHeader->getProposerIndex(), transactionList,
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
                                      blockHeader->getDaSig()
 #ifdef BITE
-                                     , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactions>()
+                                     , decryptedAesKeyList, decryptedTransactions
 #endif
         );
     } catch (...) {
@@ -192,7 +200,7 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
     // default blocks are not ecdsa signed
     if ((blockHeader->getProposerIndex() != 0)) {
         try {
-            _manager->verifyProposalECDSA(
+            _cryptoManager->verifyProposalECDSA(
                 block, blockHeader->getBlockHash(), blockHeader->getSignature());
         } catch (...) {
             LOG(err, "Block ECDSA signature did not verify in deserialization");
@@ -201,7 +209,7 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
     }
 
     try {
-        block->verifyBlockSig(_manager);
+        block->verifyBlockSig(_cryptoManager);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__,
                                                 __CLASS_NAME__ +
@@ -210,7 +218,7 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
     }
 
     try {
-        block->verifyDaSig(_manager);
+        block->verifyDaSig(_cryptoManager);
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__,
                                                 __CLASS_NAME__ + string(

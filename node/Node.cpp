@@ -343,7 +343,11 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
         // deserialize block. This will verify sigs on it
         // We do not sigs on it now since skaled is trusted
         auto block = CommittedBlock::deserialize(
-            _startingFromSnapshotWithThisAsLastBlock, this->getSchain()->getCryptoManager(), true );
+            _startingFromSnapshotWithThisAsLastBlock, this->getSchain()->getCryptoManager(),
+#ifdef BITE
+            this->getSchain()->getBiteManager(),
+#endif
+            true );
         // now save the block into the blocks dd
         getBlockDB()->saveBlock( block );
         // now do a sanitity check, that the block was imported OK
