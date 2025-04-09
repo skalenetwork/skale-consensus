@@ -10,6 +10,13 @@
   <component name="CidrRootsConfiguration">
     <excludeRoots>
       <file path="$PROJECT_DIR$/_3rdParty" />
+      <file path="$PROJECT_DIR$/cmake" />
+      <file path="$PROJECT_DIR$/cmake-build-release" />
+      <file path="$PROJECT_DIR$/deps" />
+      <file path="$PROJECT_DIR$/sgxwallet" />
+      <file path="$PROJECT_DIR$/spdlog" />
+      <file path="$PROJECT_DIR$/venv" />
+      <file path="$PROJECT_DIR$/venv1" />
     </excludeRoots>
   </component>
   <component name="JavaScriptSettings">

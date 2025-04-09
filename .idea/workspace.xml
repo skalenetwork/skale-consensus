@@ -60,8 +60,6 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="862 Bite add flatbuffers">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/ConsensusAESDecryptionShare.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/ConsensusAESDecryptionShare.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
@@ -70,7 +68,6 @@
       <change beforePath="$PROJECT_DIR$/deps/liblzma/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/Makefile.in" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/aclocal.m4" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/aclocal.m4" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/config.h.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/config.h.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/configure" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/configure" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/debug/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/debug/Makefile.in" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/lib/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/lib/Makefile.in" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/src/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/Makefile.in" afterDir="false" />
@@ -84,11 +81,16 @@
       <change beforePath="$PROJECT_DIR$/deps/proxygen/proxygen/httpserver/samples/echo/EchoHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/deps/proxygen/proxygen/httpserver/samples/echo/EchoHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/zstd/contrib/seekable_format/zstdseek_decompress.c" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zstd/contrib/seekable_format/zstdseek_decompress.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/zstd/programs/platform.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zstd/programs/platform.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
@@ -118,26 +120,42 @@
     <setting file="file://$PROJECT_DIR$/CMakeLists.txt" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Consensust.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/SkaleCommon.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/bite/server/BlockFinalizeRequestHandler.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/bite/BiteAESDecryptionShareSerializer.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/Schain.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cmake/precompiledheader.cmake" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cppzmq/zmq.hpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/AESKeyDecryptionShareList.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/AESKeyDecryptionShareSet.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/crypto/DecryptedAESKeyList.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/crypto/MockupAESKeyDecryptionShareSet.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/crypto/MockupAESKeyDecryptionShareSet.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/crypto/MockupAESKeyDecryptionShareSet.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/db/DASigShareDB.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/db/InternalInfoDB.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/db/StorageLimits.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/db/TEDecryptionDB.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/deps/zstd/programs/platform.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/flatb/BlockFinalizeResponseObject.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/messages/Message.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/network/Network.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/network/Network.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/Network.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/NodeGettersSetters.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/oracle/OracleClient.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node1/Node.json" root0="FORCE_HIGHLIGHTING" />
@@ -146,6 +164,9 @@
     <setting file="file://$PROJECT_DIR$/test/fournodes/node4/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/thirdparty/zguide/zhelpers.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/unittests/consensus_tests.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file:///usr/include/x86_64-linux-gnu/bits/confname.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/lib/python3.10/subprocess.py" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -216,15 +237,10 @@
       <recent name="$PROJECT_DIR$/rlp" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.generate_flatbuffers_code">
+  <component name="RunManager" selected="CMake Application.consensust">
     <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
     <configuration name="bls_test" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="bls_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="bls_test" TEST_MODE="SUITE_TEST">
@@ -365,6 +381,11 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -1139,7 +1160,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="246" />
+    <option name="localTasksCounter" value="257" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1269,6 +1290,11 @@
           <url>file://$PROJECT_DIR$/chains/SchainGettersSetters.cpp</url>
           <line>11</line>
           <option name="timeStamp" value="39" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/bite/BiteManager.cpp</url>
+          <line>160</line>
+          <option name="timeStamp" value="41" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
