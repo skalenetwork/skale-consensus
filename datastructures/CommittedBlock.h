@@ -51,9 +51,14 @@ class CommittedBlock : public BlockProposal {
 #ifdef BITE
     ptr<DecryptedAESKeyList> decryptedAesKeyList = nullptr;
     ptr< map<uint64_t, shared_ptr<vector<uint8_t>>>> decryptedTransactions = nullptr;
+
+
 #endif
 
+public:
+    [[nodiscard]] ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> getDecryptedTransactions() const;
 
+private:
     ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;
 public:
     void setCachedSerializedBlock( const ptr< vector< uint8_t > >& cachedSerializedBlock );

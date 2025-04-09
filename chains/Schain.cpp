@@ -850,12 +850,17 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
         // this will initiate immediate exit and throw ExitRequestedException
         getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
 
+
+#ifdef BITE
+        CHECK_STATE(_block->getDecryptedTransactions() || _block->getProposerIndex() == 0)
+#endif
+
         if ( extFace ) {
             try {
                 inCreateBlock = true;
                 extFace->createBlock( *tv,
 #ifdef BITE
-                    make_shared< map< uint64_t, shared_ptr< vector< uint8_t > > > >(),
+                    _block->getDecryptedTransactions(),
 #endif
                     _block->getTimeStampS(), _block->getTimeStampMs(),
                     ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
@@ -1405,7 +1410,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
 
             // if we did not yet decrypt this block, decrypt it
             if ( myDecryptionShares == nullptr ) {
-                sChain->getBiteManager()->verifyAndDecryptProposalTransactions( proposal );
+                sChain->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( proposal );
                 myDecryptionShares = proposal->getMyDecryptionShares();
                 CHECK_STATE( myDecryptionShares );
                 getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );

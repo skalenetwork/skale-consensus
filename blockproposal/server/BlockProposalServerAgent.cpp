@@ -425,7 +425,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processP
 #ifdef BITE
         try {
             auto subStatus =
-                getSchain()->getBiteManager()->verifyAndDecryptProposalTransactions( proposal );
+                getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( proposal );
             if ( subStatus != ConnectionSubStatus::CONNECTION_OK ) {
                 finalResponseHeader =
                     make_shared< FinalProposalResponseHeader >( CONNECTION_ERROR, subStatus );

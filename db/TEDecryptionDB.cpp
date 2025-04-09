@@ -160,8 +160,6 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
 
     aesKeys->markComplete();
 
-    cerr << "Merged!" << endl;
-
     return aesKeys;
 }
 

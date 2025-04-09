@@ -351,6 +351,10 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
     }
 }
 
+ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> CommittedBlock::getDecryptedTransactions() const {
+    return decryptedTransactions;
+}
+
 void CommittedBlock::setCachedSerializedBlock(
     const ptr<vector<uint8_t> > &cachedSerializedBlock) {
     CommittedBlock::cachedSerializedBlock = cachedSerializedBlock;

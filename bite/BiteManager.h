@@ -25,7 +25,7 @@ class BiteManager {
 public:
     explicit BiteManager(Schain &_schain);
 
-    ConnectionSubStatus verifyAndDecryptProposalTransactions(
+    ConnectionSubStatus verifyAndCreateDecryptionSharesForProposalTransactions(
         const ptr<BlockProposal> &_proposal);
 
     std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> decryptBiteDataFields(

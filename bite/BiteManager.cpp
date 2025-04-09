@@ -22,7 +22,7 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 }
 
 
-ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
+ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTransactions(
     const ptr<BlockProposal> &_proposal) {
     CHECK_STATE(_proposal);
     // check we are not verifying twice
@@ -80,6 +80,7 @@ ConnectionSubStatus BiteManager::verifyAndDecryptProposalTransactions(
 
     _proposal->setMyDecryptionShares(decryptionShareList);
 
+
     return CONNECTION_OK;
 }
 
@@ -124,7 +125,6 @@ std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> BiteManager::decr
 
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeys(vector<ptr<BiteDataField> > &_dataFields) {
-    CHECK_STATE(!_dataFields.empty())
 
     auto result = make_shared<vector<ptr<AESKeyDecryptionShare> > >();
     result->reserve(_dataFields.size());
@@ -147,6 +147,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeys(vector<ptr
 ptr<DecryptedTransactions> BiteManager::verifyAndDecryptTransactionList(ptr<TransactionList> _transactionList,
                                                            ptr<DecryptedAESKeyList> _aesKeys) {
     CHECK_STATE(_transactionList);
+    CHECK_STATE(_aesKeys);
 
     auto decryptedTransactions = make_shared<DecryptedTransactions>();
 
@@ -166,6 +167,9 @@ ptr<DecryptedTransactions> BiteManager::verifyAndDecryptTransactionList(ptr<Tran
             // TODO implement actual decryption later
         }
     } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse transaction");
+
+    if (_transactionList->size() > 0)
+        LOG(info, "BITE_TRANSACTIONS_DECRYPTED:" + to_string(_aesKeys->getSize()));
 
     return decryptedTransactions;
 }
