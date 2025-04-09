@@ -158,8 +158,6 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
         aesKeys->addKey( it.first, *key );
     }
 
-    aesKeys->markComplete();
-
     return aesKeys;
 }
 

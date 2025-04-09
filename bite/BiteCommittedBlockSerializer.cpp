@@ -17,9 +17,21 @@
 
 
 ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
-    ptr<BasicHeader> _blockHeader, ptr<TransactionList> transactionList) {
+    ptr<BasicHeader> _blockHeader, ptr<TransactionList> transactionList,
+    ptr<DecryptedAESKeyList> _decryptedAesKeyList, schain_index _proposerIndex) {
+
+    static_assert(BITE_AES_KEY_LEN == 32, "FlatBuffer AesKey requires 32-byte AES keys");
+
     CHECK_STATE(_blockHeader);
     CHECK_STATE(transactionList);
+
+    if (_proposerIndex > 0) {
+        CHECK_STATE(_decryptedAesKeyList)
+    } else {
+        CHECK_STATE(!_decryptedAesKeyList)
+        _decryptedAesKeyList = make_shared<DecryptedAESKeyList>();
+    }
+
 
     auto buf = _blockHeader->toBuffer();
     CHECK_STATE(buf);
@@ -53,8 +65,34 @@ ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAn
         buf->getBuf()->data() + sizeof(uint64_t), buf->getCounter() - sizeof(uint64_t));
     auto transactionsOffset = builder.CreateVector(transactionsVec);
 
+
+    // no do keys
+
+    // ---- Serialize AES Keys ----
+    std::vector<skale_fb::AesKey> aesKeysVec;
+
+    CHECK_STATE(_decryptedAesKeyList);
+
+
+    for (auto &&it: _decryptedAesKeyList->getKeys()) {
+        auto key = it.second;
+
+        auto rawKey = key.getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
+        aesKeysVec.push_back(skale_fb::AesKey{
+            static_cast<uint32_t>(it.first),
+            rawKey // rawKey is std::array<uint8_t, 32>
+        });
+    }
+
+
+    auto aesKeysOffset = builder.CreateVectorOfStructs(aesKeysVec);
+
+    auto emptyVec = builder.CreateVector(std::vector<uint8_t>{});
+
     // Finalize block
-    auto blockOffset = CreateCommittedBlock(builder, headerOffset, transactionsOffset);
+    auto blockOffset = skale_fb::CreateCommittedBlock(
+        builder, headerOffset, transactionsOffset, emptyVec, emptyVec, aesKeysOffset);
+
     builder.Finish(blockOffset);
 
 
@@ -63,6 +101,8 @@ ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAn
 
     // Slightly faster than resize+memcpy
     auto buffer = std::make_shared<std::vector<uint8_t> >(raw, raw + size);
+
+    serializedSanityCheck(buffer);
 
     return buffer;
 }

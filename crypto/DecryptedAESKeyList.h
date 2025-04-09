@@ -8,23 +8,21 @@
 
 class DecryptedAESKeyList {
 public:
+
+    [[nodiscard]] boost::container::flat_map<transaction_index, DecryptedAESKey>& getKeys();
+
     // Optional: Constructor
     DecryptedAESKeyList() = default;
 
+
     // Optional: Add public access methods
     void addKey(transaction_index _index, const DecryptedAESKey& key) {
-        CHECK_STATE(!isComplete)
         decryptedAESKeys.emplace(_index, key);
     }
 
     const DecryptedAESKey* getKey(uint64_t id) const {
-        CHECK_STATE(isComplete);
         auto it = decryptedAESKeys.find(id);
         return (it != decryptedAESKeys.end()) ? &it->second : nullptr;
-    }
-
-    void markComplete() {
-        isComplete = true;
     }
 
     uint64_t getSize() const {
@@ -34,6 +32,5 @@ public:
 
 private:
     boost::container::flat_map<transaction_index, DecryptedAESKey> decryptedAESKeys;
-    std::atomic<bool> isComplete = false;
 };
 

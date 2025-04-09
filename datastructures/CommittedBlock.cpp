@@ -24,25 +24,21 @@
 #include <boost/iostreams/device/array.hpp>
 #include "Log.h"
 #include "SkaleCommon.h"
+#include "crypto/DecryptedAESKeyList.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSignature.h"
 #include "thirdparty/json.hpp"
 #include "chains/Schain.h"
 #include "crypto/BLAKE3Hash.h"
 #include "bite/BiteManager.h"
+#include "bite/BiteCommittedBlockSerializer.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/InvalidStateException.h"
 #include "exceptions/ParsingException.h"
 #include "headers/BlockProposalHeader.h"
 #include "headers/CommittedBlockHeader.h"
 
-
-#include "bite/BiteCommittedBlockSerializer.h"
-
 #include "CommittedBlock.h"
-
-#include <crypto/DecryptedAESKeyList.h>
-
 #include "TransactionList.h"
 #include "exceptions/InvalidSignatureException.h"
 
@@ -309,8 +305,12 @@ ptr<vector<uint8_t> > CommittedBlock::serialize() {
     auto blockHeader = createBlockHeader();
 
     CHECK_STATE(blockHeader);
-
+#ifdef BITE
+    cachedSerializedBlock = BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
+        blockHeader, transactionList, decryptedAesKeyList, getProposerIndex());
+#else
     cachedSerializedBlock = serializeTransactionsAndCompleteSerialization(blockHeader);
+#endif
 
     CHECK_STATE(cachedSerializedBlock);
 
@@ -351,7 +351,7 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
     }
 }
 
-ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> CommittedBlock::getDecryptedTransactions() const {
+ptr<map<uint64_t, shared_ptr<vector<uint8_t> > > > CommittedBlock::getDecryptedTransactions() const {
     return decryptedTransactions;
 }
 

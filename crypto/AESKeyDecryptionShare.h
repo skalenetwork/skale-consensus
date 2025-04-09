@@ -1,7 +1,10 @@
 #pragma once
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #include <boost/container/flat_map.hpp>
+#pragma GCC diagnostic pop
 
 class BLAKE3Hash;
 
