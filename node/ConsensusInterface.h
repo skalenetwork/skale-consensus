@@ -108,7 +108,6 @@ public:
 
     virtual consensus_engine_status getStatus() const = 0;
 
-#ifndef BITE
 // PL does implement Oracle
 #define ORACLE_SUCCESS 0
 #define ORACLE_UNKNOWN_RECEIPT 1
@@ -199,7 +198,6 @@ public:
 
     virtual uint64_t checkOracleResult(const std::string &_receipt, std::string &_result) = 0;
 
-#endif
 
     struct SyncInfo {
         // sync information as required by eth_syncing API request of geth

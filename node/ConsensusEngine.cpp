@@ -1134,9 +1134,20 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     return { tv, timeStampS, timeStampMs, currentPrice, stateRoot };
 }
 
-#ifndef BITE
+#ifdef BITE
+uint64_t ConsensusEngine::submitOracleRequest(
+    const string& , string& , string& ) {
+    return 0;
+}
+
+
+uint64_t ConsensusEngine::checkOracleResult( const string& , string& ) {
+    return 0;
+}
+#else
 uint64_t ConsensusEngine::submitOracleRequest(
     const string& _spec, string& _receipt, string& _errorMessage ) {
+    return 0;
     if ( nodes.size() == 0 ) {
         LOG( err, string( "Empty nodes in " ) << __FUNCTION__ );
         return ORACLE_INTERNAL_SERVER_ERROR;
