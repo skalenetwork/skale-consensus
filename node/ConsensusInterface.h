@@ -53,7 +53,7 @@ constexpr std::string_view BITE_MAGIC_AS_STRING = "F3A9C7B1E4D5F28C7B1E9A3F5D2C8
 constexpr uint8_t BITE_MAGIC_AS_BYTE_ARRAY[BITE_MAGIC_SIZE] = {0xF3, 0xA9, 0xC7, 0xB1, 0xE4, 0xD5, 0xF2, 0x8C, 0x7B, 0x1E,
     0x9A, 0x3F, 0x5D, 0x2C, 0x8B, 0x0};
 
-static constexpr uint64_t BITE_EPOCH_ID_LEN = 8;
+static constexpr uint64_t BITE_EPOCH_ID_LEN = sizeof(uint64_t);
 static constexpr uint64_t BITE_AES_KEY_LEN = 32;
 static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = 224;
 static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = 128;
