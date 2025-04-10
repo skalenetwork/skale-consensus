@@ -41,6 +41,7 @@
 #ifdef  BITE
 #include "rlp/ParsedEthTransaction.h"
 #include "bite/BiteDataFiled.h"
+#include "rlp/EthTransactionEncoder.h"
 #endif
 
 #include "Transaction.h"
@@ -194,5 +195,14 @@ ptr< BiteDataField > Transaction::parseAndValidateBiteDataField() {
 
     return BiteDataField::createIfMagicMatches(pt);
 
+}
+ptr< vector< uint8_t > > Transaction::emplaceAndReencodeTransaction(
+    vector< uint8_t >& _originalDataField ) {
+
+    // thread safe
+    auto pt = std::atomic_load(&parsedAndValidatedEthTransaction );
+    CHECK_STATE(pt);
+    pt->setTransactionDataField(_originalDataField);
+    return EthTransactionEncoder::rlpEncodeWithoutSig(*pt);
 };
 #endif

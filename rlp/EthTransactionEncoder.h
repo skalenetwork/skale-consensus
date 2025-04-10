@@ -1,6 +1,6 @@
 #pragma once
 
-
+class ParsedEthTransaction;
 
 
 class EthTransactionEncoder {
@@ -32,6 +32,8 @@ public:
     static std::vector< uint8_t > rlpEncode( const LegacyTx& tx, bool withSig,
         std::vector< uint8_t >* v_encoded, std::vector< uint8_t >* r_encoded,
         std::vector< uint8_t >* s_encoded );
+
+    static ptr< vector< uint8_t > >  rlpEncodeWithoutSig(ParsedEthTransaction& _transaction);
 
 
     static std::vector< uint8_t > hashTransaction( const std::vector< uint8_t >& tx );

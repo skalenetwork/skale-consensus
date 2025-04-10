@@ -13,9 +13,11 @@
 #include <sstream>
 #include <array>
 
+
 #include "SkaleCommon.h"
 #include "Log.h"
 
+#include "rlp/ParsedEthTransaction.h"
 #include "EthTransactionEncoder.h"
 #include "ParsedEthTransaction.h"
 
@@ -243,6 +245,25 @@ ptr< std::vector< uint8_t > > ParsedEthTransaction::getTransactionDataField() {
     return make_shared< vector< uint8_t > >( fields.at( index ) );
 }
 
+void ParsedEthTransaction::setTransactionDataField(vector<uint8_t>&  _dataField) {
+    size_t index;
+    switch ( type ) {
+    case 0:
+        index = 5;
+        break;
+    case 1:
+    case 2:
+        index = 7;
+        break;
+    default:
+        throw invalid_argument( "Unknown transaction type" );
+    }
+    if ( fields.size() <= index ) {
+        throw invalid_argument( "Transaction missing data field" );
+    }
+    fields.at( index )  = _dataField;
+}
+
 
 void ParsedEthTransaction::testEthereumTxParser() {
     std::vector< std::vector< uint8_t > > testTxs = { // Legacy transaction (valid)
@@ -278,4 +299,10 @@ void ParsedEthTransaction::testEthereumTxParser() {
             std::cout << "Transaction " << i << ": parse failed - " << e.what() << "\n";
         }
     }
+}
+const vector< std::vector< uint8_t > >& ParsedEthTransaction::getFields() const {
+    return fields;
+}
+uint8_t ParsedEthTransaction::getType() const {
+    return type;
 }

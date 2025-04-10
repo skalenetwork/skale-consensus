@@ -13,6 +13,7 @@
 #include "bite/BiteDataFiled.h"
 #include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "crypto/EncryptedAESKey.h"
+#include "ParsedEthTransaction.h"
 #include "EthTransactionEncoder.h"
 
 #pragma GCC diagnostic push // make compiler happy
@@ -165,10 +166,10 @@ std::vector< uint8_t > EthTransactionEncoder::rlpEncode( const LegacyTx& tx, boo
         fields.push_back( *r_encoded );
         fields.push_back( *s_encoded );
     } else {
-        rlpEncodeUint256( tmp, tx.chainId );
+        std::vector< uint8_t > ZERO;
+        rlpEncodeUint256( tmp, ZERO );
         fields.push_back( tmp );
         tmp.clear();
-        std::vector< uint8_t > ZERO;
         rlpEncodeUint256( tmp, ZERO );
         fields.push_back( tmp );
         fields.push_back( tmp );
@@ -356,4 +357,18 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
 
     return encodedTx;
 }
+ptr< vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
+    ParsedEthTransaction& _ethTransaction ) {
+    auto fields = _ethTransaction.getFields();
+    LegacyTx tx;
+    tx.nonce = fields.at(0);
+    tx.gasPrice = fields.at(1);
+    tx.gasLimit = fields.at(2);
+    tx.to = fields.at(3);
+    tx.value = fields.at(4);
+    tx.data = fields.at(5);
 
+    auto result =  rlpEncode(tx, false, nullptr, nullptr, nullptr );
+
+    return make_shared<vector< uint8_t >>(result);
+}

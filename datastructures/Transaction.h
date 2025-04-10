@@ -29,7 +29,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include "crypto/BLAKE3Hash.h"
-
+#include "rlp/ParsedEthTransaction.h"
 
 #include "datastructures/DataStructure.h"
 
@@ -64,7 +64,6 @@ public:
 
     [[nodiscard]] ptr< vector< uint8_t > > getData() const;
 
-
     void serializeInto( const ptr< vector< uint8_t > >& _out, bool _writePartialHash );
 
 
@@ -93,6 +92,7 @@ public:
 
     // this returns nullptr for non-BITE transactions
     ptr<BiteDataField> parseAndValidateBiteDataField();
+    ptr<vector<uint8_t>> emplaceAndReencodeTransaction(vector<uint8_t>& _originalDataField );
 #endif
 
 };

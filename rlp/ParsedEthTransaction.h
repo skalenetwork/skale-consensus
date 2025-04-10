@@ -11,6 +11,12 @@ class ParsedEthTransaction {
 
 
     inline void parseTransactionFields( const std::vector< uint8_t >& _tx, size_t& _offset, int fieldCount);
+
+public:
+    const std::vector< std::vector< uint8_t > >& getFields() const;
+    uint8_t getType() const;
+
+private:
     inline void validateAll();
     inline void validateSignature();
     inline bool isZero(const std::vector<uint8_t>& _data );
@@ -35,4 +41,5 @@ public:
     static void testEthereumTxParser();
     void validateToField();
     void validateFieldsCount() const;
+    void setTransactionDataField( vector< uint8_t >& _dataField );
 };
