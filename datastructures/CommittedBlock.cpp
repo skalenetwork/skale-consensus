@@ -107,10 +107,10 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
 
     return ptr<CommittedBlock>(new CommittedBlock(_sChainId, _proposerNodeId, _blockId, _proposerIndex,
                                                   _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature,
-                                                  _thresholdSig, _daSig,
+                                                  _thresholdSig, _daSig
 
 #ifdef BITE
-    _aesKeyList,
+    , _aesKeyList,
     _decryptedTransactions
 #endif
 
@@ -146,9 +146,12 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
 
     return CommittedBlock::make(p->getSchainID(), p->getProposerNodeID(), p->getBlockID(),
                                 p->getProposerIndex(), p->getTransactionList(), p->getStateRoot(), p->getTimeStampS(),
-                                p->getTimeStampMs(), p->getSignature(), "EMPTY", "EMPTY",
-                                make_shared<DecryptedAESKeyList>(),
-                                make_shared<DecryptedTransactions>());
+                                p->getTimeStampMs(), p->getSignature(), "EMPTY", "EMPTY"
+#ifdef BITE
+                                , make_shared<DecryptedAESKeyList>(),
+                                make_shared<DecryptedTransactions>()
+#endif
+        );
 }
 
 
@@ -220,8 +223,11 @@ ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_se
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
-                                     blockHeader->getDaSig(),
-                                     make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactions>());
+                                     blockHeader->getDaSig()
+#ifdef BITE
+                                     , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactions>())
+#endif
+            );
     } catch (...) {
         throw_with_nested(InvalidStateException("Could not make block", __CLASS_NAME__));
     }
@@ -301,8 +307,10 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
 
     this->thresholdSig = _thresholdSig;
     this->daSig = _daSig;
+#ifdef BITE
     this->decryptedAesKeyList = _aesKeyList;
     this->decryptedTransactions = _decryptedTransactions;
+#endif
 }
 
 
@@ -364,9 +372,11 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
     }
 }
 
+#ifdef BITE
 ptr<map<uint64_t, shared_ptr<vector<uint8_t> > > > CommittedBlock::getDecryptedTransactions() const {
     return decryptedTransactions;
 }
+#endif
 
 void CommittedBlock::setCachedSerializedBlock(
     const ptr<vector<uint8_t> > &cachedSerializedBlock) {

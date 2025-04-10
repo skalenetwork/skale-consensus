@@ -41,9 +41,9 @@ CommittedBlockList::CommittedBlockList( const ptr< vector< ptr< CommittedBlock >
 }
 
 
-CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManager
+CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManager,
 #ifdef BITE
-   , const ptr< BiteManager >& _biteManager,
+   const ptr< BiteManager >& _biteManager,
 #endif
     const ptr< vector< uint64_t > >& _blockSizes, const ptr< vector< uint8_t > >& _serializedBlocks,
     uint64_t _offset, bool _createPartialListIfSomeSignaturesDontVerify ) {
