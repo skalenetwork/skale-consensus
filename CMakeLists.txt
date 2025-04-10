@@ -226,7 +226,6 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
         bls
-        te
         "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
         "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
         ff
@@ -265,6 +264,7 @@ if (DEFINED BITE)
             "${DEPS_INSTALL_ROOT}/lib/libglog.a"
             "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
             "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
+            te
 #            "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a"
     )
     if (CMAKE_PROJECT_NAME STREQUAL "consensus")
