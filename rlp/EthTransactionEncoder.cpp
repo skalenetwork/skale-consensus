@@ -4,12 +4,14 @@
 #include <openssl/rand.h>
 #include <secp256k1.h>
 #include <secp256k1_recovery.h>
+
 #include <openssl/sha.h>
 
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusInterface.h"
 #include "bite/BiteDataFiled.h"
+#include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "crypto/EncryptedAESKey.h"
 #include "EthTransactionEncoder.h"
 
@@ -313,8 +315,6 @@ void EthTransactionEncoder::uint64toVec( uint64_t v_value, vector< uint8_t >& v_
 ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte ) {
     static atomic< uint64_t > nonce = 0;
 
-    // just zero for now
-    auto encryptedAesKey = make_shared<EncryptedAESKey>(make_shared<std::array<std::uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>());
 
     static std::unique_ptr< LegacyTx > templateTx = std::make_unique< LegacyTx >( LegacyTx{
         {},                                            // nonce
@@ -328,7 +328,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
     } );
 
 
-    auto currentTx = *templateTx;
+    LegacyTx currentTx = *templateTx;
 
     auto currentNonce = nonce.fetch_add( 1 );
 
@@ -336,9 +336,18 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
 
     uint64toVec( currentNonce, currentTx.nonce );
 
+    auto encryptedData = libBLS::ThresholdEncryption::mockupEncrypt(currentTx.data);
+
+    auto encryptedKeyBytes = make_shared<array<uint8_t , BITE_ENCRYPTED_AES_KEY_LEN>>();
+
+    std::copy(encryptedData.begin(), encryptedData.begin() + BITE_ENCRYPTED_AES_KEY_LEN, encryptedKeyBytes->begin());
+
+    auto encryptedAesKey = make_shared<EncryptedAESKey>(encryptedKeyBytes);
+
+
     if ( _isByte ) {
         BiteDataField biteDataField(
-            encryptedAesKey, make_shared< EncryptedData >( currentTx.data ), 0 );
+            encryptedAesKey, make_shared< EncryptedData >( encryptedData ), 0 );
         currentTx.data = *biteDataField.getSerializedData();
     }
 
