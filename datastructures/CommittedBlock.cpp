@@ -225,7 +225,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_se
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
                                      blockHeader->getDaSig()
 #ifdef BITE
-                                     , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactions>())
+                                     , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactions>()
 #endif
             );
     } catch (...) {
