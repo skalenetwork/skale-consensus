@@ -50,6 +50,9 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
 ptr<EncryptedAESKey> &BiteDataField::getEncryptedAESKey() {
     return encryptedAESKey;
 }
+const shared_ptr< EncryptedData >& BiteDataField::getKeyPlusEncryptedData() const {
+    return keyPlusEncryptedData;
+}
 
 ptr<EncryptedData> &BiteDataField::getEncryptedData() {
     CHECK_STATE(encryptedData)

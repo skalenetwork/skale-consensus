@@ -39,4 +39,5 @@ public:
                                                         bool _decryptionFailed);
 
      ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
+    vector< uint8_t > mockupDecryptDataField( const ptr< BiteDataField >& bite ) const;
 };

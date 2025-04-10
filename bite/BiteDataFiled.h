@@ -24,6 +24,7 @@ public:
     [[nodiscard]] ptr< vector< uint8_t > >& getSerializedData();
 
     [[nodiscard]] static ptr<BiteDataField> createIfMagicMatches(ptr<vector<uint8_t >>& _data);
+    const shared_ptr< EncryptedData >& getKeyPlusEncryptedData() const;
 };
 
 

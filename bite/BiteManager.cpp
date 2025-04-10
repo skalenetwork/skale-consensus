@@ -163,37 +163,29 @@ ptr< DecryptedTransactions > BiteManager::verifyAndDecryptTransactionList(
             if ( bite ) {
                 CHECK_STATE( _aesKeys.getKey( i ) );
 
-                auto data = tx->getData();
-                CHECK_STATE( data->size() >
-                             BITE_ENCRYPTED_AES_KEY_LEN + BITE_MAGIC_SIZE + BITE_EPOCH_ID_LEN );
-
-                vector< uint8_t > mockupEncryptedOriginalData;
-
-                mockupEncryptedOriginalData.insert( mockupEncryptedOriginalData.end(),
-                    data->begin() + BITE_MAGIC_SIZE +
-                        BITE_EPOCH_ID_LEN,
-                    data->end() );
-
-
-                auto decryptedOriginalDataField =
-                    libBLS::ThresholdEncryption::mockupDecrypt( mockupEncryptedOriginalData );
+                vector< uint8_t > decryptedOriginalDataField = mockupDecryptDataField( bite );
+                // TODO implement actual decryption later
 
                 auto decryptedTransaction =
                     tx->emplaceAndReencodeTransaction( decryptedOriginalDataField );
 
-                decryptedTransactions->emplace( i, tx->getData() );
+                decryptedTransactions->emplace( i, decryptedTransaction);
             } else {
                 CHECK_STATE( !_aesKeys.getKey( i ) );
             }
-            // TODO implement actual decryption later
         }
     }
-    CATCH_LOG_AND_RETHROW_ANY_EXCEPTION( err, "Could not parse transaction" );
-
-    if ( _transactionList.size() > 0 )
-        LOG( info, "BITE_TRANSACTIONS_DECRYPTED:" + to_string( _aesKeys.getSize() ) );
+    CATCH_LOG_AND_RETHROW_ANY_EXCEPTION( err, "Could not parse BITE transaction" );
 
     return decryptedTransactions;
+}
+vector< uint8_t > BiteManager::mockupDecryptDataField( const ptr< BiteDataField >& bite ) const {
+    auto keyPlusEncryptedData =  bite->getKeyPlusEncryptedData();
+    CHECK_STATE( keyPlusEncryptedData );
+
+    auto decryptedOriginalDataField =
+        libBLS::ThresholdEncryption::mockupDecrypt( *keyPlusEncryptedData );
+    return decryptedOriginalDataField;
 }
 
 

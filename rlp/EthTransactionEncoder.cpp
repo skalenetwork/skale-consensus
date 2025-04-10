@@ -339,8 +339,6 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
 
     auto encryptedData = libBLS::ThresholdEncryption::mockupEncrypt(currentTx.data);
 
-    libBLS::ThresholdEncryption::mockupDecrypt(encryptedData);
-
     auto encryptedKeyBytes = make_shared<array<uint8_t , BITE_ENCRYPTED_AES_KEY_LEN>>();
 
     auto encryptedAesKey = make_shared<EncryptedAESKey>(encryptedKeyBytes);
