@@ -50,8 +50,6 @@
 
         Utils::cArrayFromHex(first, encryptedKey.data(), BITE_ENCRYPTED_AES_KEY_LEN);
 
-        CHECK_STATE(encryptedKey.at(0) == 0);
-
         std::copy_n(encryptedKey.begin(), BITE_AES_KEY_LEN, decryptedKey.begin());
 
         return make_shared< DecryptedAESKey >(decryptedKey);
