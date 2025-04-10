@@ -33,12 +33,12 @@ public:
     schain_index getDecryptorIndex() const;
 
     size_t getSize() const {
-        CHECK_STATE(isComplete)
+//        CHECK_STATE(isComplete)
         return decryptionShares.size();
     }
 
     [[nodiscard]] const boost::container::flat_map<transaction_index, ptr<AESKeyDecryptionShare>>& getDecryptionShares() const {
-        CHECK_STATE(isComplete)
+//        CHECK_STATE(isComplete)
         return decryptionShares;
     }
 

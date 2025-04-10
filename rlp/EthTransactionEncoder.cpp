@@ -157,6 +157,7 @@ std::vector< uint8_t > EthTransactionEncoder::rlpEncode( const LegacyTx& tx, boo
     tmp.clear();
     rlpEncodeBytes( tmp, tx.data );
     fields.push_back( tmp );
+    tmp.clear();
 
 
     if ( withSig ) {

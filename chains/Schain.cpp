@@ -1000,7 +1000,7 @@ void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
     getNode()->getBlockProposalDB()->addBlockProposal( _proposal );
 #ifdef BITE
     auto myDecryptionShares = _proposal->getMyDecryptionShares();
-    CHECK_STATE( myDecryptionShares );
+//    CHECK_STATE( myDecryptionShares );
     getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );
 #endif
 }

@@ -70,11 +70,14 @@ ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_d
 
     CHECK_STATE(_data)
 
-    if (_data->size() < BITE_MAGIC_SIZE)
+    if (_data->size() < BITE_MAGIC_SIZE) {
+        LOG( err, "Data size is too short for BITE" );
         return nullptr;
+    }
 
     if (!std::equal(BITE_MAGIC_AS_BYTE_ARRAY, BITE_MAGIC_AS_BYTE_ARRAY + BITE_MAGIC_SIZE,
                     _data->begin())) {
+        LOG( err, "Cannot find MAGIC" );
         return nullptr;
     }
 
