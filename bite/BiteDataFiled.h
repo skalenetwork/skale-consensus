@@ -9,13 +9,14 @@ class BiteDataField {
 
     ptr<EncryptedAESKey> encryptedAESKey;
     std::shared_ptr<EncryptedData> encryptedData;
+    std::shared_ptr<EncryptedData> keyPlusEncryptedData;
     uint64_t epoch = 0;
     ptr<vector<uint8_t >> serializedData;
     explicit BiteDataField( const shared_ptr< vector< std::uint8_t > >& data );
 
 public:
     BiteDataField( const ptr<EncryptedAESKey>& _encryptedAESKey,
-        const shared_ptr< EncryptedData >& _encryptedData, uint64_t _epoch );
+        const shared_ptr< EncryptedData >& _encryptedData, uint64_t _epoch, bool isMockup );
 
     [[nodiscard]] ptr<EncryptedAESKey> & getEncryptedAESKey();
     [[nodiscard]] ptr< EncryptedData >& getEncryptedData();

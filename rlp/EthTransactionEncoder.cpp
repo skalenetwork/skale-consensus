@@ -339,16 +339,16 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
 
     auto encryptedData = libBLS::ThresholdEncryption::mockupEncrypt(currentTx.data);
 
-    auto encryptedKeyBytes = make_shared<array<uint8_t , BITE_ENCRYPTED_AES_KEY_LEN>>();
+    libBLS::ThresholdEncryption::mockupDecrypt(encryptedData);
 
-    std::copy(encryptedData.begin(), encryptedData.begin() + BITE_ENCRYPTED_AES_KEY_LEN, encryptedKeyBytes->begin());
+    auto encryptedKeyBytes = make_shared<array<uint8_t , BITE_ENCRYPTED_AES_KEY_LEN>>();
 
     auto encryptedAesKey = make_shared<EncryptedAESKey>(encryptedKeyBytes);
 
 
     if ( _isByte ) {
         BiteDataField biteDataField(
-            encryptedAesKey, make_shared< EncryptedData >( encryptedData ), 0 );
+            encryptedAesKey, make_shared< EncryptedData >( encryptedData ), 0, true);
         currentTx.data = *biteDataField.getSerializedData();
     }
 

@@ -41,8 +41,8 @@ ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTrans
         for ( auto& tx : *transactions ) {
             tx->parseAndValidate();
             auto biteDataField = tx->parseAndValidateBiteDataField();
-            if ( tx->parseAndValidateBiteDataField() ) {
-                biteDataFields.emplace( index, tx->parseAndValidateBiteDataField() );
+            if (biteDataField) {
+                biteDataFields.emplace( index, biteDataField );
             }
             index = index + 1;
         }
@@ -67,7 +67,7 @@ ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTrans
         return ConnectionSubStatus::CONNECTION_ERROR_CANT_DECRYPT_PROPOSAL_TRANSACTIONS;
     }
 
-    // now check if some enncryptions failed
+    // now check if some decryptions failed
     for ( auto iterator : decryptionShareList->getDecryptionShares() ) {
         CHECK_STATE( iterator.second )
         if ( iterator.second->isDecryptionFailed() ) {
@@ -92,7 +92,7 @@ BiteManager::decryptBiteDataFields( block_id _blockId, schain_index _proposerInd
     const std::map< transaction_index, ptr< BiteDataField > >& _biteDataFields ) {
     auto decryptionShareList = make_shared< AESKeyDecryptionShareList >(
         _blockId, _proposerIndex, schain.getSchainIndex() );
-    ;
+
 
     if ( _biteDataFields.empty() ) {
         return { decryptionShareList, ConnectionSubStatus::CONNECTION_OK };
@@ -167,15 +167,16 @@ ptr< DecryptedTransactions > BiteManager::verifyAndDecryptTransactionList(
                 CHECK_STATE( data->size() >
                              BITE_ENCRYPTED_AES_KEY_LEN + BITE_MAGIC_SIZE + BITE_EPOCH_ID_LEN );
 
-                vector< uint8_t > encryptedOriginalData;
-                encryptedOriginalData.insert( encryptedOriginalData.end(),
-                    data->begin() + BITE_ENCRYPTED_AES_KEY_LEN + BITE_MAGIC_SIZE +
+                vector< uint8_t > mockupEncryptedOriginalData;
+
+                mockupEncryptedOriginalData.insert( mockupEncryptedOriginalData.end(),
+                    data->begin() + BITE_MAGIC_SIZE +
                         BITE_EPOCH_ID_LEN,
                     data->end() );
 
 
                 auto decryptedOriginalDataField =
-                    libBLS::ThresholdEncryption::mockupDecrypt( encryptedOriginalData );
+                    libBLS::ThresholdEncryption::mockupDecrypt( mockupEncryptedOriginalData );
 
                 auto decryptedTransaction =
                     tx->emplaceAndReencodeTransaction( decryptedOriginalDataField );
