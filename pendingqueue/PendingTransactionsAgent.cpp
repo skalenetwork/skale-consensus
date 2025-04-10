@@ -90,7 +90,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
     auto status =
         getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( myBlockProposal );
     if (status != ConnectionSubStatus::CONNECTION_OK) {
-        LOG(err, "Could not decrypt BITE transactions, this means something is wrong with the SGX");
+        LOG(err, "Could not decrypt BITE transactions");
         LOG(err, "Proposing empty transactions instead");
         // could not decrypt proposals, this means something is wrong with the SGX
         // do an empty proposal instead
