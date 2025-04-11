@@ -15,7 +15,6 @@ class AESKeyDecryptionShareList {
 
 private:
     boost::container::flat_map<transaction_index, ptr<AESKeyDecryptionShare> > decryptionShares;
-    std::atomic<bool> isComplete = false;
 
 public:
     AESKeyDecryptionShareList(const block_id &_blockId, schain_index _proposerIndex, const schain_index & _decryptorIndex )
@@ -33,12 +32,11 @@ public:
     schain_index getDecryptorIndex() const;
 
     size_t getSize() const {
-        CHECK_STATE(isComplete)
+
         return decryptionShares.size();
     }
 
     [[nodiscard]] const boost::container::flat_map<transaction_index, ptr<AESKeyDecryptionShare>>& getDecryptionShares() const {
-        CHECK_STATE(isComplete)
         return decryptionShares;
     }
 
@@ -47,11 +45,6 @@ public:
     void addShare(transaction_index _index, const ptr<AESKeyDecryptionShare> &_decryptShare);
 
     ptr<AESKeyDecryptionShare> getDecryptionShare(transaction_index _transactionIndex) const;
-
-    void markComplete();
-
-
-
 
 };
 
