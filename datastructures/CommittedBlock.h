@@ -51,13 +51,13 @@ class CommittedBlock : public BlockProposal {
     string daSig;
 #ifdef BITE
     ptr<DecryptedAESKeyList> decryptedAesKeyList = nullptr;
-    ptr< map<uint64_t, shared_ptr<vector<uint8_t>>>> decryptedTransactions = nullptr;
+    ptr< map<uint64_t, shared_ptr<vector<uint8_t>>>> decryptedTransactionDataFields = nullptr;
 
 
 #endif
 
 public:
-    [[nodiscard]] ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> getDecryptedTransactions() const;
+    [[nodiscard]] ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> getDecryptedTransactionDataFields() const;
 
 private:
     ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;
@@ -85,7 +85,7 @@ protected:
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
         const string& _daSig
 #ifdef  BITE
-, ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactions
+, ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactionDataFields
 #endif
         );
 

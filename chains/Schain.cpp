@@ -478,7 +478,7 @@ bool Schain::verifyBlsSyncPatch( uint64_t
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactions
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactionDataFields
 #endif
     ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
@@ -488,7 +488,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList)
-    CHECK_ARGUMENT(_decryptedTransactions)
+    CHECK_ARGUMENT(_decryptedTransactionDataFields)
 #endif
 
     // wait until the schain state is fully initialized and startup
@@ -539,7 +539,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         auto newCommittedBlock =
             CommittedBlock::makeFromProposal( committedProposal, _thresholdSig, _daSig
 #ifdef BITE
-            , _aesKeyList, _decryptedTransactions
+            , _aesKeyList, _decryptedTransactionDataFields
 #endif
             );
 
@@ -859,7 +859,7 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
 
 
 #ifdef BITE
-        CHECK_STATE(_block->getDecryptedTransactions() || _block->getProposerIndex() == 0)
+        CHECK_STATE(_block->getDecryptedTransactionDataFields() || _block->getProposerIndex() == 0)
 #endif
 
         if ( extFace ) {
@@ -867,7 +867,7 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
                 inCreateBlock = true;
                 extFace->createBlock( *tv,
 #ifdef BITE
-                    _block->getDecryptedTransactions(),
+                    _block->getDecryptedTransactionDataFields(),
 #endif
                     _block->getTimeStampS(), _block->getTimeStampMs(),
                     ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
@@ -1435,16 +1435,16 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             CHECK_STATE(keys);
 
             auto transactions = proposal->getTransactionList();
-            auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
+            auto decryptedTransactionDataFields = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
 
-            CHECK_STATE(decryptedTransactions);
+            CHECK_STATE(decryptedTransactionDataFields);
 
 #endif
 
 
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig
 #ifdef BITE
-            , keys, decryptedTransactions
+            , keys, decryptedTransactionDataFields
 #endif
             );
         }
