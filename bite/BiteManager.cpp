@@ -123,8 +123,6 @@ BiteManager::decryptBiteDataFields( block_id _blockId, schain_index _proposerInd
         arrayIndex++;
     }
 
-    decryptionShareList->markComplete();
-
     return { decryptionShareList, ConnectionSubStatus::CONNECTION_OK };
 }
 

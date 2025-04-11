@@ -101,6 +101,5 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
         shares->addShare( fbdecryptionShareHandle->transaction_index(), decryptionShare );
     }
 
-    shares->markComplete();
     return shares;
 }
