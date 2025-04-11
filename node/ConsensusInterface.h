@@ -233,7 +233,7 @@ public:
 #ifdef BITE
         // map of transaction index in the block starting from 0 to transaction
         // empty mapped is passed for now
-        shared_ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactions,
+        shared_ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactionDataFields,
 #endif
         uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
                              uint64_t _winningNodeIndex) = 0;
