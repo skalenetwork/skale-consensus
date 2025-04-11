@@ -598,6 +598,9 @@ void Schain::proposeNextBlock( bool _isCalledAfterCatchup ) {
 
         CHECK_STATE( myProposal->getProposerIndex() == getSchainIndex() );
         CHECK_STATE( myProposal->getSignature() != "" );
+#ifdef BITE
+        CHECK_STATE( myProposal->getMyDecryptionShares())
+#endif
 
 
         proposedBlockArrived( myProposal );

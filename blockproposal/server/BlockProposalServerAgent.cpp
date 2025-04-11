@@ -444,6 +444,10 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processP
         CHECK_STATE( finalResponseHeader );
         CHECK_STATE( proposal );
 
+#ifdef BITE
+        CHECK_STATE( proposal->getMyDecryptionShares())
+#endif
+
         sChain->proposedBlockArrived( proposal );
 
 
