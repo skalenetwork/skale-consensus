@@ -16,7 +16,7 @@ class BiteDataField;
 class TransactionList;
 
 
-using DecryptedTransactions = map<uint64_t, shared_ptr<vector<uint8_t>>>;
+using DecryptedTransactionDataFields = map<uint64_t, shared_ptr<vector<uint8_t>>>;
 
 class BiteManager {
     Schain &schain;
@@ -33,7 +33,7 @@ public:
 
     ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeys(vector<ptr<BiteDataField>> &_dataFields);
 
-    ptr<DecryptedTransactions> verifyAndDecryptTransactionList(TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys);
+    ptr<DecryptedTransactionDataFields> verifyAndDecryptTransactionList(TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys);
 
     static ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare, schain_index _decryptorIndex,
                                                         bool _decryptionFailed);

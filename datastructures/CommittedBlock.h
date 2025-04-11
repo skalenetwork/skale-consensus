@@ -29,7 +29,7 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 #ifdef BITE
-using DecryptedTransactions = map<uint64_t, shared_ptr<vector<uint8_t>>>;
+using DecryptedTransactionDataFields = map<uint64_t, shared_ptr<vector<uint8_t>>>;
 class BiteManager;
 #endif
 
@@ -85,7 +85,7 @@ protected:
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
         const string& _daSig
 #ifdef  BITE
-, ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactions
+, ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactions
 #endif
         );
 
@@ -101,7 +101,7 @@ public:
     static ptr< CommittedBlock > makeFromProposal( const ptr< BlockProposal >& _proposal,
         const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactions
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactions
 #endif
         );
 
@@ -110,7 +110,7 @@ public:
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
         const string& _signature, const string& _thresholdSig, const string& _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactrions
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactrions
 #endif
         );
 

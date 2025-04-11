@@ -478,7 +478,7 @@ bool Schain::verifyBlsSyncPatch( uint64_t
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactions> _decryptedTransactions
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactions
 #endif
     ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
@@ -1345,7 +1345,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             // default empty block
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, nullptr
 #ifdef BITE
-            , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactions>()
+            , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactionDataFields>()
 #endif
                 );
             return;

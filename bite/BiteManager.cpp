@@ -147,9 +147,9 @@ ptr< vector< ptr< AESKeyDecryptionShare > > > BiteManager::decryptAESKeys(
 }
 
 
-ptr< DecryptedTransactions > BiteManager::verifyAndDecryptTransactionList(
+ptr< DecryptedTransactionDataFields > BiteManager::verifyAndDecryptTransactionList(
     TransactionList& _transactionList, DecryptedAESKeyList& _aesKeys ) {
-    auto decryptedTransactions = make_shared< DecryptedTransactions >();
+    auto decryptedDataFields = make_shared< DecryptedTransactionDataFields >();
 
     auto txs = _transactionList.getItems();
     CHECK_STATE( txs );
@@ -164,10 +164,8 @@ ptr< DecryptedTransactions > BiteManager::verifyAndDecryptTransactionList(
                 vector< uint8_t > decryptedOriginalDataField = mockupDecryptDataField( bite );
                 // TODO implement actual decryption later
 
-                auto decryptedTransaction =
-                    tx->emplaceAndReencodeTransaction( decryptedOriginalDataField );
 
-                decryptedTransactions->emplace( i, decryptedTransaction);
+                decryptedDataFields->emplace( i, make_shared<vector<uint8_t>>(decryptedOriginalDataField));
             } else {
                 CHECK_STATE( !_aesKeys.getKey( i ) );
             }
@@ -175,7 +173,7 @@ ptr< DecryptedTransactions > BiteManager::verifyAndDecryptTransactionList(
     }
     CATCH_LOG_AND_RETHROW_ANY_EXCEPTION( err, "Could not parse BITE transaction" );
 
-    return decryptedTransactions;
+    return decryptedDataFields;
 }
 vector< uint8_t > BiteManager::mockupDecryptDataField( const ptr< BiteDataField >& bite ) const {
     auto keyPlusEncryptedData =  bite->getKeyPlusEncryptedData();
