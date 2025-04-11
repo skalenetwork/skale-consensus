@@ -39,7 +39,7 @@ public:
 
     bool isEnoughDecryptions( block_id _blockID );
 
-    bool isEnoughDecryptionsMinusOne( block_id _blockID );
+    bool isEnoughForeignShares( block_id _blockID );
 
     uint64_t getDecryptionsCount( block_id _blockID );
 };

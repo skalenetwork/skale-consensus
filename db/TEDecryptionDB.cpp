@@ -62,8 +62,6 @@ const string& TEDecryptionDB::getFormatVersion() {
 }
 
 
-
-
 ptr< AESKeyDecryptionShareList > TEDecryptionDB::deserializeDecryptionShareFromString(
     string decryptions ) {
     auto decryptionsVec = std::make_shared< std::vector< uint8_t > >(
@@ -205,18 +203,25 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
 
 bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
     READ_LOCK(decryptionSetsMutex)
-    return this->decryptionsStore[_blockID].size() == requiredSigners;
+    return decryptionsStore[_blockID].size() == requiredSigners;
 };
 
-bool TEDecryptionDB::isEnoughDecryptionsMinusOne( block_id _blockID ) {
-    READ_LOCK(decryptionSetsMutex)
-    return this->decryptionsStore[_blockID].size() >= requiredSigners - 1;
-};
+bool TEDecryptionDB::isEnoughForeignShares(block_id _blockID) {
+    READ_LOCK(decryptionSetsMutex);
+
+    const auto& shares = decryptionsStore[_blockID];
+    bool hasOwnShare = shares.find(sChain->getSchainIndex()) != shares.end();
+
+    // if the DB already has the own share, it needs to contain required shares
+    // Else, it needs to contain required - 1 shares
+    size_t requiredShares = hasOwnShare ? requiredSigners : requiredSigners - 1;
+    return shares.size() >= requiredShares;
+}
 
 
 uint64_t TEDecryptionDB::getDecryptionsCount( block_id _blockID ) {
     READ_LOCK(decryptionSetsMutex)
-    return this->decryptionsStore[_blockID].size();
+    return decryptionsStore[_blockID].size();
 };
 
 #endif

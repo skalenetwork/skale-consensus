@@ -66,10 +66,6 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
 
     CHECK_STATE( _sChain->getNodeCount() > 1 )
 
-    if ( _proposerIndex == _sChain->getSchainIndex() ) {
-        LOG( err, "Finalizing own proposal" );
-    }
-
     try {
         logThreadLocal_ = _sChain->getNode()->getLog();
 

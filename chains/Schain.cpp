@@ -778,13 +778,21 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
         if ( !getNode()->isSyncOnlyNode() ) {
             // pending transaction ageent does not exist on a sync node
             CHECK_STATE( pendingTransactionsAgent );
-            LOG(
-                info, "CWT:" << to_string( blockPushedToExtFaceTimeMs -
+#ifdef BITE
+            CHECK_STATE(_block->getDecryptedTransactionDataFields())
+            auto biteDecryptedTransactions = _block->getDecryptedTransactionDataFields()->size();
+#endif
+
+            LOG(info, "CWT:" + to_string( blockPushedToExtFaceTimeMs -
                                            pendingTransactionsAgent->transactionListReceivedTime() )
-                             << ":TLWT:"
-                             << to_string( pendingTransactionsAgent->getTransactionListWaitTime() )
-                             << ":SBPT:" << to_string( cryptoManager->sgxBlockProcessingTime() ) );
+                             + ":TLWT:" +  to_string( pendingTransactionsAgent->getTransactionListWaitTime() )
+                             + ":SBPT:" + to_string( cryptoManager->sgxBlockProcessingTime() )
+#ifdef BITE
+                             + ":BITE_DECRYPTED_TXS:" + to_string( biteDecryptedTransactions )
+#endif
+                             );
         }
+
         pushBlockToExtFace( _block );
         auto evmProcessingTimeMs = Time::getCurrentTimeMs() - evmProcessingStartMs;
 
@@ -1380,14 +1388,12 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
              // downloaded from others this switch is for testing only
              getNode()->getTestConfig()->isFinalizationDownloadOnly()
 #ifdef BITE
-             || !getNode()->getTEDecryptionDB()->isEnoughDecryptionsMinusOne( _blockId )
+             || !getNode()->getTEDecryptionDB()->isEnoughForeignShares( _blockId )
 #endif
         ) {
             // did not receive proposal from the proposer, pull it in parallel from other hosts
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posess the proposal
-
-            LOG( info, "FINALIZING_BLOCK:BID:" << to_string( _blockId ) );
 
             auto agent = make_unique< BlockFinalizeDownloader >( this, _blockId, _proposerIndex );
 
