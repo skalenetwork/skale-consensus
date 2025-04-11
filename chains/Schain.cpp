@@ -585,6 +585,9 @@ void Schain::proposeNextBlock( bool _isCalledAfterCatchup ) {
         if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _proposedBlockID, getSchainIndex() );
+            // The proposal was saved do the db, but we need decryption shares
+            CHECK_STATE(getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(
+                myProposal) == ConnectionSubStatus::CONNECTION_OK);
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();
             myProposal = pendingTransactionsAgent->buildBlockProposal(

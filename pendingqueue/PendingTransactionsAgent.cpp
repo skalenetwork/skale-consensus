@@ -45,6 +45,7 @@
 #include "db/CommittedTransactionDB.h"
 #ifdef BITE
 #include "bite/BiteManager.h"
+#include "crypto/AESKeyDecryptionShareList.h"
 #endif
 
 #include "node/ConsensusEngine.h"
@@ -99,6 +100,10 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
                                                        sChain->getSchainIndex(), make_shared<TransactionList>(make_shared<vector<ptr<Transaction> > >()),
                                                        stateRoot, stamp.getS(), stamp.getMs(),
                                                        getSchain()->getCryptoManager());
+#ifdef BITE
+        myBlockProposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
+            _blockID, sChain->getSchainIndex(), sChain->getSchainIndex()));
+#endif
     }
     // could not decrypt proposals, this means something is wrong with the SGX
 
@@ -110,6 +115,9 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
 
     auto pHashesList = myBlockProposal->createPartialHashesList();
     CHECK_STATE(pHashesList);
+#ifdef  BITE
+    CHECK_STATE(myBlockProposal->getMyDecryptionShares());
+#endif
 
     transactionCounter += (uint64_t) pHashesList->getTransactionCount();
 
