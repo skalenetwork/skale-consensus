@@ -92,4 +92,6 @@ public:
     static uint64_t readBlockSize( nlohmann::json _responseHeader );
 
     string readDAProofSig( nlohmann::json _responseHeader );
+
+    bool exitDownloadLoop();
 };

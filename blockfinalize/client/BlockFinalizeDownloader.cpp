@@ -302,6 +302,39 @@ ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
     return fragment;
 }
 
+bool BlockFinalizeDownloader::exitDownloadLoop() {
+    auto blockId = getBlockId();
+
+    if (sChain->getLastCommittedBlockID() > blockId) {
+        return true;
+    }
+
+
+    // check if we have enough decryption shares
+    // if not we
+    if (!getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)) {
+        return false;
+    }
+
+
+    // now we have enough decryption shares so the only thing we need to check is we have block
+
+    if (fragmentList.isComplete())
+        return true;
+
+    // check if the block is in the database
+
+    auto proposalDB = getNode()->getBlockProposalDB();
+    auto daProofDB = getNode()->getDaProofDB();
+    auto proposal = proposalDB->getBlockProposal( blockId, proposerIndex );
+    if ( proposal && daProofDB->haveDAProof( proposal )) {
+        return true;
+    }
+
+    return false;
+
+}
+
 
 void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     BlockFinalizeDownloader* _agent, schain_index _dstIndex ) {
@@ -314,18 +347,12 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     auto daProofDB = node->getDaProofDB();
 
     auto sChainIndex = sChain->getSchainIndex();
-
-#ifndef BITE
-    auto proposerIndex = _agent->getProposerIndex();
-    auto blockId = _agent->getBlockId();
     bool testFinalizationDownloadOnly = node->getTestConfig()->isFinalizationDownloadOnly();
-#endif
+
 
     setThreadName( "BlckFinLoop", node->getConsensusEngine() );
 
     node->waitOnGlobalClientStartBarrier();
-    if ( node->isExitRequested() )
-        return;
 
     // since the node does not download from itself
     // and since the number of fragment is one less the number of
@@ -341,46 +368,27 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     }
 
     try {
-        while ( !node->isExitRequested() && !_agent->fragmentList.isComplete() ) {
-#ifndef BITE
+        while ( !node->isExitRequested()) {
+            // if testFinalizationDownloadOnly is set to true we do full finalization
+            // no matter what
             if ( !testFinalizationDownloadOnly ) {
-                // take into account that the block can
-                //  be in parallel committed through catchup
-                // then we need to stop working
-                if ( sChain->getLastCommittedBlockID() >= blockId ) {
-                    return;
-                }
-
-                // take into account that the proposal and da proof can arrive through
-                // BlockproposalServerAgent
-                // then we need to stop working
-                auto proposal = proposalDB->getBlockProposal( blockId, proposerIndex );
-                if ( proposal && daProofDB->haveDAProof( proposal )) {
+                if (_agent->exitDownloadLoop()) {
                     return;
                 }
             }
-#endif
 
             try {
                 nextFragment = _agent->downloadFragment( _dstIndex, nextFragment );
-                if ( nextFragment == 0 ) {
-                    // all fragments have been downloaded
-                    return;
-                }
-
             } catch ( ExitRequestedException& ) {
                 return;
             } catch ( ConnectionRefusedException& e ) {
                 _agent->logConnectionRefused( e, _dstIndex );
-                if ( _agent->fragmentList.isComplete() )
-                    return;
+                // we have a refused connection
+                // we will wait some time to try
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             } catch ( exception& e ) {
                 LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
                 SkaleException::logNested( e );
-                if ( _agent->fragmentList.isComplete()
-                    )
-                    return;
                 usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
             }
         }
@@ -399,7 +407,22 @@ ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
         threadPool->joinAll();
     }
 
+    LOG(err, "Complete");
+
     try {
+        // first check if we do not need to do anything because a block separately arrived in catchup
+
+        if ( getSchain()->getLastCommittedBlockID() > blockId )
+            return nullptr;
+
+        // now check if we have proposal because it arrived separately through block proposal
+        auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(blockId, proposerIndex);
+
+        if (proposal) {
+            return proposal;
+        }
+
+        // now we need to recombine the fragment list
         if ( fragmentList.isComplete() ) {
             auto block = BlockProposal::deserialize(
                 fragmentList.serialize(), getSchain()->getCryptoManager(), true );
@@ -415,8 +438,11 @@ ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
 
             return block;
         } else {
+            // if we are here, this means exit was requested
             return nullptr;
         }
+
+
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( exception& e ) {
