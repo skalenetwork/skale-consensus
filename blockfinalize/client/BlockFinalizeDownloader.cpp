@@ -310,17 +310,17 @@ bool BlockFinalizeDownloader::exitDownloadLoop() {
 
     if (sChain->getLastCommittedBlockID() > blockId) {
         return true;
-    }
+    };
 
 
+#ifdef BITE
     // check if we have enough decryption shares
     // if not we
     if (!getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)) {
         return false;
     }
+#endif
 
-
-    // now we have enough decryption shares so the only thing we need to check is we have block
 
     if (fragmentList.isComplete())
         return true;
