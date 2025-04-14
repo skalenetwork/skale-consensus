@@ -1521,9 +1521,7 @@ void Schain::addDeadNode( uint64_t _schainIndex, uint64_t _checkTime ) {
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {
         lock_guard< mutex > l( deadNodesLock );
-        if ( deadNodes.count( _schainIndex ) == 0 ) {
-            deadNodes.insert( { _schainIndex, _checkTime } );
-        }
+        deadNodes[_schainIndex] =  _checkTime;
     }
 }
 
@@ -1532,10 +1530,10 @@ void Schain::markAliveNode( uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {
         lock_guard< mutex > l( deadNodesLock );
-        if ( deadNodes.count( _schainIndex ) > 0 ) {
-            deadNodes.erase( _schainIndex );
-        }
+        deadNodes.erase( _schainIndex );
     }
+
+    LOG(info, "Node " + to_string( _schainIndex ) + " is alive");
 }
 
 uint64_t Schain::getDeathTimeMs( uint64_t _schainIndex ) {
