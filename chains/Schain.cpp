@@ -1528,12 +1528,17 @@ void Schain::addDeadNode( uint64_t _schainIndex, uint64_t _checkTime ) {
 void Schain::markAliveNode( uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );
+
+    bool wasDead = false;
+
     {
         lock_guard< mutex > l( deadNodesLock );
-        deadNodes.erase( _schainIndex );
+        wasDead = deadNodes.erase( _schainIndex ) > 0;
     }
 
-    LOG(info, "Node " + to_string( _schainIndex ) + " is alive");
+     if (wasDead) {
+         LOG(info, "Node " + to_string( _schainIndex ) + " is now alive");
+     }
 }
 
 uint64_t Schain::getDeathTimeMs( uint64_t _schainIndex ) {
