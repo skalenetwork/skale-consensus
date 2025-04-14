@@ -85,13 +85,6 @@ sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../buil
 ```
 
 
-To run for nodes
-
-```
-cd test/fournodes
-sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust [consensus-basic]  
-```
-
 ## Contributing
 
 **If you have any questions please ask our development community on [Discord](https://discord.gg/vvUtWJB).**
