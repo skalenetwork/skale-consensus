@@ -60,13 +60,13 @@ cd skale-consensus/scripts && ./build.sh DEBUG=1
 cd .. && cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug
 ```
 
-###  5  Build All Targets Using All Available CPU Code
+###  5.  Build All Targets Using All Available CPU Code
 
 ```
 cmake --build build -- -j$(nproc) 
 ```
 
-### Running tests
+## Running tests
 
 After the build completes, the *build* directory contains a test binary named **consensust**,  
 which can run a number of consensus tests.
