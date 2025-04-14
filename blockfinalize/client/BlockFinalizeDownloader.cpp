@@ -51,6 +51,9 @@
 #include "utils/Time.h"
 #include "chains/BlockErrorAnalyzer.h"
 #include "BlockFinalizeDownloader.h"
+
+#include <boost/endian/buffers.hpp>
+
 #include "BlockFinalizeDownloaderThreadPool.h"
 #include "bite/BiteManager.h"
 #include "crypto/CryptoManager.h"
@@ -336,6 +339,26 @@ bool BlockFinalizeDownloader::exitDownloadLoop() {
 }
 
 
+void BlockFinalizeDownloader::waitAfterNetworkError() {
+    // we have a refused connection
+    // we will wait some time to try
+
+    auto waitTimeAfterError = getNode()->getWaitAfterNetworkErrorMs();
+
+    auto errorTime = Time::getCurrentTimeMs();
+
+    while (Time::getCurrentTimeMs() < errorTime + waitTimeAfterError) {
+        if (getNode()->isExitRequested()) {
+            return;
+        }
+
+        if (exitDownloadLoop()) {
+            return;
+        }
+        usleep( static_cast< __useconds_t >( 100 * 1000) );
+    }
+}
+
 void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     BlockFinalizeDownloader* _agent, schain_index _dstIndex ) {
     CHECK_STATE( _agent )
@@ -375,7 +398,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 if (_agent->exitDownloadLoop()) {
                     return;
                 }
-            }
+            };
 
             try {
                 nextFragment = _agent->downloadFragment( _dstIndex, nextFragment );
@@ -383,13 +406,11 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 return;
             } catch ( ConnectionRefusedException& e ) {
                 _agent->logConnectionRefused( e, _dstIndex );
-                // we have a refused connection
-                // we will wait some time to try
-                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
+                _agent->waitAfterNetworkError();
             } catch ( exception& e ) {
                 LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
                 SkaleException::logNested( e );
-                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
+                _agent->waitAfterNetworkError();
             }
         }
     } catch ( FatalError& e ) {

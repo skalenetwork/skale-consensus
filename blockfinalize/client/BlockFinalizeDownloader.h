@@ -94,4 +94,6 @@ public:
     string readDAProofSig( nlohmann::json _responseHeader );
 
     bool exitDownloadLoop();
+
+    void waitAfterNetworkError();
 };
