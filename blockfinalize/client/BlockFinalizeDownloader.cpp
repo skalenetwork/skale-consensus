@@ -385,14 +385,16 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
             // no matter what
             if (!testFinalizationDownloadOnly) {
                 if (_agent->exitDownloadLoop()) {
-                    return;
+                    break;
                 }
             };
 
             try {
                 nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
+                if (nextFragment == 0)
+                    break;;
             } catch (ExitRequestedException &) {
-                return;
+                break;
             } catch (ConnectionRefusedException &e) {
                 _agent->logConnectionRefused(e, _dstIndex, __PRETTY_FUNCTION__);
                 _agent->waitAfterNetworkError();
