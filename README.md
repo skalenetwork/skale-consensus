@@ -51,7 +51,7 @@ git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.g
 
 ###  3. Build dependencies in debug mode
 ```bash        
-cd skale-consensus/scripts && ./build.sh DEBUG=1
+cd skale-consensus/deps && ./build.sh DEBUG=1
 ```         
 
 ###  4. Configure the CMake build in Debug Mode.
