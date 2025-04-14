@@ -29,7 +29,7 @@ The preferred build and execution environment is **Ubuntu 22.04**.
 
 Later versions of Ubuntu may work, but they are not officially tested.
 
-### 1. Install Dependencies
+### 1. Install packages
 
 ```bash
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -42,25 +42,25 @@ sudo apt install -yq libprocps-dev gcc-11 g++-11 valgrind gawk sed libffi-dev cc
 ```
 
 
-2. Clone repo   
+### 2. Clone the repo   
 
 ```bash
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
 ```
 
 
-3. Build dependencies in debug mode
+###  3. Build dependencies in debug mode
 ```bash        
-cd scripts && ./build.sh DEBUG=1
+cd skale-consensus/scripts && ./build.sh DEBUG=1
 ```         
 
-4. Configure the CMake build in Debug Mode.
+###  4. Configure the CMake build in Debug Mode.
 
 ```   
 cd .. && cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug
 ```
 
-5  Build All Targets Using All Available CPU Code
+###  5  Build All Targets Using All Available CPU Code
 
 ```
 cmake --build build -- -j$(nproc) 
@@ -68,11 +68,11 @@ cmake --build build -- -j$(nproc)
 
 ### Running tests
 
-After the build completes, *build* directory includes a test binary  **consensust** 
-that can run number of consensus tests.
+After the build completes, the *build* directory contains a test binary named **consensust**,  
+which can run a number of consensus tests.
 
-The test subdirectories are located in the **tests** directory.
-To run a particular test, cd into its respective subdirectory.
+The test subdirectories are located in the **tests** directory.  
+To run a specific test, navigate to its corresponding subdirectory.
 
 Examples:
 
