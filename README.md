@@ -1,31 +1,35 @@
-# SKALE Consensus: a BFT Consensus engine in C++
+# SKALE Consensus: a Blockchain Consensus engine in C++
 
 [![Discord](https://img.shields.io/discord/534485763354787851.svg)](https://discord.gg/vvUtWJB)
 ![Build and test skale-consensus](https://github.com/skalenetwork/skale-consensus/workflows/Build%20and%20test%20skale-consensus/badge.svg)
 
 
-Skale-consensus  is an **implementation of SKALE provable consensus spec** as described here https://docs.skale.network/technology/consensus-spec
+**SKALE Consensus** is an ultra-high-performance blockchain consensus engine written in C++.
 
-Key features of of SKALE consensus
+## Key Features of SKALE Consensus
 
-* **provably secure**
-* **forkless**
-* **single block finality** - blocks become immediately finalized once committed.
-* **survives under arbitrarily long network distruptions and delays** by implementing asynchronous network model
-* **multiple block proposers per block provide protocol stability** even if **some block proposers are down**
+- **Over 10,000 TPS**
+- **Byzantine fault tolerant** — no block gaps, and stable performance even with up to 1/3 of nodes offline
+- **Provably secure**
+- **Forkless**
+- **Single-block finality** — blocks are immediately finalized upon commitment
+- **Resilient to arbitrarily long network disruptions and delays** through an asynchronous network model
+- **Multiple block proposers per block** — ensures protocol stability even when some proposers are offline
+- **Secure against MEV and front-running** — provably resistant to manipulation
 
-Read the spec for more exciting features. 
 
-The consensus is under active improvement and research.
+Read the spec for more exciting features https://docs.skale.network/technology/consensus-spec 
+
+See visualization of live conseneus https://www.youtube.com/watch?v=0NGCSRjjPkk
 
 
-## Installation Requirements
+## Building from Source
 
-SKALE consensus has been built and tested on Ubuntu 18.04 and later.
+The preferred build and execution environment is **Ubuntu 22.04**.
 
-The preferred build and execution environment is currenty Ubuntu 22.04.  
+Later versions of Ubuntu may work, but they are not officially tested.
 
-Ensure that the required packages are installed by executing:
+### 1. Install Dependencies
 
 ```bash
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -37,34 +41,56 @@ sudo apt install -yq libprocps-dev gcc-11 g++-11 valgrind gawk sed libffi-dev cc
     libssl-dev doxygen libgcrypt20-dev
 ```
 
-### Building from source on Ubuntu (Development)
- 
-Steps to build from source:
+
+2. Clone repo   
 
 ```bash
-# clone repo
 git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.git
-# build dependencies
-cd scripts && ./build.sh DEBUG=1 
-# Configure the Cmake build.
+```
+
+
+3. Build dependencies in debug mode
+```bash        
+cd scripts && ./build.sh DEBUG=1
+```         
+
+4. Configure the CMake build in Debug Mode.
+
+```   
 cd .. && cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug
-#  now build all targets using all available CPU cores
+```
+
+5  Build All Targets Using All Available CPU Code
+
+```
 cmake --build build -- -j$(nproc) 
 ```
 
 ### Running tests
 
-Navigate to the testing directories and run `./consensusd .`
+After the build completes, *build* directory includes a test binary  **consensust** 
+that can run number of consensus tests.
 
-## Libraries
+The test subdirectories are located in the **tests** directory.
+To run a particular test, cd into its respective subdirectory.
 
--   [libBLS](https://github.com/skalenetwork/libBLS) by [SKALE Labs](https://skalelabs.com/)
+Examples:
 
 
-## An important note about production readiness:
+To run one node
 
-The SKALE consensus is still in active development and contains bugs. This software should be regarded as _alpha software_. Development is still subject to competing the specification, security hardening, further testing, and breaking changes.  **This consensus engine has not yet been reviewed or audited for security.** Please see [SECURITY.md](SECURITY.md) for reporting policies.
+```
+cd test/onenode
+sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust [consensus-basic]  
+```
 
+
+To run for nodes
+
+```
+cd test/fournodes
+sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust [consensus-basic]  
+```
 
 ## Contributing
 
