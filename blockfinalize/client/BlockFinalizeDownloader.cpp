@@ -380,15 +380,9 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     }
 
     try {
+        // we need to call downloadFragment at least once since we need bite shares
         while (!node->isExitRequested()) {
             // if testFinalizationDownloadOnly is set to true we do full finalization
-            // no matter what
-            if (!testFinalizationDownloadOnly) {
-                if (_agent->exitDownloadLoop()) {
-                    break;
-                }
-            };
-
             try {
                 nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
                 if (nextFragment == 0)
@@ -403,6 +397,13 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 SkaleException::logNested(e);
                 _agent->waitAfterNetworkError();
             }
+
+            // no matter what
+            if (!testFinalizationDownloadOnly) {
+                if (_agent->exitDownloadLoop()) {
+                    break;
+                }
+            };
         }
     } catch (FatalError &e) {
         SkaleException::logNested(e);
@@ -417,8 +418,6 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
         threadPool->startService();
         threadPool->joinAll();
     }
-
-    LOG(err, "Complete");
 
     try {
         // first check if we do not need to do anything because a block separately arrived in catchup
@@ -435,6 +434,7 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
 
         // now we need to recombine the fragment list
         if (fragmentList.isComplete()) {
+            CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId));
             auto block = BlockProposal::deserialize(
                 fragmentList.serialize(), getSchain()->getCryptoManager(), true);
             CHECK_STATE(block)

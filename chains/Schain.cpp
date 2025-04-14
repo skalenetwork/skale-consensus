@@ -1408,13 +1408,17 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
                 proposal = agent->downloadProposal();
                 // if null is returned it means that catchup happened first and
                 // the block will be processed through catchup
-                if ( proposal )
+                if ( proposal ) {
+                    CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(proposal->getBlockID()));
                     daSig = agent->getDaSig( proposal->getTimeStampS() );
+                }
             }
 
 
-            if ( proposal )  // Nullptr means catchup happened first
+            if ( proposal ) {
                 getNode()->getBlockProposalDB()->addBlockProposal( proposal );
+
+            }
         }
 
 
