@@ -14,6 +14,7 @@ class DecryptedAESKeyList;
 class AESKeyDecryptionShareList;
 class BiteDataField;
 class TransactionList;
+class EncryptedAESKey;
 
 
 using DecryptedTransactionDataFields = map<uint64_t, shared_ptr<vector<uint8_t>>>;
@@ -33,6 +34,9 @@ public:
 
     ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeys(vector<ptr<BiteDataField>> &_dataFields);
 
+
+    ptr<AESKeyDecryptionShare> decryptAESKeyShare(ptr <EncryptedAESKey> _key, schain_index _decryptorIndex);
+
     ptr<DecryptedTransactionDataFields> verifyAndDecryptTransactionList(TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys);
 
     static ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare, schain_index _decryptorIndex,
@@ -42,6 +46,5 @@ public:
     vector< uint8_t > mockupDecryptDataField( const ptr< BiteDataField >& bite ) const;
 
     ptr<vector<uint8_t>> teEncryptData(const vector<uint8_t>& _data);
-
 
 };

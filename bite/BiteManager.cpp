@@ -130,6 +130,15 @@ BiteManager::decryptBiteDataFields( block_id _blockId, schain_index _proposerInd
 }
 
 
+ptr<AESKeyDecryptionShare> BiteManager::decryptAESKeyShare(ptr <EncryptedAESKey> _key, schain_index _decryptorIndex) {
+
+    if (doRealCrypto) {
+        return nullptr;
+    } else {
+        return MockupAESKeyDecryptionShare::mockupDecrypt(_key, _decryptorIndex);
+    }
+}
+
 ptr< vector< ptr< AESKeyDecryptionShare > > > BiteManager::decryptAESKeys(
     vector< ptr< BiteDataField > >& _dataFields ) {
     auto result = make_shared< vector< ptr< AESKeyDecryptionShare > > >();
@@ -139,7 +148,7 @@ ptr< vector< ptr< AESKeyDecryptionShare > > > BiteManager::decryptAESKeys(
         auto encryptedAESKey = field->getEncryptedAESKey();
         CHECK_STATE( encryptedAESKey );
         auto keyDecryptionShare =
-            MockupAESKeyDecryptionShare::mockupDecrypt( encryptedAESKey, schain.getSchainIndex() );
+            decryptAESKeyShare( encryptedAESKey, schain.getSchainIndex() );
         CHECK_STATE( keyDecryptionShare )
         result->push_back( keyDecryptionShare );
     }
