@@ -418,7 +418,10 @@ void EthTransactionEncoder::uint64toVec( uint64_t v_value, vector< uint8_t >& v_
 
 ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, ptr<BiteManager> _biteManager ) {
     CHECK_STATE(_biteManager)
+    static atomic< uint64_t > counter = 0;
     static atomic< uint64_t > nonce = 0;
+
+
 
     /// Transaction templates
     /// Does not need to follow the fields order - the order is only enforced when calling
@@ -460,7 +463,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     };
 
     // rotate over each tx type each call
-    uint64_t currentTxType = 1; //counter.fetch_add( 1 ) % 3;
+    uint64_t currentTxType = counter.fetch_add( 1 ) % 3;
     TxType txType = static_cast< TxType >( currentTxType );
 
     auto currentNonce = nonce.fetch_add( 1 );
@@ -488,12 +491,6 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     uint64toVec( BITE_CHAIN_ID, txRef.chainId );
 
     uint64toVec( currentNonce, txRef.nonce );
-
-    auto encryptedData = libBLS::ThresholdEncryption::mockupEncrypt(txRef.data);
-
-    auto encryptedKeyBytes = make_shared<array<uint8_t , BITE_ENCRYPTED_AES_KEY_LEN>>();
-
-    auto encryptedAesKey = make_shared<EncryptedAESKey>(encryptedKeyBytes);
 
     if ( _isByte ) {
         auto encryptedKeyPlusData = _biteManager->teEncryptData(txRef.data);

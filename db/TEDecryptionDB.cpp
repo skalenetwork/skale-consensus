@@ -97,11 +97,17 @@ void TEDecryptionDB::addDecryptionShares(
         return;
     }
 
+    if (!decryptionShareListSet.empty()) {
+        auto firstShare = decryptionShareListSet.begin()->second;
+        CHECK_STATE( firstShare->getProposerIndex() == _decryptionShareList->getProposerIndex() );
+        CHECK_STATE( firstShare->getSize() == _decryptionShareList->getSize() );
+    }
 
     decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
 };
 
 ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
+
 
     READ_LOCK(decryptionSetsMutex)
 
@@ -133,14 +139,13 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
                 _blockId, decryptionShareIterator.first );
     }
 
-
     for ( auto&& it : decryptionShareLists ) {
         auto decryptionSharesList = it.second;
         CHECK_STATE( decryptionSharesList );
-        CHECK_STATE( decryptionSharesList->getProposerIndex() =
+        CHECK_STATE( decryptionSharesList->getProposerIndex() ==
                          firstDecryptionShareList->getProposerIndex() );
         for ( auto&& shareIterator : decryptionSharesList->getDecryptionShares() ) {
-            CHECK_STATE( decryptionShareSets.count( shareIterator.first > 0 ) );
+            CHECK_STATE( decryptionShareSets.count( shareIterator.first) > 0  );
             auto decryptionSharesSet = decryptionShareSets.at( shareIterator.first );
             decryptionSharesSet->addDecryptionShare( shareIterator.second );
         }
