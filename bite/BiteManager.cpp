@@ -16,6 +16,8 @@
 
 #include "BiteManager.h"
 
+#include <crypto/ConsensusAESKeyDecryptionShare.h>
+#include <crypto/ConsensusAESKeyDecryptionShareSet.h>
 #include <crypto/CryptoManager.h>
 #include <crypto/DecryptedAESKeyList.h>
 
@@ -248,13 +250,23 @@ ptr<vector<uint8_t> > BiteManager::teEncryptData(const vector<uint8_t> &_data) {
 
 ptr<AESKeyDecryptionShare> BiteManager::createAESDecryptionShare(
     const string _aesKeyDecryptionShare, schain_index _decryptorIndex, bool _decryptionFailed) {
-    return make_shared<MockupAESKeyDecryptionShare>(
-        _aesKeyDecryptionShare, _decryptorIndex, _decryptionFailed);
+    if (doRealCrypto) {
+        return make_shared<ConsensusAESKeyDecryptionShare>(
+            _aesKeyDecryptionShare, _decryptorIndex, _decryptionFailed);
+    } else {
+        return make_shared<MockupAESKeyDecryptionShare>(
+            _aesKeyDecryptionShare, _decryptorIndex, _decryptionFailed);
+    }
 }
 
 
 ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(
     block_id _blockId, transaction_index _transactionIndex) {
-    return make_shared<MockupAESKeyDecryptionShareSet>(
-        _blockId, _transactionIndex, schain.getTotalSigners(), schain.getRequiredSigners());
+    if (doRealCrypto) {
+        return make_shared<ConsensusAESKeyDecryptionShareSet>(
+            _blockId, _transactionIndex, schain.getTotalSigners(), schain.getRequiredSigners());
+    } else {
+        return make_shared<MockupAESKeyDecryptionShareSet>(
+            _blockId, _transactionIndex, schain.getTotalSigners(), schain.getRequiredSigners());
+    }
 }

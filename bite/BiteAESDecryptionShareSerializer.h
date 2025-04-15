@@ -17,5 +17,5 @@ public:
     static shared_ptr< AESKeyDecryptionShareList > getDecryptionShares( const block_id _blockId,
         const schain_index _proposerIndex, const schain_index _decryptorIndex,
         const flatbuffers::Vector< ::flatbuffers::Offset< skale_fb::DecryptionShare > >*
-            _fbDecryptionSharesHandle );
+            _fbDecryptionSharesHandle, ptr<BiteManager> _biteManager);
 };

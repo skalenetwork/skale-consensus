@@ -10,6 +10,8 @@
 #include "crypto/AESKeyDecryptionShareList.h"
 #include "BiteAESDecryptionShareSerializer.h"
 
+#include <chains/Schain.h>
+
 
 ptr< std::vector< uint8_t > > BiteAESDecryptionShareSerializer::serialize(
     ptr< AESKeyDecryptionShareList > _decryptionShareList ) {
@@ -80,14 +82,16 @@ ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::deserialize(
 
     CHECK_STATE( fbDecryptionSharesHandle );
 
-    return getDecryptionShares(blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle);
+    return getDecryptionShares(blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle,
+        _manager->getSchain()->getBiteManager());
 }
 
 
 shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDecryptionShares(
     const block_id _blockId, const schain_index _proposerIndex, const schain_index _decryptorIndex,
     const flatbuffers::Vector< ::flatbuffers::Offset< skale_fb::DecryptionShare > >*
-        _fbDecryptionSharesHandle ) {
+        _fbDecryptionSharesHandle, ptr<BiteManager> _biteManager) {
+    CHECK_STATE(_biteManager)
     auto shares =
         make_shared< AESKeyDecryptionShareList >( _blockId, _proposerIndex, _decryptorIndex );
 
@@ -96,7 +100,7 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
         auto rawData = fbdecryptionShareHandle->data()->data();
         CHECK_STATE( rawData );
         string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
-        auto decryptionShare = BiteManager::createAESDecryptionShare(
+        auto decryptionShare = _biteManager->createAESDecryptionShare(
             decryptionShareStr, _decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
         shares->addShare( fbdecryptionShareHandle->transaction_index(), decryptionShare );
     }

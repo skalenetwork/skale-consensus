@@ -42,7 +42,7 @@ public:
     ptr<DecryptedTransactionDataFields> verifyAndDecryptTransactionList(TransactionList &_transactionList,
                                                                         DecryptedAESKeyList &_aesKeys);
 
-    static ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
+    ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
                                                                schain_index _decryptorIndex,
                                                                bool _decryptionFailed);
 

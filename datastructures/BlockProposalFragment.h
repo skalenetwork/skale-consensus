@@ -28,6 +28,7 @@
 #include <flatb/committed_block_fragment_generated.h>
 class AESKeyDecryptionShare;
 class AESKeyDecryptionShareList;
+class BiteManager;
 
 namespace skale_fb {
 struct CommittedBlockFragment;
@@ -52,7 +53,7 @@ class BlockProposalFragment {
     const skale_fb::CommittedBlockFragment* fbBlockFragment = nullptr;
     ptr< AESKeyDecryptionShareList > decryptionShares;
     ptr< vector< uint8_t > > _fbSerializedBlockFragment;
-    void deserializeFromFlatBuffer();
+    void deserializeFromFlatBuffer(ptr<BiteManager> _biteManager);
 
 #endif
 
@@ -61,6 +62,7 @@ public:
     BlockProposalFragment( const block_id& _blockId,
 #ifdef BITE
         const schain_index _proposerIndex, const schain_index _decryptorIndex,
+        ptr<BiteManager> _biteManager,
 #endif
         uint64_t _totalFragments, const fragment_index& fragmentIndex,
         const ptr< vector< uint8_t > >& _data, uint64_t _blockSize, const string& _blockHash );

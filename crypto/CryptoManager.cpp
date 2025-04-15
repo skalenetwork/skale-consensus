@@ -66,8 +66,10 @@
 #include "MockupSignature.h"
 
 #ifdef BITE
+#include "threshold_encryption/TEDecryptionShare.h"
 #include "crypto/AESKeyDecryptionShare.h"
 #include "crypto/EncryptedAESKey.h"
+#include "ConsensusAESKeyDecryptionShare.h"
 #endif
 #include "chains/Schain.h"
 #include "messages/NetworkMessage.h"
@@ -93,6 +95,11 @@
 
 
 #include "CryptoManager.h"
+
+
+namespace libBLS {
+    class TEDecryptionShare;
+}
 
 void CryptoManager::initSGXClient() {
     if (isSGXEnabled) {
@@ -876,7 +883,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
     string ret;
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-    ptr<AESKeyDecryptionShare> result = nullptr;
+
 
     uint64_t time = 0;
     teDecryptShareCounter.fetch_add(1);
@@ -899,22 +906,30 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
         sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
     RETRY_END
 
+
+    std::vector< libBLS::TEDecryptionShare > blsShares;
+
+    auto sharesArray = jsonShares["decryptionShares"];
+
+    CHECK_STATE(sharesArray.isArray())
+
+    auto result = make_shared<vector<ptr<AESKeyDecryptionShare>>>();
+
+    for (Json::Value::ArrayIndex i = 0; i < blsShares.size(); ++i) {
+        string shareStr = sharesArray[i].asString();
+        auto share = make_shared<libBLS::TEDecryptionShare>(shareStr, (uint64_t) getSchain()->getSchainIndex());
+        auto consensusDecryptShare =
+            make_shared<ConsensusAESKeyDecryptionShare>(share, sChain->getSchainIndex(), false);
+        result->push_back(consensusDecryptShare);
+    } ;
+
     JSONFactory::checkSGXStatus(jsonShares);
 
-    /*
-    ret = JSONFactory::getString(jsonShares, "signatureShare");
-
-    auto sigShare = make_shared<string>(ret);
-
-    auto sig = make_shared<BLSSigShare>(
-        sigShare, (uint64_t) getSchain()->getSchainIndex(), requiredSigners, totalSigners);
-    result = make_shared<ConsensusBLSSigShare>(sig, sChain->getSchainID(), _blockId);
-    */
 
     if (measureTime)
         addBLSSignStats(Time::getCurrentTimeMs() - time );
 
-    return nullptr;
+    return result;
 }
 
 #endif

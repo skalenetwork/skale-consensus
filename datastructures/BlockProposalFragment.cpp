@@ -40,6 +40,7 @@
 BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
 #ifdef BITE
     const schain_index _proposerIndex, const schain_index _decryptorIndex,
+    ptr<BiteManager> _biteManager,
 #endif
     const uint64_t _totalFragments, const fragment_index& _fragmentIndex,
 
@@ -63,7 +64,8 @@ BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
 
 
 #ifdef BITE
-    deserializeFromFlatBuffer();
+    CHECK_STATE(_biteManager)
+    deserializeFromFlatBuffer(_biteManager);
 #else
 
     if ( _data->size() < 3 ) {
@@ -167,8 +169,9 @@ ptr< vector< uint8_t > > BlockProposalFragment::serialize() {
 
 
 #ifdef BITE
-void BlockProposalFragment::deserializeFromFlatBuffer() {
+void BlockProposalFragment::deserializeFromFlatBuffer(ptr<BiteManager> _biteManager) {
     CHECK_STATE( data )
+    CHECK_STATE(_biteManager)
 
 
     VERIFY_AND_PARSE_FLATBUFFER_FROM_VECTOR( *data, CommittedBlockFragment, fbBlockFragment );
@@ -179,7 +182,7 @@ void BlockProposalFragment::deserializeFromFlatBuffer() {
     CHECK_STATE( fbDecryptionSharesHandle );
 
     decryptionShares = BiteAESDecryptionShareSerializer::getDecryptionShares(
-        blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle );
+        blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle, _biteManager );
 }
 
 

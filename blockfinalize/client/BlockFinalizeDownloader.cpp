@@ -281,6 +281,7 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
 #ifdef BITE
                                                       _proposerIndex,
                                                       _destinationIndex,
+                                                      getSchain()->getBiteManager(),
 #endif
 
                                                       (uint64_t) _nodeCount - 1,
