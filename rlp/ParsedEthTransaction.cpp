@@ -90,7 +90,63 @@ std::vector< uint8_t > ParsedEthTransaction::parseLongByteVector(
     return out;
 }
 
-std::vector< uint8_t > ParsedEthTransaction::parseByteVector(
+
+std::vector<uint8_t> ParsedEthTransaction::parseLongList(
+    const std::vector<uint8_t>& tx, uint64_t& offset, uint8_t prefix) {
+    
+    size_t lenOfLen = prefix - 0xf7;
+    if (offset + 1 + lenOfLen > tx.size()) {
+        throw std::invalid_argument("parseLongList: lenOfLen out of bounds");
+    }
+    
+    size_t len = readLen(tx, offset + 1, lenOfLen);
+    offset += 1 + lenOfLen;
+    
+    if (offset + len > tx.size()) {
+        throw std::invalid_argument("parseLongList: slice out of bounds");
+    }
+    
+    std::vector<uint8_t> result;
+    const uint64_t endOffset = offset + len;
+    // last item from list will be returned - will never be used
+    while (offset < endOffset) {
+        result = parseBytes(tx, offset);
+    }
+    
+    if (offset != endOffset) {
+        throw std::invalid_argument("parseLongList: invalid list encoding");
+    }
+    
+    return result;
+}
+
+
+std::vector<uint8_t> ParsedEthTransaction::parseShortList(
+    const std::vector<uint8_t>& tx, uint64_t& offset, uint8_t prefix) {
+    
+    size_t len = prefix - 0xc0;
+    if (offset + 1 + len > tx.size()) {
+        throw std::invalid_argument("parseShortList: slice out of bounds");
+    }
+    
+    std::vector<uint8_t> result;
+    const uint64_t startOffset = offset + 1;
+    const uint64_t endOffset = startOffset + len;
+    
+    offset = startOffset;
+    // last item from list will be returned - will never be used
+    while (offset < endOffset) {
+        result = parseBytes(tx, offset);
+    }
+    
+    if (offset != endOffset) {
+        throw std::invalid_argument("parseShortList: invalid list encoding");
+    }
+    
+    return result;
+}
+
+std::vector< uint8_t > ParsedEthTransaction::parseBytes(
     const std::vector< uint8_t >& _tx, uint64_t& _offset ) {
     if ( _offset >= _tx.size() )
         throw std::invalid_argument( "parseByteVector: no data left" );
@@ -101,14 +157,16 @@ std::vector< uint8_t > ParsedEthTransaction::parseByteVector(
         return parseShortByteVector( _tx, _offset, prefix );
     else if ( prefix <= 0xbf )
         return parseLongByteVector( _tx, _offset, prefix );
+    else if (prefix <= 0xf7)
+        return parseShortList(_tx, _offset, prefix);
     else
-        throw invalid_argument( "Invalid RLP element prefix" );
+        return parseLongList(_tx, _offset, prefix);
 }
 
 void ParsedEthTransaction::parseTransactionFields(
     const std::vector< uint8_t >& _tx, size_t& _offset, int fieldCount ) {
     for ( int i = 0; i < fieldCount; ++i ) {
-        fields.push_back( parseByteVector( _tx, _offset ) );
+        fields.push_back( parseBytes( _tx, _offset ) );
     }
 
     if ( _offset != _tx.size() ) {
@@ -169,7 +227,12 @@ void ParsedEthTransaction::validateFieldsCount() const {
     }
 }
 void ParsedEthTransaction::validateToField() {
-    const auto& toField = fields.at( type == 0 ? 3 : 5 );
+    // if type 0, then idx is 3
+    // if type 1, then idx is 4
+    // if type 2, then idx is 5
+    auto toFieldIdx = 3 + type;
+
+    const auto& toField = fields.at( toFieldIdx );
     if ( !toField.empty() && toField.size() != 20 ) {
         throw invalid_argument( "Invalid 'to' address length" );
     }
@@ -207,17 +270,31 @@ void ParsedEthTransaction::validateSignature() {
     }
 
 
-    EthTransactionEncoder::LegacyTx txWithoutSig;
+    std::unique_ptr<EthTransactionEncoder::Transaction> txWithoutSig;
 
-    txWithoutSig.nonce = fields.at( 0 );
-    txWithoutSig.gasPrice = fields.at( 1 );
-    txWithoutSig.gasLimit = fields.at( 2 );
-    txWithoutSig.to = fields.at( 3 );
-    txWithoutSig.value = fields.at( 4 );
-    txWithoutSig.data = fields.at( 5 );
-    EthTransactionEncoder::uint64toVec( BITE_CHAIN_ID, txWithoutSig.chainId );
+    if (type >= 3) {
+        throw invalid_argument( "Unknown transaction type" );
+    }
+    
+    EthTransactionEncoder::TxType txType = static_cast< EthTransactionEncoder::TxType >( type );
+    switch (txType) {
+        case EthTransactionEncoder::TxType::LEGACY:
+            txWithoutSig = std::make_unique<EthTransactionEncoder::LegacyTx>(fields);
+            break;
+        case EthTransactionEncoder::TxType::TYPE1:
+            txWithoutSig = std::make_unique<EthTransactionEncoder::Type1Tx>(fields);
+            break;
+        case EthTransactionEncoder::TxType::TYPE2:
+            txWithoutSig = std::make_unique<EthTransactionEncoder::Type2Tx>(fields);
+            break;
+        default:
+            throw invalid_argument( "Unknown transaction type" );
+    }
+
+    EthTransactionEncoder::Transaction& txWithoutSigRef = *txWithoutSig;
+    EthTransactionEncoder::uint64toVec( BITE_CHAIN_ID, txWithoutSigRef.chainId );
     std::vector< uint8_t > encoded_tx =
-        EthTransactionEncoder::rlpEncode( txWithoutSig, false, nullptr, nullptr, nullptr );
+        EthTransactionEncoder::rlpEncode( txWithoutSigRef, false, nullptr, nullptr, nullptr );
     std::vector< uint8_t > tx_hash = EthTransactionEncoder::hashTransaction( encoded_tx );
     auto r_padded = padTo32Bytes( r );
     auto s_padded = padTo32Bytes( s );

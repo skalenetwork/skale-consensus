@@ -28,10 +28,19 @@ private:
     static inline std::vector< uint8_t > parseLongByteVector(
         const std::vector< uint8_t >& _tx, size_t& _offset, uint8_t _prefix );
 
+    /// The 2 methods below do not return the actual decoded value representing the lists,
+    /// but actually only the last decoded value within that list (or list of lists, and so on).
+    /// This is because we only care about the structure, not the content. These methods are used to
+    /// parse the RLP structure.
+    static inline std::vector<uint8_t> parseShortList(
+        const std::vector<uint8_t>& tx, uint64_t& offset, uint8_t prefix );
+    static inline std::vector<uint8_t> parseLongList(
+        const std::vector<uint8_t>& tx, uint64_t& offset, uint8_t prefix);
+
     static inline size_t readLen( const std::vector< uint8_t >& _tx, size_t _offset, size_t _len );
     static inline bool isTypedTransaction( uint8_t prefix );
     static inline void skipRlpListHeader( const std::vector< uint8_t >& _tx, size_t& _offset );
-    static inline std::vector< uint8_t > parseByteVector(
+    static inline std::vector< uint8_t > parseBytes(
         const std::vector< uint8_t >& _tx, size_t& _offset );
 
 

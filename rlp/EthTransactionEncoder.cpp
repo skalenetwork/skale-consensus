@@ -20,6 +20,111 @@
 #pragma GCC diagnostic push // make compiler happy
 #pragma GCC diagnostic ignored "-Wignored-attributes"
 
+/// Transaction implementations
+
+// Legacy
+std::vector< std::vector< uint8_t > > EthTransactionEncoder::LegacyTx::encode() const {
+    std::vector< std::vector< uint8_t > > fields;
+    EthTransactionEncoder::addEncodedFieldUint256(fields, nonce);
+    EthTransactionEncoder::addEncodedFieldUint256(fields, gasPrice);
+    EthTransactionEncoder::addEncodedFieldUint256(fields, gasLimit);
+    EthTransactionEncoder::addEncodedFieldBytes  (fields, to);
+    EthTransactionEncoder::addEncodedFieldUint256(fields, value);
+    EthTransactionEncoder::addEncodedFieldBytes  (fields, data);
+
+    return fields;
+}
+
+EthTransactionEncoder::TxPrefix EthTransactionEncoder::LegacyTx::getBytePrefix() const {
+    return EthTransactionEncoder::TxPrefix::NONE;
+}
+
+// Type 1
+std::vector< std::vector< uint8_t > > EthTransactionEncoder::Type1Tx::encode() const {
+    std::vector< std::vector< uint8_t > > fields;
+    EthTransactionEncoder::addEncodedFieldUint256(fields, chainId);   // new field for EIP-2930
+    EthTransactionEncoder::addEncodedFieldUint256(fields, nonce);
+    EthTransactionEncoder::addEncodedFieldUint256(fields, gasPrice);
+    EthTransactionEncoder::addEncodedFieldUint256(fields, gasLimit);
+    EthTransactionEncoder::addEncodedFieldBytes  (fields, to);
+    EthTransactionEncoder::addEncodedFieldUint256(fields, value);
+    EthTransactionEncoder::addEncodedFieldBytes  (fields, data);
+
+    // encode access list - new field for EIP-2930
+    std::vector< std::vector< uint8_t > > rlpAccessList;
+    for ( const auto& accessTuple : accessList ) {
+        std::vector< uint8_t > rlpAccessTuple = accessTuple.encode();
+        rlpAccessList.push_back( rlpAccessTuple );
+    }
+    EthTransactionEncoder::addEncodedFieldBytes(fields, std::vector<uint8_t>{});
+
+    return fields;
+}
+
+EthTransactionEncoder::TxPrefix EthTransactionEncoder::Type1Tx::getBytePrefix() const {
+    return EthTransactionEncoder::TxPrefix::TYPE1;
+}
+
+// Type 2
+std::vector< std::vector< uint8_t > > EthTransactionEncoder::Type2Tx::encode() const {
+    std::vector< std::vector< uint8_t > > fields;
+    EthTransactionEncoder::addEncodedFieldUint256(fields, chainId);
+    EthTransactionEncoder::addEncodedFieldUint256(fields, nonce);
+    EthTransactionEncoder::addEncodedFieldUint256(fields, maxPriorityFeePerGas);   // new field for EIP-1559
+    EthTransactionEncoder::addEncodedFieldUint256(fields, maxFeePerGas);           // new field for EIP-1559
+    EthTransactionEncoder::addEncodedFieldUint256(fields, gasLimit);
+    EthTransactionEncoder::addEncodedFieldBytes  (fields, to);
+    EthTransactionEncoder::addEncodedFieldUint256(fields, value);
+    EthTransactionEncoder::addEncodedFieldBytes  (fields, data);
+
+    std::vector< std::vector< uint8_t > > rlpAccessList;
+    for ( const auto& accessTuple : accessList ) {
+        std::vector< uint8_t > rlpAccessTuple = accessTuple.encode();
+        rlpAccessList.push_back( rlpAccessTuple );
+    }
+    EthTransactionEncoder::addEncodedFieldList(fields, rlpAccessList);
+    // EthTransactionEncoder::addEncodedFieldBytes(fields, std::vector<uint8_t>{});
+
+    return fields;
+}
+
+EthTransactionEncoder::TxPrefix EthTransactionEncoder::Type2Tx::getBytePrefix() const {
+    return EthTransactionEncoder::TxPrefix::TYPE2;
+}
+
+std::vector< uint8_t > EthTransactionEncoder::AccessTuple::encode() const {
+    // encode address
+    std::vector< uint8_t > rlpAddress;
+    EthTransactionEncoder::rlpEncodeBytes( rlpAddress, address );
+
+    // encode each item inside list of storage keys
+    std::vector<std::vector<uint8_t>> rlpKeys;
+    for (const auto& key : storageKeys) {
+        std::vector<uint8_t> rlpKey;
+        EthTransactionEncoder::rlpEncodeBytes(rlpKey, key);
+        rlpKeys.push_back(rlpKey);
+    }
+
+    // encode list of storage keys
+    std::vector<uint8_t> rlpStorageKeys;
+    EthTransactionEncoder::rlpEncodeList(rlpStorageKeys, rlpKeys);
+
+    // create new list with encoded address and encoded list of storage keys
+    const std::vector< std::vector< uint8_t > > rlpStorageKeysEncoded = {
+        rlpAddress,
+        rlpStorageKeys
+    };
+
+    // encode the final access tuple
+    std::vector< uint8_t > rlpAccessTuple;
+    EthTransactionEncoder::rlpEncodeList(rlpAccessTuple, rlpStorageKeysEncoded);
+
+    return rlpAccessTuple;
+}
+
+
+/// EthTransactionEncoder implementations
+
 auto EthTransactionEncoder::getHashContext() {
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
     CHECK_STATE( ctx );  // Assuming this is a macro or function to check nullptr
@@ -136,30 +241,12 @@ void EthTransactionEncoder::rlpEncodeList(
     out.insert( out.end(), payload.begin(), payload.end() );
 }
 
-std::vector< uint8_t > EthTransactionEncoder::rlpEncode( const LegacyTx& tx, bool withSig,
+std::vector< uint8_t > EthTransactionEncoder::rlpEncode( const Transaction& tx, bool withSig,
     std::vector< uint8_t >* v_encoded, std::vector< uint8_t >* r_encoded,
     std::vector< uint8_t >* s_encoded ) {
-    std::vector< std::vector< uint8_t > > fields;
-    std::vector< uint8_t > tmp;
-    rlpEncodeUint256( tmp, tx.nonce );
-    fields.push_back( tmp );
-    tmp.clear();
-    rlpEncodeUint256( tmp, tx.gasPrice );
-    fields.push_back( tmp );
-    tmp.clear();
-    rlpEncodeUint256( tmp, tx.gasLimit );
-    fields.push_back( tmp );
-    tmp.clear();
-    rlpEncodeBytes( tmp, tx.to );
-    fields.push_back( tmp );
-    tmp.clear();
-    rlpEncodeUint256( tmp, tx.value );
-    fields.push_back( tmp );
-    tmp.clear();
-    rlpEncodeBytes( tmp, tx.data );
-    fields.push_back( tmp );
-    tmp.clear();
 
+    // get tx fields encoded in order as a vec of byte vectors
+    std::vector< std::vector< uint8_t > > fields = tx.encode();
 
     if ( withSig ) {
         if ( !v_encoded || !r_encoded || !s_encoded )
@@ -168,6 +255,7 @@ std::vector< uint8_t > EthTransactionEncoder::rlpEncode( const LegacyTx& tx, boo
         fields.push_back( *r_encoded );
         fields.push_back( *s_encoded );
     } else {
+        std::vector< uint8_t > tmp;
         std::vector< uint8_t > ZERO;
         rlpEncodeUint256( tmp, ZERO );
         fields.push_back( tmp );
@@ -175,10 +263,24 @@ std::vector< uint8_t > EthTransactionEncoder::rlpEncode( const LegacyTx& tx, boo
         rlpEncodeUint256( tmp, ZERO );
         fields.push_back( tmp );
         tmp.clear();
+        // rlpEncodeUint256( tmp, ZERO );
+        // fields.push_back( tmp );
+        // tmp.clear();
     }
 
     std::vector< uint8_t > encoded;
     rlpEncodeList( encoded, fields );
+
+    // insert tx prefix at beginning if any
+    auto prefix = tx.getBytePrefix();
+    switch (prefix) {
+        case TxPrefix::TYPE1:
+        case TxPrefix::TYPE2:
+            encoded.insert(encoded.begin(), static_cast<uint8_t>(prefix));
+            break;
+        default:
+            break;
+    }
     return encoded;
 }
 
@@ -254,7 +356,7 @@ void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& v_vec,
     }
 }
 
-ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const LegacyTx& tx ) {
+ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const Transaction& tx ) {
     std::vector< uint8_t > privkey = generateRandomPrivateKey();
 
     // 1. RLP encode transaction with EIP-155 format (with chainId, 0, 0)
@@ -315,38 +417,88 @@ void EthTransactionEncoder::uint64toVec( uint64_t v_value, vector< uint8_t >& v_
 }
 
 ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, ptr<BiteManager> _biteManager ) {
+    CHECK_STATE(_biteManager)
+    static atomic< uint64_t > counter = 0;
     static atomic< uint64_t > nonce = 0;
 
-    CHECK_STATE(_biteManager);
 
 
-    static std::unique_ptr< LegacyTx > templateTx = std::make_unique< LegacyTx >( LegacyTx{
+    /// Transaction templates
+    /// Does not need to follow the fields order - the order is only enforced when calling
+    /// `encode` method
+    static LegacyTx templateLegacy {
         {},                                            // nonce
-        { 0x3b, 0x9a, 0xca, 0x00 },                    // gasPrice
         { 0x52, 0x08 },                                // gasLimit
         std::vector< uint8_t >( 20, 0x12 ),            // to
         { 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00 },  // value
         { 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00, 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64,
-            0x00 },  // data
-        {},          // chainId
-    } );
+            0x00 },                                    // data
+        {},                                            // chainId
+        { 0x3b, 0x9a, 0xca, 0x00 },                    // gasPrice
+    };
 
+    static Type1Tx templateType1 {
+        {},                                            // nonce
+        { 0x52, 0x08 },                                // gasLimit
+        std::vector< uint8_t >( 20, 0x12 ),            // to
+        { 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00 },  // value
+        { 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00, 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64,
+            0x00 },                                    // data
+        {},                                            // chainId
+        { 0x3b, 0x9a, 0xca, 0x00 },                    // gasPrice
+        {},                                            // accessList
+    };
 
-    LegacyTx currentTx = *templateTx;
+    static Type2Tx templateType2 {
+        {},                                            // nonce
+        { 0x52, 0x08 },                                // gasLimit
+        std::vector< uint8_t >( 20, 0x12 ),            // to
+        { 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00 },  // value
+        { 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64, 0x00, 0x0d, 0xe0, 0xb6, 0xb3, 0xa7, 0x64,
+            0x00 },                                    // data
+        {},                                            // chainId
+        { 0x3b, 0x9a, 0xca, 0x00 },                    // maxPriorityFeePerGas
+        { 0x0b, 0x9a, 0xca, 0x00 },                    // maxFeePerGas
+        {},                                            // accessList
+    };
+
+    // rotate over each tx type each call
+    uint64_t currentTxType = counter.fetch_add( 1 ) % 3;
+    TxType txType = static_cast< TxType >( currentTxType );
 
     auto currentNonce = nonce.fetch_add( 1 );
 
-    uint64toVec( BITE_CHAIN_ID, currentTx.chainId );
+    std::unique_ptr<Transaction> tx;
 
-    uint64toVec( currentNonce, currentTx.nonce );
-
-    if ( _isByte ) {
-        auto encryptedKeyPlusData = _biteManager->teEncryptData(currentTx.data);
-        BiteDataField biteDataField(encryptedKeyPlusData , 0);
-        currentTx.data = *biteDataField.getSerializedData();
+    switch ( txType ) {
+        case TxType::LEGACY:
+            // std::cout << "TxType::LEGACY \n\n\n";
+            tx = std::make_unique<LegacyTx>(templateLegacy);
+            break;
+        case TxType::TYPE1:
+            // std::cout << "TxType::Type1 \n\n\n";
+            tx = std::make_unique<Type1Tx>(templateType1);
+            break;
+        case TxType::TYPE2:
+            // std::cout << "TxType::Type2 \n\n\n";
+            tx = std::make_unique<Type2Tx>(templateType2);
+            break;
+        default:
+            throw std::invalid_argument( "Unknown transaction type" );
     }
 
-    auto encodedTx = signAndEncodeTx( currentTx );
+    Transaction& txRef = *tx;
+    uint64toVec( BITE_CHAIN_ID, txRef.chainId );
+
+    uint64toVec( currentNonce, txRef.nonce );
+
+    if ( _isByte ) {
+        auto encryptedKeyPlusData = _biteManager->teEncryptData(txRef.data);
+        BiteDataField biteDataField(encryptedKeyPlusData , 0);
+        txRef.data = *biteDataField.getSerializedData();
+    }
+
+    auto encodedTx = signAndEncodeTx( txRef );
     CHECK_STATE( encodedTx );
 
     return encodedTx;
@@ -354,15 +506,48 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
 ptr< vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
     ParsedEthTransaction& _ethTransaction ) {
     auto fields = _ethTransaction.getFields();
-    LegacyTx tx;
-    tx.nonce = fields.at(0);
-    tx.gasPrice = fields.at(1);
-    tx.gasLimit = fields.at(2);
-    tx.to = fields.at(3);
-    tx.value = fields.at(4);
-    tx.data = fields.at(5);
 
-    auto result =  rlpEncode(tx, false, nullptr, nullptr, nullptr );
+    std::unique_ptr<EthTransactionEncoder::Transaction> tx;
+
+    auto type = _ethTransaction.getType();
+    if (type >= 2) {
+        throw invalid_argument( "Unknown transaction type" );
+    }
+
+    EthTransactionEncoder::TxType txType = static_cast< EthTransactionEncoder::TxType >( type );
+    switch (txType) {
+        case EthTransactionEncoder::TxType::LEGACY:
+            tx = std::make_unique<EthTransactionEncoder::LegacyTx>(fields);
+            break;
+        case EthTransactionEncoder::TxType::TYPE1:
+            tx = std::make_unique<EthTransactionEncoder::Type1Tx>(fields);
+            break;
+        case EthTransactionEncoder::TxType::TYPE2:
+            tx = std::make_unique<EthTransactionEncoder::Type2Tx>(fields);
+            break;
+        default:
+            throw invalid_argument( "Unknown transaction type" );
+    }
+
+    auto result =  rlpEncode(*tx, false, nullptr, nullptr, nullptr );
 
     return make_shared<vector< uint8_t >>(result);
+}
+
+void EthTransactionEncoder::addEncodedFieldUint256(std::vector< std::vector< uint8_t > >& fields, const uint256& val) {
+    std::vector< uint8_t > tmp;
+    rlpEncodeUint256(tmp, val);
+    fields.push_back(tmp);
+}
+
+void EthTransactionEncoder::addEncodedFieldBytes(std::vector< std::vector< uint8_t > >& fields, const std::vector< uint8_t >& val) {
+    std::vector< uint8_t > tmp;
+    rlpEncodeBytes(tmp, val);
+    fields.push_back(tmp);
+}
+
+void EthTransactionEncoder::addEncodedFieldList(std::vector< std::vector< uint8_t > >& fields, const std::vector< std::vector< uint8_t > >& val) {
+    std::vector< uint8_t > tmp;
+    rlpEncodeList(tmp, val);
+    fields.push_back(tmp);
 }
