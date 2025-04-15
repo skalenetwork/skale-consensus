@@ -21,8 +21,7 @@
     @date 2019
 */
 
-#ifndef SKALED_CRYPTOMANAGER_H
-#define SKALED_CRYPTOMANAGER_H
+#pragma once
 
 
 #include "messages/NetworkMessage.h"
@@ -85,6 +84,11 @@ public:
 class OpenSSLECDSAKey;
 
 class OpenSSLEdDSAKey;
+
+#ifdef BITE
+class AESKeyDecryptionShare;
+class EncryptedAESKey;
+#endif
 
 class CryptoManager {
     static list<uint64_t> ecdsaSignTimes;
@@ -182,12 +186,6 @@ class CryptoManager {
     ptr<ThresholdSigShare> signSigShare(
         BLAKE3Hash &_hash, block_id _blockId, bool _forceMockup);
 
-#ifdef BITE
-    ptr<ThresholdSigShare> decryptAESKeyShares(
-        ptr<vector<ptr<EncryptedTransactionDataField> > > &_encryptedTransactionDataField, block_id _blockId,
-        bool _forceMockup);
-#endif
-
     ptr<ThresholdSigShare> signDAProofSigShare(
         BLAKE3Hash &_hash, block_id _blockId, uint64_t _timestamp, bool _forceMockup);
 
@@ -198,6 +196,11 @@ class CryptoManager {
 
 public:
     static ifstream urandom;
+
+#ifdef BITE
+    ptr<vector<ptr<AESKeyDecryptionShare>>> sgxDecryptAESKeyShareBatch( std::vector<std::shared_ptr<std::string>>& _publicDecryptionValues);
+#endif
+
 
     void verifyThresholdSig(ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash,
                             const TimeStamp &_ts = TimeStamp(uint64_t(-1), 0));
@@ -377,4 +380,3 @@ public:
     }                                                                                          \
     }
 
-#endif  // SKALED_CRYPTOMANAGER_H

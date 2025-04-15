@@ -17,7 +17,7 @@ class TransactionList;
 class EncryptedAESKey;
 
 
-using DecryptedTransactionDataFields = map<uint64_t, shared_ptr<vector<uint8_t>>>;
+using DecryptedTransactionDataFields = map<uint64_t, shared_ptr<vector<uint8_t> > >;
 
 class BiteManager {
     Schain &schain;
@@ -30,21 +30,25 @@ public:
         const ptr<BlockProposal> &_proposal);
 
     std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> decryptBiteDataFields(
-        block_id _blockId, schain_index _proposerIndex,  const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields);
+        block_id _blockId, schain_index _proposerIndex,
+        const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields);
 
-    ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeys(vector<ptr<BiteDataField>> &_dataFields);
+    ptr<vector<ptr<AESKeyDecryptionShare> > > decryptAESKeys(vector<ptr<BiteDataField> > &_dataFields);
 
 
-    ptr<AESKeyDecryptionShare> decryptAESKeyShare(ptr <EncryptedAESKey> _key, schain_index _decryptorIndex);
+    ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeyShareBatch(vector<ptr<EncryptedAESKey> >& _encryptedAESKeys,
+                                                  schain_index _decryptorIndex);
 
-    ptr<DecryptedTransactionDataFields> verifyAndDecryptTransactionList(TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys);
+    ptr<DecryptedTransactionDataFields> verifyAndDecryptTransactionList(TransactionList &_transactionList,
+                                                                        DecryptedAESKeyList &_aesKeys);
 
-    static ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare, schain_index _decryptorIndex,
-                                                        bool _decryptionFailed);
+    static ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
+                                                               schain_index _decryptorIndex,
+                                                               bool _decryptionFailed);
 
-     ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
-    vector< uint8_t > mockupDecryptDataField( const ptr< BiteDataField >& bite ) const;
+    ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
 
-    ptr<vector<uint8_t>> teEncryptData(const vector<uint8_t>& _data);
+    vector<uint8_t> mockupDecryptDataField(const ptr<BiteDataField> &bite) const;
 
+    ptr<vector<uint8_t> > teEncryptData(const vector<uint8_t> &_data);
 };

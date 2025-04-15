@@ -9,6 +9,9 @@
 #include "jsonrpccpp/client/connectors/httpclient.h"
 #include "jsonrpccpp/server/connectors/httpserver.h"
 
+#ifdef BITE
+#include "threshold_encryption/threshold_encryption.h"
+#endif
 
 class StubClient : public jsonrpc::Client {
 public:
@@ -42,6 +45,31 @@ public:
             throw jsonrpc::JsonRpcException(
                 jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString() );
     }
+
+#ifdef BITE
+    Json::Value getDecryptionShares(
+        const std::string& keyShareName, std::vector<std::shared_ptr<std::string>>& _publicDecryptionValues ) {
+
+        Json::Value p;
+        Json::Value batch;
+
+        for (auto value : _publicDecryptionValues) {
+            batch.append( *value );
+        };
+
+        p["keyName"] = keyShareName;
+
+        p["publicDecryptionValues"] = batch;
+
+        Json::Value result = this->CallMethod( "getDecryptionShares", p );
+        if ( result.isObject() )
+            return result;
+        else
+            throw jsonrpc::JsonRpcException(
+                jsonrpc::Errors::ERROR_CLIENT_INVALID_RESPONSE, result.toStyledString() );
+    }
+#endif
+
 
     Json::Value importECDSAKey( const std::string& key, const std::string& keyName ) {
         Json::Value p;
