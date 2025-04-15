@@ -1409,7 +1409,9 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
                 // if null is returned it means that catchup happened first and
                 // the block will be processed through catchup
                 if ( proposal ) {
+#ifdef BITE
                     CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(proposal->getBlockID()));
+#endif
                     daSig = agent->getDaSig( proposal->getTimeStampS() );
                 }
             }

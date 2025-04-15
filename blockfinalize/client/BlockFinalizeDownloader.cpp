@@ -434,7 +434,9 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
 
         // now we need to recombine the fragment list
         if (fragmentList.isComplete()) {
+#ifdef BITE
             CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId));
+#endif
             auto block = BlockProposal::deserialize(
                 fragmentList.serialize(), getSchain()->getCryptoManager(), true);
             CHECK_STATE(block)
