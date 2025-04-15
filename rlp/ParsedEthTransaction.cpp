@@ -169,7 +169,12 @@ void ParsedEthTransaction::validateFieldsCount() const {
     }
 }
 void ParsedEthTransaction::validateToField() {
-    const auto& toField = fields.at( type == 0 ? 3 : 5 );
+    // if type 0, then idx is 3
+    // if type 1, then idx is 4
+    // if type 2, then idx is 5
+    auto toFieldIdx = 3 + type;
+
+    const auto& toField = fields.at( toFieldIdx );
     if ( !toField.empty() && toField.size() != 20 ) {
         throw invalid_argument( "Invalid 'to' address length" );
     }
@@ -207,17 +212,31 @@ void ParsedEthTransaction::validateSignature() {
     }
 
 
-    EthTransactionEncoder::LegacyTx txWithoutSig;
+    std::unique_ptr<EthTransactionEncoder::Transaction> txWithoutSig;
 
-    txWithoutSig.nonce = fields.at( 0 );
-    txWithoutSig.gasPrice = fields.at( 1 );
-    txWithoutSig.gasLimit = fields.at( 2 );
-    txWithoutSig.to = fields.at( 3 );
-    txWithoutSig.value = fields.at( 4 );
-    txWithoutSig.data = fields.at( 5 );
-    EthTransactionEncoder::uint64toVec( BITE_CHAIN_ID, txWithoutSig.chainId );
+    if (type >= 3) {
+        throw invalid_argument( "Unknown transaction type" );
+    }
+    
+    EthTransactionEncoder::TxType txType = static_cast< EthTransactionEncoder::TxType >( type );
+    switch (txType) {
+        case EthTransactionEncoder::TxType::LEGACY:
+            txWithoutSig = std::make_unique<EthTransactionEncoder::LegacyTx>(fields);
+            break;
+        case EthTransactionEncoder::TxType::TYPE1:
+            txWithoutSig = std::make_unique<EthTransactionEncoder::Type1Tx>(fields);
+            break;
+        case EthTransactionEncoder::TxType::TYPE2:
+            txWithoutSig = std::make_unique<EthTransactionEncoder::Type2Tx>(fields);
+            break;
+        default:
+            throw invalid_argument( "Unknown transaction type" );
+    }
+
+    EthTransactionEncoder::Transaction& txWithoutSigRef = *txWithoutSig;
+    EthTransactionEncoder::uint64toVec( BITE_CHAIN_ID, txWithoutSigRef.chainId );
     std::vector< uint8_t > encoded_tx =
-        EthTransactionEncoder::rlpEncode( txWithoutSig, false, nullptr, nullptr, nullptr );
+        EthTransactionEncoder::rlpEncode( txWithoutSigRef, false, nullptr, nullptr, nullptr );
     std::vector< uint8_t > tx_hash = EthTransactionEncoder::hashTransaction( encoded_tx );
     auto r_padded = padTo32Bytes( r );
     auto s_padded = padTo32Bytes( s );
