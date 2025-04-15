@@ -9,6 +9,10 @@ class DecryptedAESKeyList;
 class BlockProposal;
 
 class AESKeyDecryptionShareList;
+class EncryptedAESKey;
+
+using EncryptedAESKeyList = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
+
 
 #include "CacheLevelDB.h"
 
@@ -25,7 +29,7 @@ public:
 
      void addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 
-     ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId);
+     ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList);
 
 
     void addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);

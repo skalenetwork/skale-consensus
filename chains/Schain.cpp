@@ -1444,7 +1444,12 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
 
             CHECK_STATE( count >= getRequiredSigners() )
 
-            auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys( proposal->getBlockID() );
+            auto encryptedAESKeys = proposal->getMyEncryptedAESKeys();
+
+            CHECK_STATE(encryptedAESKeys);
+
+            auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys( proposal->getBlockID(),
+                encryptedAESKeys );
 
             CHECK_STATE(keys);
 

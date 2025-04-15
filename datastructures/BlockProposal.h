@@ -54,6 +54,8 @@ class BlockProposalFragmentList;
 
 #ifdef BITE
 class AESKeyDecryptionShareList;
+class EncryptedAESKey;
+using EncryptedAESKeyList = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
 #endif
 
 
@@ -182,6 +184,7 @@ public:
 
 private:
     ptr<AESKeyDecryptionShareList> myDecryptionShares = nullptr;
+    ptr<EncryptedAESKeyList> myEncryptedAESKeys = nullptr;
 
 public:
     [[nodiscard]] ptr<AESKeyDecryptionShareList> getMyDecryptionShares() const {
@@ -190,11 +193,18 @@ public:
     }
 
 
-    void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
+    void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares,
+         ptr<EncryptedAESKeyList> _myEncryptedAESKeyList ) {
         CHECK_STATE( _myDecryptionShares );
+        CHECK_STATE( _myEncryptedAESKeyList)
         // verify we are not setting it twice
-        CHECK_STATE(std::atomic_load(&myDecryptionShares) == nullptr);
-        std::atomic_store(&myDecryptionShares, _myDecryptionShares);
+        CHECK_STATE(std::atomic_exchange(&myDecryptionShares, _myDecryptionShares) == nullptr);
+        CHECK_STATE(std::atomic_exchange(&myEncryptedAESKeys, _myEncryptedAESKeyList) == nullptr);
+    }
+
+    [[nodiscard]] ptr<EncryptedAESKeyList> getMyEncryptedAESKeys() const {
+        auto result = std::atomic_load(&myEncryptedAESKeys);
+        return result;
     }
 #endif
 };

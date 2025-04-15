@@ -106,8 +106,9 @@ void TEDecryptionDB::addDecryptionShares(
     decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
 };
 
-ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
+ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList) {
 
+    CHECK_STATE(_encryptedAESKeyList)
 
     READ_LOCK(decryptionSetsMutex)
 
@@ -156,7 +157,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId) {
 
     for ( auto&& it : decryptionShareSets ) {
         CHECK_STATE( it.second->isEnough() );
-        auto key = it.second->verifyAndMergeAESKey();
+        auto key = it.second->verifyAndMergeAESKey(_encryptedAESKeyList->at(it.first));
         CHECK_STATE( key );
         aesKeys->addKey( it.first, *key );
     }

@@ -33,6 +33,8 @@
 #include "ConsensusAESKeyDecryptionShare.h"
 #include "ConsensusAESKeyDecryptionShareSet.h"
 #include "DecryptedAESKey.h"
+#include "EncryptedAESKey.h"
+#include "threshold_encryption/ThresholdEncryption.h"
 
 
 using namespace std;
@@ -46,7 +48,7 @@ ConsensusAESKeyDecryptionShareSet::ConsensusAESKeyDecryptionShareSet( block_id _
 ConsensusAESKeyDecryptionShareSet::~ConsensusAESKeyDecryptionShareSet() = default;
 
 
-ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKey() {
+ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKey(ptr<EncryptedAESKey> _encryptedAESKey) {
     LOCK( decryptionSharesLock )
 
     CHECK_STATE( isEnough() );
@@ -64,10 +66,13 @@ ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKey()
     }
     CHECK_STATE( decryptSet.canMerge() );
 
-     std::array< uint8_t, BITE_AES_KEY_LEN > aesKey;
+    libBLS::TE te(requiredDecryptors, totalDecryptors);
 
+    auto cipheredKey = libBLS::CipheredKey::fromBytes( *_encryptedAESKey->getKey() );
 
-    return std::make_shared< DecryptedAESKey >(aesKey);
+    libBLS::AES256Key aesKey = te.CombineShares( cipheredKey, decryptSet.getSharesRaw() );
+
+    return make_shared< DecryptedAESKey >( aesKey );
 }
 
 bool ConsensusAESKeyDecryptionShareSet::isEnough() {

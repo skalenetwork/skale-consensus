@@ -39,6 +39,7 @@ ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTrans
 
 
     std::map<transaction_index, ptr<BiteDataField> > biteDataFields;
+    auto encryptedAESKeyList = make_shared<EncryptedAESKeyList>();
 
     try {
         transaction_index index = 0;
@@ -48,6 +49,7 @@ ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTrans
             auto biteDataField = tx->parseAndValidateBiteDataField();
             if (biteDataField) {
                 biteDataFields.emplace(index, biteDataField);
+                encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
             }
             index = index + 1;
         }
@@ -85,7 +87,7 @@ ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTrans
     // database when proposal is committed
 
 
-    _proposal->setMyDecryptionShares(decryptionShareList);
+    _proposal->setMyDecryptionShares(decryptionShareList, encryptedAESKeyList);
 
 
     return CONNECTION_OK;

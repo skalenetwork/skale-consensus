@@ -1,5 +1,7 @@
 #pragma once
+#include <datastructures/BlockProposal.h>
 
+class  EncryptedAESKey;
 class AESKeyDecryptionShare;
 class DecryptedAESKey;
 
@@ -22,7 +24,7 @@ public:
         return totalObjects;
     }
 
-    virtual ptr< DecryptedAESKey >  verifyAndMergeAESKey() = 0;
+    virtual ptr< DecryptedAESKey >   verifyAndMergeAESKey(ptr<EncryptedAESKey> _encryptedAesKey) = 0;
 
     virtual bool isEnough() = 0;
 

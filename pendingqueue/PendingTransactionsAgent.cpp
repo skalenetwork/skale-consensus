@@ -59,10 +59,11 @@ using namespace std;
 
 
 PendingTransactionsAgent::PendingTransactionsAgent(Schain &ref_sChain)
-        : Agent(ref_sChain, false) {}
+    : Agent(ref_sChain, false) {
+}
 
 ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
-        block_id _blockID, TimeStamp &_previousBlockTimeStamp, bool _isCalledAfterCatchup) {
+    block_id _blockID, TimeStamp &_previousBlockTimeStamp, bool _isCalledAfterCatchup) {
     MICROPROFILE_ENTERI("PendingTransactionsAgent", "sleep", MP_DIMGRAY);
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
     MICROPROFILE_LEAVE();
@@ -89,7 +90,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
 
 #ifdef BITE
     auto status =
-        getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( myBlockProposal );
+            getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(myBlockProposal);
     if (status != ConnectionSubStatus::CONNECTION_OK) {
         LOG(err, "Could not decrypt BITE transactions");
         LOG(err, "Proposing empty transactions instead");
@@ -97,16 +98,16 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
         // do an empty proposal instead
         // TODO proposa non-BITE transactions
         myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID,
-                                                       sChain->getSchainIndex(), make_shared<TransactionList>(make_shared<vector<ptr<Transaction> > >()),
+                                                       sChain->getSchainIndex(),
+                                                       make_shared<TransactionList>(
+                                                           make_shared<vector<ptr<Transaction> > >()),
                                                        stateRoot, stamp.getS(), stamp.getMs(),
                                                        getSchain()->getCryptoManager());
-#ifdef BITE
         myBlockProposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
-            _blockID, sChain->getSchainIndex(), sChain->getSchainIndex()));
-#endif
+                                                   _blockID, sChain->getSchainIndex(), sChain->getSchainIndex()),
+                                               make_shared<EncryptedAESKeyList>());
     }
     // could not decrypt proposals, this means something is wrong with the SGX
-
 
 
 #endif
@@ -139,7 +140,6 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         needMax = strtoul(env, nullptr, 10);
 
         CHECK_STATE(needMax > 0)
-
     } else {
         needMax = getNode()->getMaxTransactionsPerBlock();
     }
@@ -198,8 +198,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         if (waitTimeMs < 10 * 32) {
             waitTimeMs *= 2;
         }
-
-    }  // while
+    } // while
 
     auto finishTimeMs = Time::getCurrentTimeMs();
 
@@ -207,12 +206,12 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
     for (const auto &e: txVector) {
         ptr<Transaction> pt = Transaction::deserialize(
-                make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
+            make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
 #ifdef BITE
         try {
             pt->parseAndValidateBiteDataField();
             result->push_back(pt);
-        } catch (std::exception& e) {
+        } catch (std::exception &e) {
             LOG(err, e.what());
             LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my propopsal.");
         }
@@ -225,7 +224,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
 
 ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(
-        const ptr<partial_sha_hash> hash) {
+    const ptr<partial_sha_hash> hash) {
     READ_LOCK(transactionsMutex);
     if (knownTransactions.count(hash))
         return knownTransactions.at(hash);

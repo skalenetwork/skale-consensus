@@ -23,7 +23,7 @@
         totalObjects--;
     }
 
-    ptr< DecryptedAESKey > MockupAESKeyDecryptionShareSet::verifyAndMergeAESKey() {
+    ptr< DecryptedAESKey > MockupAESKeyDecryptionShareSet::verifyAndMergeAESKey(ptr<EncryptedAESKey>) {
         string h( "" );
 
         READ_LOCK( decryptionSharesLock )

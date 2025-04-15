@@ -1,5 +1,7 @@
 #pragma once
 
+#include <datastructures/BlockProposal.h>
+
 #include "datastructures/DataStructure.h"
 #include "AESKeyDecryptionShareSet.h"
 
@@ -21,7 +23,7 @@ public:
     MockupAESKeyDecryptionShareSet( block_id _blockId, transaction_index _transactionIndex,
         size_t _totalDecryptors, size_t _requiredDecryptors );
 
-    ptr< DecryptedAESKey > verifyAndMergeAESKey();
+    ptr< DecryptedAESKey > verifyAndMergeAESKey(ptr<EncryptedAESKey>  _encryptedAESKey) override;
 
     bool addDecryptionShare( const ptr< AESKeyDecryptionShare >& _sigShare );
 
