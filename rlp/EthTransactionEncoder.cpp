@@ -49,12 +49,12 @@ std::vector< std::vector< uint8_t > > EthTransactionEncoder::Type1Tx::encode() c
     EthTransactionEncoder::addEncodedFieldUint256(fields, value);
     EthTransactionEncoder::addEncodedFieldBytes  (fields, data);
     
-    // // encode access list - new field for EIP-2930
-    // std::vector< std::vector< uint8_t > > rlpAccessList;
-    // for ( const auto& accessTuple : accessList ) {
-    //     std::vector< uint8_t > rlpAccessTuple = accessTuple.encode();
-    //     rlpAccessList.push_back( rlpAccessTuple );
-    // }
+    // encode access list - new field for EIP-2930
+    std::vector< std::vector< uint8_t > > rlpAccessList;
+    for ( const auto& accessTuple : accessList ) {
+        std::vector< uint8_t > rlpAccessTuple = accessTuple.encode();
+        rlpAccessList.push_back( rlpAccessTuple );
+    }
     EthTransactionEncoder::addEncodedFieldBytes(fields, std::vector<uint8_t>{});
 
     return fields;
@@ -76,13 +76,13 @@ std::vector< std::vector< uint8_t > > EthTransactionEncoder::Type2Tx::encode() c
     EthTransactionEncoder::addEncodedFieldUint256(fields, value);
     EthTransactionEncoder::addEncodedFieldBytes  (fields, data);
     
-    // std::vector< std::vector< uint8_t > > rlpAccessList;
-    // for ( const auto& accessTuple : accessList ) {
-    //     std::vector< uint8_t > rlpAccessTuple = accessTuple.encode();
-    //     rlpAccessList.push_back( rlpAccessTuple );
-    // }
-    // EthTransactionEncoder::addEncodedFieldList(fields, rlpAccessList);
-    EthTransactionEncoder::addEncodedFieldBytes(fields, std::vector<uint8_t>{});
+    std::vector< std::vector< uint8_t > > rlpAccessList;
+    for ( const auto& accessTuple : accessList ) {
+        std::vector< uint8_t > rlpAccessTuple = accessTuple.encode();
+        rlpAccessList.push_back( rlpAccessTuple );
+    }
+    EthTransactionEncoder::addEncodedFieldList(fields, rlpAccessList);
+    // EthTransactionEncoder::addEncodedFieldBytes(fields, std::vector<uint8_t>{});
 
     return fields;
 }

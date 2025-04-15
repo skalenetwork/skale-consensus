@@ -90,7 +90,63 @@ std::vector< uint8_t > ParsedEthTransaction::parseLongByteVector(
     return out;
 }
 
-std::vector< uint8_t > ParsedEthTransaction::parseByteVector(
+
+std::vector<uint8_t> ParsedEthTransaction::parseLongList(
+    const std::vector<uint8_t>& tx, uint64_t& offset, uint8_t prefix) {
+    
+    size_t lenOfLen = prefix - 0xf7;
+    if (offset + 1 + lenOfLen > tx.size()) {
+        throw std::invalid_argument("parseLongList: lenOfLen out of bounds");
+    }
+    
+    size_t len = readLen(tx, offset + 1, lenOfLen);
+    offset += 1 + lenOfLen;
+    
+    if (offset + len > tx.size()) {
+        throw std::invalid_argument("parseLongList: slice out of bounds");
+    }
+    
+    std::vector<uint8_t> result;
+    const uint64_t endOffset = offset + len;
+    // last item from list will be returned - will never be used
+    while (offset < endOffset) {
+        result = parseBytes(tx, offset);
+    }
+    
+    if (offset != endOffset) {
+        throw std::invalid_argument("parseLongList: invalid list encoding");
+    }
+    
+    return result;
+}
+
+
+std::vector<uint8_t> ParsedEthTransaction::parseShortList(
+    const std::vector<uint8_t>& tx, uint64_t& offset, uint8_t prefix) {
+    
+    size_t len = prefix - 0xc0;
+    if (offset + 1 + len > tx.size()) {
+        throw std::invalid_argument("parseShortList: slice out of bounds");
+    }
+    
+    std::vector<uint8_t> result;
+    const uint64_t startOffset = offset + 1;
+    const uint64_t endOffset = startOffset + len;
+    
+    offset = startOffset;
+    // last item from list will be returned - will never be used
+    while (offset < endOffset) {
+        result = parseBytes(tx, offset);
+    }
+    
+    if (offset != endOffset) {
+        throw std::invalid_argument("parseShortList: invalid list encoding");
+    }
+    
+    return result;
+}
+
+std::vector< uint8_t > ParsedEthTransaction::parseBytes(
     const std::vector< uint8_t >& _tx, uint64_t& _offset ) {
     if ( _offset >= _tx.size() )
         throw std::invalid_argument( "parseByteVector: no data left" );
@@ -101,14 +157,16 @@ std::vector< uint8_t > ParsedEthTransaction::parseByteVector(
         return parseShortByteVector( _tx, _offset, prefix );
     else if ( prefix <= 0xbf )
         return parseLongByteVector( _tx, _offset, prefix );
+    else if (prefix <= 0xf7)
+        return parseShortList(_tx, _offset, prefix);
     else
-        throw invalid_argument( "Invalid RLP element prefix" );
+        return parseLongList(_tx, _offset, prefix);
 }
 
 void ParsedEthTransaction::parseTransactionFields(
     const std::vector< uint8_t >& _tx, size_t& _offset, int fieldCount ) {
     for ( int i = 0; i < fieldCount; ++i ) {
-        fields.push_back( parseByteVector( _tx, _offset ) );
+        fields.push_back( parseBytes( _tx, _offset ) );
     }
 
     if ( _offset != _tx.size() ) {
