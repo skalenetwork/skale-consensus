@@ -16,7 +16,10 @@
 
 #include "BiteManager.h"
 
+#include <crypto/CryptoManager.h>
 #include <crypto/DecryptedAESKeyList.h>
+
+#include "BLSPublicKey.h"
 
 BiteManager::BiteManager( Schain& _schain ) : schain( _schain ) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
@@ -182,6 +185,26 @@ vector< uint8_t > BiteManager::mockupDecryptDataField( const ptr< BiteDataField 
     auto decryptedOriginalDataField =
         libBLS::ThresholdEncryption::mockupDecrypt( *keyPlusEncryptedData );
     return decryptedOriginalDataField;
+}
+
+ptr<vector<uint8_t>> BiteManager::teEncryptData(const vector<uint8_t> &_data) {
+    if (this->doRealCrypto) {
+        auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
+        CHECK_STATE(primaryKey);
+        auto blsKey = primaryKey->getPublicKey();
+        CHECK_STATE(blsKey);
+        libBLS::TEPublicKey teKey(*blsKey);
+        auto cipherText = libBLS::ThresholdEncryption::encrypt(_data, teKey);
+        CHECK_STATE(cipherText.data);
+        auto encodedCipheredKey = cipherText.key.toBytes();
+        auto result = make_shared<vector<uint8_t >>(encodedCipheredKey.begin(), encodedCipheredKey.end());
+        result->insert(result->end(), cipherText.data->begin(), cipherText.data->end());
+        CHECK_STATE(result->size() == encodedCipheredKey.size() + cipherText.data->size());
+        return result;
+    } else {
+        return make_shared<vector<uint8_t >>(libBLS::ThresholdEncryption::mockupEncrypt(_data));
+    }
+
 }
 
 

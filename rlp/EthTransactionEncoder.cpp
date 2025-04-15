@@ -11,6 +11,7 @@
 #include "Log.h"
 #include "node/ConsensusInterface.h"
 #include "bite/BiteDataFiled.h"
+#include "bite/BiteManager.h"
 #include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "crypto/EncryptedAESKey.h"
 #include "ParsedEthTransaction.h"
@@ -313,8 +314,10 @@ void EthTransactionEncoder::uint64toVec( uint64_t v_value, vector< uint8_t >& v_
     }
 }
 
-ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte ) {
+ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, ptr<BiteManager> _biteManager ) {
     static atomic< uint64_t > nonce = 0;
+
+    CHECK_STATE(_biteManager);
 
 
     static std::unique_ptr< LegacyTx > templateTx = std::make_unique< LegacyTx >( LegacyTx{
@@ -337,16 +340,9 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
 
     uint64toVec( currentNonce, currentTx.nonce );
 
-    auto encryptedData = libBLS::ThresholdEncryption::mockupEncrypt(currentTx.data);
-
-    auto encryptedKeyBytes = make_shared<array<uint8_t , BITE_ENCRYPTED_AES_KEY_LEN>>();
-
-    auto encryptedAesKey = make_shared<EncryptedAESKey>(encryptedKeyBytes);
-
-
     if ( _isByte ) {
-        BiteDataField biteDataField(
-            encryptedAesKey, make_shared< EncryptedData >( encryptedData ), 0, true);
+        auto encryptedKeyPlusData = _biteManager->teEncryptData(currentTx.data);
+        BiteDataField biteDataField(encryptedKeyPlusData , 0);
         currentTx.data = *biteDataField.getSerializedData();
     }
 

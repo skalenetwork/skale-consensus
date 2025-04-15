@@ -174,7 +174,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         return result;
 
     for ( uint64_t i = 0; i < _limit; i++ ) {
-        auto tx = EthTransactionEncoder::generateSampleTx( i % 2 );
+        auto tx = EthTransactionEncoder::generateSampleTx( i % 2, sChain->getBiteManager() );
         result.emplace_back( *tx );
     }
 

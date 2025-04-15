@@ -1,6 +1,7 @@
 #pragma once
 
 class ParsedEthTransaction;
+class BiteManager;
 
 
 class EthTransactionEncoder {
@@ -20,7 +21,7 @@ public:
         uint256 chainId;
     };
 
-    static ptr<vector<uint8_t>> generateSampleTx(bool _isByte);
+    static ptr<vector<uint8_t>> generateSampleTx(bool _isByte, ptr<BiteManager> _biteManager);
 
     static void uint64toVec( uint64_t v_value, vector< uint8_t >& v_vec );
 

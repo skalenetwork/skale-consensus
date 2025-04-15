@@ -124,7 +124,7 @@ std::shared_ptr<std::vector<uint8_t>> DecryptedAESKey::decryptData(ptr<std::vect
 
     if (1 != EVP_DecryptFinal_ex(ctx, decryptedData->data() + len, &len)) {
         EVP_CIPHER_CTX_free(ctx);
-        throw std::runtime_error("Failed to finalize decryption");
+        throw std::runtime_error("Key failed to decrypt ciphertext. Corrupt ciphertext or key");
     }
     plaintext_len += len;
 
