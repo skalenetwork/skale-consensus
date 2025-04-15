@@ -1453,6 +1453,8 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
 
             CHECK_STATE(keys);
 
+            cerr << "Keys:" << keys->getSize() << endl;
+
             auto transactions = proposal->getTransactionList();
             auto decryptedTransactionDataFields = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
 

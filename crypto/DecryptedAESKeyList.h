@@ -9,7 +9,7 @@
 class DecryptedAESKeyList {
 public:
 
-    [[nodiscard]] boost::container::flat_map<transaction_index, DecryptedAESKey>& getKeys();
+    [[nodiscard]] boost::container::flat_map<transaction_index, ptr<DecryptedAESKey>>& getKeys();
 
     // Optional: Constructor
     DecryptedAESKeyList() = default;
@@ -17,12 +17,11 @@ public:
 
     // Optional: Add public access methods
     void addKey(transaction_index _index, const DecryptedAESKey& key) {
-        decryptedAESKeys.emplace(_index, key);
+        decryptedAESKeys.emplace(_index, make_shared<DecryptedAESKey>(key));
     }
 
-    const DecryptedAESKey* getKey(uint64_t id) const {
-        auto it = decryptedAESKeys.find(id);
-        return (it != decryptedAESKeys.end()) ? &it->second : nullptr;
+    const  ptr<DecryptedAESKey> getKey(uint64_t id) const {
+        return decryptedAESKeys.at(id);
     }
 
     uint64_t getSize() const {
@@ -31,6 +30,6 @@ public:
 
 
 private:
-    boost::container::flat_map<transaction_index, DecryptedAESKey> decryptedAESKeys;
+    boost::container::flat_map<transaction_index, ptr<DecryptedAESKey>> decryptedAESKeys;
 };
 

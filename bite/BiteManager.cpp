@@ -136,23 +136,22 @@ BiteManager::decryptBiteDataFields(block_id _blockId, schain_index _proposerInde
 
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeyShareBatch(
-    vector<ptr<EncryptedAESKey>>& _encryptedAESKeys, schain_index _decryptorIndex) {
+    vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex) {
     if (doRealCrypto) {
-
-        vector<ptr<string>> publicDecryptionValuesBatch;
+        vector<ptr<string> > publicDecryptionValuesBatch;
 
         for (auto &&encryptedAESKey: _encryptedAESKeys) {
             auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
             auto U = cipheredKey.U;
             U.to_affine_coordinates();
             // validate U
-            libBLS::ThresholdUtils::validateG2( U );
+            libBLS::ThresholdUtils::validateG2(U);
 
-            auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString( U, libBLS::BASE_HEXA );
+            auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(U, libBLS::BASE_HEXA);
 
             // convert to string
             auto publicDecryptionValue = make_shared<string>();
-            for (auto const& str : g2AsStringVector ) {
+            for (auto const &str: g2AsStringVector) {
                 publicDecryptionValue->append(str);
             }
 
@@ -176,7 +175,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeys(
     vector<ptr<BiteDataField> > &_dataFields) {
     vector<ptr<EncryptedAESKey> > encryptedAESKeys;
 
-    for (auto && dataField: _dataFields) {
+    for (auto &&dataField: _dataFields) {
         auto encryptedAESKey = dataField->getEncryptedAESKey();
         CHECK_STATE(encryptedAESKey);
         encryptedAESKeys.push_back(encryptedAESKey);
@@ -204,11 +203,11 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
             auto tx = txs->at(i);
             auto bite = tx->parseAndValidateBiteDataField();
             if (bite) {
-                CHECK_STATE(_aesKeys.getKey( i ));
+                auto decryptedAESKey = _aesKeys.getKey(i);
 
-                vector<uint8_t> decryptedOriginalDataField = mockupDecryptDataField(bite);
-                // TODO implement actual decryption later
+                CHECK_STATE(decryptedAESKey);
 
+                vector<uint8_t> decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
 
                 decryptedDataFields->emplace(i, make_shared<vector<uint8_t> >(decryptedOriginalDataField));
             } else {
@@ -221,13 +220,22 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
     return decryptedDataFields;
 }
 
-vector<uint8_t> BiteManager::mockupDecryptDataField(const ptr<BiteDataField> &bite) const {
-    auto keyPlusEncryptedData = bite->getKeyPlusEncryptedData();
-    CHECK_STATE(keyPlusEncryptedData);
+vector<uint8_t>
+BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
+    CHECK_STATE(_bite);
 
-    auto decryptedOriginalDataField =
-            libBLS::ThresholdEncryption::mockupDecrypt(*keyPlusEncryptedData);
-    return decryptedOriginalDataField;
+    if (doRealCrypto) {
+        auto encryptedData = _bite->getEncryptedData();
+        CHECK_STATE(encryptedData)
+        std::vector<uint8_t> data = libBLS::ThresholdUtils::aesDecrypt(*encryptedData, _decryptedAESKey.getAesKey());
+        return data;
+    } else {
+        auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
+        CHECK_STATE(keyPlusEncryptedData);
+        auto decryptedOriginalDataField =
+                libBLS::ThresholdEncryption::mockupDecrypt(*keyPlusEncryptedData);
+        return decryptedOriginalDataField;
+    }
 }
 
 ptr<vector<uint8_t> > BiteManager::teEncryptData(const vector<uint8_t> &_data) {

@@ -62,8 +62,9 @@ ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAn
 
     for (auto &&it: _decryptedAesKeyList.getKeys()) {
         auto key = it.second;
+        CHECK_STATE(key)
 
-        auto rawKey = key.getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
+        auto rawKey = key->getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
         aesKeysVec.push_back(skale_fb::AesKey{
             static_cast<uint32_t>(it.first),
             rawKey // rawKey is std::array<uint8_t, 32>
@@ -169,8 +170,10 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
         }
     }
 
+    cerr << decryptedAesKeyList->getSize() << " decrypted keys" << endl;
 
-    auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(*transactionList, *decryptedAesKeyList);
+    auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(*transactionList,
+        *decryptedAesKeyList);
     ptr<CommittedBlock> block = nullptr;
 
     try {

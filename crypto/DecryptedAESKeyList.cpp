@@ -5,6 +5,6 @@
 
 #include "DecryptedAESKeyList.h"
 
-boost::container::flat_map<transaction_index, DecryptedAESKey>& DecryptedAESKeyList::getKeys()  {
+boost::container::flat_map<transaction_index, ptr<DecryptedAESKey>>& DecryptedAESKeyList::getKeys()  {
     return decryptedAESKeys;
 }
