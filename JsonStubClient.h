@@ -57,7 +57,7 @@ public:
             batch.append( *value );
         };
 
-        p["keyName"] = keyShareName;
+        p["blsKeyName"] = keyShareName;
 
         p["publicDecryptionValues"] = batch;
 
