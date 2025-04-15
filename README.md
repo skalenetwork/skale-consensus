@@ -54,7 +54,7 @@ git clone --recurse-submodules https://github.com/skalenetwork/skale-consensus.g
 cd skale-consensus/deps && ./build.sh DEBUG=1
 ```         
 
-###  4. Configure the CMake build in Debug Mode.
+###  4. Configure the CMake build in Debug M    ode.
 
 ```   
 cd .. && cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug
