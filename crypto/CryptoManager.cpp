@@ -879,8 +879,7 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
 #ifdef BITE
 ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBatch(
     std::vector<std::shared_ptr<std::string> > &_publicDecryptionValues) {
-    Json::Value jsonShares;
-    string ret;
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
 
@@ -897,6 +896,9 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
 
     checkZMQStatusIfUnknownBLS();
 
+    Json::Value jsonShares;
+    string ret;
+
     RETRY_BEGIN
         getSchain()->getNode()->exitCheck();
         auto startTimeMs = Time::getCurrentTimeMs();
@@ -907,15 +909,15 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
     RETRY_END
 
 
-    std::vector< libBLS::TEDecryptionShare > blsShares;
-
     auto sharesArray = jsonShares["decryptionShares"];
-
     CHECK_STATE(sharesArray.isArray())
+    CHECK_STATE(sharesArray.size() == _publicDecryptionValues.size() )
+
 
     auto result = make_shared<vector<ptr<AESKeyDecryptionShare>>>();
 
-    for (Json::Value::ArrayIndex i = 0; i < blsShares.size(); ++i) {
+
+    for (Json::Value::ArrayIndex i = 0; i < sharesArray.size(); ++i) {
         string shareStr = sharesArray[i].asString();
         auto share = make_shared<libBLS::TEDecryptionShare>(shareStr, (uint64_t) getSchain()->getSchainIndex());
         auto consensusDecryptShare =
