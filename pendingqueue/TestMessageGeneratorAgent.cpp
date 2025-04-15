@@ -175,7 +175,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
     for ( uint64_t i = 0; i < _limit; i++ ) {
         // 1/4 chance of being bite encoded
-        auto tx = EthTransactionEncoder::generateSampleTx( 1 );
+        auto tx = EthTransactionEncoder::generateSampleTx( 1, sChain->getBiteManager()  );
         result.emplace_back( *tx );
     }
 

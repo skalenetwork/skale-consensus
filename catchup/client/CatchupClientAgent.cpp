@@ -338,7 +338,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
             } catch ( ExitRequestedException& ) {
                 return;
             } catch ( ConnectionRefusedException& e ) {
-                _agent->logConnectionRefused( e, destinationSchainIndex );
+                _agent->logConnectionRefused(e, destinationSchainIndex, __PRETTY_FUNCTION__);
             } catch ( exception& e ) {
                 SkaleException::logNested( e );
             }

@@ -1408,13 +1408,19 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
                 proposal = agent->downloadProposal();
                 // if null is returned it means that catchup happened first and
                 // the block will be processed through catchup
-                if ( proposal )
+                if ( proposal ) {
+#ifdef BITE
+                    CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(proposal->getBlockID()));
+#endif
                     daSig = agent->getDaSig( proposal->getTimeStampS() );
+                }
             }
 
 
-            if ( proposal )  // Nullptr means catchup happened first
+            if ( proposal ) {
                 getNode()->getBlockProposalDB()->addBlockProposal( proposal );
+
+            }
         }
 
 
@@ -1521,21 +1527,24 @@ void Schain::addDeadNode( uint64_t _schainIndex, uint64_t _checkTime ) {
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {
         lock_guard< mutex > l( deadNodesLock );
-        if ( deadNodes.count( _schainIndex ) == 0 ) {
-            deadNodes.insert( { _schainIndex, _checkTime } );
-        }
+        deadNodes[_schainIndex] =  _checkTime;
     }
 }
 
 void Schain::markAliveNode( uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );
+
+    bool wasDead = false;
+
     {
         lock_guard< mutex > l( deadNodesLock );
-        if ( deadNodes.count( _schainIndex ) > 0 ) {
-            deadNodes.erase( _schainIndex );
-        }
+        wasDead = deadNodes.erase( _schainIndex ) > 0;
     }
+
+     if (wasDead) {
+         LOG(info, "Node " + to_string( _schainIndex ) + " is now alive");
+     }
 }
 
 uint64_t Schain::getDeathTimeMs( uint64_t _schainIndex ) {

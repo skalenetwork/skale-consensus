@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vector>
-
 class ParsedEthTransaction;
+class BiteManager;
 
 
 class EthTransactionEncoder {
 
     using uint256 = std::vector< uint8_t >;
+
 
 public:
 
@@ -36,7 +36,7 @@ public:
         uint256 value;
         std::vector< uint8_t > data;
         // not included in RLP-encoding for legacy tx
-        uint256 chainId; 
+        uint256 chainId;
 
         Transaction(
             const uint256& nonce,
@@ -76,7 +76,7 @@ public:
         gasPrice(_gasPrice)
         {}
 
-        LegacyTx(std::vector< std::vector< uint8_t > >& fields) : 
+        LegacyTx(std::vector< std::vector< uint8_t > >& fields) :
             Transaction(
                 fields.at( 0 ), // nonce
                 fields.at( 2 ), // gasLimit
@@ -123,7 +123,7 @@ public:
             gasPrice(_gasPrice), accessList(_accessList)
         {}
 
-        Type1Tx(std::vector< std::vector< uint8_t > >& fields) : 
+        Type1Tx(std::vector< std::vector< uint8_t > >& fields) :
             Transaction(
                 fields.at( 1 ), // nonce
                 fields.at( 3 ), // gasLimit
@@ -146,7 +146,7 @@ public:
      */
     struct Type2Tx : Transaction {
         uint256 maxPriorityFeePerGas;
-        uint256 maxFeePerGas;   
+        uint256 maxFeePerGas;
         std::vector<AccessTuple> accessList;
 
         Type2Tx(
@@ -163,7 +163,7 @@ public:
             maxPriorityFeePerGas(_maxPriorityFeePerGas), maxFeePerGas(_maxFeePerGas), accessList(_accessList)
         {}
 
-        Type2Tx(std::vector< std::vector< uint8_t > >& fields) : 
+        Type2Tx(std::vector< std::vector< uint8_t > >& fields) :
         Transaction(
             fields.at( 1 ), // nonce
             fields.at( 4 ), // gasLimit
@@ -182,7 +182,7 @@ public:
     };
 
 
-    static std::shared_ptr<std::vector<uint8_t>> generateSampleTx(bool _isByte);
+    static std::shared_ptr<std::vector<uint8_t>> generateSampleTx(bool _isByte, ptr<BiteManager> _biteManager);
 
     static void uint64toVec( uint64_t v_value, std::vector< uint8_t >& v_vec );
 

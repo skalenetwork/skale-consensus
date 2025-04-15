@@ -11,6 +11,7 @@
 #include "Log.h"
 #include "node/ConsensusInterface.h"
 #include "bite/BiteDataFiled.h"
+#include "bite/BiteManager.h"
 #include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "crypto/EncryptedAESKey.h"
 #include "ParsedEthTransaction.h"
@@ -48,7 +49,7 @@ std::vector< std::vector< uint8_t > > EthTransactionEncoder::Type1Tx::encode() c
     EthTransactionEncoder::addEncodedFieldBytes  (fields, to);
     EthTransactionEncoder::addEncodedFieldUint256(fields, value);
     EthTransactionEncoder::addEncodedFieldBytes  (fields, data);
-    
+
     // encode access list - new field for EIP-2930
     std::vector< std::vector< uint8_t > > rlpAccessList;
     for ( const auto& accessTuple : accessList ) {
@@ -75,7 +76,7 @@ std::vector< std::vector< uint8_t > > EthTransactionEncoder::Type2Tx::encode() c
     EthTransactionEncoder::addEncodedFieldBytes  (fields, to);
     EthTransactionEncoder::addEncodedFieldUint256(fields, value);
     EthTransactionEncoder::addEncodedFieldBytes  (fields, data);
-    
+
     std::vector< std::vector< uint8_t > > rlpAccessList;
     for ( const auto& accessTuple : accessList ) {
         std::vector< uint8_t > rlpAccessTuple = accessTuple.encode();
@@ -415,8 +416,8 @@ void EthTransactionEncoder::uint64toVec( uint64_t v_value, vector< uint8_t >& v_
     }
 }
 
-ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte ) {
-    static atomic< uint64_t > counter = 0;
+ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, ptr<BiteManager> _biteManager ) {
+    CHECK_STATE(_biteManager)
     static atomic< uint64_t > nonce = 0;
 
     /// Transaction templates
@@ -476,7 +477,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
             tx = std::make_unique<Type1Tx>(templateType1);
             break;
         case TxType::TYPE2:
-            // std::cout << "TxType::Type2 \n\n\n";           
+            // std::cout << "TxType::Type2 \n\n\n";
             tx = std::make_unique<Type2Tx>(templateType2);
             break;
         default:
@@ -495,10 +496,9 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte )
     auto encryptedAesKey = make_shared<EncryptedAESKey>(encryptedKeyBytes);
 
     if ( _isByte ) {
-        // std::cout << "Encrypted\n\n\n";
-        BiteDataField biteDataField(
-            encryptedAesKey, make_shared< EncryptedData >( encryptedData ), 0, true);
-            txRef.data = *biteDataField.getSerializedData();
+        auto encryptedKeyPlusData = _biteManager->teEncryptData(txRef.data);
+        BiteDataField biteDataField(encryptedKeyPlusData , 0);
+        txRef.data = *biteDataField.getSerializedData();
     }
 
     auto encodedTx = signAndEncodeTx( txRef );
@@ -516,7 +516,7 @@ ptr< vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
     if (type >= 2) {
         throw invalid_argument( "Unknown transaction type" );
     }
-    
+
     EthTransactionEncoder::TxType txType = static_cast< EthTransactionEncoder::TxType >( type );
     switch (txType) {
         case EthTransactionEncoder::TxType::LEGACY:

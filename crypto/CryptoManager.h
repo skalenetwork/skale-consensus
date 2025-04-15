@@ -21,8 +21,7 @@
     @date 2019
 */
 
-#ifndef SKALED_CRYPTOMANAGER_H
-#define SKALED_CRYPTOMANAGER_H
+#pragma once
 
 
 #include "messages/NetworkMessage.h"
@@ -60,16 +59,16 @@ class BLSPublicKey;
 class BLSSigShare;
 
 namespace CryptoPP {
-class ECP;
+    class ECP;
 
-template < class EC, class H >
-struct ECDSA;
-}  // namespace CryptoPP
+    template<class EC, class H>
+    struct ECDSA;
+} // namespace CryptoPP
 
 class ECDSAVerify;
 
 namespace jsonrpc {
-class HttpClient;
+    class HttpClient;
 }
 
 class MPZNumber {
@@ -86,56 +85,61 @@ class OpenSSLECDSAKey;
 
 class OpenSSLEdDSAKey;
 
-class CryptoManager {
-    static list< uint64_t > ecdsaSignTimes;
-    static recursive_mutex ecdsaSignMutex;
-    static atomic< uint64_t > ecdsaSignTotal;
-
-    static list< uint64_t > blsSignTimes;
-    static recursive_mutex blsSignMutex;
-    static atomic< uint64_t > blsSignTotal;
-
-    static atomic< uint64_t > blsCounter;
 #ifdef BITE
-    static list< uint64_t > teDecryptShareTimes;
-    static recursive_mutex teDecryptShareMutex;
-    static atomic< uint64_t > teDecryptShareTotal;
-
-    static atomic< uint64_t > teDecryptShareCounter;
+class AESKeyDecryptionShare;
+class EncryptedAESKey;
 #endif
-    static atomic< uint64_t > ecdsaCounter;
+
+class CryptoManager {
+    static list<uint64_t> ecdsaSignTimes;
+    static recursive_mutex ecdsaSignMutex;
+    static atomic<uint64_t> ecdsaSignTotal;
+
+    static list<uint64_t> blsSignTimes;
+    static recursive_mutex blsSignMutex;
+    static atomic<uint64_t> blsSignTotal;
+
+    static atomic<uint64_t> blsCounter;
+#ifdef BITE
+    static list<uint64_t> teDecryptShareTimes;
+    static recursive_mutex teDecryptShareMutex;
+    static atomic<uint64_t> teDecryptShareTotal;
+
+    static atomic<uint64_t> teDecryptShareCounter;
+#endif
+    static atomic<uint64_t> ecdsaCounter;
 
 
-    cache::lru_cache< uint64_t, tuple< ptr< OpenSSLEdDSAKey >, string, string > >
-        sessionKeys;                                               // tsafe
-    cache::lru_ordered_cache< string, string > sessionPublicKeys;  // tsafe
+    cache::lru_cache<uint64_t, tuple<ptr<OpenSSLEdDSAKey>, string, string> >
+    sessionKeys; // tsafe
+    cache::lru_ordered_cache<string, string> sessionPublicKeys; // tsafe
     recursive_mutex sessionKeysLock;
     recursive_mutex publicSessionKeysLock;
 
-    map< uint64_t, ptr< jsonrpc::HttpClient > > httpClients;  // tsafe
-    map< uint64_t, ptr< StubClient > > sgxClients;            // tsafe
+    map<uint64_t, ptr<jsonrpc::HttpClient> > httpClients; // tsafe
+    map<uint64_t, ptr<StubClient> > sgxClients; // tsafe
 
 
-    ptr< SgxZmqClient > zmqClient = nullptr;
+    ptr<SgxZmqClient> zmqClient = nullptr;
 
     recursive_mutex clientsLock;
 
-    map< uint64_t, string > ecdsaPublicKeyMap;  // tsafe
+    map<uint64_t, string> ecdsaPublicKeyMap; // tsafe
     recursive_mutex ecdsaPublicKeyMapLock;
     recursive_mutex historicEcdsaPublicKeyMapLock;
 
 
-    map< uint64_t, ptr< vector< string > > > blsPublicKeySharesMapByIndex;  // tsafe
+    map<uint64_t, ptr<vector<string> > > blsPublicKeySharesMapByIndex; // tsafe
 
-    ptr< vector< ptr< vector< string > > > > sgxBLSPublicKeyShares;  // tsafe
+    ptr<vector<ptr<vector<string> > > > sgxBLSPublicKeyShares; // tsafe
 
-    ptr< vector< string > > sgxECDSAPublicKeys;  // tsafe
+    ptr<vector<string> > sgxECDSAPublicKeys; // tsafe
 
-    ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+    ptr<map<uint64_t, ptr<BLSPublicKey> > > previousBlsPublicKeys;
 
-    ptr< map< uint64_t, string > > historicECDSAPublicKeys;
+    ptr<map<uint64_t, string> > historicECDSAPublicKeys;
 
-    ptr< map< uint64_t, vector< uint64_t > > > historicNodeGroups;
+    ptr<map<uint64_t, vector<uint64_t> > > historicNodeGroups;
 
     uint64_t totalSigners;
     uint64_t requiredSigners;
@@ -153,9 +157,9 @@ class CryptoManager {
     string sgxBlsKeyName;
 
 
-    ptr< BLSPublicKey > sgxBLSPublicKey;
+    ptr<BLSPublicKey> sgxBLSPublicKey;
 
-    Schain* sChain = nullptr;
+    Schain *sChain = nullptr;
 
     static bool retryHappened;
 
@@ -168,141 +172,140 @@ class CryptoManager {
 
     uint64_t sgxBlockProcessingTimeMs = 0;
 
-    ptr< StubClient > getSgxClient();
+    ptr<StubClient> getSgxClient();
 
-    tuple< ptr< OpenSSLEdDSAKey >, string > localGenerateFastKey();
+    tuple<ptr<OpenSSLEdDSAKey>, string> localGenerateFastKey();
 
-    string sign( BLAKE3Hash& _hash );
+    string sign(BLAKE3Hash &_hash);
 
-    tuple< string, string, string > signSession( BLAKE3Hash& _hash, block_id _blockId );
+    tuple<string, string, string> signSession(BLAKE3Hash &_hash, block_id _blockId);
 
     void verifyECDSASig(
-        BLAKE3Hash& _hash, const string& _sig, node_id _nodeId, uint64_t _timeStamp );
+        BLAKE3Hash &_hash, const string &_sig, node_id _nodeId, uint64_t _timeStamp);
 
-    ptr< ThresholdSigShare > signSigShare(
-        BLAKE3Hash& _hash, block_id _blockId, bool _forceMockup );
+    ptr<ThresholdSigShare> signSigShare(
+        BLAKE3Hash &_hash, block_id _blockId, bool _forceMockup);
 
-#ifdef BITE
-    ptr< ThresholdSigShare > decryptAESKeyShares(
-        ptr<vector<ptr<EncryptedTransactionDataField>>>& _encryptedTransactionDataField, block_id _blockId,
-        bool _forceMockup );
-#endif
-
-    ptr< ThresholdSigShare > signDAProofSigShare(
-        BLAKE3Hash& _hash, block_id _blockId, uint64_t _timestamp, bool _forceMockup );
+    ptr<ThresholdSigShare> signDAProofSigShare(
+        BLAKE3Hash &_hash, block_id _blockId, uint64_t _timestamp, bool _forceMockup);
 
 
     void initSGXClient();
 
-    static pair< string, uint64_t > parseSGXDomainAndPort( const string& _url );
-
+    static pair<string, uint64_t> parseSGXDomainAndPort(const string &_url);
 
 public:
     static ifstream urandom;
 
-    void verifyThresholdSig( ptr< ThresholdSignature > _signature, BLAKE3Hash& _hash,
-        const TimeStamp& _ts = TimeStamp( uint64_t( -1 ), 0 ) );
+#ifdef BITE
+    ptr<vector<ptr<AESKeyDecryptionShare>>> sgxDecryptAESKeyShareBatch( std::vector<std::shared_ptr<std::string>>& _publicDecryptionValues);
+#endif
 
-    void verifyBlockSig( string& _signature, block_id _blockId, BLAKE3Hash& _hash,
-        const TimeStamp& _ts = TimeStamp( uint64_t( -1 ), 0 ) );
 
-    void verifyThresholdSigShare( ptr< ThresholdSigShare > _sigShare, BLAKE3Hash& _hash );
+    void verifyThresholdSig(ptr<ThresholdSignature> _signature, BLAKE3Hash &_hash,
+                            const TimeStamp &_ts = TimeStamp(uint64_t(-1), 0));
+
+    void verifyBlockSig(string &_signature, block_id _blockId, BLAKE3Hash &_hash,
+                        const TimeStamp &_ts = TimeStamp(uint64_t(-1), 0));
+
+    void verifyThresholdSigShare(ptr<ThresholdSigShare> _sigShare, BLAKE3Hash &_hash);
 
 
     static bool isRetryHappened();
 
-    static void setRetryHappened( bool retryHappened );
+    static void setRetryHappened(bool retryHappened);
 
-    void verifySessionEdDSASig( BLAKE3Hash& _hash, const string& _sig, const string& _publicKey );
+    void verifySessionEdDSASig(BLAKE3Hash &_hash, const string &_sig, const string &_publicKey);
 
     // This constructor is used for testing
-    CryptoManager( uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
-        string _sgxURL = "", string _sgxSslKeyFileFullPath = "",
-        string _sgxSslCertFileFullPath = "", string _sgxEcdsaKeyName = "",
-        ptr< vector< string > > _sgxEcdsaPublicKeys = nullptr );
+    CryptoManager(uint64_t _totalSigners, uint64_t _requiredSigners, bool _isSGXEnabled,
+                  string _sgxURL = "", string _sgxSslKeyFileFullPath = "",
+                  string _sgxSslCertFileFullPath = "", string _sgxEcdsaKeyName = "",
+                  ptr<vector<string> > _sgxEcdsaPublicKeys = nullptr);
 
-    explicit CryptoManager( Schain& sChain );
+    explicit CryptoManager(Schain &sChain);
 
-    Schain* getSchain() const;
-
-
-    void verifyDAProofSigShare( ptr< ThresholdSigShare > _sigShare, schain_index _schainIndex,
-        BLAKE3Hash& _hash, node_id _nodeId, bool _forceMockup );
+    Schain *getSchain() const;
 
 
-    ptr< ThresholdSignature > verifyDAProofThresholdSig(
-        BLAKE3Hash& _hash, const string& _signature, block_id _blockId, uint64_t _timestamp );
+    void verifyDAProofSigShare(ptr<ThresholdSigShare> _sigShare, schain_index _schainIndex,
+                               BLAKE3Hash &_hash, node_id _nodeId, bool _forceMockup);
+
+
+    ptr<ThresholdSignature> verifyDAProofThresholdSig(
+        BLAKE3Hash &_hash, const string &_signature, block_id _blockId, uint64_t _timestamp);
 
     void verifyProposalECDSA(
-        const ptr< BlockProposal >& _proposal, const string& _hashStr, const string& _signature );
+        const ptr<BlockProposal> &_proposal, const string &_hashStr, const string &_signature);
 
-    void verifyECDSA( BLAKE3Hash& _hash, const string& _sig, const string& _publicKey );
+    void verifyECDSA(BLAKE3Hash &_hash, const string &_sig, const string &_publicKey);
 
-    void verifySessionSigAndKey( BLAKE3Hash& _hash, const string& _sig, const string& _publicKey,
-        const string& pkSig, block_id _blockID, pair< node_id, node_id > _nodeId,
-        uint64_t _timeStamp );
-
-
-    void verifyBlsSigShare( ptr< BLSSigShare > _sigShare, BLAKE3Hash& _hash );
+    void verifySessionSigAndKey(BLAKE3Hash &_hash, const string &_sig, const string &_publicKey,
+                                const string &pkSig, block_id _blockID, pair<node_id, node_id> _nodeId,
+                                uint64_t _timeStamp);
 
 
-    ptr< ThresholdSigShareSet > createSigShareSet( block_id _blockId );
-
-    ptr< ThresholdSigShareSet > createDAProofSigShareSet( block_id _blockId, uint64_t _timestamp );
-
-    ptr< ThresholdSigShare > createSigShare( const string& _sigShare, schain_id _schainID,
-        block_id _blockID, schain_index _signerIndex, bool _forceMockup );
-
-    ptr< ThresholdSigShare > createDAProofSigShare( const string& _sigShare, schain_id _schainID,
-        block_id _blockID, schain_index _signerIndex, uint64_t _timestamp, bool _forceMockup );
-
-    void signProposal( BlockProposal* _proposal );
+    void verifyBlsSigShare(ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash);
 
 
-    tuple< ptr< ThresholdSigShare >, string, string, string > signDAProof(
-        const ptr< BlockProposal >& _p );
+    ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId);
 
-    ptr< ThresholdSigShare > signBinaryConsensusSigShare(
-        BLAKE3Hash& _hash, block_id _blockId, uint64_t _round );
+    ptr<ThresholdSigShareSet> createDAProofSigShareSet(block_id _blockId, uint64_t _timestamp);
 
-    ptr< ThresholdSigShare > signBlockSigShare( BLAKE3Hash& _hash, block_id _blockId );
+    ptr<ThresholdSigShare> createSigShare(const string &_sigShare, schain_id _schainID,
+                                          block_id _blockID, schain_index _signerIndex, bool _forceMockup);
 
-    tuple< string, string, string > signNetworkMsg( NetworkMessage& _msg );
+    ptr<ThresholdSigShare> createDAProofSigShare(const string &_sigShare, schain_id _schainID,
+                                                 block_id _blockID, schain_index _signerIndex, uint64_t _timestamp,
+                                                 bool _forceMockup);
 
-    void verifyNetworkMsg( NetworkMessage& _msg );
-
-    static ptr< void > decodeSGXPublicKey( const string& _keyHex );
-
-    static pair< string, string > generateSGXECDSAKey( const ptr< StubClient >& _c );
-
-    static string getSGXEcdsaPublicKey( const string& _keyName, const ptr< StubClient >& _c );
-
-    static void generateSSLClientCertAndKey( string& _fullPathToDir );
-
-    static void setSGXKeyAndCert( string& _keyFullPath, string& _certFullPath, uint64_t _sgxPort );
+    void signProposal(BlockProposal *_proposal);
 
 
-    string sgxSignECDSA( BLAKE3Hash& _hash, string& _keyName );
+    tuple<ptr<ThresholdSigShare>, string, string, string> signDAProof(
+        const ptr<BlockProposal> &_p);
 
-    tuple< string, string, string > signSessionECDSA( BLAKE3Hash& _hash, block_id _blockID );
+    ptr<ThresholdSigShare> signBinaryConsensusSigShare(
+        BLAKE3Hash &_hash, block_id _blockId, uint64_t _round);
+
+    ptr<ThresholdSigShare> signBlockSigShare(BLAKE3Hash &_hash, block_id _blockId);
+
+    tuple<string, string, string> signNetworkMsg(NetworkMessage &_msg);
+
+    void verifyNetworkMsg(NetworkMessage &_msg);
+
+    static ptr<void> decodeSGXPublicKey(const string &_keyHex);
+
+    static pair<string, string> generateSGXECDSAKey(const ptr<StubClient> &_c);
+
+    static string getSGXEcdsaPublicKey(const string &_keyName, const ptr<StubClient> &_c);
+
+    static void generateSSLClientCertAndKey(string &_fullPathToDir);
+
+    static void setSGXKeyAndCert(string &_keyFullPath, string &_certFullPath, uint64_t _sgxPort);
 
 
-    pair< ptr< BLSPublicKey >, ptr< BLSPublicKey > > getSgxBlsPublicKey( uint64_t _timestamp = 0 );
+    string sgxSignECDSA(BLAKE3Hash &_hash, string &_keyName);
+
+    tuple<string, string, string> signSessionECDSA(BLAKE3Hash &_hash, block_id _blockID);
+
+
+    pair<ptr<BLSPublicKey>, ptr<BLSPublicKey> > getSgxBlsPublicKey(uint64_t _timestamp = 0);
 
     string getSgxBlsKeyName();
 
-    static const string& getSgxUrl();
+    static const string &getSgxUrl();
 
-    static void setSgxUrl( const string& sgxUrl );
+    static void setSgxUrl(const string &sgxUrl);
 
-    static BLAKE3Hash calculatePublicKeyHash( string publicKey, block_id _blockID );
+    static BLAKE3Hash calculatePublicKeyHash(string publicKey, block_id _blockID);
 
 
     void exitZMQClient();
 
-    static void addECDSASignStats( uint64_t _time );
+    static void addECDSASignStats(uint64_t _time);
 
-    static void addBLSSignStats( uint64_t _time );
+    static void addBLSSignStats(uint64_t _time);
 
     static uint64_t getEcdsaStats() { return ecdsaSignTotal / LEVELDB_STATS_HISTORY; }
 
@@ -320,19 +323,19 @@ public:
 
     bool isSGXServerDown();
 
-    string signOracleResult( string _text );
+    string signOracleResult(string _text);
 
-    static string hashForOracle( char* _data, size_t _size );
+    static string hashForOracle(char *_data, size_t _size);
 
-    void checkZMQStatusIfUnknownECDSA( const string& _keyName );
+    void checkZMQStatusIfUnknownECDSA(const string &_keyName);
 
     void checkZMQStatusIfUnknownBLS();
 
-    string getECDSAPublicKeyForNodeId( const node_id& _nodeId, uint64_t _timeStamp );
+    string getECDSAPublicKeyForNodeId(const node_id &_nodeId, uint64_t _timeStamp);
 
-    string getECDSAHistoricPublicKeyForNodeId( uint64_t _nodeId, uint64_t _timeStamp );
+    string getECDSAHistoricPublicKeyForNodeId(uint64_t _nodeId, uint64_t _timeStamp);
 
-    pair< node_id, node_id > getHistoricNodeIDByIndex( uint64_t schain_id, uint64_t _timeStamp );
+    pair<node_id, node_id> getHistoricNodeIDByIndex(uint64_t schain_id, uint64_t _timeStamp);
 
     uint64_t sgxBlockProcessingTime();
 };
@@ -361,13 +364,13 @@ public:
                     "server" );                                                                \
             };                                                                                 \
             if ( !CryptoManager::isRetryHappened() )                                           \
-                LOG( err,                                                                      \
-                    "Could not connect to sgx server: "                                        \
-                    ", retrying each five seconds ... \n" );                                   \
+            LOG( err, "Could not connect to sgx server: " + CryptoManager::getSgxUrl() +       \
+              ", retrying each five seconds ... \n" + string( e.what() ) );                    \
             CryptoManager::setRetryHappened( true );                                           \
             sleep( 5 );                                                                        \
         } else {                                                                               \
-            LOG( err, "Could not connect to sgx server: " );                                   \
+            LOG( err, "Could not connect to sgx server: " + CryptoManager::getSgxUrl() +       \
+              "\n" + string( e.what() ) );                                                     \
             throw;                                                                             \
         }                                                                                      \
     }                                                                                          \
@@ -377,4 +380,3 @@ public:
     }                                                                                          \
     }
 
-#endif  // SKALED_CRYPTOMANAGER_H

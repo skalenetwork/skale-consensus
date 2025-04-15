@@ -394,16 +394,16 @@ extern std::string getThreadName();
 #define CHECK_ARGUMENT( _EXPRESSION_ )                                                         \
     if ( !( _EXPRESSION_ ) ) {                                                                 \
         auto __msg__ = string( "Argument Check failed:" ) + #_EXPRESSION_ + "\n" +             \
-                       __CLASS_NAME__ + ":" + __PRETTY_FUNCTION__ + +" " + string( __FILE__ ) + ":" + \
+                       string( __FILE__ ) + ":" + \
                        to_string( __LINE__ );                                                  \
-        throw InvalidArgumentException( __msg__, __CLASS_NAME__ );                             \
+        throw InvalidArgumentException( __msg__, __FUNCTION__ );                             \
     }
 
 #define CHECK_STATE( _EXPRESSION_ )                                             \
     if ( !( _EXPRESSION_ ) ) {                                                  \
         auto __msg__ = string( "State check failed::" ) + #_EXPRESSION_ + " " + \
-                       __CLASS_NAME__ + ":" + __PRETTY_FUNCTION__ + " " + string( __FILE__ ) + ":" + to_string( __LINE__ );        \
-        throw InvalidStateException( __msg__, __CLASS_NAME__ );                 \
+                       string( __FILE__ ) + ":" + to_string( __LINE__ );        \
+        throw InvalidStateException( __msg__, __FUNCTION__ );                 \
     }
 
 
@@ -432,7 +432,7 @@ extern std::string getThreadName();
     if ( !( _EXPRESSION_ ) ) {                                                                 \
         auto __msg__ = string( "Check failed::" ) + #_EXPRESSION_ + " " + string( __FILE__ ) + \
                        ":" + to_string( __LINE__ );                                            \
-        throw InvalidStateException( __msg__ + ":" + _MSG_, __CLASS_NAME__ );                  \
+        throw InvalidStateException( __msg__ + ":" + _MSG_, __FUNCTION__ );                  \
     }
 
 #define ORACLE_CHECK_STATE3( _EXPRESSION_, _MSG_, _ERROR_ )       \
