@@ -144,8 +144,6 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         needMax = getNode()->getMaxTransactionsPerBlock();
     }
 
-    cerr << needMax << endl;
-
     ConsensusExtFace::transactions_vector txVector;
 
     auto startTimeMs = Time::getCurrentTimeMs();
