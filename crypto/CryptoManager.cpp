@@ -1393,6 +1393,7 @@ void CryptoManager::setRetryHappened(bool _retryHappened) {
 }
 
 const string &CryptoManager::getSgxUrl() {
+
     return sgxURL;
 }
 

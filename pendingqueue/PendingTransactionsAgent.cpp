@@ -144,6 +144,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         needMax = getNode()->getMaxTransactionsPerBlock();
     }
 
+    cerr << needMax << endl;
 
     ConsensusExtFace::transactions_vector txVector;
 
@@ -207,15 +208,17 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
     for (const auto &e: txVector) {
         ptr<Transaction> pt = Transaction::deserialize(
             make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
-#ifdef BITE
+
         try {
+#ifdef BITE
             pt->parseAndValidateBiteDataField();
+#endif
             result->push_back(pt);
         } catch (std::exception &e) {
             LOG(err, e.what());
             LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my propopsal.");
         }
-#endif
+
         pushKnownTransaction(pt);
     }
 
