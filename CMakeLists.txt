@@ -128,6 +128,7 @@ if (DEFINED BITE)
     AUX_SOURCE_DIRECTORY(bite bite_src)
     AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
     AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
+    AUX_SOURCE_DIRECTORY(rlp rlp_src)
 endif ()
 AUX_SOURCE_DIRECTORY(log log_src)
 AUX_SOURCE_DIRECTORY(messages messages_src)
@@ -150,7 +151,6 @@ AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
 if (NOT DEFINED BITE)
 AUX_SOURCE_DIRECTORY(oracle oracle_src)
 endif ()
-AUX_SOURCE_DIRECTORY(rlp rlp_src)
 
 
 SET(SRC_FILES
@@ -200,11 +200,11 @@ SET(SRC_FILES
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
-if (NOT CMAKE_PROJECT_NAME STREQUAL "consensus")
+if (NOT CMAKE_PROJECT_NAME STREQUAL "consensus" AND NOT DEFINED BITE)
     include_directories(${PARENT_BINARY_DIR}/deps/include)
 endif()
 
-set(BOOST_LIBS_FOR_CONSENSUS boost_thread  boost_system boost_filesystem boost_program_options boost_context)
+set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options boost_context)
 
 set(DASH_D_SUFFIX "")
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
