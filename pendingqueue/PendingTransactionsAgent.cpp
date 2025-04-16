@@ -129,7 +129,7 @@ pair<ptr<vector<ptr<Transaction> > >, u256>
 PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterCatchup) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime())
 
-    auto result = make_shared<vector<ptr<Transaction> > >();
+
 
     size_t needMax;
 
@@ -205,20 +205,22 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
     transactionListWaitTime = finishTimeMs - startTimeMs;
 
+    auto result = make_shared<vector<ptr<Transaction> > >();
+
     for (const auto &e: txVector) {
         ptr<Transaction> pt = Transaction::deserialize(
             make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
 
-        try {
 #ifdef BITE
+        try {
             pt->parseAndValidateBiteDataField();
-#endif
-            result->push_back(pt);
         } catch (std::exception &e) {
             LOG(err, e.what());
             LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my propopsal.");
         }
+#endif
 
+        result->push_back(pt);
         pushKnownTransaction(pt);
     }
 
