@@ -204,7 +204,6 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
             auto bite = tx->parseAndValidateBiteDataField();
             if (bite) {
                 auto decryptedAESKey = _aesKeys.getKey(i);
-
                 CHECK_STATE(decryptedAESKey);
 
                 vector<uint8_t> decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);

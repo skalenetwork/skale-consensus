@@ -170,8 +170,6 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
         }
     }
 
-    cerr << decryptedAesKeyList->getSize() << " decrypted keys" << endl;
-
     auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(*transactionList,
         *decryptedAesKeyList);
     ptr<CommittedBlock> block = nullptr;

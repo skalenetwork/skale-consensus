@@ -20,8 +20,12 @@ public:
         decryptedAESKeys.emplace(_index, make_shared<DecryptedAESKey>(key));
     }
 
-    const  ptr<DecryptedAESKey> getKey(uint64_t id) const {
-        return decryptedAESKeys.at(id);
+    const  ptr<DecryptedAESKey> getKey(transaction_index _transactionIndex) const {
+        auto result = decryptedAESKeys.find(_transactionIndex);
+        if (result == decryptedAESKeys.end()) {
+            return nullptr;
+        }
+        return result->second;
     }
 
     uint64_t getSize() const {
