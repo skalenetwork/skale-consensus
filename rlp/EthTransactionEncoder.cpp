@@ -83,7 +83,6 @@ std::vector< std::vector< uint8_t > > EthTransactionEncoder::Type2Tx::encode() c
         rlpAccessList.push_back( rlpAccessTuple );
     }
     EthTransactionEncoder::addEncodedFieldList(fields, rlpAccessList);
-    // EthTransactionEncoder::addEncodedFieldBytes(fields, std::vector<uint8_t>{});
 
     return fields;
 }
@@ -263,9 +262,9 @@ std::vector< uint8_t > EthTransactionEncoder::rlpEncode( const Transaction& tx, 
         rlpEncodeUint256( tmp, ZERO );
         fields.push_back( tmp );
         tmp.clear();
-        // rlpEncodeUint256( tmp, ZERO );
-        // fields.push_back( tmp );
-        // tmp.clear();
+        rlpEncodeUint256( tmp, ZERO );
+        fields.push_back( tmp );
+        tmp.clear();
     }
 
     std::vector< uint8_t > encoded;
@@ -472,15 +471,12 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
 
     switch ( txType ) {
         case TxType::LEGACY:
-            // std::cout << "TxType::LEGACY \n\n\n";
             tx = std::make_unique<LegacyTx>(templateLegacy);
             break;
         case TxType::TYPE1:
-            // std::cout << "TxType::Type1 \n\n\n";
             tx = std::make_unique<Type1Tx>(templateType1);
             break;
         case TxType::TYPE2:
-            // std::cout << "TxType::Type2 \n\n\n";
             tx = std::make_unique<Type2Tx>(templateType2);
             break;
         default:
