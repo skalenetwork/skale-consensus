@@ -225,9 +225,12 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
 
     if (doRealCrypto) {
         auto encryptedData = _bite->getEncryptedData();
-        CHECK_STATE(encryptedData)
+        CHECK_STATE(encryptedData != nullptr);
+
         std::vector<uint8_t> data = libBLS::ThresholdUtils::aesDecrypt(*encryptedData, _decryptedAESKey.getAesKey());
-        return data;
+        CHECK_STATE(data.size() >= BITE_TE_RANDOM_LEN);
+        // Strip off the trailing random byte
+        return {data.begin(), data.end() - BITE_TE_RANDOM_LEN};
     } else {
         auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(keyPlusEncryptedData);
