@@ -1,5 +1,5 @@
 #include "Log.h"
-
+#include <fmt/core.h>
 #include <chains/Schain.h>
 #include <crypto/AESKeyDecryptionShare.h>
 #include <crypto/AESKeyDecryptionShareSet.h>
@@ -206,7 +206,14 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);
 
-                vector<uint8_t> decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
+                try {
+                    vector<uint8_t> decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
+                } catch (const std::exception &e) {
+                    LOG(err, fmt::format("User submitted a corrupt transaction {} that does not decrypt: {}"
+                        "skip this transaction for now, in the future we will charge user for it",
+                        i, e.what()));
+                    decryptedDataFields->emplace(i, nullptr);;
+                }
 
                 decryptedDataFields->emplace(i, make_shared<vector<uint8_t> >(decryptedOriginalDataField));
             } else {
@@ -219,7 +226,7 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
     return decryptedDataFields;
 }
 
-vector<uint8_t>
+ptr<vector<uint8_t>>
 BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
@@ -230,13 +237,13 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
         std::vector<uint8_t> data = libBLS::ThresholdUtils::aesDecrypt(*encryptedData, _decryptedAESKey.getAesKey());
         CHECK_STATE(data.size() >= BITE_TE_RANDOM_LEN);
         // Strip off the trailing random byte
-        return {data.begin(), data.end() - BITE_TE_RANDOM_LEN};
+        return make_shared<>{data.begin(), data.end() - BITE_TE_RANDOM_LEN};
     } else {
         auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(keyPlusEncryptedData);
         auto decryptedOriginalDataField =
                 libBLS::ThresholdEncryption::mockupDecrypt(*keyPlusEncryptedData);
-        return decryptedOriginalDataField;
+        return make_shared<vector<uint8_t>>(decryptedOriginalDataField);
     }
 }
 

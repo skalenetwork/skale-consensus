@@ -48,7 +48,7 @@ public:
 
     ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
 
-    vector<uint8_t> decryptDataField(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
+    ptr<vector<uint8_t>> decryptDataField(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
 
     ptr<vector<uint8_t> > teEncryptData(const vector<uint8_t> &_data);
 };

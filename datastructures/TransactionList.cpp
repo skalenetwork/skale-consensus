@@ -143,16 +143,33 @@ size_t TransactionList::size() {
 }
 
 
-ptr< ConsensusExtFace::transactions_vector > TransactionList::createTransactionVector() {
+ptr< ConsensusExtFace::transactions_vector > TransactionList::createTransactionVector(
+#ifdef BITE
+ptr<map<uint64_t, shared_ptr<vector<uint8_t> > > > _decryptedTransactions
+#endif
+) {
     LOCK( m )
 
     auto tv = make_shared< ConsensusExtFace::transactions_vector >();
 
     CHECK_STATE( transactions );
 
+    // for now we skip transactions for which decryption failed
+    // later we will penalize the user
+
+#ifdef BITE
+    for (uint64_t i = 0; i < transactions->size(); ++i) {
+        auto it = _decryptedTransactions->find(i);
+        if (it != _decryptedTransactions->end() && !it->second) {
+            continue; // decryption failed
+        }
+        tv->push_back(*transactions->at(i)->getData());
+    }
+#else
     for ( auto&& t : *transactions ) {
         tv->push_back( *( t->getData() ) );
     }
+#endif
     return tv;
 }
 ptr< TransactionList > TransactionList::deserialize(

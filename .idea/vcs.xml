@@ -33,6 +33,10 @@
     <mapping directory="$PROJECT_DIR$/deps/zstd" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/jsoncpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libBLS/deps/libff" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/ate-pairing" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/gtest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/openssl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libjson-rpc-cpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libzmq" vcs="Git" />
