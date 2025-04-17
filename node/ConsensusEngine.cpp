@@ -1129,7 +1129,15 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     auto timeStampMs = committedBlock->getTimeStampMs();
     auto stateRoot = committedBlock->getStateRoot();
     auto currentPrice = schain->getPriceForBlockId( ( uint64_t ) committedBlock->getBlockID() - 1 );
-    auto tv = committedBlock->getTransactionList()->createTransactionVector();
+    auto tv = committedBlock->getTransactionList()->createTransactionVector(
+#ifdef BITE
+    committedBlock->getDecryptedTransactionDataFields(),
+#endif
+        node->getNodeID(), committedBlock->getBlockID(), committedBlock->getBlockTimeStamp(),
+        committedBlock->getBlockTimeStampMs(), committedBlock->getStateRoot(),
+        committedBlock->getTransactionList()->getTransactionCount()
+
+    );
 
     return { tv, timeStampS, timeStampMs, currentPrice, stateRoot };
 }

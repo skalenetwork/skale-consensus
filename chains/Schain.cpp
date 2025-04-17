@@ -853,7 +853,12 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
     checkForExit();
 
     try {
-        auto tv = _block->getTransactionList()->createTransactionVector();
+        auto tv = _block->getTransactionList()->createTransactionVector(
+#ifdef BITE
+        _block->getDecryptedTransactionDataFields()
+#endif
+
+        );
 
         // auto next_price = // VERIFY PRICING
 
