@@ -1,5 +1,5 @@
+#include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "Log.h"
-#include <fmt/core.h>
 #include <chains/Schain.h>
 #include <crypto/AESKeyDecryptionShare.h>
 #include <crypto/AESKeyDecryptionShareSet.h>
@@ -11,7 +11,7 @@
 #include "datastructures/BlockProposal.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
-#include "libBLS/threshold_encryption/ThresholdEncryption.h"
+
 #include "rlp/ParsedEthTransaction.h"
 
 #include "BiteManager.h"
@@ -206,8 +206,10 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);
 
+                ptr<vector<uint8_t>> decryptedOriginalDataField = nullptr;
+
                 try {
-                    vector<uint8_t> decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
+                    decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
                 } catch (const std::exception &e) {
                     LOG(err, fmt::format("User submitted a corrupt transaction {} that does not decrypt: {}"
                         "skip this transaction for now, in the future we will charge user for it",
@@ -215,7 +217,7 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
                     decryptedDataFields->emplace(i, nullptr);;
                 }
 
-                decryptedDataFields->emplace(i, make_shared<vector<uint8_t> >(decryptedOriginalDataField));
+                decryptedDataFields->emplace(i, decryptedOriginalDataField);
             } else {
                 CHECK_STATE(!_aesKeys.getKey( i ));
             }
@@ -237,7 +239,7 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
         std::vector<uint8_t> data = libBLS::ThresholdUtils::aesDecrypt(*encryptedData, _decryptedAESKey.getAesKey());
         CHECK_STATE(data.size() >= BITE_TE_RANDOM_LEN);
         // Strip off the trailing random byte
-        return make_shared<>{data.begin(), data.end() - BITE_TE_RANDOM_LEN};
+        return make_shared<vector<uint8_t>>(data.begin(), data.end() - BITE_TE_RANDOM_LEN);
     } else {
         auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(keyPlusEncryptedData);
