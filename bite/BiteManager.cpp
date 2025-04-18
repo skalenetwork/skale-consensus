@@ -211,8 +211,8 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
                 try {
                     decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
                 } catch (const std::exception &e) {
-                    LOG(err, fmt::format("User submitted a corrupt transaction {} that does not decrypt: {}"
-                        "skip this transaction for now, in the future we will charge user for it",
+                    LOG(err, fmt::format("Corrupt ts {} that doesnt decrypt: {}"
+                        " skip from block, TODO: charge user min gas fee penalty",
                         i, e.what()));
                     decryptedDataFields->emplace(i, nullptr);;
                 }
@@ -249,6 +249,20 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
     }
 }
 
+void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char>> result) {
+    static atomic<uint64_t> counter = 0;
+    counter++;
+    auto corruptionType = counter % 11;
+    if (corruptionType == 1) {
+        // introduce some corrupt transactions
+        result->back() = 1;
+    } else if (corruptionType == 2) {
+        result->push_back(1);
+    } else if (corruptionType == 3) {
+        result->resize(result->size() - 1);
+    }
+}
+
 ptr<vector<uint8_t> > BiteManager::teEncryptData(const vector<uint8_t> &_data) {
     if (this->doRealCrypto) {
         auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
@@ -262,6 +276,11 @@ ptr<vector<uint8_t> > BiteManager::teEncryptData(const vector<uint8_t> &_data) {
         auto result = make_shared<vector<uint8_t> >(encodedCipheredKey.begin(), encodedCipheredKey.end());
         result->insert(result->end(), cipherText.data->begin(), cipherText.data->end());
         CHECK_STATE(result->size() == encodedCipheredKey.size() + cipherText.data->size());
+
+
+        corruptFromTimeToTime(result);
+
+
         return result;
     } else {
         return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(_data));

@@ -161,7 +161,7 @@ ptr<map<uint64_t, shared_ptr<vector<uint8_t> > > > _decryptedTransactions
     for (uint64_t i = 0; i < transactions->size(); ++i) {
         auto it = _decryptedTransactions->find(i);
         if (it != _decryptedTransactions->end() && !it->second) {
-            continue; // decryption failed
+            continue; // decryption failed skip from the block
         }
         tv->push_back(*transactions->at(i)->getData());
     }

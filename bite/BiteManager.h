@@ -50,5 +50,7 @@ public:
 
     ptr<vector<uint8_t>> decryptDataField(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
 
+    void corruptFromTimeToTime(shared_ptr<vector<unsigned char>> result);
+
     ptr<vector<uint8_t> > teEncryptData(const vector<uint8_t> &_data);
 };
