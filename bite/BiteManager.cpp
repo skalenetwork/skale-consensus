@@ -211,7 +211,7 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
                 try {
                     decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
                 } catch (const std::exception &e) {
-                    LOG(err, fmt::format("Corrupt ts {} that doesnt decrypt: {}"
+                    LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}"
                         " skip from block, TODO: charge user min gas fee penalty",
                         i, e.what()));
                     decryptedDataFields->emplace(i, nullptr);;
