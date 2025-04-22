@@ -33,10 +33,10 @@ public:
         block_id _blockId, schain_index _proposerIndex,
         const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields);
 
-    ptr<vector<ptr<AESKeyDecryptionShare> > > decryptAESKeys(vector<ptr<BiteDataField> > &_dataFields);
+    ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(vector<ptr<BiteDataField> > &_dataFields);
 
 
-    ptr<vector<ptr<AESKeyDecryptionShare>>> decryptAESKeyShareBatch(vector<ptr<EncryptedAESKey> >& _encryptedAESKeys,
+    ptr<vector<ptr<AESKeyDecryptionShare>>> getDecryptionSharesFromAESKeys(vector<ptr<EncryptedAESKey> >& _encryptedAESKeys,
                                                   schain_index _decryptorIndex);
 
     ptr<DecryptedTransactionDataFields> verifyAndDecryptTransactionList(TransactionList &_transactionList,

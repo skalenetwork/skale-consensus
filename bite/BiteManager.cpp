@@ -28,7 +28,7 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 }
 
 
-ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTransactions(
+ConnectionSubStatus BiteManager:: verifyAndCreateDecryptionSharesForProposalTransactions(
     const ptr<BlockProposal> &_proposal) {
     CHECK_STATE(_proposal);
     // check we are not verifying twice
@@ -113,7 +113,7 @@ BiteManager::decryptBiteDataFields(block_id _blockId, schain_index _proposerInde
     }
 
     ptr<vector<ptr<AESKeyDecryptionShare> > > decryptiondSharesVector =
-            decryptAESKeys(dataFieldsAsVector);
+            getDecryptionSharesFromDataFields(dataFieldsAsVector);
 
     if (!decryptiondSharesVector) {
         return {
@@ -135,7 +135,7 @@ BiteManager::decryptBiteDataFields(block_id _blockId, schain_index _proposerInde
 }
 
 
-ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeyShareBatch(
+ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAESKeys(
     vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex) {
     if (doRealCrypto) {
         vector<ptr<string> > publicDecryptionValuesBatch;
@@ -171,7 +171,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeyShareBatch(
     }
 }
 
-ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeys(
+ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromDataFields(
     vector<ptr<BiteDataField> > &_dataFields) {
     vector<ptr<EncryptedAESKey> > encryptedAESKeys;
 
@@ -181,7 +181,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::decryptAESKeys(
         encryptedAESKeys.push_back(encryptedAESKey);
     }
 
-    auto result = decryptAESKeyShareBatch(encryptedAESKeys, schain.getSchainIndex());
+    auto result = getDecryptionSharesFromAESKeys(encryptedAESKeys, schain.getSchainIndex());
 
     CHECK_STATE(result);
 
@@ -252,14 +252,17 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
 void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char>> result) {
     static atomic<uint64_t> counter = 0;
     counter++;
-    auto corruptionType = counter % 11;
+    // corrupt AES transactions infrequently
+    auto corruptionType = counter % 111;
     if (corruptionType == 1) {
         // introduce some corrupt transactions
-        result->back() = 1;
+        //result->back() = 1;
     } else if (corruptionType == 2) {
-        result->push_back(1);
+        //result->push_back(1);
     } else if (corruptionType == 3) {
-        result->resize(result->size() - 1);
+        //result->resize(result->size() - 1);
+    } else if (corruptionType == 4) {
+        result->front() = 1;
     }
 }
 

@@ -913,6 +913,12 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
     CHECK_STATE(sharesArray.isArray())
     CHECK_STATE(sharesArray.size() == _publicDecryptionValues.size() )
 
+    if (jsonShares.isMember("failedRequests")) {
+        throw InvalidStateException(
+            "Failed to get decryption shares from SGX server: " +
+            jsonShares["failedRequests"].asString(), __CLASS_NAME__);
+    }
+
 
     auto result = make_shared<vector<ptr<AESKeyDecryptionShare>>>();
 

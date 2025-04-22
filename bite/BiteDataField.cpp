@@ -76,7 +76,7 @@ ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_d
     }
 
     CHECK_STATE2 (_data->size() >= BITE_HEADER_LEN,
-        "Icorrectly formattted BITE transaction: Dsta size too short" + to_string(_data->size()));
+        "Icorrectly formattted BITE transaction: Data size too short" + to_string(_data->size()));
 
     return ptr<BiteDataField>(new BiteDataField(_data));
 }
