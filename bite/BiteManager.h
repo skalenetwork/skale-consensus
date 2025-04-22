@@ -29,7 +29,7 @@ public:
     ConnectionSubStatus verifyAndCreateDecryptionSharesForProposalTransactions(
         const ptr<BlockProposal> &_proposal);
 
-    std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> decryptBiteDataFields(
+    std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus> getDecryptionSharesFromDataFieldsMap(
         block_id _blockId, schain_index _proposerIndex,
         const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields);
 

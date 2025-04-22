@@ -60,7 +60,7 @@ ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTrans
 
     ptr<AESKeyDecryptionShareList> decryptionShareList = nullptr;
     try {
-        auto result = decryptBiteDataFields(
+        auto result = getDecryptionSharesFromDataFieldsMap(
             _proposal->getBlockID(), _proposal->getProposerIndex(), biteDataFields);
         auto status = result.second;
         if (status != ConnectionSubStatus::CONNECTION_OK) {
@@ -95,7 +95,7 @@ ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTrans
 
 
 std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus>
-BiteManager::decryptBiteDataFields(block_id _blockId, schain_index _proposerIndex,
+BiteManager::getDecryptionSharesFromDataFieldsMap(block_id _blockId, schain_index _proposerIndex,
                                    const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields) {
     auto decryptionShareList = make_shared<AESKeyDecryptionShareList>(
         _blockId, _proposerIndex, schain.getSchainIndex());
