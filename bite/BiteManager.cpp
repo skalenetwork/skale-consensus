@@ -28,7 +28,7 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 }
 
 
-ConnectionSubStatus BiteManager:: verifyAndCreateDecryptionSharesForProposalTransactions(
+ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTransactions(
     const ptr<BlockProposal> &_proposal) {
     CHECK_STATE(_proposal);
     // check we are not verifying twice
@@ -206,14 +206,14 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);
 
-                ptr<vector<uint8_t>> decryptedOriginalDataField = nullptr;
+                ptr<vector<uint8_t> > decryptedOriginalDataField = nullptr;
 
                 try {
                     decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
                 } catch (const std::exception &e) {
                     LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}"
-                        " skip from block, TODO: charge user min gas fee penalty",
-                        i, e.what()));
+                            " skip from block, TODO: charge user min gas fee penalty",
+                            i, e.what()));
                     decryptedDataFields->emplace(i, nullptr);;
                 }
 
@@ -228,7 +228,7 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
     return decryptedDataFields;
 }
 
-ptr<vector<uint8_t>>
+ptr<vector<uint8_t> >
 BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
@@ -239,17 +239,17 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
         std::vector<uint8_t> data = libBLS::ThresholdUtils::aesDecrypt(*encryptedData, _decryptedAESKey.getAesKey());
         CHECK_STATE(data.size() >= BITE_TE_RANDOM_LEN);
         // Strip off the trailing random byte
-        return make_shared<vector<uint8_t>>(data.begin(), data.end() - BITE_TE_RANDOM_LEN);
+        return make_shared<vector<uint8_t> >(data.begin(), data.end() - BITE_TE_RANDOM_LEN);
     } else {
         auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(keyPlusEncryptedData);
         auto decryptedOriginalDataField =
                 libBLS::ThresholdEncryption::mockupDecrypt(*keyPlusEncryptedData);
-        return make_shared<vector<uint8_t>>(decryptedOriginalDataField);
+        return make_shared<vector<uint8_t> >(decryptedOriginalDataField);
     }
 }
 
-void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char>> result) {
+void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result) {
     static atomic<uint64_t> counter = 0;
     counter++;
     // corrupt AES transactions infrequently
