@@ -28,7 +28,7 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 }
 
 
-ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTransactions(
+map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecryptionSharesForProposalTransactions(
     const ptr<BlockProposal> &_proposal) {
     CHECK_STATE(_proposal);
     // check we are not verifying twice
@@ -37,14 +37,21 @@ ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTrans
 
     CHECK_STATE(transactions);
 
+    // this will normally be empty
+    map<transaction_index, ConnectionSubStatus> failedTransactions;
+
 
     std::map<transaction_index, ptr<BiteDataField> > biteDataFields;
     auto encryptedAESKeyList = make_shared<EncryptedAESKeyList>();
 
-    try {
-        transaction_index index = 0;
 
-        for (auto &tx: *transactions) {
+    // do simple parsing and validation of BITE format
+    // unparsable transactions will be added to failedTransactions
+    // transactions starting from the magic number but with incorrect format will be added
+    // to failedTransactions
+    transaction_index index = 0;
+    for (auto &tx: *transactions) {
+        try {
             tx->parseAndValidate();
             auto biteDataField = tx->parseAndValidateBiteDataField();
             if (biteDataField) {
@@ -52,58 +59,45 @@ ConnectionSubStatus BiteManager::verifyAndCreateDecryptionSharesForProposalTrans
                 encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
             }
             index = index + 1;
-        }
-    } catch (exception &e) {
-        LOG(err, string( "Could not parse transaction:" ) + e.what());
-        return ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTIONS;
-    }
-
-    ptr<AESKeyDecryptionShareList> decryptionShareList = nullptr;
-    try {
-        auto result = getDecryptionSharesFromDataFieldsMap(
-            _proposal->getBlockID(), _proposal->getProposerIndex(), biteDataFields);
-        auto status = result.second;
-        if (status != ConnectionSubStatus::CONNECTION_OK) {
-            return status;
-        }
-        decryptionShareList = result.first;
-        CHECK_STATE(decryptionShareList);
-        CHECK_STATE(decryptionShareList->getSize() == biteDataFields.size());
-    } catch (exception &e) {
-        LOG(err, string( "Could not decrypt BITE data field:" ) + e.what());
-        return ConnectionSubStatus::CONNECTION_ERROR_CANT_DECRYPT_PROPOSAL_TRANSACTIONS;
-    }
-
-    // now check if some decryptions failed
-    for (auto iterator: decryptionShareList->getDecryptionShares()) {
-        CHECK_STATE(iterator.second)
-        if (iterator.second->isDecryptionFailed()) {
-            LOG(err, "Decryption failed for transaction:" + to_string( iterator.first ));
-            return ConnectionSubStatus::CONNECTION_ERROR_BLOCK_INCLUDES_INVALID_ENCRYPTIONS;
+        } catch (exception &e) {
+            LOG(err, string( "Could not parse transaction:" ) + e.what());
+            failedTransactions.emplace(index,
+                                       ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
         }
     }
 
+    // this function will not throw exception
+    auto decryptionShareList = getDecryptionSharesFromDataFieldsMap(
+        _proposal->getBlockID(), _proposal->getProposerIndex(), biteDataFields, failedTransactions);
+    if (failedTransactions.size() > 0) {
+        // the block includes invalid transactions, and at this point we know
+        // each of them. So we just return them
+        return failedTransactions;
+    }
+    CHECK_STATE(decryptionShareList);
+    CHECK_STATE(decryptionShareList->getSize() == biteDataFields.size());
+    // no we know that the decryption shares are valid, we can set them to the proposal
     // now we set the decryption shares list to the block proposal so it is committed to the
     // database when proposal is committed
-
-
     _proposal->setMyDecryptionShares(decryptionShareList, encryptedAESKeyList);
 
+    CHECK_STATE(failedTransactions.empty());
 
-    return CONNECTION_OK;
+    return failedTransactions;
 }
 
 
-std::pair<ptr<AESKeyDecryptionShareList>, ConnectionSubStatus>
-BiteManager::getDecryptionSharesFromDataFieldsMap(block_id _blockId, schain_index _proposerIndex,
-                                   const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields) {
+ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap(
+    block_id _blockId, schain_index _proposerIndex,
+    const std::map<transaction_index, ptr<BiteDataField> > &
+    _biteDataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
     auto decryptionShareList = make_shared<AESKeyDecryptionShareList>(
         _blockId, _proposerIndex, schain.getSchainIndex());
 
 
     if (_biteDataFields.empty()) {
-        return {decryptionShareList, ConnectionSubStatus::CONNECTION_OK};
-    };
+        return decryptionShareList;
+    }
 
     vector<ptr<BiteDataField> > dataFieldsAsVector;
     dataFieldsAsVector.reserve(_biteDataFields.size());
@@ -116,9 +110,7 @@ BiteManager::getDecryptionSharesFromDataFieldsMap(block_id _blockId, schain_inde
             getDecryptionSharesFromDataFields(dataFieldsAsVector);
 
     if (!decryptiondSharesVector) {
-        return {
-            nullptr, ConnectionSubStatus::CONNECTION_ERROR_CANT_DECRYPT_PROPOSAL_TRANSACTIONS
-        };
+        return nullptr;
     }
 
     CHECK_STATE(decryptiondSharesVector->size() == _biteDataFields.size());
@@ -131,12 +123,14 @@ BiteManager::getDecryptionSharesFromDataFieldsMap(block_id _blockId, schain_inde
         arrayIndex++;
     }
 
-    return {decryptionShareList, ConnectionSubStatus::CONNECTION_OK};
+
+    return decryptionShareList;
 }
 
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAESKeys(
     vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex) {
+    // CONNECTION_ERROR_BLOCK_INCLUDES_INVALID_ENCRYPTIONS
     if (doRealCrypto) {
         vector<ptr<string> > publicDecryptionValuesBatch;
 

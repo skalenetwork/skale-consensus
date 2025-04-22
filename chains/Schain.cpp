@@ -588,7 +588,7 @@ void Schain::proposeNextBlock( bool _isCalledAfterCatchup ) {
 #ifdef BITE
             // The proposal was saved do the db, but we need decryption shares
             CHECK_STATE(getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(
-                myProposal) == ConnectionSubStatus::CONNECTION_OK);
+                myProposal).empty());
 #endif
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();

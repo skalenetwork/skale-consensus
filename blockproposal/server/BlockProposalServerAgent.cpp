@@ -424,11 +424,11 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processP
 
 #ifdef BITE
         try {
-            auto subStatus =
-                getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( proposal );
-            if ( subStatus != ConnectionSubStatus::CONNECTION_OK ) {
+            auto invalidTransactions =    getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( proposal );
+            if (!invalidTransactions.empty()) {
+                // return the first failed transaction error
                 finalResponseHeader =
-                    make_shared< FinalProposalResponseHeader >( CONNECTION_ERROR, subStatus );
+                    make_shared< FinalProposalResponseHeader >( CONNECTION_ERROR, invalidTransactions.begin()->second );
                 goto err;
             }
         } catch ( ... ) {
