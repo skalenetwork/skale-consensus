@@ -1369,21 +1369,17 @@ void CryptoManager::generateSSLClientCertAndKey(string &_fullPathToDir) {
 
 
 ptr<StubClient> CryptoManager::getSgxClient() {
-    auto tid = (uint64_t) pthread_self();
+    // fixed bug here with map growing in unlimited way
+    // we need one sgxClient per thread since client objects are not thread safe
+    thread_local ptr<jsonrpc::HttpClient> httpClient;
+    thread_local ptr<StubClient> sgxClient;
 
-    LOCK(clientsLock);
-
-    if (httpClients.count(tid) == 0) {
-        CHECK_STATE(sgxClients.count( tid ) == 0);
-
-        auto httpClient = make_shared<jsonrpc::HttpClient>(sgxURL);
-
-        httpClients.insert({tid, httpClient});
-        sgxClients.insert(
-            {tid, make_shared<StubClient>(*httpClient, jsonrpc::JSONRPC_CLIENT_V2)});
+    if (!sgxClient) {
+        httpClient = std::make_shared<jsonrpc::HttpClient>(sgxURL);
+        sgxClient = std::make_shared<StubClient>(*httpClient, jsonrpc::JSONRPC_CLIENT_V2);
     }
 
-    return sgxClients.at(tid);
+    return sgxClient;
 }
 
 bool CryptoManager::retryHappened = false;

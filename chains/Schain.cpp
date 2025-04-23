@@ -1436,7 +1436,14 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
 
             // if we did not yet decrypt this block, decrypt it
             if ( myDecryptionShares == nullptr ) {
-                sChain->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( proposal );
+                auto failedTransactions = sChain->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( proposal );
+                if (!failedTransactions.empty()) {
+                    LOG(critical, fmt::format("Failed to create decryption share for transaction: {}"
+                    "Cant process block, hopefully catchup will work"
+                    , (uint32_t) failedTransactions.begin()->first));
+
+                    return;
+                }
                 myDecryptionShares = proposal->getMyDecryptionShares();
                 CHECK_STATE( myDecryptionShares );
                 getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );

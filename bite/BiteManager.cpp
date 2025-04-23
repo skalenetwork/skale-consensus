@@ -107,7 +107,7 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
     }
 
     ptr<vector<ptr<AESKeyDecryptionShare> > > decryptiondSharesVector =
-            getDecryptionSharesFromDataFields(dataFieldsAsVector);
+            getDecryptionSharesFromDataFields(dataFieldsAsVector, _failedTransactions);
 
     if (!decryptiondSharesVector) {
         return nullptr;
@@ -129,27 +129,40 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
 
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAESKeys(
-    vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex) {
+    vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex,  map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
     // CONNECTION_ERROR_BLOCK_INCLUDES_INVALID_ENCRYPTIONS
     if (doRealCrypto) {
         vector<ptr<string> > publicDecryptionValuesBatch;
 
-        for (auto &&encryptedAESKey: _encryptedAESKeys) {
-            auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
-            auto U = cipheredKey.U;
-            U.to_affine_coordinates();
-            // validate U
-            libBLS::ThresholdUtils::validateG2(U);
+        for (uint64_t i = 0; i< _encryptedAESKeys.size(); i++) {
+            try {
+                auto encryptedAESKey = _encryptedAESKeys.at(i);
+                CHECK_STATE(encryptedAESKey)
+                auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
+                auto U = cipheredKey.U;
+                U.to_affine_coordinates();
+                // validate U
+                libBLS::ThresholdUtils::validateG2(U);
 
-            auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(U, libBLS::BASE_HEXA);
+                auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(U, libBLS::BASE_HEXA);
 
-            // convert to string
-            auto publicDecryptionValue = make_shared<string>();
-            for (auto const &str: g2AsStringVector) {
-                publicDecryptionValue->append(str);
+                // convert to string
+                auto publicDecryptionValue = make_shared<string>();
+                for (auto const &str: g2AsStringVector) {
+                    publicDecryptionValue->append(str);
+                }
+
+                publicDecryptionValuesBatch.push_back(publicDecryptionValue);
+            } catch (exception& _e) {
+                LOG(err, fmt::format( "Could not validate transaction: {} : {}" , i, _e.what()));
+                _failedTransactions.emplace(i,
+                ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
             }
+        }
 
-            publicDecryptionValuesBatch.push_back(publicDecryptionValue);
+        if (!_failedTransactions.empty()) {
+            // found failed transactions, just return
+            return nullptr;
         }
 
         CHECK_STATE(publicDecryptionValuesBatch.size() == _encryptedAESKeys.size())
@@ -166,7 +179,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 }
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromDataFields(
-    vector<ptr<BiteDataField> > &_dataFields) {
+    vector<ptr<BiteDataField> > &_dataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
     vector<ptr<EncryptedAESKey> > encryptedAESKeys;
 
     for (auto &&dataField: _dataFields) {
@@ -175,11 +188,14 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromDa
         encryptedAESKeys.push_back(encryptedAESKey);
     }
 
-    auto result = getDecryptionSharesFromAESKeys(encryptedAESKeys, schain.getSchainIndex());
+    auto result = getDecryptionSharesFromAESKeys(encryptedAESKeys, schain.getSchainIndex(),
+        _failedTransactions);
 
-    CHECK_STATE(result);
-
-    CHECK_STATE(result->size() == _dataFields.size());
+    if (result) {
+        CHECK_STATE(result->size() == _dataFields.size());
+    } else {
+        CHECK_STATE(!_failedTransactions.empty())
+    }
 
     return result;
 }

@@ -116,10 +116,6 @@ class CryptoManager {
     recursive_mutex sessionKeysLock;
     recursive_mutex publicSessionKeysLock;
 
-    map<uint64_t, ptr<jsonrpc::HttpClient> > httpClients; // tsafe
-    map<uint64_t, ptr<StubClient> > sgxClients; // tsafe
-
-
     ptr<SgxZmqClient> zmqClient = nullptr;
 
     recursive_mutex clientsLock;

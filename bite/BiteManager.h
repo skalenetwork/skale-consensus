@@ -28,32 +28,33 @@ public:
 
     // this will return a map of failed transactions
     // if none of the transactions fails, the  proposal is set with decryption shares
-    std::map<transaction_index, ConnectionSubStatus>  verifyAndCreateDecryptionSharesForProposalTransactions(
+    [[nodiscard]] std::map<transaction_index, ConnectionSubStatus>  verifyAndCreateDecryptionSharesForProposalTransactions(
         const ptr<BlockProposal> &_proposal);
 
-    ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(
+    [[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(
         block_id _blockId, schain_index _proposerIndex,
         const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields,
         map<transaction_index, ConnectionSubStatus>& _failedTransactions);
 
-    ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(vector<ptr<BiteDataField> > &_dataFields);
+    [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(vector<ptr<BiteDataField> > &_dataFields,
+        map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
 
-    ptr<vector<ptr<AESKeyDecryptionShare>>> getDecryptionSharesFromAESKeys(vector<ptr<EncryptedAESKey> >& _encryptedAESKeys,
-                                                  schain_index _decryptorIndex);
+    [[nodiscard]]  ptr<vector<ptr<AESKeyDecryptionShare>>> getDecryptionSharesFromAESKeys(vector<ptr<EncryptedAESKey> >& _encryptedAESKeys,
+                       schain_index _decryptorIndex, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
-    ptr<DecryptedTransactionDataFields> verifyAndDecryptTransactionList(TransactionList &_transactionList,
+    [[nodiscard]]  ptr<DecryptedTransactionDataFields> verifyAndDecryptTransactionList(TransactionList &_transactionList,
                                                                         DecryptedAESKeyList &_aesKeys);
 
-    ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
+    [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
                                                                schain_index _decryptorIndex,
                                                                bool _decryptionFailed);
 
-    ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
+    [[nodiscard]]  ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
 
-    ptr<vector<uint8_t>> decryptDataField(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
+    [[nodiscard]]  ptr<vector<uint8_t>> decryptDataField(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
 
     void corruptFromTimeToTime(shared_ptr<vector<unsigned char>> result);
 
-    ptr<vector<uint8_t> > teEncryptData(const vector<uint8_t> &_data);
+    [[nodiscard]]  ptr<vector<uint8_t> > teEncryptData(const vector<uint8_t> &_data);
 };
