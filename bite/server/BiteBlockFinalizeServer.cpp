@@ -72,7 +72,7 @@ void BiteBlockFinalizeServer::runServer() {
     try {
         LOG(info, "Starting Proxygen server");
         proxygenServerInstance->start();
-        LOG(info, "Proxygen server started");
+        LOG(info, "Proxygen server exited");
     } CATCH_AND_LOG_ANY_EXCEPTION(critical, "Exception in proxygen start");
 }
 
