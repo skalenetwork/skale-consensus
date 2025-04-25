@@ -54,12 +54,14 @@ public:
     static constexpr const char* ECDSA_SIGN_REQ = "ECDSASignReq";
     static constexpr const char* ECDSA_SIGN_RSP = "ECDSASignRsp";
 #ifdef BITE
-    static constexpr const char* TE_DECRYPT_SHARE_REQ = "TEDecryptShareReq";
-    static constexpr const char* TE_DECRYPT_SHARE_RSP = "TEDecryptShareRsp";
+    static constexpr const char* DECRYPT_SHARE_REQ = "getDecryptionShareReq";
+    static constexpr const char* DECRYPT_SHARE_RSP = "getDecryptionShareRsp";
 #endif
 
     explicit SgxZmqMessage( shared_ptr< rapidjson::Document >& _d );
     string getStringRapid( const char* _name );
+
+    ptr<vector<ptr<string>>> getStringArrayRapid( const char* _name );
 
     uint64_t getUint64Rapid( const char* _name );
 

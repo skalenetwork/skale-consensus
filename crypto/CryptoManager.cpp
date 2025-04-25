@@ -882,12 +882,8 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
-
-
     uint64_t time = 0;
     teDecryptShareCounter.fetch_add(1);
-
-
     auto measureTime = (teDecryptShareCounter % 100 == 0);
     if (measureTime)
         time = Time::getCurrentTimeMs();
@@ -896,42 +892,59 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
 
     checkZMQStatusIfUnknownBLS();
 
-    Json::Value jsonShares;
-    string ret;
+    auto result = make_shared<vector<ptr<AESKeyDecryptionShare>>>();
 
-    RETRY_BEGIN
-        getSchain()->getNode()->exitCheck();
+    if (!(zmqClient->getZMQStatus() == SgxZmqClient::TRUE)) {
+        auto startTimeMs = Time::getCurrentTimeMs();
+        auto stringShares = zmqClient->decryptAESKeySharesBatch(
+            getSgxBlsKeyName(), _publicDecryptionValues, requiredSigners, totalSigners, false);
+        auto finishTimeMs = Time::getCurrentTimeMs();
+        sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
+
+        CHECK_STATE(stringShares);
+        for (auto&& stringShare : *stringShares) {
+            CHECK_STATE(stringShare);
+            auto share = make_shared<libBLS::TEDecryptionShare>(*stringShare, (uint64_t) getSchain()->getSchainIndex());
+            auto consensusDecryptShare =
+                make_shared<ConsensusAESKeyDecryptionShare>(share, sChain->getSchainIndex(), false);
+            result->push_back(consensusDecryptShare);
+        } ;
+
+    } else {
+
+        Json::Value jsonShares;
+
+        RETRY_BEGIN
+            getSchain()->getNode()->exitCheck();
         auto startTimeMs = Time::getCurrentTimeMs();
         jsonShares = getSgxClient()->getDecryptionShares(
             getSgxBlsKeyName(), _publicDecryptionValues);
         auto finishTimeMs = Time::getCurrentTimeMs();
         sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
-    RETRY_END
+        RETRY_END
 
+        auto sharesArray = jsonShares["decryptionShares"];
+        CHECK_STATE(sharesArray.isArray())
+        CHECK_STATE(sharesArray.size() == _publicDecryptionValues.size() )
 
-    auto sharesArray = jsonShares["decryptionShares"];
-    CHECK_STATE(sharesArray.isArray())
-    CHECK_STATE(sharesArray.size() == _publicDecryptionValues.size() )
+        if (jsonShares.isMember("failedRequests")) {
+            throw InvalidStateException(
+                "Failed to get decryption shares from SGX server: " +
+                jsonShares["failedRequests"].asString(), __CLASS_NAME__);
+        }
 
-    if (jsonShares.isMember("failedRequests")) {
-        throw InvalidStateException(
-            "Failed to get decryption shares from SGX server: " +
-            jsonShares["failedRequests"].asString(), __CLASS_NAME__);
+        for (Json::Value::ArrayIndex i = 0; i < sharesArray.size(); ++i) {
+            string shareStr = sharesArray[i].asString();
+            auto share = make_shared<libBLS::TEDecryptionShare>(shareStr, (uint64_t) getSchain()->getSchainIndex());
+            auto consensusDecryptShare =
+                make_shared<ConsensusAESKeyDecryptionShare>(share, sChain->getSchainIndex(), false);
+            result->push_back(consensusDecryptShare);
+        } ;
+
+        JSONFactory::checkSGXStatus(jsonShares);
     }
 
 
-    auto result = make_shared<vector<ptr<AESKeyDecryptionShare>>>();
-
-
-    for (Json::Value::ArrayIndex i = 0; i < sharesArray.size(); ++i) {
-        string shareStr = sharesArray[i].asString();
-        auto share = make_shared<libBLS::TEDecryptionShare>(shareStr, (uint64_t) getSchain()->getSchainIndex());
-        auto consensusDecryptShare =
-            make_shared<ConsensusAESKeyDecryptionShare>(share, sChain->getSchainIndex(), false);
-        result->push_back(consensusDecryptShare);
-    } ;
-
-    JSONFactory::checkSGXStatus(jsonShares);
 
 
     if (measureTime)

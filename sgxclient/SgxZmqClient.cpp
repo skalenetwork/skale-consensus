@@ -33,9 +33,8 @@
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
 #ifdef BITE
-
-#include "TEDecryptShareReqMessage.h"
-#include "TEDecryptShareRspMessage.h"
+#include "DecryptAESKeyShareBatchReqMessage.h"
+#include "DecryptAESKeyShareBatchRspMessage.h"
 #endif
 
 #include "Log.h"
@@ -363,21 +362,28 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
 
 
 #ifdef BITE
-string SgxZmqClient::teDecryptShare( int , const string& _keyShareName,
-    const string& , bool _throwExceptionOnTimeout ) {
+ptr<vector<ptr<string>>> SgxZmqClient::decryptAESKeySharesBatch( const std::string& keyShareName,
+     std::vector<std::shared_ptr<std::string> > & _aesKeySharesBatch, int t, int n, bool _throwExceptionOnTimeout ) {
     Json::Value p;
-    p["type"] = SgxZmqMessage::TE_DECRYPT_SHARE_REQ;
-    p["keyShareName"] = _keyShareName;
-    //  TODOBITE
-    // add TE fields to JSON object (see above)
-    // END TODOBITE
+    p["type"] = SgxZmqMessage::BLS_SIGN_REQ;
+    p["keyShareName"] = keyShareName;
 
-    static string description( "TE decrypt share" );
-    auto result = dynamic_pointer_cast< TEDecryptShareRspMessage >(
+    // Correctly create an array of strings
+    Json::Value _aesKeySharesBatchAsJson(Json::arrayValue);
+    for (const auto& share  : _aesKeySharesBatch) {
+        CHECK_STATE(share);
+        _aesKeySharesBatchAsJson.append(*share);
+    }
+
+    p["publicDecryptionValues"] = _aesKeySharesBatchAsJson;
+    p["n"] = n;
+    p["t"] = t;
+    static string description( "Decrypt AES key share batch" );
+    auto result = dynamic_pointer_cast< DecryptAESKeyShareBatchRspMessage >(
         doRequestReply( p, description, _throwExceptionOnTimeout ) );
     CHECK_STATE( result );
 
-    return result->getTEAES256KeyDecryptShare();
+    return result->getAEKeyDecryptShares();
 }
 #endif
 
