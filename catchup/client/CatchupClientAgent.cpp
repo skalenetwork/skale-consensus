@@ -53,7 +53,7 @@ CatchupClientAgent::CatchupClientAgent( Schain& _sChain ) : Agent( _sChain, fals
         logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
-        if ( _sChain.getNodeCount() > 1 ) {
+        if ( _sChain.getNodeCount() > 1 || _sChain.getNode()->isSyncOnlyNode() ) {
             this->catchupClientThreadPool = make_shared< CatchupClientThreadPool >( 1, this );
             catchupClientThreadPool->startService();
         }
