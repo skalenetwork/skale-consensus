@@ -145,7 +145,7 @@ size_t TransactionList::size() {
 
 ptr< ConsensusExtFace::transactions_vector > TransactionList::createTransactionVector(
 #ifdef BITE
-ptr<map<uint64_t, shared_ptr<vector<uint8_t> > > > _decryptedTransactions
+ptr<map<uint64_t, shared_ptr<vector<uint8_t> > > >
 #endif
 ) {
     LOCK( m )
@@ -153,9 +153,6 @@ ptr<map<uint64_t, shared_ptr<vector<uint8_t> > > > _decryptedTransactions
     auto tv = make_shared< ConsensusExtFace::transactions_vector >();
 
     CHECK_STATE( transactions );
-
-    // for now we skip transactions for which decryption failed
-    // later we will penalize the user
 
     for ( auto&& t : *transactions ) {
         tv->push_back( *( t->getData() ) );
