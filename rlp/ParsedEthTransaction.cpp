@@ -310,6 +310,8 @@ ptr< std::vector< uint8_t > > ParsedEthTransaction::getTransactionDataField() {
         index = 5;
         break;
     case 1:
+        index = 6;
+        break;
     case 2:
         index = 7;
         break;
@@ -329,6 +331,8 @@ void ParsedEthTransaction::setTransactionDataField(vector<uint8_t>&  _dataField)
         index = 5;
         break;
     case 1:
+        index = 6;
+        break;
     case 2:
         index = 7;
         break;
