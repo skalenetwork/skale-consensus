@@ -365,8 +365,8 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
 ptr<vector<ptr<string>>> SgxZmqClient::decryptAESKeySharesBatch( const std::string& keyShareName,
      std::vector<std::shared_ptr<std::string> > & _aesKeySharesBatch, int t, int n, bool _throwExceptionOnTimeout ) {
     Json::Value p;
-    p["type"] = SgxZmqMessage::BLS_SIGN_REQ;
-    p["keyShareName"] = keyShareName;
+    p["type"] = SgxZmqMessage::DECRYPT_SHARE_REQ;
+    p["blsKeyName"] = keyShareName;
 
     // Correctly create an array of strings
     Json::Value _aesKeySharesBatchAsJson(Json::arrayValue);

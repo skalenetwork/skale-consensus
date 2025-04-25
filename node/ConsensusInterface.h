@@ -233,6 +233,9 @@ public:
 #ifdef BITE
         // map of transaction index in the block starting from 0 to transaction
         // empty mapped is passed for now
+        // Note: if BITE transaction did not decrypt well due to invalid AES ciphertext
+        // , _decryptedTransactionDataFields will include
+        // null for this transaction
         shared_ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactionDataFields,
 #endif
         uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,

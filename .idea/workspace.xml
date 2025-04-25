@@ -59,11 +59,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="1189 bite-clear-pending-queue">
-      <change afterPath="$PROJECT_DIR$/sgxclient/DecryptAESKeyShareBatchReqMessage.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sgxclient/DecryptAESKeyShareBatchReqMessage.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sgxclient/DecryptAESKeyShareBatchRspMessage.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sgxclient/DecryptAESKeyShareBatchRspMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bite/BiteManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/bite/BiteManager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
@@ -89,14 +86,9 @@
       <change beforePath="$PROJECT_DIR$/deps/zstd/contrib/seekable_format/zstdseek_decompress.c" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zstd/contrib/seekable_format/zstdseek_decompress.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zstd/programs/platform.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zstd/programs/platform.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/ConsensusInterface.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusInterface.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/DecryptAESKeyShareBatchRspMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/DecryptAESKeyShareBatchRspMessage.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqMessage.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqMessage.h" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqMessage.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxclient/TEDecryptShareReqMessage.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxclient/TEDecryptShareReqMessage.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxclient/TEDecryptShareRspMessage.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sgxclient/TEDecryptShareRspMessage.h" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -1270,7 +1262,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="268" />
+    <option name="localTasksCounter" value="269" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

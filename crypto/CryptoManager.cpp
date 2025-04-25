@@ -894,7 +894,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
 
     auto result = make_shared<vector<ptr<AESKeyDecryptionShare>>>();
 
-    if (!(zmqClient->getZMQStatus() == SgxZmqClient::TRUE)) {
+    if ((zmqClient->getZMQStatus() == SgxZmqClient::TRUE)) {
         auto startTimeMs = Time::getCurrentTimeMs();
         auto stringShares = zmqClient->decryptAESKeySharesBatch(
             getSgxBlsKeyName(), _publicDecryptionValues, requiredSigners, totalSigners, false);
