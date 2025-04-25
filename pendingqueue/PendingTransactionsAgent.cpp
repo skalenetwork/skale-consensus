@@ -59,11 +59,10 @@ using namespace std;
 
 
 PendingTransactionsAgent::PendingTransactionsAgent(Schain &ref_sChain)
-    : Agent(ref_sChain, false) {
-}
+        : Agent(ref_sChain, false) {}
 
 ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
-    block_id _blockID, TimeStamp &_previousBlockTimeStamp, bool _isCalledAfterCatchup) {
+        block_id _blockID, TimeStamp &_previousBlockTimeStamp, bool _isCalledAfterCatchup) {
     MICROPROFILE_ENTERI("PendingTransactionsAgent", "sleep", MP_DIMGRAY);
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
     MICROPROFILE_LEAVE();
@@ -197,7 +196,8 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         if (waitTimeMs < 10 * 32) {
             waitTimeMs *= 2;
         }
-    } // while
+
+    }  // while
 
     auto finishTimeMs = Time::getCurrentTimeMs();
 
@@ -227,7 +227,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
 
 ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(
-    const ptr<partial_sha_hash> hash) {
+        const ptr<partial_sha_hash> hash) {
     READ_LOCK(transactionsMutex);
     if (knownTransactions.count(hash))
         return knownTransactions.at(hash);

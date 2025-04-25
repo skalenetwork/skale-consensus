@@ -89,33 +89,33 @@ namespace spdlog {
 
 
 class SkaleLog {
-    ConsensusEngine *engine;
+    ConsensusEngine* engine;
 
     string prefix = "";
 
     node_id nodeID;
 
-    shared_ptr<spdlog::logger> mainLogger, proposalLogger, consensusLogger, catchupLogger,
-            netLogger, dataStructuresLogger, pendingQueueLogger;
+    shared_ptr< spdlog::logger > mainLogger, proposalLogger, consensusLogger, catchupLogger,
+        netLogger, dataStructuresLogger, pendingQueueLogger;
 
 public:
-    ConsensusEngine *getEngine() const;
+    ConsensusEngine* getEngine() const;
 
-    SkaleLog(node_id _nodeID, ConsensusEngine *_engine);
+    SkaleLog( node_id _nodeID, ConsensusEngine* _engine );
 
     const node_id getNodeID() const;
 
-    map<string, shared_ptr<spdlog::logger> > loggers;
+    map< string, shared_ptr< spdlog::logger > > loggers;
 
     level_enum globalLogLevel;
 
 
-    void setGlobalLogLevel(string &_s);
+    void setGlobalLogLevel( string& _s );
 
 
-    shared_ptr<spdlog::logger> loggerForClass(const char *_className);
+    shared_ptr< spdlog::logger > loggerForClass( const char* _className );
 
 
-    static level_enum logLevelFromString(string &_s);
+    static level_enum logLevelFromString( string& _s );
 };
 #endif

@@ -345,9 +345,7 @@ public:
     uint64_t getDaSigShareDBSize() const;
     uint64_t getDaProofDBSize() const;
     uint64_t getBlockProposalDBSize() const;
-    uint64_t  getInternalInfoDBSize() const;
-
-
+    uint64_t getInternalInfoDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
 #ifdef BITE
     uint64_t getTEDecryptionDBSize() const;

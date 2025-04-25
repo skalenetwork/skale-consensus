@@ -33,6 +33,7 @@
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
 #ifdef BITE
+
 #include "TEDecryptShareReqMessage.h"
 #include "TEDecryptShareRspMessage.h"
 #endif
@@ -188,52 +189,61 @@ string SgxZmqClient::signString( EVP_PKEY* _pkey, const string& _str ) {
     static std::regex r( "\\s+" );
     auto msgToSign = std::regex_replace( _str, r, "" );
 
-
-    EVP_MD_CTX* mdctx = NULL;
-    unsigned char* signature = NULL;
     size_t slen = 0;
 
-    CHECK_STATE( mdctx = EVP_MD_CTX_create() );
+    // Create EVP_MD_CTX with autocleanup
+    auto mdctx = std::unique_ptr<EVP_MD_CTX, decltype(&EVP_MD_CTX_free)>(
+        EVP_MD_CTX_new(),
+        EVP_MD_CTX_free
+    );
 
-    CHECK_STATE( ( EVP_DigestSignInit( mdctx, NULL, EVP_sha256(), NULL, _pkey ) == 1 ) );
+
+    CHECK_STATE( ( EVP_DigestSignInit( mdctx.get(), NULL, EVP_sha256(), NULL, _pkey ) == 1 ) );
 
 
-    CHECK_STATE( EVP_DigestSignUpdate( mdctx, msgToSign.c_str(), msgToSign.size() ) == 1 );
+    CHECK_STATE( EVP_DigestSignUpdate( mdctx.get(), msgToSign.c_str(), msgToSign.size() ) == 1 );
 
     /* First call EVP_DigestSignFinal with a NULL sig parameter to obtain the length of the
      * signature. Length is returned in slen */
 
-    CHECK_STATE( EVP_DigestSignFinal( mdctx, NULL, &slen ) == 1 );
-    signature = ( unsigned char* ) OPENSSL_malloc( sizeof( unsigned char ) * slen );
-    CHECK_STATE( signature );
-    CHECK_STATE( EVP_DigestSignFinal( mdctx, signature, &slen ) == 1 );
+    CHECK_STATE( EVP_DigestSignFinal( mdctx.get(), NULL, &slen ) == 1 );
 
-    auto hexSig = Utils::carray2Hex( signature, slen );
+
+    //  openssl malloc with auto cleanup
+    auto signature = std::unique_ptr<unsigned char, std::function<void(unsigned char*)>>(
+     static_cast<unsigned char*>(OPENSSL_malloc(slen)),
+     [](unsigned char* p) { CRYPTO_free(p, __FILE__, __LINE__); }
+     );
+
+    CHECK_STATE( signature );
+    CHECK_STATE( EVP_DigestSignFinal( mdctx.get(), signature.get(), &slen ) == 1 );
+
+    auto hexSig = Utils::carray2Hex( signature.get(), slen );
 
     string hexStringSig( hexSig.begin(), hexSig.end() );
 
-    /* Clean up */
-    if ( signature )
-        OPENSSL_free( signature );
-    if ( mdctx )
-        EVP_MD_CTX_destroy( mdctx );
-
     return hexStringSig;
 }
+
 
 pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _certStr ) {
     CHECK_STATE( !_certStr.empty() )
 
     LOG( info, "Reading server public key:\n" << _certStr );
 
-    BIO* bo = BIO_new( BIO_s_mem() );
-    CHECK_STATE( bo )
-    CHECK_STATE( BIO_write( bo, _certStr.c_str(), _certStr.size() ) > 0 )
 
-    X509* cert = PEM_read_bio_X509( bo, nullptr, 0, 0 );
+    // Create BIO and wrap in a smart pointer
+    auto bo = std::unique_ptr<BIO, decltype(&BIO_free)>(
+        BIO_new(BIO_s_mem()),
+        BIO_free
+    );
+
+    CHECK_STATE( bo )
+    CHECK_STATE( BIO_write( bo.get(), _certStr.c_str(), _certStr.size() ) > 0 )
+
+    X509* cert = PEM_read_bio_X509( bo.get(), nullptr, 0, 0 );
     CHECK_STATE( cert );
     auto key = X509_get_pubkey( cert );
-    BIO_free( bo );
     CHECK_STATE( key );
     return { key, cert };
 };
@@ -265,13 +275,15 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
 
         CHECK_STATE( !key.empty() );
 
-        BIO* bo = BIO_new( BIO_s_mem() );
+        // Create BIO and wrap in a smart pointer
+        auto bo = std::unique_ptr<BIO, decltype(&BIO_free)>(
+            BIO_new(BIO_s_mem()),
+            BIO_free
+        );
         CHECK_STATE( bo );
-        CHECK_STATE( bo );
-        BIO_write( bo, key.c_str(), key.size() );
+        BIO_write( bo.get(), key.c_str(), key.size() );
 
-        PEM_read_bio_PrivateKey( bo, &pkey, 0, 0 );
-        BIO_free( bo );
+        PEM_read_bio_PrivateKey( bo.get(), &pkey, 0, 0 );
         CHECK_STATE( pkey );
 
         tie( pubkey, x509Cert ) = readPublicKeyFromCertStr( cert );

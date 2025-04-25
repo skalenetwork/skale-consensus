@@ -26,7 +26,6 @@
 
 StorageLimits::StorageLimits( uint64_t _totalStorageLimitBytes )
     : storageUnitBytes( _totalStorageLimitBytes ) {
-
     auto unit = _totalStorageLimitBytes / ( LEVELDB_SHARDS * ( 1000 + 10 * 10 + 100 ) );
 
     BLOCK_DB_SIZE = 1000 * unit;

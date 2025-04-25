@@ -60,6 +60,15 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="1189 bite-clear-pending-queue">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Log.h" beforeDir="false" afterPath="$PROJECT_DIR$/Log.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/BlockErrorAnalyzer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/BlockErrorAnalyzer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/MyBlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/MyBlockProposal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/Transaction.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/Transaction.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/DASigShareDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/DASigShareDB.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/LevelDBOptions.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/LevelDBOptions.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/StorageLimits.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/StorageLimits.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
@@ -84,6 +93,14 @@
       <change beforePath="$PROJECT_DIR$/deps/zstd/contrib/seekable_format/zstdseek_decompress.c" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zstd/contrib/seekable_format/zstdseek_decompress.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zstd/programs/platform.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zstd/programs/platform.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/ConsensusInterface.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/ConsensusInterface.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/TestMessageGeneratorAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,12 +134,20 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/Agent.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/Agent.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Agent.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/Agent.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CMakeLists.txt" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Consensust.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/JsonStubClient.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/Log.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Log.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/SkaleCommon.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/Log.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/SkaleCommon.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/SkaleCommon.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/abstracttcpclient/AbstractClientAgent.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/abstracttcpserver/ConnectionStatus.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteAESDecryptionShareSerializer.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.h" root0="FORCE_HIGHLIGHTING" />
@@ -130,11 +155,19 @@
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/blockfinalize/client/BlockFinalizeDownloader.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/blockproposal/pusher/BlockProposalClientAgent.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/catchup/client/CatchupClientAgent.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/catchup/server/CatchupServerAgent.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/BlockErrorAnalyzer.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/chains/BlockErrorAnalyzer.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/Schain.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/chains/Schain.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/chains/Schain.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/chains/Schain.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/chains/Schain.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/chains/SchainGettersSetters.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cmake/precompiledheader.cmake" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cppzmq/zmq.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/AESKeyDecryptionShare.h" root0="FORCE_HIGHLIGHTING" />
@@ -143,23 +176,53 @@
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/crypto/CryptoManager.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/crypto/CryptoManager.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/DecryptedAESKeyList.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/BlockProposal.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/BlockProposal.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/BlockProposal.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/BlockProposal.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/BlockProposalFragment.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/BlockProposalFragment.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/BlockProposalFragmentList.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/BlockProposalFragmentList.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/CommittedBlock.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/CommittedBlock.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/CommittedBlock.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/CommittedBlock.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/CommittedBlockList.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/CommittedBlockList.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/MyBlockProposal.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/MyBlockProposal.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/SerializationTests.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/Transaction.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/Transaction.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/Transaction.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/Transaction.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/TransactionList.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/TransactionList.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/TransactionList.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/TransactionList.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/db/BlockDB.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/db/CacheLevelDB.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/db/DASigShareDB.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/DASigShareDB.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/InternalInfoDB.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/db/LevelDBOptions.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/db/StorageLimits.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/StorageLimits.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/db/StorageLimits.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/TEDecryptionDB.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/TEDecryptionDB.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/exceptions/ConnectionRefusedException.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/exceptions/ConnectionRefusedException.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/exceptions/OracleException.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/flatb/BlockFinalizeResponseObject.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/headers/BlockProposalHeader.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/headers/FinalProposalResponseHeader.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.h" root0="FORCE_HIGHLIGHTING" />
@@ -167,28 +230,52 @@
     <setting file="file://$PROJECT_DIR$/libBLS/deps/deps_inst/x86_or_x64/include/openssl/aes.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/threshold_encryption/threshold_encryption.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/messages/Message.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/messages/Message.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/messages/NetworkMessage.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/OptimizerAgent.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/monitoring/TimeoutAgent.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/network/ClientSocket.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/network/Network.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/Network.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/network/Network.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/node/ConsensusEngine.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/node/ConsensusEngine.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/ConsensusInterface.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/node/ConsensusInterface.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/node/Node.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/node/Node.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/NodeGettersSetters.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/node/NodeGettersSetters.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/oracle/OracleClient.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/oracle/OracleRequestBroadcastMessage.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/oracle/OracleRequestSpec.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/oracle/OracleResult.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/oracle/OracleResult.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/pendingqueue/PendingTransactionsAgent.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/pendingqueue/TestMessageGeneratorAgent.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/pendingqueue/TestMessageGeneratorAgent.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/rlp/ParsedEthTransaction.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/rlp/ParsedEthTransaction.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/rlp/ParsedEthTransaction.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/sgxclient/SgxZmqClient.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/sgxclient/SgxZmqClient.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/sgxclient/SgxZmqMessage.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node1/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node2/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node3/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node4/Node.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/thirdparty/lru_ordered_cache.hpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/thirdparty/zguide/zhelpers.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/unittests/consensus_tests.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/unittests/sgx_tests.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file:///usr/include/c++/11/bits/shared_ptr_base.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/include/x86_64-linux-gnu/bits/confname.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/lib/python3.10/subprocess.py" root0="FORCE_HIGHLIGHTING" />
@@ -224,7 +311,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "CMake Application.consensust.executor": "Debug",
+    "CMake Application.consensust.executor": "Run",
     "Git.Branch.Popup.ShowAllRemotes": "true",
     "Git.Branch.Popup.ShowAllRepositories": "true",
     "Python.generate_flatbuffers_code.executor": "Debug",
@@ -263,6 +350,11 @@
     <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
     <configuration name="bls_test" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="bls_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="bls_test" TEST_MODE="SUITE_TEST">
@@ -1294,24 +1386,9 @@
           <option name="timeStamp" value="33" />
         </line-breakpoint>
         <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/oracle/OracleRequestBroadcastMessage.cpp</url>
-          <line>23</line>
-          <option name="timeStamp" value="34" />
-        </line-breakpoint>
-        <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/oracle/OracleReceivedResults.cpp</url>
           <line>116</line>
           <option name="timeStamp" value="37" />
-        </line-breakpoint>
-        <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/node/ConsensusInterface.h</url>
-          <line>63</line>
-          <option name="timeStamp" value="38" />
-        </line-breakpoint>
-        <line-breakpoint type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/chains/SchainGettersSetters.cpp</url>
-          <line>11</line>
-          <option name="timeStamp" value="39" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
