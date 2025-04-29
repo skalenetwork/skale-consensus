@@ -146,7 +146,7 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
-#ifndef BITE
+#ifndef MIRAGE
     ptr< OracleResultAssemblyAgent > oracleResultAssemblyAgent;
 #endif
 
@@ -263,7 +263,7 @@ public:
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
 
-#ifndef BITE
+#ifndef MIRAGE
     ptr< OracleServerAgent > oracleServer;
     ptr< OracleClient > oracleClient;
 #endif
@@ -341,7 +341,7 @@ public:
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
-#ifndef BITE
+#ifndef MIRAGE
     ptr< OracleServerAgent > getOracleInstance();
 #endif
 

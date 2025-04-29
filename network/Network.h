@@ -77,7 +77,7 @@ public:
 
     static string ipToString( uint32_t _ip );
 
-#ifndef BITE
+#ifndef MIRAGE
     void broadcastOracleRequestMessage( const ptr< OracleRequestBroadcastMessage >& _msg );
 
     void sendOracleResponseMessage( const ptr< OracleResponseMessage >& _msg, schain_index _index );

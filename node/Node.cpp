@@ -503,7 +503,7 @@ void Node::initSchain( const ptr< Node >& _node, schain_index _schainIndex, scha
         }
 
         chain->createBlockConsensusInstance();
-#ifndef BITE
+#ifndef MIRAGE
         chain->createOracleInstance();
 #endif
 

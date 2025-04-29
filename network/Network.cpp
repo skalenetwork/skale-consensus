@@ -33,7 +33,7 @@
 #include "db/BlockProposalDB.h"
 #include "exceptions/FatalError.h"
 #include "messages/NetworkMessage.h"
-#ifndef BITE
+#ifndef MIRAGE
 #include "oracle/OracleRequestBroadcastMessage.h"
 #include "oracle/OracleResponseMessage.h"
 #endif
@@ -42,7 +42,7 @@
 #include "protocols/blockconsensus/BlockSignBroadcastMessage.h"
 #include "thirdparty/json.hpp"
 #include "thirdparty/lrucache.hpp"
-#ifndef BITE
+#ifndef MIRAGE
 #include "oracle/OracleResultAssemblyAgent.h"
 #endif
 #include <db/MsgDB.h>
@@ -196,7 +196,7 @@ void Network::broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isF
     }
 }
 
-#ifndef BITE
+#ifndef MIRAGE
 void Network::broadcastOracleRequestMessage( const ptr< OracleRequestBroadcastMessage >& _msg ) {
     // Oracle messages are simply broadcast without resends
     CHECK_ARGUMENT( _msg );

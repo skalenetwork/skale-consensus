@@ -30,7 +30,7 @@
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
 #include "datastructures/Transaction.h"
-#ifndef BITE
+#ifndef MIRAGE
 #include "oracle/OracleClient.h"
 #include "oracle/OracleRequestSpec.h"
 #endif
@@ -84,7 +84,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     // send oracle test once from schain index 1
 
 
-#ifndef BITE
+#ifndef MIRAGE
     if ( getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
         if ( iterations.fetch_add( 1 ) == 2 ) {
             LOG( info, "Sending Oracle test eth_call " );
@@ -98,7 +98,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 };
 
 
-#ifndef BITE
+#ifndef MIRAGE
 void TestMessageGeneratorAgent::sendTestRequestGet() {
     string uri = "https://worldtimeapi.org/api/timezone/Europe/Kiev";
     vector< string > jsps{ "/unixtime", "/day_of_year", "/xxx" };
