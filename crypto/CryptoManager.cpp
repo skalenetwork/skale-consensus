@@ -947,8 +947,9 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
 
 
 
-    if (measureTime)
-        addBLSSignStats(Time::getCurrentTimeMs() - time );
+    if (measureTime) {
+        addTEDecryptStats(Time::getCurrentTimeMs() - time );
+    }
 
     return result;
 }
@@ -1435,6 +1436,9 @@ atomic<uint64_t> CryptoManager::blsSignTotal = 0;
 atomic<uint64_t> CryptoManager::blsCounter = 0;
 #ifdef BITE
 atomic<uint64_t> CryptoManager::teDecryptShareCounter = 0;
+list<uint64_t> CryptoManager::teDecryptShareTimes;
+recursive_mutex CryptoManager::teDecryptShareMutex;
+atomic<uint64_t> CryptoManager::teDecryptShareTotal = 0;
 #endif
 atomic<uint64_t> CryptoManager::ecdsaCounter = 0;
 
@@ -1457,6 +1461,20 @@ void CryptoManager::addBLSSignStats(uint64_t _time) {
         blsSignTimes.pop_front();
     }
 }
+
+#ifdef BITE
+void CryptoManager::addTEDecryptStats(uint64_t _time) {
+    teDecryptShareTotal.fetch_add(_time);
+    LOCK(teDecryptShareMutex);
+    teDecryptShareTimes.push_back(_time);
+    if (teDecryptShareTimes.size() > LEVELDB_STATS_HISTORY) {
+        teDecryptShareTotal.fetch_sub(blsSignTimes.front());
+        teDecryptShareTimes.pop_front();
+    }
+}
+#endif
+
+
 
 uint64_t CryptoManager::getZMQSocketCount() {
     if (!zmqClient)

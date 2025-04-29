@@ -95,6 +95,7 @@ class CryptoManager {
     static recursive_mutex ecdsaSignMutex;
     static atomic<uint64_t> ecdsaSignTotal;
 
+
     static list<uint64_t> blsSignTimes;
     static recursive_mutex blsSignMutex;
     static atomic<uint64_t> blsSignTotal;
@@ -104,7 +105,6 @@ class CryptoManager {
     static list<uint64_t> teDecryptShareTimes;
     static recursive_mutex teDecryptShareMutex;
     static atomic<uint64_t> teDecryptShareTotal;
-
     static atomic<uint64_t> teDecryptShareCounter;
 #endif
     static atomic<uint64_t> ecdsaCounter;
@@ -300,6 +300,10 @@ public:
     void exitZMQClient();
 
     static void addECDSASignStats(uint64_t _time);
+
+#ifdef BITE
+    static void addTEDecryptStats(uint64_t _time);
+#endif
 
     static void addBLSSignStats(uint64_t _time);
 
