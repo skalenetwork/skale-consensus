@@ -284,7 +284,8 @@ ptr<vector<uint8_t> > BiteManager::teEncryptData(const vector<uint8_t> &_data) {
         CHECK_STATE(cipherText.data);
         auto encodedCipheredKey = cipherText.key.toBytes();
         auto result = make_shared<vector<uint8_t> >(encodedCipheredKey.begin(), encodedCipheredKey.end());
-        result->insert(result->end(), cipherText.data->begin(), cipherText.data->end());
+        auto data = cipherText.data;
+        result->insert(result->end(), data->begin(), data->end());
         CHECK_STATE(result->size() == encodedCipheredKey.size() + cipherText.data->size());
 
 

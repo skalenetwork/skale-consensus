@@ -12,7 +12,7 @@
 const auto BITE_HEADER_LEN = BITE_MAGIC_SIZE + BITE_EPOCH_ID_LEN + BITE_ENCRYPTED_AES_KEY_LEN;
 
 BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
-    : encryptedKeyPlusData(_encryptedKeyPlusData), epoch(_epoch) {
+    : encryptedData(_encryptedKeyPlusData), epoch(_epoch) {
     CHECK_STATE(_encryptedKeyPlusData);
     CHECK_STATE(_encryptedKeyPlusData->size() > BITE_ENCRYPTED_AES_KEY_LEN);
 
@@ -25,7 +25,7 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     uint64_t epochBE = boost::endian::native_to_big(_epoch);
     uint8_t* epochBytes = reinterpret_cast<uint8_t*>(&epochBE);
     serializedData->insert(serializedData->end(), epochBytes, epochBytes + sizeof(epochBE));
-    serializedData->insert(serializedData->end(), encryptedKeyPlusData->begin(), encryptedKeyPlusData->end());
+    serializedData->insert(serializedData->end(), encryptedData->begin(), encryptedData->end());
 }
 
 BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data) {
@@ -38,7 +38,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
 
     auto encryptedDataStart = _data->begin() + BITE_HEADER_LEN;
     encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
-    encryptedKeyPlusData = make_shared<EncryptedData>(encryptedDataStart, _data->end());
+    encryptedData = make_shared<EncryptedData>(encryptedDataStart, _data->end());
     keyPlusEncryptedData = make_shared<vector<uint8_t>>(_data->begin() + BITE_MAGIC_SIZE + BITE_EPOCH_ID_LEN,
         _data->end());
     serializedData = _data;
@@ -52,8 +52,8 @@ const shared_ptr< EncryptedData >& BiteDataField::getKeyPlusEncryptedData() cons
 }
 
 ptr<EncryptedData> &BiteDataField::getEncryptedData() {
-    CHECK_STATE(encryptedKeyPlusData)
-    return encryptedKeyPlusData;
+    CHECK_STATE(encryptedData)
+    return encryptedData;
 }
 
 uint64_t BiteDataField::getEpoch() {

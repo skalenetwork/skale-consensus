@@ -59,9 +59,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="862 Process failed decrypted transactions">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/CryptoManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/CryptoManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bite/BiteManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/bite/BiteManager.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
@@ -117,20 +115,12 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock:///d/skale-consensus/Agent.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Agent.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/Agent.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/CMakeLists.txt" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Consensust.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/JsonStubClient.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/Log.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Log.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/Log.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/SkaleCommon.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/SkaleCommon.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/abstracttcpclient/AbstractClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/abstracttcpclient/AbstractClientAgent.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/abstracttcpserver/ConnectionStatus.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteAESDecryptionShareSerializer.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.h" root0="FORCE_HIGHLIGHTING" />
@@ -138,19 +128,11 @@
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/blockfinalize/client/BlockFinalizeDownloader.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/blockproposal/pusher/BlockProposalClientAgent.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/catchup/client/CatchupClientAgent.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/catchup/server/CatchupServerAgent.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/BlockErrorAnalyzer.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/chains/BlockErrorAnalyzer.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/Schain.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/chains/Schain.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/chains/Schain.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/Schain.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/chains/SchainGettersSetters.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cmake/precompiledheader.cmake" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cppzmq/zmq.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/AESKeyDecryptionShare.h" root0="FORCE_HIGHLIGHTING" />
@@ -159,106 +141,52 @@
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/crypto/CryptoManager.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/crypto/CryptoManager.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/DecryptedAESKeyList.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/BlockProposal.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/BlockProposal.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/BlockProposal.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/BlockProposal.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/BlockProposalFragment.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/BlockProposalFragment.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/BlockProposalFragmentList.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/BlockProposalFragmentList.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/CommittedBlock.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/CommittedBlock.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/CommittedBlock.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/CommittedBlock.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/CommittedBlockList.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/CommittedBlockList.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/MyBlockProposal.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/MyBlockProposal.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/SerializationTests.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/Transaction.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/Transaction.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/Transaction.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/Transaction.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/TransactionList.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/TransactionList.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/datastructures/TransactionList.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/TransactionList.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/db/BlockDB.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/db/CacheLevelDB.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/db/DASigShareDB.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/DASigShareDB.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/InternalInfoDB.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/db/LevelDBOptions.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/db/StorageLimits.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/StorageLimits.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/db/StorageLimits.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/TEDecryptionDB.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/TEDecryptionDB.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/exceptions/ConnectionRefusedException.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/exceptions/ConnectionRefusedException.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/exceptions/OracleException.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/flatb/BlockFinalizeResponseObject.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/headers/BlockProposalHeader.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/headers/FinalProposalResponseHeader.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/deps/deps_inst/x86_or_x64/include/libff/algebra/curves/alt_bn128/alt_bn128_g2.hpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/deps/deps_inst/x86_or_x64/include/openssl/aes.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/libBLS/threshold_encryption/threshold_encryption.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/libBLS/threshold_encryption/threshold_encryption.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/messages/Message.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/messages/Message.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/messages/NetworkMessage.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/OptimizerAgent.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/monitoring/TimeoutAgent.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/network/ClientSocket.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/network/Network.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/Network.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/network/Network.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/node/ConsensusEngine.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/node/ConsensusEngine.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/ConsensusInterface.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/node/ConsensusInterface.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/node/Node.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/node/Node.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/NodeGettersSetters.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/node/NodeGettersSetters.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/oracle/OracleClient.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/oracle/OracleReceivedResults.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/oracle/OracleRequestBroadcastMessage.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/oracle/OracleRequestSpec.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/oracle/OracleResult.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/oracle/OracleResult.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/pendingqueue/PendingTransactionsAgent.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/pendingqueue/TestMessageGeneratorAgent.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/pendingqueue/TestMessageGeneratorAgent.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/rlp/ParsedEthTransaction.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/rlp/ParsedEthTransaction.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/sgxclient/SgxZmqClient.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/sgxclient/SgxZmqClient.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/sgxclient/SgxZmqMessage.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node1/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node2/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node3/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node4/Node.json" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/thirdparty/lru_ordered_cache.hpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/thirdparty/zguide/zhelpers.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/unittests/consensus_tests.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/unittests/sgx_tests.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file:///usr/include/c++/11/bits/shared_ptr_base.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/include/x86_64-linux-gnu/bits/confname.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/lib/python3.10/subprocess.py" root0="FORCE_HIGHLIGHTING" />
@@ -913,7 +841,7 @@
       <workItem from="1744200494851" duration="11226000" />
       <workItem from="1744915904119" duration="2648000" />
       <workItem from="1745322445013" duration="22539000" />
-      <workItem from="1745949819617" duration="2492000" />
+      <workItem from="1745949819617" duration="2792000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
@@ -1258,7 +1186,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="273" />
+    <option name="localTasksCounter" value="274" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
