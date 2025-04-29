@@ -74,6 +74,7 @@
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
+#include "db/TEDecryptionDB.h"
 
 using namespace std;
 
@@ -410,7 +411,7 @@ map<string, uint64_t> Node::getDBUsage() const {
     ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getFullDBSize();
     ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getFullDBSize();
     ret["random.db_disk_usage"] = getRandomDB()->getFullDBSize();
-    ret["te_decryptshare.db_disk_usage"] = getRandomDB()->getFullDBSize();
+    ret["te_decryptshare.db_disk_usage"] = getTEDecryptionDB()->getFullDBSize();
 #ifdef BITE
 #endif
 

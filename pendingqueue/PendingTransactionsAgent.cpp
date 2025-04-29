@@ -212,14 +212,16 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 #ifdef BITE
         try {
             pt->parseAndValidateBiteDataField();
+            result->push_back(pt);
+            pushKnownTransaction(pt);
         } catch (std::exception &e) {
             LOG(err, e.what());
-            LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my propopsal.");
+            LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my proposal.");
         }
-#endif
-
+#else
         result->push_back(pt);
         pushKnownTransaction(pt);
+#endif
     }
 
     return {result, stateRoot};

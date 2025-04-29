@@ -130,7 +130,6 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAESKeys(
     vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex,  map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
-    // CONNECTION_ERROR_BLOCK_INCLUDES_INVALID_ENCRYPTIONS
     if (doRealCrypto) {
         vector<ptr<string> > publicDecryptionValuesBatch;
 

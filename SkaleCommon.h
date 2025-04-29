@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKA1LE Labs
+    Copyright (C) 2018-2019 SKALE Labs
 
     This file is part of skale-consensus.
 

@@ -265,7 +265,6 @@ if (DEFINED BITE)
             "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
             "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
             te
-#            "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a"
     )
     if (CMAKE_PROJECT_NAME STREQUAL "consensus")
         SET(LINK_LIBRARIES ${LINK_LIBRARIES} "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a")
