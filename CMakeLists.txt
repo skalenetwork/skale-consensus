@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 
 if (BITE)
-    set(BITE "1")  # Replace "some_value" with the desired value
+    set(BITE "1")
     add_definitions(-DBITE)
+endif ()
+
+if (MIRAGE)
+    set(MIRAGE "1")
+    add_definitions(-DMIRAGE)
 endif ()
 
 

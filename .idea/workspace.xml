@@ -54,12 +54,13 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" BUILD_OPTIONS="-- -j4" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DBITE=1 -DMIRAGE=1" BUILD_OPTIONS="-- -j4" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="862 Process failed decrypted transactions">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
@@ -82,7 +83,6 @@
       <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -843,7 +843,7 @@
       <workItem from="1744915904119" duration="2648000" />
       <workItem from="1745322445013" duration="22539000" />
       <workItem from="1745949819617" duration="4296000" />
-      <workItem from="1746013977304" duration="1088000" />
+      <workItem from="1746013977304" duration="1564000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
@@ -1188,7 +1188,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="275" />
+    <option name="localTasksCounter" value="276" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
