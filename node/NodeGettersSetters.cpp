@@ -411,8 +411,8 @@ map<string, uint64_t> Node::getDBUsage() const {
     ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getFullDBSize();
     ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getFullDBSize();
     ret["random.db_disk_usage"] = getRandomDB()->getFullDBSize();
-    ret["te_decryptshare.db_disk_usage"] = getTEDecryptionDB()->getFullDBSize();
 #ifdef BITE
+    ret["te_decryptshare.db_disk_usage"] = getTEDecryptionDB()->getFullDBSize();
 #endif
 
     return ret;
