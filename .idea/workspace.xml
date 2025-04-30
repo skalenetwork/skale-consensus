@@ -81,6 +81,7 @@
       <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,6 +125,7 @@
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteDataField.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/bite/BiteManager.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -131,7 +133,10 @@
     <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/BlockErrorAnalyzer.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/Schain.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/chains/Schain.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/chains/Schain.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/Schain.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/chains/SchainGettersSetters.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cmake/precompiledheader.cmake" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cppzmq/zmq.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/AESKeyDecryptionShare.h" root0="FORCE_HIGHLIGHTING" />
@@ -140,6 +145,7 @@
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/crypto/CryptoManager.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/DecryptedAESKeyList.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/BlockProposal.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -166,6 +172,7 @@
     <setting file="file://$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/OptimizerAgent.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/monitoring/TimeoutAgent.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/Network.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
@@ -841,7 +848,7 @@
       <workItem from="1744915904119" duration="2648000" />
       <workItem from="1745322445013" duration="22539000" />
       <workItem from="1745949819617" duration="4296000" />
-      <workItem from="1746013977304" duration="1889000" />
+      <workItem from="1746013977304" duration="2294000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
@@ -1186,7 +1193,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="277" />
+    <option name="localTasksCounter" value="278" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
