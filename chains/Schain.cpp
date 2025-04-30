@@ -90,26 +90,39 @@
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
+#ifndef MIRAGE
 #include "oracle/OracleClient.h"
 #include "oracle/OracleMessageThreadPool.h"
 #include "oracle/OracleResultAssemblyAgent.h"
 #include "oracle/OracleServerAgent.h"
 #include "oracle/OracleThreadPool.h"
+#endif
 #include "pricing/PricingAgent.h"
 #include "protocols/ProtocolInstance.h"
 #include "protocols/blockconsensus/BlockConsensusAgent.h"
 
 
 #include "Schain.h"
+
+#include <statusserver/StatusServer.h>
+
 #include "SchainMessageThreadPool.h"
 #include "SchainTest.h"
 #include "TestConfig.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSigShare.h"
-#include "crypto/bls_include.h"
+#include "chains/BlockErrorAnalyzer.h"
+#ifdef BITE
+#include "bite/BiteManager.h"
+#include "crypto/DecryptedAESKeyList.h"
+#endif
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
+
 #include "libBLS/bls/BLSPrivateKeyShare.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "monitoring/TimeoutAgent.h"
@@ -306,11 +319,17 @@ void Schain::constructChildAgents() {
 
     try {
         optimizerAgent = make_shared< OptimizerAgent >( *this );
+#ifndef MIRAGE
         oracleResultAssemblyAgent = make_shared< OracleResultAssemblyAgent >( *this );
+#endif
         pricingAgent = make_shared< PricingAgent >( *this );
         catchupClientAgent = make_shared< CatchupClientAgent >( *this );
 
         cryptoManager = make_shared< CryptoManager >( *this );
+
+#ifdef BITE
+        biteManager = make_shared< BiteManager >( *this );
+#endif
 
         if ( getNode()->isSyncOnlyNode() ) {
             return;
@@ -320,8 +339,9 @@ void Schain::constructChildAgents() {
         blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
 
         testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
-
+#ifndef MIRAGE
         oracleClient = make_shared< OracleClient >( *this );
+#endif
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
     }
@@ -404,9 +424,11 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
             } else {
                 // on sync nodes we get candidate block and throw it away immediately
                 // this is to clean skaled queues
-                if (extFace) {    // if extFace is null we are in consensus tests and there is no skaled
+                if ( extFace ) {  // if extFace is null we are in consensus tests and there is no
+                                  // skaled
                     u256 stateRoot = 0;
-                    extFace->pendingTransactions( getNode()->getMaxTransactionsPerBlock(), stateRoot );
+                    extFace->pendingTransactions(
+                        getNode()->getMaxTransactionsPerBlock(), stateRoot );
                 }
             }
         }
@@ -429,20 +451,45 @@ const atomic< bool >& Schain::getIsStateInitialized() const {
     return isStateInitialized;
 }
 
-bool Schain::verifyDASigsPatch( uint64_t _blockTimeStampS ) {
+bool Schain::verifyDASigsPatch( uint64_t
+#ifndef BITE
+        _blockTimeStampS
+#endif
+) {
+#ifdef BITE
+    return true;
+#else
     return verifyDaSigsPatchTimestamp != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestamp;
+#endif
 }
 
-bool Schain::verifyBlsSyncPatch( uint64_t _blockTimeStampS ) {
+bool Schain::verifyBlsSyncPatch( uint64_t
+#ifndef BITE
+        _blockTimeStampS
+#endif
+) {
+#ifdef BITE
+    return true;
+#else
     return verifyBlsSyncPatchTimestamp != 0 && _blockTimeStampS >= verifyBlsSyncPatchTimestamp;
+#endif
 }
 
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-    const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig ) {
+    const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+#ifdef  BITE
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactionDataFields
+#endif
+    ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
 
     CHECK_ARGUMENT( _thresholdSig )
     CHECK_ARGUMENT( _daSig || _proposerIndex == 0 )
+
+#ifdef BITE
+    CHECK_ARGUMENT(_aesKeyList)
+    CHECK_ARGUMENT(_decryptedTransactionDataFields)
+#endif
 
     // wait until the schain state is fully initialized and startup
     // otherwise last committed block id is not fully initialized and the chain can not accept
@@ -490,7 +537,11 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         CHECK_STATE( committedProposal );
 
         auto newCommittedBlock =
-            CommittedBlock::makeFromProposal( committedProposal, _thresholdSig, _daSig );
+            CommittedBlock::makeFromProposal( committedProposal, _thresholdSig, _daSig
+#ifdef BITE
+            , _aesKeyList, _decryptedTransactionDataFields
+#endif
+            );
 
         CHECK_STATE( getLastCommittedBlockTimeStamp() < newCommittedBlock->getTimeStamp() );
 
@@ -534,6 +585,11 @@ void Schain::proposeNextBlock( bool _isCalledAfterCatchup ) {
         if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _proposedBlockID, getSchainIndex() );
+#ifdef BITE
+            // The proposal was saved do the db, but we need decryption shares
+            CHECK_STATE(getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(
+                myProposal).empty());
+#endif
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();
             myProposal = pendingTransactionsAgent->buildBlockProposal(
@@ -544,15 +600,18 @@ void Schain::proposeNextBlock( bool _isCalledAfterCatchup ) {
 
         CHECK_STATE( myProposal->getProposerIndex() == getSchainIndex() );
         CHECK_STATE( myProposal->getSignature() != "" );
+#ifdef BITE
+        CHECK_STATE( myProposal->getMyDecryptionShares())
+#endif
 
 
         proposedBlockArrived( myProposal );
 
-        if (getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposedBlockID)) {
+        if ( getOptimizerAgent()->skipSendingProposalToTheNetwork( _proposedBlockID ) ) {
             // a node skips sending and saving its proposal during
             // optimized block consensus, if the node was not a winner
             // last time
-            return; // dont propose
+            return;  // dont propose
         }
 
         LOG( debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ) );
@@ -721,13 +780,21 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
         if ( !getNode()->isSyncOnlyNode() ) {
             // pending transaction ageent does not exist on a sync node
             CHECK_STATE( pendingTransactionsAgent );
-            LOG(
-                info, "CWT:" << to_string( blockPushedToExtFaceTimeMs -
+#ifdef BITE
+            CHECK_STATE(_block->getDecryptedTransactionDataFields())
+            auto biteDecryptedTransactions = _block->getDecryptedTransactionDataFields()->size();
+#endif
+
+            LOG(info, "CWT:" + to_string( blockPushedToExtFaceTimeMs -
                                            pendingTransactionsAgent->transactionListReceivedTime() )
-                             << ":TLWT:"
-                             << to_string( pendingTransactionsAgent->getTransactionListWaitTime() )
-                             << ":SBPT:" << to_string( cryptoManager->sgxBlockProcessingTime() ) );
+                             + ":TLWT:" +  to_string( pendingTransactionsAgent->getTransactionListWaitTime() )
+                             + ":SBPT:" + to_string( cryptoManager->sgxBlockProcessingTime() )
+#ifdef BITE
+                             + ":BITE_DECRYPTED_TXS:" + to_string( biteDecryptedTransactions )
+#endif
+                             );
         }
+
         pushBlockToExtFace( _block );
         auto evmProcessingTimeMs = Time::getCurrentTimeMs() - evmProcessingStartMs;
 
@@ -786,7 +853,12 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
     checkForExit();
 
     try {
-        auto tv = _block->getTransactionList()->createTransactionVector();
+        auto tv = _block->getTransactionList()->createTransactionVector(
+#ifdef BITE
+        _block->getDecryptedTransactionDataFields()
+#endif
+
+        );
 
         // auto next_price = // VERIFY PRICING
 
@@ -800,10 +872,19 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
         // this will initiate immediate exit and throw ExitRequestedException
         getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
 
+
+#ifdef BITE
+        CHECK_STATE(_block->getDecryptedTransactionDataFields() || _block->getProposerIndex() == 0)
+#endif
+
         if ( extFace ) {
             try {
                 inCreateBlock = true;
-                extFace->createBlock( *tv, _block->getTimeStampS(), _block->getTimeStampMs(),
+                extFace->createBlock( *tv,
+#ifdef BITE
+                    _block->getDecryptedTransactionDataFields(),
+#endif
+                    _block->getTimeStampS(), _block->getTimeStampMs(),
                     ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
                     ( uint64_t ) _block->getProposerIndex() );
                 inCreateBlock = false;
@@ -930,6 +1011,7 @@ void Schain::tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const
 
 void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
+    CHECK_STATE( _proposal );
 
     if ( _proposal->getBlockID() <= getLastCommittedBlockID() )
         return;
@@ -937,6 +1019,11 @@ void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
     CHECK_STATE( _proposal->getSignature() != "" );
 
     getNode()->getBlockProposalDB()->addBlockProposal( _proposal );
+#ifdef BITE
+    auto myDecryptionShares = _proposal->getMyDecryptionShares();
+    CHECK_STATE( myDecryptionShares );
+    getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );
+#endif
 }
 
 
@@ -1245,6 +1332,16 @@ ptr< BlockProposal > Schain::createDefaultEmptyBlockProposal( block_id _blockId 
 
 void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig ) {
+#ifdef BITE
+    std::thread( [=]() {
+        finalizeDecidedAndSignedBlockInThread( _blockId, _proposerIndex, _thresholdSig );
+    } ).detach();
+};
+
+
+void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
+    const ptr< ThresholdSignature >& _thresholdSig ) {
+#endif
     CHECK_ARGUMENT( _thresholdSig != nullptr );
 
 
@@ -1261,15 +1358,20 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
     try {
         if ( _proposerIndex == 0 ) {
             // default empty block
-            blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, nullptr );
+            blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, nullptr
+#ifdef BITE
+            , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactionDataFields>()
+#endif
+                );
             return;
         }
+
 
         ptr< BlockProposal > proposal = nullptr;
         ptr< ThresholdSignature > daSig;
 
-        proposal = getNode()->getBlockProposalDB()->getBlockProposal( _blockId, _proposerIndex );
 
+        proposal = getNode()->getBlockProposalDB()->getBlockProposal( _blockId, _proposerIndex );
 
         // Figure out if we need to download proposal
 
@@ -1277,8 +1379,9 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
         if ( proposal ) {
             auto daProofSig = getNode()->getDaProofDB()->getDASig( _blockId, _proposerIndex );
-            // a proposal without a  DA proof is not trusted and has to be
+
             downloadProposal = daProofSig.empty();
+
             if ( !downloadProposal ) {
                 auto hash = proposal->getHash();
                 daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
@@ -1290,12 +1393,14 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
 
         if ( downloadProposal ||
              // downloaded from others this switch is for testing only
-             getNode()->getTestConfig()->isFinalizationDownloadOnly() ) {
+             getNode()->getTestConfig()->isFinalizationDownloadOnly()
+#ifdef BITE
+             || !getNode()->getTEDecryptionDB()->isEnoughForeignShares( _blockId )
+#endif
+        ) {
             // did not receive proposal from the proposer, pull it in parallel from other hosts
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posess the proposal
-
-            LOG( info, "FINALIZING_BLOCK:BID:" << to_string( _blockId ) );
 
             auto agent = make_unique< BlockFinalizeDownloader >( this, _blockId, _proposerIndex );
 
@@ -1308,22 +1413,81 @@ void Schain::finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _pro
                 proposal = agent->downloadProposal();
                 // if null is returned it means that catchup happened first and
                 // the block will be processed through catchup
-                if ( proposal )
+                if ( proposal ) {
+#ifdef BITE
+                    CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(proposal->getBlockID()));
+#endif
                     daSig = agent->getDaSig( proposal->getTimeStampS() );
+                }
             }
 
-            if ( proposal )  // Nullptr means catchup happened first
+
+            if ( proposal ) {
                 getNode()->getBlockProposalDB()->addBlockProposal( proposal );
+
+            }
         }
+
 
         if ( proposal ) {
-            blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig );
+#ifdef BITE
+            auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(
+                proposal->getBlockID(), proposal->getProposerIndex() );
+
+            // if we did not yet decrypt this block, decrypt it
+            if ( myDecryptionShares == nullptr ) {
+                auto failedTransactions = sChain->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( proposal );
+                if (!failedTransactions.empty()) {
+                    LOG(critical, fmt::format("Failed to create decryption share for transaction: {}"
+                    "Cant process block, hopefully catchup will work"
+                    , (uint32_t) failedTransactions.begin()->first));
+
+                    return;
+                }
+                myDecryptionShares = proposal->getMyDecryptionShares();
+                CHECK_STATE( myDecryptionShares );
+                getNode()->getTEDecryptionDB()->addMyDecryptionShares( myDecryptionShares );
+            }
+
+            getNode()->getTEDecryptionDB()->addDecryptionShares( myDecryptionShares );
+
+            auto count =
+                getNode()->getTEDecryptionDB()->getDecryptionsCount( proposal->getBlockID() );
+
+            CHECK_STATE( count >= getRequiredSigners() )
+
+            auto encryptedAESKeys = proposal->getMyEncryptedAESKeys();
+
+            CHECK_STATE(encryptedAESKeys);
+
+            auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys( proposal->getBlockID(),
+                encryptedAESKeys );
+
+            CHECK_STATE(keys);
+
+            auto transactions = proposal->getTransactionList();
+            auto decryptedTransactionDataFields = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
+
+            CHECK_STATE(decryptedTransactionDataFields);
+
+#endif
+
+
+            blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig
+#ifdef BITE
+            , keys, decryptedTransactionDataFields
+#endif
+            );
         }
 
-    } catch ( ExitRequestedException& e ) {
-        throw;
+    } catch ( ExitRequestedException&) {
+        return;
+    } catch (exception &e) {
+        SkaleException::logNested(e);
+        LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
     } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+        LOG(critical, "Unknown exception in finalizeDecidedAndSignedBlock");
+        LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
     }
 }
 
@@ -1380,21 +1544,24 @@ void Schain::addDeadNode( uint64_t _schainIndex, uint64_t _checkTime ) {
     CHECK_STATE( _schainIndex <= getNodeCount() );
     {
         lock_guard< mutex > l( deadNodesLock );
-        if ( deadNodes.count( _schainIndex ) == 0 ) {
-            deadNodes.insert( { _schainIndex, _checkTime } );
-        }
+        deadNodes[_schainIndex] =  _checkTime;
     }
 }
 
 void Schain::markAliveNode( uint64_t _schainIndex ) {
     CHECK_STATE( _schainIndex > 0 );
     CHECK_STATE( _schainIndex <= getNodeCount() );
+
+    bool wasDead = false;
+
     {
         lock_guard< mutex > l( deadNodesLock );
-        if ( deadNodes.count( _schainIndex ) > 0 ) {
-            deadNodes.erase( _schainIndex );
-        }
+        wasDead = deadNodes.erase( _schainIndex ) > 0;
     }
+
+     if (wasDead) {
+         LOG(info, "Node " + to_string( _schainIndex ) + " is now alive");
+     }
 }
 
 uint64_t Schain::getDeathTimeMs( uint64_t _schainIndex ) {
@@ -1446,9 +1613,11 @@ u256 Schain::getRandomForBlockId( block_id _blockId ) {
 
 ptr< ofstream > Schain::visualizationDataStream = nullptr;
 
+#ifndef MIRAGE
 const ptr< OracleResultAssemblyAgent >& Schain::getOracleResultAssemblyAgent() const {
     return oracleResultAssemblyAgent;
 }
+#endif
 
 void Schain::addBlockErrorAnalyzer( ptr< BlockErrorAnalyzer > _blockErrorAnalyzer ) {
     {
@@ -1486,47 +1655,55 @@ mutex Schain::vdsMutex;
 // if it is time to make binary proposals it will return a vector of 0s and 1s
 // for normal consensus it will happen when 2t+1 DA proofs  arrive (which is 11)
 // for optimized consensus it will happen when a DA proof from the previous winner arrives
-ptr<BooleanProposalVector>
+ptr< BooleanProposalVector >
 Schain::addDAProofToDBAndCalculateProposalVectorIfItsTimeToStartBinaryConsensus(
-    const ptr<DAProof> &_daProof) {
+    const ptr< DAProof >& _daProof ) {
+    ptr< BooleanProposalVector > pv;
 
-    ptr<BooleanProposalVector> pv;
-
-    if (getOptimizerAgent()->doOptimizedConsensus(_daProof->getBlockId(), getLastCommittedBlockTimeStamp().getS())) {
+    if ( getOptimizerAgent()->doOptimizedConsensus(
+             _daProof->getBlockId(), getLastCommittedBlockTimeStamp().getS() ) ) {
         // when we do optimized block consensus only the previous winner
         // proposes and provides da proof
         // proposals from other nodes, if sent made by mistake, are ignored
         auto lastWinner = getOptimizerAgent()->getPreviousWinner( _daProof->getBlockId() );
-        if (_daProof->getProposerIndex() == lastWinner) {
-            getNode()->getDaProofDB()->addDAProof(_daProof);
-            pv = make_shared<BooleanProposalVector>(getNodeCount(), lastWinner);
+        if ( _daProof->getProposerIndex() == lastWinner ) {
+            getNode()->getDaProofDB()->addDAProof( _daProof );
+            pv = make_shared< BooleanProposalVector >( getNodeCount(), lastWinner );
         }
     } else {
         // do things regular way
         // the binary proposal vector is formed and the consensus is started when
         // 2/3 of nodes  (11) submit a da proof
-        pv = getNode()->getDaProofDB()->addDAProof(_daProof);
+        pv = getNode()->getDaProofDB()->addDAProof( _daProof );
     }
     return pv;
 }
 
 // returns true if fastConsensusPatch ie enabled
-bool Schain::fastConsensusPatchEnabled(uint64_t _blockTimeStampSec ) {
+bool Schain::fastConsensusPatchEnabled( uint64_t
+#ifndef BITE
+        _blockTimeStampSec
+#endif
+) {
+#ifdef BITE
+    return true;  //
+#else
     return fastConsensusPatchTimestamp != 0 && _blockTimeStampSec >= fastConsensusPatchTimestamp;
+#endif
 }
 
 // macro to set patchstamp variable from connfig
-#define SET_TIMESTAMP_FROM_CONFIG(__TIMESTAMP_NAME__) \
-    { \
-        auto& timestamps = getNode()->getPatchTimestamps(); \
-        if (timestamps.count(#__TIMESTAMP_NAME__) > 0) { \
-            __TIMESTAMP_NAME__ = timestamps.at(#__TIMESTAMP_NAME__); \
-        } \
+#define SET_TIMESTAMP_FROM_CONFIG( __TIMESTAMP_NAME__ )                \
+    {                                                                  \
+        auto& timestamps = getNode()->getPatchTimestamps();            \
+        if ( timestamps.count( #__TIMESTAMP_NAME__ ) > 0 ) {           \
+            __TIMESTAMP_NAME__ = timestamps.at( #__TIMESTAMP_NAME__ ); \
+        }                                                              \
     }
 
 // set all timestamp values from config
 void Schain::setTimeStampValuesFromConfig() {
-    SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestamp)
-    SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestamp)
-    SET_TIMESTAMP_FROM_CONFIG(verifyBlsSyncPatchTimestamp)
+    SET_TIMESTAMP_FROM_CONFIG( verifyDaSigsPatchTimestamp )
+    SET_TIMESTAMP_FROM_CONFIG( fastConsensusPatchTimestamp )
+    SET_TIMESTAMP_FROM_CONFIG( verifyBlsSyncPatchTimestamp )
 }

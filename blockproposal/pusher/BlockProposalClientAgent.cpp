@@ -38,9 +38,7 @@
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSigShare.h"
 #include "datastructures/BlockProposal.h"
-#include "datastructures/CommittedBlock.h"
 #include "datastructures/DAProof.h"
-#include "datastructures/MyBlockProposal.h"
 #include "exceptions/NetworkProtocolException.h"
 #include "headers/BlockProposalRequestHeader.h"
 #include "headers/FinalProposalResponseHeader.h"
@@ -49,8 +47,6 @@
 #include "headers/SubmitDAProofRequestHeader.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"
-#include "network/Network.h"
-#include "network/ServerConnection.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -60,7 +56,7 @@
 #include "BlockProposalPusherThreadPool.h"
 #include "abstracttcpclient/AbstractClientAgent.h"
 #include "exceptions/ExitRequestedException.h"
-#include "exceptions/PingException.h"
+
 
 BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
     : AbstractClientAgent( _sChain, PROPOSAL ) {
@@ -111,7 +107,7 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
             Header::getString( js, "sig" ), Header::getString( js, "pk" ),
             Header::getString( js, "pks" ) );
     } else {
-        LOG( err, "Proposal push failed:" << to_string( status ) << ":" << to_string( subStatus ) );
+        LOG( err, "Proposal push failed:Status:" << to_string( status ) << ":Substatus:" << to_string( subStatus ) );
         return make_shared< FinalProposalResponseHeader >( status, subStatus );
     }
 }
@@ -134,7 +130,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
 ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
     const ptr< BlockProposal >& _proposal, schain_index _index ) {
     if ( ( uint64_t ) _index % 2 == 0 ) {
-        auto proposal2 = make_shared< BlockProposal >( _proposal->getSchainID(),
+        auto proposal2 = BlockProposal::make( _proposal->getSchainID(),
             _proposal->getProposerNodeID(), _proposal->getBlockID(), _proposal->getProposerIndex(),
             make_shared< TransactionList >( make_shared< vector< ptr< Transaction > > >() ),
             _proposal->getStateRoot(), MODERN_TIME + 1, 1, nullptr,

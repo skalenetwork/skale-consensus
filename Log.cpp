@@ -46,7 +46,10 @@ void SkaleLog::setGlobalLogLevel( string& _s ) {
 }
 
 
-string level_names[] = SPDLOG_LEVEL_NAMES;
+
+
+string level_names[] = {"trace", "debug", "info", "warning", "error", "critical", "off"};
+
 level_enum SkaleLog::logLevelFromString( string& _s ) {
     for ( int i = 0; i < 7; i++ ) {
         if ( _s == level_names[i] ) {

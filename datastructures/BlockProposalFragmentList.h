@@ -37,7 +37,12 @@ class BlockProposalFragment;
 
 
 class BlockProposalFragmentList : public DataStructure {
-    map< fragment_index, ptr< vector< uint8_t > > > fragments;  // tsafe
+#ifdef BITE
+    map< fragment_index, ptr< BlockProposalFragment > > fragments;
+#else
+    map<  fragment_index, ptr< vector< uint8_t > > > fragments;  // tsafe
+#endif
+
 
     list< uint64_t > missingFragments;
 

@@ -5,6 +5,10 @@
 TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
     string certDir( "/tmp" );
 
+
+
+    auto engine = new ConsensusEngine( 0, 100000000 );
+    engine->logInit();
     CryptoManager::generateSSLClientCertAndKey( certDir );
 
     auto certFilePath = certDir + "/cert";

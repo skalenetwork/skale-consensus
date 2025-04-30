@@ -43,6 +43,11 @@
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
 #include "db/CommittedTransactionDB.h"
+#ifdef BITE
+#include "bite/BiteManager.h"
+#include "crypto/AESKeyDecryptionShareList.h"
+#endif
+
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
@@ -82,10 +87,37 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
                                                         stamp.getS(), stamp.getMs(),
                                                         getSchain()->getCryptoManager());
 
+#ifdef BITE
+    auto failedTransactions =
+            getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(myBlockProposal);
+    if (!failedTransactions.empty()) {
+        LOG(err, "Could not decrypt BITE transactions");
+        LOG(err, "Proposing empty transactions instead");
+        // could not decrypt proposals, this means something is wrong with the SGX
+        // do an empty proposal instead
+        // TODO propose non-BITE transactions
+        myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID,
+                                                       sChain->getSchainIndex(),
+                                                       make_shared<TransactionList>(
+                                                           make_shared<vector<ptr<Transaction> > >()),
+                                                       stateRoot, stamp.getS(), stamp.getMs(),
+                                                       getSchain()->getCryptoManager());
+        myBlockProposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
+                                                   _blockID, sChain->getSchainIndex(), sChain->getSchainIndex()),
+                                               make_shared<EncryptedAESKeyList>());
+    }
+    // could not decrypt proposals, this means something is wrong with the SGX
+
+
+#endif
+
     LOG(trace, "Created proposal, transactions:" << to_string(transactions->size()));
 
     auto pHashesList = myBlockProposal->createPartialHashesList();
     CHECK_STATE(pHashesList);
+#ifdef  BITE
+    CHECK_STATE(myBlockProposal->getMyDecryptionShares());
+#endif
 
     transactionCounter += (uint64_t) pHashesList->getTransactionCount();
 
@@ -96,7 +128,7 @@ pair<ptr<vector<ptr<Transaction> > >, u256>
 PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterCatchup) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime())
 
-    auto result = make_shared<vector<ptr<Transaction> > >();
+
 
     size_t needMax;
 
@@ -107,11 +139,9 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         needMax = strtoul(env, nullptr, 10);
 
         CHECK_STATE(needMax > 0)
-
     } else {
         needMax = getNode()->getMaxTransactionsPerBlock();
     }
-
 
     ConsensusExtFace::transactions_vector txVector;
 
@@ -136,7 +166,11 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         } else {
             stateRootSample++;
             stateRoot = 7;
+#ifdef BITE
+            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactionsBITE(needMax);
+#else
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(needMax);
+#endif
         }
 
         auto finishTime = Time::getCurrentTimeMs();
@@ -169,11 +203,25 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
     transactionListWaitTime = finishTimeMs - startTimeMs;
 
+    auto result = make_shared<vector<ptr<Transaction> > >();
+
     for (const auto &e: txVector) {
         ptr<Transaction> pt = Transaction::deserialize(
-                make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
+            make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
+
+#ifdef BITE
+        try {
+            pt->parseAndValidateBiteDataField();
+            result->push_back(pt);
+            pushKnownTransaction(pt);
+        } catch (std::exception &e) {
+            LOG(err, e.what());
+            LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my proposal.");
+        }
+#else
         result->push_back(pt);
         pushKnownTransaction(pt);
+#endif
     }
 
     return {result, stateRoot};

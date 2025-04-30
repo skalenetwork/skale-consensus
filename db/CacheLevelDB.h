@@ -112,7 +112,7 @@ protected:
 
     ptr< leveldb::DB > openDB( uint64_t _index );
 
-    uint64_t readCount( block_id _blockId );
+
 
     bool isEnough( block_id _blockID );
 
@@ -124,6 +124,9 @@ protected:
         string& _prefix, const ptr< leveldb::DB >& _db, bool lastOnly = false );
 
 public:
+
+    uint64_t readCount( block_id _blockId );
+
     void destroy();
 
     virtual const string& getFormatVersion() = 0;

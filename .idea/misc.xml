@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="Black">
+    <option name="sdkName" value="Python 3.10 (skale-consensus) (2)" />
+  </component>
   <component name="CMakePythonSetting">
     <option name="pythonIntegrationState" value="YES" />
   </component>
@@ -7,6 +10,13 @@
   <component name="CidrRootsConfiguration">
     <excludeRoots>
       <file path="$PROJECT_DIR$/_3rdParty" />
+      <file path="$PROJECT_DIR$/cmake" />
+      <file path="$PROJECT_DIR$/cmake-build-release" />
+      <file path="$PROJECT_DIR$/deps" />
+      <file path="$PROJECT_DIR$/sgxwallet" />
+      <file path="$PROJECT_DIR$/spdlog" />
+      <file path="$PROJECT_DIR$/venv" />
+      <file path="$PROJECT_DIR$/venv1" />
     </excludeRoots>
   </component>
   <component name="JavaScriptSettings">

@@ -35,6 +35,7 @@
 #define ZMQ_NO_SIG_IN_MESSAGE -95
 #define ZMQ_NO_CERT_IN_MESSAGE -96
 #define ZMQ_COULD_NOT_VERIFY_SIG -97
+#define ZMQ_COULD_NOT_DECRYPT_SHARE -98
 
 
 #include <openssl/pem.h>
@@ -49,6 +50,10 @@
 #include "sgxclient/SgxZmqMessage.h"
 #include "thirdparty/zguide/zhelpers.hpp"
 #pragma GCC diagnostic pop
+
+#ifdef BITE
+class AESKeyDecryptionShare;
+#endif
 
 
 #define REQUEST_TIMEOUT 10000  //  msecs, (> 1000!)
@@ -124,8 +129,15 @@ public:
     string blsSignMessageHash( const string& _keyShareName, const string& _messageHash, int _t,
         int _n, bool _throwExceptionOnTimeout );
 
+#ifdef BITE
+    ptr<vector<ptr<string>>>decryptAESKeySharesBatch( const string& _keyShareName,
+    std::vector<std::shared_ptr<std::string> > & _aesKeySharesBatch, int _t, int _n,
+    bool _throwExceptionOnTimeout );
+#endif
+
     string ecdsaSignMessageHash( int _base, const string& _keyName, const string& _messageHash,
         bool _throwExceptionOnTimeout );
+
 
     void exit();
 

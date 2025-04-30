@@ -26,6 +26,13 @@
 #include "IOException.h"
 
 class ConnectionRefusedException : public IOException {
+
+    bool triedConnecting = false;
 public:
-    ConnectionRefusedException( const string& _what, int _errno, const string& _className );
+    ConnectionRefusedException( const string& _what, int _errno, const string& _className, bool _triedConnecting = false );
+
+    [[nodiscard]] bool triedConnect() const {
+        return triedConnecting;
+    }
+
 };
