@@ -59,6 +59,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="862 Process failed decrypted transactions">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
@@ -81,7 +82,6 @@
       <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -244,7 +244,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;862-bite&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus/sgxclient&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/d/skaled&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -267,11 +267,6 @@
     <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
     <configuration name="bls_test" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="bls_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="bls_test" TEST_MODE="SUITE_TEST">
@@ -412,6 +407,11 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -848,7 +848,7 @@
       <workItem from="1744915904119" duration="2648000" />
       <workItem from="1745322445013" duration="22539000" />
       <workItem from="1745949819617" duration="4296000" />
-      <workItem from="1746013977304" duration="2294000" />
+      <workItem from="1746013977304" duration="5455000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
@@ -1193,7 +1193,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="278" />
+    <option name="localTasksCounter" value="279" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

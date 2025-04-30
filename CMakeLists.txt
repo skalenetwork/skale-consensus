@@ -8,6 +8,8 @@ endif ()
 if (MIRAGE)
     set(MIRAGE "1")
     add_definitions(-DMIRAGE)
+    set(BITE "1")
+    add_definitions(-DBITE)
 endif ()
 
 
