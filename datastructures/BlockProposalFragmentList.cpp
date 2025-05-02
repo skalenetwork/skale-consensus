@@ -30,6 +30,9 @@
 #include "Log.h"
 #include "SkaleCommon.h"
 #include "exceptions/SerializeException.h"
+#ifdef BITE
+#include "bite/BiteBlockProposalSerializer.h"
+#endif
 
 #include "BlockProposalFragment.h"
 
@@ -94,7 +97,11 @@ bool BlockProposalFragmentList::addFragment(
         return false;
     }
 
+#ifdef BITE
+    fragments.emplace( _fragment->getIndex(), _fragment );
+#else
     fragments.emplace( _fragment->getIndex(), _fragment->serialize() );
+#endif
 
     std::list< uint64_t >::iterator findIter =
         std::find( missingFragments.begin(), missingFragments.end(), _fragment->getIndex() );
@@ -155,15 +162,28 @@ const ptr< vector< uint8_t > > BlockProposalFragmentList::serialize() {
     try {
         for ( auto&& item : fragments ) {
             CHECK_STATE( item.second );
+#ifdef BITE
+            totalLen += item.second->size();
+#else
             totalLen += item.second->size() - 2;
+#endif
+
         }
 
         result->reserve( totalLen );
 
+        /// we have enough fragments. Reconstruct the block
         for ( auto&& item : fragments ) {
             auto fragment = item.second;
             CHECK_STATE( fragment );
+#ifdef BITE
+            auto data = fragment->getFBSerializedData();
+            CHECK_STATE(data);
+            result->insert( result->end(), data->data(), data->data() + data->size());
+
+#else
             result->insert( result->end(), fragment->begin() + 1, fragment->end() - 1 );
+#endif
         }
 
     } catch ( ... ) {
@@ -171,11 +191,15 @@ const ptr< vector< uint8_t > > BlockProposalFragmentList::serialize() {
     }
 
 
+#ifdef BITE
+    BiteBlockProposalSerializer::serializedSanityCheck(result);
+    return result;
+#else
     CHECK_STATE( result->size() == totalLen );
-
     CHECK_STATE( result->at( sizeof( uint64_t ) ) == '{' );
     CHECK_STATE( result->back() == '>' );
     return result;
+#endif
 }
 
 

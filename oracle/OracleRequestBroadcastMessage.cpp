@@ -26,6 +26,7 @@
 #include "thirdparty/rapidjson/prettywriter.h"  // for stringify JSON
 
 #include "SkaleCommon.h"
+#include "Log.h"
 
 #include "exceptions/InvalidStateException.h"
 

@@ -75,9 +75,9 @@ int ClientSocket::createTCPSocket() {
 
     if ( connect( s, ( sockaddr* ) remoteAddr.get(), sizeof( remoteAddr ) ) < 0 ) {
         close( s );
-        BOOST_THROW_EXCEPTION( ConnectionRefusedException(
-            "Couldnt connect to:" + getIP() + ":" + to_string( getPort() ), errno,
-            __CLASS_NAME__ ) );
+        throw ConnectionRefusedException(
+            "Couldnt connect to:" + getIP() + ":" + to_string( getPort() ) + ":" + to_string(errno), errno,
+            __CLASS_NAME__, true );
     }
 
     return s;

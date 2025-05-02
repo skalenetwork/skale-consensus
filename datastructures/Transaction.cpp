@@ -37,6 +37,12 @@
 #include "crypto/BLAKE3Hash.h"
 
 
+#ifdef  BITE
+#include "rlp/ParsedEthTransaction.h"
+#include "bite/BiteDataFiled.h"
+#include "rlp/EthTransactionEncoder.h"
+#endif
+
 #include "Transaction.h"
 
 
@@ -80,7 +86,7 @@ Transaction::Transaction( const ptr< vector< uint8_t > >& _trx, bool _includesPa
         CHECK_ARGUMENT( _trx->size() > PARTIAL_HASH_LEN );
 
         std::copy(
-            _trx->begin() + +_trx->size() - PARTIAL_HASH_LEN, _trx->end(), incomingHash.begin() );
+            _trx->begin() + _trx->size() - PARTIAL_HASH_LEN, _trx->end(), incomingHash.begin() );
 
 
         _trx->resize( _trx->size() - PARTIAL_HASH_LEN );
@@ -167,4 +173,35 @@ ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::rando
 
 
     return Transaction::deserialize( sample, 0, sample->size(), false );
+}
+
+#ifdef BITE
+
+void Transaction::parseAndValidate() {
+    // thread safe
+    auto pt = std::atomic_load(&parsedAndValidatedEthTransaction );
+    if (pt)
+        return;
+    pt = ParsedEthTransaction::parse( *data);
+    CHECK_STATE(pt)
+    std::atomic_store(&parsedAndValidatedEthTransaction, pt );
+}
+
+
+ptr< BiteDataField > Transaction::parseAndValidateBiteDataField() {
+    parseAndValidate();
+    auto pt = std::atomic_load(&parsedAndValidatedEthTransaction )->getTransactionDataField();
+
+    return BiteDataField::createIfMagicMatches(pt);
+
+}
+ptr< vector< uint8_t > > Transaction::emplaceAndReencodeTransaction(
+    vector< uint8_t >& _originalDataField ) {
+
+    // thread safe
+    auto pt = std::atomic_load(&parsedAndValidatedEthTransaction );
+    CHECK_STATE(pt);
+    pt->setTransactionDataField(_originalDataField);
+    return EthTransactionEncoder::rlpEncodeWithoutSig(*pt);
 };
+#endif

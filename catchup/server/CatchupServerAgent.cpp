@@ -38,6 +38,9 @@
 
 #include "db/BlockDB.h"
 #include "db/DAProofDB.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
@@ -136,7 +139,7 @@ void CatchupServerAgent::processNextAvailableConnection(
         } catch ( ... ) {
         }
         throw_with_nested( CouldNotSendMessageException(
-                "Could not create catchup response header", __CLASS_NAME__ ) );
+                "Could not create response header", __CLASS_NAME__ ) );
     }
 
 
@@ -214,6 +217,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createResponseHeaderAndBinary(
 
             serializedBinary = createBlockFinalizeResponse( _jsonRequest,
                                                             dynamic_pointer_cast< BlockFinalizeResponseHeader >( _responseHeader ), blockID );
+
         }
 
 
@@ -221,7 +225,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createResponseHeaderAndBinary(
     } catch ( ExitRequestedException& e ) {
         throw;
     } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+        throw_with_nested( InvalidStateException( __PRETTY_FUNCTION__ , __CLASS_NAME__ ) );
     }
 }
 
@@ -291,7 +295,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockCatchupResponse(
 }
 
 
-ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
+ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         nlohmann::json _jsonRequest, const ptr< BlockFinalizeResponseHeader >& _responseHeader,
         block_id _blockID ) {
     CHECK_ARGUMENT( _responseHeader );
@@ -331,7 +335,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
 
         // did not find the proposal or we do not have da proof from it
         // try committed block
-        if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal ) ) {
+        if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal )) {
             // Could not find proposal with DA proof. Try committed block
 
             auto committedBlock = getSchain()->getBlock( _blockID );
@@ -363,13 +367,35 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
         CHECK_STATE( !daSig.empty() );
 
 
+#ifdef BITE
+        auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares( proposal->getBlockID(),
+            proposal->getProposerIndex());
+        if (!myDecryptionShares) {
+            _responseHeader->setStatusSubStatus(
+                CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES );
+            _responseHeader->setComplete();
+            return nullptr;
+        }
+#endif
+
+
         auto fragment =
-                proposal->getFragment( ( uint64_t ) getSchain()->getNodeCount() - 1, fragmentIndex );
+                proposal->getFragment( ( uint64_t ) getSchain()->getNodeCount() - 1, fragmentIndex
+#ifdef BITE
+                , getSchain()->getSchainIndex()
+#endif
+                );
 
 
         CHECK_STATE( fragment );
 
+#ifdef BITE
+        fragment->setDecryptionShares(myDecryptionShares);
+#endif
+
+
         _responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );
+
 
         auto serializedFragment = fragment->serialize();
 
@@ -382,6 +408,6 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
     } catch ( ExitRequestedException& e ) {
         throw;
     } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+        throw_with_nested( InvalidStateException(__PRETTY_FUNCTION__, __CLASS_NAME__ ) );
     }
 }

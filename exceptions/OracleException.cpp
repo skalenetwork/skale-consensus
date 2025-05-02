@@ -22,6 +22,7 @@
 */
 
 
+#ifndef MIRAGE
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "OracleException.h"
@@ -35,3 +36,4 @@ OracleException::OracleException(
       int64_t OracleException::getError() const {
     return error;
 }
+#endif

@@ -25,6 +25,11 @@
 #include <chrono>
 #include "leveldb/db.h"
 
+
+#ifdef BITE
+#include "bite/server/BiteBlockFinalizeServer.h"
+#endif
+
 #include "SkaleCommon.h"
 #include "Log.h"
 
@@ -61,6 +66,9 @@
 #include "db/ProposalHashDB.h"
 #include "db/ProposalVectorDB.h"
 #include "db/RandomDB.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
 #include "db/SigDB.h"
 #include "messages/Message.h"
 #include "messages/NetworkMessageEnvelope.h"
@@ -174,6 +182,9 @@ void Node::initLevelDBs() {
     string daProofDBPrefix = "/da_proofs_" + to_string( nodeID ) + ".db";
     string blockProposalDBPrefix = "/block_proposals_" + to_string( nodeID ) + ".db";
     string internalInfoDBPrefix = "/internal_info_" + to_string( nodeID ) + ".db";
+#ifdef BITE
+    string teDecryptionDBPrefix = "/te_decryptshares_" + to_string( nodeID ) + ".db";
+#endif
 
 
     blockDB =
@@ -208,6 +219,13 @@ void Node::initLevelDBs() {
 
     internalInfoDB = make_shared< InternalInfoDB >(
         getSchain(), dbDir, internalInfoDBPrefix, getNodeID(), getInternalInfoDBSize() );
+
+
+#ifdef BITE
+    teDecryptionDB = make_shared< TEDecryptionDB >(
+        getSchain(), dbDir, teDecryptionDBPrefix, getNodeID(), getTEDecryptionDBSize() );
+#endif
+
 }
 
 void Node::initLogging() {
@@ -274,6 +292,9 @@ void Node::initParamsFromConfig() {
     priceDBSize = storageLimits->getPriceDbSize();
     blockProposalDBSize = storageLimits->getBlockProposalDbSize();
     internalInfoDBSize = storageLimits->getInternalInfoDbSize();
+#ifdef  BITE
+    teDecryptionDBSize = storageLimits->getTEDecryptionDbSize();
+#endif
 
     visualizationType = getParamUint64( "visualizationType", 0 );
 
@@ -320,7 +341,11 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
         // deserialize block. This will verify sigs on it
         // We do not sigs on it now since skaled is trusted
         auto block = CommittedBlock::deserialize(
-            _startingFromSnapshotWithThisAsLastBlock, this->getSchain()->getCryptoManager(), true );
+            _startingFromSnapshotWithThisAsLastBlock, this->getSchain()->getCryptoManager(),
+#ifdef BITE
+            this->getSchain()->getBiteManager(),
+#endif
+            true );
         // now save the block into the blocks dd
         getBlockDB()->saveBlock( block );
         // now do a sanitity check, that the block was imported OK
@@ -338,7 +363,7 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
     auto lastCommittedBlockIDInConsensus = getBlockDB()->readLastCommittedBlockID();
     sChain->setLastCommittedBlockId( ( uint64_t ) lastCommittedBlockIDInConsensus );
 
-    LOG( info, "Starting node on" );
+    LOG( info, "Starting node" );
 
     LOG( trace, "Initing sockets" );
 
@@ -358,6 +383,13 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
         LOG( trace, " Starting consensus messaging" );
 
         network->startThreads();
+
+#ifdef BITE
+        biteBlockFinalizeServer = make_shared< BiteBlockFinalizeServer >(*sChain);
+        LOG( trace, " Starting bite server" );
+        biteBlockFinalizeServer->startProxygenServer();
+#endif
+
     }
 
     LOG( trace, "Starting schain" );
@@ -459,12 +491,22 @@ void Node::initSchain( const ptr< Node >& _node, schain_index _schainIndex, scha
 
         _node->setSchain( chain );
 
+#ifdef BITE
+        nodeCount = chain->getNodeCount();
+        schainId = _schainId;
+        CHECK_STATE(nodeCount > 0);
+#endif
+
+
         if ( _node->isSyncOnlyNode() ) {
             return;
         }
 
         chain->createBlockConsensusInstance();
+#ifndef MIRAGE
         chain->createOracleInstance();
+#endif
+
 
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
@@ -644,6 +686,13 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         sockets->getConsensusZMQSockets()->closeAndCleanupAll();
         LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
     }
+
+#ifdef BITE
+    if ( biteBlockFinalizeServer ) {
+        biteBlockFinalizeServer->exitProxygenServer();
+        LOG( info, "consensus engine exiting: exitProxygenServer called" );
+    }
+#endif
 }
 
 /*

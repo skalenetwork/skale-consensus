@@ -25,11 +25,11 @@
 
 #pragma once
 
+
 #include "Agent.h"
-#include "BlockErrorAnalyzer.h"
 #include "boost/lockfree/queue.hpp"
 #include "jsonrpccpp/server/connectors/httpserver.h"
-#include "statusserver/StatusServer.h"
+#include "datastructures/TimeStamp.h"
 
 class ThresholdSignature;
 class CommittedBlockList;
@@ -42,7 +42,7 @@ class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
 class DAProof;
-
+class BlockErrorAnalyzer;
 class BlockProposalClientAgent;
 class BlockProposalPusherThreadPool;
 
@@ -90,6 +90,12 @@ class StatusServer;
 class OracleClient;
 class OracleResultAssemblyAgent;
 
+#ifdef BITE
+class BiteBlockFinalizeServer;
+class BiteManager;
+class DecryptedAESKeyList;
+#endif
+
 class Schain : public Agent {
     queue< ptr< MessageEnvelope > > messageQueue;
 
@@ -103,6 +109,12 @@ class Schain : public Agent {
     ConsensusExtFace* extFace = nullptr;
 
     schain_id schainID = 0;
+
+#ifdef BITE
+    epoch_id epochID = 0;
+    std::thread blockProcessingThread;
+#endif
+
     string schainName;
 
     ptr< jsonrpc::HttpServer > httpserver;
@@ -115,7 +127,8 @@ class Schain : public Agent {
 
     ptr< BlockProposalServerAgent > blockProposalServerAgent;
 
-    ptr< CatchupServerAgent > catchupServerAgent;
+    ptr<  CatchupServerAgent > catchupServerAgent;
+
 
     ptr< MonitoringAgent > monitoringAgent;
 
@@ -133,8 +146,9 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
-
+#ifndef MIRAGE
     ptr< OracleResultAssemblyAgent > oracleResultAssemblyAgent;
+#endif
 
     ptr<OptimizerAgent> optimizerAgent;
 
@@ -142,6 +156,10 @@ class Schain : public Agent {
 
     // not null in regular mode
     ptr< CryptoManager > cryptoManager;
+
+#ifdef BITE
+    ptr< BiteManager > biteManager;
+#endif
 
     weak_ptr< Node > node;
 
@@ -245,9 +263,10 @@ public:
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
 
+#ifndef MIRAGE
     ptr< OracleServerAgent > oracleServer;
-
     ptr< OracleClient > oracleClient;
+#endif
 
     void createBlockConsensusInstance();
 
@@ -283,7 +302,11 @@ public:
     void blockProposalReceiptTimeoutArrived( block_id _blockID );
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig );
+        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+#ifdef BITE
+        , ptr< DecryptedAESKeyList > _aesKeyList, ptr< map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactions
+#endif
+        );
 
 
     [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup(
@@ -312,9 +335,15 @@ public:
 
     schain_id getSchainID();
 
+#ifdef BITE
+    epoch_id getEpochID();
+#endif
+
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
+#ifndef MIRAGE
     ptr< OracleServerAgent > getOracleInstance();
+#endif
 
     ptr< NodeInfo > getThisNodeInfo() const;
 
@@ -347,6 +376,10 @@ public:
 
     ptr< CryptoManager > getCryptoManager() const;
 
+#ifdef BITE
+    ptr< BiteManager > getBiteManager() const;
+#endif
+
     uint64_t getVerifyDaSigsPatchTimeStamp() const;
 
     uint64_t getVerifyBlsSyncPatchTimestampS() const;
@@ -356,6 +389,11 @@ public:
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig );
+
+#ifdef BITE
+    void finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
+        const ptr< ThresholdSignature >& _thresholdSig );
+#endif
 
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 

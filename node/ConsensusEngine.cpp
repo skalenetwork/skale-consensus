@@ -1129,14 +1129,29 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     auto timeStampMs = committedBlock->getTimeStampMs();
     auto stateRoot = committedBlock->getStateRoot();
     auto currentPrice = schain->getPriceForBlockId( ( uint64_t ) committedBlock->getBlockID() - 1 );
-    auto tv = committedBlock->getTransactionList()->createTransactionVector();
+    auto tv = committedBlock->getTransactionList()->createTransactionVector(
+#ifdef BITE
+        committedBlock->getDecryptedTransactionDataFields()
+#endif
 
+        );
     return { tv, timeStampS, timeStampMs, currentPrice, stateRoot };
 }
 
+#ifdef BITE
+uint64_t ConsensusEngine::submitOracleRequest(
+    const string& , string& , string& ) {
+    return 0;
+}
 
+
+uint64_t ConsensusEngine::checkOracleResult( const string& , string& ) {
+    return 0;
+}
+#else
 uint64_t ConsensusEngine::submitOracleRequest(
     const string& _spec, string& _receipt, string& _errorMessage ) {
+    return 0;
     if ( nodes.size() == 0 ) {
         LOG( err, string( "Empty nodes in " ) << __FUNCTION__ );
         return ORACLE_INTERNAL_SERVER_ERROR;
@@ -1205,7 +1220,7 @@ uint64_t ConsensusEngine::checkOracleResult( const string& _receipt, string& _re
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
 }
-
+#endif
 
 ptr< vector< uint8_t > > ConsensusEngine::getSerializedBlock( std::uint64_t _blockNumber ) {
     CHECK_STATE( nodes.size() > 0 );

@@ -40,7 +40,13 @@ StorageLimits::StorageLimits( uint64_t _totalStorageLimitBytes )
     DA_PROOF_DB_SIZE = 10 * unit;
     BLOCK_PROPOSAL_DB_SIZE = 100 * unit;
     INTERNAL_INFO_DB_SIZE = 1 * unit;
+#ifdef BITE
+    // incoming message db is not used anymore
+    INCOMING_MSG_DB_SIZE = 1 * unit;
+    TE_DECRYPTION_DB_SIZE = 8 * unit;
+#else
     INCOMING_MSG_DB_SIZE = 9 * unit;
+#endif
 }
 uint64_t StorageLimits::getStorageUnitBytes() const {
     return storageUnitBytes;
@@ -85,3 +91,9 @@ uint64_t StorageLimits::getBlockProposalDbSize() const {
 uint64_t StorageLimits::getInternalInfoDbSize() const {
     return INTERNAL_INFO_DB_SIZE;
 }
+
+#ifdef BITE
+uint64_t StorageLimits::getTEDecryptionDbSize() const {
+    return TE_DECRYPTION_DB_SIZE;
+}
+#endif

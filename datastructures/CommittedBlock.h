@@ -28,7 +28,11 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
-#include "BlockProposalFragmentList.h"
+#ifdef BITE
+using DecryptedTransactionDataFields = map<uint64_t, shared_ptr<vector<uint8_t>>>;
+class BiteManager;
+#endif
+
 
 #include "BlockProposal.h"
 
@@ -36,31 +40,58 @@ class Schain;
 class BlockProposalHeader;
 class ThresholdSignature;
 class CommittedBlockHeader;
+class DecryptedAESKeyList;
 
 class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
+
+
     string thresholdSig;
     string daSig;
+#ifdef BITE
+    ptr<DecryptedAESKeyList> decryptedAesKeyList = nullptr;
+    ptr< map<uint64_t, shared_ptr<vector<uint8_t>>>> decryptedTransactionDataFields = nullptr;
 
-    ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;  // tsafe
+
+#endif
+
+public:
+    [[nodiscard]] ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> getDecryptedTransactionDataFields() const;
+
+private:
+    ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;
+public:
+    void setCachedSerializedBlock( const ptr< vector< uint8_t > >& cachedSerializedBlock );
+
+private:
+    // tsafe
 
     bool isLegacy();
 
 
-    static ptr< CommittedBlockHeader > parseBlockHeader( const string& _header );
+
 
     ptr< BasicHeader > createBlockHeader();
 
-public:
-    CommittedBlock( uint64_t timeStamp, uint32_t timeStampMs );
 
+
+
+protected:
 
     CommittedBlock( const schain_id& _schainId, const node_id& _proposerNodeId,
         const block_id& _blockId, const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& _stateRoot, uint64_t _timeStamp,
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
-        const string& _daSig );
+        const string& _daSig
+#ifdef  BITE
+, ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactionDataFields
+#endif
+        );
+
+public:
+
+    static ptr< CommittedBlockHeader > parseBlockHeader( const string_view& _header );
 
     [[nodiscard]] string getThresholdSig() const;
 
@@ -68,16 +99,28 @@ public:
 
 
     static ptr< CommittedBlock > makeFromProposal( const ptr< BlockProposal >& _proposal,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig );
+        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+#ifdef  BITE
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactions
+#endif
+        );
 
     static ptr< CommittedBlock > make( schain_id _sChainId, node_id _proposerNodeId,
         block_id _blockId, schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
-        const string& _signature, const string& _thresholdSig, const string& _daSig );
+        const string& _signature, const string& _thresholdSig, const string& _daSig
+#ifdef  BITE
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactrions
+#endif
+        );
 
 
     static ptr< CommittedBlock > deserialize( const ptr< vector< uint8_t > >& _serializedBlock,
-        const ptr< CryptoManager >& _manager, bool _verifySig );
+        const ptr< CryptoManager >& _manager,
+#ifdef BITE
+                                                const ptr<BiteManager> &_biteManager,
+#endif
+        bool _verifySig );
 
 
     static ptr< CommittedBlock > createRandomSample( const ptr< CryptoManager >& _manager,

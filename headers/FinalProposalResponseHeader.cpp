@@ -56,6 +56,7 @@ FinalProposalResponseHeader::FinalProposalResponseHeader(
     : Header( SIG_SHARE_RSP ) {
     CHECK_ARGUMENT( _status != CONNECTION_SUCCESS )
     this->setStatusSubStatus( _status, _substatus );
+    complete = true; // bug fix - this was not set
 }
 const string& FinalProposalResponseHeader::getSignature() const {
     return signature;

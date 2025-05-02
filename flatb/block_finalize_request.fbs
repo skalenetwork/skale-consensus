@@ -1,0 +1,16 @@
+namespace skale_fb;
+
+table BlockFinalizeRequest {
+  schain_id: uint64;
+  epoch_id: uint64;
+  block_id: uint64;
+  node_id: uint64;
+  proposer_index: uint64;
+  need_da_proof_sig: bool;
+  need_decryption_shares: bool;
+  need_fragment: bool;
+  fragment_index: uint64;
+}
+
+
+root_type BlockFinalizeRequest;

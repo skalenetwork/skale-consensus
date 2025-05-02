@@ -37,6 +37,9 @@
 #include "exceptions/FatalError.h"
 #include "exceptions/InvalidArgumentException.h"
 #include "exceptions/ParsingException.h"
+#ifdef BITE
+#include "bite/BiteBlockProposalSerializer.h"
+#endif
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/CryptoManager.h"
 #include "network/Buffer.h"
@@ -122,7 +125,11 @@ BlockProposal::BlockProposal( schain_id _sChainId, node_id _proposerNodeId, bloc
     }
 
 
+#ifdef BITE
+    CHECK_STATE( timeStamp > MODERN_TIME || _proposerIndex == 0 )
+#else
     CHECK_STATE( timeStamp > MODERN_TIME );
+#endif
 
     transactionCount = transactionList->getItems()->size();
     calculateHash();
@@ -247,6 +254,11 @@ ptr< vector< uint8_t > > BlockProposal::serializeProposal() {
 
 ptr< vector< uint8_t > > BlockProposal::serializeTransactionsAndCompleteSerialization(
     ptr< BasicHeader > _blockHeader ) {
+
+#ifdef BITE
+    return BiteBlockProposalSerializer::serializeTransactionsAndCompleteSerialization(_blockHeader, transactionList);
+#endif
+
     CHECK_STATE( _blockHeader )
     auto block = make_shared< vector< uint8_t > >();
 
@@ -289,6 +301,11 @@ ptr< vector< uint8_t > > BlockProposal::serializeTransactionsAndCompleteSerializ
 ptr< BlockProposal > BlockProposal::deserialize(
     const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager,
     bool _verifySig ) {
+#ifdef BITE
+    // override static method
+    return BiteBlockProposalSerializer::deserialize(_serializedProposal, _manager, _verifySig);
+#endif
+
     CHECK_ARGUMENT( _serializedProposal );
     CHECK_ARGUMENT( _manager );
 
@@ -317,7 +334,7 @@ ptr< BlockProposal > BlockProposal::deserialize(
     CHECK_STATE( !sig.empty() );
 
     auto proposal =
-        make_shared< BlockProposal >( blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
+        BlockProposal::make( blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
             blockHeader->getBlockID(), blockHeader->getProposerIndex(), list,
             blockHeader->getStateRoot(), blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
             blockHeader->getSignature(), nullptr );
@@ -356,7 +373,11 @@ ptr< BlockProposal > BlockProposal::defragment(
 }
 
 ptr< BlockProposalFragment > BlockProposal::getFragment(
-    uint64_t _totalFragments, fragment_index _index ) {
+    uint64_t _totalFragments, fragment_index _index
+#ifdef BITE
+    , schain_index _decryptorIndex
+#endif
+) {
     CHECK_ARGUMENT( _totalFragments > 0 );
     CHECK_ARGUMENT( _index <= _totalFragments );
     LOCK( m )
@@ -369,6 +390,7 @@ ptr< BlockProposalFragment > BlockProposal::getFragment(
 
     uint64_t fragmentStandardSize;
 
+    // this function is ceiling division of blockSize / _totalFragments
     if ( blockSize % _totalFragments == 0 ) {
         fragmentStandardSize = sp->size() / _totalFragments;
     } else {
@@ -381,19 +403,29 @@ ptr< BlockProposalFragment > BlockProposal::getFragment(
 
     fragmentData->reserve( fragmentStandardSize + 2 );
 
-    fragmentData->push_back( '<' );
+#ifdef BITE
+    if ( _index == _totalFragments ) {
+        fragmentData->insert( fragmentData->begin(), sp->begin() + startIndex, sp->end() );
+    } else {
+        fragmentData->insert( fragmentData->begin(), sp->begin() + startIndex,
+            sp->begin() + startIndex + fragmentStandardSize );
+    }
 
+    return make_shared< BlockProposalFragment >(
+        getBlockID(), getProposerIndex(), _decryptorIndex,
+        _totalFragments, _index, fragmentData, nullptr, sp->size(), getHash().toHex() );
+#else
+    fragmentData->push_back( '<' );
     if ( _index == _totalFragments ) {
         fragmentData->insert( fragmentData->begin() + 1, sp->begin() + startIndex, sp->end() );
     } else {
         fragmentData->insert( fragmentData->begin() + 1, sp->begin() + startIndex,
             sp->begin() + startIndex + fragmentStandardSize );
     }
-
     fragmentData->push_back( '>' );
-
     return make_shared< BlockProposalFragment >(
         getBlockID(), _totalFragments, _index, fragmentData, sp->size(), getHash().toHex() );
+#endif
 }
 
 ptr< TransactionList > BlockProposal::deserializeTransactions(
@@ -459,13 +491,13 @@ string BlockProposal::extractHeader( const ptr< vector< uint8_t > >& _serialized
 }
 
 
-ptr< BlockProposalHeader > BlockProposal::parseBlockHeader( const string& _header ) {
-    CHECK_ARGUMENT( _header != "" );
+ptr< BlockProposalHeader > BlockProposal::parseBlockHeader( const string_view& _header ) {
+    CHECK_ARGUMENT( !_header.empty() );
     CHECK_ARGUMENT( _header.size() > 2 );
-    CHECK_ARGUMENT2( _header.at( 0 ) == '{', "Block header does not start with {" );
-    CHECK_ARGUMENT2( _header.at( _header.size() - 1 ) == '}', "Block header does not end with }" );
+    CHECK_ARGUMENT2( _header.front() == '{', "Block header does not start with {" );
+    CHECK_ARGUMENT2( _header.back() == '}', "Block header does not end with }" );
 
-    auto js = nlohmann::json::parse( _header );
+    auto js = nlohmann::json::parse( _header.data(), _header.data() + _header.size() );
 
     return make_shared< BlockProposalHeader >( js );
 }
@@ -488,4 +520,17 @@ atomic< int64_t > BlockProposal::totalBlockProposalObjects( 0 );
 
 uint64_t BlockProposal::getTotalObjects() {
     return totalBlockProposalObjects;
+}
+
+ptr< BlockProposal > BlockProposal::make( schain_id _sChainId, node_id _proposerNodeId,
+    block_id _blockID, schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
+    u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
+    const ptr< CryptoManager >& _cryptoManager ) {
+    return ptr< BlockProposal >(
+        new BlockProposal( _sChainId, _proposerNodeId, _blockID, _proposerIndex, _transactions,
+            _stateRoot, _timeStamp, _timeStampMs, _signature, _cryptoManager ) );
+}
+void BlockProposal::setCachedSerializedProposal(
+    const ptr< vector< uint8_t > >& _cachedSerializedProposal ) {
+    cachedSerializedProposal = _cachedSerializedProposal;
 }
