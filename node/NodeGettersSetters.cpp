@@ -287,11 +287,9 @@ uint64_t Node::getEmptyBlockIntervalAfterCatchupMs() const {
     return emptyBlockIntervalAfterCatchupMs;
 }
 
-
 uint64_t Node::getMaxCatchupDownloadBytes() const {
     return maxCatchupDownloadBytes;
 }
-
 
 uint64_t Node::getMaxTransactionsPerBlock() const {
     return maxTransactionsPerBlock;
@@ -300,6 +298,12 @@ uint64_t Node::getMaxTransactionsPerBlock() const {
 uint64_t Node::getMinBlockIntervalMs() const {
     return minBlockIntervalMs;
 }
+
+#ifdef MIRAGE
+uint64_t Node::getConstantGasPrice() const {
+    return constantGasPrice;
+}
+#endif
 
 uint64_t Node::getBlockDBSize() const {
     return blockDBSize;

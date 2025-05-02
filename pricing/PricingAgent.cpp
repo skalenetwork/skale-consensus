@@ -65,11 +65,14 @@ PricingAgent::PricingAgent( Schain& _sChain ) : Agent( _sChain, false ) {
 
     } else if ( strategy == "ZERO" ) {
         pricingStrategy = make_shared< ZeroPricingStrategy >();
-    } else if ( strategy == "CONSTANT" ) {
-        uint64_t defaultPrice = sChain->getNode()->getParamUint64( "CONSTANT_PRICING_DEFAULT_PRICE",
-                                                                   CONSTANT_PRICING_DEFAULT_PRICE );
+    }
+#ifdef MIRAGE
+    else if ( strategy == "CONSTANT" ) {
+        uint64_t defaultPrice = sChain->getNode()->getConstantGasPrice();
         pricingStrategy = make_shared< ConstantPricingStrategy >( defaultPrice );
-    } else {
+    }
+#endif
+    else {
         BOOST_THROW_EXCEPTION(
             ParsingException( "Unknown pricing strategy: " + strategy, __CLASS_NAME__ ) );
     }

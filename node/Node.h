@@ -223,7 +223,11 @@ class Node {
     uint64_t readJsonHeaderTimeoutSec = 0;
 
     uint64_t syncNodeReadJsonHeaderTimeoutSec = 0;
-    ;
+
+#ifdef MIRAGE
+    uint64_t constantGasPrice = 0;
+#endif
+
     uint64_t proposalHashDBSize = 0;
     uint64_t proposalVectorDBSize = 0;
     uint64_t outgoingMsgDBSize = 0;
@@ -449,6 +453,10 @@ public:
 
     uint64_t getWaitAfterNetworkErrorMs();
 
+#ifdef MIRAGE
+    uint64_t getConstantGasPrice() const;
+#endif
+
     uint64_t getParamUint64( const string& _paramName, uint64_t paramDefault );
 
     int64_t getParamInt64( const string& _paramName, uint64_t _paramDefault );
@@ -464,6 +472,12 @@ public:
     void setEmptyBlockIntervalAfterCatchupMs( uint64_t _interval ) {
         this->emptyBlockIntervalAfterCatchupMs = _interval;
     }
+
+#ifdef MIRAGE
+    void setConstantGasPrice( uint64_t _price ) {
+        constantGasPrice = _price;
+    }
+#endif
 
     void testNodeInfos();
 
