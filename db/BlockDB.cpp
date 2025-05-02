@@ -183,7 +183,11 @@ ptr< CommittedBlock > BlockDB::getBlock(
 
         // dont check signatures on blocks that are already in internal db
         // they have already been verified
-        auto result = CommittedBlock::deserialize( serializedBlock, _cryptoManager, false );
+        auto result = CommittedBlock::deserialize( serializedBlock, _cryptoManager,
+#ifdef BITE
+       sChain->getBiteManager(),
+#endif
+        false );
         CHECK_STATE( result )
         return result;
     }

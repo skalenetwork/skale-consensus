@@ -56,7 +56,11 @@ class TestConfig;
 class BlockSigShareDB;
 class DASigShareDB;
 class DAProofDB;
+#ifdef BITE
+    class TEDecryptionDB;
+#endif
 class InternalInfoDB;
+class BiteBlockFinalizeServer;
 
 namespace leveldb {
 class DB;
@@ -115,6 +119,11 @@ class Node {
 
     ptr< Network > network = nullptr;
 
+
+#ifdef BITE
+    ptr <BiteBlockFinalizeServer>  biteBlockFinalizeServer = nullptr;
+#endif
+
     ptr< Schain > sChain = nullptr;
 
     ptr< TestConfig > testConfig = nullptr;
@@ -171,6 +180,10 @@ class Node {
 
     ptr< DASigShareDB > daSigShareDB;
 
+#ifdef BITE
+    ptr <TEDecryptionDB> teDecryptionDB;
+#endif
+
     ptr< DAProofDB > daProofDB;
 
     ptr< BlockProposalDB > blockProposalDB;
@@ -223,7 +236,11 @@ class Node {
     uint64_t priceDBSize = 0;
     uint64_t blockProposalDBSize = 0;
     uint64_t internalInfoDBSize = 0;
+#ifdef BITE
+    uint64_t teDecryptionDBSize = 0;
+#endif
     uint64_t visualizationType = 0;
+
 
     string gethURL = "";
     bool testNet = false;
@@ -243,6 +260,13 @@ class Node {
     void closeAllSocketsAndNotifyAllAgentsAndThreads();
 
     atomic< bool > exitOnBlockBoundaryRequested = false;
+
+#ifdef BITE
+    //provide a fast way to get schainId and node_count from
+    // anywhere in the count since they never change during the execution
+    static node_count nodeCount;
+    static schain_id schainId;
+#endif
 
 public:
     void checkForExitOnBlockBoundaryAndExitIfNeeded();
@@ -299,6 +323,10 @@ public:
 
     ptr< DASigShareDB > getDaSigShareDB() const;
 
+#ifdef BITE
+    ptr< TEDecryptionDB > getTEDecryptionDB() const;
+#endif
+
     ptr< DAProofDB > getDaProofDB() const;
 
     ptr< BlockProposalDB > getBlockProposalDB() const;
@@ -319,6 +347,11 @@ public:
     uint64_t getBlockProposalDBSize() const;
     uint64_t getInternalInfoDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
+#ifdef BITE
+    uint64_t getTEDecryptionDBSize() const;
+    static node_count getNodeCount();
+    static schain_id getSchainId();
+#endif
 
     map< string, uint64_t > getDBUsage() const;
 

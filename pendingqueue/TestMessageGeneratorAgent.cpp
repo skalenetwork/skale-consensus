@@ -30,8 +30,13 @@
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
 #include "datastructures/Transaction.h"
+#ifndef MIRAGE
 #include "oracle/OracleClient.h"
 #include "oracle/OracleRequestSpec.h"
+#endif
+#ifdef BITE
+#include "rlp/EthTransactionEncoder.h"
+#endif
 #include "utils/Time.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
 
@@ -78,6 +83,8 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     static atomic< uint64_t > iterations = 0;
     // send oracle test once from schain index 1
 
+
+#ifndef MIRAGE
     if ( getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
         if ( iterations.fetch_add( 1 ) == 2 ) {
             LOG( info, "Sending Oracle test eth_call " );
@@ -86,10 +93,12 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
         }
     }
 
+#endif
     return result;
 };
 
 
+#ifndef MIRAGE
 void TestMessageGeneratorAgent::sendTestRequestGet() {
     string uri = "https://worldtimeapi.org/api/timezone/Europe/Kiev";
     vector< string > jsps{ "/unixtime", "/day_of_year", "/xxx" };
@@ -148,3 +157,30 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
+
+#endif
+
+#ifdef BITE
+
+ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactionsBITE(
+    size_t _limit ) {
+    ConsensusExtFace::transactions_vector result;
+
+    auto test = sChain->getBlockProposerTest();
+
+    CHECK_STATE( !test.empty() );
+
+    if ( test == SchainTest::NONE )
+        return result;
+
+    for ( uint64_t i = 0; i < _limit; i++ ) {
+        // 1/4 chance of being bite encoded
+        // make half of tg
+        // make one quarter unencrypted
+        auto tx = EthTransactionEncoder::generateSampleTx( i % 4 != 0, sChain->getBiteManager()  );
+        result.emplace_back( *tx );
+    }
+
+    return result;
+};
+#endif

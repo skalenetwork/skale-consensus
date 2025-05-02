@@ -42,7 +42,6 @@
 #include "headers/CatchupResponseHeader.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"
-#include "network/Network.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "sys/random.h"
 #include "utils/Time.h"
@@ -264,7 +263,11 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks( ptr< ClientSock
         // During node rotation, some block sigs may not verify durign catchup
         // in such a case we return a partial block list, up to the first non-verifying block
         blockList = CommittedBlockList::deserialize(
-            getSchain()->getCryptoManager(), blockSizes, serializedBlocks, 0, true );
+            getSchain()->getCryptoManager(),
+#ifdef BITE
+       getSchain()->getBiteManager(),
+#endif
+            blockSizes, serializedBlocks, 0, true );
         CHECK_STATE( blockList )
 
 
@@ -335,7 +338,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
             } catch ( ExitRequestedException& ) {
                 return;
             } catch ( ConnectionRefusedException& e ) {
-                _agent->logConnectionRefused( e, destinationSchainIndex );
+                _agent->logConnectionRefused(e, destinationSchainIndex, __PRETTY_FUNCTION__);
             } catch ( exception& e ) {
                 SkaleException::logNested( e );
             }

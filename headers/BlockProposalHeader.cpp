@@ -95,8 +95,11 @@ void BlockProposalHeader::addFields( nlohmann::json& j ) {
 
     j["sr"] = stateRoot.str();
 
-
+#ifdef BITE
+    CHECK_STATE( timeStamp > 0 || proposerIndex == 0)
+#else
     CHECK_STATE( timeStamp > 0 )
+#endif
 }
 
 BlockProposalHeader::BlockProposalHeader( nlohmann::json& _json ) : BasicHeader( Header::BLOCK ) {

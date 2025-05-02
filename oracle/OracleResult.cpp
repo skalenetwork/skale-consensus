@@ -13,7 +13,6 @@
 #include "crypto/CryptoManager.h"
 #include "exceptions/OracleException.h"
 #include "network/Utils.h"
-#include "rlp/RLP.h"
 
 
 void OracleResult::parseResultAsJson() {

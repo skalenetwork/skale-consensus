@@ -45,9 +45,6 @@ protected:
 
     Schain* sChain = nullptr;
 
-    map< schain_index, uint64_t > lastConnectionRefusedLogTime;  // tsafe
-    recursive_mutex lastConnectionRefusedLogTimeLock;
-
 public:
     Agent( Schain& _sChain, bool isServer, bool _dontRegister = false );
 
@@ -65,5 +62,5 @@ public:
 
     void waitOnGlobalStartBarrier();
 
-    void logConnectionRefused( ConnectionRefusedException& _e, schain_index _index );
+    void logConnectionRefused( ConnectionRefusedException& _e, schain_index _index, const char* _function );
 };

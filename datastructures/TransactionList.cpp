@@ -143,7 +143,11 @@ size_t TransactionList::size() {
 }
 
 
-ptr< ConsensusExtFace::transactions_vector > TransactionList::createTransactionVector() {
+ptr< ConsensusExtFace::transactions_vector > TransactionList::createTransactionVector(
+#ifdef BITE
+ptr<map<uint64_t, shared_ptr<vector<uint8_t> > > >
+#endif
+) {
     LOCK( m )
 
     auto tv = make_shared< ConsensusExtFace::transactions_vector >();

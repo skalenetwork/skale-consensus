@@ -15,7 +15,6 @@
 #include "network/Utils.h"
 
 #include "OracleRequestSpec.h"
-#include "rlp/RLP.h"
 #include "utils/Time.h"
 
 

@@ -190,7 +190,7 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
                         agent->sendItem( proposal, destinationSchainIndex );
                         sent = true;
                     } catch ( ConnectionRefusedException& e ) {
-                        agent->logConnectionRefused( e, destinationSchainIndex );
+                        agent->logConnectionRefused( e, destinationSchainIndex, __PRETTY_FUNCTION__ );
 
                         if ( agent->getNode()->isExitRequested() )
                             return;

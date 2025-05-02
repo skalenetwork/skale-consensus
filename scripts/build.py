@@ -49,6 +49,8 @@
 import sys
 import os
 import subprocess
+import argparse
+
 
 
 def run(_command):
@@ -56,22 +58,37 @@ def run(_command):
     subprocess.check_call(_command, shell = True)
 
 
-os.chdir("..")
-print("Starting build")
-buildType = sys.argv[1];
-print("BUILD_TYPE=" + buildType)
-run ("ccache -M 20G")
-run("mkdir -p build")
-os.chdir("build")
-run("cmake .. -DCMAKE_BUILD_TYPE=" +  buildType +
-                        " -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0")
-run("make -j$(nproc)")
-os.chdir("..")
+def main():
+    parser = argparse.ArgumentParser(description="Example script for argument parsing")
+    parser.add_argument("buildType", type=str, help="Build type (release, debug)")
+    parser.add_argument("-buildPl", action = "store_true", help="Build PL")
+    args = parser.parse_args()
 
-assert  os.path.isfile("build/consensust")
-assert  os.path.isfile("build/consensusd")
+    os.chdir("..")
+    print("Starting build")
+    buildType = args.buildType
+    print(f"BUILD_TYPE={buildType}")
+    buildPL = args.buildPl
+    print(f"buildPl={buildPL}")
 
-print("Build successfull.")
+    run("ccache -M 20G")
+    run("mkdir -p build")
+    os.chdir("build")
+
+    command : str = f"cmake .. -DCMAKE_BUILD_TYPE={buildType} -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0"
+    if buildPL:
+        command += " -DPL=1"
+
+    run(command)
+    run("make -j$(nproc)")
+    os.chdir("..")
+    assert os.path.isfile("build/consensust")
+    assert os.path.isfile("build/consensusd")
+    print("Build successfull.")
+
+
+if __name__ == "__main__":
+    main()
 
 
 

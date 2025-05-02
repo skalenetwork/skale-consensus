@@ -79,6 +79,10 @@
 #include "headers/SubmitDAProofResponseHeader.h"
 
 
+#ifdef BITE
+#include "bite/BiteManager.h"
+#endif
+
 #include "BlockProposalServerAgent.h"
 #include "BlockProposalWorkerThreadPool.h"
 #include "crypto/ConsensusBLSSigShare.h"
@@ -418,10 +422,31 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processP
             goto err;
         }
 
+#ifdef BITE
+        try {
+            auto invalidTransactions =    getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( proposal );
+            if (!invalidTransactions.empty()) {
+                // return the first failed transaction error
+                finalResponseHeader =
+                    make_shared< FinalProposalResponseHeader >( CONNECTION_ERROR, invalidTransactions.begin()->second );
+                goto err;
+            }
+        } catch ( ... ) {
+            finalResponseHeader = make_shared< FinalProposalResponseHeader >(
+                CONNECTION_ERROR, CONNECTION_ERROR_CANT_PROCESS_PROPOSAL_TRANSACTIONS );
+            goto err;
+        }
+#endif
+
+
         finalResponseHeader = createFinalResponseHeader( proposal );
 
         CHECK_STATE( finalResponseHeader );
         CHECK_STATE( proposal );
+
+#ifdef BITE
+        CHECK_STATE( proposal->getMyDecryptionShares())
+#endif
 
         sChain->proposedBlockArrived( proposal );
 
