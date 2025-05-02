@@ -25,7 +25,9 @@
 #include "Log.h"
 
 #include "DynamicPricingStrategy.h"
+#ifdef MIRAGE
 #include "ConstantPricingStrategy.h"
+#endif
 #include "ZeroPricingStrategy.h"
 #include "chains/Schain.h"
 #include "db/PriceDB.h"
@@ -40,7 +42,7 @@
 #include "PricingAgent.h"
 
 PricingAgent::PricingAgent( Schain& _sChain ) : Agent( _sChain, false ) {
-#ifndef PL
+#ifndef MIRAGE
     string def( "DYNAMIC" );
 #else
     string def( "CONSTANT" );
@@ -80,7 +82,7 @@ u256 PricingAgent::calculatePrice(
     CHECK_STATE( pricingStrategy );
     try {
         if ( _blockID <= 1 ) {
-#ifndef PL
+#ifndef MIRAGE
             price = sChain->getNode()->getParamUint64(
                 string( "DYNAMIC_PRICING_START_PRICE" ), DEFAULT_MIN_PRICE );
 #else
