@@ -43,7 +43,7 @@ const string& PriceDB::getFormatVersion() {
 
 u256 PriceDB::readPrice( block_id _blockID ) {
     if ( _blockID <= 1 ) {
-#ifndef PL
+#ifndef MIRAGE
         return getSchain()->getNode()->getParamUint64(
             string( "DYNAMIC_PRICING_START_PRICE" ), DEFAULT_MIN_PRICE );
 #else

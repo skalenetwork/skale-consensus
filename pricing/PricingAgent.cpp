@@ -86,8 +86,8 @@ u256 PricingAgent::calculatePrice(
     try {
         if ( _blockID <= 1 ) {
 #ifndef MIRAGE
-            price = sChain->getNode()->getParamUint64(
-                string( "DYNAMIC_PRICING_START_PRICE" ), DEFAULT_MIN_PRICE );
+            price = sChain->getNode()->getParamUint64( "DYNAMIC_PRICING_START_PRICE",
+                                                       DEFAULT_MIN_PRICE );
 #else
             price = sChain->getNode()->getParamUint64( "CONSTANT_PRICING_DEFAULT_PRICE",
                                                        CONSTANT_PRICING_DEFAULT_PRICE );
