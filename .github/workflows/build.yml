@@ -183,7 +183,7 @@ jobs:
 
     - name: build consensus PL
       run: |
-        cd scripts && ./build.py Debug -buildPl
+        cd scripts && ./build.py Debug -buildMIRAGE
     - name: run tests
       run: cd scripts && export CI_BUILD=1 && ./tests.py && cd ..
 
