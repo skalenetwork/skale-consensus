@@ -1209,8 +1209,12 @@ void Schain::healthCheck() {
 
     LOG( info, "Waiting to connect to peers (could be up to two minutes)" );
 
+    // If the node is part of the chain, we do getNodeCount() - 1
+    // health check connections, since the node does not connect to itself.
+    // A sync-check node can have a total of getNodeCount() health check connections.
+    auto countOfNodesToCheck = getNode()->isSyncOnlyNode() ? getNodeCount() : (getNodeCount() - 1);
 
-    while ( connections.size() + 1 < getNodeCount() ) {
+    while ( connections.size() < countOfNodesToCheck ) {
         // will optimistically wait for all nodes.
         // if not all nodes are present, will be satisfied by 2/3 nodes
 
