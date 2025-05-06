@@ -6,6 +6,7 @@
 #include <secp256k1_recovery.h>
 
 #include <openssl/sha.h>
+#include <boost/optional.hpp>
 
 #include "SkaleCommon.h"
 #include "Log.h"
@@ -303,55 +304,95 @@ std::vector< uint8_t > EthTransactionEncoder::generateRandomPrivateKey() {
     return priv_key;
 }
 
-
-void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& v_vec,
-    const vector< uint8_t >& r_bytes, const vector< uint8_t >& s_bytes,
-    const vector< uint8_t >& tx_hash)
-{
-   if (r_bytes.size() != 32 || s_bytes.size() != 32 || tx_hash.size() != 32)
-        throw std::invalid_argument("Invalid input sizes");
-
-    // Convert v_vec to uint64_t
-    uint64_t v = 0;
-    for (uint8_t byte : v_vec) {
-        v = (v << 8) | byte;
+u256 EthTransactionEncoder::bytesToU256(const std::vector<uint8_t>& bytes) {
+    if (bytes.size() != 32) {
+        throw std::invalid_argument("Invalid input sizes. Should be 32 bytes. Got " + bytes.size());
     }
 
-    // Extract recovery ID from v (EIP-155)
-    // v = chain_id * 2 + 35 + rec_id  → rec_id = v % 2
-    int rec_id = static_cast<int>((v - 35) % 2);
-    if (rec_id < 0 || rec_id > 3)
-        throw std::invalid_argument("Invalid recovery ID");
+    u256 val = 0;
+    for (size_t i = 0; i < 32; ++i) {
+        val = (val << 8) | bytes[i];
+    }
+    return val;
+}
+
+bool EthTransactionEncoder::isSignatureValid( const u256& r, const u256& s, const u256& v) {
+    static const u256 s_max{ "0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141" };
+    static const u256 s_zero;
+
+    return ( v <= 1 && r > s_zero && s > s_zero && r < s_max && s < s_max );
+
+}
+
+
+void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& vVec,
+    const vector< uint8_t >& rBytes, const vector< uint8_t >& sBytes,
+    const vector< uint8_t >& txHash, const TxType& type)
+{
+    // v should be 1 byte long
+    uint8_t v = 0;
+    for (auto byte : vVec) {
+        v = (v << 8) | byte;
+    }
+    // validate r and s (should be 32 bytes long - i.e. 256-bit)
+    u256 r = bytesToU256(rBytes);
+    u256 s = bytesToU256(sBytes);
+
+    boost::optional< uint64_t > chainId;
+
+    if (type == TxType::LEGACY) {
+        if (!r && !s) {
+            chainId = static_cast<uint64_t>(v);
+            v = 0;
+        }
+        else {
+            if (v > 36) {
+                auto const chain = ( v - 35 ) / 2;
+                if ( chain > std::numeric_limits< uint64_t >::max() )
+                    throw std::invalid_argument( "Invalid signature" );
+            }
+            else if ( v != 27 && v != 28 ) {
+                throw std::invalid_argument( "Invalid signature" );
+            }
+            
+            auto const recoveryId = chainId.has_value() ? 
+                uint8_t{ v - ( u256{ *chainId } * 2 + 35 ) } :
+                uint8_t{ static_cast<uint8_t>(v - 27) };
+            
+            v = recoveryId;
+
+            if (!isSignatureValid(r, s, v)) {
+                throw std::invalid_argument("Invalid signature");
+            }
+        }
+    }
+    else if ( !isSignatureValid( r, s, v ) ) {
+        throw std::invalid_argument( "Invalid signature" );
+    }
+
+    if (v > 3) {
+        throw std::invalid_argument("Invalid signature");
+    }
 
     // Create recoverable signature
     uint8_t sig64[64];
-    std::copy(r_bytes.begin(), r_bytes.end(), sig64);
-    std::copy(s_bytes.begin(), s_bytes.end(), sig64 + 32);
-
-    secp256k1_ecdsa_recoverable_signature signature;
+    std::copy(rBytes.begin(), rBytes.end(), sig64);
+    std::copy(sBytes.begin(), sBytes.end(), sig64 + 32);
 
     // Static secp256k1 context for verification. A single contect for each thread
     // this is because context is not thread safe
     thread_local auto ctx = getSecp256k1VerifyContext();
 
-
-    if (!secp256k1_ecdsa_recoverable_signature_parse_compact(ctx.get(), &signature, sig64, rec_id)) {
+    // Parse raw s, r, v into a signature struct
+    secp256k1_ecdsa_recoverable_signature signature;
+    if (!secp256k1_ecdsa_recoverable_signature_parse_compact(ctx.get(), &signature, sig64, v)) {
         throw std::invalid_argument("Failed to parse recoverable signature");
     }
 
     // Recover public key from signature
     secp256k1_pubkey pubkey;
-    if (!secp256k1_ecdsa_recover(ctx.get(), &pubkey, &signature, tx_hash.data())) {
+    if (!secp256k1_ecdsa_recover(ctx.get(), &pubkey, &signature, txHash.data())) {
         throw std::invalid_argument("Failed to recover public key from signature");
-    }
-
-    // Convert to normal signature and verify
-    secp256k1_ecdsa_signature normal_sig;
-    secp256k1_ecdsa_recoverable_signature_convert(ctx.get(), &normal_sig, &signature);
-
-    int verified = secp256k1_ecdsa_verify(ctx.get(), &normal_sig, tx_hash.data(), &pubkey);
-    if (verified != 1) {
-        throw std::invalid_argument("Signature did not verify");
     }
 }
 
@@ -391,6 +432,8 @@ ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const Transacti
     for ( uint8_t byte : tx.chainId ) {
         chain_id = ( chain_id << 8 ) | byte;
     }
+    // TODO: Only works for legacy transactions -> should be changed to 
+    // set v_value also for type 1 and type 2 txs, which should be in [0,1] 
     uint64_t v_value = chain_id * 2 + 35 + rec_id;
     // convert to vector
     std::vector< uint8_t > v_vec;
@@ -404,7 +447,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const Transacti
 
     auto result = rlpEncode( tx, true, &v_encoded, &r_encoded, &s_encoded );
 
-    verifyEthSignature(v_vec, r_bytes, s_bytes, tx_hash);
+    verifyEthSignature(v_vec, r_bytes, s_bytes, tx_hash, EthTransactionEncoder::TxType::LEGACY);
 
     return make_shared< vector< uint8_t > >( std::move( result ) );
 }

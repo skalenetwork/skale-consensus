@@ -8,6 +8,9 @@ class EthTransactionEncoder {
 
     using uint256 = std::vector< uint8_t >;
 
+    using u256 = boost::multiprecision::number< boost::multiprecision::cpp_int_backend< 256, 256,
+    boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void > >;
+
 
 public:
 
@@ -27,7 +30,7 @@ public:
      * @brief Base transaction fields - common to all transactions.
      * Fields defined in this struct do not follow RLP-encoded order.
      * This order should be enforced in the `encode` implementation for each
-     * type of transaction
+     * type of transaction as well as the constructor of each type's class
      */
     struct Transaction {
         uint256 nonce;
@@ -186,9 +189,14 @@ public:
 
     static void uint64toVec( uint64_t v_value, std::vector< uint8_t >& v_vec );
 
+    /// Validates a signature against the hash of a message structurally.
+    /// It does not validate the signature by checking if such account exists
+    /// using the recovered public key from the signature.
+    /// Meaning, a malicious transaction (with tampered hash, but structurally correct)
+    /// can still pass though this check.
     static void verifyEthSignature( const std::vector< uint8_t >& v_vec,
         const std::vector< uint8_t >& r_bytes, const std::vector< uint8_t >& s_bytes,
-        const std::vector< uint8_t >& tx_hash );
+        const std::vector< uint8_t >& tx_hash, const TxType& type);
 
 
     static std::vector< uint8_t > rlpEncode( const Transaction& tx, bool withSig,
@@ -207,6 +215,13 @@ private:
     inline static auto getSecp256k1VerifyContext();
     inline static auto getSecp256k1SignContext();
     inline static auto getHashContext();
+
+    /// Bytes size must be at least 32
+    /// Assumes bytes are big endian
+    /// MSB on the left (bytes[0]), least significant byte on the right (bytes[31])
+    inline static u256 bytesToU256( const std::vector< uint8_t >& bytes );
+
+    inline static bool isSignatureValid( const u256& r, const u256& s, const u256& v);
 
 
     inline static std::vector< uint8_t > generateRandomPrivateKey();

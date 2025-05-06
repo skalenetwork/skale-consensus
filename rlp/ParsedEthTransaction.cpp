@@ -292,14 +292,14 @@ void ParsedEthTransaction::validateSignature() {
     }
 
     EthTransactionEncoder::Transaction& txWithoutSigRef = *txWithoutSig;
-    EthTransactionEncoder::uint64toVec( BITE_CHAIN_ID, txWithoutSigRef.chainId );
-    std::vector< uint8_t > encoded_tx =
-        EthTransactionEncoder::rlpEncode( txWithoutSigRef, false, nullptr, nullptr, nullptr );
+
+    std::vector< uint8_t > encoded_tx = EthTransactionEncoder::rlpEncode( txWithoutSigRef, false, nullptr, nullptr, nullptr );
     std::vector< uint8_t > tx_hash = EthTransactionEncoder::hashTransaction( encoded_tx );
+
     auto r_padded = padTo32Bytes( r );
     auto s_padded = padTo32Bytes( s );
 
-    EthTransactionEncoder::verifyEthSignature( v, r_padded, s_padded, tx_hash );
+    EthTransactionEncoder::verifyEthSignature( v, r_padded, s_padded, tx_hash, txType);
 }
 
 
