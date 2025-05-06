@@ -48,7 +48,7 @@ public:
 #endif
 
 
-#ifndef BITE
+#ifndef MIRAGE
 
     void sendTestRequestGet();
 

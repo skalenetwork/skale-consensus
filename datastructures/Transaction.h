@@ -33,8 +33,6 @@
 
 #include "datastructures/DataStructure.h"
 
-
-
 class BLAKE3Hash;
 
 
@@ -62,7 +60,8 @@ public:
     uint64_t getSerializedSize( bool _writePartialHash );
 
 
-    [[nodiscard]] ptr< vector< uint8_t > > getData() const;
+    ptr< vector< uint8_t > > getData() const;
+
 
     void serializeInto( const ptr< vector< uint8_t > >& _out, bool _writePartialHash );
 
@@ -71,7 +70,7 @@ public:
 
     ptr< partial_sha_hash > getPartialHash();
 
-    ~Transaction() override;
+    virtual ~Transaction();
 
 
     static ptr< Transaction > deserialize( const ptr< vector< uint8_t > >& _data,

@@ -31,8 +31,6 @@
 #include "utils/Time.h"
 #include "Transaction.h"
 
-
-
 #include "MyBlockProposal.h"
 
 
@@ -42,8 +40,7 @@ MyBlockProposal::MyBlockProposal( Schain& _sChain, const block_id& _blockID,
     const ptr< CryptoManager >& _cryptoManager )
     : BlockProposal( _sChain.getSchainID(), _sChain.getNodeIDByIndex( _proposerIndex ), _blockID,
           _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, "",
-          _cryptoManager )
-{
+          _cryptoManager ) {
     CHECK_STATE( _transactions );
     CHECK_ARGUMENT( _cryptoManager );
     totalObjects++;

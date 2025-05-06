@@ -51,6 +51,10 @@
 #include "thirdparty/zguide/zhelpers.hpp"
 #pragma GCC diagnostic pop
 
+#ifdef BITE
+class AESKeyDecryptionShare;
+#endif
+
 
 #define REQUEST_TIMEOUT 10000  //  msecs, (> 1000!)
 
@@ -126,8 +130,9 @@ public:
         int _n, bool _throwExceptionOnTimeout );
 
 #ifdef BITE
-    string teDecryptShare( int _base, const string& _keyName,
-        const string& _hexEncodedTEEncryptedAES256Key, bool _throwExceptionOnTimeout );
+    ptr<vector<ptr<string>>>decryptAESKeySharesBatch( const string& _keyShareName,
+    std::vector<std::shared_ptr<std::string> > & _aesKeySharesBatch, int _t, int _n,
+    bool _throwExceptionOnTimeout );
 #endif
 
     string ecdsaSignMessageHash( int _base, const string& _keyName, const string& _messageHash,

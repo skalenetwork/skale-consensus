@@ -30,7 +30,7 @@
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
 #include "datastructures/Transaction.h"
-#ifndef BITE
+#ifndef MIRAGE
 #include "oracle/OracleClient.h"
 #include "oracle/OracleRequestSpec.h"
 #endif
@@ -46,15 +46,16 @@ TestMessageGeneratorAgent::TestMessageGeneratorAgent( Schain& _sChain_ )
     CHECK_STATE( _sChain_.getNodeCount() > 0 );
 
     // Initialize a random number generator
-    std::mt19937 rng( std::random_device{}() );
+    std::mt19937 rng(std::random_device{}());
 
     // Define the distribution to generate numbers in the byte range (0 to 255)
-    std::uniform_int_distribution< std::mt19937::result_type > dist( 0, 255 );
+    std::uniform_int_distribution<std::mt19937::result_type> dist(0, 255);
 
     // Fill the array with random bytes
-    for ( auto& byte : randomBytes ) {
-        byte = static_cast< uint8_t >( dist( rng ) );
+    for(auto& byte : randomBytes) {
+        byte = static_cast<uint8_t>(dist(rng));
     }
+
 }
 
 
@@ -73,18 +74,17 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 
     for ( uint64_t i = 0; i < _limit; i++ ) {
         vector< uint8_t > transaction( TEST_MESSAGE_SIZE );
-        std::copy_n( randomBytes.begin() + position, TEST_MESSAGE_SIZE, transaction.begin() );
+        std::copy_n(randomBytes.begin() + position, TEST_MESSAGE_SIZE, transaction.begin());
         result.push_back( transaction );
         counter++;
-        position = ( position + randomBytes.at( position ) ) %
-                   ( RANDOM_TEST_ARRAY_LEN - TEST_MESSAGE_SIZE - 1 );
+        position = (position + randomBytes.at(position)) % (RANDOM_TEST_ARRAY_LEN - TEST_MESSAGE_SIZE - 1);
     }
 
     static atomic< uint64_t > iterations = 0;
     // send oracle test once from schain index 1
 
 
-#ifndef BITE
+#ifndef MIRAGE
     if ( getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
         if ( iterations.fetch_add( 1 ) == 2 ) {
             LOG( info, "Sending Oracle test eth_call " );
@@ -98,7 +98,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
 };
 
 
-#ifndef BITE
+#ifndef MIRAGE
 void TestMessageGeneratorAgent::sendTestRequestGet() {
     string uri = "https://worldtimeapi.org/api/timezone/Europe/Kiev";
     vector< string > jsps{ "/unixtime", "/day_of_year", "/xxx" };

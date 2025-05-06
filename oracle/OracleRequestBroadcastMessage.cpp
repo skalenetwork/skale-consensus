@@ -33,6 +33,8 @@
 #include "messages/NetworkMessage.h"
 
 #include "chains/Schain.h"
+#include "utils/Time.h"
+#include "protocols/ProtocolKey.h"
 #include "OracleClient.h"
 #include "OracleServerAgent.h"
 #include "OracleRequestSpec.h"

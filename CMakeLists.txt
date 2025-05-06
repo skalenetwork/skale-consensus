@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 
 if (BITE)
-    set(BITE "1")  # Replace "some_value" with the desired value
+    set(BITE "1")
+    add_definitions(-DBITE)
+endif ()
+
+if (MIRAGE)
+    set(MIRAGE "1")
+    add_definitions(-DMIRAGE)
+    set(BITE "1")
     add_definitions(-DBITE)
 endif ()
 
@@ -148,7 +155,7 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
-if (NOT DEFINED BITE)
+if (NOT DEFINED MIRAGE)
 AUX_SOURCE_DIRECTORY(oracle oracle_src)
 endif ()
 
@@ -265,7 +272,6 @@ if (DEFINED BITE)
             "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
             "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
             te
-#            "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a"
     )
     if (CMAKE_PROJECT_NAME STREQUAL "consensus")
         SET(LINK_LIBRARIES ${LINK_LIBRARIES} "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a")

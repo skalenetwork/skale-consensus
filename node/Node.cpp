@@ -51,7 +51,6 @@
 #include "ConsensusInterface.h"
 
 #include "blockproposal/server/BlockProposalServerAgent.h"
-
 #include "catchup/server/CatchupServerAgent.h"
 #include "chains/Schain.h"
 #include "datastructures/CommittedBlock.h"
@@ -213,7 +212,6 @@ void Node::initLevelDBs() {
         getSchain(), dbDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize() );
     daSigShareDB = make_shared< DASigShareDB >(
         getSchain(), dbDir, daSigShareDBPrefix, getNodeID(), getDaSigShareDBSize() );
-
     daProofDB = make_shared< DAProofDB >(
         getSchain(), dbDir, daProofDBPrefix, getNodeID(), getDaProofDBSize() );
     blockProposalDB = make_shared< BlockProposalDB >(
@@ -381,7 +379,9 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
 
     if ( !isSyncOnlyNode() ) {
         network = make_shared< ZMQNetwork >( *sChain );
+
         LOG( trace, " Starting consensus messaging" );
+
         network->startThreads();
 
 #ifdef BITE
@@ -502,9 +502,8 @@ void Node::initSchain( const ptr< Node >& _node, schain_index _schainIndex, scha
             return;
         }
 
-
         chain->createBlockConsensusInstance();
-#ifndef BITE
+#ifndef MIRAGE
         chain->createOracleInstance();
 #endif
 
@@ -619,7 +618,6 @@ void Node::exitImmediately() {
     LOG( info, __FUNCTION__ << string( " called" ) );
 
     getSchain()->stopStatusServer();
-
 
     LOG( info, "Status server stopped" );
 

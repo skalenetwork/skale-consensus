@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2018-2019 SKALE Labs
+Copyright (C) SKALE Labs
 
     This file is part of skale-consensus.
 
@@ -15,25 +15,15 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
-
-    @file OracleException.cpp
-    @author Stan Kladko
-    @date 2023
 */
 
+#pragma once
 
-#ifndef MIRAGE
-#include "SkaleCommon.h"
-#include "Log.h"
-#include "OracleException.h"
+#include "sgxclient/SgxZmqMessage.h"
 
-OracleException::OracleException(
-    const std::string& _message, const string& _className, int64_t _error )
-    : SkaleException( _message, _className ),
-      error( _error ){ CHECK_STATE( error != ORACLE_SUCCESS ) }
+class DecryptAESKeyShareBatchReqMessage : public SgxZmqMessage {
+public:
+    DecryptAESKeyShareBatchReqMessage( shared_ptr< rapidjson::Document >& _d ) : SgxZmqMessage( _d ){};
+};
 
 
-      int64_t OracleException::getError() const {
-    return error;
-}
-#endif

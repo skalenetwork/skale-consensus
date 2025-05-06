@@ -34,8 +34,8 @@
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
 #ifdef BITE
-#include "TEDecryptShareReqMessage.h"
-#include "TEDecryptShareRspMessage.h"
+#include "DecryptAESKeyShareBatchReqMessage.h"
+#include "DecryptAESKeyShareBatchRspMessage.h"
 #endif
 #include "SgxZmqClient.h"
 #include "sgxclient/SgxZmqMessage.h"
@@ -61,6 +61,21 @@ string SgxZmqMessage::getStringRapid( const char* _name ) {
     CHECK_STATE( ( *d )[_name].IsString() );
     return ( *d )[_name].GetString();
 };
+
+
+ptr<vector<ptr<string>>> SgxZmqMessage::getStringArrayRapid( const char* _name ) {
+    CHECK_STATE( _name );
+    CHECK_STATE( d->HasMember( _name ) );
+    CHECK_STATE( (*d)[_name].IsArray() );
+
+    auto result = make_shared<vector<ptr<string>>>();
+    const auto& strArray = (*d)[_name];
+    for (rapidjson::SizeType i = 0; i < strArray.Size(); ++i) {
+        CHECK_STATE(strArray[i].IsString());
+        result->push_back(make_shared<string>(strArray[i].GetString()));
+    }
+    return result;
+}
 
 
 shared_ptr< SgxZmqMessage > SgxZmqMessage::parse(
@@ -110,8 +125,8 @@ shared_ptr< SgxZmqMessage > SgxZmqMessage::buildRequest(
         return make_shared< ECDSASignReqMessage >( _d );
     }
 #ifdef BITE
-    else if ( _type == SgxZmqMessage::TE_DECRYPT_SHARE_REQ ) {
-        return make_shared< TEDecryptShareReqMessage >( _d );
+    else if ( _type == SgxZmqMessage::DECRYPT_SHARE_REQ ) {
+        return make_shared< DecryptAESKeyShareBatchReqMessage >( _d );
     }
 #endif
     else {
@@ -127,8 +142,8 @@ shared_ptr< SgxZmqMessage > SgxZmqMessage::buildResponse(
         return make_shared< ECDSASignRspMessage >( _d );
     }
 #ifdef BITE
-    else if ( _type == SgxZmqMessage::TE_DECRYPT_SHARE_RSP ) {
-        return make_shared< TEDecryptShareRspMessage >( _d );
+    else if ( _type == SgxZmqMessage::DECRYPT_SHARE_RSP ) {
+        return make_shared< DecryptAESKeyShareBatchRspMessage >( _d );
     }
 #endif
     else {

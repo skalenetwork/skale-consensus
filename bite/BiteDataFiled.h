@@ -8,7 +8,7 @@ class EncryptedAESKey;
 class BiteDataField {
 
     ptr<EncryptedAESKey> encryptedAESKey;
-    std::shared_ptr<EncryptedData> encryptedKeyPlusData;
+    std::shared_ptr<EncryptedData> encryptedData;
     std::shared_ptr<EncryptedData> keyPlusEncryptedData;
     uint64_t epoch = 0;
     ptr<vector<uint8_t >> serializedData;

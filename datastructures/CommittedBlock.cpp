@@ -204,18 +204,18 @@ ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_se
     }
 
 
-    ptr<TransactionList> list = nullptr;
+    ptr< TransactionList > list = nullptr;
 
     try {
-        list = deserializeTransactions(blockHeader, headerStr, _serializedBlock);
-    } catch (...) {
+        list = deserializeTransactions( blockHeader, headerStr, _serializedBlock );
+    } catch ( ... ) {
         throw_with_nested(
-            InvalidStateException("Could not deserialize transactions", __CLASS_NAME__));
+            InvalidStateException( "Could not deserialize transactions", __CLASS_NAME__ ) );
     }
 
-    CHECK_STATE(list);
+    CHECK_STATE( list );
 
-    ptr<CommittedBlock> block = nullptr;
+    ptr< CommittedBlock > block = nullptr;
 
     try {
         block = CommittedBlock::make(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
@@ -232,31 +232,30 @@ ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_se
         throw_with_nested(InvalidStateException("Could not make block", __CLASS_NAME__));
     }
 
-    CHECK_STATE(block);
+    CHECK_STATE( block );
 
-    if (!_verifySig) {
+    if ( !_verifySig ) {
         return block;
     }
 
     // now verify block proposer signature and block signature
     // default blocks are not ecdsa signed
-    if ((blockHeader->getProposerIndex() != 0)) {
+    if ( ( blockHeader->getProposerIndex() != 0 ) ) {
         try {
             _manager->verifyProposalECDSA(
-                block, blockHeader->getBlockHash(), blockHeader->getSignature());
-        } catch (...) {
-            LOG(err, "Block ECDSA signature did not verify in deserialization");
-            throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
+                block, blockHeader->getBlockHash(), blockHeader->getSignature() );
+        } catch ( ... ) {
+            LOG( err, "Block ECDSA signature did not verify in deserialization" );
+            throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
         }
     }
 
     try {
-        block->verifyBlockSig(_manager);
-    } catch (...) {
-        throw_with_nested(InvalidStateException(__FUNCTION__,
-                                                __CLASS_NAME__ +
-                                                string(
-                                                    " Block threshold signature did not verify in deserialization")));
+        block->verifyBlockSig( _manager );
+    } catch ( ... ) {
+        throw_with_nested( InvalidStateException( __FUNCTION__,
+            __CLASS_NAME__ +
+                string( " Block threshold signature did not verify in deserialization" ) ) );
     }
 
     try {
@@ -281,7 +280,7 @@ ptr<CommittedBlockHeader> CommittedBlock::parseBlockHeader(const string_view &_h
 
     auto js = nlohmann::json::parse(_header.data(), _header.data() + _header.size());
 
-    return make_shared<CommittedBlockHeader>(js);
+    return make_shared< CommittedBlockHeader >( js );
 }
 
 
@@ -365,10 +364,10 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
     auto hash = getHash();
 
     try {
-        _cryptoManager->verifyDAProofThresholdSig(hash, sig, getBlockID(), getTimeStampS());
-    } catch (InvalidSignatureException &) {
+        _cryptoManager->verifyDAProofThresholdSig( hash, sig, getBlockID(), getTimeStampS() );
+    } catch ( InvalidSignatureException& ) {
         throw_with_nested(
-            InvalidStateException("Could not verify block DA sig:", __CLASS_NAME__));
+            InvalidStateException( "Could not verify block DA sig:", __CLASS_NAME__ ) );
     }
 }
 

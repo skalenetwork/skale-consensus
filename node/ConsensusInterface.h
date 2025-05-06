@@ -60,6 +60,7 @@ static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = 128;
 static constexpr uint64_t BITE_TE_RANDOM_LEN = 32;
 
 
+
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
         256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
 
@@ -108,7 +109,6 @@ public:
 
     virtual consensus_engine_status getStatus() const = 0;
 
-// PL does implement Oracle
 #define ORACLE_SUCCESS 0
 #define ORACLE_UNKNOWN_RECEIPT 1
 #define ORACLE_TIMEOUT 2
@@ -182,7 +182,7 @@ public:
      */
 
     virtual uint64_t submitOracleRequest(
-            const std::string &_spec, std::string &_receipt, std::string &_errorMessage) = 0;
+            const string &_spec, string &_receipt, string &_errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -196,7 +196,7 @@ public:
      */
 
 
-    virtual uint64_t checkOracleResult(const std::string &_receipt, std::string &_result) = 0;
+    virtual uint64_t checkOracleResult(const string &_receipt, string &_result) = 0;
 
 
     struct SyncInfo {
@@ -233,6 +233,9 @@ public:
 #ifdef BITE
         // map of transaction index in the block starting from 0 to transaction
         // empty mapped is passed for now
+        // Note: if BITE transaction did not decrypt well due to invalid AES ciphertext
+        // , _decryptedTransactionDataFields will include
+        // null for this transaction
         shared_ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactionDataFields,
 #endif
         uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,

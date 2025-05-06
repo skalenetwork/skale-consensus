@@ -62,7 +62,6 @@ ptr< BlockProposal > BiteBlockProposalSerializer::deserialize(
     const ptr< vector< uint8_t > >& _serializedProposal, const ptr< CryptoManager >& _manager,
     bool _verifySig ) {
     CHECK_ARGUMENT( _serializedProposal );
-    //CHECK_ARGUMENT( _manager );
 
 
     const skale_fb::BlockProposal* fbProposal = nullptr;

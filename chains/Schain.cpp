@@ -90,7 +90,7 @@
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
-#ifndef BITE
+#ifndef MIRAGE
 #include "oracle/OracleClient.h"
 #include "oracle/OracleMessageThreadPool.h"
 #include "oracle/OracleResultAssemblyAgent.h"
@@ -319,7 +319,7 @@ void Schain::constructChildAgents() {
 
     try {
         optimizerAgent = make_shared< OptimizerAgent >( *this );
-#ifndef BITE
+#ifndef MIRAGE
         oracleResultAssemblyAgent = make_shared< OracleResultAssemblyAgent >( *this );
 #endif
         pricingAgent = make_shared< PricingAgent >( *this );
@@ -339,7 +339,7 @@ void Schain::constructChildAgents() {
         blockProposalClient = make_shared< BlockProposalClientAgent >( *this );
 
         testMessageGeneratorAgent = make_shared< TestMessageGeneratorAgent >( *this );
-#ifndef BITE
+#ifndef MIRAGE
         oracleClient = make_shared< OracleClient >( *this );
 #endif
     } catch ( ... ) {
@@ -1209,8 +1209,12 @@ void Schain::healthCheck() {
 
     LOG( info, "Waiting to connect to peers (could be up to two minutes)" );
 
+    // If the node is part of the chain, we do getNodeCount() - 1
+    // health check connections, since the node does not connect to itself.
+    // A sync-check node can have a total of getNodeCount() health check connections.
+    auto countOfNodesToCheck = getNode()->isSyncOnlyNode() ? getNodeCount() : (getNodeCount() - 1);
 
-    while ( connections.size() + 1 < getNodeCount() ) {
+    while ( connections.size() < countOfNodesToCheck ) {
         // will optimistically wait for all nodes.
         // if not all nodes are present, will be satisfied by 2/3 nodes
 
@@ -1613,7 +1617,7 @@ u256 Schain::getRandomForBlockId( block_id _blockId ) {
 
 ptr< ofstream > Schain::visualizationDataStream = nullptr;
 
-#ifndef BITE
+#ifndef MIRAGE
 const ptr< OracleResultAssemblyAgent >& Schain::getOracleResultAssemblyAgent() const {
     return oracleResultAssemblyAgent;
 }

@@ -22,7 +22,6 @@
 */
 
 
-
 #define BOOST_PENDING_INTEGER_LOG2_HPP
 #include <boost/integer/integer_log2.hpp>
 #include <boost/random/mersenne_twister.hpp>

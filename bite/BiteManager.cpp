@@ -130,7 +130,6 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAESKeys(
     vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex,  map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
-    // CONNECTION_ERROR_BLOCK_INCLUDES_INVALID_ENCRYPTIONS
     if (doRealCrypto) {
         vector<ptr<string> > publicDecryptionValuesBatch;
 
@@ -221,9 +220,7 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
                 try {
                     decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
                 } catch (const std::exception &e) {
-                    LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}"
-                            " skip from block, TODO: charge user min gas fee penalty",
-                            i, e.what()));
+                    LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}", i, e.what()));
                     decryptedDataFields->emplace(i, nullptr);;
                 }
 
@@ -287,7 +284,11 @@ ptr<vector<uint8_t> > BiteManager::teEncryptData(const vector<uint8_t> &_data) {
         CHECK_STATE(cipherText.data);
         auto encodedCipheredKey = cipherText.key.toBytes();
         auto result = make_shared<vector<uint8_t> >(encodedCipheredKey.begin(), encodedCipheredKey.end());
-        result->insert(result->end(), cipherText.data->begin(), cipherText.data->end());
+        auto data = cipherText.data;
+
+        // make compiler happy
+        result->insert(result->end(), data->begin(), data->begin() +
+            static_cast<std::ptrdiff_t>(data->size()));
         CHECK_STATE(result->size() == encodedCipheredKey.size() + cipherText.data->size());
 
 
