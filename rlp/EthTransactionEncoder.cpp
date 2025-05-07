@@ -370,7 +370,7 @@ void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& vVec,
         throw std::invalid_argument( "Invalid signature" );
     }
 
-    if (v > 3) {
+    if (v > 2) {
         throw std::invalid_argument("Invalid signature");
     }
 
