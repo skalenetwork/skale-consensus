@@ -77,7 +77,7 @@ def main():
 
     command : str = f"cmake .. -DCMAKE_BUILD_TYPE={buildType} -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0"
     if buildPL:
-        command += " -DPL=1"
+        command += " -DMIRAGE=1"
 
     run(command)
     run("make -j$(nproc)")
