@@ -306,7 +306,7 @@ std::vector< uint8_t > EthTransactionEncoder::generateRandomPrivateKey() {
 
 u256 EthTransactionEncoder::bytesToU256(const std::vector<uint8_t>& bytes) {
     if (bytes.size() != 32) {
-        throw std::invalid_argument("Invalid input sizes. Should be 32 bytes. Got " + bytes.size());
+        throw std::invalid_argument("Invalid input sizes. Should be 32 bytes. Got " + std::to_string(bytes.size()));
     }
 
     u256 val = 0;
