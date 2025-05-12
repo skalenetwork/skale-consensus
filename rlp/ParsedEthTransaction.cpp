@@ -302,22 +302,16 @@ void ParsedEthTransaction::validateSignature() {
     EthTransactionEncoder::verifyEthSignature( v, r_padded, s_padded, tx_hash );
 }
 
+ptr< std::vector< uint8_t > > ParsedEthTransaction::getToField() const {
+    size_t index = getToFieldIndex();
+    if ( fields.size() <= index ) {
+        throw invalid_argument( "Transaction missing to field" );
+    }
+    return make_shared< vector< uint8_t > >( fields.at( getToFieldIndex() ) );
+}
 
 ptr< std::vector< uint8_t > > ParsedEthTransaction::getTransactionDataField() {
-    size_t index;
-    switch ( type ) {
-    case 0:
-        index = 5;
-        break;
-    case 1:
-        index = 6;
-        break;
-    case 2:
-        index = 7;
-        break;
-    default:
-        throw invalid_argument( "Unknown transaction type" );
-    }
+    size_t index = getDataFieldIndex();
     if ( fields.size() <= index ) {
         throw invalid_argument( "Transaction missing data field" );
     }
@@ -325,20 +319,7 @@ ptr< std::vector< uint8_t > > ParsedEthTransaction::getTransactionDataField() {
 }
 
 void ParsedEthTransaction::setTransactionDataField(vector<uint8_t>&  _dataField) {
-    size_t index;
-    switch ( type ) {
-    case 0:
-        index = 5;
-        break;
-    case 1:
-        index = 6;
-        break;
-    case 2:
-        index = 7;
-        break;
-    default:
-        throw invalid_argument( "Unknown transaction type" );
-    }
+    size_t index = getDataFieldIndex();
     if ( fields.size() <= index ) {
         throw invalid_argument( "Transaction missing data field" );
     }
@@ -386,4 +367,22 @@ const vector< std::vector< uint8_t > >& ParsedEthTransaction::getFields() const 
 }
 uint8_t ParsedEthTransaction::getType() const {
     return type;
+}
+
+/// -------------------------------------------
+///             Helper Functions
+/// -------------------------------------------
+
+size_t ParsedEthTransaction::getToFieldIndex() const {
+    // If Legacy -> 3 + 0 = 3
+    // Type 1    -> 3 + 1 = 4
+    // Type 2    -> 3 + 2 = 5
+    return 3 + type;
+}
+
+size_t ParsedEthTransaction::getDataFieldIndex() const {
+    // If Legacy -> 5 + 0 = 5
+    // Type 1    -> 5 + 1 = 6
+    // Type 2    -> 5 + 2 = 7
+    return 5 + type;
 }

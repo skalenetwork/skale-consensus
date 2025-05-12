@@ -29,7 +29,6 @@
 #include <boost/random/uniform_int_distribution.hpp>
 
 #ifdef BITE
-using DecryptedTransactionDataFields = map<uint64_t, shared_ptr<vector<uint8_t>>>;
 class BiteManager;
 #endif
 
@@ -46,18 +45,17 @@ class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
 
-
     string thresholdSig;
     string daSig;
 #ifdef BITE
     ptr<DecryptedAESKeyList> decryptedAesKeyList = nullptr;
-    ptr< map<uint64_t, shared_ptr<vector<uint8_t>>>> decryptedTransactionDataFields = nullptr;
+    ptr< DecryptedTransactionFieldsMap > decryptedTransactionFields = nullptr;
 
 
 #endif
 
 public:
-    [[nodiscard]] ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> getDecryptedTransactionDataFields() const;
+    [[nodiscard]] ptr< std::map<TxId, DecryptedTransactionFields> > getDecryptedTransactionFields() const;
 
 private:
     ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;
@@ -69,13 +67,7 @@ private:
 
     bool isLegacy();
 
-
-
-
     ptr< BasicHeader > createBlockHeader();
-
-
-
 
 protected:
 
@@ -85,7 +77,7 @@ protected:
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
         const string& _daSig
 #ifdef  BITE
-, ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactionDataFields
+, ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactionFields
 #endif
         );
 
@@ -101,7 +93,7 @@ public:
     static ptr< CommittedBlock > makeFromProposal( const ptr< BlockProposal >& _proposal,
         const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactions
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactions
 #endif
         );
 
@@ -110,7 +102,7 @@ public:
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
         const string& _signature, const string& _thresholdSig, const string& _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactrions
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactrions
 #endif
         );
 

@@ -48,7 +48,7 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
                                                      ptr<ThresholdSignature> _daSig
 #ifdef  BITE
                                                      , ptr<DecryptedAESKeyList> _aesKeyList,
-                                                     ptr<DecryptedTransactionDataFields> _decryptedTransactionDataFields
+                                                     ptr< DecryptedTransactionFieldsMap > _decryptedTransactionFields
 #endif
 ) {
     CHECK_ARGUMENT(_proposal);
@@ -56,8 +56,8 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
     CHECK_ARGUMENT(_daSig || _proposal->getProposerIndex() == 0)
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList);
-    CHECK_ARGUMENT(_decryptedTransactionDataFields);
-    CHECK_ARGUMENT(_decryptedTransactionDataFields->size() == _aesKeyList->getSize())
+    CHECK_ARGUMENT(_decryptedTransactionFields);
+    CHECK_ARGUMENT(_decryptedTransactionFields->size() == _aesKeyList->getSize())
 #endif
 
 
@@ -67,17 +67,12 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
         daSig = _daSig->toString();
     }
 
-#ifdef BITE
-        // default proposal has no keys or transa
-
-#endif
-
     return CommittedBlock::make(_proposal->getSchainID(), _proposal->getProposerNodeID(),
                                 _proposal->getBlockID(), _proposal->getProposerIndex(), _proposal->getTransactionList(),
                                 _proposal->getStateRoot(), _proposal->getTimeStampS(), _proposal->getTimeStampMs(),
                                 _proposal->getSignature(), _thresholdSig->toString(), daSig
 #ifdef  BITE
-                                , _aesKeyList, _decryptedTransactionDataFields
+                                , _aesKeyList, _decryptedTransactionFields
 #endif
     );
 }
@@ -91,7 +86,7 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
                                          const string &_daSig
 #ifdef  BITE
                                          , ptr<DecryptedAESKeyList> _aesKeyList,
-                                         ptr<DecryptedTransactionDataFields> _decryptedTransactionDataFields
+                                         ptr< DecryptedTransactionFieldsMap > _decryptedTransactionFields
 #endif
 ) {
     CHECK_ARGUMENT(_transactions);
@@ -100,8 +95,8 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
 
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList);
-    CHECK_ARGUMENT(_decryptedTransactionDataFields);
-    CHECK_ARGUMENT(_decryptedTransactionDataFields->size() == _aesKeyList->getSize())
+    CHECK_ARGUMENT(_decryptedTransactionFields);
+    CHECK_ARGUMENT(_decryptedTransactionFields->size() == _aesKeyList->getSize())
 #endif
 
 
@@ -111,7 +106,7 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
 
 #ifdef BITE
     , _aesKeyList,
-    _decryptedTransactionDataFields
+    _decryptedTransactionFields
 #endif
 
     ));
@@ -149,7 +144,7 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
                                 p->getTimeStampMs(), p->getSignature(), "EMPTY", "EMPTY"
 #ifdef BITE
                                 , make_shared<DecryptedAESKeyList>(),
-                                make_shared<DecryptedTransactionDataFields>()
+                                make_shared<DecryptedTransactionFieldsMap>()
 #endif
         );
 }
@@ -225,7 +220,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_se
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
                                      blockHeader->getDaSig()
 #ifdef BITE
-                                     , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactionDataFields>()
+                                     , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactionFieldsMap>()
 #endif
             );
     } catch (...) {
@@ -290,7 +285,7 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
                                __uint32_t timeStampMs, const string &_signature, const string &_thresholdSig,
                                const string &_daSig
 #ifdef  BITE
-                               , ptr<DecryptedAESKeyList> _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactionDataFields
+                               , ptr<DecryptedAESKeyList> _aesKeyList, ptr<DecryptedTransactionFieldsMap> _decryptedTransactionFields
 #endif
 )
     : BlockProposal(_schainId, _proposerNodeId, _blockId, _proposerIndex, _transactions, stateRoot,
@@ -300,15 +295,15 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
     CHECK_ARGUMENT(!_thresholdSig.empty());
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList);
-    CHECK_ARGUMENT(_decryptedTransactionDataFields);
-    CHECK_ARGUMENT(_decryptedTransactionDataFields->size() == _aesKeyList->getSize())
+    CHECK_ARGUMENT(_decryptedTransactionFields);
+    CHECK_ARGUMENT(_decryptedTransactionFields->size() == _aesKeyList->getSize())
 #endif
 
     this->thresholdSig = _thresholdSig;
     this->daSig = _daSig;
 #ifdef BITE
     this->decryptedAesKeyList = _aesKeyList;
-    this->decryptedTransactionDataFields = _decryptedTransactionDataFields;
+    this->decryptedTransactionFields = _decryptedTransactionFields;
 #endif
 }
 
@@ -372,8 +367,8 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
 }
 
 #ifdef BITE
-ptr<map<uint64_t, shared_ptr<vector<uint8_t> > > > CommittedBlock::getDecryptedTransactionDataFields() const {
-    return decryptedTransactionDataFields;
+ptr< DecryptedTransactionFieldsMap > CommittedBlock::getDecryptedTransactionFields() const {
+    return decryptedTransactionFields;
 }
 #endif
 

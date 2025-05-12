@@ -66,6 +66,7 @@ ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKey(p
     }
     CHECK_STATE( decryptSet.canMerge() );
 
+    // TODO - update to use ThresholdEncryption function instead of TE
     libBLS::TE te(requiredDecryptors, totalDecryptors);
 
     auto cipheredKey = libBLS::CipheredKey::fromBytes( *_encryptedAESKey->getKey() );
