@@ -182,10 +182,9 @@ jobs:
     - name: run tests
       run: cd scripts && export CI_BUILD=1 && ./tests.py && cd ..
 
-
-
     - name: build consensus PL
-      run: |
+      run: |  
+        rm -rf build  &&
         cd scripts && ./build.py Debug -buildPl
     - name: run tests
       run: cd scripts && export CI_BUILD=1 && ./tests.py && cd ..
