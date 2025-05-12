@@ -351,7 +351,8 @@ void EthTransactionEncoder::verifyEthSignature( const vector< uint8_t >& vVec,
                 if ( chain > std::numeric_limits< uint64_t >::max() )
                     throw std::invalid_argument( "Invalid signature" );
             }
-            else if ( v != 27 && v != 28 ) {
+            // Invalid or pre-EIP-155
+            else {
                 throw std::invalid_argument( "Invalid signature" );
             }
             
