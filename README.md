@@ -41,6 +41,16 @@ sudo apt install -yq libprocps-dev gcc-11 g++-11 valgrind gawk sed libffi-dev cc
     libssl-dev doxygen libgcrypt20-dev
 ```
 
+Now install cmake 
+```bash
+    - name: install cmake
+      run: |
+        wget --no-check-certificate https://cmake.org/files/v3.21/cmake-3.21.0-linux-x86_64.sh && \
+        chmod +x cmake-3.21.0-linux-x86_64.sh && \
+        ./cmake-3.21.0-linux-x86_64.sh --skip-license --include-subdir && \
+        sudo ln -sf `pwd`/cmake-3.21.0-linux-x86_64/bin/* /usr/local/bin
+```        
+
 
 ### 2. Clone the repo   
 
