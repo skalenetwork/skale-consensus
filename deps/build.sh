@@ -327,13 +327,7 @@ setup_variable WITH_FIZZ "yes"
 setup_variable WITH_PROXYGEN "yes"
 setup_variable WITH_FLATBUFFERS "yes"
 setup_variable WITH_LZMA "yes"
-
-
-if [ "$BUILD_LIBSEC256K1" = "1" ]; then
-    setup_variable WITH_LIBSECP256K1 "yes"
-else
-    setup_variable WITH_LIBSECP256K1 "no"
-fi
+setup_variable WITH_LIBSECP256K1 "yes"
 
 
 if [ -z "${PARALLEL_COUNT}" ];
