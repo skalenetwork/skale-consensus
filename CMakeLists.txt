@@ -271,6 +271,8 @@ if (DEFINED BITE)
             "${DEPS_INSTALL_ROOT}/lib/libglog.a"
             "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
             "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
+            bzip2
+            lz4
             te
     )
     if (CMAKE_PROJECT_NAME STREQUAL "consensus")
