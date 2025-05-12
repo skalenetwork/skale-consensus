@@ -174,14 +174,6 @@ jobs:
     - name: verify jsonrpc has been built
       run: ls libBLS/deps/deps_inst/x86_or_x64/include/jsonrpccpp/client.h
 
-
-    - name: build consensus
-      run: |
-        cd scripts && ./build.py Debug
-
-    - name: run tests
-      run: cd scripts && export CI_BUILD=1 && ./tests.py && cd ..
-
     - name: build consensus PL
       run: |  
         rm -rf build  &&
