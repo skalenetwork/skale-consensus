@@ -112,13 +112,16 @@
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSigShare.h"
 #include "chains/BlockErrorAnalyzer.h"
+
 #ifdef BITE
 #include "bite/BiteManager.h"
 #include "crypto/DecryptedAESKeyList.h"
 #endif
+
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"
+
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
 #endif

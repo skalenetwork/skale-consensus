@@ -8,8 +8,8 @@
 
 #include "BiteDataFiled.h"
 
-
-const auto BITE_HEADER_LEN = BITE_EPOCH_ID_LEN + BITE_ENCRYPTED_AES_KEY_LEN;
+// TODO the key is already taken care by buildign CIphertext struct from libBLS
+const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 
 BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
     : encryptedData(_encryptedKeyPlusData), epoch(_epoch) {
@@ -21,7 +21,7 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     std::copy_n(_encryptedKeyPlusData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, aesKeyArray->begin());
     encryptedAESKey = std::make_shared<EncryptedAESKey>(aesKeyArray);
     serializedData = make_shared<vector<uint8_t> >();
-    serializedData->reserve(BITE_HEADER_LEN + _encryptedKeyPlusData->size());
+    serializedData->reserve(BITE_MIN_DATA_LEN + _encryptedKeyPlusData->size());
     uint64_t epochBE = boost::endian::native_to_big(_epoch);
     uint8_t* epochBytes = reinterpret_cast<uint8_t*>(&epochBE);
     serializedData->insert(serializedData->end(), epochBytes, epochBytes + sizeof(epochBE));
@@ -30,13 +30,13 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
 
 BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data) {
     CHECK_STATE(_data)
-    CHECK_STATE(_data->size() >= BITE_EPOCH_ID_LEN + BITE_ENCRYPTED_AES_KEY_LEN);
+    CHECK_STATE(_data->size() > BITE_EPOCH_ID_LEN + BITE_ENCRYPTED_AES_KEY_LEN);
 
     auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
 
     std::copy_n(_data->begin() + BITE_EPOCH_ID_LEN, BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
 
-    auto encryptedDataStart = _data->begin() + BITE_HEADER_LEN;
+    auto encryptedDataStart = _data->begin() + BITE_MIN_DATA_LEN;
     encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
     encryptedData = make_shared<EncryptedData>(encryptedDataStart, _data->end());
     keyPlusEncryptedData = make_shared<vector<uint8_t>>(_data->begin() + BITE_EPOCH_ID_LEN,
@@ -67,12 +67,12 @@ ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_d
     CHECK_STATE(_to)
 
     // compare _to field to BITE magic number
-    if (!std::equal(BITE_MAGIC_AS_BYTE_ARRAY, BITE_MAGIC_AS_BYTE_ARRAY + BITE_MAGIC_SIZE,
+    if (!std::equal(BITE_ADDRESS_AS_BYTE_ARRAY, BITE_ADDRESS_AS_BYTE_ARRAY + ADDRESS_SIZE,
                     _to->begin())) {
         return nullptr;
     }
 
-    CHECK_STATE2 (_data->size() >= BITE_HEADER_LEN,
+    CHECK_STATE2 (_data->size() >= BITE_MIN_DATA_LEN,
         "Icorrectly formatted BITE transaction: Data size too short" + to_string(_data->size()));
 
     return ptr<BiteDataField>(new BiteDataField(_data));

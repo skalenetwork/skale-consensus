@@ -240,9 +240,10 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
         auto encryptedData = _bite->getEncryptedData();
         CHECK_STATE(encryptedData != nullptr);
 
-        // TODO - not using ThresholdEncryption functions - this should already be dealt with by libBLS...
+        // TODO - not using ThresholdEncryption functions - this should already be dealt with by libBLS
+        // We are also not validating the ciphertext before deciphering (already done in ThresholdEncryption functions)
         std::vector<uint8_t> data = libBLS::ThresholdUtils::aesDecrypt(*encryptedData, _decryptedAESKey.getAesKey());
-        CHECK_STATE(data.size() >= BITE_TE_RANDOM_LEN + BITE_MAGIC_SIZE);
+        CHECK_STATE(data.size() >= BITE_TE_RANDOM_LEN);
         // Strip off the trailing random byte -> libBLS already takes care of this
         dataField = make_shared<vector<uint8_t> >(data.begin(), data.end() - BITE_TE_RANDOM_LEN);
     } else {
@@ -253,10 +254,12 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
         dataField = make_shared<vector<uint8_t> >(decryptedOriginalDataField);
     }
 
+    CHECK_STATE2(dataField->size() >= ADDRESS_SIZE, "Decrypted data is not long enough to include the original tx.to field!");
+
     // extract the last 20 bytes from dataField into toField
-    ptr< vector< uint8_t > > toField = make_shared< std::vector< uint8_t >>(dataField->end() - BITE_MAGIC_SIZE, dataField->end());
+    ptr< vector< uint8_t > > toField = make_shared< std::vector< uint8_t >>(dataField->end() - ADDRESS_SIZE, dataField->end());
     // remove the to address from dataField
-    dataField->erase(dataField->end() - BITE_MAGIC_SIZE, dataField->end());
+    dataField->erase(dataField->end() - ADDRESS_SIZE, dataField->end());
 
     auto decryptedFields = DecryptedTransactionFields {
         .data = dataField,
@@ -284,15 +287,14 @@ void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> > resul
 }
 
 ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_t> &_data, const vector<uint8_t> &_to) {
+    // copy content of _data, and append _to to end of it
+    auto data = _data;
+    data.insert(data.end(), _to.begin(), _to.end());
+
     if (this->doRealCrypto) {
         auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
         CHECK_STATE(primaryKey);
         auto blsKey = primaryKey->getPublicKey();
-
-        // copy content of _data, and append _to to end of it
-        auto data = _data;
-        data.insert(data.end(), _to.begin(), _to.end());
-
         CHECK_STATE(blsKey);
         libBLS::TEPublicKey teKey(*blsKey);
 
@@ -303,7 +305,7 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
 
         return bytes;
     } else {
-        return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(_data));
+        return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(data));
     }
 }
 
