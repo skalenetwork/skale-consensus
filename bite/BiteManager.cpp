@@ -97,7 +97,7 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
     const std::map<transaction_index, ptr<BiteDataField> > &
     _biteDataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
 
-    MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
 
 
     auto decryptionShareList = make_shared<AESKeyDecryptionShareList>(
