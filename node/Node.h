@@ -212,6 +212,10 @@ class Node {
 
     uint64_t maxTransactionsPerBlock = 0;
 
+#ifdef BITE
+    uint64_t maxTransactionsPerTestBITEBlock = 0;
+#endif
+
     uint64_t minBlockIntervalMs = 0;
 
     uint64_t blockDBSize = 0;
@@ -436,6 +440,10 @@ public:
     uint64_t getMaxCatchupDownloadBytes() const;
 
     uint64_t getMaxTransactionsPerBlock() const;
+
+#ifdef BITE
+    uint64_t getMaxTransactionsPerTestBITEBlock() const;
+#endif
 
     uint64_t getMinBlockIntervalMs() const;
     
