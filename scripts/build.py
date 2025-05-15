@@ -61,22 +61,22 @@ def run(_command):
 def main():
     parser = argparse.ArgumentParser(description="Example script for argument parsing")
     parser.add_argument("buildType", type=str, help="Build type (release, debug)")
-    parser.add_argument("-buildPl", action = "store_true", help="Build PL")
+    parser.add_argument("-buildMIRAGE", action = "store_true", help="Build MIRAGE")
     args = parser.parse_args()
 
     os.chdir("..")
     print("Starting build")
     buildType = args.buildType
     print(f"BUILD_TYPE={buildType}")
-    buildPL = args.buildPl
-    print(f"buildPl={buildPL}")
+    buildMIRAGE = args.buildMIRAGE
+    print(f"buildMIRAGE={buildMIRAGE}")
 
     run("ccache -M 20G")
     run("mkdir -p build")
     os.chdir("build")
 
     command : str = f"cmake .. -DCMAKE_BUILD_TYPE={buildType} -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0"
-    if buildPL:
+    if buildMIRAGE:
         command += " -DMIRAGE=1"
 
     run(command)

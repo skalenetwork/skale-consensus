@@ -165,6 +165,10 @@ static constexpr uint64_t MAX_CATCHUP_DOWNLOAD_BYTES = 64 * 1024 * 1024;
 
 static constexpr uint64_t MAX_TRANSACTIONS_PER_BLOCK = 8 * 1024;
 
+#ifdef BITE
+static constexpr uint64_t MAX_TRANSACTIONS_PER_TEST_BITE_BLOCK = 1000;
+#endif
+
 static constexpr int64_t EMPTY_BLOCK_INTERVAL_MS = 3000;
 
 static constexpr int64_t EMPTY_BLOCK_INTERVAL_AFTER_CATCHUP_MS = 100;
