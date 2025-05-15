@@ -249,6 +249,17 @@ void JSONFactory::createAndAddSChainFromJsonObject(
 
         _node->setEmptyBlockIntervalMs( emptyBlockIntervalMs );
 
+#ifdef MIRAGE
+        uint64_t constantGasPrice;
+        try {
+            constantGasPrice = element.at( "constantGasPrice" ).get< uint64_t >();
+        } catch ( ... ) {
+            constantGasPrice = _node->getParamUint64( "CONSTANT_PRICING_DEFAULT_PRICE",
+                                                      CONSTANT_PRICING_DEFAULT_PRICE );
+        }
+        _node->setConstantGasPrice( constantGasPrice );
+#endif
+
 
         uint64_t emptyBlockIntervalAfterCatchupMs;
         int64_t emptyBlockIntervalAfterCatchupMsTmp;
