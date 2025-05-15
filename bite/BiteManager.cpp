@@ -52,7 +52,7 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecrypti
     for (auto &tx: *transactions) {
         try {
             tx->parseAndValidate();
-            auto biteDataField = tx->parseAndValidateBiteDataField();
+            auto biteDataField = tx->tryGetBiteData();
             if (biteDataField) {
                 biteDataFields.emplace(index, biteDataField);
                 encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
@@ -209,7 +209,8 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
     try {
         for (uint64_t i = 0; i < _transactionList.size(); i++) {
             auto tx = txs->at(i);
-            auto bite = tx->parseAndValidateBiteDataField();
+            tx->parseAndValidate();
+            auto bite = tx->tryGetBiteData();
             if (bite) {
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);

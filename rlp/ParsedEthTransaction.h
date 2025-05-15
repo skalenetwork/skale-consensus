@@ -52,6 +52,7 @@ public:
     // TODO should remove the 'Transaction' from the name
     ptr<vector< uint8_t >> getTransactionDataField();
     ptr<vector< uint8_t >> getToField() const;
+    bool hasToField() const;
     static void testEthereumTxParser();
     void validateToField();
     void validateFieldsCount() const;

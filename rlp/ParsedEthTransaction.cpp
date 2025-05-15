@@ -310,6 +310,11 @@ ptr< std::vector< uint8_t > > ParsedEthTransaction::getToField() const {
     return make_shared< vector< uint8_t > >( fields.at( getToFieldIndex() ) );
 }
 
+bool ParsedEthTransaction::hasToField() const {
+    size_t index = getToFieldIndex();
+    return fields.size() > index && !fields.at( index ).empty();    
+}
+
 ptr< std::vector< uint8_t > > ParsedEthTransaction::getTransactionDataField() {
     size_t index = getDataFieldIndex();
     if ( fields.size() <= index ) {

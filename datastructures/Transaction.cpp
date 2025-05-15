@@ -187,16 +187,19 @@ void Transaction::parseAndValidate() {
     std::atomic_store(&parsedAndValidatedEthTransaction, pt );
 }
 
-// TODO - separation of concerns could be better - validation of to field should be
-// outside BiteDataField
-ptr< BiteDataField > Transaction::parseAndValidateBiteDataField() {
-    parseAndValidate();
 
+ptr< BiteDataField > Transaction::tryGetBiteData() {
     auto tx = std::atomic_load(&parsedAndValidatedEthTransaction );
-    auto dataField = tx->getTransactionDataField();
-    auto to = tx->getToField();
 
-    return BiteDataField::createIfMagicMatches(dataField, to);
+    ptr< BiteDataField > result = nullptr;
+    
+    if (tx->hasToField()) {
+        auto dataField = tx->getTransactionDataField();
+        auto to = tx->getToField();
+        result = BiteDataField::createIfMagicMatches(dataField, to);
+    }
+
+    return result;
 }
 
 ptr< vector< uint8_t > > Transaction::emplaceAndReencodeTransaction(

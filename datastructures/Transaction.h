@@ -90,7 +90,7 @@ public:
     ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
 
     // this returns nullptr for non-BITE transactions
-    ptr<BiteDataField> parseAndValidateBiteDataField();
+    ptr<BiteDataField> tryGetBiteData();
     ptr<vector<uint8_t>> emplaceAndReencodeTransaction(vector<uint8_t>& _originalDataField );
 #endif
 
