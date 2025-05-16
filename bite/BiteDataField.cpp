@@ -6,9 +6,10 @@
 #include "Log.h"
 #include <crypto/EncryptedAESKey.h>
 
-#include "BiteDataFiled.h"
+#include "bite/BiteDataFiled.h"
 
-// TODO the key is already taken care by buildign CIphertext struct from libBLS
+/// Minimum size of BITE field excluding the ciphertext from libBLS
+/// which includes both the key + ciphered data
 const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 
 BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
@@ -36,7 +37,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
 
     std::copy_n(_data->begin() + BITE_EPOCH_ID_LEN, BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
 
-    auto encryptedDataStart = _data->begin() + BITE_MIN_DATA_LEN;
+    auto encryptedDataStart = _data->begin() + BITE_EPOCH_ID_LEN;
     encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
     encryptedData = make_shared<EncryptedData>(encryptedDataStart, _data->end());
     keyPlusEncryptedData = make_shared<vector<uint8_t>>(_data->begin() + BITE_EPOCH_ID_LEN,
@@ -72,7 +73,7 @@ ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_d
         return nullptr;
     }
 
-    CHECK_STATE2 (_data->size() >= BITE_MIN_DATA_LEN,
+    CHECK_STATE2 (_data->size() >= BITE_MIN_DATA_LEN + BITE_ENCRYPTED_AES_KEY_LEN,
         "Icorrectly formatted BITE transaction: Data size too short" + to_string(_data->size()));
 
     return ptr<BiteDataField>(new BiteDataField(_data));

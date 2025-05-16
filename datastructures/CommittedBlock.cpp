@@ -57,7 +57,6 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList);
     CHECK_ARGUMENT(_decryptedTransactionFields);
-    CHECK_ARGUMENT(_decryptedTransactionFields->size() == _aesKeyList->getSize())
 #endif
 
 
@@ -96,7 +95,6 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList);
     CHECK_ARGUMENT(_decryptedTransactionFields);
-    CHECK_ARGUMENT(_decryptedTransactionFields->size() == _aesKeyList->getSize())
 #endif
 
 
@@ -296,7 +294,6 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList);
     CHECK_ARGUMENT(_decryptedTransactionFields);
-    CHECK_ARGUMENT(_decryptedTransactionFields->size() == _aesKeyList->getSize())
 #endif
 
     this->thresholdSig = _thresholdSig;

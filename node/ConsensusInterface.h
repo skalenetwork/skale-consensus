@@ -61,6 +61,7 @@ static constexpr uint64_t BITE_AES_KEY_LEN = libBLS::AES_256_KEY_SIZE_BYTES;
 static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = libBLS::CipheredKey::CIPHERED_KEY_SIZE_BYTES;
 static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = libBLS::G2_SIZE_BYTES;
 static constexpr uint64_t BITE_TE_RANDOM_LEN = libBLS::RANDOM_SECRET_SIZE_BYTES;
+static constexpr uint64_t BITE_CIPHERTEXT_MIN_LEN = BITE_ENCRYPTED_AES_KEY_LEN + BITE_TE_RANDOM_LEN + ADDRESS_SIZE;
 
 
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
