@@ -19,6 +19,7 @@
 #include <crypto/ConsensusAESKeyDecryptionShareSet.h>
 #include <crypto/CryptoManager.h>
 #include <crypto/DecryptedAESKeyList.h>
+#include <monitoring/LivelinessMonitor.h>
 
 #include "BLSPublicKey.h"
 
@@ -29,6 +30,10 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 
 map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecryptionSharesForProposalTransactions(
     const ptr<BlockProposal> &_proposal) {
+
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() );
+
+
     CHECK_STATE(_proposal);
     // check we are not verifying twice
     CHECK_STATE(!_proposal->getMyDecryptionShares())
@@ -90,6 +95,10 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
     block_id _blockId, schain_index _proposerIndex,
     const std::map<transaction_index, ptr<BiteDataField> > &
     _biteDataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
+
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
+
+
     auto decryptionShareList = make_shared<AESKeyDecryptionShareList>(
         _blockId, _proposerIndex, schain.getSchainIndex());
 
@@ -129,6 +138,9 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAESKeys(
     vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex,  map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
+
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
+
     if (doRealCrypto) {
         vector<ptr<string> > publicDecryptionValuesBatch;
 
@@ -179,6 +191,9 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromDataFields(
     vector<ptr<BiteDataField> > &_dataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
     vector<ptr<EncryptedAESKey> > encryptedAESKeys;
+
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
+
 
     for (auto &&dataField: _dataFields) {
         auto encryptedAESKey = dataField->getEncryptedAESKey();

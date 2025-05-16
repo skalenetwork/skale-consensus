@@ -33,8 +33,12 @@ public:
         const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields,
         map<transaction_index, ConnectionSubStatus>& _failedTransactions);
 
+    [[nodiscard]] Schain* getSchain() const {
+        return &schain;
+    }
+
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(vector<ptr<BiteDataField> > &_dataFields,
-        map<transaction_index, ConnectionSubStatus> &_failedTransactions);
+                                                                                              map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
 
     [[nodiscard]]  ptr<vector<ptr<AESKeyDecryptionShare>>> getDecryptionSharesFromAESKeys(vector<ptr<EncryptedAESKey> >& _encryptedAESKeys,
