@@ -25,8 +25,9 @@
 #include "Log.h"
 
 #include "DynamicPricingStrategy.h"
-
-
+#ifdef MIRAGE
+#include "ConstantPricingStrategy.h"
+#endif
 #include "ZeroPricingStrategy.h"
 #include "chains/Schain.h"
 #include "db/PriceDB.h"
@@ -41,7 +42,11 @@
 #include "PricingAgent.h"
 
 PricingAgent::PricingAgent( Schain& _sChain ) : Agent( _sChain, false ) {
+#ifndef MIRAGE
     string def( "DYNAMIC" );
+#else
+    string def( "CONSTANT" );
+#endif
 
     auto strategy = _sChain.getNode()->getParamString( "pricingStrategy", def );
     CHECK_STATE( !strategy.empty() )
@@ -60,7 +65,14 @@ PricingAgent::PricingAgent( Schain& _sChain ) : Agent( _sChain, false ) {
 
     } else if ( strategy == "ZERO" ) {
         pricingStrategy = make_shared< ZeroPricingStrategy >();
-    } else {
+    }
+#ifdef MIRAGE
+    else if ( strategy == "CONSTANT" ) {
+        uint64_t defaultPrice = sChain->getNode()->getConstantGasPrice();
+        pricingStrategy = make_shared< ConstantPricingStrategy >( defaultPrice );
+    }
+#endif
+    else {
         BOOST_THROW_EXCEPTION(
             ParsingException( "Unknown pricing strategy: " + strategy, __CLASS_NAME__ ) );
     }
@@ -73,8 +85,13 @@ u256 PricingAgent::calculatePrice(
     CHECK_STATE( pricingStrategy );
     try {
         if ( _blockID <= 1 ) {
-            price = sChain->getNode()->getParamUint64(
-                string( "DYNAMIC_PRICING_START_PRICE" ), DEFAULT_MIN_PRICE );
+#ifndef MIRAGE
+            price = sChain->getNode()->getParamUint64( "DYNAMIC_PRICING_START_PRICE",
+                                                       DEFAULT_MIN_PRICE );
+#else
+            price = sChain->getNode()->getParamUint64( "CONSTANT_PRICING_DEFAULT_PRICE",
+                                                       CONSTANT_PRICING_DEFAULT_PRICE );
+#endif
         } else {
             auto oldPrice = readPrice( _blockID - 1 );
             price = pricingStrategy->calculatePrice(
