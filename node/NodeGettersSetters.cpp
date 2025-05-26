@@ -295,12 +295,6 @@ uint64_t Node::getMaxTransactionsPerBlock() const {
     return maxTransactionsPerBlock;
 }
 
-#ifdef BITE
-uint64_t Node::getMaxTransactionsPerTestBITEBlock() const {
-    return maxTransactionsPerTestBITEBlock;
-}
-#endif
-
 uint64_t Node::getMinBlockIntervalMs() const {
     return minBlockIntervalMs;
 }

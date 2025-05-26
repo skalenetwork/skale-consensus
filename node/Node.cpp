@@ -269,10 +269,7 @@ void Node::initParamsFromConfig() {
         getParamUint64( "maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES );
     maxTransactionsPerBlock =
         getParamUint64( "maxTransactionsPerBlock", MAX_TRANSACTIONS_PER_BLOCK );
-#ifdef BITE
-    maxTransactionsPerTestBITEBlock =
-        getParamUint64( "maxTransactionsPerTestBITEBlock", MAX_TRANSACTIONS_PER_TEST_BITE_BLOCK );
-#endif
+
     minBlockIntervalMs = getParamUint64( "minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS );
     catchupTimeoutSec = getParamUint64( "catchupTimeoutSec", CATCHUP_TIMEOUT_SEC );
     syncNodeCatchupTimeoutSec =
@@ -296,7 +293,7 @@ void Node::initParamsFromConfig() {
     priceDBSize = storageLimits->getPriceDbSize();
     blockProposalDBSize = storageLimits->getBlockProposalDbSize();
     internalInfoDBSize = storageLimits->getInternalInfoDbSize();
-#ifdef BITE
+#ifdef  BITE
     teDecryptionDBSize = storageLimits->getTEDecryptionDbSize();
 #endif
 

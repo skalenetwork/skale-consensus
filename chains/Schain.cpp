@@ -1010,6 +1010,7 @@ void Schain::tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const
         startConsensus( bid, pv );
 }
 
+
 void Schain::proposedBlockArrived( const ptr< BlockProposal >& _proposal ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
     CHECK_STATE( _proposal );
