@@ -303,8 +303,7 @@ void ParsedEthTransaction::validateSignature() {
 }
 
 ptr< std::vector< uint8_t > > ParsedEthTransaction::getToField() const {
-    size_t index = getToFieldIndex();
-    if ( fields.size() <= index ) {
+    if ( !hasToField() ) {
         throw invalid_argument( "Transaction missing to field" );
     }
     return make_shared< vector< uint8_t > >( fields.at( getToFieldIndex() ) );

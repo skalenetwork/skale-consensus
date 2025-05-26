@@ -256,12 +256,8 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
         auto encryptedData = _bite->getEncryptedData();
         CHECK_STATE(encryptedData != nullptr);
 
-        // TODO - not using ThresholdEncryption functions - this should already be dealt with by libBLS
-        // We are also not validating the ciphertext before deciphering (already done in ThresholdEncryption functions)
-        std::vector<uint8_t> data = libBLS::ThresholdUtils::aesDecrypt(*encryptedData, _decryptedAESKey.getAesKey());
-        CHECK_STATE(data.size() >= BITE_TE_RANDOM_LEN);
-        // Strip off the trailing random byte -> libBLS already takes care of this
-        dataField = make_shared<vector<uint8_t> >(data.begin(), data.end() - BITE_TE_RANDOM_LEN);
+        libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData);
+        dataField = make_shared<vector<uint8_t>>(libBLS::ThresholdEncryption::decrypt(ciphertext, _decryptedAESKey.getAesKey()));
     } else {
         auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(keyPlusEncryptedData);
