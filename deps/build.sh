@@ -2217,9 +2217,7 @@ then
         if [ ! -d "libcryptopp" ];
         then
             mkdir libcryptopp
-            git clone https://github.com/DimaStebaev/cryptopp.git libcryptopp
-            git -C libcryptopp checkout fa9187ac7708952a5f2612ad4c24bf7383060946
-            #git clone http://github.com/weidai11/cryptopp.git libcryptopp
+            git clone http://github.com/weidai11/cryptopp.git libcryptopp
             echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
         fi
         cd "$SOURCES_ROOT"/libcryptopp
