@@ -51,11 +51,10 @@ class CommittedBlock : public BlockProposal {
     ptr<DecryptedAESKeyList> decryptedAesKeyList = nullptr;
     ptr< DecryptedTransactionFieldsMap > decryptedTransactionFields = nullptr;
 
-
-#endif
-
 public:
     [[nodiscard]] ptr< std::map<TxId, DecryptedTransactionFields> > getDecryptedTransactionFields() const;
+#endif
+
 
 private:
     ptr< vector< uint8_t > > cachedSerializedBlock = nullptr;

@@ -221,7 +221,7 @@ public:
 
 };
 
-#ifdef BITE
+
 /**
  * Contains the needed decrypted fields of a transaction
  * Data - contains only the original plaintext 'data'
@@ -237,7 +237,6 @@ using TxId = uint64_t;
 
 using DecryptedTransactionFieldsMap = std::map< TxId, DecryptedTransactionFields >;
 
-#endif
 
 /**
  * Through this interface Consensus interacts with the rest of the system

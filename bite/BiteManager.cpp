@@ -231,7 +231,7 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
                 CHECK_STATE(decryptedAESKey);
 
                 try {
-                    auto decryptedTransactionFields = decryptDataField(bite, *decryptedAESKey);
+                    auto decryptedTransactionFields = decryptFields(bite, *decryptedAESKey);
                     decryptedFieldsMap->emplace(i, decryptedTransactionFields);
                 } catch (const std::exception &e) {
                     LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}", i, e.what()));
@@ -247,7 +247,7 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
 }
 
 DecryptedTransactionFields
-BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
+BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
     ptr< vector< uint8_t > > dataField = nullptr;

@@ -54,7 +54,7 @@ public:
     [[nodiscard]]  ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
 
     // TODO - change the name of this method
-    [[nodiscard]]  DecryptedTransactionFields decryptDataField(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
+    [[nodiscard]]  DecryptedTransactionFields decryptFields(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
 
     void corruptFromTimeToTime(shared_ptr<vector<unsigned char>> result);
 
