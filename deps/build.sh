@@ -2758,6 +2758,7 @@ then
                                 echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
                                 eval git clone https://github.com/fastfloat/fast_float.git --recursive
                                 cd fast_float
+                                eval git checkout b8085ba
                                 cd ..
                                 echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
                                 eval tar -czf fast_float.tar.gz ./fast_float
@@ -2948,7 +2949,7 @@ fi
 if [ "$WITH_MVFST" = "yes" ];
 then
         echo -e "${COLOR_SEPARATOR}==================== ${COLOR_PROJECT_NAME}libMvfst${COLOR_SEPARATOR} ==================================${COLOR_RESET}"
-        if [ ! -f "$INSTALL_ROOT/lib/libmvfst.a" ];
+        if [ ! -f "$INSTALL_ROOT/lib/libmvfst_server.a" ];
         then
                 env_restore
                 cd "$SOURCES_ROOT"
