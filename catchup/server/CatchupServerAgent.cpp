@@ -295,7 +295,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockCatchupResponse(
 }
 
 
-ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
+ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         nlohmann::json _jsonRequest, const ptr< BlockFinalizeResponseHeader >& _responseHeader,
         block_id _blockID ) {
     CHECK_ARGUMENT( _responseHeader );
