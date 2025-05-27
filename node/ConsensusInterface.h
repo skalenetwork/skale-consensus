@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 #include <string_view>
+#include <memory>
 
 enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0,
@@ -182,7 +183,7 @@ public:
      */
 
     virtual uint64_t submitOracleRequest(
-            const string &_spec, string &_receipt, string &_errorMessage) = 0;
+            const std::string &_spec, std::string &_receipt, std::string &_errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -196,7 +197,7 @@ public:
      */
 
 
-    virtual uint64_t checkOracleResult(const string &_receipt, string &_result) = 0;
+    virtual uint64_t checkOracleResult(const std::string &_receipt, std::string &_result) = 0;
 
 
     struct SyncInfo {
@@ -236,7 +237,7 @@ public:
         // Note: if BITE transaction did not decrypt well due to invalid AES ciphertext
         // , _decryptedTransactionDataFields will include
         // null for this transaction
-        shared_ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactionDataFields,
+        std::shared_ptr<std::map<uint64_t, std::shared_ptr<std::vector<uint8_t>>>> _decryptedTransactionDataFields,
 #endif
         uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
                              uint64_t _winningNodeIndex) = 0;
