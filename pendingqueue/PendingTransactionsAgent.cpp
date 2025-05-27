@@ -167,7 +167,6 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
             stateRootSample++;
             stateRoot = 7;
 #ifdef BITE
-            needMax = getNode()->getMaxTransactionsPerTestBITEBlock();
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactionsBITE(needMax);
 #else
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(needMax);

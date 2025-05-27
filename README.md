@@ -85,6 +85,103 @@ sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../buil
 ```
 
 
+
+
+## Running SGX simulation test
+
+You can run four and 16 nodes test  using sgx simulation and 
+test keys.
+
+First install docker and docker compose, since the test runs sgxwallet in a docker container
+
+```bash
+sudo apt update
+sudo apt install -y \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+    sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+  "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  sudo apt update
+  sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin             
+```
+
+Now start sgx server in a docker container 
+
+```bash
+cd run_sgx_test
+sudo ./run.bash
+```
+
+Check that sgxwallet has successfully started (it takes several minutes)
+
+You can check progress by doing 
+
+```bash
+docker logs run_sgx_test-sgxwallet-1
+```
+When the sgxwallet is up and running, you will see the following message in the log
+
+```
+[2025-05-20 12:49:43.323] [info] Started ZMQ worker thread 14
+[2025-05-20 12:49:43.323] [info] Starting ZMQ worker thread 15
+[2025-05-20 12:49:43.323] [info] Started ZMQ worker thread 15
+[2025-05-20 12:49:43.323] [info] Created thread pool
+[2025-05-20 12:49:43.323] [info] Releasing SGX worker threads  ...
+[2025-05-20 12:49:43.323] [info] Starting zmq server on port 1031 ...
+Completed initAll.
+[2025-05-20 12:49:43.323] [info] Released SGX worker threads.
+[2025-05-20 12:49:43.323] [info] Inited zmq server.
+Found test keys.
+[2025-05-20 12:49:43.323] [info] ZMQ server socket created and bound.
+[2025-05-20 12:49:43.323] [info] Started zmq read loop.
+```
+
+
+Now you can check that test keys are available by running the following command:
+
+```bash
+cd sgx_data
+ls
+```
+
+You should see, in particular, the following files:
+
+```
+16node.json  
+4node.json 
+```
+
+These files are config files for 4 and 16 nodes respectively used by the test.
+
+Now you can run the test with 4 nodes or 16 nodes.
+
+```
+cd ../test/fournodes
+sudo TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust [consensus-basic]
+```
+
+or
+
+```
+cd ../test/sixteennodes
+sudo TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust [consensus-basic]
+```
+
+
+The test checks if the config files ```4node.json and 16node.json ``` are present, and runs the tests against the wallet. If the files are not present,
+the test runs in a mockup mode. 
+
+
+
 ## Contributing
 
 **If you have any questions please ask our development community on [Discord](https://discord.gg/vvUtWJB).**
