@@ -81,7 +81,6 @@
 
 #include "boost/filesystem.hpp"
 #include <boost/filesystem/operations.hpp>
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/detail/assert.hpp>
 
 #include <boost/bind.hpp>
