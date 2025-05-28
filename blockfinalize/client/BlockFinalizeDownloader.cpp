@@ -448,7 +448,10 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
             }
 
             getNode()->getBlockProposalDB()->addBlockProposal( proposal );
-            CHECK_STATE(getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex))
+            CHECK_STATE(!getNode()->getDaProofDB()->getDASig(blockId, proposerIndex).empty());
+#ifdef BITE
+            CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId))
+ #endif
             return true;
 
         } else {
