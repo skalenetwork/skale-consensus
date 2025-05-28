@@ -320,8 +320,28 @@ bool EthTransactionEncoder::isSignatureValid( const u256& r, const u256& s, cons
     static const u256 s_max{ "0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141" };
     static const u256 s_zero;
 
-    return ( v <= 1 && r > s_zero && s > s_zero && r < s_max && s < s_max );
 
+    if (v > 1) {
+        return false;
+    }
+
+    if (r == s_zero) {
+        return false;
+    }
+
+    if  ( s == s_zero) {
+        return false;
+    }
+
+    if (r >= s_max) {
+        return false;
+    }
+
+    if (s >= s_max) {
+        return false;
+    }
+
+    return true;
 }
 
 
