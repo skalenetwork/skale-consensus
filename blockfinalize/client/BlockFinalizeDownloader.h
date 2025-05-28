@@ -80,7 +80,7 @@ public:
 
     static uint64_t readFragmentSize( nlohmann::json _responseHeader );
 
-    ptr< BlockProposal > downloadProposal();
+    bool downloadProposalDAProofAndDecryptions();
 
 
     string readBlockHash( nlohmann::json _responseHeader );

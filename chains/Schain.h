@@ -390,6 +390,8 @@ public:
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig );
 
+    bool haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex);
+
 #ifdef BITE
     void finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig );

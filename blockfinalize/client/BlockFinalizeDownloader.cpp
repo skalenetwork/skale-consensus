@@ -412,7 +412,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     }
 }
 
-ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
+bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
     MONITOR(__CLASS_NAME__, __FUNCTION__) {
         threadPool = make_shared<BlockFinalizeDownloaderThreadPool>(
             (uint64_t) getSchain()->getNodeCount(), this);
@@ -424,35 +424,36 @@ ptr<BlockProposal> BlockFinalizeDownloader::downloadProposal() {
         // first check if we do not need to do anything because a block separately arrived in catchup
 
         if (getSchain()->getLastCommittedBlockID() > blockId)
-            return nullptr;
+            return false;
 
-        // now check if we have proposal because it arrived separately through block proposal
-        auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(blockId, proposerIndex);
-
-        if (proposal) {
-            return proposal;
+        if (getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex)) {
+            return true;
         }
+
 
         // now we need to recombine the fragment list
         if (fragmentList.isComplete()) {
 #ifdef BITE
             CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId));
 #endif
-            auto block = BlockProposal::deserialize(
+            auto proposal = BlockProposal::deserialize(
                 fragmentList.serialize(), getSchain()->getCryptoManager(), true);
-            CHECK_STATE(block)
-            CHECK_STATE(block->getProposerIndex() == ( uint64_t ) proposerIndex); {
+            CHECK_STATE(proposal)
+            CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex); {
                 LOCK(m)
                 if (!this->blockHash.empty()) {
                     auto h = BLAKE3Hash::fromHex(blockHash);
-                    CHECK_STATE2(block->getHash().compare( h ) == 0, "Incorrect block hash");
+                    CHECK_STATE2(proposal->getHash().compare( h ) == 0, "Incorrect block hash");
                 }
             }
 
-            return block;
+            getNode()->getBlockProposalDB()->addBlockProposal( proposal );
+            CHECK_STATE(getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex))
+            return true;
+
         } else {
-            // if we are here, this means exit was requested
-            return nullptr;
+            // if we are here, this means catchup happened first
+            return false;
         }
     } catch (ExitRequestedException &) {
         throw;
