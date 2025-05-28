@@ -59,9 +59,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="862 Process failed decrypted transactions">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflows/build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/build.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/StorageLimits.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/StorageLimits.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
@@ -70,6 +72,7 @@
       <change beforePath="$PROJECT_DIR$/deps/liblzma/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/Makefile.in" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/aclocal.m4" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/aclocal.m4" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/config.h.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/config.h.in" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/liblzma/configure" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/configure" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/debug/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/debug/Makefile.in" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/lib/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/lib/Makefile.in" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/liblzma/src/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/Makefile.in" afterDir="false" />
@@ -84,6 +87,10 @@
       <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,7 +134,6 @@
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteDataField.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/bite/BiteManager.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -135,10 +141,7 @@
     <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/BlockErrorAnalyzer.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/Schain.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/chains/Schain.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/chains/Schain.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/chains/Schain.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/chains/SchainGettersSetters.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cmake/precompiledheader.cmake" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/cppzmq/zmq.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/AESKeyDecryptionShare.h" root0="FORCE_HIGHLIGHTING" />
@@ -147,7 +150,6 @@
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/BLAKE3Hash.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/crypto/CryptoManager.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/CryptoManager.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/crypto/DecryptedAESKeyList.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/BlockProposal.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -174,12 +176,13 @@
     <setting file="file://$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/OptimizerAgent.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/monitoring/TimeoutAgent.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/Network.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/ConsensusInterface.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/node/Node.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/node/Node.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/NodeGettersSetters.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/oracle/OracleClient.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -245,7 +248,7 @@
     "cf.advertisement.text.overridden": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "bug/844-sync-node-single-node",
+    "git-widget-placeholder": "Reverting in develop",
     "last_opened_file_path": "/d/skale-consensus",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -269,6 +272,11 @@
     <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
     <configuration name="bls_test" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="bls_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="bls_test" TEST_MODE="SUITE_TEST">
@@ -409,11 +417,6 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
