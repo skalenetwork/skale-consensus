@@ -149,8 +149,20 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
                 auto encryptedAESKey = _encryptedAESKeys.at(i);
                 CHECK_STATE(encryptedAESKey)
                 auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
-                publicDecryptionValuesBatch.push_back(cipheredKey.getPublicDecryptionValue());
+                auto U = cipheredKey.U;
+                U.to_affine_coordinates();
+                // validate U
+                libBLS::ThresholdUtils::validateG2(U);
 
+                auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(U, libBLS::BASE_HEXA);
+
+                // convert to string
+                auto publicDecryptionValue = make_shared<string>();
+                for (auto const &str: g2AsStringVector) {
+                    publicDecryptionValue->append(str);
+                }
+
+                publicDecryptionValuesBatch.push_back(publicDecryptionValue);
             } catch (exception& _e) {
                 LOG(err, fmt::format( "Could not validate transaction: {} : {}" , i, _e.what()));
                 _failedTransactions.emplace(i,
