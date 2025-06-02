@@ -271,7 +271,7 @@ BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &
     }
 }
 
-void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result) {
+void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> >) {
     static atomic<uint64_t> counter = 0;
     counter++;
     // corrupt AES transactions infrequently
@@ -284,7 +284,7 @@ void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> > resul
     } else if (corruptionType == 3) {
         //result->resize(result->size() - 1);
     } else if (corruptionType == 4) {
-        result->front() = 1;
+        // result->front() = 1;
     }
 }
 
