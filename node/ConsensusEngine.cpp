@@ -409,9 +409,9 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(
                 sgxServerUrl = string( "http://localhost:1029" );
 
                 sgxSSLKeyFileFullPath =
-                    "/d/skale-consensus/run_sgx_test/sgx_data/cert_data/SGXServerCert.key";
+                    "../../run_sgx_test/sgx_data/cert_data/SGXServerCert.key";
                 sgxSSLCertFileFullPath =
-                    "/d/skale-consensus/run_sgx_test/sgx_data/cert_data/SGXServerCert.crt";
+                    "../../run_sgx_test/sgx_data/cert_data/SGXServerCert.crt";
 
                 this->setTestKeys( sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3 );
             }
