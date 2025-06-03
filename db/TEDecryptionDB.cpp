@@ -111,7 +111,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
 
     CHECK_STATE(_encryptedAESKeyList)
 
-    READ_LOCK(decryptionSetsMutex)
+    WRITE_LOCK(decryptionSetsMutex)
 
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareLists =
         decryptionsStore[_blockId];
@@ -171,6 +171,8 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
     if (it != decryptionsStore.end()) {
         decryptionsStore.erase(decryptionsStore.begin(), it);
     }
+
+    CHECK_STATE(decryptionsStore.size() <= 2 * totalSigners);
 
 
     return aesKeys;
