@@ -303,6 +303,8 @@ public:
 
 #ifdef BITE
     static void addTEDecryptStats(uint64_t _time);
+
+    static uint64_t getTEDecryptStats() { return teDecryptShareTotal / LEVELDB_STATS_HISTORY; }
 #endif
 
     static void addBLSSignStats(uint64_t _time);
