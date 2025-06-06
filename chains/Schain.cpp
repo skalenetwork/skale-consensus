@@ -717,6 +717,9 @@ void Schain::printBlockLog( const ptr< CommittedBlock >& _block ) {
                << ":DSDS:" << getSchain()->getNode()->getNetwork()->computeTotalDelayedSends()
                << ":SET:" << CryptoManager::getEcdsaStats()
                << ":SBT:" << CryptoManager::getBLSStats()
+#ifdef BITE
+               << ":STET:" << CryptoManager::getTEDecryptStats()
+#endif
                << ":SEC:" << CryptoManager::getECDSATotals()
                << ":SBC:" << CryptoManager::getBLSTotals()
                << ":ZSC:" << getCryptoManager()->getZMQSocketCount()
