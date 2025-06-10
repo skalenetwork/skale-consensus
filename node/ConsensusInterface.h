@@ -186,7 +186,7 @@ public:
      */
 
     virtual uint64_t submitOracleRequest(
-            const std::std::string &_spec, std::std::string &_receipt, std::std::string &_errorMessage) = 0;
+            const std::string &_spec, std::string &_receipt, std::string &_errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -200,7 +200,7 @@ public:
      */
 
 
-    virtual uint64_t checkOracleResult(const std::std::string &_receipt, std::std::string &_result) = 0;
+    virtual uint64_t checkOracleResult(const std::string &_receipt, std::string &_result) = 0;
 
 
     struct SyncInfo {
