@@ -367,13 +367,18 @@ u256 LegacyTx::recoverSignatureV(const Signature &sig) const {
         return 0;
     }
     else {
-        CHECK_STATE2(sig.v > 36, "Invalid signature. Expected <= 36, got: " + sig.v.str());
+        CHECK_STATE2(sig.v > 36 || ( sig.v == 27 || sig.v == 28 ),
+                     "Invalid signature. Expected <= 36 or 27 or 28, got: " + sig.v.str());
 
-        u256 const chain = ( sig.v - 35 ) / 2;
-        CHECK_STATE2( chain <= std::numeric_limits< uint64_t >::max(),
-            "Invalid signature: Legacy Tx chainID overflow" );
-        u256 recoveryId = sig.v - ( chain * 2 + 35 );        
-        return recoveryId;
+        u256 recoveryId;
+        if ( sig.v == 27 || sig.v == 28 )
+            recoveryId = sig.v - 27;
+        else {
+            u256 const chain = ( sig.v - 35 ) / 2;
+            CHECK_STATE2( chain <= std::numeric_limits< uint64_t >::max(),
+                "Invalid signature: Legacy Tx chainID overflow" );
+            recoveryId = sig.v - ( chain * 2 + 35 );
+        }
     }
 }
 
