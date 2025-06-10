@@ -93,6 +93,8 @@
 #include "boost/lexical_cast.hpp"
 #include <boost/tokenizer.hpp>
 
+#include "exceptions/InvalidStateException.h"
+
 #pragma GCC diagnostic pop
 
 class ConsensusEngine;

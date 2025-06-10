@@ -211,7 +211,8 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
 #ifdef BITE
         try {
-            pt->parseAndValidateBiteDataField();
+            pt->parseAndValidate();
+            pt->tryGetBiteData();
             result->push_back(pt);
             pushKnownTransaction(pt);
         } catch (std::exception &e) {

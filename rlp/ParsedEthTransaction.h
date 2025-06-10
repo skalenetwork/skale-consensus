@@ -43,10 +43,16 @@ private:
     static inline std::vector< uint8_t > parseBytes(
         const std::vector< uint8_t >& _tx, size_t& _offset );
 
+    size_t getToFieldIndex() const;
+    size_t getDataFieldIndex() const;
+
 
 public:
     static ptr< ParsedEthTransaction > parse( const std::vector< uint8_t >& _rawTx );
+    // TODO should remove the 'Transaction' from the name
     ptr<vector< uint8_t >> getTransactionDataField();
+    ptr<vector< uint8_t >> getToField() const;
+    bool hasToField() const;
     static void testEthereumTxParser();
     void validateToField();
     void validateFieldsCount() const;

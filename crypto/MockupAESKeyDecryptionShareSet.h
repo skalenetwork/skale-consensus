@@ -14,7 +14,12 @@ class DecryptedAESKey;
 class BLAKE3Hash;
 
 class MockupAESKeyDecryptionShareSet : public AESKeyDecryptionShareSet {
+
     std::map< size_t, ptr< MockupAESKeyDecryptionShare > > decryptionShares;  // tsafe
+    
+    size_t totalDecryptors; 
+    size_t requiredDecryptors;
+    
     shared_mutex decryptionSharesLock;
 
     bool isEnoughUnsafe();

@@ -188,13 +188,20 @@ void Transaction::parseAndValidate() {
 }
 
 
-ptr< BiteDataField > Transaction::parseAndValidateBiteDataField() {
-    parseAndValidate();
-    auto pt = std::atomic_load(&parsedAndValidatedEthTransaction )->getTransactionDataField();
+ptr< BiteDataField > Transaction::tryGetBiteData() {
+    auto tx = std::atomic_load(&parsedAndValidatedEthTransaction );
 
-    return BiteDataField::createIfMagicMatches(pt);
+    ptr< BiteDataField > result = nullptr;
+    
+    if (tx->hasToField()) {
+        auto dataField = tx->getTransactionDataField();
+        auto to = tx->getToField();
+        result = BiteDataField::createIfMagicMatches(dataField, to);
+    }
 
+    return result;
 }
+
 ptr< vector< uint8_t > > Transaction::emplaceAndReencodeTransaction(
     vector< uint8_t >& _originalDataField ) {
 

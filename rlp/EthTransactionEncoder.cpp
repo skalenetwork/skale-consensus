@@ -117,9 +117,14 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     txRef.nonce = EthTransaction::u256toBytes( static_cast<u256>( currentNonce ) );
 
     if ( _isByte ) {
-        auto encryptedKeyPlusData = _biteManager->teEncryptData(txRef.data);
+        auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
         BiteDataField biteDataField(encryptedKeyPlusData , 0);
+        // set data
         txRef.data = *biteDataField.getSerializedData();
+        // set to field with BITE magic number
+        txRef.to = { 0x42, 0x49, 0x54, 0x45, 0x20, 0x4D, 0x45, 0x20,
+                     0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
+                     0x59, 0x50, 0x54, 0x44 };
     }
 
     auto encodedTx = signAndEncodeTx( txRef );
@@ -127,6 +132,9 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
 
     return encodedTx;
 }
+
+// TODO - maybe we should just have 3 methods to parse each different type of tx instead
+// of building an object out of it
 ptr< vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
     ParsedEthTransaction& _ethTransaction ) {
     auto fields = _ethTransaction.getFields();
@@ -134,11 +142,14 @@ ptr< vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
     std::unique_ptr<EthTransaction> tx;
 
     auto type = _ethTransaction.getType();
+
     if (type >= 2) {
         throw invalid_argument( "Unknown transaction type" );
     }
 
+
     TxType txType = static_cast< TxType >( type );
+
     switch (txType) {
         case TxType::LEGACY:
             tx = std::make_unique<LegacyTx>(fields);

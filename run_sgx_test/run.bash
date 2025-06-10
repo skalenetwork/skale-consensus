@@ -9,4 +9,5 @@ CONTAINER_NAME="run_sgx_test-sgxwallet-1"
 docker compose pull
 docker compose up & 
 sleep 1
+
 docker cp ${CONTAINER_NAME}:/usr/src/sdk/sgx_data $PWD

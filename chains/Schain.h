@@ -31,6 +31,10 @@
 #include "jsonrpccpp/server/connectors/httpserver.h"
 #include "datastructures/TimeStamp.h"
 
+#ifdef BITE
+#include "bite/BiteManager.h"
+#endif
+
 class ThresholdSignature;
 class CommittedBlockList;
 class NetworkMessageEnvelope;
@@ -304,7 +308,7 @@ public:
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef BITE
-        , ptr< DecryptedAESKeyList > _aesKeyList, ptr< map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactions
+        , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactions
 #endif
         );
 
