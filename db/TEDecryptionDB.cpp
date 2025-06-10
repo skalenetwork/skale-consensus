@@ -104,13 +104,14 @@ void TEDecryptionDB::addDecryptionShares(
     }
 
     decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
+
 };
 
 ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList) {
 
     CHECK_STATE(_encryptedAESKeyList)
 
-    READ_LOCK(decryptionSetsMutex)
+    WRITE_LOCK(decryptionSetsMutex)
 
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareLists =
         decryptionsStore[_blockId];
@@ -161,6 +162,18 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
         CHECK_STATE( key );
         aesKeys->addKey( it.first, *key );
     }
+
+    // clean old shares if they exist in the map
+    // we keep in the map shares for the current block and for the previous block
+    // Find first element >= previous block
+    auto it = decryptionsStore.lower_bound(_blockId - 1);
+    // remove all old shares with block ids < previous block
+    if (it != decryptionsStore.end()) {
+        decryptionsStore.erase(decryptionsStore.begin(), it);
+    }
+
+    CHECK_STATE(decryptionsStore.size() <= 2 * totalSigners);
+
 
     return aesKeys;
 }
