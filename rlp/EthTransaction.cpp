@@ -379,6 +379,8 @@ u256 LegacyTx::recoverSignatureV(const Signature &sig) const {
                 "Invalid signature: Legacy Tx chainID overflow" );
             recoveryId = sig.v - ( chain * 2 + 35 );
         }
+
+        return recoveryId;
     }
 }
 
