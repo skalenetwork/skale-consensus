@@ -8,7 +8,7 @@ using namespace std;
 
 
 class EncryptedAESKey {
-   std::shared_ptr<std::array<std::uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>> key;
+   shared_ptr< array< uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> > key;
 
 public:
    explicit EncryptedAESKey(shared_ptr<array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>> key);

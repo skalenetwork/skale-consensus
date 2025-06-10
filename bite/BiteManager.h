@@ -5,7 +5,7 @@
 #include <vector>
 #include <crypto/AESKeyDecryptionShare.h>
 #include <crypto/AESKeyDecryptionShareSet.h>
-
+#include "node/ConsensusInterface.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 class Schain;
 class BlockProposal;
@@ -15,9 +15,6 @@ class AESKeyDecryptionShareList;
 class BiteDataField;
 class TransactionList;
 class EncryptedAESKey;
-
-
-using DecryptedTransactionDataFields = map<uint64_t, shared_ptr<vector<uint8_t> > >;
 
 class BiteManager {
     Schain &schain;
@@ -47,7 +44,7 @@ public:
     [[nodiscard]]  ptr<vector<ptr<AESKeyDecryptionShare>>> getDecryptionSharesFromAESKeys(vector<ptr<EncryptedAESKey> >& _encryptedAESKeys,
                        schain_index _decryptorIndex, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
-    [[nodiscard]]  ptr<DecryptedTransactionDataFields> verifyAndDecryptTransactionList(TransactionList &_transactionList,
+    [[nodiscard]]  ptr< DecryptedTransactionFieldsMap > verifyAndDecryptTransactionList(TransactionList &_transactionList,
                                                                         DecryptedAESKeyList &_aesKeys);
 
     [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
@@ -56,9 +53,10 @@ public:
 
     [[nodiscard]]  ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
 
-    [[nodiscard]]  ptr<vector<uint8_t>> decryptDataField(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
+    // TODO - change the name of this method
+    [[nodiscard]]  DecryptedTransactionFields decryptFields(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
 
     void corruptFromTimeToTime(shared_ptr<vector<unsigned char>> result);
 
-    [[nodiscard]]  ptr<vector<uint8_t> > teEncryptData(const vector<uint8_t> &_data);
+    [[nodiscard]]  ptr<vector<uint8_t> > teEncryptDataAndToAddress(const vector<uint8_t> &_data, const vector<uint8_t> &_to);
 };

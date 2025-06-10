@@ -112,13 +112,16 @@
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSigShare.h"
 #include "chains/BlockErrorAnalyzer.h"
+
 #ifdef BITE
 #include "bite/BiteManager.h"
 #include "crypto/DecryptedAESKeyList.h"
 #endif
+
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"
+
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
 #endif
@@ -478,7 +481,7 @@ bool Schain::verifyBlsSyncPatch( uint64_t
 void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
     const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr<DecryptedTransactionDataFields> _decryptedTransactionDataFields
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactionFields
 #endif
     ) {
     MONITOR2( __CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime() )
@@ -488,7 +491,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
 
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList)
-    CHECK_ARGUMENT(_decryptedTransactionDataFields)
+    CHECK_ARGUMENT(_decryptedTransactionFields)
 #endif
 
     // wait until the schain state is fully initialized and startup
@@ -539,7 +542,7 @@ void Schain::blockCommitArrived( block_id _committedBlockID, schain_index _propo
         auto newCommittedBlock =
             CommittedBlock::makeFromProposal( committedProposal, _thresholdSig, _daSig
 #ifdef BITE
-            , _aesKeyList, _decryptedTransactionDataFields
+            , _aesKeyList, _decryptedTransactionFields
 #endif
             );
 
@@ -784,8 +787,8 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
             // pending transaction ageent does not exist on a sync node
             CHECK_STATE( pendingTransactionsAgent );
 #ifdef BITE
-            CHECK_STATE(_block->getDecryptedTransactionDataFields())
-            auto biteDecryptedTransactions = _block->getDecryptedTransactionDataFields()->size();
+            CHECK_STATE(_block->getDecryptedTransactionFields())
+            auto biteDecryptedTransactions = _block->getDecryptedTransactionFields()->size();
 #endif
 
             LOG(info, "CWT:" + to_string( blockPushedToExtFaceTimeMs -
@@ -858,9 +861,8 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
     try {
         auto tv = _block->getTransactionList()->createTransactionVector(
 #ifdef BITE
-        _block->getDecryptedTransactionDataFields()
+        _block->getDecryptedTransactionFields()
 #endif
-
         );
 
         // auto next_price = // VERIFY PRICING
@@ -877,7 +879,7 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
 
 
 #ifdef BITE
-        CHECK_STATE(_block->getDecryptedTransactionDataFields() || _block->getProposerIndex() == 0)
+        CHECK_STATE(_block->getDecryptedTransactionFields() || _block->getProposerIndex() == 0)
 #endif
 
         if ( extFace ) {
@@ -885,7 +887,7 @@ void Schain::pushBlockToExtFace( const ptr< CommittedBlock >& _block ) {
                 inCreateBlock = true;
                 extFace->createBlock( *tv,
 #ifdef BITE
-                    _block->getDecryptedTransactionDataFields(),
+                    _block->getDecryptedTransactionFields(),
 #endif
                     _block->getTimeStampS(), _block->getTimeStampMs(),
                     ( __uint64_t ) _block->getBlockID(), currentPrice, _block->getStateRoot(),
@@ -1367,7 +1369,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             // default empty block
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, nullptr
 #ifdef BITE
-            , make_shared<DecryptedAESKeyList>(), make_shared<DecryptedTransactionDataFields>()
+            , make_shared<DecryptedAESKeyList>(), make_shared< DecryptedTransactionFieldsMap >()
 #endif
                 );
             return;
@@ -1473,16 +1475,16 @@ void Schain::finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_in
             CHECK_STATE(keys);
 
             auto transactions = proposal->getTransactionList();
-            auto decryptedTransactionDataFields = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
+            auto _decryptedTransactionFields = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
 
-            CHECK_STATE(decryptedTransactionDataFields);
+            CHECK_STATE(_decryptedTransactionFields);
 
 #endif
 
 
             blockCommitArrived( _blockId, _proposerIndex, _thresholdSig, daSig
 #ifdef BITE
-            , keys, decryptedTransactionDataFields
+            , keys, _decryptedTransactionFields
 #endif
             );
         }

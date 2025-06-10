@@ -22,8 +22,6 @@ public:
     [[nodiscard]] uint64_t getEpoch();
     [[nodiscard]] ptr< vector< uint8_t > >& getSerializedData();
 
-    [[nodiscard]] static ptr<BiteDataField> createIfMagicMatches(ptr<vector<uint8_t >>& _data);
+    [[nodiscard]] static ptr<BiteDataField> createIfMagicMatches(ptr<vector<uint8_t >>& _data, ptr<vector<uint8_t>>& _to);
     const shared_ptr< EncryptedData >& getKeyPlusEncryptedData() const;
 };
-
-
