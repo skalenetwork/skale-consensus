@@ -216,7 +216,8 @@ void ParsedEthTransaction::validateToField() {
     auto toFieldIdx = 3 + type;
 
     const auto& toField = fields.at( toFieldIdx );
-    CHECK_STATE2( !toField.empty() && toField.size() == 20, "Invalid 'to' address length");
+    // toField is empty when deploying a contract
+    CHECK_STATE2( toField.empty() || toField.size() == 20, "Invalid 'to' address length");
 }
 
 inline bool ParsedEthTransaction::isZero( const std::vector< uint8_t >& _data ) {
