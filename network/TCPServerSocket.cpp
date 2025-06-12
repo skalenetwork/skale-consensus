@@ -75,8 +75,8 @@ TCPServerSocket::~TCPServerSocket() {
 void TCPServerSocket::touch() {
     try {
         using namespace boost::asio;
-        ip::tcp::endpoint ep( ip::address::from_string( bindIP ), bindPort );
-        io_service service;
+        ip::tcp::endpoint ep( ip::make_address( bindIP ), bindPort );
+        io_context service;
         ip::tcp::socket sock( service );
         sock.connect( ep );
     } catch ( ... ) {

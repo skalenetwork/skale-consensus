@@ -34,6 +34,8 @@
 #include "exceptions/ConnectionRefusedException.h"
 #include "node/NodeInfo.h"
 
+#include <netinet/tcp.h> 
+
 using namespace std;
 
 

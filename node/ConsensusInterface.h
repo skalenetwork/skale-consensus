@@ -37,8 +37,9 @@
 #include <string>
 #include <vector>
 #include <string_view>
+#include <memory>
+
 #include "libBLS/threshold_encryption/ThresholdEncryption.h"
-// #include "bite/BiteManager.h"
 
 enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0,
