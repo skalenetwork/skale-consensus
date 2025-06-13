@@ -375,7 +375,12 @@ CacheLevelDB::CacheLevelDB( Schain* _sChain, string& _dirName, string& _prefix, 
     this->maxDBSize = _maxDBSize;
     this->options = _options;
     this->readOptions.fill_cache = false;
-    this->writeOptions.sync = true;
+    if (_sChain->getNode()->isSyncOnlyNode()) {
+        // if we are a sync node we dont sync to disk to make it faster
+        this->writeOptions.sync = false;
+    } else {
+        this->writeOptions.sync = true;
+    }
     this->isDuplicateAddOK = _isDuplicateAddOK;
 
     boost::filesystem::path path( dirName );

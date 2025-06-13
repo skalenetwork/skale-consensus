@@ -708,7 +708,8 @@ void Schain::printBlockLog( const ptr< CommittedBlock >& _block ) {
            << ":FDS:" << ConsensusEngine::getOpenDescriptors() << ":PRT:" << proposalReceiptTime
            << ":BTA:" << blockTimeAverageMs << ":BSA:" << blockSizeAverage << ":TPS:" << tpsAverage
            << ":LWT:" << CacheLevelDB::getWriteStats() << ":LRT:" << CacheLevelDB::getReadStats()
-           << ":LWC:" << CacheLevelDB::getWrites() << ":LRC:" << CacheLevelDB::getReads();
+           << ":LWC:" << CacheLevelDB::getWrites() << ":LRC:" << CacheLevelDB::getReads()
+           << ":EPT:" << lastCommittedBlockEvmProcessingTimeMs;
 
 
     if ( !getNode()->isSyncOnlyNode() ) {
@@ -722,8 +723,8 @@ void Schain::printBlockLog( const ptr< CommittedBlock >& _block ) {
 #endif
                << ":SEC:" << CryptoManager::getECDSATotals()
                << ":SBC:" << CryptoManager::getBLSTotals()
-               << ":ZSC:" << getCryptoManager()->getZMQSocketCount()
-               << ":EPT:" << lastCommittedBlockEvmProcessingTimeMs;
+               << ":ZSC:" << getCryptoManager()->getZMQSocketCount();
+//               << ":EPT:" << lastCommittedBlockEvmProcessingTimeMs;
     }
 
     output << ":STAMP:" << stamp.toString();
@@ -770,15 +771,21 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
     try {
         CHECK_STATE( getLastCommittedBlockID() + 1 == _block->getBlockID() )
 
+        auto printBlockLogStartTimeMs = Time::getCurrentTimeMs();
         printBlockLog( _block );
+        auto printBlockLogTimeMs = Time::getCurrentTimeMs() - printBlockLogStartTimeMs;
 
         proposalReceiptTime = 0;
 
         CHECK_STATE( _block->getBlockID() = getLastCommittedBlockID() + 1 )
 
+        auto saveBlockStartTimeMs = Time::getCurrentTimeMs();
         saveBlock( _block );
+        auto saveBlockTimeMs = Time::getCurrentTimeMs() - saveBlockStartTimeMs;
 
+        auto cleanupMemoryStartTimeMs = Time::getCurrentTimeMs();
         cleanupUnneededMemoryBeforePushingToEvm( _block );
+        auto cleanupMemoryTimeMs = Time::getCurrentTimeMs() - cleanupMemoryStartTimeMs;
 
         auto evmProcessingStartMs = Time::getCurrentTimeMs();
         auto blockPushedToExtFaceTimeMs = evmProcessingStartMs;
@@ -806,13 +813,23 @@ void Schain::processCommittedBlock( const ptr< CommittedBlock >& _block ) {
 
         auto stamp = TimeStamp( _block->getTimeStampS(), _block->getTimeStampMs() );
 
+        auto updateInfoStartTimeMs = Time::getCurrentTimeMs();
         updateLastCommittedBlockInfo( ( uint64_t ) _block->getBlockID(), stamp,
             _block->getTransactionList()->size(), evmProcessingTimeMs );
+        auto updateInfoTimeMs = Time::getCurrentTimeMs() - updateInfoStartTimeMs;
 
         // the last thing is to run analyzers to log any errors that happened during
         // block processing
 
+        auto analyzeErrorsStartTimeMs = Time::getCurrentTimeMs();
         analyzeErrors( _block );
+        auto analyzeErrorsTimeMs = Time::getCurrentTimeMs() - analyzeErrorsStartTimeMs;
+
+        LOG( info, "PBLT:" << to_string( printBlockLogTimeMs )
+             << ":SBT:" << to_string( saveBlockTimeMs )
+             << ":CMT:" << to_string( cleanupMemoryTimeMs )
+             << ":UIT:" << to_string( updateInfoTimeMs )
+             << ":AET:" << to_string( analyzeErrorsTimeMs ) );
 
     } catch ( ExitRequestedException& e ) {
         throw;
@@ -1068,14 +1085,14 @@ void Schain::bootstrap( block_id _lastCommittedBlockID, uint64_t _lastCommittedB
     // catch situations that should never happen
 
 
-    if ( lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128 ) {
-        LOG( critical,
-            "CRITICAL ERROR: consensus has way more blocks than skaled. This should never "
-            "happen,"
-            "since consensus passes blocks to skaled." );
-        BOOST_THROW_EXCEPTION( InvalidStateException(
-            "_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128", __CLASS_NAME__ ) );
-    }
+//    if ( lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128 ) {
+//        LOG( critical,
+//            "CRITICAL ERROR: consensus has way more blocks than skaled. This should never "
+//            "happen,"
+//            "since consensus passes blocks to skaled." );
+//        BOOST_THROW_EXCEPTION( InvalidStateException(
+//            "_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128", __CLASS_NAME__ ) );
+//    }
 
 
     if ( lastCommittedBlockIDInConsensus < _lastCommittedBlockID ) {
