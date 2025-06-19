@@ -379,6 +379,12 @@ void Schain::lockWithDeadLockCheck( const char* _functionName ) {
         LOG( info, "Waiting for boostrap to complete ..." );
     }
 
+    // the node could fail to proccess a block in usual way
+    // but then it downloads missing blocks through catchup
+    if ( proposalStageStartTimeMs > 0 )
+        proposalStageFinishTimeMs = Time::getCurrentTimeMs();
+    if ( blockFinalizationStartTimeMs > 0 )
+        blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
 
     auto catchupProcessStartTimeMs = Time::getCurrentTimeMs();
 
