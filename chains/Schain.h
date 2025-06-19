@@ -179,6 +179,10 @@ class Schain : public Agent {
     atomic< uint64_t > proposalReceiptTime = 0;
     atomic< bool > inCreateBlock = false;
 
+    uint64_t proposalStageStartTimeMs = 0;
+    uint64_t proposalStageFinishTimeMs = 0;
+    uint64_t blockFinalizationStartTimeMs = 0;
+    uint64_t blockFinalizationFinishTimeMs = 0;
 
     atomic< uint64_t > bootstrapBlockID = 0;
     uint64_t maxExternalBlockProcessingTime = 0;
@@ -232,6 +236,8 @@ class Schain : public Agent {
     // run on each block commmit to analyze errors if they happened
     void analyzeErrors( ptr< CommittedBlock > _block );
 
+    uint64_t getProposalStageTimeMs();
+    uint64_t getBlockFinalizationStageTimeMs();
 
 public:
     void addBlockErrorAnalyzer( ptr< BlockErrorAnalyzer > _blockErrorAnalyzer );
