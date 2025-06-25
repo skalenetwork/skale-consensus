@@ -82,7 +82,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
 
     auto stamp = TimeStamp::getCurrentTimeStamp();
 
-    auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID,
+    auto myBlockProposal = MyBlockProposal::createMyProposal(*sChain, _blockID,
                                                         sChain->getSchainIndex(), transactionList, stateRoot,
                                                         stamp.getS(), stamp.getMs(),
                                                         getSchain()->getCryptoManager());
@@ -96,7 +96,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
         // could not decrypt proposals, this means something is wrong with the SGX
         // do an empty proposal instead
         // TODO propose non-BITE transactions
-        myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID,
+        myBlockProposal = MyBlockProposal::createMyProposal(*sChain, _blockID,
                                                        sChain->getSchainIndex(),
                                                        make_shared<TransactionList>(
                                                            make_shared<vector<ptr<Transaction> > >()),
