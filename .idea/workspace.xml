@@ -58,12 +58,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="862 Process failed decrypted transactions">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/build.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/build.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SkaleCommon.h" beforeDir="false" afterPath="$PROJECT_DIR$/SkaleCommon.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/StorageLimits.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/StorageLimits.cpp" afterDir="false" />
+    <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="886 Process failed decrypted transactions">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bite/BiteBlockProposalSerializer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/bite/BiteBlockProposalSerializer.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/CommittedBlock.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
@@ -87,10 +88,6 @@
       <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/Node.h" beforeDir="false" afterPath="$PROJECT_DIR$/node/Node.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/node/NodeGettersSetters.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,6 +154,8 @@
     <setting file="file://$PROJECT_DIR$/datastructures/CommittedBlock.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/CommittedBlock.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/CommittedBlockList.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/MyBlockProposal.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/datastructures/MyBlockProposal.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/Transaction.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/Transaction.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/datastructures/TransactionList.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -180,9 +179,7 @@
     <setting file="file://$PROJECT_DIR$/network/Network.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/ZMQSockets.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/ConsensusInterface.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/node/Node.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/node/Node.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/Node.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/node/NodeGettersSetters.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/oracle/OracleClient.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -192,6 +189,7 @@
     <setting file="file://$PROJECT_DIR$/rlp/ParsedEthTransaction.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/sgxclient/SgxZmqClient.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/sgxwallet/ServerInit.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node1/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node2/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/fournodes/node3/Node.json" root0="FORCE_HIGHLIGHTING" />
@@ -248,7 +246,7 @@
     "cf.advertisement.text.overridden": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "Reverting in develop",
+    "git-widget-placeholder": "886-improve-bite-performance",
     "last_opened_file_path": "/d/skale-consensus",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -1199,7 +1197,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="280" />
+    <option name="localTasksCounter" value="282" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1275,7 +1273,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="bug/SKALE-4616-oracle-mvp" />
     <MESSAGE value="88: Tuning chains" />
     <MESSAGE value="#127 log tuneup" />
     <MESSAGE value="#238 better log handling" />
@@ -1300,7 +1297,8 @@
     <MESSAGE value="862 Bite add flatbuffers" />
     <MESSAGE value="1189 bite-clear-pending-queue" />
     <MESSAGE value="862 Process failed decrypted transactions" />
-    <option name="LAST_COMMIT_MESSAGE" value="862 Process failed decrypted transactions" />
+    <MESSAGE value="886 Process failed decrypted transactions" />
+    <option name="LAST_COMMIT_MESSAGE" value="886 Process failed decrypted transactions" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

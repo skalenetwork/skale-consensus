@@ -334,7 +334,7 @@ ptr< BlockProposal > BlockProposal::deserialize(
     CHECK_STATE( !sig.empty() );
 
     auto proposal =
-        BlockProposal::make( blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
+        BlockProposal::makeFromSerialized( blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
             blockHeader->getBlockID(), blockHeader->getProposerIndex(), list,
             blockHeader->getStateRoot(), blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
             blockHeader->getSignature(), nullptr );
@@ -522,7 +522,7 @@ uint64_t BlockProposal::getTotalObjects() {
     return totalBlockProposalObjects;
 }
 
-ptr< BlockProposal > BlockProposal::make( schain_id _sChainId, node_id _proposerNodeId,
+ptr< BlockProposal > BlockProposal::makeFromSerialized( schain_id _sChainId, node_id _proposerNodeId,
     block_id _blockID, schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
     u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
     const ptr< CryptoManager >& _cryptoManager ) {
