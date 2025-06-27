@@ -1429,7 +1429,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
 
         CHECK_STATE(count >= getRequiredSigners())
 
-        auto encryptedAESKeys = proposal->getMyEncryptedAESKeys();
+        auto encryptedAESKeys = proposal->getEncryptedAESKeys();
 
         CHECK_STATE(encryptedAESKeys);
 

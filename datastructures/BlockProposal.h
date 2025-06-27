@@ -54,6 +54,7 @@ class BiteDataField;
 #define SERIALIZE_AS_PROPOSAL 1
 
 #ifdef BITE
+#include "abstracttcpserver/ConnectionStatus.h"
 class AESKeyDecryptionShareList;
 class EncryptedAESKey;
 using EncryptedAESKeyList = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
@@ -182,10 +183,20 @@ public:
 
 private:
     ptr<AESKeyDecryptionShareList> myDecryptionShares = nullptr;
-    ptr<EncryptedAESKeyList> myEncryptedAESKeys = nullptr;
+    ptr<EncryptedAESKeyList> encryptedAESKeys = nullptr;
     ptr<std::map<transaction_index, ptr<BiteDataField> > > biteDataFields;
 
+    // this will normally be empty
+    map<transaction_index, ConnectionSubStatus> failedTransactions;
+
 public:
+
+public:
+    [[nodiscard]] map<transaction_index, ConnectionSubStatus>& getFailedTransactionsRef() {
+        return failedTransactions;
+    }
+
+
     [[nodiscard]] ptr<AESKeyDecryptionShareList> getMyDecryptionShares() const {
         auto result = std::atomic_load(&myDecryptionShares);
         return result;
@@ -193,6 +204,7 @@ public:
 
     [[nodiscard]] ptr<std::map<transaction_index, ptr<BiteDataField> > > getBiteDataFields() const {
         auto result = std::atomic_load(&biteDataFields);
+        CHECK_STATE(result);
         return result;
     }
 
@@ -203,17 +215,22 @@ public:
         biteDataFields = _biteDataFields;
     }
 
-    void setMyDecryptionSharesAndAESKeyList(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares,
-                                            ptr<EncryptedAESKeyList> _myEncryptedAESKeyList) {
+    void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
         CHECK_STATE(_myDecryptionShares);
-        CHECK_STATE(_myEncryptedAESKeyList)
         // verify we are not setting it twice
         CHECK_STATE(std::atomic_exchange(&myDecryptionShares, _myDecryptionShares) == nullptr);
-        CHECK_STATE(std::atomic_exchange(&myEncryptedAESKeys, _myEncryptedAESKeyList) == nullptr);
     }
 
-    [[nodiscard]] ptr<EncryptedAESKeyList> getMyEncryptedAESKeys() const {
-        auto result = std::atomic_load(&myEncryptedAESKeys);
+
+    void seAESKeyList(ptr<EncryptedAESKeyList> _encryptedAESKeyList) {
+        CHECK_STATE(_encryptedAESKeyList)
+        // verify we are not setting it twice
+        CHECK_STATE(std::atomic_exchange(&encryptedAESKeys, _encryptedAESKeyList) == nullptr);
+    }
+
+
+    [[nodiscard]] ptr<EncryptedAESKeyList> getEncryptedAESKeys() const {
+        auto result = std::atomic_load(&encryptedAESKeys);
         return result;
     }
 #endif

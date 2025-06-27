@@ -26,27 +26,19 @@ class BiteManager {
 public:
     explicit BiteManager(Schain &_schain);
 
-    void parseBITETransactions( ptr<BlockProposal> &_proposal, ptr<vector<ptr<Transaction>>> transactions,
-                               map<transaction_index, ConnectionSubStatus> failedTransactions,
-                               shared_ptr<boost::container::flat_map<transaction_index, shared_ptr<EncryptedAESKey>>>
-                               encryptedAESKeyList);
+    static void parseBITETransactions( ptr<BlockProposal> _proposal);
 
     // this will return a map of failed transactions
     // if none of the transactions fails, the  proposal is set with decryption shares
     [[nodiscard]] std::map<transaction_index, ConnectionSubStatus>  verifyAndCreateDecryptionSharesForProposalTransactions(
         ptr<BlockProposal> _proposal);
 
-    [[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(
-        block_id _blockId, schain_index _proposerIndex,
-        const ptr<std::map<transaction_index, ptr<BiteDataField>> > &_biteDataFields,
-        map<transaction_index, ConnectionSubStatus>& _failedTransactions);
+    [[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(ptr<BlockProposal> _proposal);
 
     [[nodiscard]] Schain* getSchain() const {
         return &schain;
     }
 
-    [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(vector<ptr<BiteDataField> > &_dataFields,
-                                                                                              map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
 
     [[nodiscard]]  ptr<vector<ptr<AESKeyDecryptionShare>>> getDecryptionSharesFromAESKeys(vector<ptr<EncryptedAESKey> >& _encryptedAESKeys,
