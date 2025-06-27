@@ -73,7 +73,7 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
                                                            make_shared<vector<ptr<Transaction> > >()),
                                                        _stateRoot, _timeStamp, _timeStampMs,
                                                        _cryptoManager);
-        proposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
+        proposal->setMyDecryptionSharesAndAESKeyList(make_shared<AESKeyDecryptionShareList>(
                                                    _blockID, _sChain.getSchainIndex(),
                                                    _sChain.getSchainIndex()),
                                                make_shared<EncryptedAESKeyList>());

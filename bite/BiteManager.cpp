@@ -29,8 +29,38 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 }
 
 
+void BiteManager::parseBITETransactions(
+ptr<BlockProposal> &_proposal,
+ptr<vector<ptr<Transaction>>> transactions, map<transaction_index, ConnectionSubStatus> failedTransactions, shared_ptr<boost::container::flat_map<transaction_index, shared_ptr<EncryptedAESKey>>> encryptedAESKeyList) {
+    // do simple parsing and validation of BITE format
+    // unparsable transactions will be added to failedTransactions
+    // transactions starting from the magic number but with incorrect format will be added
+    // to failedTransactions
+    transaction_index index = 0;
+    auto biteDataFields = make_shared<std::map<transaction_index, ptr<BiteDataField> > >();
+    for (auto &tx: *transactions) {
+        try {
+            tx->parseAndValidate();
+            auto biteDataField = tx->parseAndValidateBiteDataField();
+            if (biteDataField) {
+                biteDataFields->emplace(index, biteDataField);
+                encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
+            }
+            index = index + 1;
+        } catch (exception &e) {
+            LOG(err, string( "Could not parse transaction:" ) + e.what());
+            failedTransactions.emplace(index,
+                                       ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
+        }
+    }
+
+    if (failedTransactions.empty()) {
+        _proposal->setBiteDataFields(biteDataFields);
+    }
+}
+
 map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecryptionSharesForProposalTransactions(
-    const ptr<BlockProposal> &_proposal) {
+    ptr<BlockProposal> _proposal) {
 
     MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() );
 
@@ -45,46 +75,34 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecrypti
     // this will normally be empty
     map<transaction_index, ConnectionSubStatus> failedTransactions;
 
-
-    std::map<transaction_index, ptr<BiteDataField> > biteDataFields;
     auto encryptedAESKeyList = make_shared<EncryptedAESKeyList>();
 
+    parseBITETransactions(_proposal, transactions, failedTransactions, encryptedAESKeyList);
 
-    // do simple parsing and validation of BITE format
-    // unparsable transactions will be added to failedTransactions
-    // transactions starting from the magic number but with incorrect format will be added
-    // to failedTransactions
-    transaction_index index = 0;
-    for (auto &tx: *transactions) {
-        try {
-            tx->parseAndValidate();
-            auto biteDataField = tx->parseAndValidateBiteDataField();
-            if (biteDataField) {
-                biteDataFields.emplace(index, biteDataField);
-                encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
-            }
-            index = index + 1;
-        } catch (exception &e) {
-            LOG(err, string( "Could not parse transaction:" ) + e.what());
-            failedTransactions.emplace(index,
-                                       ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
-        }
+    if (!failedTransactions.empty()) {
+        return failedTransactions;
     }
+
+
+    auto biteDataFields = _proposal->getBiteDataFields();
+
+    CHECK_STATE(biteDataFields);
+
 
     // this function will not throw exception
     auto decryptionShareList = getDecryptionSharesFromDataFieldsMap(
         _proposal->getBlockID(), _proposal->getProposerIndex(), biteDataFields, failedTransactions);
-    if (failedTransactions.size() > 0) {
+    if (!failedTransactions.empty()) {
         // the block includes invalid transactions, and at this point we know
         // each of them. So we just return them
         return failedTransactions;
     }
     CHECK_STATE(decryptionShareList);
-    CHECK_STATE(decryptionShareList->getSize() == biteDataFields.size());
+    CHECK_STATE(decryptionShareList->getSize() == biteDataFields->size());
     // no we know that the decryption shares are valid, we can set them to the proposal
     // now we set the decryption shares list to the block proposal so it is committed to the
     // database when proposal is committed
-    _proposal->setMyDecryptionShares(decryptionShareList, encryptedAESKeyList);
+    _proposal->setMyDecryptionSharesAndAESKeyList(decryptionShareList, encryptedAESKeyList);
 
     CHECK_STATE(failedTransactions.empty());
 
@@ -94,7 +112,7 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecrypti
 
 ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap(
     block_id _blockId, schain_index _proposerIndex,
-    const std::map<transaction_index, ptr<BiteDataField> > &
+    const ptr<std::map<transaction_index, ptr<BiteDataField> >> &
     _biteDataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
 
     MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
@@ -104,14 +122,16 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
         _blockId, _proposerIndex, schain.getSchainIndex());
 
 
-    if (_biteDataFields.empty()) {
+    CHECK_STATE(_biteDataFields);
+
+    if (_biteDataFields->empty()) {
         return decryptionShareList;
     }
 
     vector<ptr<BiteDataField> > dataFieldsAsVector;
-    dataFieldsAsVector.reserve(_biteDataFields.size());
+    dataFieldsAsVector.reserve(_biteDataFields->size());
 
-    for (auto &&iterator: _biteDataFields) {
+    for (auto &&iterator: *_biteDataFields) {
         dataFieldsAsVector.push_back(iterator.second);
     }
 
@@ -122,11 +142,11 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
         return nullptr;
     }
 
-    CHECK_STATE(decryptiondSharesVector->size() == _biteDataFields.size());
+    CHECK_STATE(decryptiondSharesVector->size() == _biteDataFields->size());
 
 
     auto arrayIndex = 0;
-    for (auto &&iterator: _biteDataFields) {
+    for (auto &&iterator: *_biteDataFields) {
         auto AESKeyDecryptionShare = (*decryptiondSharesVector)[arrayIndex];
         decryptionShareList->addShare(iterator.first, decryptiondSharesVector->at(arrayIndex));
         arrayIndex++;
