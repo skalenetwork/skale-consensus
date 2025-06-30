@@ -39,6 +39,7 @@
 #include "datastructures/BlockProposalFragment.h"
 
 #include "datastructures/CommittedBlock.h"
+#include "datastructures/DAProof.h"
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
 #ifdef BITE
@@ -448,7 +449,15 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
             }
 
             getNode()->getBlockProposalDB()->addBlockProposal( proposal );
-            CHECK_STATE(!getNode()->getDaProofDB()->getDASig(blockId, proposerIndex).empty());
+
+
+
+
+            if (getNode()->getDaProofDB()->getDASig(blockId, proposerIndex).empty()) {
+                CHECK_STATE(daSig);
+                auto daProof = make_shared<DAProof>(proposal, daSig);
+                getNode()->getDaProofDB()->addDAProof(daProof);
+            }
 #ifdef BITE
             CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId))
  #endif
