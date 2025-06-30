@@ -106,7 +106,11 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     auto header = make_shared<BlockFinalizeRequestHeader>(
-        *sChain, blockId, proposerIndex, this->getNode()->getNodeID(), _fragmentIndex);
+        *sChain, blockId, proposerIndex, this->getNode()->getNodeID(), _fragmentIndex
+#ifdef BITE
+    , !this->haveProposal
+#endif
+        );
     CHECK_STATE(_dstIndex != ( uint64_t ) getSchain()->getSchainIndex())
     if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS >
         Time::getCurrentTimeMs()) {
