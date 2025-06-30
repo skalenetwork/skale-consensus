@@ -1337,13 +1337,23 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
 };
 
 
+bool Schain::haveProposalAndDAProof(block_id _blockId, schain_index _proposerIndex) {
+    // to finalize a block and pass it to skaled we need
+    // blockproposal, da proof, and decryption shares
+    auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
+    auto daProofSig = getNode()->getDaProofDB()->getDASig(_blockId, _proposerIndex);
+
+    return proposal && !daProofSig.empty();
+}
+
+
 bool Schain::haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex) {
     // to finalize a block and pass it to skaled we need
     // blockproposal, da proof, and decryption shares
     auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
     auto daProofSig = getNode()->getDaProofDB()->getDASig(_blockId, _proposerIndex);
 
-    return proposal && !daProofSig.empty()
+    return haveProposalAndDAProof(_blockId, _proposerIndex)
 #ifdef BITE
            && getNode()->getTEDecryptionDB()->isEnoughForeignShares(_blockId)
 #endif
@@ -1385,7 +1395,8 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // Dowload missing objects - proposal, daProof, and decryption shares
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posSess the proposal
-            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex); {
+            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex,
+                haveProposalAndDAProof( _blockId,  _proposerIndex)); {
                 const string msg = "Finalization download:" + to_string(_blockId) + ":" +
                                    to_string(_proposerIndex);
 

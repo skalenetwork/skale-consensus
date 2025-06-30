@@ -394,6 +394,9 @@ public:
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig );
 
+
+    bool haveProposalAndDAProof(block_id _blockId, schain_index _proposerIndex);
+
     bool haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex);
 
 #ifdef BITE

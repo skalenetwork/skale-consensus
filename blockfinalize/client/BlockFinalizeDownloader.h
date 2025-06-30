@@ -51,12 +51,21 @@ private:
 
     recursive_mutex m;
 
+#ifdef BITE
+    // we already have the proposal, all we need is threshold decryptions
+    bool haveProposal;
+#endif
+
 public:
     ptr< ThresholdSignature > getDaSig( uint64_t _blockTimeStampS );
 
     ptr< BlockFinalizeDownloaderThreadPool > threadPool = nullptr;
 
-    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex );
+    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex,
+#ifdef BITE
+        bool _haveProposal
+#endif
+        );
 
 
     ~BlockFinalizeDownloader() override;

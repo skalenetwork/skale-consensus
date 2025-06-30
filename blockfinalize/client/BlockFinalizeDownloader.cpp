@@ -61,11 +61,19 @@
 
 
 BlockFinalizeDownloader::BlockFinalizeDownloader(
-    Schain *_sChain, block_id _blockId, schain_index _proposerIndex)
+    Schain *_sChain, block_id _blockId, schain_index _proposerIndex
+#ifdef BITE
+    , bool _haveProposal
+#endif
+    )
     : Agent(*_sChain, false, true),
       blockId(_blockId),
       proposerIndex(_proposerIndex),
-      fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
+      fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1)
+#ifdef BITE
+      , haveProposal(_haveProposal)
+#endif
+{
     CHECK_ARGUMENT(_sChain)
 
     CHECK_STATE(_sChain->getNodeCount() > 1)
