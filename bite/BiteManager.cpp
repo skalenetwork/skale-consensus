@@ -1,4 +1,3 @@
-#include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "Log.h"
 #include <chains/Schain.h>
 #include <crypto/AESKeyDecryptionShare.h>
@@ -44,7 +43,7 @@ void BiteManager::parseBITETransactions(
     for (auto &tx: *_proposal->getTransactionList()->getItems()) {
         try {
             tx->parseAndValidate();
-            auto biteDataField = tx->parseAndValidateBiteDataField();
+            auto biteDataField = tx->tryGetBiteData();
             if (biteDataField) {
                 biteDataFields->emplace(index, biteDataField);
                 encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
@@ -203,9 +202,9 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 
 
 
-ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList(
+ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
     TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys) {
-    auto decryptedDataFields = make_shared<DecryptedTransactionDataFields>();
+    auto decryptedFieldsMap = make_shared<DecryptedTransactionFieldsMap>();
 
     auto txs = _transactionList.getItems();
     CHECK_STATE(txs);
@@ -213,21 +212,18 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
     try {
         for (uint64_t i = 0; i < _transactionList.size(); i++) {
             auto tx = txs->at(i);
-            auto bite = tx->parseAndValidateBiteDataField();
+            tx->parseAndValidate();
+            auto bite = tx->tryGetBiteData();
             if (bite) {
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);
 
-                ptr<vector<uint8_t> > decryptedOriginalDataField = nullptr;
-
                 try {
-                    decryptedOriginalDataField = decryptDataField(bite, *decryptedAESKey);
+                    auto decryptedTransactionFields = decryptFields(bite, *decryptedAESKey);
+                    decryptedFieldsMap->emplace(i, decryptedTransactionFields);
                 } catch (const std::exception &e) {
                     LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}", i, e.what()));
-                    decryptedDataFields->emplace(i, nullptr);;
                 }
-
-                decryptedDataFields->emplace(i, decryptedOriginalDataField);
             } else {
                 CHECK_STATE(!_aesKeys.getKey( i ));
             }
@@ -235,31 +231,45 @@ ptr<DecryptedTransactionDataFields> BiteManager::verifyAndDecryptTransactionList
     }
     CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse BITE transaction");
 
-    return decryptedDataFields;
+    return decryptedFieldsMap;
 }
 
-ptr<vector<uint8_t> >
-BiteManager::decryptDataField(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
+DecryptedTransactionFields
+BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
+
+    ptr< vector< uint8_t > > dataField = nullptr;
 
     if (doRealCrypto) {
         auto encryptedData = _bite->getEncryptedData();
         CHECK_STATE(encryptedData != nullptr);
 
-        std::vector<uint8_t> data = libBLS::ThresholdUtils::aesDecrypt(*encryptedData, _decryptedAESKey.getAesKey());
-        CHECK_STATE(data.size() >= BITE_TE_RANDOM_LEN);
-        // Strip off the trailing random byte
-        return make_shared<vector<uint8_t> >(data.begin(), data.end() - BITE_TE_RANDOM_LEN);
+        libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData);
+        dataField = make_shared<vector<uint8_t>>(libBLS::ThresholdEncryption::decrypt(ciphertext, _decryptedAESKey.getAesKey()));
     } else {
         auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(keyPlusEncryptedData);
         auto decryptedOriginalDataField =
                 libBLS::ThresholdEncryption::mockupDecrypt(*keyPlusEncryptedData);
-        return make_shared<vector<uint8_t> >(decryptedOriginalDataField);
+        dataField = make_shared<vector<uint8_t> >(decryptedOriginalDataField);
     }
+
+    CHECK_STATE2(dataField->size() >= ADDRESS_SIZE, "Decrypted data is not long enough to include the original tx.to field!");
+
+    // extract the last 20 bytes from dataField into toField
+    ptr< vector< uint8_t > > toField = make_shared< std::vector< uint8_t >>(dataField->end() - ADDRESS_SIZE, dataField->end());
+    // remove the to address from dataField
+    dataField->erase(dataField->end() - ADDRESS_SIZE, dataField->end());
+
+    auto decryptedFields = DecryptedTransactionFields {
+        .data = dataField,
+        .to = toField,
+    };
+
+    return decryptedFields;
 }
 
-void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result) {
+void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> >) {
     static atomic<uint64_t> counter = 0;
     counter++;
     // corrupt AES transactions infrequently
@@ -272,35 +282,31 @@ void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> > resul
     } else if (corruptionType == 3) {
         //result->resize(result->size() - 1);
     } else if (corruptionType == 4) {
-        result->front() = 1;
+        // result->front() = 1;
     }
 }
 
-ptr<vector<uint8_t> > BiteManager::teEncryptData(const vector<uint8_t> &_data) {
+ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_t> &_data, const vector<uint8_t> &_to) {
+    // copy content of _data, and append _to to end of it
+    auto data = _data;
+    data.insert(data.end(), _to.begin(), _to.end());
+
     if (this->doRealCrypto) {
         auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
         CHECK_STATE(primaryKey);
         auto blsKey = primaryKey->getPublicKey();
         CHECK_STATE(blsKey);
         libBLS::TEPublicKey teKey(*blsKey);
-        auto cipherText = libBLS::ThresholdEncryption::encrypt(_data, teKey);
-        CHECK_STATE(cipherText.data);
-        auto encodedCipheredKey = cipherText.key.toBytes();
-        auto result = make_shared<vector<uint8_t> >(encodedCipheredKey.begin(), encodedCipheredKey.end());
-        auto data = cipherText.data;
 
-        // make compiler happy
-        result->insert(result->end(), data->begin(), data->begin() +
-                                                     static_cast<std::ptrdiff_t>(data->size()));
-        CHECK_STATE(result->size() == encodedCipheredKey.size() + cipherText.data->size());
+        auto cipherText = libBLS::ThresholdEncryption::encrypt(data, teKey);
+        auto bytes = std::make_shared<vector<uint8_t>>(cipherText.toBytes());
 
 
-        corruptFromTimeToTime(result);
+        corruptFromTimeToTime(bytes);
 
-
-        return result;
+        return bytes;
     } else {
-        return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(_data));
+        return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(data));
     }
 }
 

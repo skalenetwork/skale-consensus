@@ -256,8 +256,10 @@ SET(LINK_LIBRARIES
 
 if (DEFINED BITE)
     SET(LINK_LIBRARIES ${LINK_LIBRARIES}
+            "${DEPS_INSTALL_ROOT}/lib/libquicwebtransport.a"
             "${DEPS_INSTALL_ROOT}/lib/libproxygenhttpserver.a"
             "${DEPS_INSTALL_ROOT}/lib/libproxygen.a"
+            "${DEPS_INSTALL_ROOT}/lib/libmvfst_exception.a"
             "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
             "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
             "${DEPS_INSTALL_ROOT}/lib/libfizz.a"

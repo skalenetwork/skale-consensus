@@ -42,35 +42,18 @@ using namespace std;
 
 ConsensusAESKeyDecryptionShareSet::ConsensusAESKeyDecryptionShareSet( block_id _blockId,
     transaction_index _transactionIndex, size_t _totalDecryptors, size_t _requiredDecryptors )
-    : AESKeyDecryptionShareSet(
-          _blockId, _transactionIndex, _totalDecryptors, _requiredDecryptors ) {};
+    : AESKeyDecryptionShareSet( _blockId, _transactionIndex ), 
+    decryptionShares(_requiredDecryptors, _totalDecryptors) {};
 
 ConsensusAESKeyDecryptionShareSet::~ConsensusAESKeyDecryptionShareSet() = default;
-
 
 ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKey(ptr<EncryptedAESKey> _encryptedAESKey) {
     LOCK( decryptionSharesLock )
 
-    CHECK_STATE( isEnough() );
-
-    uint processedShares = 0;
-    libBLS::TEDecryptSet decryptSet( requiredDecryptors, totalDecryptors );
-
-    for ( auto&& item : decryptionShares ) {
-        CHECK_STATE( item.second );
-        decryptSet.addDecryptShare( *item.second->getTEDecryptionShare() );
-        processedShares++;
-        if ( processedShares == requiredDecryptors ) {
-            break;
-        }
-    }
-    CHECK_STATE( decryptSet.canMerge() );
-
-    libBLS::TE te(requiredDecryptors, totalDecryptors);
-
     auto cipheredKey = libBLS::CipheredKey::fromBytes( *_encryptedAESKey->getKey() );
 
-    libBLS::AES256Key aesKey = te.CombineShares( cipheredKey, decryptSet.getSharesRaw() );
+    // Checks if decryption set can be merged & merges if so
+    libBLS::AES256Key aesKey = libBLS::ThresholdEncryption::combineShares( cipheredKey, decryptionShares);
 
     return make_shared< DecryptedAESKey >( aesKey );
 }
@@ -78,7 +61,7 @@ ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKey(p
 bool ConsensusAESKeyDecryptionShareSet::isEnough() {
     {
         LOCK( decryptionSharesLock )
-        return ( decryptionShares.size() >= requiredDecryptors );
+        return decryptionShares.canMerge();
     }
 }
 
@@ -88,19 +71,18 @@ bool ConsensusAESKeyDecryptionShareSet::addDecryptionShare(
     CHECK_ARGUMENT( _decryptionShare );
 
     LOCK( decryptionSharesLock )
-
-    if ( isEnough() )
-        return false;
-
-    if ( decryptionShares.count( ( uint64_t ) _decryptionShare->getDecryptorIndex() ) > 0 ) {
-        return false;
-    }
-
+    
     auto ds = dynamic_pointer_cast< ConsensusAESKeyDecryptionShare >( _decryptionShare );
-
     CHECK_STATE( ds );
 
-    decryptionShares[( uint64_t ) _decryptionShare->getDecryptorIndex()] = ds;
+    try {
+        decryptionShares.addDecryptShare( *ds->getTEDecryptionShare() );
+        totalObjects.fetch_add( 1 );
+    }
+    catch ( const std::exception& e ) {
+        LOG( warn, "Failed to add decryption share: " << e.what() );
+        return false;
+    }
 
     return true;
 }

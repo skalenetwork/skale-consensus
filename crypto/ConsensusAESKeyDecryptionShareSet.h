@@ -12,7 +12,7 @@ class EncryptedAESKey;
 
 class ConsensusAESKeyDecryptionShareSet : public AESKeyDecryptionShareSet {
     ptr<EncryptedAESKey> encryptedAESKey;
-    std::map< size_t, ptr< ConsensusAESKeyDecryptionShare > > decryptionShares;  // tsafe
+    libBLS::TEDecryptSet decryptionShares;  // tsafe
     recursive_mutex decryptionSharesLock;
 
 public:

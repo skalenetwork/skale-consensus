@@ -37,6 +37,9 @@
 #include <string>
 #include <vector>
 #include <string_view>
+#include <memory>
+
+#include "libBLS/threshold_encryption/ThresholdEncryption.h"
 
 enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0,
@@ -48,17 +51,18 @@ constexpr uint64_t BITE_CHAIN_ID = 0xD1D2D3;
 constexpr std::string_view BITE_CHAIN_ID_AS_STRING = "D1D2D3";
 constexpr uint8_t BITE_CHAIN_ID_AS_BYTE_ARRAY[3] = {0xD1, 0xD2, 0xD3};
 
-constexpr uint64_t BITE_MAGIC_SIZE = 16;
-constexpr std::string_view BITE_MAGIC_AS_STRING = "F3A9C7B1E4D5F28C7B1E9A3F5D2C8B00";
-constexpr uint8_t BITE_MAGIC_AS_BYTE_ARRAY[BITE_MAGIC_SIZE] = {0xF3, 0xA9, 0xC7, 0xB1, 0xE4, 0xD5, 0xF2, 0x8C, 0x7B, 0x1E,
-    0x9A, 0x3F, 0x5D, 0x2C, 0x8B, 0x0};
+constexpr uint64_t ADDRESS_SIZE = 20;
+constexpr std::string_view BITE_ADDRESS_AS_STRING = "42495445204D452049274D20454E435259505444";
+constexpr uint8_t BITE_ADDRESS_AS_BYTE_ARRAY[ADDRESS_SIZE] = {0x42, 0x49, 0x54, 0x45, 0x20, 0x4D, 0x45, 0x20,
+    0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
+    0x59, 0x50, 0x54, 0x44};
 
 static constexpr uint64_t BITE_EPOCH_ID_LEN = sizeof(uint64_t);
-static constexpr uint64_t BITE_AES_KEY_LEN = 32;
-static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = 224;
-static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = 128;
-static constexpr uint64_t BITE_TE_RANDOM_LEN = 32;
-
+static constexpr uint64_t BITE_AES_KEY_LEN = libBLS::AES_256_KEY_SIZE_BYTES;
+static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = libBLS::CipheredKey::CIPHERED_KEY_SIZE_BYTES;
+static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = libBLS::G2_SIZE_BYTES;
+static constexpr uint64_t BITE_TE_RANDOM_LEN = libBLS::RANDOM_SECRET_SIZE_BYTES;
+static constexpr uint64_t BITE_CIPHERTEXT_MIN_LEN = BITE_ENCRYPTED_AES_KEY_LEN + BITE_TE_RANDOM_LEN + ADDRESS_SIZE;
 
 
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
@@ -182,7 +186,7 @@ public:
      */
 
     virtual uint64_t submitOracleRequest(
-            const string &_spec, string &_receipt, string &_errorMessage) = 0;
+            const std::string &_spec, std::string &_receipt, std::string &_errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -196,7 +200,7 @@ public:
      */
 
 
-    virtual uint64_t checkOracleResult(const string &_receipt, string &_result) = 0;
+    virtual uint64_t checkOracleResult(const std::string &_receipt, std::string &_result) = 0;
 
 
     struct SyncInfo {
@@ -218,6 +222,23 @@ public:
 
 };
 
+
+/**
+ * Contains the needed decrypted fields of a transaction
+ * Data - contains only the original plaintext 'data'
+ * To - contains the original plaintext 'to' address
+ */
+struct DecryptedTransactionFields {
+    std::shared_ptr< std::vector< uint8_t > > data;
+    // TODO better to make it std::array of size 20
+    std::shared_ptr< std::vector< uint8_t > > to;
+};
+
+using TxId = uint64_t;
+
+using DecryptedTransactionFieldsMap = std::map< TxId, DecryptedTransactionFields >;
+
+
 /**
  * Through this interface Consensus interacts with the rest of the system
  */
@@ -236,7 +257,7 @@ public:
         // Note: if BITE transaction did not decrypt well due to invalid AES ciphertext
         // , _decryptedTransactionDataFields will include
         // null for this transaction
-        shared_ptr<map<uint64_t, shared_ptr<vector<uint8_t>>>> _decryptedTransactionDataFields,
+        std::shared_ptr< DecryptedTransactionFieldsMap > _decryptedTransactionDataFields,
 #endif
         uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
                              uint64_t _winningNodeIndex) = 0;

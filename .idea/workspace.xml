@@ -164,6 +164,7 @@
     <setting file="file://$PROJECT_DIR$/db/InternalInfoDB.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/StorageLimits.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/TEDecryptionDB.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/db/TEDecryptionDB.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/db/TEDecryptionDB.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/flatb/BlockFinalizeResponseObject.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -247,6 +248,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;886-improve-bite-performance&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;888__cleanup__old__shares__from__cache&quot;,
     &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -469,10 +471,10 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/test/fournodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
-        <env name="TEST_TIME_S" value="180" />
-        <env name="TEST_TRANSACTIONS_PER_BLOCK" value="10" />
+        <env name="TEST_TIME_S" value="18000" />
+        <env name="TEST_TRANSACTIONS_PER_BLOCK" value="100" />
       </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />

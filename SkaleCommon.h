@@ -81,10 +81,8 @@
 
 #include "boost/filesystem.hpp"
 #include <boost/filesystem/operations.hpp>
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/detail/assert.hpp>
 
-#include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -92,6 +90,8 @@
 
 #include "boost/lexical_cast.hpp"
 #include <boost/tokenizer.hpp>
+
+#include "exceptions/InvalidStateException.h"
 
 #pragma GCC diagnostic pop
 
@@ -398,7 +398,7 @@ extern std::string getThreadName();
 #define CHECK_ARGUMENT( _EXPRESSION_ )                                                         \
     if ( !( _EXPRESSION_ ) ) {                                                                 \
         auto __msg__ = string( "Argument Check failed:" ) + #_EXPRESSION_ + "\n" +             \
-                       string( __FILE__ ) + ":" + \
+                       string( __FILE__ ) + ": " + \
                        to_string( __LINE__ );                                                  \
         throw InvalidArgumentException( __msg__, __FUNCTION__ );                             \
     }
@@ -406,7 +406,7 @@ extern std::string getThreadName();
 #define CHECK_STATE( _EXPRESSION_ )                                             \
     if ( !( _EXPRESSION_ ) ) {                                                  \
         auto __msg__ = string( "State check failed::" ) + #_EXPRESSION_ + " " + \
-                       string( __FILE__ ) + ":" + to_string( __LINE__ );        \
+                       string( __FILE__ ) + ": " + to_string( __LINE__ );        \
         throw InvalidStateException( __msg__, __FUNCTION__ );                 \
     }
 
@@ -420,7 +420,7 @@ extern std::string getThreadName();
 #define CHECK_SIGNATURE_STATE( _EXPRESSION_ )                                       \
     if ( !( _EXPRESSION_ ) ) {                                                      \
         auto __msg__ = string( "Signature check failed::" ) + #_EXPRESSION_ + " " + \
-                       string( __FILE__ ) + ":" + to_string( __LINE__ );            \
+                       string( __FILE__ ) + ": " + to_string( __LINE__ );            \
         throw InvalidSignatureException( __msg__, __CLASS_NAME__ );                 \
     }
 
@@ -429,14 +429,14 @@ extern std::string getThreadName();
     if ( !( _EXPRESSION_ ) ) {                                                                 \
         auto __msg__ = string( "Check failed::" ) + #_EXPRESSION_ + " " + string( __FILE__ ) + \
                        ":" + to_string( __LINE__ );                                            \
-        throw InvalidArgumentException( __msg__ + ":" + _MSG_, __CLASS_NAME__ );               \
+        throw InvalidArgumentException( __msg__ + ": " + _MSG_, __CLASS_NAME__ );               \
     }
 
 #define CHECK_STATE2( _EXPRESSION_, _MSG_ )                                                    \
     if ( !( _EXPRESSION_ ) ) {                                                                 \
         auto __msg__ = string( "Check failed::" ) + #_EXPRESSION_ + " " + string( __FILE__ ) + \
                        ":" + to_string( __LINE__ );                                            \
-        throw InvalidStateException( __msg__ + ":" + _MSG_, __FUNCTION__ );                  \
+        throw InvalidStateException( __msg__ + ": " + _MSG_, __FUNCTION__ );                  \
     }
 
 #define ORACLE_CHECK_STATE3( _EXPRESSION_, _MSG_, _ERROR_ )       \

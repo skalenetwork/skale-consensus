@@ -26,11 +26,5 @@ public:
 
     static std::shared_ptr<EncryptedAESKey> generate();
 
-
-    ptr<vector<uint8_t>> encryptData(ptr<vector<uint8_t>>& data);
-
-    ptr<vector<uint8_t>> decryptData(ptr<vector<uint8_t>>& data);
-
-
     virtual ~DecryptedAESKey();
 };

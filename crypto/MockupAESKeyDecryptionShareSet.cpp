@@ -12,9 +12,13 @@
 
     MockupAESKeyDecryptionShareSet::MockupAESKeyDecryptionShareSet(
         block_id _blockId, transaction_index _transactionIndex, size_t _totalDecryptors, size_t _requiredDecryptors )
-        : AESKeyDecryptionShareSet( _blockId, _transactionIndex, _totalDecryptors, _requiredDecryptors ) {
+        : AESKeyDecryptionShareSet( _blockId, _transactionIndex ) {
+        
         CHECK_ARGUMENT( _requiredDecryptors > 0 );
-        CHECK_ARGUMENT( _requiredDecryptors <= totalDecryptors );
+        CHECK_ARGUMENT( _requiredDecryptors <= _totalDecryptors );
+
+        requiredDecryptors = _requiredDecryptors;
+        totalDecryptors = _totalDecryptors;
 
         totalObjects++;
     }

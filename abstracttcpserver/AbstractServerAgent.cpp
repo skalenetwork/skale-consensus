@@ -21,9 +21,6 @@
     @date 2018
 */
 
-
-#include "crypto/bls_include.h"
-
 #include "SkaleCommon.h"
 #include "Log.h"
 #include <exceptions/PingException.h>

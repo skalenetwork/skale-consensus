@@ -112,6 +112,10 @@ echo -e "${COLOR_VAR_NAME}ARCH${COLOR_DOTS}...................${COLOR_VAR_DESC}B
 echo "Cleaning \"deps_inst\" folder..."
 rm -rf ./deps_inst
 rm -rf ./build
+echo "Cleaning archive files..."
+rm -f ./*.tar.gz
+rm -f ./*.tar.bz2
+rm -f ./*.zip
 echo "Cleaning upacked library folders..."
 # fined and remove all dirs excepts pre_downloaded
 find . -maxdepth 1 -type d ! -name 'pre_downloaded' ! -name '.' -exec rm -rf {} +

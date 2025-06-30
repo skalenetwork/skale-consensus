@@ -7,13 +7,11 @@ class DecryptedAESKey;
 
 class AESKeyDecryptionShareSet {
 public:
-    AESKeyDecryptionShareSet( block_id _blockId, transaction_index _transactionIndex, uint64_t _totalDecryptors, uint64_t _requiredDecryptors );
+    AESKeyDecryptionShareSet( const block_id _blockId, transaction_index _transactionIndex );
 
 protected:
     block_id blockId = 0;
     transaction_index transactionIndex = 0;
-    uint64_t totalDecryptors = 0;
-    uint64_t requiredDecryptors = 0;
 
     static atomic< int64_t > totalObjects;
 
