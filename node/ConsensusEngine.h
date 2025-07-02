@@ -242,8 +242,6 @@ public:
     virtual void exitGracefully() override;
 
 #ifdef MIRAGE
-    virtual void restartWithNewConfig( const std::string& _config ) override;
-
     virtual void updateLogger() const override;
 #endif
 

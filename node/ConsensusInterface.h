@@ -221,8 +221,6 @@ public:
     virtual SyncInfo getSyncInfo() = 0;
 
 #ifdef MIRAGE
-    virtual void restartWithNewConfig( const std::string& _config ) = 0;
-
     virtual void updateLogger() const = 0;
 #endif
 

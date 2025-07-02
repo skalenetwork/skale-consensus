@@ -768,10 +768,6 @@ void ConsensusEngine::exitGracefully() {
 }
 
 #ifdef MIRAGE
-void ConsensusEngine::restartWithNewConfig( const std::string& _config ) {
-    ( void ) _config;
-}
-
 void ConsensusEngine::updateLogger() const {
     logThreadLocal_ = nodes.begin()->second->getLog();
 }
