@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <cstdint>
+#include "RLPStream.h"
+#include "RLP.h"
 
 // Suppress deprecated-copy warning caused by Boost.Multiprecision (cpp_int)
 // Boost defines a user-provided copy constructor but no copy assignment operator,
@@ -161,16 +163,16 @@ struct LegacyTx : EthTransaction {
     gasPrice(_gasPrice)
     {}
 
-    LegacyTx(std::vector< std::vector< uint8_t > >& fields) :
+    LegacyTx(RLPItem& fields) :
         EthTransaction(
-            fields.at( 0 ), // nonce
-            fields.at( 2 ), // gasLimit
-            fields.at( 3 ), // to
-            fields.at( 4 ), // value
-            fields.at( 5 ), // data
+            fields[ 0 ].asBytes(), // nonce
+            fields[ 2 ].asBytes(), // gasLimit
+            fields[ 3 ].asBytes(), // to
+            fields[ 4 ].asBytes(), // value
+            fields[ 5 ].asBytes(), // data
             {} // chainId
         ),
-        gasPrice(fields.at( 1 ))
+        gasPrice(fields[ 1 ].asBytes())
     {}
 
     RLPStream encode() const override;
@@ -210,16 +212,16 @@ struct Type1Tx : EthTransaction {
         gasPrice(_gasPrice), accessList(_accessList)
     {}
 
-    Type1Tx(std::vector< std::vector< uint8_t > >& fields) :
+    Type1Tx(RLPItem& fields) :
         EthTransaction(
-            fields.at( 1 ), // nonce
-            fields.at( 3 ), // gasLimit
-            fields.at( 4 ), // to
-            fields.at( 5 ), // value
-            fields.at( 6 ), // data
-            fields.at( 0 )  // chainId
+            fields[ 1 ].asBytes(), // nonce
+            fields[ 3 ].asBytes(), // gasLimit
+            fields[ 4 ].asBytes(), // to
+            fields[ 5 ].asBytes(), // value
+            fields[ 6 ].asBytes(), // data
+            fields[ 0 ].asBytes()  // chainId
         ),
-        gasPrice(fields.at( 2 )),
+        gasPrice(fields[ 2 ].asBytes()),
         accessList({})
     {}
 
@@ -252,17 +254,17 @@ struct Type2Tx : EthTransaction {
         maxPriorityFeePerGas(_maxPriorityFeePerGas), maxFeePerGas(_maxFeePerGas), accessList(_accessList)
     {}
 
-    Type2Tx(std::vector< std::vector< uint8_t > >& fields) :
+    Type2Tx(RLPItem& fields) :
     EthTransaction(
-        fields.at( 1 ), // nonce
-        fields.at( 4 ), // gasLimit
-        fields.at( 5 ), // to
-        fields.at( 6 ), // value
-        fields.at( 7 ), // data
-        fields.at( 0 ) // chainId
+        fields[ 1 ].asBytes(), // nonce
+        fields[ 4 ].asBytes(), // gasLimit
+        fields[ 5 ].asBytes(), // to
+        fields[ 6 ].asBytes(), // value
+        fields[ 7 ].asBytes(), // data
+        fields[ 0 ].asBytes() // chainId
         ),
-        maxPriorityFeePerGas(fields.at( 2 )),
-        maxFeePerGas(fields.at( 3 )),
+        maxPriorityFeePerGas(fields[ 2 ].asBytes()),
+        maxFeePerGas(fields[ 3 ].asBytes()),
         accessList({})
     {}
 

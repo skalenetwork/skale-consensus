@@ -12,13 +12,13 @@ std::vector< uint8_t > RLPStream::rlpEncodeBytes(const std::vector< uint8_t >& d
     // Explicitly handle empty string
     if ( len == 0 ) {
         out.push_back( 0x80 );
-        return;
+        return out;
     }
 
     // Single byte < 0x80 is encoded directly (no prefix)
     if ( len == 1 && data[0] < 0x80 ) {
         out.push_back( data[0] );
-        return;
+        return out;
     }
 
     if ( len < 56 ) {
@@ -41,6 +41,7 @@ std::vector< uint8_t > RLPStream::rlpEncodeBytes(const std::vector< uint8_t >& d
 
     // Append actual data
     out.insert( out.end(), data.begin(), data.end() );
+    return out;
 }
 
 std::vector< uint8_t> RLPStream::rlpEncodeUint256(const std::vector< uint8_t >& value ) {

@@ -22,6 +22,7 @@
 #include <monitoring/LivelinessMonitor.h>
 
 #include "BLSPublicKey.h"
+#include "rlp/RLPStream.h"
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
@@ -253,7 +254,7 @@ BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_de
     ptr< vector< uint8_t > > dataField = nullptr;
 
     if (doRealCrypto) {
-        auto encryptedData = _bite->getEncryptedData();
+        auto encryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(encryptedData != nullptr);
 
         libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData);
@@ -299,9 +300,9 @@ void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> >) {
 }
 
 ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_t> &_data, const vector<uint8_t> &_to) {
-    // copy content of _data, and append _to to end of it
-    auto data = _data;
-    data.insert(data.end(), _to.begin(), _to.end());
+    // RLP encode
+    RLPStream stream;
+    stream << _data << _to;
 
     if (this->doRealCrypto) {
         auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
@@ -310,14 +311,14 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
         CHECK_STATE(blsKey);
         libBLS::TEPublicKey teKey(*blsKey);
 
-        auto cipherText = libBLS::ThresholdEncryption::encrypt(data, teKey);
+        auto cipherText = libBLS::ThresholdEncryption::encrypt(stream.encode(), teKey);
         auto bytes = std::make_shared<vector<uint8_t>>(cipherText.toBytes());
 
         corruptFromTimeToTime(bytes);
 
         return bytes;
     } else {
-        return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(data));
+        return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(stream.encode()));
     }
 }
 

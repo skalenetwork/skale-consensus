@@ -7,41 +7,54 @@
 #include <crypto/EncryptedAESKey.h>
 
 #include "bite/BiteDataFiled.h"
+#include "rlp/RLPStream.h"
+#include "rlp/RLP.h"
 
 /// Minimum size of BITE field excluding the ciphertext from libBLS
 /// which includes both the key + ciphered data
 const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 
 BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
-    : encryptedData(_encryptedKeyPlusData), epoch(_epoch) {
+    : keyPlusEncryptedData(_encryptedKeyPlusData), epoch(_epoch) {
     CHECK_STATE(_encryptedKeyPlusData);
     CHECK_STATE(_encryptedKeyPlusData->size() > BITE_ENCRYPTED_AES_KEY_LEN);
-    
     
     auto aesKeyArray = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>();
     std::copy_n(_encryptedKeyPlusData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, aesKeyArray->begin());
     encryptedAESKey = std::make_shared<EncryptedAESKey>(aesKeyArray);
-    serializedData = make_shared<vector<uint8_t> >();
-    serializedData->reserve(BITE_MIN_DATA_LEN + _encryptedKeyPlusData->size());
+
+    // build serialized RLP-encoded data field
     uint64_t epochBE = boost::endian::native_to_big(_epoch);
-    uint8_t* epochBytes = reinterpret_cast<uint8_t*>(&epochBE);
-    serializedData->insert(serializedData->end(), epochBytes, epochBytes + sizeof(epochBE));
-    serializedData->insert(serializedData->end(), encryptedData->begin(), encryptedData->end());
+    std::vector<uint8_t> epochBytes(reinterpret_cast<uint8_t*>(&epochBE),
+                                reinterpret_cast<uint8_t*>(&epochBE) + sizeof(epochBE));
+
+    RLPStream rlpStream;
+    rlpStream << epochBytes << *_encryptedKeyPlusData;
+    serializedData = make_shared<vector<uint8_t> >(rlpStream.encode());
 }
 
 BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data) {
-    CHECK_STATE(_data)
-    CHECK_STATE(_data->size() > BITE_EPOCH_ID_LEN + BITE_ENCRYPTED_AES_KEY_LEN);
+    CHECK_STATE(_data);
 
+    // parse RLP-encoded tx data field
+    RLPItem rlp(*_data);
+    CHECK_STATE2(rlp.isList(), "RLP item is not a list");
+    CHECK_STATE2(rlp.size() == 2, "RLP item should have at least 2 fields - EPOCH_ID, and bite encrypted data");
+    
+    // validate EPOCH ID
+    const auto epoch_id = rlp[0].asBytes();
+    CHECK_STATE2(epoch_id.size() == BITE_EPOCH_ID_LEN,
+        "Incorrectly formatted BITE transaction: EPOCH_ID size is not " + to_string(BITE_EPOCH_ID_LEN) + " bytes, found: " + to_string(epoch_id.size()));
+
+    // validate encrypted data
+    keyPlusEncryptedData = make_shared<std::vector<uint8_t>>(rlp[1].asBytes());
+    CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
+        "Incorrectly formatted BITE transaction: Encrypted data size is not at least " + to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " + to_string(keyPlusEncryptedData->size()));
+    // get encrypted key part
     auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
-
-    std::copy_n(_data->begin() + BITE_EPOCH_ID_LEN, BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
-
-    auto encryptedDataStart = _data->begin() + BITE_EPOCH_ID_LEN;
+    std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
     encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
-    encryptedData = make_shared<EncryptedData>(encryptedDataStart, _data->end());
-    keyPlusEncryptedData = make_shared<vector<uint8_t>>(_data->begin() + BITE_EPOCH_ID_LEN,
-        _data->end());
+
     serializedData = _data;
 }
 
@@ -52,15 +65,9 @@ const shared_ptr< EncryptedData >& BiteDataField::getKeyPlusEncryptedData() cons
     return keyPlusEncryptedData;
 }
 
-ptr<EncryptedData> &BiteDataField::getEncryptedData() {
-    CHECK_STATE(encryptedData)
-    return encryptedData;
-}
-
 uint64_t BiteDataField::getEpoch() {
     return epoch;
 }
-
 
 
 ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data, ptr<vector<uint8_t> > &_to) {
@@ -72,9 +79,6 @@ ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_d
                     _to->begin())) {
         return nullptr;
     }
-
-    CHECK_STATE2 (_data->size() >= BITE_MIN_DATA_LEN + BITE_ENCRYPTED_AES_KEY_LEN,
-        "Icorrectly formatted BITE transaction: Data size too short" + to_string(_data->size()));
 
     return ptr<BiteDataField>(new BiteDataField(_data));
 }

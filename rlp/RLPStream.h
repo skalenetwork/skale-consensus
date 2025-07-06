@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <cstdint>
+#include <cstddef>
 #include <boost/multiprecision/cpp_int.hpp>
 
 using uint256 = std::vector< uint8_t >;
@@ -8,16 +9,19 @@ using uint256 = std::vector< uint8_t >;
 using u256 = boost::multiprecision::number< boost::multiprecision::cpp_int_backend< 256, 256,
 boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void > >;
 
+/**
+ * @brief RLPStream is a class for encoding data in the Recursive Length Prefix (RLP) format.
+ * It is only used for encoding, not decoding.
+ * For decoding, refer to the RLP class.
+ */
 class RLPStream {
 private:
 
     //  ----------------------- Helper functions for RLP encoding -------------------------------//
 
-    inline static std::vector< uint8_t > rlpEncodeBytes( const std::vector< uint8_t >& data );
+    static std::vector< uint8_t > rlpEncodeBytes( const std::vector< uint8_t >& data );
 
-    inline static std::vector< uint8_t > rlpEncodeUint256( const std::vector< uint8_t >& value );
-
-    inline static std::vector< uint8_t > rlpEncodeList( const std::vector< std::vector< uint8_t > >& elements );
+    static std::vector< uint8_t > rlpEncodeUint256( const std::vector< uint8_t >& value );
 
 public:
     RLPStream() = default;
@@ -36,6 +40,7 @@ public:
 
     std::vector<uint8_t> encode() const;
 
+    // Appending operators
     RLPStream& operator<<(const std::vector<uint8_t>& bytes) {
         data.push_back(rlpEncodeBytes(bytes));
         return *this;
@@ -52,4 +57,8 @@ public:
         }
         return *this;
     }
+
+
+
+
 };

@@ -114,7 +114,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     }
 
     EthTransaction& txRef = *tx;
-    txRef.nonce = EthTransaction::u256toBytes( static_cast<u256>( currentNonce ) );
+    txRef.nonce = RLPStream::u256toBytes( static_cast<u256>( currentNonce ) );
 
     if ( _isByte ) {
         auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
