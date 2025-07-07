@@ -199,6 +199,12 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
     try {
         getNode()->getTEDecryptionDB()->addDecryptionShares(decryptionShares);
     } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not add decryption shares to DB");
+
+
+     if (!needFragment) {
+         return 0;
+     }
+
 #endif
 
     uint64_t next = 0;
