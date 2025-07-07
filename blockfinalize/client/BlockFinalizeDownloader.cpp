@@ -248,6 +248,19 @@ string BlockFinalizeDownloader::readDAProofSig(nlohmann::json _responseHeader) {
 }
 
 
+void BlockFinalizeDownloader::processDAProofSig(nlohmann::json _responseHeader, string h) {
+    auto sig = readDAProofSig(_responseHeader); {
+        LOCK(m)
+
+        // if we did not received da sig yet, set it.
+        if (!this->daSig && !sig.empty()) {
+            auto blakeHash = BLAKE3Hash::fromHex(h);
+            this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
+                blakeHash, sig, blockId, uint64_t(-1));
+        }
+    }
+}
+
 ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     const ptr<ClientSocket> &_socket, nlohmann::json _responseHeader,
     fragment_index _fragmentIndex, node_count _nodeCount
@@ -266,27 +279,25 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     auto blockSize = readBlockSize(_responseHeader);
     auto h = readBlockHash(_responseHeader);
     CHECK_STATE(!h.empty())
-    auto sig = readDAProofSig(_responseHeader); {
-        LOCK(m)
 
 
-        // if we did not receive block hash yet, set it. Otherwise, compare it to the known hash
-        if (this->blockHash.empty()) {
-            this->blockHash = h;
-        } else {
-            if (this->blockHash != h) {
-                getSchain()->addBlockErrorAnalyzer(make_shared<BlockErrorAnalyzer>());
-                CHECK_STATE(h == blockHash);
-            }
-        }
+    // if we did not receive block hash yet, set it. Otherwise, compare it to the known hash
+     if (this->blockHash.empty()) {
+         this->blockHash = h;
+     } else {
+         if (this->blockHash != h) {
+             getSchain()->addBlockErrorAnalyzer(make_shared<BlockErrorAnalyzer>());
+             CHECK_STATE(h == blockHash);
+         }
+     }
 
-        // if we did not received da sig yet, set it.
-        if (!this->daSig && !sig.empty()) {
-            auto blakeHash = BLAKE3Hash::fromHex(h);
-            this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
-                blakeHash, sig, blockId, uint64_t(-1));
-        }
+#ifdef BITE
+    if (this->needDAProofSig) {
+#endif
+        processDAProofSig(_responseHeader, h);
+#ifdef BITE
     }
+#endif
 
     auto serializedFragment = make_shared<vector<uint8_t> >(fragmentSize);
 

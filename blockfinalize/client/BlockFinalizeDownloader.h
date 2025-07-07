@@ -105,6 +105,8 @@ public:
 
     string readDAProofSig( nlohmann::json _responseHeader );
 
+    void processDAProofSig(nlohmann::json _responseHeader, string h);
+
     bool exitDownloadLoop();
 
     void waitAfterNetworkError();

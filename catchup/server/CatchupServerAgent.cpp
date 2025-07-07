@@ -369,8 +369,11 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
                     proposal->getBlockID(), proposal->getProposerIndex() );
         }
 
-        CHECK_STATE( !daSig.empty() );
+        CHECK_STATE2( !daSig.empty(),  "Proposal has empty daSig" );
 
+        auto hash = proposal->getHash().toHex();
+
+        CHECK_STATE2(!hash.empty(), "Proposal has empty hash");
 
 #ifdef BITE
 
@@ -404,8 +407,6 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
 
         CHECK_STATE( fragment );
 
-
-
         _responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );
 
 
@@ -423,7 +424,7 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         }
 
         _responseHeader->setFragmentParams( serializedFragment->size(),
-                                            proposal->serializeProposal()->size(), proposal->getHash().toHex(), daSig );
+                                            proposal->serializeProposal()->size(), hash, daSig );
 
         return serializedFragment;
     } catch ( ExitRequestedException& e ) {
