@@ -395,7 +395,8 @@ public:
         const ptr< ThresholdSignature >& _thresholdSig );
 
 
-    bool haveProposalAndDAProof(block_id _blockId, schain_index _proposerIndex);
+    bool haveProposal(block_id _blockId, schain_index _proposerIndex);
+    bool haveDAProof(block_id _blockId, schain_index _proposerIndex);
 
     bool haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex);
 

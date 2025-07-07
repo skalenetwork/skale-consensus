@@ -1340,23 +1340,23 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
 };
 
 
-bool Schain::haveProposalAndDAProof(block_id _blockId, schain_index _proposerIndex) {
-    // to finalize a block and pass it to skaled we need
-    // blockproposal, da proof, and decryption shares
-    auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
+bool Schain::haveDAProof(block_id _blockId, schain_index _proposerIndex) {
     auto daProofSig = getNode()->getDaProofDB()->getDASig(_blockId, _proposerIndex);
+    return !daProofSig.empty();
+}
 
-    return proposal && !daProofSig.empty();
+
+bool Schain::haveProposal(block_id _blockId, schain_index _proposerIndex) {
+    auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
+    return proposal != nullptr;
 }
 
 
 bool Schain::haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex) {
     // to finalize a block and pass it to skaled we need
     // blockproposal, da proof, and decryption shares
-    auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
-    auto daProofSig = getNode()->getDaProofDB()->getDASig(_blockId, _proposerIndex);
 
-    return haveProposalAndDAProof(_blockId, _proposerIndex)
+    return haveProposal(_blockId, _proposerIndex) && haveDAProof(_blockId, _proposerIndex)
 #ifdef BITE
            && getNode()->getTEDecryptionDB()->isEnoughForeignShares(_blockId)
 #endif
@@ -1400,7 +1400,8 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // guaranteed to posSess the proposal
             auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex
 #ifdef BITE
-                , haveProposalAndDAProof( _blockId,  _proposerIndex), true, true
+                , !haveDAProof( _blockId,  _proposerIndex), true, !haveProposal(_blockId,
+                    _proposerIndex)
 #endif
                 ); {
                 const string msg = "Finalization download:" + to_string(_blockId) + ":" +
