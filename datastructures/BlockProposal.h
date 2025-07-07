@@ -109,11 +109,19 @@ protected:
                   uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
                   const ptr<CryptoManager> &_cryptoManager);
 
+
+    static ptr<BlockProposal> deserialize(const ptr<vector<uint8_t> > &_serializedProposal,
+                                          const ptr<CryptoManager> &_manager, bool _verifySig);
+
 public:
     static ptr<BlockProposalHeader> parseBlockHeader(const string_view &_header);
 
     static ptr<BlockProposal> makeFromNetworkSerialized(const ptr<vector<uint8_t> > &_serializedProposal,
                                                         const ptr<CryptoManager> &_manager);
+
+    static ptr<BlockProposal> makeFromDBSerialized(const ptr<vector<uint8_t> > &_serializedProposal,
+                                                    const ptr<CryptoManager> &_manager);
+
 
 
     void setCachedSerializedProposal(const ptr<vector<uint8_t> > &_cachedSerializedProposal);
@@ -166,8 +174,6 @@ public:
 
     ptr<BlockProposalRequestHeader> createProposalRequestHeader(Schain *_sChain);
 
-    static ptr<BlockProposal> deserialize(const ptr<vector<uint8_t> > &_serializedProposal,
-                                          const ptr<CryptoManager> &_manager, bool _verifySig);
 
     static ptr<BlockProposal> defragment(const ptr<BlockProposalFragmentList> &_fragmentList,
                                          const ptr<CryptoManager> &_cryptoManager);

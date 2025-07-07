@@ -197,7 +197,7 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
 
     // dont check signatures on proposals stored in the db since they have already been verified
     auto proposal =
-        BlockProposal::deserialize( serializedProposal, getSchain()->getCryptoManager(), false );
+        BlockProposal::makeFromDBSerialized( serializedProposal, getSchain()->getCryptoManager());
 
     if ( !proposal )
         return nullptr;

@@ -299,9 +299,20 @@ ptr<vector<uint8_t> > BlockProposal::serializeTransactionsAndCompleteSerializati
 
 ptr<BlockProposal> BlockProposal::makeFromNetworkSerialized(
     const ptr<vector<uint8_t> > &_serializedProposal, const ptr<CryptoManager> &_manager) {
+    // we verify sigs when receiving from network
     auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
     return proposal;
 }
+
+ptr<BlockProposal>  BlockProposal::makeFromDBSerialized(
+    const ptr<vector<uint8_t> > &_serializedProposal, const ptr<CryptoManager> &_manager) {
+    // we do not verify sigs when reading from internal DB
+    auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
+
+
+    return proposal;
+}
+
 
 
 ptr<BlockProposal> BlockProposal::deserialize(
