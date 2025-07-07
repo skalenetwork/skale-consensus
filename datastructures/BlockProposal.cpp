@@ -452,7 +452,7 @@ ptr<TransactionList> BlockProposal::deserializeTransactions(
     const ptr<BlockProposalHeader> &_header, const string &_headerString,
     const ptr<vector<uint8_t> > &_serializedBlock) {
     CHECK_ARGUMENT(_header);
-    CHECK_ARGUMENT(_headerString !          = "");
+    CHECK_ARGUMENT(_headerString != "");
     CHECK_ARGUMENT(_serializedBlock);
 
     auto headerSize = _headerString.size();
