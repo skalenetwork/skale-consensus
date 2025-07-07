@@ -409,7 +409,12 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         _responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );
 
 
-        auto serializedFragment = fragment->serialize();
+        auto serializedFragment = fragment->serialize(
+#ifdef BITE
+        needDecryptionShares,
+        needFragment
+#endif
+        );
 
         CHECK_STATE( serializedFragment );
 

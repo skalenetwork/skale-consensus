@@ -102,7 +102,12 @@ public:
 
     [[nodiscard]] fragment_index getIndex() const;
 
-    [[nodiscard]] ptr<vector<uint8_t> > serialize();
+    [[nodiscard]] ptr<vector<uint8_t> > serialize(
+#ifdef BITE
+    bool needDecryptionShares,
+    bool needFragment
+#endif
+    );
 
     [[nodiscard]] uint64_t getBlockSize() const;
 

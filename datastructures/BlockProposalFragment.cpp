@@ -107,7 +107,9 @@ fragment_index BlockProposalFragment::getIndex() const {
     return fragmentIndex;
 }
 
-ptr< vector< uint8_t > > BlockProposalFragment::serialize() {
+ptr< vector< uint8_t > > BlockProposalFragment::serialize(
+    bool needDecryptionShares,
+    bool needFragment) {
 #ifdef BITE
 
 
@@ -122,6 +124,11 @@ ptr< vector< uint8_t > > BlockProposalFragment::serialize() {
 
 
     flatbuffers::Offset< flatbuffers::Vector< unsigned char > > fbData;
+
+   if (!needFragment) {
+       data = std::make_shared< vector< uint8_t > >( );;
+   }
+
     if ( data ) {
         fbData = builder.CreateVector( *data );
     }
@@ -129,6 +136,11 @@ ptr< vector< uint8_t > > BlockProposalFragment::serialize() {
     // ✅ Create empty vector of raw pointers for Hash*
     auto emptyHashVec = builder.CreateVector< const skale_fb::Hash* >( {} );
     std::vector< flatbuffers::Offset< skale_fb::DecryptionShare > > decryptionShareOffsets;
+
+    if (!needDecryptionShares) {
+        // return empty shares
+        decryptionShares = std::make_shared< AESKeyDecryptionShareList >( blockId, proposerIndex, decryptorIndex );
+    }
 
 
     for ( const auto& decryptionShare : decryptionShares->getDecryptionShares() ) {
