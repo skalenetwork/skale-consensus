@@ -78,6 +78,11 @@ void BlockFinalizeRequestHeader::addFields( nlohmann::basic_json<>& jsonRequest 
 
     jsonRequest["fragmentIndex"] = ( uint64_t ) fragmentIndex;
     jsonRequest["nodeID"] = ( uint64_t ) nodeID;
+#ifdef BITE
+    jsonRequest["needDAProofSig"] = needDAProofSig;
+    jsonRequest["needDecryptionShares"] = needDecryptionShares;
+    jsonRequest["needFragment"] = needFragment;
+#endif
 }
 
 const node_id& BlockFinalizeRequestHeader::getNodeId() const {

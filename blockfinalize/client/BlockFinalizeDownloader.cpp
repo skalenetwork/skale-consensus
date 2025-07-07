@@ -260,7 +260,9 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     auto blockSize = readBlockSize(_responseHeader);
     auto h = readBlockHash(_responseHeader);
     CHECK_STATE(!h.empty())
-    auto sig = readDAProofSig(_responseHeader); {
+    auto sig = readDAProofSig(_responseHeader);
+
+    {
         LOCK(m)
 
 
