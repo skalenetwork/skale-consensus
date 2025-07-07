@@ -67,15 +67,15 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
     bool _needDecryptionShares,
     bool _needFragment
 #endif
-    )
+)
     : Agent(*_sChain, false, true),
       blockId(_blockId),
       proposerIndex(_proposerIndex),
       fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1)
 #ifdef BITE
-    , needDAProofSig(_needDAProofSig)
-    , needDecryptionShares(_needDecryptionShares)
-    , needFragment(_needFragment)
+      , needDAProofSig(_needDAProofSig)
+      , needDecryptionShares(_needDecryptionShares)
+      , needFragment(_needFragment)
 #endif
 {
     CHECK_ARGUMENT(_sChain)
@@ -116,7 +116,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
         , this->needDecryptionShares
         , this->needFragment
 #endif
-        );
+    );
     CHECK_STATE(_dstIndex != ( uint64_t ) getSchain()->getSchainIndex())
     if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS >
         Time::getCurrentTimeMs()) {
@@ -260,9 +260,7 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     auto blockSize = readBlockSize(_responseHeader);
     auto h = readBlockHash(_responseHeader);
     CHECK_STATE(!h.empty())
-    auto sig = readDAProofSig(_responseHeader);
-
-    {
+    auto sig = readDAProofSig(_responseHeader); {
         LOCK(m)
 
 
@@ -451,13 +449,14 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
             return true;
         }
 
+        ptr<BlockProposal> proposal = getNode()->getBlockProposalDB()->getBlockProposal(blockId, proposerIndex);
 
         // now we need to recombine the fragment list
-        if (fragmentList.isComplete()) {
+        if (!proposal && fragmentList.isComplete()) {
 #ifdef BITE
             CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId));
 #endif
-            auto proposal = BlockProposal::makeFromNetworkSerialized(
+            proposal = BlockProposal::makeFromNetworkSerialized(
                 fragmentList.serialize(), getSchain()->getCryptoManager());
             CHECK_STATE(proposal)
             CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex); {
@@ -470,29 +469,22 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 
 #ifdef BITE
             auto failedTransactions =
-                getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(proposal);
+                    getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(proposal);
             CHECK_STATE2(failedTransactions.empty(), "Proposal includes invalid BITE transactions");
 #endif
 
-            getNode()->getBlockProposalDB()->addBlockProposal( proposal );
-
-
-
-
-            if (getNode()->getDaProofDB()->getDASig(blockId, proposerIndex).empty()) {
-                CHECK_STATE(daSig);
-                auto daProof = make_shared<DAProof>(proposal, daSig);
-                getNode()->getDaProofDB()->addDAProof(daProof);
-            }
-#ifdef BITE
-            CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId))
- #endif
-            return true;
-
-        } else {
-            // if we are here, this means catchup happened first
-            return false;
+            getNode()->getBlockProposalDB()->addBlockProposal(proposal);
         }
+
+        if (getNode()->getDaProofDB()->getDASig(blockId, proposerIndex).empty()) {
+            CHECK_STATE(daSig);
+            auto daProof = make_shared<DAProof>(proposal, daSig);
+            getNode()->getDaProofDB()->addDAProof(daProof);
+        }
+#ifdef BITE
+        CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId))
+#endif
+        return true;
     } catch (ExitRequestedException &) {
         throw;
     } catch (exception &e) {

@@ -338,7 +338,7 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         string daSig;
 
 
-        // did not find the proposal or we do not have da proof from it
+        // did not find the proposal or we do not have da proof f`rom it
         // try committed block
         if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal )) {
             // Could not find proposal with DA proof. Try committed block
