@@ -79,6 +79,8 @@ struct EthTransaction {
         : nonce(nonce), gasLimit(gasLimit), to(to), value(value), data(data), chainId(chainId)
     {}
     
+    virtual ~EthTransaction() {}
+
     /**
      * @brief Signs a transaction, returning the resulting signature.
      */
