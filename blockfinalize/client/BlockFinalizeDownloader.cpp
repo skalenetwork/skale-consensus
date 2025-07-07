@@ -63,7 +63,9 @@
 BlockFinalizeDownloader::BlockFinalizeDownloader(
     Schain *_sChain, block_id _blockId, schain_index _proposerIndex
 #ifdef BITE
-    , bool _haveProposal
+    , bool _needDAProofSig,
+    bool _needDecryptionShares,
+    bool _needFragment
 #endif
     )
     : Agent(*_sChain, false, true),
@@ -71,7 +73,9 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
       proposerIndex(_proposerIndex),
       fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1)
 #ifdef BITE
-      , haveProposal(_haveProposal)
+    , needDAProofSig(_needDAProofSig)
+    , needDecryptionShares(_needDecryptionShares)
+    , needFragment(_needFragment)
 #endif
 {
     CHECK_ARGUMENT(_sChain)
@@ -108,7 +112,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
     auto header = make_shared<BlockFinalizeRequestHeader>(
         *sChain, blockId, proposerIndex, this->getNode()->getNodeID(), _fragmentIndex
 #ifdef BITE
-    , !this->haveProposal
+    , this->needFragment
 #endif
         );
     CHECK_STATE(_dstIndex != ( uint64_t ) getSchain()->getSchainIndex())

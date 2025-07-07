@@ -53,7 +53,9 @@ private:
 
 #ifdef BITE
     // we already have the proposal, all we need is threshold decryptions
-    bool haveProposal;
+    bool needDAProofSig;
+    bool needDecryptionShares;
+    bool needFragment;
 #endif
 
 public:
@@ -63,10 +65,11 @@ public:
 
     BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex
 #ifdef BITE
-        , bool _haveProposal
+        , bool _needDAProofSig,
+        bool _needDecryptionShares,
+        bool _needFragment
 #endif
         );
-
 
     ~BlockFinalizeDownloader() override;
 
