@@ -30,7 +30,9 @@ class BlockFinalizeRequestHeader : public AbstractBlockRequestHeader {
     node_id nodeID;
 
 #ifdef BITE
-    bool needData = false;
+    bool needDAProofSig;
+    bool needDecryptionShares;
+    bool needFragment;
 #endif
 
 
@@ -38,7 +40,9 @@ public:
     BlockFinalizeRequestHeader( Schain& _sChain, block_id _blockID, schain_index _proposerIndex,
         node_id _nodeID, fragment_index _fragmentIndex
 #ifdef BITE
-        , bool _needData
+        ,  bool _needDAProofSig
+        , bool _needDecryptionShares
+        , bool _needFragment
 #endif
     );
 

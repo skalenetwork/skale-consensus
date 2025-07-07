@@ -112,7 +112,9 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
     auto header = make_shared<BlockFinalizeRequestHeader>(
         *sChain, blockId, proposerIndex, this->getNode()->getNodeID(), _fragmentIndex
 #ifdef BITE
-    , this->needFragment
+        , this->needDAProofSig
+        , this->needDecryptionShares
+        , this->needFragment
 #endif
         );
     CHECK_STATE(_dstIndex != ( uint64_t ) getSchain()->getSchainIndex())
