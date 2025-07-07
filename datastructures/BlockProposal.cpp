@@ -394,6 +394,7 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(
     uint64_t _totalFragments, fragment_index _index
 #ifdef BITE
     , schain_index _decryptorIndex
+    , ptr< AESKeyDecryptionShareList > _decryptionShares
 #endif
 ) {
     CHECK_ARGUMENT(_totalFragments > 0);
@@ -429,9 +430,10 @@ ptr<BlockProposalFragment> BlockProposal::getFragment(
                              sp->begin() + startIndex + fragmentStandardSize);
     }
 
+
     return make_shared<BlockProposalFragment>(
-        getBlockID(), getProposerIndex(), _decryptorIndex,
-        _totalFragments, _index, fragmentData, nullptr, sp->size(), getHash().toHex());
+        getBlockID(), getProposerIndex(), _decryptorIndex, _decryptionShares,
+        _totalFragments, _index, fragmentData,  sp->size(), getHash().toHex());
 #else
     fragmentData->push_back( '<' );
     if ( _index == _totalFragments ) {

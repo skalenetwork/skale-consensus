@@ -40,6 +40,7 @@
 #include "db/DAProofDB.h"
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
+#include "crypto/AESKeyDecryptionShareList.h"
 #endif
 
 #include "abstracttcpserver/ConnectionStatus.h"
@@ -67,6 +68,7 @@
 #include "datastructures/CommittedBlock.h"
 #include "db/BlockProposalDB.h"
 #include "CatchupServerAgent.h"
+
 
 CatchupServerAgent::CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s )
         : AbstractServerAgent( "CatchupServer", _schain, _s ) {
@@ -371,13 +373,22 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
 
 
 #ifdef BITE
-        auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares( proposal->getBlockID(),
-            proposal->getProposerIndex());
-        if (!myDecryptionShares) {
-            _responseHeader->setStatusSubStatus(
-                CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES );
-            _responseHeader->setComplete();
-            return nullptr;
+
+        ptr<AESKeyDecryptionShareList> myDecryptionShares;
+
+        if (needDecryptionShares) {
+            myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares( proposal->getBlockID(),
+                proposal->getProposerIndex());
+            if (!myDecryptionShares) {
+                _responseHeader->setStatusSubStatus(
+                    CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES );
+                _responseHeader->setComplete();
+                return nullptr;
+            }
+        } else {
+            // just returtn emptyu list
+            myDecryptionShares = make_shared<AESKeyDecryptionShareList>(_blockID, proposerIndex,
+                                                                        getSchain()->getSchainIndex());
         }
 #endif
 
@@ -386,15 +397,13 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
                 proposal->getFragment( ( uint64_t ) getSchain()->getNodeCount() - 1, fragmentIndex
 #ifdef BITE
                 , getSchain()->getSchainIndex()
+                , myDecryptionShares
 #endif
                 );
 
 
         CHECK_STATE( fragment );
 
-#ifdef BITE
-        fragment->setDecryptionShares(myDecryptionShares);
-#endif
 
 
         _responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );

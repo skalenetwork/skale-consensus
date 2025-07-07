@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="BackendCodeEditorMiscSettings">
-    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="4" type="long" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="3" type="long" />
     <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
     <option name="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue" value="true" type="bool" />
@@ -62,6 +62,11 @@
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="886 Improve performance">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/catchup/server/CatchupServerAgent.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalFragment.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalFragment.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposalFragment.h" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposalFragment.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/SerializationTests.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/SerializationTests.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
@@ -83,9 +88,6 @@
       <change beforePath="$PROJECT_DIR$/deps/proxygen/proxygen/httpserver/samples/echo/EchoHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/deps/proxygen/proxygen/httpserver/samples/echo/EchoHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BasicHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BasicHeader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BasicHeader.h" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BasicHeader.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/headers/BlockFinalizeResponseHeader.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -410,11 +412,6 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -863,6 +860,7 @@
       <workItem from="1751299798800" duration="2190000" />
       <workItem from="1751890592697" duration="1324000" />
       <workItem from="1751896799385" duration="4774000" />
+      <workItem from="1751906816512" duration="508000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>

@@ -167,6 +167,7 @@ public:
     ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index
 #ifdef BITE
                                            , schain_index _decryptorIndex
+                                           , ptr< AESKeyDecryptionShareList > _decryptionShares
 #endif
     );
 
