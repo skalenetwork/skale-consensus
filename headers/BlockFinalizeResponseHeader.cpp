@@ -56,10 +56,6 @@ void BlockFinalizeResponseHeader::setFragmentParams(
     CHECK_ARGUMENT( _blockSize > 16 )
     CHECK_ARGUMENT( !_hash.empty() )
 
-#ifndef BITE
-    CHECK_ARGUMENT( !_daProofSig.empty() )
-#endif
-
     fragmentSize = _fragmentSize;
     blockSize = _blockSize;
     blockHash = _hash;

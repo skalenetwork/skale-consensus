@@ -418,6 +418,10 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
 
         CHECK_STATE( serializedFragment );
 
+        if (!needDAProofSig) {
+            daSig = "";
+        }
+
         _responseHeader->setFragmentParams( serializedFragment->size(),
                                             proposal->serializeProposal()->size(), proposal->getHash().toHex(), daSig );
 
