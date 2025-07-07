@@ -460,6 +460,12 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
                 }
             }
 
+#ifdef BITE
+            auto failedTransactions =
+                getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(proposal);
+            CHECK_STATE2(failedTransactions.empty(), "Proposal includes invalid BITE transactions");
+#endif
+
             getNode()->getBlockProposalDB()->addBlockProposal( proposal );
 
 
