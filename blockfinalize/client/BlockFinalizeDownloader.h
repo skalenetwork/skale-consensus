@@ -61,9 +61,9 @@ public:
 
     ptr< BlockFinalizeDownloaderThreadPool > threadPool = nullptr;
 
-    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex,
+    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex
 #ifdef BITE
-        bool _haveProposal
+        , bool _haveProposal
 #endif
         );
 

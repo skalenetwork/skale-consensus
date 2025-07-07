@@ -1334,6 +1334,9 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
     std::thread([=]() {
         finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
     }).detach();
+#else
+    finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
+#endif
 };
 
 
@@ -1362,7 +1365,7 @@ bool Schain::haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _pro
 
 void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_index _proposerIndex,
                                                    const ptr<ThresholdSignature> &_thresholdSig) {
-#endif
+
     CHECK_ARGUMENT(_thresholdSig != nullptr);
 
 
@@ -1395,8 +1398,11 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // Dowload missing objects - proposal, daProof, and decryption shares
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posSess the proposal
-            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex,
-                haveProposalAndDAProof( _blockId,  _proposerIndex)); {
+            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex
+#ifdef BITE
+                , haveProposalAndDAProof( _blockId,  _proposerIndex)
+#endif
+                ); {
                 const string msg = "Finalization download:" + to_string(_blockId) + ":" +
                                    to_string(_proposerIndex);
 
@@ -1414,10 +1420,11 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         }
 
 
-#ifdef BITE
-        auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
-        CHECK_STATE(proposal)
+    auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
+    CHECK_STATE(proposal);
 
+
+#ifdef BITE
         auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(
             _blockId, _proposerIndex);
 

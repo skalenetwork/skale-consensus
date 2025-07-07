@@ -399,10 +399,8 @@ public:
 
     bool haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex);
 
-#ifdef BITE
     void finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig );
-#endif
 
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 
