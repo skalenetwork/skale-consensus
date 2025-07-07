@@ -325,6 +325,9 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
             return nullptr;
         }
 
+        bool needDAProofSig = Header::getBool( _jsonRequest, "needDAProofSig");
+        bool needDecryptionShares = Header::getBool( _jsonRequest, "needDecryptionShares");
+        bool needFragment = Header::getBool( _jsonRequest, "needFragment");
 
         // We could have either a proposal or a committed block. Try proposal first.
 
