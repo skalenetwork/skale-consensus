@@ -3,16 +3,11 @@
 size_t RLPItem::readLen(
     const std::vector< uint8_t >& _rlp, size_t _offset, size_t _len ) const {
     CHECK_STATE2( _offset + _len <= _rlp.size(), "readLen: out of bounds");
-    CHECK_STATE2( _len <= 8, "readLen: length field too large" );
     
     size_t val = 0;
     for ( size_t i = 0; i < _len; ++i ) {
         val = ( val << 8 ) | _rlp.at( _offset + i );
     }
-    
-    // Check for reasonable size limits
-    CHECK_STATE2( val <= MAX_RLP_DATA_SIZE, "readLen: decoded length exceeds maximum allowed size" );
-    
     return val;
 }
 
@@ -39,49 +34,41 @@ void RLPItem::parseLongByteVector(
     size_t lenOfLen = _prefix - 0xb7;
 
     CHECK_STATE2( _offset + 1 + lenOfLen <= _rlp.size(), "parseLongByteVector: lenOfLen out of bounds" );
-    CHECK_STATE2( lenOfLen <= 8, "parseLongByteVector: length-of-length too large" );
     
     size_t len = readLen( _rlp, _offset + 1, lenOfLen );
     _offset += 1 + lenOfLen;
 
     CHECK_STATE2( _offset + len <= _rlp.size(), "parseLongByteVector: slice out of bounds" );
-    CHECK_STATE2( len > 55, "parseLongByteVector: should use short encoding for this length" );
     
-    std::vector< uint8_t > out;
-    out.reserve(len);
-    out.assign( _rlp.begin() + _offset, _rlp.begin() + _offset + len );
+    std::vector< uint8_t > out( _rlp.begin() + _offset, _rlp.begin() + _offset + len );
     _offset += len;
     m_rawData = std::move(out);
 }
 
 
 void RLPItem::parseLongList(
-    const std::vector<uint8_t>& _rlp, uint64_t& offset, uint8_t prefix, size_t depth) {
+    const std::vector<uint8_t>& _rlp, uint64_t& offset, uint8_t prefix) {
     
     size_t lenOfLen = prefix - 0xf7;
 
     CHECK_STATE2( offset + 1 + lenOfLen <= _rlp.size(), "parseLongList: lenOfLen out of bounds");
-    CHECK_STATE2( lenOfLen <= 8, "parseLongList: length-of-length too large" );
     
     size_t len = readLen(_rlp, offset + 1, lenOfLen);
     offset += 1 + lenOfLen;
     
     CHECK_STATE2( offset + len <= _rlp.size(), "parseLongList: slice out of bounds");
-    CHECK_STATE2( len > 55, "parseLongList: should use short encoding for this length" );
     
     const uint64_t endOffset = offset + len;
-    
     // last item from list will be returned - will never be used
     while (offset < endOffset) {
-        CHECK_STATE2( children.size() < MAX_RLP_RECURSION_DEPTH, "parseLongList: too many list items (potential DoS)" );
-        children.push_back(RLPItem(_rlp, offset, depth + 1));
+        children.push_back(RLPItem(_rlp, offset));
     }
     CHECK_STATE2(offset == endOffset, "parseLongList: invalid list encoding");   
 }
 
 
 void RLPItem::parseShortList(
-    const std::vector<uint8_t>& _rlp, uint64_t& offset, uint8_t prefix, size_t depth) {
+    const std::vector<uint8_t>& _rlp, uint64_t& offset, uint8_t prefix) {
     
     size_t len = prefix - 0xc0;
     CHECK_STATE2(offset + 1 + len <= _rlp.size(), "parseShortList: slice out of bounds");
@@ -90,26 +77,15 @@ void RLPItem::parseShortList(
     const uint64_t endOffset = startOffset + len;
     
     offset = startOffset;
-    
-    // Reserve space to avoid repeated reallocations
-    children.reserve(std::min(len, static_cast<size_t>(100))); // Reasonable estimate for short lists
-    
     // last item from list will be returned - will never be used
     while (offset < endOffset) {
-        CHECK_STATE2( children.size() < MAX_RLP_RECURSION_DEPTH, "parseShortList: too many list items (potential DoS)" );
-        children.push_back(RLPItem(_rlp, offset, depth + 1));
+        children.push_back(RLPItem(_rlp, offset));
     }
     
     CHECK_STATE2(offset == endOffset, "parseShortList: invalid list encoding");   
 }
 
 void RLPItem::parseBytes( const std::vector< uint8_t >& _rlp, uint64_t& _offset ) {
-    parseBytes(_rlp, _offset, 0);
-}
-
-void RLPItem::parseBytes( const std::vector< uint8_t >& _rlp, uint64_t& _offset, size_t _depth ) {
-
-    CHECK_STATE2( _depth < MAX_RLP_RECURSION_DEPTH, "parseBytes: recursion depth exceeded. RLP data has too many nested lists" );
 
     if ( _offset >= _rlp.size() ) return;
 
@@ -126,24 +102,20 @@ void RLPItem::parseBytes( const std::vector< uint8_t >& _rlp, uint64_t& _offset,
         parseLongByteVector( _rlp, _offset, prefix );
     }
     else if (prefix <= 0xf7) {
-        parseShortList(_rlp, _offset, prefix, _depth);
+        parseShortList(_rlp, _offset, prefix);
     }
     else {
-        parseLongList(_rlp, _offset, prefix, _depth);
+        parseLongList(_rlp, _offset, prefix);
     }
 }
 
 RLPItem::RLPItem(const std::vector<uint8_t> &data) {
     uint64_t offset = 0;
-    parseBytes(data, offset, 0);
+    parseBytes(data, offset);
 }
 
 RLPItem::RLPItem(const std::vector<uint8_t> &data, size_t& offset) {
-    parseBytes(data, offset, 0);
-}
-
-RLPItem::RLPItem(const std::vector<uint8_t> &data, size_t& offset, size_t depth) {
-    parseBytes(data, offset, depth);
+    parseBytes(data, offset);
 }
 
 bool RLPItem::isList() const {

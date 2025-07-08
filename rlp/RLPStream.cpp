@@ -9,9 +9,6 @@ std::vector< uint8_t > RLPStream::rlpEncodeBytes(const std::vector< uint8_t >& d
     std::vector< uint8_t > out;
     const size_t len = data.size();
 
-    // Check for excessively large data
-    CHECK_STATE2( len <= RLPItem::MAX_RLP_DATA_SIZE, "rlpEncodeBytes: input data too large" );
-
     // Explicitly handle empty string
     if ( len == 0 ) {
         out.push_back( 0x80 );
@@ -94,22 +91,9 @@ u256 RLPStream::bytesToU256(const std::vector<uint8_t>& bytes) {
 std::vector<uint8_t> RLPStream::encode() const {
     std::vector< uint8_t > out;
     std::vector< uint8_t > payload;
-    
-    // Calculate total payload size first to avoid repeated reallocations
-    size_t total_payload_size = 0;
-    for ( const auto& e : data ) {
-        total_payload_size += e.size();
-        // Check for overflow and excessive size
-        CHECK_STATE2( total_payload_size <= RLPItem::MAX_RLP_DATA_SIZE, "RLPStream::encode: payload too large" );
-    }
-    
-    // Reserve capacity to avoid multiple reallocations
-    payload.reserve(total_payload_size);
-    
     for ( const auto& e : data ) {
         payload.insert( payload.end(), e.begin(), e.end() );
     }
-    
     if ( payload.size() < 56 ) {
         out.push_back( 0xc0 + payload.size() );
     } else {

@@ -35,11 +35,15 @@ std::vector< uint8_t > EthTransactionEncoder::generateRandomPrivateKey() {
 
 
 ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const EthTransaction& tx ) {
+    std::cout << "F1" << std::endl;
     std::vector< uint8_t > privkey = generateRandomPrivateKey();
     Signature signature = tx.sign(privkey);
+    std::cout << "F2" << std::endl;
 
     std::vector< uint8_t > encodedTx = tx.rlpEncode( std::make_optional( signature ) );
+    std::cout << "F3" << std::endl;
     tx.verifySignature(signature);
+    std::cout << "F4" << std::endl;
     return make_shared< vector< uint8_t > >( std::move( encodedTx ) );
 }
 
@@ -97,6 +101,8 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     TxType txType = static_cast< TxType >( currentTxType );
     auto currentNonce = nonce.fetch_add( 1 );
 
+    std::cout << "E0" << std::endl;
+
     // generate the tx from sample templates
     std::unique_ptr<EthTransaction> tx;
     switch ( txType ) {
@@ -112,9 +118,11 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
         default:
             throw std::invalid_argument( "Unknown transaction type" );
     }
+    std::cout << "E0.1" << std::endl;
 
     EthTransaction& txRef = *tx;
     txRef.nonce = RLPStream::u256toBytes( static_cast<u256>( currentNonce ) );
+    std::cout << "E0.2" << std::endl;
 
     if ( _isByte ) {
         auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
@@ -127,7 +135,9 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
                      0x59, 0x50, 0x54, 0x44 };
     }
 
+    std::cout << "E3" << std::endl;
     auto encodedTx = signAndEncodeTx( txRef );
+    std::cout << "E4" << std::endl;
     CHECK_STATE( encodedTx );
 
     return encodedTx;

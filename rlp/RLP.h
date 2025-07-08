@@ -13,21 +13,10 @@
  * If you need to convert RLP data into vector of bytes, use RLPStream instead.
  */
 class RLPItem {
-public:
-    // Maximum allowed RLP data size (64MB) 
-    static const size_t MAX_RLP_DATA_SIZE = 64 * 1024 * 1024;
-    // Maximum recursion depth to prevent stack overflow
-    static const size_t MAX_RLP_RECURSION_DEPTH = 1000;
-    
 private:
     std::vector<uint8_t> m_rawData; // full raw RLP bytes of this item
     bool m_isList;
     std::vector<RLPItem> children; // only if is_list
-
-    /**
-     * Used internallt to parse RLP data limiting the recursion depth.
-     */
-    RLPItem(const std::vector<uint8_t> &data, size_t &offset, size_t depth);
 
     /**
      * Reads length of an RLP long list
@@ -44,18 +33,15 @@ private:
 
     void parseLongByteVector(
         const std::vector< uint8_t >& _rlp, uint64_t& _offset, uint8_t _prefix );
-        
+
     void parseLongList(
-        const std::vector<uint8_t>& _rlp, uint64_t& offset, uint8_t prefix, size_t depth);
-        
+        const std::vector<uint8_t>& _rlp, uint64_t& offset, uint8_t prefix);
+
     void parseShortList(
-        const std::vector<uint8_t>& _rlp, uint64_t& offset, uint8_t prefix, size_t depth);
+        const std::vector<uint8_t>& _rlp, uint64_t& offset, uint8_t prefix);
 
     void parseBytes(
         const std::vector< uint8_t >& _rlp, uint64_t& _offset );
-        
-    void parseBytes(
-        const std::vector< uint8_t >& _rlp, uint64_t& _offset, size_t _depth );
 
 public:
     /**

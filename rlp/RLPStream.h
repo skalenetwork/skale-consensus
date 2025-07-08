@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <cstddef>
 #include <boost/multiprecision/cpp_int.hpp>
-#include "rlp/RLP.h"
 
 using uint256 = std::vector< uint8_t >;
 
