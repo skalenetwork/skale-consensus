@@ -142,6 +142,10 @@ RLPItem::RLPItem(const std::vector<uint8_t> &data, size_t& offset) {
     parseBytes(data, offset, 0);
 }
 
+RLPItem::RLPItem(const std::vector<uint8_t> &data, size_t& offset, size_t depth) {
+    parseBytes(data, offset, depth);
+}
+
 bool RLPItem::isList() const {
     return m_isList;
 }
