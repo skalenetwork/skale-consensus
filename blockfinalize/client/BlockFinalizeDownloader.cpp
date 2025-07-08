@@ -347,7 +347,7 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     return fragment;
 }
 
-bool BlockFinalizeDownloader::exitDownloadLoop(schain_index _dstIndex) {
+bool BlockFinalizeDownloader::exitDownloadLoop() {
     auto blockId = getBlockId();
 
     if (sChain->getLastCommittedBlockID() > blockId) {
@@ -358,29 +358,29 @@ bool BlockFinalizeDownloader::exitDownloadLoop(schain_index _dstIndex) {
 #ifdef BITE
     // check if we have enough decryption shares
     // if not we
-    if (needDecryptionShares(_dstIndex)) {
+    if (!sChain->getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)) {
         return false;
     }
 #endif
 
 
-    if (fragmentList.isComplete())
-        return true;
+    if (needDAProof()) {
+        return false;
+    }
 
-    // check if the block is in the database
 
     auto proposalDB = getNode()->getBlockProposalDB();
     auto daProofDB = getNode()->getDaProofDB();
-    auto proposal = proposalDB->getBlockProposal(blockId, proposerIndex);
-    if (proposal && daProofDB->haveDAProof(proposal)) {
-        return true;
-    }
 
-    return false;
+
+    if (!fragmentList.isComplete() && !proposalDB->getBlockProposal(blockId, proposerIndex))
+        return false;
+
+    return true;
 }
 
 
-void BlockFinalizeDownloader::waitAfterNetworkError(schain_index _dstIndex) {
+void BlockFinalizeDownloader::waitAfterNetworkError() {
     // we have a refused connection
     // we will wait some time to try
 
@@ -393,7 +393,7 @@ void BlockFinalizeDownloader::waitAfterNetworkError(schain_index _dstIndex) {
             return;
         }
 
-        if (exitDownloadLoop(_dstIndex)) {
+        if (exitDownloadLoop()) {
             return;
         }
         usleep(static_cast<__useconds_t>(100 * 1000));
@@ -443,16 +443,16 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 break;
             } catch (ConnectionRefusedException &e) {
                 _agent->logConnectionRefused(e, _dstIndex, __PRETTY_FUNCTION__);
-                _agent->waitAfterNetworkError(_dstIndex);
+                _agent->waitAfterNetworkError();
             } catch (exception &e) {
                 LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
                 SkaleException::logNested(e);
-                _agent->waitAfterNetworkError(_dstIndex);
+                _agent->waitAfterNetworkError();
             }
 
             // no matter what
             if (!testFinalizationDownloadOnly) {
-                if (_agent->exitDownloadLoop(_dstIndex)) {
+                if (_agent->exitDownloadLoop()) {
                     break;
                 }
             };

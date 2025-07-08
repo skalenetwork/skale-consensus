@@ -104,7 +104,7 @@ public:
     bool needDecryptionShares(schain_index _decryptorIndex);
 #endif
 
-    bool exitDownloadLoop(schain_index _dstIndex);
+    bool exitDownloadLoop();
 
-    void waitAfterNetworkError(schain_index _destionationIndex);
+    void waitAfterNetworkError();
 };
