@@ -347,7 +347,7 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     return fragment;
 }
 
-bool BlockFinalizeDownloader::exitDownloadLoop() {
+bool BlockFinalizeDownloader::exitDownloadLoop(schain_index _dstIndex) {
     auto blockId = getBlockId();
 
     if (sChain->getLastCommittedBlockID() > blockId) {
@@ -358,7 +358,7 @@ bool BlockFinalizeDownloader::exitDownloadLoop() {
 #ifdef BITE
     // check if we have enough decryption shares
     // if not we
-    if (!getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)) {
+    if (needDecryptionShares(_dstIndex)) {
         return false;
     }
 #endif
@@ -380,7 +380,7 @@ bool BlockFinalizeDownloader::exitDownloadLoop() {
 }
 
 
-void BlockFinalizeDownloader::waitAfterNetworkError() {
+void BlockFinalizeDownloader::waitAfterNetworkError(schain_index _dstIndex) {
     // we have a refused connection
     // we will wait some time to try
 
@@ -393,7 +393,7 @@ void BlockFinalizeDownloader::waitAfterNetworkError() {
             return;
         }
 
-        if (exitDownloadLoop()) {
+        if (exitDownloadLoop(_dstIndex)) {
             return;
         }
         usleep(static_cast<__useconds_t>(100 * 1000));
@@ -443,16 +443,16 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 break;
             } catch (ConnectionRefusedException &e) {
                 _agent->logConnectionRefused(e, _dstIndex, __PRETTY_FUNCTION__);
-                _agent->waitAfterNetworkError();
+                _agent->waitAfterNetworkError(_dstIndex);
             } catch (exception &e) {
                 LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
                 SkaleException::logNested(e);
-                _agent->waitAfterNetworkError();
+                _agent->waitAfterNetworkError(_dstIndex);
             }
 
             // no matter what
             if (!testFinalizationDownloadOnly) {
-                if (_agent->exitDownloadLoop()) {
+                if (_agent->exitDownloadLoop(_dstIndex)) {
                     break;
                 }
             };
