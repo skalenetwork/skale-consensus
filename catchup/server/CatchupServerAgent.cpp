@@ -328,9 +328,9 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         }
 
 #ifdef BITE
-        bool needDAProofSig = Header::getBool( _jsonRequest, "needDAProofSig");
-        bool needDecryptionShares = Header::getBool( _jsonRequest, "needDecryptionShares");
-        bool needFragment = Header::getBool( _jsonRequest, "needFragment");
+        bool needDAProofSig = Header::getBool( _jsonRequest, "needDASig");
+        bool needDecryptionShares = Header::getBool( _jsonRequest, "needShares");
+        bool needFragmentData= Header::getBool( _jsonRequest, "needData");
 #endif
 
         // We could have either a proposal or a committed block. Try proposal first.
@@ -415,7 +415,7 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         auto serializedFragment = fragment->serialize(
 #ifdef BITE
         needDecryptionShares,
-        needFragment
+        needFragmentData
 #endif
         );
         CHECK_STATE( serializedFragment );

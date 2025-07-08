@@ -1398,11 +1398,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // Dowload missing objects - proposal, daProof, and decryption shares
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posSess the proposal
-            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex
-#ifdef BITE
-                ,  !haveProposal(_blockId, _proposerIndex)
-#endif
-                ); {
+            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex); {
                 const string msg = "Finalization download:" + to_string(_blockId) + ":" +
                                    to_string(_proposerIndex);
 

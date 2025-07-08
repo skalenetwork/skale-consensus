@@ -32,7 +32,7 @@ class BlockFinalizeRequestHeader : public AbstractBlockRequestHeader {
 #ifdef BITE
     bool needDAProofSig;
     bool needDecryptionShares;
-    bool needFragment;
+    bool needFragmentData;
 #endif
 
 
@@ -42,7 +42,7 @@ public:
 #ifdef BITE
         ,  bool _needDAProofSig
         , bool _needDecryptionShares
-        , bool _needFragment
+        , bool _needFragmentData
 #endif
     );
 

@@ -61,19 +61,18 @@
 
 
 BlockFinalizeDownloader::BlockFinalizeDownloader(
-    Schain *_sChain, block_id _blockId, schain_index _proposerIndex
-#ifdef BITE
-    , bool _needFragment
-#endif
-)
+    Schain *_sChain, block_id _blockId, schain_index _proposerIndex)
     : Agent(*_sChain, false, true),
       blockId(_blockId),
       proposerIndex(_proposerIndex),
       fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1)
-#ifdef BITE
-      , needFragment(_needFragment)
-#endif
 {
+
+
+#ifdef BITE
+    needFragmentData = !getSchain()->haveProposal(_blockId, _proposerIndex);
+#endif
+
     CHECK_ARGUMENT(_sChain)
 
     CHECK_STATE(_sChain->getNodeCount() > 1)
@@ -112,7 +111,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
 #ifdef BITE
         , needDAProof()
         , needDecryptionShares(_dstIndex)
-        , needFragment
+        , needFragmentData
 #endif
     );
     CHECK_STATE(_dstIndex != ( uint64_t ) getSchain()->getSchainIndex())
@@ -202,7 +201,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
     }
 
 
-     if (!needFragment) {
+     if (!needFragmentData) {
          return 0;
      }
 

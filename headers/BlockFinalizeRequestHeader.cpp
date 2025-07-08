@@ -50,7 +50,7 @@ BlockFinalizeRequestHeader::BlockFinalizeRequestHeader( Schain& _sChain, block_i
 #ifdef BITE
     , bool _needDAProofSig
     , bool _needDecryptionShares
-    , bool _needFragment
+    , bool _needFragmentData
 #endif
     )
     : AbstractBlockRequestHeader( _sChain.getNodeCount(), _sChain.getSchainID(), _blockID,
@@ -58,7 +58,7 @@ BlockFinalizeRequestHeader::BlockFinalizeRequestHeader( Schain& _sChain, block_i
 #ifdef BITE
         , needDAProofSig(_needDAProofSig)
         , needDecryptionShares(_needDecryptionShares)
-        , needFragment(_needFragment)
+        , needFragmentData(_needFragmentData)
 #endif
 {
     CHECK_ARGUMENT( _fragmentIndex > 0 );
@@ -79,9 +79,9 @@ void BlockFinalizeRequestHeader::addFields( nlohmann::basic_json<>& jsonRequest 
     jsonRequest["fragmentIndex"] = ( uint64_t ) fragmentIndex;
     jsonRequest["nodeID"] = ( uint64_t ) nodeID;
 #ifdef BITE
-    jsonRequest["needDAProofSig"] = needDAProofSig;
-    jsonRequest["needDecryptionShares"] = needDecryptionShares;
-    jsonRequest["needFragment"] = needFragment;
+    jsonRequest["needDASig"] = needDAProofSig;
+    jsonRequest["needShares"] = needDecryptionShares;
+    jsonRequest["needData"] = needFragmentData;
 #endif
 }
 
