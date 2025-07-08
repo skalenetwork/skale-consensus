@@ -28,12 +28,9 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     std::vector<uint8_t> epochBytes(reinterpret_cast<uint8_t*>(&epochBE),
                                 reinterpret_cast<uint8_t*>(&epochBE) + sizeof(epochBE));
 
-    RLPStream list;
-    list << epochBytes << *_encryptedKeyPlusData;
-
-    RLPStream listOfLists;
-    listOfLists << list.encode(); 
-    serializedData = make_shared<vector<uint8_t> >(listOfLists.encode());
+    RLPStream rlpStream;
+    rlpStream << epochBytes << *_encryptedKeyPlusData;
+    serializedData = make_shared<vector<uint8_t> >(rlpStream.encode());
 }
 
 BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data) {
@@ -42,20 +39,15 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     // parse RLP-encoded tx data field
     RLPItem rlp(*_data);
     CHECK_STATE2(rlp.isList(), "RLP item is not a list");
-    CHECK_STATE2(rlp.size() >= 1, "RLP item should have at least 1 item");
-
-    // Get 1st item from list
-    RLPItem rlp0 = rlp[0];
-    CHECK_STATE2(rlp0.isList(), "RLP item 0 is not a list");
-    CHECK_STATE2(rlp0.size() == 2, "RLP item 0 should have exactly 2 fields - EPOCH_ID, and bite encrypted data");
+    CHECK_STATE2(rlp.size() == 2, "RLP item should have at least 2 fields - EPOCH_ID, and bite encrypted data");
     
     // validate EPOCH ID
-    const auto epoch_id = rlp0[0].asBytes();
-    CHECK_STATE2(epoch_id.size() <= BITE_EPOCH_ID_LEN,
-        "Incorrectly formatted BITE transaction: EPOCH_ID size is not <= " + to_string(BITE_EPOCH_ID_LEN) + " bytes, found: " + to_string(epoch_id.size()));
+    const auto epoch_id = rlp[0].asBytes();
+    CHECK_STATE2(epoch_id.size() == BITE_EPOCH_ID_LEN,
+        "Incorrectly formatted BITE transaction: EPOCH_ID size is not " + to_string(BITE_EPOCH_ID_LEN) + " bytes, found: " + to_string(epoch_id.size()));
 
     // validate encrypted data
-    keyPlusEncryptedData = make_shared<std::vector<uint8_t>>(rlp0[1].asBytes());
+    keyPlusEncryptedData = make_shared<std::vector<uint8_t>>(rlp[1].asBytes());
     CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
         "Incorrectly formatted BITE transaction: Encrypted data size is not at least " + to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " + to_string(keyPlusEncryptedData->size()));
     // get encrypted key part
