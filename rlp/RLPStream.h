@@ -52,9 +52,7 @@ public:
     }
 
     RLPStream& operator<<(const RLPStream& other) {
-        for (const auto& e : other.data) {
-            data.push_back(e);
-        }
+        data.push_back(other.encode());
         return *this;
     }
 
