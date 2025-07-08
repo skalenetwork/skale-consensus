@@ -112,7 +112,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
     auto header = make_shared<BlockFinalizeRequestHeader>(
         *sChain, blockId, proposerIndex, this->getNode()->getNodeID(), _fragmentIndex
 #ifdef BITE
-        , this->needDAProofSig
+        , needDAProof()
         , this->needDecryptionShares
         , this->needFragment
 #endif
@@ -261,6 +261,12 @@ void BlockFinalizeDownloader::processDAProofSig(nlohmann::json _responseHeader, 
     }
 }
 
+
+bool BlockFinalizeDownloader::needDAProof() {
+    // we need DA proof sig if we did not download it yet
+    return  needDAProofSig && std::atomic_load(&daSig) == nullptr;
+}
+
 ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     const ptr<ClientSocket> &_socket, nlohmann::json _responseHeader,
     fragment_index _fragmentIndex, node_count _nodeCount
@@ -292,7 +298,7 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
      }
 
 #ifdef BITE
-    if (this->needDAProofSig) {
+    if (needDAProof()) {
 #endif
         processDAProofSig(_responseHeader, h);
 #ifdef BITE
