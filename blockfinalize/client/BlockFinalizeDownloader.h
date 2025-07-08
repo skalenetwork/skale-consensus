@@ -54,7 +54,6 @@ private:
 #ifdef BITE
     // we already have the proposal, all we need is threshold decryptions
     bool needDAProofSig;
-    bool needDecryptionShares;
     bool needFragment;
 #endif
 
@@ -66,7 +65,6 @@ public:
     BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex
 #ifdef BITE
         , bool _needDAProofSig,
-        bool _needDecryptionShares,
         bool _needFragment
 #endif
         );
@@ -108,6 +106,9 @@ public:
     void processDAProofSig(nlohmann::json _responseHeader, string h);
 
     bool needDAProof();
+
+    bool needDecryptionShares(schain_index _decryptorIndex);
+
 
     bool exitDownloadLoop();
 

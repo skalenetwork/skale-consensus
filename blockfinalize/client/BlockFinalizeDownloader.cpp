@@ -64,7 +64,6 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
     Schain *_sChain, block_id _blockId, schain_index _proposerIndex
 #ifdef BITE
     , bool _needDAProofSig,
-    bool _needDecryptionShares,
     bool _needFragment
 #endif
 )
@@ -74,7 +73,6 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
       fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1)
 #ifdef BITE
       , needDAProofSig(_needDAProofSig)
-      , needDecryptionShares(_needDecryptionShares)
       , needFragment(_needFragment)
 #endif
 {
@@ -109,12 +107,14 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
+    auto teDB = getSchain()->getNode()->getTEDecryptionDB();
+
     auto header = make_shared<BlockFinalizeRequestHeader>(
         *sChain, blockId, proposerIndex, this->getNode()->getNodeID(), _fragmentIndex
 #ifdef BITE
         , needDAProof()
-        , this->needDecryptionShares
-        , this->needFragment
+        , needDecryptionShares(_dstIndex)
+        , needFragment
 #endif
     );
     CHECK_STATE(_dstIndex != ( uint64_t ) getSchain()->getSchainIndex())
@@ -193,12 +193,14 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
     }
 
 #ifdef BITE
-    auto decryptionShares = blockFragment->getDecryptionShares();
-    CHECK_STATE2(decryptionShares, "The finalization response did not include decryptionshares");
+    if (needDecryptionShares(_dstIndex)) {
+        auto decryptionShares = blockFragment->getDecryptionShares();
+        CHECK_STATE2(decryptionShares, "The finalization response did not include decryptionshares");
 
-    try {
-        getNode()->getTEDecryptionDB()->addDecryptionShares(decryptionShares);
-    } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not add decryption shares to DB");
+        try {
+            getNode()->getTEDecryptionDB()->addDecryptionShares(decryptionShares);
+        } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not add decryption shares to DB");
+    }
 
 
      if (!needFragment) {
@@ -266,6 +268,13 @@ bool BlockFinalizeDownloader::needDAProof() {
     // we need DA proof sig if we did not download it yet
     return  needDAProofSig && std::atomic_load(&daSig) == nullptr;
 }
+
+bool BlockFinalizeDownloader::needDecryptionShares(schain_index _decryptorIndex) {
+    auto teDB = getNode()->getTEDecryptionDB();
+    return !teDB->isEnoughForeignShares(blockId) && !teDB->haveDecryptionShares(blockId, _decryptorIndex);
+}
+
+
 
 ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     const ptr<ClientSocket> &_socket, nlohmann::json _responseHeader,

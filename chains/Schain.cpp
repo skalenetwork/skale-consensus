@@ -1400,8 +1400,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // guaranteed to posSess the proposal
             auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex
 #ifdef BITE
-                , !haveDAProof(_blockId, _proposerIndex),
-                true, !haveProposal(_blockId, _proposerIndex)
+                , !haveDAProof(_blockId, _proposerIndex), !haveProposal(_blockId, _proposerIndex)
 #endif
                 ); {
                 const string msg = "Finalization download:" + to_string(_blockId) + ":" +

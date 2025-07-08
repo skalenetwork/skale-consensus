@@ -107,6 +107,16 @@ void TEDecryptionDB::addDecryptionShares(
 
 };
 
+bool TEDecryptionDB::haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex) {
+    CHECK_ARGUMENT(_decryptorIndex > 0);
+    CHECK_ARGUMENT(_decryptorIndex <= totalSigners);
+
+    READ_LOCK(decryptionSetsMutex)
+
+    return decryptionsStore[_blockID].count(_decryptorIndex) > 0;
+
+};
+
 ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList) {
 
     CHECK_STATE(_encryptedAESKeyList)
