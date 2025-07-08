@@ -108,8 +108,11 @@ fragment_index BlockProposalFragment::getIndex() const {
 }
 
 ptr< vector< uint8_t > > BlockProposalFragment::serialize(
+#ifdef BITE
     bool needDecryptionShares,
-    bool needFragment) {
+    bool needFragment
+#endif
+    ) {
 #ifdef BITE
 
 

@@ -72,8 +72,9 @@ public:
     // used to create and serialize a fragment to be sent to the network
 
     BlockProposalFragment(const block_id &_blockId,
+                          schain_index _proposerIndex,
 #ifdef BITE
-                          schain_index _proposerIndex, schain_index _decryptorIndex,
+                          schain_index _decryptorIndex,
                           ptr<AESKeyDecryptionShareList> _decryptionShares,
 #endif
                           uint64_t _totalFragments, const fragment_index &_fragmentIndex,

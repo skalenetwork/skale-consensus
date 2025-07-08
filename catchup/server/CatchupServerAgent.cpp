@@ -327,9 +327,11 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
             return nullptr;
         }
 
+#ifdef BITE
         bool needDAProofSig = Header::getBool( _jsonRequest, "needDAProofSig");
         bool needDecryptionShares = Header::getBool( _jsonRequest, "needDecryptionShares");
         bool needFragment = Header::getBool( _jsonRequest, "needFragment");
+#endif
 
         // We could have either a proposal or a committed block. Try proposal first.
 
@@ -418,10 +420,12 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         );
 
         CHECK_STATE( serializedFragment );
-
+#ifdef BITE
         if (!needDAProofSig) {
+            // return empty sig
             daSig = "";
         }
+#endif
 
         _responseHeader->setFragmentParams( serializedFragment->size(),
                                             proposal->serializeProposal()->size(), hash, daSig );
