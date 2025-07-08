@@ -63,8 +63,7 @@
 BlockFinalizeDownloader::BlockFinalizeDownloader(
     Schain *_sChain, block_id _blockId, schain_index _proposerIndex
 #ifdef BITE
-    , bool _needDAProofSig,
-    bool _needFragment
+    , bool _needFragment
 #endif
 )
     : Agent(*_sChain, false, true),
@@ -72,7 +71,6 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
       proposerIndex(_proposerIndex),
       fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1)
 #ifdef BITE
-      , needDAProofSig(_needDAProofSig)
       , needFragment(_needFragment)
 #endif
 {
@@ -266,7 +264,7 @@ void BlockFinalizeDownloader::processDAProofSig(nlohmann::json _responseHeader, 
 
 bool BlockFinalizeDownloader::needDAProof() {
     // we need DA proof sig if we did not download it yet
-    return  needDAProofSig && std::atomic_load(&daSig) == nullptr;
+    return  !getSchain()->haveDAProof(blockId, proposerIndex) && std::atomic_load(&daSig) == nullptr;
 }
 
 bool BlockFinalizeDownloader::needDecryptionShares(schain_index _decryptorIndex) {
