@@ -418,7 +418,6 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         needFragment
 #endif
         );
-
         CHECK_STATE( serializedFragment );
 #ifdef BITE
         if (!needDAProofSig) {
