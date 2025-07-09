@@ -261,13 +261,13 @@ void BlockFinalizeDownloader::processDAProofSig(nlohmann::json _responseHeader, 
     }
 }
 
-
-#ifdef BITE
 bool BlockFinalizeDownloader::needDAProof() {
     // we need DA proof sig if we did not download it yet
     return  !getSchain()->haveDAProof(blockId, proposerIndex) && std::atomic_load(&daSig) == nullptr;
 }
 
+
+#ifdef BITE
 bool BlockFinalizeDownloader::needDecryptionShares(schain_index _decryptorIndex) {
     auto teDB = getNode()->getTEDecryptionDB();
     return !teDB->isEnoughForeignShares(blockId) && !teDB->haveDecryptionShares(blockId, _decryptorIndex);

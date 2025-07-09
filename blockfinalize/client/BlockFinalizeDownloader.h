@@ -99,8 +99,9 @@ public:
 
     void processDAProofSig(nlohmann::json _responseHeader, string h);
 
-#ifdef BITE
+
     bool needDAProof();
+#ifdef BITE
     bool needDecryptionShares(schain_index _decryptorIndex);
 #endif
 

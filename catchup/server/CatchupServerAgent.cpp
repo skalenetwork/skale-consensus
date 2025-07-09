@@ -73,7 +73,7 @@
 CatchupServerAgent::CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s )
         : AbstractServerAgent( "CatchupServer", _schain, _s ) {
     CHECK_ARGUMENT( _s );
-    catchupWorkerThreadPool = make_shared< CatchupWorkerThreadPool >( num_threads( 2 ), this );
+    catchupWorkerThreadPool = make_shared< CatchupWorkerThreadPool >( num_threads( 4 ), this );
     catchupWorkerThreadPool->startService();
     createNetworkReadThread();
 }
