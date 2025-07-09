@@ -13,6 +13,7 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
               FLATBUFFERS_VERSION_REVISION == 10,
              "Non-compatible flatbuffers version included");
 
+#include "committed_block_fragment_generated.h"
 #include "common_structures_generated.h"
 
 namespace skale_fb {
@@ -23,11 +24,8 @@ struct BlockFinalizeResponseT;
 
 struct BlockFinalizeResponseT : public ::flatbuffers::NativeTable {
   typedef BlockFinalizeResponse TableType;
-  std::unique_ptr<skale_fb::BlockHeaderT> block_header{};
-  std::vector<uint8_t> block_sig{};
-  std::vector<uint8_t> da_proof_sig{};
-  std::unique_ptr<skale_fb::BlockFragmentT> block_fragment{};
-  std::vector<std::unique_ptr<skale_fb::DecryptionShareT>> decryption_shares{};
+  std::string json_header{};
+  std::unique_ptr<skale_fb::CommittedBlockFragmentT> fragment{};
   BlockFinalizeResponseT() = default;
   BlockFinalizeResponseT(const BlockFinalizeResponseT &o);
   BlockFinalizeResponseT(BlockFinalizeResponseT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -38,40 +36,21 @@ struct BlockFinalizeResponse FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
   typedef BlockFinalizeResponseT NativeTableType;
   typedef BlockFinalizeResponseBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_BLOCK_HEADER = 4,
-    VT_BLOCK_SIG = 6,
-    VT_DA_PROOF_SIG = 8,
-    VT_BLOCK_FRAGMENT = 10,
-    VT_DECRYPTION_SHARES = 12
+    VT_JSON_HEADER = 4,
+    VT_FRAGMENT = 6
   };
-  const skale_fb::BlockHeader *block_header() const {
-    return GetPointer<const skale_fb::BlockHeader *>(VT_BLOCK_HEADER);
+  const ::flatbuffers::String *json_header() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_JSON_HEADER);
   }
-  const ::flatbuffers::Vector<uint8_t> *block_sig() const {
-    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_BLOCK_SIG);
-  }
-  const ::flatbuffers::Vector<uint8_t> *da_proof_sig() const {
-    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_DA_PROOF_SIG);
-  }
-  const skale_fb::BlockFragment *block_fragment() const {
-    return GetPointer<const skale_fb::BlockFragment *>(VT_BLOCK_FRAGMENT);
-  }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>> *decryption_shares() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>> *>(VT_DECRYPTION_SHARES);
+  const skale_fb::CommittedBlockFragment *fragment() const {
+    return GetPointer<const skale_fb::CommittedBlockFragment *>(VT_FRAGMENT);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_BLOCK_HEADER) &&
-           verifier.VerifyTable(block_header()) &&
-           VerifyOffset(verifier, VT_BLOCK_SIG) &&
-           verifier.VerifyVector(block_sig()) &&
-           VerifyOffset(verifier, VT_DA_PROOF_SIG) &&
-           verifier.VerifyVector(da_proof_sig()) &&
-           VerifyOffset(verifier, VT_BLOCK_FRAGMENT) &&
-           verifier.VerifyTable(block_fragment()) &&
-           VerifyOffset(verifier, VT_DECRYPTION_SHARES) &&
-           verifier.VerifyVector(decryption_shares()) &&
-           verifier.VerifyVectorOfTables(decryption_shares()) &&
+           VerifyOffset(verifier, VT_JSON_HEADER) &&
+           verifier.VerifyString(json_header()) &&
+           VerifyOffset(verifier, VT_FRAGMENT) &&
+           verifier.VerifyTable(fragment()) &&
            verifier.EndTable();
   }
   BlockFinalizeResponseT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -83,20 +62,11 @@ struct BlockFinalizeResponseBuilder {
   typedef BlockFinalizeResponse Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_block_header(::flatbuffers::Offset<skale_fb::BlockHeader> block_header) {
-    fbb_.AddOffset(BlockFinalizeResponse::VT_BLOCK_HEADER, block_header);
+  void add_json_header(::flatbuffers::Offset<::flatbuffers::String> json_header) {
+    fbb_.AddOffset(BlockFinalizeResponse::VT_JSON_HEADER, json_header);
   }
-  void add_block_sig(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> block_sig) {
-    fbb_.AddOffset(BlockFinalizeResponse::VT_BLOCK_SIG, block_sig);
-  }
-  void add_da_proof_sig(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> da_proof_sig) {
-    fbb_.AddOffset(BlockFinalizeResponse::VT_DA_PROOF_SIG, da_proof_sig);
-  }
-  void add_block_fragment(::flatbuffers::Offset<skale_fb::BlockFragment> block_fragment) {
-    fbb_.AddOffset(BlockFinalizeResponse::VT_BLOCK_FRAGMENT, block_fragment);
-  }
-  void add_decryption_shares(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>>> decryption_shares) {
-    fbb_.AddOffset(BlockFinalizeResponse::VT_DECRYPTION_SHARES, decryption_shares);
+  void add_fragment(::flatbuffers::Offset<skale_fb::CommittedBlockFragment> fragment) {
+    fbb_.AddOffset(BlockFinalizeResponse::VT_FRAGMENT, fragment);
   }
   explicit BlockFinalizeResponseBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -111,56 +81,35 @@ struct BlockFinalizeResponseBuilder {
 
 inline ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<skale_fb::BlockHeader> block_header = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> block_sig = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> da_proof_sig = 0,
-    ::flatbuffers::Offset<skale_fb::BlockFragment> block_fragment = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<skale_fb::DecryptionShare>>> decryption_shares = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> json_header = 0,
+    ::flatbuffers::Offset<skale_fb::CommittedBlockFragment> fragment = 0) {
   BlockFinalizeResponseBuilder builder_(_fbb);
-  builder_.add_decryption_shares(decryption_shares);
-  builder_.add_block_fragment(block_fragment);
-  builder_.add_da_proof_sig(da_proof_sig);
-  builder_.add_block_sig(block_sig);
-  builder_.add_block_header(block_header);
+  builder_.add_fragment(fragment);
+  builder_.add_json_header(json_header);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponseDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<skale_fb::BlockHeader> block_header = 0,
-    const std::vector<uint8_t> *block_sig = nullptr,
-    const std::vector<uint8_t> *da_proof_sig = nullptr,
-    ::flatbuffers::Offset<skale_fb::BlockFragment> block_fragment = 0,
-    const std::vector<::flatbuffers::Offset<skale_fb::DecryptionShare>> *decryption_shares = nullptr) {
-  auto block_sig__ = block_sig ? _fbb.CreateVector<uint8_t>(*block_sig) : 0;
-  auto da_proof_sig__ = da_proof_sig ? _fbb.CreateVector<uint8_t>(*da_proof_sig) : 0;
-  auto decryption_shares__ = decryption_shares ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::DecryptionShare>>(*decryption_shares) : 0;
+    const char *json_header = nullptr,
+    ::flatbuffers::Offset<skale_fb::CommittedBlockFragment> fragment = 0) {
+  auto json_header__ = json_header ? _fbb.CreateString(json_header) : 0;
   return skale_fb::CreateBlockFinalizeResponse(
       _fbb,
-      block_header,
-      block_sig__,
-      da_proof_sig__,
-      block_fragment,
-      decryption_shares__);
+      json_header__,
+      fragment);
 }
 
 ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeResponseT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline BlockFinalizeResponseT::BlockFinalizeResponseT(const BlockFinalizeResponseT &o)
-      : block_header((o.block_header) ? new skale_fb::BlockHeaderT(*o.block_header) : nullptr),
-        block_sig(o.block_sig),
-        da_proof_sig(o.da_proof_sig),
-        block_fragment((o.block_fragment) ? new skale_fb::BlockFragmentT(*o.block_fragment) : nullptr) {
-  decryption_shares.reserve(o.decryption_shares.size());
-  for (const auto &decryption_shares_ : o.decryption_shares) { decryption_shares.emplace_back((decryption_shares_) ? new skale_fb::DecryptionShareT(*decryption_shares_) : nullptr); }
+      : json_header(o.json_header),
+        fragment((o.fragment) ? new skale_fb::CommittedBlockFragmentT(*o.fragment) : nullptr) {
 }
 
 inline BlockFinalizeResponseT &BlockFinalizeResponseT::operator=(BlockFinalizeResponseT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(block_header, o.block_header);
-  std::swap(block_sig, o.block_sig);
-  std::swap(da_proof_sig, o.da_proof_sig);
-  std::swap(block_fragment, o.block_fragment);
-  std::swap(decryption_shares, o.decryption_shares);
+  std::swap(json_header, o.json_header);
+  std::swap(fragment, o.fragment);
   return *this;
 }
 
@@ -173,11 +122,8 @@ inline BlockFinalizeResponseT *BlockFinalizeResponse::UnPack(const ::flatbuffers
 inline void BlockFinalizeResponse::UnPackTo(BlockFinalizeResponseT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = block_header(); if (_e) { if(_o->block_header) { _e->UnPackTo(_o->block_header.get(), _resolver); } else { _o->block_header = std::unique_ptr<skale_fb::BlockHeaderT>(_e->UnPack(_resolver)); } } else if (_o->block_header) { _o->block_header.reset(); } }
-  { auto _e = block_sig(); if (_e) { _o->block_sig.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->block_sig.begin()); } }
-  { auto _e = da_proof_sig(); if (_e) { _o->da_proof_sig.resize(_e->size()); std::copy(_e->begin(), _e->end(), _o->da_proof_sig.begin()); } }
-  { auto _e = block_fragment(); if (_e) { if(_o->block_fragment) { _e->UnPackTo(_o->block_fragment.get(), _resolver); } else { _o->block_fragment = std::unique_ptr<skale_fb::BlockFragmentT>(_e->UnPack(_resolver)); } } else if (_o->block_fragment) { _o->block_fragment.reset(); } }
-  { auto _e = decryption_shares(); if (_e) { _o->decryption_shares.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->decryption_shares[_i]) { _e->Get(_i)->UnPackTo(_o->decryption_shares[_i].get(), _resolver); } else { _o->decryption_shares[_i] = std::unique_ptr<skale_fb::DecryptionShareT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->decryption_shares.resize(0); } }
+  { auto _e = json_header(); if (_e) _o->json_header = _e->str(); }
+  { auto _e = fragment(); if (_e) { if(_o->fragment) { _e->UnPackTo(_o->fragment.get(), _resolver); } else { _o->fragment = std::unique_ptr<skale_fb::CommittedBlockFragmentT>(_e->UnPack(_resolver)); } } else if (_o->fragment) { _o->fragment.reset(); } }
 }
 
 inline ::flatbuffers::Offset<BlockFinalizeResponse> BlockFinalizeResponse::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BlockFinalizeResponseT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -188,18 +134,12 @@ inline ::flatbuffers::Offset<BlockFinalizeResponse> CreateBlockFinalizeResponse(
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BlockFinalizeResponseT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _block_header = _o->block_header ? CreateBlockHeader(_fbb, _o->block_header.get(), _rehasher) : 0;
-  auto _block_sig = _o->block_sig.size() ? _fbb.CreateVector(_o->block_sig) : 0;
-  auto _da_proof_sig = _o->da_proof_sig.size() ? _fbb.CreateVector(_o->da_proof_sig) : 0;
-  auto _block_fragment = _o->block_fragment ? CreateBlockFragment(_fbb, _o->block_fragment.get(), _rehasher) : 0;
-  auto _decryption_shares = _o->decryption_shares.size() ? _fbb.CreateVector<::flatbuffers::Offset<skale_fb::DecryptionShare>> (_o->decryption_shares.size(), [](size_t i, _VectorArgs *__va) { return CreateDecryptionShare(*__va->__fbb, __va->__o->decryption_shares[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _json_header = _o->json_header.empty() ? 0 : _fbb.CreateString(_o->json_header);
+  auto _fragment = _o->fragment ? CreateCommittedBlockFragment(_fbb, _o->fragment.get(), _rehasher) : 0;
   return skale_fb::CreateBlockFinalizeResponse(
       _fbb,
-      _block_header,
-      _block_sig,
-      _da_proof_sig,
-      _block_fragment,
-      _decryption_shares);
+      _json_header,
+      _fragment);
 }
 
 inline const skale_fb::BlockFinalizeResponse *GetBlockFinalizeResponse(const void *buf) {

@@ -1,6 +1,6 @@
 #include "abstracttcpserver/ConnectionStatus.h"
 
-#include "FlatBufferRequestHandler.h"
+#include "FinalizeRequestHandler.h"
 #undef LOG // avoid macro definition  conflicts with proxygen LOG
 #include "Log.h"
 #include "flatb/ErrorResponseObject.h"
@@ -9,18 +9,16 @@ using namespace std;
 
 constexpr uint64_t MIN_FLATBUFFER_REQUEST_LEN = 16;
 
-void FlatBufferRequestHandler::onRequest(std::unique_ptr<HTTPMessage> _headers) noexcept {
+void FinalizeRequestHandler::onRequest(std::unique_ptr<HTTPMessage> _headers) noexcept {
     auto requestPath = _headers->getPath();
     if (requestPath == "/block_finalize") {
         requestType = RequestType::BLOCK_FINALIZE;
-    } else if (requestPath == "/block_txs") {
-        requestType = RequestType::BLOCK_TXS;
     } else {
         requestType = RequestType::INVALID;
     }
 }
 
-void FlatBufferRequestHandler::onBody(std::unique_ptr<folly::IOBuf> _body) noexcept {
+void FinalizeRequestHandler::onBody(std::unique_ptr<folly::IOBuf> _body) noexcept {
     // HTTP2 may send body in chunks, so we are accumulating
     if (_body) {
         bodyQueue.append(move(_body)); // Zero-copy accumulation
@@ -28,7 +26,7 @@ void FlatBufferRequestHandler::onBody(std::unique_ptr<folly::IOBuf> _body) noexc
 }
 
 
-void FlatBufferRequestHandler::onEOM() noexcept {
+void FinalizeRequestHandler::onEOM() noexcept {
     string responseMessage;
     string response;
     ConnectionSubStatus errorSubStatus = ConnectionSubStatus::CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
@@ -76,10 +74,6 @@ void FlatBufferRequestHandler::onEOM() noexcept {
                     response = getBlockFinalizeResponse(*request);
                     break;
                 }
-                case RequestType::BLOCK_TXS: {
-                    auto blockTransactionsRequest = getBlockTransactionsResponse(*request);
-                    break;
-                }
                 default:
                     errorSubStatus = CONNECTION_ERROR_UNKNOWN_SERVER_ERROR;
                     errorMessage = string(__CLASS_NAME__) + ":" + to_string(__LINE__) + "Unknown request type";
@@ -114,14 +108,14 @@ send_abort:
 
 }
 
-void FlatBufferRequestHandler::sendHTTPError(uint32_t _errorCode, const string &_message) const {
+void FinalizeRequestHandler::sendHTTPError(uint32_t _errorCode, const string &_message) const {
     ResponseBuilder(downstream_)
             .status(_errorCode, _message)
             .body(_message)
             .sendWithEOM();
 }
 
-void FlatBufferRequestHandler::sendHTTPResponse(uint16_t _statusCode, const string &_statusMessage,
+void FinalizeRequestHandler::sendHTTPResponse(uint16_t _statusCode, const string &_statusMessage,
                                                 const string &_body) {
     ResponseBuilder(downstream_)
             .status(_statusCode, _statusMessage)
@@ -131,15 +125,15 @@ void FlatBufferRequestHandler::sendHTTPResponse(uint16_t _statusCode, const stri
 }
 
 
-void FlatBufferRequestHandler::onError(ProxygenError _err) noexcept {
+void FinalizeRequestHandler::onError(ProxygenError _err) noexcept {
     LOG(err, "Error in FlatBufferRequestHandler: " + to_string( _err ));
 }
 
-void FlatBufferRequestHandler::sendFlatBufferSuccessResponse(const string &response) noexcept {
+void FinalizeRequestHandler::sendFlatBufferSuccessResponse(const string &response) noexcept {
     sendHTTPResponse(200, response, "OK");
 }
 
-void FlatBufferRequestHandler::sendFlatBufferError(ConnectionSubStatus _substatus, string _message) {
+void FinalizeRequestHandler::sendFlatBufferError(ConnectionSubStatus _substatus, string _message) {
     ErrorResponseObject ero(ConnectionStatus::CONNECTION_ERROR, _substatus, 0, 0, 0,
                             _message);
 
@@ -152,7 +146,7 @@ void FlatBufferRequestHandler::sendFlatBufferError(ConnectionSubStatus _substatu
 }
 
 
-string FlatBufferRequestHandler::getBlockFinalizeResponse(
+string FinalizeRequestHandler::getBlockFinalizeResponse(
     const folly::IOBuf &) noexcept {
     FlatBufferBuilder builder;
     return string(
@@ -160,7 +154,7 @@ string FlatBufferRequestHandler::getBlockFinalizeResponse(
 }
 
 
-string FlatBufferRequestHandler::getBlockTransactionsResponse(
+string FinalizeRequestHandler::getBlockTransactionsResponse(
     const folly::IOBuf &) noexcept {
     FlatBufferBuilder builder;
     // auto msg = builder.CreateString( message );

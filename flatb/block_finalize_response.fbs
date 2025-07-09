@@ -1,15 +1,13 @@
 
 include "common_structures.fbs";
+include "committed_block_fragment.fbs";
 
 namespace skale_fb;
 
 
 table BlockFinalizeResponse {
-    block_header: BlockHeader ;
-    block_sig: [uint8] ;
-    da_proof_sig: [uint8];
-    block_fragment: BlockFragment;
-    decryption_shares: [DecryptionShare];
+    json_header: string ;
+    fragment: CommittedBlockFragment;
 }
 
 root_type BlockFinalizeResponse;

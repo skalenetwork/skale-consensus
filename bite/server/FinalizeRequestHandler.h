@@ -21,9 +21,9 @@ using namespace flatbuffers;
 using namespace skale_fb;
 
 
-enum RequestType { BLOCK_FINALIZE, BLOCK_TXS, INVALID };
+enum RequestType { BLOCK_FINALIZE, INVALID };
 
-class FlatBufferRequestHandler : public RequestHandler {
+class FinalizeRequestHandler : public RequestHandler {
     RequestType requestType;
     folly::IOBufQueue bodyQueue{ folly::IOBufQueue::cacheChainLength() };  // Efficient buffer
 
