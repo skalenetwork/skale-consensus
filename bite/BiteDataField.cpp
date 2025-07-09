@@ -14,13 +14,13 @@
 /// which includes both the key + ciphered data
 const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 
-BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch, bool _doRealCrypto)
+BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch, bool _useRealCrypto)
     : keyPlusEncryptedData(_encryptedKeyPlusData), epoch(_epoch) {
     CHECK_STATE(_encryptedKeyPlusData);
     CHECK_STATE(_encryptedKeyPlusData->size() > BITE_ENCRYPTED_AES_KEY_LEN);
     
     // get & validate ciphertext + key
-    if (_doRealCrypto) {
+    if (_useRealCrypto) {
         // get & validate encrypted key part
         auto aesKey = libBLS::Ciphertext::fromBytes(*keyPlusEncryptedData).key.toBytes();
         auto aesKeyPtr = make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(aesKey);
@@ -47,7 +47,7 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     serializedData = make_shared<vector<uint8_t> >(listOfLists.encode());
 }
 
-BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, bool _doRealCrypto) {
+BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, bool _useRealCrypto) {
     CHECK_STATE(_data);
 
     // parse RLP-encoded tx data field
@@ -66,7 +66,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
         "Incorrectly formatted BITE transaction: Encrypted data size is not at least " + to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " + to_string(keyPlusEncryptedData->size()));
     
-    if (_doRealCrypto) {
+    if (_useRealCrypto) {
         // get & validate encrypted key part
         auto aesKey = libBLS::Ciphertext::fromBytes(*keyPlusEncryptedData).key.toBytes();
         auto aesKeyPtr = make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(aesKey);
@@ -95,7 +95,7 @@ uint64_t BiteDataField::getEpoch() {
 }
 
 
-ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data, ptr<vector<uint8_t> > &_to, bool _doRealCrypto) {
+ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data, ptr<vector<uint8_t> > &_to, bool _useRealCrypto) {
     CHECK_STATE(_data)
     CHECK_STATE(_to)
 
@@ -105,7 +105,7 @@ ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_d
         return nullptr;
     }
 
-    return ptr<BiteDataField>(new BiteDataField(_data, _doRealCrypto));
+    return ptr<BiteDataField>(new BiteDataField(_data, _useRealCrypto));
 }
 
 

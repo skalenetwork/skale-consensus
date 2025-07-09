@@ -60,5 +60,5 @@ public:
     [[nodiscard]]  ptr<vector<uint8_t> > teEncryptDataAndToAddress(const vector<uint8_t> &_data, const vector<uint8_t> &_to);
 
     
-    bool isRealCrypto() const;
+    bool isRealCryptoEnabled() const;
 };

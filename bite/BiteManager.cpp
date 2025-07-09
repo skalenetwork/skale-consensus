@@ -349,6 +349,6 @@ ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(
     }
 }
 
-bool BiteManager::isRealCrypto() const {
+bool BiteManager::isRealCryptoEnabled() const {
     return doRealCrypto;
 }

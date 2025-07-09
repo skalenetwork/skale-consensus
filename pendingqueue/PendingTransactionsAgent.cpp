@@ -212,7 +212,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 #ifdef BITE
         try {
             pt->parseAndValidate();
-            pt->tryGetBiteData(sChain->getBiteManager()->isRealCrypto());
+            pt->tryGetBiteData(sChain->getBiteManager()->isRealCryptoEnabled());
             result->push_back(pt);
             pushKnownTransaction(pt);
         } catch (std::exception &e) {
