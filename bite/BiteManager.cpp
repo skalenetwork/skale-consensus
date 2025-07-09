@@ -82,6 +82,7 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateMyDecryp
 
     if (savedShares) {
         // we already successfully parsed and decrypted shares
+        _proposal->setMyDecryptionShares(savedShares);
         return map<transaction_index, ConnectionSubStatus>();
     }
 
