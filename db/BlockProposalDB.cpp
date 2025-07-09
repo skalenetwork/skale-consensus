@@ -206,7 +206,7 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
 
 #ifdef BITE
     auto failedTransactions =
-    getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(proposal);
+    getSchain()->getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(proposal);
     CHECK_STATE2(failedTransactions.empty(), "Proposal in database includes invalid BITE transactions");
 #endif
 

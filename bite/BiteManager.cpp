@@ -22,6 +22,7 @@
 #include <monitoring/LivelinessMonitor.h>
 
 #include "BLSPublicKey.h"
+#include "db/TEDecryptionDB.h"
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
@@ -52,7 +53,7 @@ void BiteManager::parseBITETransactions(
         } catch (exception &e) {
             LOG(err, string( "Could not parse transaction:" ) + e.what());
             _proposal->getFailedTransactionsRef().emplace(index,
-                                                       ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
+                                                          ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
         }
     }
 
@@ -66,7 +67,7 @@ void BiteManager::parseBITETransactions(
     _proposal->seAESKeyList(encryptedAESKeyList);
 }
 
-map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecryptionSharesForProposalTransactions(
+map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateMyDecryptionSharesForProposalTransactions(
     ptr<BlockProposal> _proposal) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime());
 
@@ -74,6 +75,17 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecrypti
     CHECK_STATE(_proposal);
     // check we are not verifying twice
     CHECK_STATE(!_proposal->getMyDecryptionShares())
+
+
+    auto savedShares = getSchain()->getNode()->getTEDecryptionDB()->getMyDecryptionShares(_proposal->getBlockID(),
+        _proposal->getProposerIndex());
+
+    if (savedShares) {
+        // we already successfully parsed and decrypted shares
+        return map<transaction_index, ConnectionSubStatus>();
+    }
+
+
     auto transactions = _proposal->getTransactionList()->getItems();
 
     CHECK_STATE(transactions);
@@ -101,11 +113,16 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecrypti
     // now we set the decryption shares list to the block proposal so it is committed to the
     // database when proposal is committed
     _proposal->setMyDecryptionShares(decryptionShareList);
+
+    if (_proposal->getFailedTransactionsRef().empty()) {
+        getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
+    }
+
     return _proposal->getFailedTransactionsRef();
 }
 
 
-ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap( ptr<BlockProposal> _proposal) {
+ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap(ptr<BlockProposal> _proposal) {
     CHECK_STATE(_proposal)
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime())
@@ -117,7 +134,7 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
 
     auto encryptedAesKeys = _proposal->getEncryptedAESKeys();
 
-    vector<ptr<EncryptedAESKey>> encryptedAESKeysAsAVector;
+    vector<ptr<EncryptedAESKey> > encryptedAESKeysAsAVector;
     encryptedAESKeysAsAVector.reserve(encryptedAesKeys->size());
 
     for (auto &&iterator: *encryptedAesKeys) {
@@ -126,7 +143,7 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
 
     ptr<vector<ptr<AESKeyDecryptionShare> > > decryptiondSharesVector = getDecryptionSharesFromAESKeys(
         encryptedAESKeysAsAVector, schain.getSchainIndex(),
-                                             _proposal->getFailedTransactionsRef());
+        _proposal->getFailedTransactionsRef());
 
 
     if (!decryptiondSharesVector) {
@@ -137,7 +154,7 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
 
 
     auto arrayIndex = 0;
-    for (auto &&iterator: * _proposal->getBiteDataFields()) {
+    for (auto &&iterator: *_proposal->getBiteDataFields()) {
         auto AESKeyDecryptionShare = (*decryptiondSharesVector)[arrayIndex];
         decryptionShareList->addShare(iterator.first, decryptiondSharesVector->at(arrayIndex));
         arrayIndex++;
@@ -201,7 +218,6 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 }
 
 
-
 ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
     TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys) {
     auto decryptedFieldsMap = make_shared<DecryptedTransactionFieldsMap>();
@@ -238,14 +254,15 @@ DecryptedTransactionFields
 BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
-    ptr< vector< uint8_t > > dataField = nullptr;
+    ptr<vector<uint8_t> > dataField = nullptr;
 
     if (doRealCrypto) {
         auto encryptedData = _bite->getEncryptedData();
         CHECK_STATE(encryptedData != nullptr);
 
         libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData);
-        dataField = make_shared<vector<uint8_t>>(libBLS::ThresholdEncryption::decrypt(ciphertext, _decryptedAESKey.getAesKey()));
+        dataField = make_shared<vector<uint8_t> >(
+            libBLS::ThresholdEncryption::decrypt(ciphertext, _decryptedAESKey.getAesKey()));
     } else {
         auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(keyPlusEncryptedData);
@@ -254,14 +271,16 @@ BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_de
         dataField = make_shared<vector<uint8_t> >(decryptedOriginalDataField);
     }
 
-    CHECK_STATE2(dataField->size() >= ADDRESS_SIZE, "Decrypted data is not long enough to include the original tx.to field!");
+    CHECK_STATE2(dataField->size() >= ADDRESS_SIZE,
+                 "Decrypted data is not long enough to include the original tx.to field!");
 
     // extract the last 20 bytes from dataField into toField
-    ptr< vector< uint8_t > > toField = make_shared< std::vector< uint8_t >>(dataField->end() - ADDRESS_SIZE, dataField->end());
+    ptr<vector<uint8_t> > toField = make_shared<std::vector<uint8_t> >(dataField->end() - ADDRESS_SIZE,
+                                                                       dataField->end());
     // remove the to address from dataField
     dataField->erase(dataField->end() - ADDRESS_SIZE, dataField->end());
 
-    auto decryptedFields = DecryptedTransactionFields {
+    auto decryptedFields = DecryptedTransactionFields{
         .data = dataField,
         .to = toField,
     };
@@ -299,7 +318,7 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
         libBLS::TEPublicKey teKey(*blsKey);
 
         auto cipherText = libBLS::ThresholdEncryption::encrypt(data, teKey);
-        auto bytes = std::make_shared<vector<uint8_t>>(cipherText.toBytes());
+        auto bytes = std::make_shared<vector<uint8_t> >(cipherText.toBytes());
 
 
         corruptFromTimeToTime(bytes);

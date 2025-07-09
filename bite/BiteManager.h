@@ -27,7 +27,7 @@ public:
 
     // this will return a map of failed transactions
     // if none of the transactions fails, the  proposal is set with decryption shares
-    [[nodiscard]] std::map<transaction_index, ConnectionSubStatus>  verifyAndCreateDecryptionSharesForProposalTransactions(
+    [[nodiscard]] std::map<transaction_index, ConnectionSubStatus>  verifyAndCreateMyDecryptionSharesForProposalTransactions(
         ptr<BlockProposal> _proposal);
 
     [[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(ptr<BlockProposal> _proposal);

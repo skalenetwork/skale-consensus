@@ -424,7 +424,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalServerAgent::processP
 
 #ifdef BITE
         try {
-            auto invalidTransactions =    getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions( proposal );
+            auto invalidTransactions =    getSchain()->getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions( proposal );
             if (!invalidTransactions.empty()) {
                 // return the first failed transaction error
                 finalResponseHeader =

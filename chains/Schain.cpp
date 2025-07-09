@@ -586,7 +586,7 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
                 _proposedBlockID, getSchainIndex());
 #ifdef BITE
             // The proposal was saved do the db, but we need decryption shares
-            CHECK_STATE(getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(
+            CHECK_STATE(getSchain()->getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(
                 myProposal).empty());
 #endif
         } else {
@@ -1015,11 +1015,6 @@ void Schain::proposedBlockArrived(const ptr<BlockProposal> &_proposal) {
     CHECK_STATE(_proposal->getSignature() != "");
 
     getNode()->getBlockProposalDB()->addBlockProposal(_proposal);
-#ifdef BITE
-    auto myDecryptionShares = _proposal->getMyDecryptionShares();
-    CHECK_STATE(myDecryptionShares);
-    getNode()->getTEDecryptionDB()->addMyDecryptionShares(myDecryptionShares);
-#endif
 }
 
 
@@ -1421,26 +1416,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
 
 
 #ifdef BITE
-        auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(
-            _blockId, _proposerIndex);
-
-        // if we did not yet decrypt this block, decrypt it
-        if (!myDecryptionShares) {
-            auto failedTransactions = sChain->getBiteManager()->
-                    verifyAndCreateDecryptionSharesForProposalTransactions(proposal);
-            if (!failedTransactions.empty()) {
-                LOG(critical, fmt::format("Failed to create decryption share for transaction: {}"
-                        "Cant process block, hopefully catchup will work"
-                        , (uint32_t) failedTransactions.begin()->first));
-
-                return;
-            }
-            myDecryptionShares = proposal->getMyDecryptionShares();
-            CHECK_STATE(myDecryptionShares);
-            getNode()->getTEDecryptionDB()->addMyDecryptionShares(myDecryptionShares);
-        }
-
-        getNode()->getTEDecryptionDB()->addDecryptionShares(myDecryptionShares);
+        getNode()->getTEDecryptionDB()->addDecryptionShares(proposal->getMyDecryptionShares());
 
         auto count =
                 getNode()->getTEDecryptionDB()->getDecryptionsCount(_blockId);

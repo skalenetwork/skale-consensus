@@ -81,12 +81,6 @@ void TEDecryptionDB::addDecryptionShares(
     CHECK_STATE( serializedList );
 
 
-    /*    auto decryptionShareListSet = writeByteArrayToSet(
-            reinterpret_cast< char* >( serializedList->data() ), serializedList->size(),
-            _decryptionShareList->getBlockId(), _decryptionShareList->getDecryptorIndex() );
-    */
-
-
     WRITE_LOCK(decryptionSetsMutex)
 
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =

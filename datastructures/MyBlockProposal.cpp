@@ -60,7 +60,7 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
 
 #ifdef BITE
     auto failedTransactions =
-            _sChain.getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(proposal);
+            _sChain.getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(proposal);
     if (!failedTransactions.empty()) {
         LOG(err, "Could not decrypt BITE transactions");
         LOG(err, "Proposing empty transactions instead");
