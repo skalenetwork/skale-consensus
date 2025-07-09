@@ -376,6 +376,12 @@ void Schain::lockWithDeadLockCheck(const char *_functionName) {
         LOG(info, "Waiting for boostrap to complete ...");
     }
 
+    // the node could fail to proccess a block in usual way
+    // but then it downloads missing blocks through catchup
+    if ( proposalStageStartTimeMs > 0 )
+        proposalStageFinishTimeMs = Time::getCurrentTimeMs();
+    if ( blockFinalizationStartTimeMs > 0 )
+        blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
 
     auto catchupProcessStartTimeMs = Time::getCurrentTimeMs();
 
@@ -581,7 +587,8 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
 
         ptr<BlockProposal> myProposal;
 
-        if (getNode()->getProposalHashDB()->haveProposal(_proposedBlockID, getSchainIndex())) {
+        proposalStageStartTimeMs = Time::getCurrentTimeMs();
+        if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _proposedBlockID, getSchainIndex());
 #ifdef BITE
@@ -770,7 +777,11 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
 
         CHECK_STATE(_block->getBlockID() = getLastCommittedBlockID() + 1)
 
-        saveBlock(_block);
+
+        uint64_t blockCommitStartTimeMs = Time::getCurrentTimeMs();
+        saveBlock( _block );
+        uint64_t blockCommitTimeMs = Time::getCurrentTimeMs() - blockCommitStartTimeMs;
+
 
         cleanupUnneededMemoryBeforePushingToEvm(_block);
 
@@ -785,14 +796,19 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
             auto biteDecryptedTransactions = _block->getDecryptedTransactionFields()->size();
 #endif
 
-            LOG(info, "CWT:" + to_string(blockPushedToExtFaceTimeMs -
-                                         pendingTransactionsAgent->transactionListReceivedTime())
-                    + ":TLWT:" + to_string(pendingTransactionsAgent->getTransactionListWaitTime())
-                    + ":SBPT:" + to_string(cryptoManager->sgxBlockProcessingTime())
+
+            LOG(info, "CWT:" + to_string( blockPushedToExtFaceTimeMs -
+                                           pendingTransactionsAgent->transactionListReceivedTime() )
+                             + ":TLWT:" + to_string( pendingTransactionsAgent->getTransactionListWaitTime() )
+                             + ":SBPT:" + to_string( cryptoManager->sgxBlockProcessingTime() )
 #ifdef BITE
                     + ":BITE_DECRYPTED_TXS:" + to_string(biteDecryptedTransactions)
 #endif
-            );
+
+                             );
+            LOG( debug, "BCT:" + std::to_string( blockCommitTimeMs ) +
+                        ":BFST:" + std::to_string( getBlockFinalizationStageTimeMs() ) +
+                        ":PST:" + std::to_string( getProposalStageTimeMs() ) );
         }
 
         pushBlockToExtFace(_block);
@@ -1367,9 +1383,13 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
 
 
-    if (_blockId <= getLastCommittedBlockID()) {
-        LOG(debug, "Ignoring old block decide, already got this through catchup: BID:"
-            << to_string( _blockId ) << ":PRP:" << to_string( _proposerIndex ));
+
+    proposalStageFinishTimeMs = Time::getCurrentTimeMs();
+    blockFinalizationStartTimeMs = Time::getCurrentTimeMs();
+    if ( _blockId <= getLastCommittedBlockID() ) {
+        LOG( debug, "Ignoring old block decide, already got this through catchup: BID:"
+                        << to_string( _blockId ) << ":PRP:" << to_string( _proposerIndex ) );
+
         return;
     }
 
@@ -1413,7 +1433,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
 
     auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
     CHECK_STATE(proposal);
-
+    blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
 
 #ifdef BITE
         getNode()->getTEDecryptionDB()->addDecryptionShares(proposal->getMyDecryptionShares());
@@ -1673,4 +1693,16 @@ void Schain::setTimeStampValuesFromConfig() {
     SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(verifyBlsSyncPatchTimestamp)
+}
+
+uint64_t Schain::getProposalStageTimeMs() {
+    uint64_t proposalStageTimeMs = proposalStageFinishTimeMs - proposalStageStartTimeMs;
+    proposalStageFinishTimeMs = proposalStageStartTimeMs = 0;
+    return proposalStageTimeMs;
+}
+
+uint64_t Schain::getBlockFinalizationStageTimeMs() {
+    uint64_t blockFinalizationStageTimeMs = blockFinalizationFinishTimeMs - blockFinalizationStartTimeMs;
+    blockFinalizationStartTimeMs = blockFinalizationFinishTimeMs = 0;
+    return blockFinalizationStageTimeMs;
 }
