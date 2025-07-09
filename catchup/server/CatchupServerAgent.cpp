@@ -202,7 +202,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createResponseHeaderAndBinary(
         ptr< vector< uint8_t > > serializedBinary = nullptr;
 
         if ( type.compare( Header::BLOCK_CATCHUP_REQ ) == 0 ) {
-            serializedBinary = createBlockCatchupResponse( _connection, _jsonRequest,
+            serializedBinary = createBlockCatchupResponse( _connection->getIP(), _jsonRequest,
                                                            dynamic_pointer_cast< CatchupResponseHeader >( _responseHeader ), blockID );
 
         } else if ( type.compare( Header::BLOCK_FINALIZE_REQ ) == 0 ) {
@@ -233,7 +233,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createResponseHeaderAndBinary(
 
 
 ptr< vector< uint8_t > > CatchupServerAgent::createBlockCatchupResponse(
-        const ptr< ServerConnection >& _connectionEnvelope, nlohmann::json /*_jsonRequest */,
+        const string& _clientIP, nlohmann::json /*_jsonRequest */,
         const ptr< CatchupResponseHeader >& _responseHeader, block_id _blockID ) {
     CHECK_ARGUMENT( _responseHeader );
 
@@ -286,7 +286,7 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockCatchupResponse(
         auto responseTimeMs = Time::getCurrentTimeMs() - responseStartTimeMs;
 
         LOG( info, "RETURNED_CATCHUP_BLOCKS:" << blockSizes->size() << ":CRT:" << responseTimeMs
-             << ":TO_NODE:" << _connectionEnvelope->getIP() );
+             << ":TO_NODE:" << _clientIP );
 
         return serializedBlocks;
     } catch ( ExitRequestedException& e ) {

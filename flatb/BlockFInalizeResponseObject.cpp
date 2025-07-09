@@ -34,14 +34,16 @@ BlockFinalizeResponseObject::BlockFinalizeResponseObject(std::shared_ptr<BlockHe
 }
 
 ptr<BlockFinalizeResponseObject> BlockFinalizeResponseObject::deserializeAndVerify(
-    const folly::IOBuf &_buffer, ptr<BlockFinalizeRequestObject> &_request) {
+    const folly::IOBuf &, ptr<BlockFinalizeRequestObject> &_request) {
     CHECK_STATE(_request);
+
+    /*
 
     const BlockFinalizeResponse *response = nullptr;
     VERIFY_AND_PARSE_FLATBUFFER(_buffer, BlockFinalizeResponse, response);
 
 
-    auto blockHeader = BlockHeaderObject::deserializeAndVerify(response->block_header());
+    auto blockHeader = BlockHeaderObject::deserializeAndVerify(response->json_header());
 
     CHECK_STATE(blockHeader);
 
@@ -87,6 +89,9 @@ ptr<BlockFinalizeResponseObject> BlockFinalizeResponseObject::deserializeAndVeri
     }
 
 
+
     return make_shared<BlockFinalizeResponseObject>(blockHeader, blockSig, daProofSig, blockFragment,
-                                                         decryptionShares);
+                                                         decryptionShares); */
+    return nullptr;
+
 }
