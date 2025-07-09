@@ -58,7 +58,7 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecrypti
     for (auto &tx: *transactions) {
         try {
             tx->parseAndValidate();
-            auto biteDataField = tx->tryGetBiteData();
+            auto biteDataField = tx->tryGetBiteData(doRealCrypto);
             if (biteDataField) {
                 biteDataFields.emplace(index, biteDataField);
                 encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
@@ -226,7 +226,7 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
         for (uint64_t i = 0; i < _transactionList.size(); i++) {
             auto tx = txs->at(i);
             tx->parseAndValidate();
-            auto bite = tx->tryGetBiteData();
+            auto bite = tx->tryGetBiteData(doRealCrypto);
             if (bite) {
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);
@@ -344,4 +344,8 @@ ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(
         return make_shared<MockupAESKeyDecryptionShareSet>(
             _blockId, _transactionIndex, schain.getTotalSigners(), schain.getRequiredSigners());
     }
+}
+
+bool BiteManager::isRealCrypto() const {
+    return doRealCrypto;
 }

@@ -119,7 +119,8 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
 
     if ( _isByte ) {
         auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
-        BiteDataField biteDataField(encryptedKeyPlusData , 0);
+        bool doRealCrypto = false;
+        BiteDataField biteDataField(encryptedKeyPlusData , 0, doRealCrypto);
         // set data
         txRef.data = *biteDataField.getSerializedData();
         // set to field with BITE magic number
