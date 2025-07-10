@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <cstdint>
+#include "RLPStream.h"
+#include "RLP.h"
 
 // Suppress deprecated-copy warning caused by Boost.Multiprecision (cpp_int)
 // Boost defines a user-provided copy constructor but no copy assignment operator,
@@ -19,13 +21,6 @@
 #include <secp256k1.h>
 #include <secp256k1_recovery.h>
 
-
-
-
-using uint256 = std::vector< uint8_t >;
-
-using u256 = boost::multiprecision::number< boost::multiprecision::cpp_int_backend< 256, 256,
-boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void > >;
 
 enum class TxType {
     LEGACY = 0,
@@ -115,31 +110,7 @@ struct EthTransaction {
     virtual TxPrefix getBytePrefix() const = 0;
 
 protected:
-    
-    //  ----------------------- Helper functions for RLP encoding -------------------------------//
-
-    inline static void rlpEncodeBytes( std::vector< uint8_t >& out, const std::vector< uint8_t >& data );
-
-    inline static void rlpEncodeUint256( std::vector< uint8_t >& out, const std::vector< uint8_t >& value );
-
-    inline static void rlpEncodeList(std::vector< uint8_t >& out, const std::vector< std::vector< uint8_t > >& elements );
-
-    inline static void addEncodedFieldUint256(std::vector< std::vector< uint8_t > >& fields, const uint256& val);
-
-    inline static void addEncodedFieldBytes(std::vector< std::vector< uint8_t > >& fields, const std::vector< uint8_t >& val);
-
-    inline static void addEncodedFieldList(std::vector< std::vector< uint8_t > >& fields, const std::vector< std::vector< uint8_t > >& val);
-
-    /**
-     * @brief Convert a vector of bytes to a u256 value in big-endian order.
-     */
-    static u256 bytesToU256(const std::vector<uint8_t>& bytes);
-
-    /**
-     * @brief Convert a u256 value to a vector of bytes in big-endian order.
-     */
-    static std::vector< uint8_t> u256toBytes( u256 v_value );
-    
+        
     //  -------------------- Helper functions for transaction signing ---------------------------//
 
     #pragma GCC diagnostic push
@@ -158,11 +129,11 @@ protected:
     
     //  -------------------------- Type-specific functionality ----------------------------------//
     /**
-     * @brief Encode the object into RLP format. Return a vector of each encoded field.
+     * @brief Encode the object into RLP format.
      * Field order is enforced by this function. Does not include signature fields in the rlp encoding.
      * Used by the `Transacition::rlpEncode` function.
      */
-    virtual std::vector< std::vector< uint8_t > > encode() const = 0;
+    virtual RLPStream encode() const = 0;
 
     /**
      * @brief Signs the transaction using type-specific logic of either LegacyTx, Type1Tx or Type2Tx.
@@ -194,19 +165,19 @@ struct LegacyTx : EthTransaction {
     gasPrice(_gasPrice)
     {}
 
-    LegacyTx(std::vector< std::vector< uint8_t > >& fields) :
+    LegacyTx(RLPItem& fields) :
         EthTransaction(
-            fields.at( 0 ), // nonce
-            fields.at( 2 ), // gasLimit
-            fields.at( 3 ), // to
-            fields.at( 4 ), // value
-            fields.at( 5 ), // data
+            fields[ 0 ].asBytes(), // nonce
+            fields[ 2 ].asBytes(), // gasLimit
+            fields[ 3 ].asBytes(), // to
+            fields[ 4 ].asBytes(), // value
+            fields[ 5 ].asBytes(), // data
             {} // chainId
         ),
-        gasPrice(fields.at( 1 ))
+        gasPrice(fields[ 1 ].asBytes())
     {}
 
-    std::vector< std::vector< uint8_t > > encode() const override;
+    RLPStream encode() const override;
     u256 computeSignatureV(int rec_id) const override;
     u256 recoverSignatureV(const Signature& sig) const override;
     TxPrefix getBytePrefix() const override;
@@ -243,20 +214,20 @@ struct Type1Tx : EthTransaction {
         gasPrice(_gasPrice), accessList(_accessList)
     {}
 
-    Type1Tx(std::vector< std::vector< uint8_t > >& fields) :
+    Type1Tx(RLPItem& fields) :
         EthTransaction(
-            fields.at( 1 ), // nonce
-            fields.at( 3 ), // gasLimit
-            fields.at( 4 ), // to
-            fields.at( 5 ), // value
-            fields.at( 6 ), // data
-            fields.at( 0 )  // chainId
+            fields[ 1 ].asBytes(), // nonce
+            fields[ 3 ].asBytes(), // gasLimit
+            fields[ 4 ].asBytes(), // to
+            fields[ 5 ].asBytes(), // value
+            fields[ 6 ].asBytes(), // data
+            fields[ 0 ].asBytes()  // chainId
         ),
-        gasPrice(fields.at( 2 )),
+        gasPrice(fields[ 2 ].asBytes()),
         accessList({})
     {}
 
-    std::vector< std::vector< uint8_t > > encode() const override;
+    RLPStream encode() const override;
     u256 computeSignatureV(int rec_id) const override;
     u256 recoverSignatureV(const Signature& sig) const override;
     TxPrefix getBytePrefix() const override;
@@ -285,21 +256,21 @@ struct Type2Tx : EthTransaction {
         maxPriorityFeePerGas(_maxPriorityFeePerGas), maxFeePerGas(_maxFeePerGas), accessList(_accessList)
     {}
 
-    Type2Tx(std::vector< std::vector< uint8_t > >& fields) :
+    Type2Tx(RLPItem& fields) :
     EthTransaction(
-        fields.at( 1 ), // nonce
-        fields.at( 4 ), // gasLimit
-        fields.at( 5 ), // to
-        fields.at( 6 ), // value
-        fields.at( 7 ), // data
-        fields.at( 0 ) // chainId
+        fields[ 1 ].asBytes(), // nonce
+        fields[ 4 ].asBytes(), // gasLimit
+        fields[ 5 ].asBytes(), // to
+        fields[ 6 ].asBytes(), // value
+        fields[ 7 ].asBytes(), // data
+        fields[ 0 ].asBytes() // chainId
         ),
-        maxPriorityFeePerGas(fields.at( 2 )),
-        maxFeePerGas(fields.at( 3 )),
+        maxPriorityFeePerGas(fields[ 2 ].asBytes()),
+        maxFeePerGas(fields[ 3 ].asBytes()),
         accessList({})
     {}
 
-    std::vector< std::vector< uint8_t > > encode() const override;
+    RLPStream encode() const override;
     u256 computeSignatureV(int rec_id) const override;
     u256 recoverSignatureV(const Signature& sig) const override;
     TxPrefix getBytePrefix() const override;

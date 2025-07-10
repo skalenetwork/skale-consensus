@@ -97,6 +97,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     TxType txType = static_cast< TxType >( currentTxType );
     auto currentNonce = nonce.fetch_add( 1 );
 
+
     // generate the tx from sample templates
     std::unique_ptr<EthTransaction> tx;
     switch ( txType ) {
@@ -114,11 +115,12 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     }
 
     EthTransaction& txRef = *tx;
-    txRef.nonce = EthTransaction::u256toBytes( static_cast<u256>( currentNonce ) );
+    txRef.nonce = RLPStream::u256toBytes( static_cast<u256>( currentNonce ) );
 
     if ( _isByte ) {
         auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
-        BiteDataField biteDataField(encryptedKeyPlusData , 0);
+        bool doRealCrypto = false;
+        BiteDataField biteDataField(encryptedKeyPlusData , 0, doRealCrypto);
         // set data
         txRef.data = *biteDataField.getSerializedData();
         // set to field with BITE magic number
