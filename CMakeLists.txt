@@ -305,7 +305,12 @@ target_compile_options(consensusd PRIVATE -Wno-error=unused-variable)
 target_link_libraries(consensusd consensus)
 # endif ()
 
-add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
+# Automatically discover all test source files in the unittests directory and its subdirectories.
+file(GLOB_RECURSE ALL_TEST_SOURCES "unittests/*.cpp")
+
+# Create the test executable from the main driver and all discovered test files.
+# Note: Consensust.h is not needed here as it's a header file.
+add_executable(consensust Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp ${ALL_TEST_SOURCES})
 
 target_compile_options(consensust PRIVATE -Wno-error=unused-variable)
 

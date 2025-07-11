@@ -2,6 +2,13 @@
 // Created by kladko on 17.06.20.
 //
 
+#include "thirdparty/catch.hpp"
+#include "Consensust.h"
+#include "crypto/CryptoManager.h"
+#include "JsonStubClient.h"
+#include <jsonrpccpp/client/connectors/httpclient.h>
+
+
 TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
     string certDir( "/tmp" );
 
