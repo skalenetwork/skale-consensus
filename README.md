@@ -86,7 +86,7 @@ sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=60 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build
 Tests are organized with a multi-dimensional tagging system:
 
 ```bash
-# Run RLP unit tests
+# Run RLP unit tests that only test correctness (ignores safety and performance tests)
 ./build/consensust [rlp][unit][correctness]
 
 # Run all crypto tests
@@ -98,14 +98,12 @@ Tests are organized with a multi-dimensional tagging system:
 
 ### Multi-Node Testing
 
-For advanced testing scenarios including 4-node and 16-node tests with SGX simulation, see our comprehensive **[Testing Guide](TESTING.md)**.
+For more detailed testing scenarios, including 4-node and 16-node tests with SGX simulation, see our comprehensive **[Testing Guide](TESTING.md)**.
 
 The testing guide covers:
 - Detailed test organization and tagging
 - SGX simulation setup with Docker
 - Performance testing procedures
-- Troubleshooting common issues
-- Advanced testing configurations
 
 
 
