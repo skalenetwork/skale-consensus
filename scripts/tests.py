@@ -66,6 +66,9 @@ run("ccache -M 20G")
 
 consensustExecutive = getConsensustExecutive()
 
+# Run all non-end-to-end and non-performance unit tests
+unitTest(consensustExecutive, "~[end-to-end]~[performance]")
+
 #unitTest(consensustExecutive, "[sgx]")
 unitTest(consensustExecutive, "[tx-serialize]")
 unitTest(consensustExecutive, "[tx-list-serialize]")   
@@ -86,5 +89,3 @@ fullConsensusTest("fournodes", consensustExecutive, "[consensus-basic]")
 #fullConsensusTest("fournodes_catchup", consensustExecutive, "[consensus-basic]")
 #fullConsensusTest("three_out_of_four", consensustExecutive, "[consensus-basic]")
 
-unitTest(consensustExecutive, "[tx-serialize]")
-unitTest(consensustExecutive, "[tx-list-serialize]")
