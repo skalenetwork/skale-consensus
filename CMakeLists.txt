@@ -305,12 +305,39 @@ target_compile_options(consensusd PRIVATE -Wno-error=unused-variable)
 target_link_libraries(consensusd consensus)
 # endif ()
 
+
+### consensust executable
+
 # Automatically discover all test source files in the unittests directory and its subdirectories.
 file(GLOB_RECURSE ALL_TEST_SOURCES "unittests/*.cpp")
 
+# Common test folders (non-rlp)
+file(GLOB_RECURSE COMMON_TEST_SOURCES
+    "datastructures/SerializationTests.cpp"
+    "db/DBTests.cpp"
+    "unittests/consensus_tests.cpp"
+    "unittests/sgx_tests.cpp"
+    # Add other folders as needed, excluding rlp/
+)
+
+set(TEST_SOURCES ${COMMON_TEST_SOURCES})
+
+# Conditionally add rlp test sources if BITE is enabled
+if(DEFINED BITE)
+    file(GLOB_RECURSE RLP_TEST_SOURCES "unittests/rlp/*.cpp")
+    list(APPEND TEST_SOURCES ${RLP_TEST_SOURCES})
+endif()
+
 # Create the test executable from the main driver and all discovered test files.
 # Note: Consensust.h is not needed here as it's a header file.
-add_executable(consensust Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp ${ALL_TEST_SOURCES})
+add_executable(consensust 
+    Consensust.cpp 
+    datastructures/SerializationTests.cpp 
+    db/DBTests.cpp 
+    ${TEST_SOURCES}
+)
+
+target_link_libraries(consensust PRIVATE consensus)
 
 target_compile_options(consensust PRIVATE -Wno-error=unused-variable)
 
@@ -319,5 +346,4 @@ target_compile_options(consensust PRIVATE -Wno-error=unused-variable)
 #     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 #     target_link_libraries(consensust consensus tcmalloc)
 # else ()
-target_link_libraries(consensust consensus)
 # endif ()
