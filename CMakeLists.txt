@@ -313,8 +313,8 @@ file(GLOB_RECURSE ALL_TEST_SOURCES "unittests/*.cpp")
 
 # Common test folders (non-rlp)
 file(GLOB_RECURSE COMMON_TEST_SOURCES
-    "datastructures/SerializationTests.cpp"
-    "db/DBTests.cpp"
+    "unittests/datastructures/*.cpp"
+    "unittests/db/*.cpp"
     "unittests/consensus_tests.cpp"
     "unittests/sgx_tests.cpp"
     # Add other folders as needed, excluding rlp/
@@ -332,8 +332,6 @@ endif()
 # Note: Consensust.h is not needed here as it's a header file.
 add_executable(consensust 
     Consensust.cpp 
-    datastructures/SerializationTests.cpp 
-    db/DBTests.cpp 
     ${TEST_SOURCES}
 )
 

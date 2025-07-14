@@ -69,10 +69,6 @@ consensustExecutive = getConsensustExecutive()
 # Run all non-end-to-end and non-performance unit tests
 unitTest(consensustExecutive, "~[end-to-end]~[performance]")
 
-#unitTest(consensustExecutive, "[sgx]")
-unitTest(consensustExecutive, "[tx-serialize]")
-unitTest(consensustExecutive, "[tx-list-serialize]")   
-
 
 # fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]")
 
