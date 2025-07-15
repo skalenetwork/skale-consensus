@@ -62,6 +62,10 @@ class ConsensusEngine : public ConsensusInterface {
 
     set< node_id > nodeIDs;
 
+#ifdef MIRAGE
+    bool isSyncMode = false;
+#endif
+
     bool useTestSGXKeys = false;
 
     bool isSGXEnabled = false;
@@ -298,7 +302,6 @@ public:
 
     static int getOpenDescriptors();
 
-
     uint64_t submitOracleRequest(
         const string& _spec, string& _receipt, string& _errorMessage ) override;
 
@@ -313,5 +316,9 @@ public:
     // if isSyncing is false, all fields will be set to zero.
 
     [[nodiscard]] SyncInfo getSyncInfo() override;
+
+#ifdef MIRAGE
+    void setSyncMode( bool _isSyncModeOn ) { isSyncMode = _isSyncModeOn; }
+#endif
 
 };
