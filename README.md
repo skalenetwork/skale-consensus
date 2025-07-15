@@ -18,7 +18,7 @@
 - **Secure against MEV and front-running** — provably resistant to manipulation
 
 
-Read the spec for more exciting features https://docs.skale.network/technology/consensus-spec 
+Read the spec for more exciting features [https://docs.skale.network/technology/consensus-spec ](https://github.com/skalenetwork/skale-consensus/blob/develop/docs/consensus-spec.md)
 
 See visualization of live conseneus https://www.youtube.com/watch?v=0NGCSRjjPkk
 

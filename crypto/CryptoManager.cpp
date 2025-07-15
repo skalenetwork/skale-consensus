@@ -1468,7 +1468,7 @@ void CryptoManager::addTEDecryptStats(uint64_t _time) {
     LOCK(teDecryptShareMutex);
     teDecryptShareTimes.push_back(_time);
     if (teDecryptShareTimes.size() > LEVELDB_STATS_HISTORY) {
-        teDecryptShareTotal.fetch_sub(blsSignTimes.front());
+        teDecryptShareTotal.fetch_sub(teDecryptShareTimes.front());
         teDecryptShareTimes.pop_front();
     }
 }
