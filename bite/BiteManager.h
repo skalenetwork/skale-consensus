@@ -53,10 +53,12 @@ public:
 
     [[nodiscard]]  ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
 
-    // TODO - change the name of this method
     [[nodiscard]]  DecryptedTransactionFields decryptFields(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
 
     void corruptFromTimeToTime(shared_ptr<vector<unsigned char>> result);
 
     [[nodiscard]]  ptr<vector<uint8_t> > teEncryptDataAndToAddress(const vector<uint8_t> &_data, const vector<uint8_t> &_to);
+
+    
+    bool isRealCryptoEnabled() const;
 };
