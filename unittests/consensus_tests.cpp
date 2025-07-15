@@ -2,32 +2,34 @@
 // Created by kladko on 17.06.20.
 //
 
+#include "thirdparty/catch.hpp"
+#include "Consensust.h"
 
-TEST_CASE_METHOD( StartFromScratch, "Run basic consensus", "[consensus-basic]" ) {
+TEST_CASE_METHOD( StartFromScratch, "Run basic consensus", "[consensus-basic][end-to-end]" ) {
     basicRun();
     SUCCEED();
 }
 
 TEST_CASE_METHOD(
-    DontCleanup, "Run basic consensus without cleanup", "[consensus-basic-no-cleanup]" ) {
+    DontCleanup, "Run basic consensus without cleanup", "[consensus-basic-no-cleanup][end-to-end]" ) {
     basicRun();
     SUCCEED();
 }
 
 TEST_CASE_METHOD(
-    DontCleanup, "Continue running basic consensus where stopped", "[consensus-basic-continue]" ) {
+    DontCleanup, "Continue running basic consensus where stopped", "[consensus-basic-continue][end-to-end]" ) {
     basicRun( -1 );
     SUCCEED();
 }
 
 
-TEST_CASE_METHOD( StartFromScratch, "Run two engines", "[consensus-two-engines]" ) {
+TEST_CASE_METHOD( StartFromScratch, "Run two engines", "[consensus-two-engines][end-to-end]" ) {
     auto lastId = basicRun();
     basicRun( ( int64_t )( uint64_t ) lastId );
     SUCCEED();
 }
 
-TEST_CASE_METHOD( StartFromScratch, "Change schain index", "[change-schain-index]" ) {
+TEST_CASE_METHOD( StartFromScratch, "Change schain index", "[change-schain-index][end-to-end]" ) {
     uint64_t lastId = ( uint64_t ) basicRun();
     Consensust::useCorruptConfigs();
     REQUIRE_THROWS( basicRun( lastId ) );
@@ -36,7 +38,7 @@ TEST_CASE_METHOD( StartFromScratch, "Change schain index", "[change-schain-index
 
 
 TEST_CASE_METHOD(
-    StartFromScratch, "Use finalization download only", "[consensus-finalization-download]" ) {
+    StartFromScratch, "Use finalization download only", "[consensus-finalization-download][end-to-end]" ) {
     setenv( "TEST_FINALIZATION_DOWNLOAD_ONLY", "1", 1 );
 
     engine = new ConsensusEngine( 0, 100000000 );
@@ -52,7 +54,7 @@ TEST_CASE_METHOD(
 }
 
 
-TEST_CASE_METHOD( StartFromScratch, "Get consensus to stuck", "[consensus-stuck]" ) {
+TEST_CASE_METHOD( StartFromScratch, "Get consensus to stuck", "[consensus-stuck][end-to-end]" ) {
     testLog( "Parsing configs" );
     std::thread timer( exit_check );
     try {
@@ -74,7 +76,7 @@ TEST_CASE_METHOD( StartFromScratch, "Get consensus to stuck", "[consensus-stuck]
 }
 
 TEST_CASE_METHOD(
-    StartFromScratch, "Issue different proposals to different nodes", "[corrupt-proposal]" ) {
+    StartFromScratch, "Issue different proposals to different nodes", "[corrupt-proposal][end-to-end]" ) {
     setenv( "CORRUPT_PROPOSAL_TEST", "1", 1 );
 
     try {

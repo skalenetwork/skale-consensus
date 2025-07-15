@@ -23,8 +23,13 @@
 
 #pragma once
 
+#include "SkaleCommon.h"
+#include "node/ConsensusEngine.h"
+
 #define DEFAULT_RUNNING_TIME_S 30
 #define STUCK_TEST_TIME 5
+
+extern ConsensusEngine* engine;
 
 class Consensust {
     static uint64_t runningTimeS;
@@ -44,3 +49,36 @@ public:
 
     static void testFinalize();
 };
+
+class StartFromScratch {
+public:
+    StartFromScratch() {
+        int i = system( "rm -rf /tmp/*.db.*" );
+        i = system( "rm -rf /tmp/*.db" );
+        i++;  // make compiler happy
+        Consensust::setConfigDirPath( boost::filesystem::system_complete( "." ) );
+
+#ifdef GOOGLE_PROFILE
+        HeapProfilerStart( "/tmp/consensusd.profile" );
+        HeapProfilerStart( "/tmp/consensusd.profile" );
+#endif
+    };
+
+    ~StartFromScratch() {
+#ifdef GOOGLE_PROFILE
+        HeapProfilerStop();
+#endif
+    }
+};
+
+class DontCleanup {
+public:
+    DontCleanup() { Consensust::setConfigDirPath( boost::filesystem::system_complete( "." ) ); };
+
+    ~DontCleanup() {}
+};
+
+block_id basicRun( int64_t _lastId = 0 );
+void exit_check();
+void abort_handler( int );
+void testLog( const char* message );
