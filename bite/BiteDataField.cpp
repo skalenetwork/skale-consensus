@@ -61,6 +61,10 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     CHECK_STATE2(rlp0.isList(), "RLP item 0 is not a list");
     CHECK_STATE2(rlp0.size() == 2, "RLP item 0 should have exactly 2 fields - EPOCH_ID, and bite encrypted data");
 
+    // set ecpohId
+    auto epochIdBytes = rlp0[0].asBytes();
+    epoch = u256( rlp0[0].asBytes() ).convert_to< uint64_t >();
+
     // validate encrypted data
     keyPlusEncryptedData = make_shared<std::vector<uint8_t>>(rlp0[1].asBytes());
     CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,

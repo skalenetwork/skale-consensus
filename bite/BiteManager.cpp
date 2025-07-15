@@ -196,11 +196,19 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromDa
     MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
 
 
-    for (auto &&dataField: _dataFields) {
-        auto encryptedAESKey = dataField->getEncryptedAESKey();
-        CHECK_STATE(encryptedAESKey);
-        encryptedAESKeys.push_back(encryptedAESKey);
+    for (size_t i = 0; i < _dataFields.size(); ++i) {
+        auto encryptedAESKey = _dataFields[i]->getEncryptedAESKey();
+        auto epochId = _dataFields[i]->getEpoch();
+        if ( !encryptedAESKey )
+            _failedTransactions.emplace( i, ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION );
+        else if ( epochId != getSchain()->getNode()->getCurrentEpochId() )
+            _failedTransactions.emplace( i, ConnectionSubStatus::CONNECTION_ERROR_INVALID_EPOCH_ID );
+        else
+            encryptedAESKeys.push_back(encryptedAESKey);
     }
+
+    if ( _failedTransactions.size() )
+        return nullptr;
 
     auto result = getDecryptionSharesFromAESKeys(encryptedAESKeys, schain.getSchainIndex(),
         _failedTransactions);

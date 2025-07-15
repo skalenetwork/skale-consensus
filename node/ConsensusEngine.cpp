@@ -259,6 +259,8 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
 
         JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
 
+        node->setEpochId( epochId );
+
         nodes[node->getNodeID()] = node;
 
     } catch ( SkaleException& e ) {
