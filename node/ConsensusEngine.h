@@ -62,6 +62,10 @@ class ConsensusEngine : public ConsensusInterface {
 
     set< node_id > nodeIDs;
 
+#ifdef MIRAGE
+    bool isSyncMode = false;
+#endif
+
     bool useTestSGXKeys = false;
 
     bool isSGXEnabled = false;
@@ -315,5 +319,9 @@ public:
     // if isSyncing is false, all fields will be set to zero.
 
     [[nodiscard]] SyncInfo getSyncInfo() override;
+
+#ifdef MIRAGE
+    void setSyncMode( bool _isSyncModeOn ) { isSyncMode = _isSyncModeOn; }
+#endif
 
 };

@@ -50,7 +50,11 @@ public:
         const ptr< BLSPublicKey >& _blsPublicKey, string& _gethURL,
         const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
         const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
-        const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups );
+        const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups
+#ifdef MIRAGE
+        , bool _isSyncNode
+#endif
+                                                 );
 
     static void createAndAddSChainFromJson(
         const ptr< Node >& _node, const fs_path& _jsonFile, ConsensusEngine* _engine );

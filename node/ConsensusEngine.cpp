@@ -251,11 +251,14 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
 
         string gethURL = _gethURL;
 
-
         node = JSONFactory::createNodeFromJsonObject( j["skaleConfig"]["nodeInfo"], dummy, this,
             this->isSGXEnabled, sgxServerUrl, sgxSSLKeyFileFullPath, sgxSSLCertFileFullPath,
             ecdsaKeyName, ecdsaPublicKeys, blsKeyName, blsPublicKeys, blsPublicKey, gethURL,
-            previousBlsPublicKeys, historicECDSAPublicKeys, historicNodeGroups );
+            previousBlsPublicKeys, historicECDSAPublicKeys, historicNodeGroups
+#ifdef MIRAGE
+            , isSyncMode
+#endif
+                );
 
         JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
 
