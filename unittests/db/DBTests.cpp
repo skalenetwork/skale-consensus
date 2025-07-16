@@ -39,7 +39,7 @@
 
 #include "chains/Schain.h"
 
-#include "BlockDB.h"
+#include "db/BlockDB.h"
 
 
 void test_committed_block_save() {
@@ -71,7 +71,7 @@ void test_committed_block_save() {
     REQUIRE( db->findMaxMinDBIndex().first > 10 );
 }
 
-TEST_CASE( "Save/read block", "[block-save-read-db]" ) {
+TEST_CASE( "Save/read block", "[block-save-read-db][end-to-end][correctness]" ) {
     SECTION( "Test successful save/read" )
     test_committed_block_save();
 }

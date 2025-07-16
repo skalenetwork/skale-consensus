@@ -14,14 +14,15 @@
 #include "crypto/EncryptedAESKey.h"
 #include "ParsedEthTransaction.h"
 #include "EthTransactionEncoder.h"
+#include "RLPStream.h"
 
 #pragma GCC diagnostic pop
 
 
 Signature::Signature(const uint256& _v, const uint256& _r, const uint256& _s) :
-    v(EthTransaction::bytesToU256(_v)),
-    r(EthTransaction::bytesToU256(_r)),
-    s(EthTransaction::bytesToU256(_s)) {}
+    v(RLPStream::bytesToU256(_v)),
+    r(RLPStream::bytesToU256(_r)),
+    s(RLPStream::bytesToU256(_s)) {}
 
 // -----------------------------------------------------------------------------------
 //                                  EthTransaction base
@@ -30,128 +31,22 @@ Signature::Signature(const uint256& _v, const uint256& _r, const uint256& _s) :
 
 /// --------------------------- RLP Encoding --------------------------- ///
 
-void EthTransaction::addEncodedFieldUint256(std::vector< std::vector< uint8_t > >& fields, const uint256& val) {
-    std::vector< uint8_t > tmp;
-    rlpEncodeUint256(tmp, val);
-    fields.push_back(tmp);
-}
-
-void EthTransaction::addEncodedFieldBytes(std::vector< std::vector< uint8_t > >& fields, const std::vector< uint8_t >& val) {
-    std::vector< uint8_t > tmp;
-    rlpEncodeBytes(tmp, val);
-    fields.push_back(tmp);
-}
-
-void EthTransaction::addEncodedFieldList(std::vector< std::vector< uint8_t > >& fields, const std::vector< std::vector< uint8_t > >& val) {
-    std::vector< uint8_t > tmp;
-    rlpEncodeList(tmp, val);
-    fields.push_back(tmp);
-}
-
-void EthTransaction::rlpEncodeBytes(
-    std::vector< uint8_t >& out, const std::vector< uint8_t >& data ) {
-    const size_t len = data.size();
-
-    // Explicitly handle empty string
-    if ( len == 0 ) {
-        out.push_back( 0x80 );
-        return;
-    }
-
-    // Single byte < 0x80 is encoded directly (no prefix)
-    if ( len == 1 && data[0] < 0x80 ) {
-        out.push_back( data[0] );
-        return;
-    }
-
-    if ( len < 56 ) {
-        // Short string: prefix = 0x80 + len
-        out.push_back( static_cast< uint8_t >( 0x80 + len ) );
-    } else {
-        // Long string: prefix = 0xb7 + len-of-len, then len, then data
-        std::vector< uint8_t > len_bytes;
-        size_t sz = len;
-        while ( sz > 0 ) {
-            len_bytes.insert( len_bytes.begin(), static_cast< uint8_t >( sz & 0xFF ) );
-            sz >>= 8;
-        }
-
-        CHECK_STATE2( len_bytes.size() <= 8, "rlpEncodeBytes: data too large (exceeds 2^64-1)" );
-
-        out.push_back( static_cast< uint8_t >( 0xb7 + len_bytes.size() ) );
-        out.insert( out.end(), len_bytes.begin(), len_bytes.end() );
-    }
-
-    // Append actual data
-    out.insert( out.end(), data.begin(), data.end() );
-}
-
-
-void EthTransaction::rlpEncodeUint256(
-    std::vector< uint8_t >& out, const std::vector< uint8_t >& value ) {
-    // Skip leading zeros
-    size_t start = 0;
-    while ( start < value.size() && value[start] == 0 ) {
-        ++start;
-    }
-
-    // Extract minimal non-zero representation (or empty)
-    std::vector< uint8_t > stripped( value.begin() + start, value.end() );
-
-    // Delegate to rlp_encode_bytes
-    rlpEncodeBytes( out, stripped );
-}
-
-void EthTransaction::rlpEncodeList(
-    std::vector< uint8_t >& out, const std::vector< std::vector< uint8_t > >& elements ) {
-    std::vector< uint8_t > payload;
-    for ( const auto& e : elements ) {
-        payload.insert( payload.end(), e.begin(), e.end() );
-    }
-    if ( payload.size() < 56 ) {
-        out.push_back( 0xc0 + payload.size() );
-    } else {
-        std::vector< uint8_t > len;
-        size_t sz = payload.size();
-        while ( sz ) {
-            len.insert( len.begin(), static_cast< uint8_t >( sz & 0xFF ) );
-            sz >>= 8;
-        }
-        out.push_back( 0xf7 + len.size() );
-        out.insert( out.end(), len.begin(), len.end() );
-    }
-    out.insert( out.end(), payload.begin(), payload.end() );
-}
-
 std::vector< uint8_t > EthTransaction::rlpEncode(const std::optional< Signature > &signature) const {
     // get tx fields encoded in order as a vec of byte vectors
-    std::vector< std::vector< uint8_t > > fields = encode();
+    RLPStream fields = encode();
 
     if ( signature ) {
-        std::vector< uint8_t > v_encoded, r_encoded, s_encoded;
-        rlpEncodeUint256( v_encoded, u256toBytes(signature->v) );
-        rlpEncodeUint256( r_encoded, u256toBytes(signature->r) );
-        rlpEncodeUint256( s_encoded, u256toBytes(signature->s) );
-
-        fields.push_back( v_encoded );
-        fields.push_back( r_encoded );
-        fields.push_back( s_encoded );
+        fields << signature->v
+                << signature->r
+                << signature->s;
     } else {
-        std::vector< uint8_t > tmp;
-        std::vector< uint8_t > ZERO;
-        rlpEncodeUint256( tmp, ZERO );
-        fields.push_back( tmp );
-        tmp.clear();
-        rlpEncodeUint256( tmp, ZERO );
-        fields.push_back( tmp );
-        tmp.clear();
-        rlpEncodeUint256( tmp, ZERO );
-        fields.push_back( tmp );
-        tmp.clear();
+        u256 ZERO = 0;
+        fields << ZERO // v
+                << ZERO // r
+                << ZERO; // s
     }
 
-    std::vector< uint8_t > encoded;
-    rlpEncodeList( encoded, fields );
+    std::vector< uint8_t > encoded = fields.encode();
 
     // insert tx prefix at beginning if any
     auto prefix = getBytePrefix();
@@ -168,32 +63,20 @@ std::vector< uint8_t > EthTransaction::rlpEncode(const std::optional< Signature 
 
 std::vector< uint8_t > AccessTuple::encode() const {
     // encode address
-    std::vector< uint8_t > rlpAddress;
-    EthTransaction::rlpEncodeBytes( rlpAddress, address );
+    RLPStream rlpAddress;
+    rlpAddress << address;
 
     // encode each item inside list of storage keys
-    std::vector<std::vector<uint8_t>> rlpKeys;
+    RLPStream rlpKeys;
     for (const auto& key : storageKeys) {
-        std::vector<uint8_t> rlpKey;
-        EthTransaction::rlpEncodeBytes(rlpKey, key);
-        rlpKeys.push_back(rlpKey);
+        rlpKeys << key;
     }
 
-    // encode list of storage keys
-    std::vector<uint8_t> rlpStorageKeys;
-    EthTransaction::rlpEncodeList(rlpStorageKeys, rlpKeys);
+    RLPStream rlpAccessTuple;
+    rlpAccessTuple << rlpAddress.encode() // encode the address
+                   << rlpKeys.encode(); // encode the list of storage keys
 
-    // create new list with encoded address and encoded list of storage keys
-    const std::vector< std::vector< uint8_t > > rlpStorageKeysEncoded = {
-        rlpAddress,
-        rlpStorageKeys
-    };
-
-    // encode the final access tuple
-    std::vector< uint8_t > rlpAccessTuple;
-    EthTransaction::rlpEncodeList(rlpAccessTuple, rlpStorageKeysEncoded);
-
-    return rlpAccessTuple;
+    return rlpAccessTuple.encode();
 }
 
 
@@ -262,8 +145,8 @@ Signature EthTransaction::sign(std::vector< uint8_t > privateKey) const {
 
     return Signature {
         computeSignatureV(rec_id),
-        bytesToU256(r_bytes),
-        bytesToU256(s_bytes)
+        RLPStream::bytesToU256(r_bytes),
+        RLPStream::bytesToU256(s_bytes)
     };
 }
 
@@ -287,8 +170,8 @@ void EthTransaction::verifySignature(Signature &sig) const {
     validateSignatureDomain(sig);
 
     // Create recoverable signature
-    std::vector< uint8_t > r = u256toBytes(sig.r);
-    std::vector< uint8_t > s = u256toBytes(sig.s);
+    std::vector< uint8_t > r = RLPStream::u256toBytes(sig.r);
+    std::vector< uint8_t > s = RLPStream::u256toBytes(sig.s);
     uint8_t sig64[64];
     std::copy(r.begin(), r.end(), sig64);
     std::copy(s.begin(), s.end(), sig64 + 32);
@@ -311,49 +194,18 @@ void EthTransaction::verifySignature(Signature &sig) const {
         "Failed to recover public key from signature");
 }
 
-
-/// @brief  Convert a vector of bytes in big endian order to a u256 value.
-/// @param bytes May be of any size. If > 32, then we only get the first 32 bytes.
-/// If < 32, then we only read the first bytes
-/// @return u256
-u256 EthTransaction::bytesToU256(const std::vector<uint8_t>& bytes) {
-    u256 val = 0;
-    size_t bytes_size = bytes.size();
-    
-    for (size_t i = 0; i < bytes_size; ++i) {
-        if (i >= 32) {
-            // If more than 32 bytes, ignore the rest
-            break;
-        }
-        val = (val << 8) | bytes[i];
-    }
-    return val;
-}
-
-/**
- * @brief Convert a u256 value to a vector of bytes in big-endian order.
- */
-std::vector< uint8_t> EthTransaction::u256toBytes( u256 v_value ) {
-    std::vector<uint8_t> bytes(32);
-    for (size_t i = 0; i < 32; i++) {
-        bytes[31 - i] = static_cast<uint8_t>(v_value & 0xFF);
-        v_value >>= 8;
-    }
-    return bytes;
-}
-
 // -----------------------------------------------------------------------------------
 //                                      Legacy
 // -----------------------------------------------------------------------------------
 
-std::vector< std::vector< uint8_t > > LegacyTx::encode() const {
-    std::vector< std::vector< uint8_t > > fields;
-    addEncodedFieldUint256(fields, nonce);
-    addEncodedFieldUint256(fields, gasPrice);
-    addEncodedFieldUint256(fields, gasLimit);
-    addEncodedFieldBytes  (fields, to);
-    addEncodedFieldUint256(fields, value);
-    addEncodedFieldBytes  (fields, data);
+RLPStream LegacyTx::encode() const {
+    RLPStream fields;
+    fields << nonce
+           << gasPrice
+           << gasLimit
+           << to
+           << value
+           << data;
 
     return fields;
 }
@@ -375,6 +227,7 @@ u256 LegacyTx::recoverSignatureV(const Signature &sig) const {
 #else
         CHECK_STATE2(sig.v > 36 || ( sig.v == 27 || sig.v == 28 ),
         "Invalid signature. Expected <= 36 or 27 or 28, got: " + sig.v.str());
+        "Invalid signature. Expected <= 36 or 27 or 28, got: " + sig.v.str());
 
         if ( sig.v == 27 || sig.v == 28 )
             recoveryId = sig.v - 27;
@@ -382,6 +235,7 @@ u256 LegacyTx::recoverSignatureV(const Signature &sig) const {
 #endif
             u256 const chain = ( sig.v - 35 ) / 2;
             CHECK_STATE2( chain <= std::numeric_limits< uint64_t >::max(),
+            "Invalid signature: Legacy Tx chainID overflow" );
             "Invalid signature: Legacy Tx chainID overflow" );
             recoveryId = sig.v - ( chain * 2 + 35 );
 #ifndef MIRAGE
@@ -406,23 +260,24 @@ u256 LegacyTx::computeSignatureV(int rec_id) const {
 //                                      Type 1
 // -----------------------------------------------------------------------------------
 
-std::vector< std::vector< uint8_t > > Type1Tx::encode() const {
-    std::vector< std::vector< uint8_t > > fields;
-    addEncodedFieldUint256(fields, chainId);   // new field for EIP-2930
-    addEncodedFieldUint256(fields, nonce);
-    addEncodedFieldUint256(fields, gasPrice);
-    addEncodedFieldUint256(fields, gasLimit);
-    addEncodedFieldBytes  (fields, to);
-    addEncodedFieldUint256(fields, value);
-    addEncodedFieldBytes  (fields, data);
+RLPStream Type1Tx::encode() const {
+    RLPStream fields;
+    fields << chainId
+            << nonce
+            << gasPrice
+            << gasLimit
+            << to
+            << value
+            << data;
 
     // encode access list - new field for EIP-2930
-    std::vector< std::vector< uint8_t > > rlpAccessList;
+    RLPStream rlpAccessList;
     for ( const auto& accessTuple : accessList ) {
         std::vector< uint8_t > rlpAccessTuple = accessTuple.encode();
-        rlpAccessList.push_back( rlpAccessTuple );
+        rlpAccessList << rlpAccessTuple;
     }
-    addEncodedFieldBytes(fields, std::vector<uint8_t>{});
+
+    fields << rlpAccessList.encode();
 
     return fields;
 }
@@ -443,23 +298,24 @@ u256 Type1Tx::computeSignatureV(int rec_id) const {
 //                                      Type 2
 // -----------------------------------------------------------------------------------
 
-std::vector< std::vector< uint8_t > > Type2Tx::encode() const {
-    std::vector< std::vector< uint8_t > > fields;
-    addEncodedFieldUint256(fields, chainId);
-    addEncodedFieldUint256(fields, nonce);
-    addEncodedFieldUint256(fields, maxPriorityFeePerGas);   // new field for EIP-1559
-    addEncodedFieldUint256(fields, maxFeePerGas);           // new field for EIP-1559
-    addEncodedFieldUint256(fields, gasLimit);
-    addEncodedFieldBytes  (fields, to);
-    addEncodedFieldUint256(fields, value);
-    addEncodedFieldBytes  (fields, data);
+RLPStream Type2Tx::encode() const {
+    RLPStream fields;
+    fields << chainId
+            << nonce
+            << maxPriorityFeePerGas   // new field for EIP-1559
+            << maxFeePerGas           // new field for EIP-1559
+            << gasLimit
+            << to
+            << value
+            << data;
 
-    std::vector< std::vector< uint8_t > > rlpAccessList;
+    RLPStream rlpAccessList;
     for ( const auto& accessTuple : accessList ) {
         std::vector< uint8_t > rlpAccessTuple = accessTuple.encode();
-        rlpAccessList.push_back( rlpAccessTuple );
+        rlpAccessList << rlpAccessTuple;
     }
-    addEncodedFieldList(fields, rlpAccessList);
+
+    fields << rlpAccessList.encode();
 
     return fields;
 }
