@@ -90,11 +90,7 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile( const string& _sgxUrl, cons
         return createNodeFromJsonObject( j, nodeIDs, _consensusEngine, _useSGX, sgxUrl,
             _sgxSSLKeyFileFullPath, _sgxSSLCertFileFullPath, _ecdsaKeyName, _ecdsaPublicKeys,
             _blsKeyName, _blsPublicKeys, _blsPublicKey, gethURL, _previousBlsPublicKeys,
-            _historicECDSAPublicKeys, _historicNodeGroups
-#ifdef MIRAGE
-            , false
-#endif
-                                         );
+            _historicECDSAPublicKeys, _historicNodeGroups );
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__ + to_string( __LINE__ ), __CLASS_NAME__ ) );
     }
@@ -108,20 +104,13 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j,
     const ptr< BLSPublicKey >& _blsPublicKey, string& _gethURL,
     const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
     const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
-    const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups
-#ifdef MIRAGE
-    , bool _isSyncNode
-#endif
-                                                   ) {
+    const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups ) {
     bool isSyncNode = false;
 
-#ifndef MIRAGE
+
     if ( _j.find( "syncNode" ) != _j.end() ) {
         isSyncNode = _j.at( "syncNode" ).get< bool >();
     }
-#else
-    isSyncNode = _isSyncNode;
-#endif
 
 
     if ( isSyncNode && _useSGX ) {
