@@ -259,7 +259,9 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
 
         JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
 
+#ifdef MIRAGE
         node->setEpochId( epochId );
+#endif
 
         nodes[node->getNodeID()] = node;
 
