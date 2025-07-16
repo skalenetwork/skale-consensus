@@ -191,6 +191,10 @@ struct AccessTuple {
     std::vector<std::vector<uint8_t>> storageKeys; // 32-byte keys
 
     std::vector< uint8_t > encode() const;
+
+    bool operator==(const AccessTuple& other) const {
+        return address == other.address && storageKeys == other.storageKeys;
+    }
 };
 
 /**
