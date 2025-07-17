@@ -40,12 +40,11 @@ ProposalHashDB::ProposalHashDB(
     static string SCHAIN_INDEX = "schainIndex";
 
     auto index = this->readString( SCHAIN_INDEX );
-
+#ifndef MIRAGE
     if ( index.empty() ) {
+#endif
         this->writeString( SCHAIN_INDEX, to_string( ( uint64_t ) _sChain->getSchainIndex() ) );
-#ifdef MIRAGE
-    }
-#else
+#ifndef MIRAGE
     } else {
         if ( to_string( ( uint64_t ) getSchain()->getSchainIndex() ) != index ) {
             BOOST_THROW_EXCEPTION(
