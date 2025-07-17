@@ -43,6 +43,9 @@ ProposalHashDB::ProposalHashDB(
 
     if ( index.empty() ) {
         this->writeString( SCHAIN_INDEX, to_string( ( uint64_t ) _sChain->getSchainIndex() ) );
+#ifdef MIRAGE
+    }
+#else
     } else {
         if ( to_string( ( uint64_t ) getSchain()->getSchainIndex() ) != index ) {
             BOOST_THROW_EXCEPTION(
@@ -50,6 +53,7 @@ ProposalHashDB::ProposalHashDB(
                             "This should never happen.  Fix the config and restart the node." ) );
         }
     }
+#endif
 }
 
 
