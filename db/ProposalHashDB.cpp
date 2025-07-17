@@ -40,19 +40,19 @@ ProposalHashDB::ProposalHashDB(
     static string SCHAIN_INDEX = "schainIndex";
 
     auto index = this->readString( SCHAIN_INDEX );
-#ifndef MIRAGE
     if ( index.empty() ) {
-#endif
         this->writeString( SCHAIN_INDEX, to_string( ( uint64_t ) _sChain->getSchainIndex() ) );
-#ifndef MIRAGE
     } else {
         if ( to_string( ( uint64_t ) getSchain()->getSchainIndex() ) != index ) {
+#ifndef MIRAGE
             BOOST_THROW_EXCEPTION(
                 FatalError( "Schain index of this node changed in the config."
                             "This should never happen.  Fix the config and restart the node." ) );
+#else
+            this->writeString( SCHAIN_INDEX, to_string( ( uint64_t ) _sChain->getSchainIndex() ), true );
+#endif
         }
     }
-#endif
 }
 
 
