@@ -109,7 +109,7 @@ Schain* CacheLevelDB::getSchain() const {
     return sChain;
 }
 
-string CacheLevelDB::readString( string& _key ) {
+string CacheLevelDB::readString( const string& _key ) {
     checkForDeadLockRead( __FUNCTION__ );
     shared_lock< shared_timed_mutex > lock( m );
     return readStringUnsafe( _key );
@@ -117,7 +117,7 @@ string CacheLevelDB::readString( string& _key ) {
 
 #include "utils/Time.h"
 
-string CacheLevelDB::readStringUnsafe( string& _key ) {
+string CacheLevelDB::readStringUnsafe( const string& _key ) {
     uint64_t time = 0;
 
     readCounter.fetch_add( 1 );
