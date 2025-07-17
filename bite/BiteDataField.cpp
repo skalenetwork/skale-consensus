@@ -63,7 +63,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
 
     // set ecpohId
     auto epochIdBytes = rlp0[0].asBytes();
-    epoch = u256( rlp0[0].asBytes() ).convert_to< uint64_t >();
+    epoch = u256( epochIdBytes ).convert_to< uint64_t >();
 
     // validate encrypted data
     keyPlusEncryptedData = make_shared<std::vector<uint8_t>>(rlp0[1].asBytes());
