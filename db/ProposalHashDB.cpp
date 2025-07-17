@@ -38,7 +38,7 @@ ProposalHashDB::ProposalHashDB(
     : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
           LevelDBOptions::getProposalHashDBOptions(), false ) {
 #ifndef MIRAGE
-    static string SCHAIN_INDEX = "schainIndex";
+    constexpr const char* SCHAIN_INDEX = "schainIndex";
 
     auto index = this->readString( SCHAIN_INDEX );
 
