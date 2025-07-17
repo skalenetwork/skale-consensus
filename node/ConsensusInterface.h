@@ -113,6 +113,7 @@ public:
 
     virtual consensus_engine_status getStatus() const = 0;
 
+
 #define ORACLE_SUCCESS 0
 #define ORACLE_UNKNOWN_RECEIPT 1
 #define ORACLE_TIMEOUT 2
@@ -202,7 +203,6 @@ public:
 
     virtual uint64_t checkOracleResult(const std::string &_receipt, std::string &_result) = 0;
 
-
     struct SyncInfo {
         // sync information as required by eth_syncing API request of geth
         bool isSyncing = false;
@@ -219,6 +219,10 @@ public:
     // return sync information as requested by eth_syncing API of geth
     // if isSyncing is false, all fields will be set to zero.
     virtual SyncInfo getSyncInfo() = 0;
+
+#ifdef MIRAGE
+    virtual void updateLogger() const = 0;
+#endif
 
 };
 

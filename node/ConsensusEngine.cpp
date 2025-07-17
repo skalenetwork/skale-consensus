@@ -767,6 +767,12 @@ void ConsensusEngine::exitGracefully() {
     thread( [this]() { exitGracefullyAsync(); } ).detach();
 }
 
+#ifdef MIRAGE
+void ConsensusEngine::updateLogger() const {
+    logThreadLocal_ = nodes.begin()->second->getLog();
+}
+#endif
+
 // used in tests only
 void ConsensusEngine::testExitGracefullyBlocking() {
     exitGracefully();
