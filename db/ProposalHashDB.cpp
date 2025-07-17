@@ -37,6 +37,7 @@ ProposalHashDB::ProposalHashDB(
     Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
     : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
           LevelDBOptions::getProposalHashDBOptions(), false ) {
+#ifndef MIRAGE
     static string SCHAIN_INDEX = "schainIndex";
 
     auto index = this->readString( SCHAIN_INDEX );
@@ -50,6 +51,7 @@ ProposalHashDB::ProposalHashDB(
                             "This should never happen.  Fix the config and restart the node." ) );
         }
     }
+#endif
 }
 
 
