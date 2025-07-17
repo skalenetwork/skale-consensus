@@ -91,9 +91,11 @@ u256 RLPStream::bytesToU256(const std::vector<uint8_t>& bytes) {
 std::vector<uint8_t> RLPStream::encode() const {
     std::vector< uint8_t > out;
     std::vector< uint8_t > payload;
+    
     for ( const auto& e : data ) {
         payload.insert( payload.end(), e.begin(), e.end() );
     }
+    
     if ( payload.size() < 56 ) {
         out.push_back( 0xc0 + payload.size() );
     } else {
@@ -103,6 +105,10 @@ std::vector<uint8_t> RLPStream::encode() const {
             len.insert( len.begin(), static_cast< uint8_t >( sz & 0xFF ) );
             sz >>= 8;
         }
+        
+        // Basic sanity check for length encoding
+        CHECK_STATE2(len.size() <= 8, "RLPStream encode: payload length too large");
+        
         out.push_back( 0xf7 + len.size() );
         out.insert( out.end(), len.begin(), len.end() );
     }

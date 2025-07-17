@@ -38,15 +38,12 @@
 #endif
 #include "chains/Schain.h"
 
-#include "CommittedBlock.h"
-#include "CommittedBlockList.h"
-
-
-#include "Transaction.h"
-#include "TransactionList.h"
-
-#include "BlockProposalFragment.h"
-#include "BlockProposalFragmentList.h"
+#include "datastructures/CommittedBlock.h"
+#include "datastructures/CommittedBlockList.h"
+#include "datastructures/Transaction.h"
+#include "datastructures/TransactionList.h"
+#include "datastructures/BlockProposalFragment.h"
+#include "datastructures/BlockProposalFragmentList.h"
 
 
 #define BOOST_PENDING_INTEGER_LOG2_HPP
@@ -55,10 +52,7 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
-
 #include "thirdparty/catch.hpp"
-
-#include "Transaction.h"
 
 
 void corrupt_byte_vector( const ptr< vector< uint8_t > >& _in, boost::random::mt19937& _gen,
@@ -291,7 +285,7 @@ void test_committed_block_list_serialize_deserialize() {
 }
 
 
-TEST_CASE( "Serialize/deserialize transaction", "[tx-serialize]" ) {
+TEST_CASE( "Serialize/deserialize transaction", "[tx-serialize][unit][correctness]" ) {
     SECTION( "Test successful serialize/deserialize" )
 
 
@@ -304,7 +298,7 @@ TEST_CASE( "Serialize/deserialize transaction", "[tx-serialize]" ) {
     // Test successful serialize/deserialize failure
 }
 
-TEST_CASE( "Serialize/deserialize transaction list", "[tx-list-serialize]" ) {
+TEST_CASE( "Serialize/deserialize transaction list", "[tx-list-serialize][unit][correctness]" ) {
     SECTION( "Test successful serialize/deserialize" )
 
 
@@ -316,7 +310,7 @@ TEST_CASE( "Serialize/deserialize transaction list", "[tx-list-serialize]" ) {
 }
 
 
-TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize]" ) {
+TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize][end-to-end][correctness]" ) {
     SECTION( "Test successful serialize/deserialize" )
 
     test_committed_block_serialize_deserialize( false );
@@ -329,7 +323,7 @@ TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize]
 }
 
 
-TEST_CASE( "Serialize/deserialize committed block list", "[committed-block-list-serialize]" ) {
+TEST_CASE( "Serialize/deserialize committed block list", "[committed-block-list-serialize][end-to-end][correctness]" ) {
     SECTION( "Test successful serialize/deserialize" )
 
     test_committed_block_list_serialize_deserialize();
@@ -341,7 +335,7 @@ TEST_CASE( "Serialize/deserialize committed block list", "[committed-block-list-
     // Test successful serialize/deserialize failure
 }
 
-TEST_CASE( "Test committed block fragment/defragment", "[committed-block-defragment]" ) {
+TEST_CASE( "Test committed block fragment/defragment", "[committed-block-defragment][end-to-end][correctness]" ) {
     SECTION( "Test successful serialize/deserialize" )
 
     test_committed_block_fragment_defragment( false );

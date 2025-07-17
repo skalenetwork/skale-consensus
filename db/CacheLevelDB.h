@@ -69,8 +69,8 @@ protected:
         const char* _value, uint64_t _valueLen, block_id _blockId, schain_index _index );
     string index2Path( uint64_t index );
 
-    string readString( string& _key );
-    string readStringUnsafe( string& _key );
+    string readString( const string& _key );
+    string readStringUnsafe( const string& _key );
 
     void writeString( const string& key1, const string& value1, bool overWrite = false );
 
