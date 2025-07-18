@@ -259,6 +259,10 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
 
         JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
 
+#ifdef MIRAGE
+        node->setEpochId( epochId );
+#endif
+
         nodes[node->getNodeID()] = node;
 
     } catch ( SkaleException& e ) {
@@ -766,6 +770,12 @@ void ConsensusEngine::exitGracefully() {
     // run and forget
     thread( [this]() { exitGracefullyAsync(); } ).detach();
 }
+
+#ifdef MIRAGE
+void ConsensusEngine::updateLogger() const {
+    logThreadLocal_ = nodes.begin()->second->getLog();
+}
+#endif
 
 // used in tests only
 void ConsensusEngine::testExitGracefullyBlocking() {

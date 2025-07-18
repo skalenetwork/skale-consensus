@@ -62,6 +62,10 @@ class ConsensusEngine : public ConsensusInterface {
 
     set< node_id > nodeIDs;
 
+#ifdef MIRAGE
+    uint64_t epochId = 0;
+#endif
+
     bool useTestSGXKeys = false;
 
     bool isSGXEnabled = false;
@@ -241,6 +245,10 @@ public:
 
     virtual void exitGracefully() override;
 
+#ifdef MIRAGE
+    virtual void updateLogger() const override;
+#endif
+
 
     // used in tests
     void testExitGracefullyBlocking();
@@ -306,12 +314,15 @@ public:
     uint64_t checkOracleResult( const string& _receipt, string& _result ) override;
 
 
-
     std::shared_ptr< std::vector< std::uint8_t > > getSerializedBlock( std::uint64_t _blockNumber );
 
     // return sync information as requested by eth_syncing API of geth
     // if isSyncing is false, all fields will be set to zero.
 
     [[nodiscard]] SyncInfo getSyncInfo() override;
+
+#ifdef MIRAGE
+    void setEpochId( uint64_t _epochId ) { epochId = _epochId; }
+#endif
 
 };

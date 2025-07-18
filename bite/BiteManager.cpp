@@ -23,6 +23,7 @@
 
 #include "BLSPublicKey.h"
 #include "db/TEDecryptionDB.h"
+#include "rlp/RLPStream.h"
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
@@ -218,6 +219,39 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
     }
 }
 
+ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromDataFields(
+    vector<ptr<BiteDataField> > &_dataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
+    vector<ptr<EncryptedAESKey> > encryptedAESKeys;
+
+    MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
+
+
+    for (size_t i = 0; i < _dataFields.size(); ++i) {
+        auto encryptedAESKey = _dataFields[i]->getEncryptedAESKey();
+        auto epochId = _dataFields[i]->getEpoch();
+        if ( !encryptedAESKey )
+            _failedTransactions.emplace( i, ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION );
+        else if ( epochId != getSchain()->getNode()->getCurrentEpochId() )
+            _failedTransactions.emplace( i, ConnectionSubStatus::CONNECTION_ERROR_INVALID_EPOCH_ID );
+        else
+            encryptedAESKeys.push_back(encryptedAESKey);
+    }
+
+    if ( _failedTransactions.size() )
+        return nullptr;
+
+    auto result = getDecryptionSharesFromAESKeys(encryptedAESKeys, schain.getSchainIndex(),
+        _failedTransactions);
+
+    if (result) {
+        CHECK_STATE(result->size() == _dataFields.size());
+    } else {
+        CHECK_STATE(!_failedTransactions.empty())
+    }
+
+    return result;
+}
+
 
 ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
     TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys) {
@@ -255,31 +289,31 @@ DecryptedTransactionFields
 BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
-    ptr<vector<uint8_t> > dataField = nullptr;
+    ptr< vector< uint8_t > > biteDataField = nullptr;
 
     if (doRealCrypto) {
-        auto encryptedData = _bite->getEncryptedData();
+        auto encryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(encryptedData != nullptr);
 
         libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData);
-        dataField = make_shared<vector<uint8_t> >(
-            libBLS::ThresholdEncryption::decrypt(ciphertext, _decryptedAESKey.getAesKey()));
+        biteDataField = make_shared<vector<uint8_t>>(libBLS::ThresholdEncryption::decrypt(ciphertext, _decryptedAESKey.getAesKey()));
     } else {
         auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(keyPlusEncryptedData);
         auto decryptedOriginalDataField =
                 libBLS::ThresholdEncryption::mockupDecrypt(*keyPlusEncryptedData);
-        dataField = make_shared<vector<uint8_t> >(decryptedOriginalDataField);
+        biteDataField = make_shared<vector<uint8_t> >(decryptedOriginalDataField);
     }
 
-    CHECK_STATE2(dataField->size() >= ADDRESS_SIZE,
-                 "Decrypted data is not long enough to include the original tx.to field!");
+    CHECK_STATE2(biteDataField->size() >= ADDRESS_SIZE, "Decrypted data is not long enough to include the original tx.to field!");
 
-    // extract the last 20 bytes from dataField into toField
-    ptr<vector<uint8_t> > toField = make_shared<std::vector<uint8_t> >(dataField->end() - ADDRESS_SIZE,
-                                                                       dataField->end());
-    // remove the to address from dataField
-    dataField->erase(dataField->end() - ADDRESS_SIZE, dataField->end());
+    RLPItem decryptedDataRlp( *biteDataField );
+    CHECK_STATE2( decryptedDataRlp.isList(), "Encrypted data rlp size must be a list" );
+    CHECK_STATE2( decryptedDataRlp.size() == 2,
+                  "Encrypted data rlp lsit must have exactly 2 elements" );
+    // extract decrypted data and to fields
+    ptr< vector< uint8_t > > dataField = make_shared< std::vector< uint8_t > >( decryptedDataRlp[0].asBytes() );
+    ptr< vector< uint8_t > > toField = make_shared< std::vector< uint8_t > >( decryptedDataRlp[1].asBytes() );
 
     auto decryptedFields = DecryptedTransactionFields{
         .data = dataField,
@@ -307,9 +341,9 @@ void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> >) {
 }
 
 ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_t> &_data, const vector<uint8_t> &_to) {
-    // copy content of _data, and append _to to end of it
-    auto data = _data;
-    data.insert(data.end(), _to.begin(), _to.end());
+    // RLP encode
+    RLPStream stream;
+    stream << _data << _to;
 
     if (this->doRealCrypto) {
         auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
@@ -318,15 +352,15 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
         CHECK_STATE(blsKey);
         libBLS::TEPublicKey teKey(*blsKey);
 
-        auto cipherText = libBLS::ThresholdEncryption::encrypt(data, teKey);
-        auto bytes = std::make_shared<vector<uint8_t> >(cipherText.toBytes());
+        auto cipherText = libBLS::ThresholdEncryption::encrypt(stream.encode(), teKey);
+        auto bytes = std::make_shared<vector<uint8_t>>(cipherText.toBytes());
 
 
         corruptFromTimeToTime(bytes);
 
         return bytes;
     } else {
-        return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(data));
+        return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(stream.encode()));
     }
 }
 
@@ -352,4 +386,8 @@ ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(
         return make_shared<MockupAESKeyDecryptionShareSet>(
             _blockId, _transactionIndex, schain.getTotalSigners(), schain.getRequiredSigners());
     }
+}
+
+bool BiteManager::isRealCryptoEnabled() const {
+    return doRealCrypto;
 }

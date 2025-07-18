@@ -226,6 +226,7 @@ class Node {
 
 #ifdef MIRAGE
     uint64_t constantGasPrice = 0;
+    uint64_t epochId = 0;
 #endif
 
     uint64_t proposalHashDBSize = 0;
@@ -455,6 +456,10 @@ public:
 
 #ifdef MIRAGE
     uint64_t getConstantGasPrice() const;
+
+    uint64_t getCurrentEpochId() const;
+
+    void setEpochId( uint64_t _epochId );
 #endif
 
     uint64_t getParamUint64( const string& _paramName, uint64_t paramDefault );

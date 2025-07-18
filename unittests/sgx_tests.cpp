@@ -2,7 +2,14 @@
 // Created by kladko on 17.06.20.
 //
 
-TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
+#include "thirdparty/catch.hpp"
+#include "Consensust.h"
+#include "crypto/CryptoManager.h"
+#include "JsonStubClient.h"
+#include <jsonrpccpp/client/connectors/httpclient.h>
+
+
+TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx][end-to-end][correctness]" ) {
     string certDir( "/tmp" );
 
 
@@ -56,7 +63,7 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx]" ) {
 }
 
 
-TEST_CASE( "Parse sgx keys", "[sgx-parse]" ) {
+TEST_CASE( "Parse sgx keys", "[sgx-parse][end-to-end][correctness]" ) {
     auto serverURL = string( "http://localhost:1029" );
     auto eng = make_shared< ConsensusEngine >( 0, 100000000 );
     eng->setTestKeys( serverURL, "run_sgx_test/sgx_data/4node.json", 4, 1 );

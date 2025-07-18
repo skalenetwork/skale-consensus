@@ -97,6 +97,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     TxType txType = static_cast< TxType >( currentTxType );
     auto currentNonce = nonce.fetch_add( 1 );
 
+
     // generate the tx from sample templates
     std::unique_ptr<EthTransaction> tx;
     switch ( txType ) {
@@ -114,7 +115,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     }
 
     EthTransaction& txRef = *tx;
-    txRef.nonce = EthTransaction::u256toBytes( static_cast<u256>( currentNonce ) );
+    txRef.nonce = RLPStream::u256toBytes( static_cast<u256>( currentNonce ) );
 
     if ( _isByte ) {
         auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
@@ -133,8 +134,6 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     return encodedTx;
 }
 
-// TODO - maybe we should just have 3 methods to parse each different type of tx instead
-// of building an object out of it
 ptr< vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
     ParsedEthTransaction& _ethTransaction ) {
     auto fields = _ethTransaction.getFields();

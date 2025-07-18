@@ -188,7 +188,7 @@ void Transaction::parseAndValidate() {
 }
 
 
-ptr< BiteDataField > Transaction::tryGetBiteData() {
+ptr< BiteDataField > Transaction::tryGetBiteData() const {
     auto tx = std::atomic_load(&parsedAndValidatedEthTransaction );
 
     ptr< BiteDataField > result = nullptr;
