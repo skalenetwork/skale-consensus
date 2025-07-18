@@ -62,7 +62,7 @@ class ConsensusEngine : public ConsensusInterface {
 
     set< node_id > nodeIDs;
 
-#ifdef MIRAGE
+#ifdef BITE
     uint64_t epochId = 0;
 #endif
 
@@ -321,7 +321,7 @@ public:
 
     [[nodiscard]] SyncInfo getSyncInfo() override;
 
-#ifdef MIRAGE
+#ifdef BITE
     void setEpochId( uint64_t _epochId ) { epochId = _epochId; }
 #endif
 
