@@ -226,7 +226,6 @@ class Node {
 
 #ifdef MIRAGE
     uint64_t constantGasPrice = 0;
-    uint64_t epochId = 0;
 #endif
 
     uint64_t proposalHashDBSize = 0;
@@ -267,6 +266,8 @@ class Node {
     atomic< bool > exitOnBlockBoundaryRequested = false;
 
 #ifdef BITE
+    uint64_t epochId = 0;
+
     //provide a fast way to get schainId and node_count from
     // anywhere in the count since they never change during the execution
     static node_count nodeCount;
@@ -356,6 +357,9 @@ public:
     uint64_t getTEDecryptionDBSize() const;
     static node_count getNodeCount();
     static schain_id getSchainId();
+
+    uint64_t getCurrentEpochId() const;
+    void setEpochId( uint64_t _epochId );
 #endif
 
     map< string, uint64_t > getDBUsage() const;
@@ -456,10 +460,6 @@ public:
 
 #ifdef MIRAGE
     uint64_t getConstantGasPrice() const;
-
-    uint64_t getCurrentEpochId() const;
-
-    void setEpochId( uint64_t _epochId );
 #endif
 
     uint64_t getParamUint64( const string& _paramName, uint64_t paramDefault );
