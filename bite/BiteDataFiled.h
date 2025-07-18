@@ -9,7 +9,7 @@ class BiteDataField {
 
     ptr<EncryptedAESKey> encryptedAESKey;
     std::shared_ptr<EncryptedData> keyPlusEncryptedData;
-    uint64_t epoch = 0;
+    std::atomic_uint64_t epoch = 0;
     ptr<vector<uint8_t >> serializedData;
     explicit BiteDataField( const shared_ptr< vector< std::uint8_t > >& data, bool _useRealCrypto = true );
 

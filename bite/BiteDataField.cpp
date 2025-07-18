@@ -63,6 +63,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
 
     // set ecpohId
     auto epochIdBytes = rlp0[0].asBytes();
+    CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long")
     epoch = u256( epochIdBytes ).convert_to< uint64_t >();
 
     // validate encrypted data
