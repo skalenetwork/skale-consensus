@@ -303,14 +303,6 @@ uint64_t Node::getMinBlockIntervalMs() const {
 uint64_t Node::getConstantGasPrice() const {
     return constantGasPrice;
 }
-
-uint64_t Node::getCurrentEpochId() const {
-    return epochId;
-}
-
-void Node::setEpochId( uint64_t _epochId ) {
-    epochId = _epochId;
-}
 #endif
 
 uint64_t Node::getBlockDBSize() const {
@@ -402,6 +394,14 @@ uint64_t Node::getInternalInfoDBSize() const {
 #ifdef BITE
 uint64_t Node::getTEDecryptionDBSize() const {
     return teDecryptionDBSize;
+}
+
+uint64_t Node::getCurrentEpochId() const {
+    return epochId;
+}
+
+void Node::setEpochId( uint64_t _epochId ) {
+    epochId = _epochId;
 }
 #endif
 
