@@ -288,7 +288,7 @@
     "cf.advertisement.text.overridden": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "Merging 886-improve-bite-performance",
+    "git-widget-placeholder": "Reverting in 886-improve-bite-performance",
     "last_opened_file_path": "/d/skale-consensus",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -915,6 +915,7 @@
       <workItem from="1752056782231" duration="21000" />
       <workItem from="1752057092247" duration="758000" />
       <workItem from="1752061949602" duration="5000" />
+      <workItem from="1752850812730" duration="5000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
