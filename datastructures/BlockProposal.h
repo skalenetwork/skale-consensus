@@ -206,6 +206,7 @@ public:
 
     [[nodiscard]] ptr<AESKeyDecryptionShareList> getMyDecryptionShares() const {
         auto result = std::atomic_load(&myDecryptionShares);
+        CHECK_STATE(result)
         return result;
     }
 
@@ -238,6 +239,7 @@ public:
 
     [[nodiscard]] ptr<EncryptedAESKeyList> getEncryptedAESKeys() const {
         auto result = std::atomic_load(&encryptedAESKeys);
+        CHECK_STATE(encryptedAESKeys);
         return result;
     }
 #endif
