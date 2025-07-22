@@ -47,7 +47,7 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     serializedData = make_shared<vector<uint8_t> >(listOfLists.encode());
 }
 
-BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, bool _useRealCrypto) {
+BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, u256 _currentEpochId, bool _useRealCrypto) {
     CHECK_STATE(_data);
 
     // parse RLP-encoded tx data field
@@ -55,21 +55,38 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     CHECK_STATE2(rlp.isList(), "RLP item is not a list");
     CHECK_STATE2(rlp.size() >= 1, "RLP item should have at least 1 item");
     
-    // Get 1st item from list
-    RLPItem rlp0 = rlp[0];
+    const uint64_t currentEpoch = _currentEpochId.convert_to<uint64_t>();
+    
+    auto parseRLPItem = [this](const RLPItem& item) {
+        CHECK_STATE2(item.isList(), "RLP item is not a list");
+        CHECK_STATE2(item.size() == 2, "RLP item should have exactly 2 fields - EPOCH_ID, and bite encrypted data");
 
-    CHECK_STATE2(rlp0.isList(), "RLP item 0 is not a list");
-    CHECK_STATE2(rlp0.size() == 2, "RLP item 0 should have exactly 2 fields - EPOCH_ID, and bite encrypted data");
+        // Parse epoch ID
+        const auto epochIdBytes = item[0].asBytes();
+        CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long");
+        const uint64_t parsedEpoch = u256(epochIdBytes).convert_to<uint64_t>();
 
-    // set ecpohId
-    auto epochIdBytes = rlp0[0].asBytes();
-    CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long")
-    epoch = u256( epochIdBytes ).convert_to< uint64_t >();
+        // Parse and validate encrypted data
+        auto encryptedData = make_shared<std::vector<uint8_t>>(item[1].asBytes());
+        CHECK_STATE2(encryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
+            "Incorrectly formatted BITE transaction: Encrypted data size is not at least " + 
+            to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " + to_string(encryptedData->size()));
 
-    // validate encrypted data
-    keyPlusEncryptedData = make_shared<std::vector<uint8_t>>(rlp0[1].asBytes());
-    CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
-        "Incorrectly formatted BITE transaction: Encrypted data size is not at least " + to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " + to_string(keyPlusEncryptedData->size()));
+        return std::make_pair(parsedEpoch, std::move(encryptedData));
+    };
+
+    // Parse first RLP item
+    auto [firstEpoch, firstData] = parseRLPItem(rlp[0]);
+    epoch = firstEpoch;
+    keyPlusEncryptedData = std::move(firstData);
+
+    // If there's a second item and epochId doesn't match, use the second item
+    if (rlp.size() >= 2 && epoch != currentEpoch) {
+        auto [secondEpoch, secondData] = parseRLPItem(rlp[1]);
+        CHECK_STATE2(currentEpoch == secondEpoch, "Incorrectly formatted BITE transaction: wrong epochId");
+        epoch = secondEpoch;
+        keyPlusEncryptedData = std::move(secondData);
+    }
     
     if (_useRealCrypto) {
         // get & validate encrypted key part
@@ -100,7 +117,9 @@ uint64_t BiteDataField::getEpoch() {
 }
 
 
-ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data, ptr<vector<uint8_t> > &_to, bool _useRealCrypto) {
+ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data,
+                                                       ptr<vector<uint8_t> > &_to,
+                                                       u256 _currentEpochId, bool _useRealCrypto) {
     CHECK_STATE(_data)
     CHECK_STATE(_to)
 
@@ -110,7 +129,7 @@ ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_d
         return nullptr;
     }
 
-    return ptr<BiteDataField>(new BiteDataField(_data, _useRealCrypto));
+    return ptr<BiteDataField>(new BiteDataField(_data, _currentEpochId, _useRealCrypto));
 }
 
 

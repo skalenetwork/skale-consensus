@@ -58,7 +58,7 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecrypti
     for (auto &tx: *transactions) {
         try {
             tx->parseAndValidate();
-            auto biteDataField = tx->tryGetBiteData(doRealCrypto);
+            auto biteDataField = tx->tryGetBiteData(schain.getNode()->getCurrentEpochId(), doRealCrypto);
             if (biteDataField) {
                 biteDataFields.emplace(index, biteDataField);
                 encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
@@ -234,7 +234,7 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
         for (uint64_t i = 0; i < _transactionList.size(); i++) {
             auto tx = txs->at(i);
             tx->parseAndValidate();
-            auto bite = tx->tryGetBiteData(doRealCrypto);
+            auto bite = tx->tryGetBiteData(schain.getNode()->getCurrentEpochId(), doRealCrypto);
             if (bite) {
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);
