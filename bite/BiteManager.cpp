@@ -75,7 +75,6 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateMyDecryp
 
     CHECK_STATE(_proposal);
     // check we are not verifying twice
-    CHECK_STATE(!_proposal->getMyDecryptionShares())
 
 
     auto savedShares = getSchain()->getNode()->getTEDecryptionDB()->getMyDecryptionShares(_proposal->getBlockID(),
