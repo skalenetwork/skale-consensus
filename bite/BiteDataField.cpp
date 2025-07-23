@@ -50,7 +50,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     
     const uint64_t currentEpoch = _currentEpochId.convert_to<uint64_t>();
     
-    auto parseRLPItem = [this](const RLPItem& item) {
+    auto parseRLPItem = [](const RLPItem& item) {
         CHECK_STATE2(item.isList(), "RLP item is not a list");
         CHECK_STATE2(item.size() == 2, "RLP item should have exactly 2 fields - EPOCH_ID, and bite encrypted data");
 
@@ -76,11 +76,11 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     // If there's a second item and epochId doesn't match, use the second item
     if (rlp.size() >= 2 && epoch != currentEpoch) {
         auto [secondEpoch, secondData] = parseRLPItem(rlp[1]);
-        CHECK_STATE2(currentEpoch == secondEpoch, "Incorrectly formatted BITE transaction: wrong epochId");
         epoch = secondEpoch;
         keyPlusEncryptedData = std::move(secondData);
     }
     
+    CHECK_STATE2(currentEpoch == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
 
     auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
     std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
