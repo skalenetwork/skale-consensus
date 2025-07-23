@@ -23,42 +23,49 @@ class BiteManager {
 public:
     explicit BiteManager(Schain &_schain);
 
+    static void parseBITETransactions(ptr<BlockProposal> _proposal, u256 _currentEpochId);
+
     // this will return a map of failed transactions
     // if none of the transactions fails, the  proposal is set with decryption shares
-    [[nodiscard]] std::map<transaction_index, ConnectionSubStatus> verifyAndCreateDecryptionSharesForProposalTransactions(
-        const ptr<BlockProposal> &_proposal);
 
-    [[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(
-        block_id _blockId, schain_index _proposerIndex,
-        const std::map<transaction_index, ptr<BiteDataField> > &_biteDataFields,
-        map<transaction_index, ConnectionSubStatus>& _failedTransactions);
+    [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(
+        vector<ptr<BiteDataField> > &_dataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
-    [[nodiscard]] Schain* getSchain() const {
+
+    [[nodiscard]][[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(
+        ptr<BlockProposal> _proposal);
+
+    [[nodiscard]] Schain *getSchain() const {
         return &schain;
     }
 
-    [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(vector<ptr<BiteDataField> > &_dataFields,
-                                                                                              map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
+    [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromAESKeys(
+        vector<ptr<EncryptedAESKey> > &_encryptedAESKeys,
+        schain_index _decryptorIndex, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
-    [[nodiscard]]  ptr<vector<ptr<AESKeyDecryptionShare>>> getDecryptionSharesFromAESKeys(vector<ptr<EncryptedAESKey> >& _encryptedAESKeys,
-                       schain_index _decryptorIndex, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
-
-    [[nodiscard]]  ptr< DecryptedTransactionFieldsMap > verifyAndDecryptTransactionList(TransactionList &_transactionList,
-                                                                        DecryptedAESKeyList &_aesKeys);
+    [[nodiscard]] ptr<DecryptedTransactionFieldsMap> verifyAndDecryptTransactionList(TransactionList &_transactionList,
+        DecryptedAESKeyList &_aesKeys);
 
     [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
-                                                               schain_index _decryptorIndex,
-                                                               bool _decryptionFailed);
+                                                                      schain_index _decryptorIndex,
+                                                                      bool _decryptionFailed);
 
-    [[nodiscard]]  ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(block_id _blockId, transaction_index _transactionIndex);
+    [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
+        block_id _blockId, transaction_index _transactionIndex);
 
-    [[nodiscard]]  DecryptedTransactionFields decryptFields(const ptr<BiteDataField> &bite,  DecryptedAESKey& _key) const;
+    // TODO - change the name of this method
+    [[nodiscard]] DecryptedTransactionFields decryptFields(const ptr<BiteDataField> &bite, DecryptedAESKey &_key) const;
 
-    void corruptFromTimeToTime(shared_ptr<vector<unsigned char>> result);
+    void corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result);
 
-    [[nodiscard]]  ptr<vector<uint8_t> > teEncryptDataAndToAddress(const vector<uint8_t> &_data, const vector<uint8_t> &_to);
+    [[nodiscard]] ptr<vector<uint8_t> > teEncryptDataAndToAddress(const vector<uint8_t> &_data,
+                                                                  const vector<uint8_t> &_to);
 
-    
+
+    [[nodiscard]] map<transaction_index, ConnectionSubStatus> verifyAndCreateMyDecryptionSharesForProposalTransactions(
+        ptr<BlockProposal> _proposal);
+
+
     bool isRealCryptoEnabled() const;
 };

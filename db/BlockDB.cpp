@@ -26,6 +26,7 @@
 #include "Log.h"
 #include "chains/Schain.h"
 #include "datastructures/CommittedBlock.h"
+#include "monitoring/LivelinessMonitor.h"
 #include "exceptions/InvalidStateException.h"
 #include "utils/Time.h"
 
@@ -81,6 +82,8 @@ ptr< vector< uint8_t > > BlockDB::getSerializedBlocksFromLevelDB(
 
 
 ptr< vector< uint8_t > > BlockDB::getSerializedBlockFromLevelDB( block_id _blockID ) {
+
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
     // check if block is in the cache and return
     // cache is already thread safe
     auto result = blockCache.getIfExists( ( uint64_t ) _blockID );
@@ -90,7 +93,7 @@ ptr< vector< uint8_t > > BlockDB::getSerializedBlockFromLevelDB( block_id _block
         return block;
     }
 
-    shared_lock< shared_mutex > lock( m );
+    shared_lock< shared_mutex > lock( mBlockDB );
 
     try {
         auto key = createKey( _blockID );
@@ -122,7 +125,7 @@ void BlockDB::saveBlock2LevelDB( const ptr< CommittedBlock >& _block ) {
     CHECK_ARGUMENT( _block )
     CHECK_ARGUMENT( !_block->getSignature().empty() )
 
-    lock_guard< shared_mutex > lock( m );
+    lock_guard< shared_mutex > lock( mBlockDB );
 
     try {
         auto serializedBlock = _block->serialize();
@@ -171,7 +174,8 @@ ptr< CommittedBlock > BlockDB::getBlock(
     block_id _blockID, const ptr< CryptoManager >& _cryptoManager ) {
     CHECK_ARGUMENT( _cryptoManager )
 
-    shared_lock< shared_mutex > lock( m );
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
 
     try {
         auto serializedBlock = getSerializedBlockFromLevelDB( _blockID );
@@ -198,7 +202,7 @@ ptr< CommittedBlock > BlockDB::getBlock(
 }
 
 block_id BlockDB::readLastCommittedBlockID() {
-    shared_lock< shared_mutex > lock( m );
+    shared_lock< shared_mutex > lock( mBlockDB );
 
     uint64_t lastBlockId;
 
@@ -215,7 +219,7 @@ block_id BlockDB::readLastCommittedBlockID() {
 }
 
 bool BlockDB::unfinishedBlockExists( block_id _blockID ) {
-    shared_lock< shared_mutex > lock( m );
+    shared_lock< shared_mutex > lock( mBlockDB );
 
     auto key = createBlockStartKey( _blockID );
     auto str = readString( key );

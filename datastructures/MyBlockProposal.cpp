@@ -27,17 +27,21 @@
 
 
 #include "crypto/CryptoManager.h"
+#include "crypto/AESKeyDecryptionShareList.h"
 #include "chains/Schain.h"
-#include "utils/Time.h"
 #include "Transaction.h"
+#include "TransactionList.h"
+#include "bite/BiteManager.h"
+
+
 
 #include "MyBlockProposal.h"
 
 
 MyBlockProposal::MyBlockProposal( Schain& _sChain, const block_id& _blockID,
-    const schain_index& _proposerIndex, const ptr< TransactionList >& _transactions,
-    u256 _stateRoot, uint64_t _timeStamp, uint32_t _timeStampMs,
-    const ptr< CryptoManager >& _cryptoManager )
+                                  const schain_index& _proposerIndex, const ptr< TransactionList >& _transactions,
+                                  u256 _stateRoot, uint64_t _timeStamp, uint32_t _timeStampMs,
+                                  const ptr< CryptoManager >& _cryptoManager )
     : BlockProposal( _sChain.getSchainID(), _sChain.getNodeIDByIndex( _proposerIndex ), _blockID,
           _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, "",
           _cryptoManager ) {
@@ -45,6 +49,42 @@ MyBlockProposal::MyBlockProposal( Schain& _sChain, const block_id& _blockID,
     CHECK_ARGUMENT( _cryptoManager );
     totalObjects++;
 };
+
+ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
+    Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
+    const ptr<TransactionList> &_transactions, u256 _stateRoot, uint64_t _timeStamp,
+    uint32_t _timeStampMs, const ptr<CryptoManager> &_cryptoManager) {
+    auto proposal = shared_ptr<MyBlockProposal>(new MyBlockProposal(
+        _sChain, _blockID, _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _cryptoManager));
+
+
+#ifdef BITE
+    auto failedTransactions =
+            _sChain.getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(proposal);
+    if (!failedTransactions.empty()) {
+        LOG(err, "Could not decrypt BITE transactions");
+        LOG(err, "Proposing empty transactions instead");
+        // could not decrypt proposals, this means something is wrong with the SGX
+        // do an empty proposal instead
+        // TODO propose non-BITE transactions
+        proposal = MyBlockProposal::createMyProposal(_sChain, _blockID,
+                                                       _sChain.getSchainIndex(),
+                                                       make_shared<TransactionList>(
+                                                           make_shared<vector<ptr<Transaction> > >()),
+                                                       _stateRoot, _timeStamp, _timeStampMs,
+                                                       _cryptoManager);
+        BiteManager::parseBITETransactions(proposal, _sChain.getNode()->getCurrentEpochId());
+        CHECK_STATE(proposal->getFailedTransactionsRef().empty());
+        proposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
+                                                   _blockID, _sChain.getSchainIndex(),
+                                                   _sChain.getSchainIndex()));
+    }
+#endif
+
+
+
+    return proposal;
+}
 
 
 atomic< int64_t > MyBlockProposal::totalObjects( 0 );

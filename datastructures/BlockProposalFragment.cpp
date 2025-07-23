@@ -107,7 +107,12 @@ fragment_index BlockProposalFragment::getIndex() const {
     return fragmentIndex;
 }
 
-ptr< vector< uint8_t > > BlockProposalFragment::serialize() {
+ptr< vector< uint8_t > > BlockProposalFragment::serialize(
+#ifdef BITE
+    bool needDecryptionShares,
+    bool needFragment
+#endif
+    ) {
 #ifdef BITE
 
 
@@ -122,6 +127,11 @@ ptr< vector< uint8_t > > BlockProposalFragment::serialize() {
 
 
     flatbuffers::Offset< flatbuffers::Vector< unsigned char > > fbData;
+
+   if (!needFragment) {
+       data = std::make_shared< vector< uint8_t > >( );;
+   }
+
     if ( data ) {
         fbData = builder.CreateVector( *data );
     }
@@ -129,6 +139,11 @@ ptr< vector< uint8_t > > BlockProposalFragment::serialize() {
     // ✅ Create empty vector of raw pointers for Hash*
     auto emptyHashVec = builder.CreateVector< const skale_fb::Hash* >( {} );
     std::vector< flatbuffers::Offset< skale_fb::DecryptionShare > > decryptionShareOffsets;
+
+    if (!needDecryptionShares) {
+        // return empty shares
+        decryptionShares = std::make_shared< AESKeyDecryptionShareList >( blockId, proposerIndex, decryptorIndex );
+    }
 
 
     for ( const auto& decryptionShare : decryptionShares->getDecryptionShares() ) {
@@ -189,14 +204,18 @@ void BlockProposalFragment::deserializeFromFlatBuffer(ptr<BiteManager> _biteMana
 BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
 #ifdef BITE
     const schain_index _proposerIndex, const schain_index _decryptorIndex,
+    ptr< AESKeyDecryptionShareList > _decryptionShares,
 #endif
     uint64_t _totalFragments, const fragment_index& _fragmentIndex,
-    const ptr< vector< uint8_t > >& _data, ptr< AESKeyDecryptionShareList >, uint64_t _blockSize,
+    const ptr< vector< uint8_t > >& _data,  uint64_t _blockSize,
     const string& _blockHash )
     : data( _data ),
       blockId( _blockId ),
+#ifdef BITE
       proposerIndex( _proposerIndex ),
       decryptorIndex( _decryptorIndex ),
+      decryptionShares( _decryptionShares ),
+#endif
       blockSize( _blockSize ),
       blockHash( _blockHash ),
       totalFragments( _totalFragments ),
