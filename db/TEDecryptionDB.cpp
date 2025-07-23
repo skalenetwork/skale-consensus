@@ -81,12 +81,6 @@ void TEDecryptionDB::addDecryptionShares(
     CHECK_STATE( serializedList );
 
 
-    /*    auto decryptionShareListSet = writeByteArrayToSet(
-            reinterpret_cast< char* >( serializedList->data() ), serializedList->size(),
-            _decryptionShareList->getBlockId(), _decryptionShareList->getDecryptorIndex() );
-    */
-
-
     WRITE_LOCK(decryptionSetsMutex)
 
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
@@ -104,6 +98,16 @@ void TEDecryptionDB::addDecryptionShares(
     }
 
     decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
+
+};
+
+bool TEDecryptionDB::haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex) {
+    CHECK_ARGUMENT(_decryptorIndex > 0);
+    CHECK_ARGUMENT(_decryptorIndex <= totalSigners);
+
+    READ_LOCK(decryptionSetsMutex)
+
+    return decryptionsStore[_blockID].count(_decryptorIndex) > 0;
 
 };
 

@@ -188,7 +188,7 @@ void Transaction::parseAndValidate() {
 }
 
 
-ptr< BiteDataField > Transaction::tryGetBiteData(bool _doRealCrypto) const {
+ptr< BiteDataField > Transaction::tryGetBiteData() const {
     auto tx = std::atomic_load(&parsedAndValidatedEthTransaction );
 
     ptr< BiteDataField > result = nullptr;
@@ -196,7 +196,7 @@ ptr< BiteDataField > Transaction::tryGetBiteData(bool _doRealCrypto) const {
     if (tx->hasToField()) {
         auto dataField = tx->getTransactionDataField();
         auto to = tx->getToField();
-        result = BiteDataField::createIfMagicMatches(dataField, to, _doRealCrypto);
+        result = BiteDataField::createIfMagicMatches(dataField, to);
     }
 
     return result;

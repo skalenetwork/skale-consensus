@@ -51,13 +51,17 @@ private:
 
     recursive_mutex m;
 
+#ifdef BITE
+    // we already have the proposal, all we need is threshold decryptions
+    bool needFragmentData;
+#endif
+
 public:
     ptr< ThresholdSignature > getDaSig( uint64_t _blockTimeStampS );
 
     ptr< BlockFinalizeDownloaderThreadPool > threadPool = nullptr;
 
-    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex );
-
+    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex);
 
     ~BlockFinalizeDownloader() override;
 
@@ -80,7 +84,7 @@ public:
 
     static uint64_t readFragmentSize( nlohmann::json _responseHeader );
 
-    ptr< BlockProposal > downloadProposal();
+    bool downloadProposalDAProofAndDecryptions();
 
 
     string readBlockHash( nlohmann::json _responseHeader );
@@ -92,6 +96,14 @@ public:
     static uint64_t readBlockSize( nlohmann::json _responseHeader );
 
     string readDAProofSig( nlohmann::json _responseHeader );
+
+    void processDAProofSig(nlohmann::json _responseHeader, string h);
+
+
+    bool needDAProof();
+#ifdef BITE
+    bool needDecryptionShares(schain_index _decryptorIndex);
+#endif
 
     bool exitDownloadLoop();
 

@@ -46,17 +46,30 @@ using namespace std;
 
 
 BlockFinalizeRequestHeader::BlockFinalizeRequestHeader( Schain& _sChain, block_id _blockID,
-    schain_index _proposerIndex, node_id _nodeID, fragment_index _fragmentIndex )
+    schain_index _proposerIndex, node_id _nodeID, fragment_index _fragmentIndex
+#ifdef BITE
+    , bool _needDAProofSig
+    , bool _needDecryptionShares
+    , bool _needFragmentData
+#endif
+    )
     : AbstractBlockRequestHeader( _sChain.getNodeCount(), _sChain.getSchainID(), _blockID,
-          Header::BLOCK_FINALIZE_REQ, _proposerIndex ) {
+          Header::BLOCK_FINALIZE_REQ, _proposerIndex )
+#ifdef BITE
+        , needDAProofSig(_needDAProofSig)
+        , needDecryptionShares(_needDecryptionShares)
+        , needFragmentData(_needFragmentData)
+#endif
+{
     CHECK_ARGUMENT( _fragmentIndex > 0 );
 
     CHECK_ARGUMENT( ( uint64_t ) _fragmentIndex <= _sChain.getNodeCount() - 1 )
 
     this->fragmentIndex = _fragmentIndex;
     this->nodeID = _nodeID;
+#ifdef BITE
 
-
+#endif
     complete = true;
 }
 
@@ -65,6 +78,11 @@ void BlockFinalizeRequestHeader::addFields( nlohmann::basic_json<>& jsonRequest 
 
     jsonRequest["fragmentIndex"] = ( uint64_t ) fragmentIndex;
     jsonRequest["nodeID"] = ( uint64_t ) nodeID;
+#ifdef BITE
+    jsonRequest["needDASig"] = needDAProofSig;
+    jsonRequest["needShares"] = needDecryptionShares;
+    jsonRequest["needData"] = needFragmentData;
+#endif
 }
 
 const node_id& BlockFinalizeRequestHeader::getNodeId() const {

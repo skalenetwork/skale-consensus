@@ -133,7 +133,7 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
     u256 stateRoot = (uint64_t) _blockID + 1;
 
 
-    auto p = BlockProposal::make(
+    auto p = BlockProposal::makeFromSerialized(
         1, 1, _blockID, 1, list, stateRoot, MODERN_TIME + 1, 1, nullptr, _manager);
 
 

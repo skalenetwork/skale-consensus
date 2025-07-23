@@ -82,34 +82,10 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
 
     auto stamp = TimeStamp::getCurrentTimeStamp();
 
-    auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID,
+    auto myBlockProposal = MyBlockProposal::createMyProposal(*sChain, _blockID,
                                                         sChain->getSchainIndex(), transactionList, stateRoot,
                                                         stamp.getS(), stamp.getMs(),
                                                         getSchain()->getCryptoManager());
-
-#ifdef BITE
-    auto failedTransactions =
-            getSchain()->getBiteManager()->verifyAndCreateDecryptionSharesForProposalTransactions(myBlockProposal);
-    if (!failedTransactions.empty()) {
-        LOG(err, "Could not decrypt BITE transactions");
-        LOG(err, "Proposing empty transactions instead");
-        // could not decrypt proposals, this means something is wrong with the SGX
-        // do an empty proposal instead
-        // TODO propose non-BITE transactions
-        myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID,
-                                                       sChain->getSchainIndex(),
-                                                       make_shared<TransactionList>(
-                                                           make_shared<vector<ptr<Transaction> > >()),
-                                                       stateRoot, stamp.getS(), stamp.getMs(),
-                                                       getSchain()->getCryptoManager());
-        myBlockProposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
-                                                   _blockID, sChain->getSchainIndex(), sChain->getSchainIndex()),
-                                               make_shared<EncryptedAESKeyList>());
-    }
-    // could not decrypt proposals, this means something is wrong with the SGX
-
-
-#endif
 
     LOG(trace, "Created proposal, transactions:" << to_string(transactions->size()));
 
@@ -212,7 +188,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 #ifdef BITE
         try {
             pt->parseAndValidate();
-            pt->tryGetBiteData(sChain->getBiteManager()->isRealCryptoEnabled());
+            pt->tryGetBiteData();
             result->push_back(pt);
             pushKnownTransaction(pt);
         } catch (std::exception &e) {
