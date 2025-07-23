@@ -400,6 +400,26 @@ void BlockFinalizeDownloader::waitAfterNetworkError() {
     }
 }
 
+
+bool BlockFinalizeDownloader::checkIfEverythingDownloadedAndNotifyWaitingThreads() {
+    if (getSchain()->getLastCommittedBlockID() >= blockId || // we already received this block through catchup
+        getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex) ||
+        (fragmentList.isComplete() && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)))
+    {
+        // notify the waiting thread that the download is complete`
+        if (!downloadCompleted.exchange(true)) {
+            // we notify all waiters and do it only once
+            LOG(debug, "BlockFinalizeDownloader: download completed for blockId:" + to_string(blockId) +
+                " proposerIndex:" + to_string(proposerIndex));
+            downLoadCompletedBaton.post();
+        }
+
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     BlockFinalizeDownloader *_agent, schain_index _dstIndex) {
     CHECK_STATE(_agent)
@@ -461,6 +481,11 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
         SkaleException::logNested(e);
         node->initiateApplicationExitOnFatalConsensusError(e.what());
     }
+    _agent->checkIfEverythingDownloadedAndNotifyWaitingThreads();
+}
+
+void BlockFinalizeDownloader::joinAllThreads() {
+    threadPool->joinAll();
 }
 
 bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
@@ -468,7 +493,8 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
         threadPool = make_shared<BlockFinalizeDownloaderThreadPool>(
             (uint64_t) getSchain()->getNodeCount(), this);
         threadPool->startService();
-        threadPool->joinAll();
+        // wait until the download is complete
+        downLoadCompletedBaton.wait();
     }
 
     try {

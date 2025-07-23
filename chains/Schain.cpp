@@ -1394,6 +1394,10 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
     }
 
 
+
+
+    ptr<BlockFinalizeDownloader> downloaderAgent  = nullptr;
+
     try {
         if (_proposerIndex == 0) {
             // default empty block
@@ -1405,7 +1409,6 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             return;
         }
 
-
         if (!haveAllElementsToFinalizeBlock(_blockId, _proposerIndex) ||
             // force download  - this switch is for testing only
             getNode()->getTestConfig()->isFinalizationDownloadOnly()
@@ -1413,13 +1416,13 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // Dowload missing objects - proposal, daProof, and decryption shares
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posSess the proposal
-            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex); {
+            downloaderAgent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex); {
                 const string msg = "Finalization download:" + to_string(_blockId) + ":" +
                                    to_string(_proposerIndex);
 
                 MONITOR(__CLASS_NAME__, msg.c_str());
                 // This will complete successfully also if block arrives through catchup
-                auto completedDownload = agent->downloadProposalDAProofAndDecryptions();
+                auto completedDownload = downloaderAgent->downloadProposalDAProofAndDecryptions();
                 // if null is returned it means that catchup happened first and
                 // the block will be processed through catchup
                 if (!completedDownload) {
@@ -1480,6 +1483,11 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         LOG(critical, "Unknown exception in finalizeDecidedAndSignedBlock");
         LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
     }
+
+    if (downloaderAgent) {
+        downloaderAgent->joinAllThreads();
+    }
+
 }
 
 // empty constructor is used for tests

@@ -36,6 +36,8 @@ class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
 class ThresholdSignature;
 
+#include <folly/synchronization/Baton.h>
+#include <folly/SharedMutex.h>
 #include "datastructures/BlockProposalFragmentList.h"
 
 class BlockFinalizeDownloader : public Agent {
@@ -57,6 +59,13 @@ private:
 #endif
 
 public:
+
+    // this is used to signal to the outside world that
+    // downloader completed the download and consensus has everything
+    // to commit the block
+    atomic<bool> downloadCompleted = false;
+    folly::Baton<> downLoadCompletedBaton;
+
     ptr< ThresholdSignature > getDaSig( uint64_t _blockTimeStampS );
 
     ptr< BlockFinalizeDownloaderThreadPool > threadPool = nullptr;
@@ -70,6 +79,8 @@ public:
 
     static void workerThreadFragmentDownloadLoop(
         BlockFinalizeDownloader* _agent, schain_index _dstIndex );
+
+    void joinAllThreads();
 
     nlohmann::json readBlockFinalizeResponseHeader( const ptr< ClientSocket >& _socket );
 
@@ -108,4 +119,6 @@ public:
     bool exitDownloadLoop();
 
     void waitAfterNetworkError();
+
+    bool checkIfEverythingDownloadedAndNotifyWaitingThreads();
 };
