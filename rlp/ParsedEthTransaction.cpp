@@ -47,7 +47,6 @@ ptr< ParsedEthTransaction > ParsedEthTransaction::parse( const std::vector< uint
     } else if ( prefix >= 0xc0 ) {
         result->type = 0;
         RLPItem rlpItem( _rawTx, offset );
-        size_t parsedItems = rlpItem.size();
         CHECK_STATE2( rlpItem.isList(), "RLP item is not a list" );
         CHECK_STATE2( rlpItem.size() == 9, "Expected " + std::to_string(9) +
                       " fields, found: " + std::to_string(rlpItem.size()) );

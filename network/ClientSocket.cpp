@@ -67,6 +67,25 @@ int ClientSocket::createTCPSocket() {
             FatalError( "Could not create outgoing socket:" + string( strerror( errno ) ) ) );
     }
 
+
+    // Since we frequently reconnect to the same address, we set options
+    // that help with fast TCP reconnections
+    // Allow quick reuse of address and port (required for reconnecting quickly)
+    int optval = 1;
+    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
+        close(s);
+        BOOST_THROW_EXCEPTION(
+            FatalError("Could not set SO_REUSEADDR: " + std::string(strerror(errno))));
+    }
+
+
+    // reuse port as well (Linux only, mostly useful if you're binding to local port)
+    setsockopt(s, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
+
+    // Disable lingering to avoid TIME_WAIT delay
+    struct linger ling = {1, 0};  // close() will send RST
+    setsockopt(s, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling));
+
     int synRetries = 1;
     setsockopt( s, IPPROTO_TCP, TCP_SYNCNT, &synRetries, sizeof( synRetries ) );
 

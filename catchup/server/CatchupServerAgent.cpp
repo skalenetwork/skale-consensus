@@ -73,7 +73,9 @@
 CatchupServerAgent::CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s )
         : AbstractServerAgent( "CatchupServer", _schain, _s ) {
     CHECK_ARGUMENT( _s );
-    catchupWorkerThreadPool = make_shared< CatchupWorkerThreadPool >( num_threads( 4 ), this );
+    // we increased the catchup server thread pool to 8 threads since the catchup
+    // server now serves both catchup and BITE finalize requests
+    catchupWorkerThreadPool = make_shared< CatchupWorkerThreadPool >( num_threads( 8 ), this );
     catchupWorkerThreadPool->startService();
     createNetworkReadThread();
 }
