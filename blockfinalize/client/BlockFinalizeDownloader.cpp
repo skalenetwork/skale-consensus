@@ -348,7 +348,6 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
 }
 
 bool BlockFinalizeDownloader::exitDownloadLoop() {
-    auto blockId = getBlockId();
 
     if (sChain->getLastCommittedBlockID() > blockId) {
         return true;
@@ -404,7 +403,11 @@ void BlockFinalizeDownloader::waitAfterNetworkError() {
 bool BlockFinalizeDownloader::checkIfEverythingDownloadedAndNotifyWaitingThreads() {
     if (getSchain()->getLastCommittedBlockID() >= blockId || // we already received this block through catchup
         getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex) ||
-        (fragmentList.isComplete() && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)))
+        (fragmentList.isComplete()
+#ifdef BITE
+             && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)
+#endif
+        ))
     {
         // notify the waiting thread that the download is complete`
         if (!downloadCompleted.exchange(true)) {
