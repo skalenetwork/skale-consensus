@@ -337,6 +337,7 @@ void Schain::constructChildAgents() {
 
 #ifdef BITE
         biteManager = make_shared<BiteManager>(*this);
+        finalizationExecutor = ::make_shared<folly::CPUThreadPoolExecutor>(1);
 #endif
 
 
@@ -344,7 +345,8 @@ void Schain::constructChildAgents() {
             return;
         }
 
-        finalizationExecutor = ::make_shared<folly::CPUThreadPoolExecutor>(1);
+
+
 
         pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
