@@ -27,12 +27,14 @@
 #include <sched.h>
 #include <unordered_set>
 
+#ifdef BITE
 // avoid macro definiton conflicts
 #pragma push_macro("CHECK")
 #pragma push_macro("LOG")
 #include <folly/executors/CPUThreadPoolExecutor.h>
 #pragma pop_macro("LOG")
 #pragma pop_macro("CHECK")
+#endif
 
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -1352,9 +1354,13 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
                                            const ptr<ThresholdSignature> &_thresholdSig) {
 
     checkForExit();
+#ifdef BITE
     getFinalizationExecutor()->add([=]() {
+#endif
         finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
+#ifdef BITE
     });
+#endif
 };
 
 
@@ -1721,7 +1727,10 @@ uint64_t Schain::getBlockFinalizationStageTimeMs() {
     blockFinalizationStartTimeMs = blockFinalizationFinishTimeMs = 0;
     return blockFinalizationStageTimeMs;
 }
+
+#ifdef BITE
 const shared_ptr< folly::CPUThreadPoolExecutor >& Schain::getFinalizationExecutor() const {
     CHECK_STATE(finalizationExecutor);
     return finalizationExecutor;
 }
+#endif
