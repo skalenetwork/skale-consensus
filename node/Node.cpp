@@ -25,6 +25,13 @@
 #include <chrono>
 #include "leveldb/db.h"
 
+// avoid macro definiton conflicts
+#pragma push_macro("CHECK")
+#pragma push_macro("LOG")
+#include <folly/executors/CPUThreadPoolExecutor.h>
+#pragma pop_macro("LOG")
+#pragma pop_macro("CHECK")
+
 
 #ifdef BITE
 #include "bite/server/BiteBlockFinalizeServer.h"
@@ -688,12 +695,18 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
     }
 
+
+
 #ifdef BITE
     if ( biteBlockFinalizeServer ) {
         biteBlockFinalizeServer->exitProxygenServer();
         LOG( info, "consensus engine exiting: exitProxygenServer called" );
     }
 #endif
+
+    auto finalizationExecutor = getSchain()->getFinalizationExecutor();
+    finalizationExecutor->stop();
+
 }
 
 /*

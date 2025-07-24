@@ -247,6 +247,11 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libcurl.a"
         "${DEPS_INSTALL_ROOT}/lib/libssl.a"
         "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
+        "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
+        "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
+        "${DEPS_INSTALL_ROOT}/lib/libglog.a"
+        "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
+        "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
         dl
         z
         pthread
@@ -263,15 +268,10 @@ if (DEFINED BITE)
             "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
             "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
             "${DEPS_INSTALL_ROOT}/lib/libfizz.a"
-            "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
-            "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
             "${DEPS_INSTALL_ROOT}/lib/libboost_context.a"
             "${DEPS_INSTALL_ROOT}/lib/libevent.a"
             "${DEPS_INSTALL_ROOT}/lib/libz.a"
             "${DEPS_INSTALL_ROOT}/lib/libzstd.a"
-            "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
-            "${DEPS_INSTALL_ROOT}/lib/libglog.a"
-            "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
             "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
             te
     )

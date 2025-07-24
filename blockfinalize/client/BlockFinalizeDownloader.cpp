@@ -373,6 +373,7 @@ bool BlockFinalizeDownloader::exitDownloadLoop() {
 
 
     if (!fragmentList.isComplete() && !proposalDB->getBlockProposal(blockId, proposerIndex))
+    if (!fragmentList.isComplete() && !proposalDB->getBlockProposal(blockId, proposerIndex))
         return false;
 
     return true;

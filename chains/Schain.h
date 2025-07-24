@@ -35,6 +35,10 @@
 #include "bite/BiteManager.h"
 #endif
 
+namespace folly {
+    class CPUThreadPoolExecutor;
+}
+
 class ThresholdSignature;
 class CommittedBlockList;
 class NetworkMessageEnvelope;
@@ -114,6 +118,11 @@ class Schain : public Agent {
 
     schain_id schainID = 0;
 
+
+public:
+    const shared_ptr< folly::CPUThreadPoolExecutor >& getFinalizationExecutor() const;
+
+private:
 #ifdef BITE
     epoch_id epochID = 0;
     std::thread blockProcessingThread;
@@ -164,6 +173,9 @@ class Schain : public Agent {
 #ifdef BITE
     ptr< BiteManager > biteManager;
 #endif
+
+    // this is executor thread used to run block finalization
+    ptr<folly::CPUThreadPoolExecutor> finalizationExecutor;
 
     weak_ptr< Node > node;
 

@@ -27,6 +27,12 @@
 #include <sched.h>
 #include <unordered_set>
 
+// avoid macro definiton conflicts
+#pragma push_macro("CHECK")
+#pragma push_macro("LOG")
+#include <folly/executors/CPUThreadPoolExecutor.h>
+#pragma pop_macro("LOG")
+#pragma pop_macro("CHECK")
 
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -331,9 +337,12 @@ void Schain::constructChildAgents() {
         biteManager = make_shared<BiteManager>(*this);
 #endif
 
+
         if (getNode()->isSyncOnlyNode()) {
             return;
         }
+
+        finalizationExecutor = ::make_shared<folly::CPUThreadPoolExecutor>(1);
 
         pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
@@ -1341,13 +1350,11 @@ ptr<BlockProposal> Schain::createDefaultEmptyBlockProposal(block_id _blockId) {
 
 void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex,
                                            const ptr<ThresholdSignature> &_thresholdSig) {
-#ifdef BITE
-    std::thread([=]() {
+
+    checkForExit();
+    getFinalizationExecutor()->add([=]() {
         finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
-    }).detach();
-#else
-    finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
-#endif
+    });
 };
 
 
@@ -1713,4 +1720,8 @@ uint64_t Schain::getBlockFinalizationStageTimeMs() {
     uint64_t blockFinalizationStageTimeMs = blockFinalizationFinishTimeMs - blockFinalizationStartTimeMs;
     blockFinalizationStartTimeMs = blockFinalizationFinishTimeMs = 0;
     return blockFinalizationStageTimeMs;
+}
+const shared_ptr< folly::CPUThreadPoolExecutor >& Schain::getFinalizationExecutor() const {
+    CHECK_STATE(finalizationExecutor);
+    return finalizationExecutor;
 }
