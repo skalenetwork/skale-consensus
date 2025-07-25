@@ -260,6 +260,8 @@ DecryptedTransactionFields
 BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
+
+
     ptr<vector<uint8_t> > biteDataField = nullptr;
 
     if (doRealCrypto) {
