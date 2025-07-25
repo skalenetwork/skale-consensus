@@ -68,4 +68,7 @@ public:
 
 
     bool isRealCryptoEnabled() const;
+
+    vector<ptr<string> > computeAndValidateSGXAESKeyBatch(vector<ptr<EncryptedAESKey>> &_encryptedAESKeys,
+                                                          map<transaction_index, ConnectionSubStatus> &_failedTransactions) const;
 };

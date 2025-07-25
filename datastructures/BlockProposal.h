@@ -195,8 +195,7 @@ private:
 
     // this will normally be empty
     map<transaction_index, ConnectionSubStatus> failedTransactions;
-
-public:
+    vector<ptr<string> > publicDecryptionValuesBatch;
 
 public:
     [[nodiscard]] map<transaction_index, ConnectionSubStatus>& getFailedTransactionsRef() {
