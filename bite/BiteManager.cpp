@@ -126,31 +126,21 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
             _proposal->getProposerIndex(), schain.getSchainIndex());
 
 
-    auto encryptedAesKeys = _proposal->getEncryptedAESKeys();
-
-    vector<ptr<EncryptedAESKey> > encryptedAESKeysAsAVector;
-    encryptedAESKeysAsAVector.reserve(encryptedAesKeys->size());
-
-    for (auto &&iterator: *encryptedAesKeys) {
-        encryptedAESKeysAsAVector.push_back(iterator.second);
-    }
-
-    ptr<vector<ptr<AESKeyDecryptionShare> > > decryptiondSharesVector = getDecryptionSharesFromAESKeys(
-            encryptedAESKeysAsAVector, schain.getSchainIndex(),
-            _proposal->getFailedTransactionsRef());
+    ptr<vector<ptr<AESKeyDecryptionShare> > > decryptionSharesVector = getDecryptionSharesFromAESKeys(
+            _proposal, schain.getSchainIndex());
 
 
-    if (!decryptiondSharesVector) {
+    if (!decryptionSharesVector) {
         return nullptr;
     }
 
-    CHECK_STATE(decryptiondSharesVector->size() == _proposal->getBiteDataFields()->size());
+    CHECK_STATE(decryptionSharesVector->size() == _proposal->getBiteDataFields()->size());
 
 
     auto arrayIndex = 0;
     for (auto &&iterator: *_proposal->getBiteDataFields()) {
-        auto AESKeyDecryptionShare = (*decryptiondSharesVector)[arrayIndex];
-        decryptionShareList->addShare(iterator.first, decryptiondSharesVector->at(arrayIndex));
+        auto AESKeyDecryptionShare = (*decryptionSharesVector)[arrayIndex];
+        decryptionShareList->addShare(iterator.first, decryptionSharesVector->at(arrayIndex));
         arrayIndex++;
     }
 
@@ -160,27 +150,38 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
 
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAESKeys(
-        vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex,
-        map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
+        ptr<BlockProposal> _proposal, schain_index _decryptorIndex) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime())
+
+    CHECK_STATE(_proposal);
+
+    auto encryptedAesKeys = _proposal->getEncryptedAESKeys();
+
+    vector<ptr<EncryptedAESKey> > encryptedAESKeysAsAVector;
+    encryptedAESKeysAsAVector.reserve(encryptedAesKeys->size());
+
+    for (auto &&iterator: *encryptedAesKeys) {
+        encryptedAESKeysAsAVector.push_back(iterator.second);
+    }
 
     if (doRealCrypto) {
 
-        auto sgxAESKeyBatch = computeAndValidateSGXAESKeyBatch(_encryptedAESKeys, _failedTransactions);
+        auto sgxAESKeyBatch = computeAndValidateSGXAESKeyBatch(encryptedAESKeysAsAVector,
+                                                               _proposal->getFailedTransactionsRef());
 
-        if (!_failedTransactions.empty()) {
+        if (!_proposal->getFailedTransactionsRef().empty()) {
             // found failed transactions, just return
             return nullptr;
         }
 
         CHECK_STATE(sgxAESKeyBatch);
 
-        CHECK_STATE(sgxAESKeyBatch->size() == _encryptedAESKeys.size())
+        CHECK_STATE(sgxAESKeyBatch->size() == encryptedAESKeysAsAVector.size())
 
         return schain.getCryptoManager()->sgxDecryptAESKeyShareBatch(*sgxAESKeyBatch);
     } else {
         auto result = make_shared<vector<ptr<AESKeyDecryptionShare> > >();
-        for (auto &&encryptedAESKey: _encryptedAESKeys) {
+        for (auto &&encryptedAESKey: encryptedAESKeysAsAVector) {
             CHECK_STATE(encryptedAESKey);
             result->push_back(MockupAESKeyDecryptionShare::mockupDecrypt(encryptedAESKey, _decryptorIndex));
         }
@@ -219,40 +220,6 @@ ptr<vector<ptr<string>>> BiteManager::computeAndValidateSGXAESKeyBatch(vector<pt
         }
     }
     return publicDecryptionValues;
-}
-
-ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromDataFields(
-        vector<ptr<BiteDataField> > &_dataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
-    vector<ptr<EncryptedAESKey> > encryptedAESKeys;
-
-    MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime())
-
-
-    for (size_t i = 0; i < _dataFields.size(); ++i) {
-        auto encryptedAESKey = _dataFields[i]->getEncryptedAESKey();
-        auto epochId = _dataFields[i]->getEpoch();
-        if (!encryptedAESKey)
-            _failedTransactions.emplace(i,
-                                        ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
-        else if (epochId != getSchain()->getNode()->getCurrentEpochId())
-            _failedTransactions.emplace(i, ConnectionSubStatus::CONNECTION_ERROR_INVALID_EPOCH_ID);
-        else
-            encryptedAESKeys.push_back(encryptedAESKey);
-    }
-
-    if (_failedTransactions.size())
-        return nullptr;
-
-    auto result = getDecryptionSharesFromAESKeys(encryptedAESKeys, schain.getSchainIndex(),
-                                                 _failedTransactions);
-
-    if (result) {
-        CHECK_STATE(result->size() == _dataFields.size());
-    } else {
-        CHECK_STATE(!_failedTransactions.empty())
-    }
-
-    return result;
 }
 
 

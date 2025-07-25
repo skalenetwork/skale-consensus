@@ -36,9 +36,6 @@ public:
     // this will return a map of failed transactions
     // if none of the transactions fails, the  proposal is set with decryption shares
 
-    [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(
-            vector<ptr<BiteDataField> > &_dataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
-
 
     [[nodiscard]][[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(
             ptr<BlockProposal> _proposal);
@@ -49,8 +46,8 @@ public:
 
 
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromAESKeys(
-            vector<ptr<EncryptedAESKey> > &_encryptedAESKeys,
-            schain_index _decryptorIndex, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
+            ptr<BlockProposal> _proposal,
+            schain_index _decryptorIndex);
 
     [[nodiscard]] ptr<DecryptedTransactionFieldsMap> verifyAndDecryptTransactionList(TransactionList &_transactionList,
                                                                                      DecryptedAESKeyList &_aesKeys);
