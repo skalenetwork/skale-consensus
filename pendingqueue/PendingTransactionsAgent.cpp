@@ -91,9 +91,6 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
 
     auto pHashesList = myBlockProposal->createPartialHashesList();
     CHECK_STATE(pHashesList);
-#ifdef  BITE
-    CHECK_STATE(myBlockProposal->getMyDecryptionShares());
-#endif
 
     transactionCounter += (uint64_t) pHashesList->getTransactionCount();
 

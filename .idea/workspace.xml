@@ -55,36 +55,33 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" BUILD_OPTIONS="-- -j4" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DBITE=1 -DMIRAGE=1" BUILD_OPTIONS="-- -j4" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="886 Improve performance">
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/chains/Schain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/chains/Schain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/MyBlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/MyBlockProposal.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/folly/CMake/folly-deps.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/deps/folly/CMake/folly-deps.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/aclocal.m4" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/aclocal.m4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/config.h.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/config.h.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/configure" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/configure" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/debug/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/debug/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/lib/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/lib/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/liblzma/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/liblzma/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/liblzma/api/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/liblzma/api/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/lzmainfo/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/lzmainfo/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/scripts/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/scripts/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/xz/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/xz/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/xzdec/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/xzdec/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/tests/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/tests/Makefile.in" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/deps/folly/folly/init/Init.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/deps/folly/folly/init/Init.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/proxygen/proxygen/httpserver/samples/echo/EchoHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/deps/proxygen/proxygen/httpserver/samples/echo/EchoHandler.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/pendingqueue/PendingTransactionsAgent.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
@@ -247,7 +244,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -404,11 +401,6 @@
       <envs>
         <env name="TEST_TIME_S" value="1000000000" />
       </envs>
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -634,32 +626,32 @@
       <item itemvalue="Boost.Test.bls_test" />
       <item itemvalue="Boost.Test.bls_unit_test" />
       <item itemvalue="Boost.Test.dkg_unit_test" />
-      <item itemvalue="Boost.Test.utils_unit_test" />
+      <item itemvalue="Boost.Test.te_encrypt_message" />
       <item itemvalue="Boost.Test.te_test" />
       <item itemvalue="Boost.Test.te_unit_test" />
-      <item itemvalue="Boost.Test.te_encrypt_message" />
-      <item itemvalue="CMake Application.consensusd" />
-      <item itemvalue="CMake Application.consensust" />
+      <item itemvalue="Boost.Test.utils_unit_test" />
+      <item itemvalue="CMake Application.1st-4 " />
+      <item itemvalue="CMake Application.2-4" />
+      <item itemvalue="CMake Application.2nd-4" />
+      <item itemvalue="CMake Application.3d-4" />
       <item itemvalue="CMake Application.all_bls_tests" />
+      <item itemvalue="CMake Application.all_te_tests" />
       <item itemvalue="CMake Application.bls" />
       <item itemvalue="CMake Application.bls_glue" />
+      <item itemvalue="CMake Application.consensusd" />
+      <item itemvalue="CMake Application.consensust" />
+      <item itemvalue="CMake Application.decrypt_message" />
       <item itemvalue="CMake Application.dkg_attack" />
       <item itemvalue="CMake Application.dkg_glue" />
       <item itemvalue="CMake Application.dkg_keygen" />
+      <item itemvalue="CMake Application.encrypt_message" />
+      <item itemvalue="CMake Application.generate_bls_keys" />
       <item itemvalue="CMake Application.generate_key_system" />
       <item itemvalue="CMake Application.hash_g1" />
       <item itemvalue="CMake Application.sign_bls" />
-      <item itemvalue="CMake Application.verify_bls" />
-      <item itemvalue="CMake Application.all_te_tests" />
-      <item itemvalue="CMake Application.decrypt_message" />
-      <item itemvalue="CMake Application.encrypt_message" />
-      <item itemvalue="CMake Application.generate_bls_keys" />
       <item itemvalue="CMake Application.te" />
       <item itemvalue="CMake Application.te_sample_sgx" />
-      <item itemvalue="CMake Application.2-4" />
-      <item itemvalue="CMake Application.1st-4 " />
-      <item itemvalue="CMake Application.3d-4" />
-      <item itemvalue="CMake Application.2nd-4" />
+      <item itemvalue="CMake Application.verify_bls" />
       <item itemvalue="Python.generate_flatbuffers_code" />
     </list>
     <recent_temporary>
@@ -876,6 +868,8 @@
       <workItem from="1753204560948" duration="1341000" />
       <workItem from="1753206199752" duration="219000" />
       <workItem from="1753382632529" duration="1301000" />
+      <workItem from="1753442161379" duration="161000" />
+      <workItem from="1753442332623" duration="308000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
@@ -1220,7 +1214,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="300" />
+    <option name="localTasksCounter" value="301" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

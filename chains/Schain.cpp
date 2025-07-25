@@ -604,11 +604,6 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _proposedBlockID, getSchainIndex());
-#ifdef BITE
-            // The proposal was saved do the db, but we need decryption shares
-            CHECK_STATE(getSchain()->getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(
-                myProposal).empty());
-#endif
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();
             myProposal = pendingTransactionsAgent->buildBlockProposal(
@@ -632,6 +627,18 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
             // last time
             return; // dont propose
         }
+
+
+#ifdef BITE
+        auto failedTransactions =
+                getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(myProposal);
+        if (!failedTransactions.empty()) {
+            LOG(err, "Critical error - could not decrypt BITE transactions");
+            LOG(err, "Proposing default block instead");
+            return;
+        }
+        CHECK_STATE(myProposal->getMyDecryptionShares());
+#endif
 
         LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ));
 

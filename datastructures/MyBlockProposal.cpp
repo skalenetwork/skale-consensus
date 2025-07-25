@@ -57,32 +57,6 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
     auto proposal = shared_ptr<MyBlockProposal>(new MyBlockProposal(
         _sChain, _blockID, _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _cryptoManager));
 
-
-#ifdef BITE
-    auto failedTransactions =
-            _sChain.getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(proposal);
-    if (!failedTransactions.empty()) {
-        LOG(err, "Could not decrypt BITE transactions");
-        LOG(err, "Proposing empty transactions instead");
-        // could not decrypt proposals, this means something is wrong with the SGX
-        // do an empty proposal instead
-        // TODO propose non-BITE transactions
-        proposal = MyBlockProposal::createMyProposal(_sChain, _blockID,
-                                                       _sChain.getSchainIndex(),
-                                                       make_shared<TransactionList>(
-                                                           make_shared<vector<ptr<Transaction> > >()),
-                                                       _stateRoot, _timeStamp, _timeStampMs,
-                                                       _cryptoManager);
-        BiteManager::parseBITETransactions(proposal);
-        CHECK_STATE(proposal->getFailedTransactionsRef().empty());
-        proposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
-                                                   _blockID, _sChain.getSchainIndex(),
-                                                   _sChain.getSchainIndex()));
-    }
-#endif
-
-
-
     return proposal;
 }
 
