@@ -155,19 +155,15 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 
     CHECK_STATE(_proposal);
 
-    auto encryptedAesKeys = _proposal->getEncryptedAESKeys();
+    auto encryptedAESKeys = _proposal->getEncryptedAESKeys();
+    CHECK_STATE(encryptedAESKeys);
 
-    vector<ptr<EncryptedAESKey> > encryptedAESKeysAsAVector;
-    encryptedAESKeysAsAVector.reserve(encryptedAesKeys->size());
 
-    for (auto &&iterator: *encryptedAesKeys) {
-        encryptedAESKeysAsAVector.push_back(iterator.second);
-    }
 
     if (doRealCrypto) {
 
-        auto sgxAESKeyBatch = computeAndValidateSGXAESKeyBatch(encryptedAESKeysAsAVector,
-                                                               _proposal->getFailedTransactionsRef());
+        auto sgxAESKeyBatch = computeAndValidateSGXAESKeyBatch(_proposal);
+        _proposal->
 
         if (!_proposal->getFailedTransactionsRef().empty()) {
             // found failed transactions, just return
@@ -176,27 +172,35 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 
         CHECK_STATE(sgxAESKeyBatch);
 
-        CHECK_STATE(sgxAESKeyBatch->size() == encryptedAESKeysAsAVector.size())
+        CHECK_STATE(sgxAESKeyBatch->size() == encryptedAESKeys->size());
 
         return schain.getCryptoManager()->sgxDecryptAESKeyShareBatch(*sgxAESKeyBatch);
     } else {
         auto result = make_shared<vector<ptr<AESKeyDecryptionShare> > >();
-        for (auto &&encryptedAESKey: encryptedAESKeysAsAVector) {
-            CHECK_STATE(encryptedAESKey);
-            result->push_back(MockupAESKeyDecryptionShare::mockupDecrypt(encryptedAESKey, _decryptorIndex));
+        for (auto && it: *encryptedAESKeys) {
+            result->push_back(MockupAESKeyDecryptionShare::mockupDecrypt(it.second, _decryptorIndex));
         }
         return result;
     }
 }
 
-ptr<vector<ptr<string>>> BiteManager::computeAndValidateSGXAESKeyBatch(vector<ptr<EncryptedAESKey>> &_encryptedAESKeys,
-                                                                       map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
+ptr<vector<ptr<string>>> BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal) {
+
+
+    CHECK_STATE(_proposal);
+
+    auto encryptedAESKeys = _proposal->getEncryptedAESKeys();
+
+    CHECK_STATE(encryptedAESKeys);
+
 
     auto publicDecryptionValues = make_shared<vector<ptr<string>>>();
 
-    for (uint64_t i = 0; i < _encryptedAESKeys.size(); i++) {
+    uint64_t i = 0;
+
+    for (auto&& it : *encryptedAESKeys) {
         try {
-            auto encryptedAESKey = _encryptedAESKeys.at(i);
+            auto encryptedAESKey = it.second;
             CHECK_STATE(encryptedAESKey)
             auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
             auto U = cipheredKey.U;
@@ -215,7 +219,7 @@ ptr<vector<ptr<string>>> BiteManager::computeAndValidateSGXAESKeyBatch(vector<pt
             publicDecryptionValues->push_back(publicDecryptionValue);
         } catch (exception &_e) {
             LOG(err, fmt::format("Could not validate transaction: {} : {}", i, _e.what()));
-            _failedTransactions.emplace(i,
+            _proposal->getFailedTransactionsRef().emplace(i,
                                         CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
         }
     }

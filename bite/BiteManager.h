@@ -74,7 +74,5 @@ public:
 
     [[nodiscard]] bool isRealCryptoEnabled() const;
 
-    [[nodiscard]] static ptr<vector<ptr<string>>>
-    computeAndValidateSGXAESKeyBatch(vector<ptr<EncryptedAESKey>> &_encryptedAESKeys,
-                                     map<transaction_index, ConnectionSubStatus> &_failedTransactions);
+    [[nodiscard]] static ptr<vector<ptr<string>>> computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
 };
