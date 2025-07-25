@@ -195,7 +195,8 @@ private:
 
     // this will normally be empty
     map<transaction_index, ConnectionSubStatus> failedTransactions;
-    vector<ptr<string> > publicDecryptionValuesBatch;
+    // the encrypted AES key batch to send to SGX server
+    ptr<vector<ptr<string>>> sgxAESKeyBatch;
 
 public:
     [[nodiscard]] map<transaction_index, ConnectionSubStatus>& getFailedTransactionsRef() {
@@ -207,6 +208,19 @@ public:
         auto result = std::atomic_load(&myDecryptionShares);
         return result;
     }
+
+
+    [[nodiscard]] ptr<vector<ptr<string>>> getSGXAESKeyBatch() const {
+        auto result = std::atomic_load(&sgxAESKeyBatch);
+        return result;
+    }
+
+    void setSGXAESKeyBatch(
+            ptr<vector<ptr<string>>>  _sgxAESKeyBatch) {
+        CHECK_STATE(!biteDataFields)
+        sgxAESKeyBatch = _sgxAESKeyBatch;
+    }
+
 
     [[nodiscard]] ptr<std::map<transaction_index, ptr<BiteDataField> > > getBiteDataFields() const {
         auto result = std::atomic_load(&biteDataFields);
