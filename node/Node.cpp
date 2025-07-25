@@ -704,7 +704,7 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
 
     auto finalizationExecutor = getSchain()->getFinalizationExecutor();
-    finalizationExecutor->stopAndJoin():
+    finalizationExecutor->stop();
     finalizationExecutor->join();
 #endif
 
