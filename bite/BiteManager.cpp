@@ -91,13 +91,6 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateMyDecryp
 
     CHECK_STATE(transactions);
 
-
-    parseBITETransactions(_proposal);
-
-    if (!_proposal->getFailedTransactionsRef().empty()) {
-        return _proposal->getFailedTransactionsRef();
-    }
-
     CHECK_STATE(_proposal->getBiteDataFields());
 
 

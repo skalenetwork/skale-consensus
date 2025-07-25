@@ -309,6 +309,8 @@ ptr<BlockProposal>  BlockProposal::makeFromDBSerialized(
     // we do not verify sigs when reading from internal DB
     auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
 
+    BiteManager::parseBITETransactions(proposal);
+    CHECK_STATE2(proposal->getFailedTransactionsRef().empty(), "Invalid BITE proposal in database");
 
     return proposal;
 }
