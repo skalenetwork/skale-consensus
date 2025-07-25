@@ -2,14 +2,12 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cppzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/jsoncpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libBLS/deps/openssl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libjson-rpc-cpp" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/sgxwallet/cppzmq" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/intel-sgx-ssl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/leveldb" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sgxwallet/libBLS" vcs="Git" />
