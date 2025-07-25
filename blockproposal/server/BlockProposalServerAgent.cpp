@@ -479,6 +479,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
     send(_connection, finalResponseHeader);
 
 #ifdef BITE
+    // we talk to sgx after we sent response to the proposer since sgx is time consuming
     getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
     if (!proposal->getFailedTransactionsRef().empty()) {
         LOG(err, "Can not create decryptions for network proposal" +

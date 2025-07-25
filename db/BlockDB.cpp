@@ -187,7 +187,11 @@ ptr< CommittedBlock > BlockDB::getBlock(
 
         // dont check signatures on blocks that are already in internal db
         // they have already been verified
+
+
+        MONITOR( __CLASS_NAME__, __FUNCTION__ + string(":deserialize") )
         auto result = CommittedBlock::deserialize( serializedBlock, _cryptoManager,
+
 #ifdef BITE
        sChain->getBiteManager(),
 #endif

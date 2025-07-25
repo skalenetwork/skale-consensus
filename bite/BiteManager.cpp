@@ -223,6 +223,9 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
 
 ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
         TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys) {
+
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
     auto decryptedFieldsMap = make_shared<DecryptedTransactionFieldsMap>();
 
     auto txs = _transactionList.getItems();
