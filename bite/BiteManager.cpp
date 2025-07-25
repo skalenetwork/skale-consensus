@@ -173,9 +173,11 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
             return nullptr;
         }
 
-        CHECK_STATE(sgxAESKeyBatch.size() == _encryptedAESKeys.size())
+        CHECK_STATE(sgxAESKeyBatch);
 
-        return schain.getCryptoManager()->sgxDecryptAESKeyShareBatch(sgxAESKeyBatch);
+        CHECK_STATE(sgxAESKeyBatch->size() == _encryptedAESKeys.size())
+
+        return schain.getCryptoManager()->sgxDecryptAESKeyShareBatch(*sgxAESKeyBatch);
     } else {
         auto result = make_shared<vector<ptr<AESKeyDecryptionShare> > >();
         for (auto &&encryptedAESKey: _encryptedAESKeys) {
@@ -186,10 +188,10 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
     }
 }
 
-vector<ptr<string> > BiteManager::computeAndValidateSGXAESKeyBatch(vector<ptr<EncryptedAESKey>> &_encryptedAESKeys,
-                                                                   map<transaction_index, ConnectionSubStatus> &_failedTransactions) const {
+ptr<vector<ptr<string>>> BiteManager::computeAndValidateSGXAESKeyBatch(vector<ptr<EncryptedAESKey>> &_encryptedAESKeys,
+                                                                       map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
 
-    vector<ptr<string> > publicDecryptionValues;
+    auto publicDecryptionValues = make_shared<vector<ptr<string>>>();
 
     for (uint64_t i = 0; i < _encryptedAESKeys.size(); i++) {
         try {
@@ -209,7 +211,7 @@ vector<ptr<string> > BiteManager::computeAndValidateSGXAESKeyBatch(vector<ptr<En
                 publicDecryptionValue->append(str);
             }
 
-            publicDecryptionValues.push_back(publicDecryptionValue);
+            publicDecryptionValues->push_back(publicDecryptionValue);
         } catch (exception &_e) {
             LOG(err, fmt::format("Could not validate transaction: {} : {}", i, _e.what()));
             _failedTransactions.emplace(i,

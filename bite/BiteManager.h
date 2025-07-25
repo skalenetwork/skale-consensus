@@ -7,13 +7,21 @@
 #include <crypto/AESKeyDecryptionShareSet.h>
 #include "node/ConsensusInterface.h"
 #include "abstracttcpserver/ConnectionStatus.h"
+
 class Schain;
+
 class BlockProposal;
+
 class CommittedBlock;
+
 class DecryptedAESKeyList;
+
 class AESKeyDecryptionShareList;
+
 class BiteDataField;
+
 class TransactionList;
+
 class EncryptedAESKey;
 
 class BiteManager {
@@ -29,11 +37,11 @@ public:
     // if none of the transactions fails, the  proposal is set with decryption shares
 
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(
-        vector<ptr<BiteDataField> > &_dataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
+            vector<ptr<BiteDataField> > &_dataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
 
     [[nodiscard]][[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(
-        ptr<BlockProposal> _proposal);
+            ptr<BlockProposal> _proposal);
 
     [[nodiscard]] Schain *getSchain() const {
         return &schain;
@@ -41,18 +49,18 @@ public:
 
 
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromAESKeys(
-        vector<ptr<EncryptedAESKey> > &_encryptedAESKeys,
-        schain_index _decryptorIndex, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
+            vector<ptr<EncryptedAESKey> > &_encryptedAESKeys,
+            schain_index _decryptorIndex, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 
     [[nodiscard]] ptr<DecryptedTransactionFieldsMap> verifyAndDecryptTransactionList(TransactionList &_transactionList,
-        DecryptedAESKeyList &_aesKeys);
+                                                                                     DecryptedAESKeyList &_aesKeys);
 
     [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
                                                                       schain_index _decryptorIndex,
                                                                       bool _decryptionFailed);
 
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
-        block_id _blockId, transaction_index _transactionIndex);
+            block_id _blockId, transaction_index _transactionIndex);
 
     // TODO - change the name of this method
     [[nodiscard]] DecryptedTransactionFields decryptFields(const ptr<BiteDataField> &bite, DecryptedAESKey &_key) const;
@@ -64,11 +72,12 @@ public:
 
 
     [[nodiscard]] map<transaction_index, ConnectionSubStatus> verifyAndCreateMyDecryptionSharesForProposalTransactions(
-        ptr<BlockProposal> _proposal);
+            ptr<BlockProposal> _proposal);
 
 
-    bool isRealCryptoEnabled() const;
+    [[nodiscard]] bool isRealCryptoEnabled() const;
 
-    vector<ptr<string> > computeAndValidateSGXAESKeyBatch(vector<ptr<EncryptedAESKey>> &_encryptedAESKeys,
-                                                          map<transaction_index, ConnectionSubStatus> &_failedTransactions) const;
+    [[nodiscard]] static ptr<vector<ptr<string>>>
+    computeAndValidateSGXAESKeyBatch(vector<ptr<EncryptedAESKey>> &_encryptedAESKeys,
+                                     map<transaction_index, ConnectionSubStatus> &_failedTransactions);
 };
