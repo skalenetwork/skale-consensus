@@ -626,9 +626,18 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
 
 
 #ifdef BITE
-        auto failedTransactions =
-                getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(myProposal);
-        if (!failedTransactions.empty()) {
+
+        getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
+
+        if (!myProposal->getFailedTransactionsRef().empty()) {
+            LOG(err, "Critical error - invalid BITE transactions");
+            LOG(err, "Proposing default block instead");
+            return;
+        }
+
+
+        getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
+        if (!myProposal->getFailedTransactionsRef().empty()) {
             LOG(err, "Critical error - could not decrypt BITE transactions");
             LOG(err, "Proposing default block instead");
             return;

@@ -441,12 +441,15 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
 #ifdef BITE
         try {
-            auto invalidTransactions = getSchain()->getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(
-                    proposal);
-            if (!invalidTransactions.empty()) {
+
+
+            // check for validity
+            getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
+            if (!proposal->getFailedTransactionsRef().empty()) {
                 // return the first failed transaction error
                 finalResponseHeader =
-                        make_shared<FinalProposalResponseHeader>(CONNECTION_ERROR, invalidTransactions.begin()->second);
+                        make_shared<FinalProposalResponseHeader>(CONNECTION_ERROR,
+                                                                 proposal->getFailedTransactionsRef().begin()->second);
                 goto err;
             }
         } catch (...) {
@@ -462,13 +465,6 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
         CHECK_STATE(finalResponseHeader);
         CHECK_STATE(proposal);
 
-#ifdef BITE
-        CHECK_STATE(proposal->getMyDecryptionShares())
-#endif
-
-        sChain->proposedBlockArrived(proposal);
-
-
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -481,6 +477,17 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
     CHECK_STATE(finalResponseHeader);
 
     send(_connection, finalResponseHeader);
+
+#ifdef BITE
+    getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
+    if (!proposal->getFailedTransactionsRef().empty()) {
+        LOG(err, "Can not create decryptions for network proposal" +
+        to_string(proposal->getFailedTransactionsRef().begin()->second));
+    }
+    CHECK_STATE(proposal->getMyDecryptionShares())
+#endif
+
+    sChain->proposedBlockArrived(proposal);
 
     return finalResponseHeader->getStatusSubStatus();
 }

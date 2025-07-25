@@ -68,7 +68,7 @@ void BiteManager::parseBITETransactions(
     _proposal->seAESKeyList(encryptedAESKeyList);
 }
 
-map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateMyDecryptionSharesForProposalTransactions(
+void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
         ptr<BlockProposal> _proposal) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime());
 
@@ -83,13 +83,11 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateMyDecryp
     if (savedShares) {
         // we already successfully parsed and decrypted shares
         _proposal->setMyDecryptionShares(savedShares);
-        return map<transaction_index, ConnectionSubStatus>();
+        return;
     }
 
 
-    auto transactions = _proposal->getTransactionList()->getItems();
-
-    CHECK_STATE(transactions);
+    CHECK_STATE(_proposal->getTransactionList()->getItems());
 
     CHECK_STATE(_proposal->getBiteDataFields());
 
@@ -99,7 +97,7 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateMyDecryp
     if (!_proposal->getFailedTransactionsRef().empty()) {
         // the block includes invalid transactions, and at this point we know
         // each of them. So we just return them
-        return _proposal->getFailedTransactionsRef();
+        return;
     }
     CHECK_STATE(decryptionShareList);
     CHECK_STATE(decryptionShareList->getSize() == _proposal->getBiteDataFields()->size());
@@ -112,7 +110,6 @@ map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateMyDecryp
         getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
     }
 
-    return _proposal->getFailedTransactionsRef();
 }
 
 
@@ -162,13 +159,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 
     if (doRealCrypto) {
 
-        auto sgxAESKeyBatch = computeAndValidateSGXAESKeyBatch(_proposal);
-        _proposal->
-
-        if (!_proposal->getFailedTransactionsRef().empty()) {
-            // found failed transactions, just return
-            return nullptr;
-        }
+        auto sgxAESKeyBatch = _proposal->getSGXAESKeyBatch();
 
         CHECK_STATE(sgxAESKeyBatch);
 
@@ -184,8 +175,10 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
     }
 }
 
-ptr<vector<ptr<string>>> BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal) {
+void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal) {
 
+    if (!doRealCrypto)
+        return;
 
     CHECK_STATE(_proposal);
 
@@ -221,9 +214,10 @@ ptr<vector<ptr<string>>> BiteManager::computeAndValidateSGXAESKeyBatch(ptr<Block
             LOG(err, fmt::format("Could not validate transaction: {} : {}", i, _e.what()));
             _proposal->getFailedTransactionsRef().emplace(i,
                                         CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+            return;
         }
     }
-    return publicDecryptionValues;
+    _proposal->setSGXAESKeyBatch(publicDecryptionValues);
 }
 
 

@@ -68,11 +68,11 @@ public:
                                                                   const vector<uint8_t> &_to);
 
 
-    [[nodiscard]] map<transaction_index, ConnectionSubStatus> verifyAndCreateMyDecryptionSharesForProposalTransactions(
+    void callSGXToCreateMyDecryptionSharesForProposalTransactions(
             ptr<BlockProposal> _proposal);
 
 
     [[nodiscard]] bool isRealCryptoEnabled() const;
 
-    [[nodiscard]] static ptr<vector<ptr<string>>> computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
+    void  computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
 };
