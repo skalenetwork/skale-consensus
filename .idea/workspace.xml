@@ -61,6 +61,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="886 Improve performance">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bite/BiteManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/bite/BiteManager.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -231,7 +232,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "settings.editor.selected.configurable": "com.intellij.dts.settings.DtsSettingsConfigurable",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -862,7 +863,9 @@
       <workItem from="1753382632529" duration="1301000" />
       <workItem from="1753442161379" duration="161000" />
       <workItem from="1753442332623" duration="10768000" />
-      <workItem from="1753466172992" duration="41000" />
+      <workItem from="1753466172992" duration="367000" />
+      <workItem from="1753466549876" duration="176000" />
+      <workItem from="1753466735374" duration="2000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
@@ -1207,7 +1210,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="308" />
+    <option name="localTasksCounter" value="309" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

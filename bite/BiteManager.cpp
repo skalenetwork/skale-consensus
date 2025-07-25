@@ -163,7 +163,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
     if (doRealCrypto) {
 
         auto sgxAESKeyBatch = computeAndValidateSGXAESKeyBatch(_proposal);
-        _proposal->set
+        _proposal->
 
         if (!_proposal->getFailedTransactionsRef().empty()) {
             // found failed transactions, just return
