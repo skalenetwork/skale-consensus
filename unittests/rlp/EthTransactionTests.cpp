@@ -154,7 +154,7 @@ TEST_CASE("LegacyTx signing and verification", "[rlp][eth-transaction][unit][cor
     REQUIRE(sig.v != 0);
 
     // For legacy transactions, v should be 27 or 28
-    REQUIRE(sig.v == 27 || sig.v == 28);
+    REQUIRE((sig.v == 27 || sig.v == 28));
 
     // Verify the signature
     REQUIRE_NOTHROW(tx.verifySignature(sig));
