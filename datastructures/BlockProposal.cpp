@@ -301,6 +301,7 @@ ptr<BlockProposal> BlockProposal::makeFromNetworkSerialized(
     const ptr<vector<uint8_t> > &_serializedProposal, const ptr<CryptoManager> &_manager) {
     // we verify sigs when receiving from network
     auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
+    BiteManager::parseBITETransactions(proposal);
     return proposal;
 }
 
@@ -310,12 +311,11 @@ ptr<BlockProposal>  BlockProposal::makeFromDBSerialized(
     auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
 
     BiteManager::parseBITETransactions(proposal);
-    CHECK_STATE2(proposal->getFailedTransactionsRef().empty(), "Invalid BITE proposal in database");
+    CHECK_STATE2(proposal->getFailedTransactionsRef().empty(), "Invalid BITE proposal received");
     CHECK_STATE2(proposal->getBiteDataFields(), "Missing data fields");
 
     return proposal;
 }
-
 
 
 ptr<BlockProposal> BlockProposal::deserialize(
