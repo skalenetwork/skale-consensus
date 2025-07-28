@@ -22,6 +22,7 @@
 #include <monitoring/LivelinessMonitor.h>
 
 #include "BLSPublicKey.h"
+#include "db/TEDecryptionDB.h"
 #include "rlp/RLPStream.h"
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
@@ -29,104 +30,132 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 }
 
 
-map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateDecryptionSharesForProposalTransactions(
-    const ptr<BlockProposal> &_proposal) {
-
-    MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() );
-
-
-    CHECK_STATE(_proposal);
-    // check we are not verifying twice
-    CHECK_STATE(!_proposal->getMyDecryptionShares())
-    auto transactions = _proposal->getTransactionList()->getItems();
-
-    CHECK_STATE(transactions);
-
-    // this will normally be empty
-    map<transaction_index, ConnectionSubStatus> failedTransactions;
-
-
-    std::map<transaction_index, ptr<BiteDataField> > biteDataFields;
-    auto encryptedAESKeyList = make_shared<EncryptedAESKeyList>();
-
-
+void BiteManager::parseBITETransactions(
+    ptr<BlockProposal> _proposal) {
     // do simple parsing and validation of BITE format
     // unparsable transactions will be added to failedTransactions
     // transactions starting from the magic number but with incorrect format will be added
     // to failedTransactions
     transaction_index index = 0;
-    for (auto &tx: *transactions) {
+
+    auto encryptedAESKeyList = make_shared<EncryptedAESKeyList>();
+
+    auto biteDataFields = make_shared<std::map<transaction_index, ptr<BiteDataField> > >();
+
+    for (auto &tx: *_proposal->getTransactionList()->getItems()) {
         try {
             tx->parseAndValidate();
-            auto biteDataField = tx->tryGetBiteData(doRealCrypto);
+            auto biteDataField = tx->tryGetBiteData();
             if (biteDataField) {
-                biteDataFields.emplace(index, biteDataField);
+                biteDataFields->emplace(index, biteDataField);
                 encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
             }
             index = index + 1;
         } catch (exception &e) {
             LOG(err, string( "Could not parse transaction:" ) + e.what());
-            failedTransactions.emplace(index,
-                                       ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
+            _proposal->getFailedTransactionsRef().emplace(index,
+                                                          ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
         }
     }
 
+
+    if (!_proposal->getFailedTransactionsRef().empty()) {
+        return;
+    }
+
+
+    _proposal->setBiteDataFields(biteDataFields);
+    _proposal->seAESKeyList(encryptedAESKeyList);
+}
+
+map<transaction_index, ConnectionSubStatus> BiteManager::verifyAndCreateMyDecryptionSharesForProposalTransactions(
+    ptr<BlockProposal> _proposal) {
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime());
+
+
+    CHECK_STATE(_proposal);
+    // check we are not verifying twice
+
+
+    auto savedShares = getSchain()->getNode()->getTEDecryptionDB()->getMyDecryptionShares(_proposal->getBlockID(),
+        _proposal->getProposerIndex());
+
+    if (savedShares) {
+        // we already successfully parsed and decrypted shares
+        _proposal->setMyDecryptionShares(savedShares);
+        return map<transaction_index, ConnectionSubStatus>();
+    }
+
+
+    auto transactions = _proposal->getTransactionList()->getItems();
+
+    CHECK_STATE(transactions);
+
+
+    parseBITETransactions(_proposal);
+
+    if (!_proposal->getFailedTransactionsRef().empty()) {
+        return _proposal->getFailedTransactionsRef();
+    }
+
+    CHECK_STATE(_proposal->getBiteDataFields());
+
+
     // this function will not throw exception
-    auto decryptionShareList = getDecryptionSharesFromDataFieldsMap(
-        _proposal->getBlockID(), _proposal->getProposerIndex(), biteDataFields, failedTransactions);
-    if (failedTransactions.size() > 0) {
+    auto decryptionShareList = getDecryptionSharesFromDataFieldsMap(_proposal);
+    if (!_proposal->getFailedTransactionsRef().empty()) {
         // the block includes invalid transactions, and at this point we know
         // each of them. So we just return them
-        return failedTransactions;
+        return _proposal->getFailedTransactionsRef();
     }
     CHECK_STATE(decryptionShareList);
-    CHECK_STATE(decryptionShareList->getSize() == biteDataFields.size());
+    CHECK_STATE(decryptionShareList->getSize() == _proposal->getBiteDataFields()->size());
     // no we know that the decryption shares are valid, we can set them to the proposal
     // now we set the decryption shares list to the block proposal so it is committed to the
     // database when proposal is committed
-    _proposal->setMyDecryptionShares(decryptionShareList, encryptedAESKeyList);
+    _proposal->setMyDecryptionShares(decryptionShareList);
 
-    CHECK_STATE(failedTransactions.empty());
+    if (_proposal->getFailedTransactionsRef().empty()) {
+        getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
+    }
 
-    return failedTransactions;
+    return _proposal->getFailedTransactionsRef();
 }
 
 
-ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap(
-    block_id _blockId, schain_index _proposerIndex,
-    const std::map<transaction_index, ptr<BiteDataField> > &
-    _biteDataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
+ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap(ptr<BlockProposal> _proposal) {
+    CHECK_STATE(_proposal)
 
-    MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
-
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime())
 
     auto decryptionShareList = make_shared<AESKeyDecryptionShareList>(
-        _blockId, _proposerIndex, schain.getSchainIndex());
+        _proposal->getBlockID(),
+        _proposal->getProposerIndex(), schain.getSchainIndex());
 
 
-    if (_biteDataFields.empty()) {
-        return decryptionShareList;
+    auto encryptedAesKeys = _proposal->getEncryptedAESKeys();
+
+    vector<ptr<EncryptedAESKey> > encryptedAESKeysAsAVector;
+    encryptedAESKeysAsAVector.reserve(encryptedAesKeys->size());
+
+    for (auto &&iterator: *encryptedAesKeys) {
+        encryptedAESKeysAsAVector.push_back(iterator.second);
     }
 
-    vector<ptr<BiteDataField> > dataFieldsAsVector;
-    dataFieldsAsVector.reserve(_biteDataFields.size());
+    ptr<vector<ptr<AESKeyDecryptionShare> > > decryptiondSharesVector = getDecryptionSharesFromAESKeys(
+        encryptedAESKeysAsAVector, schain.getSchainIndex(),
+        _proposal->getFailedTransactionsRef());
 
-    for (auto &&iterator: _biteDataFields) {
-        dataFieldsAsVector.push_back(iterator.second);
-    }
-
-    ptr<vector<ptr<AESKeyDecryptionShare> > > decryptiondSharesVector =
-            getDecryptionSharesFromDataFields(dataFieldsAsVector, _failedTransactions);
 
     if (!decryptiondSharesVector) {
         return nullptr;
     }
 
-    CHECK_STATE(decryptiondSharesVector->size() == _biteDataFields.size());
+    CHECK_STATE(decryptiondSharesVector->size() == _proposal->getBiteDataFields()->size());
 
 
     auto arrayIndex = 0;
-    for (auto &&iterator: _biteDataFields) {
+    for (auto &&iterator: *_proposal->getBiteDataFields()) {
         auto AESKeyDecryptionShare = (*decryptiondSharesVector)[arrayIndex];
         decryptionShareList->addShare(iterator.first, decryptiondSharesVector->at(arrayIndex));
         arrayIndex++;
@@ -138,14 +167,14 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
 
 
 ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAESKeys(
-    vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex,  map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
-
-    MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
+    vector<ptr<EncryptedAESKey> > &_encryptedAESKeys, schain_index _decryptorIndex,
+    map<transaction_index, ConnectionSubStatus> &_failedTransactions) {
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime())
 
     if (doRealCrypto) {
         vector<ptr<string> > publicDecryptionValuesBatch;
 
-        for (uint64_t i = 0; i< _encryptedAESKeys.size(); i++) {
+        for (uint64_t i = 0; i < _encryptedAESKeys.size(); i++) {
             try {
                 auto encryptedAESKey = _encryptedAESKeys.at(i);
                 CHECK_STATE(encryptedAESKey)
@@ -164,10 +193,10 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
                 }
 
                 publicDecryptionValuesBatch.push_back(publicDecryptionValue);
-            } catch (exception& _e) {
+            } catch (exception &_e) {
                 LOG(err, fmt::format( "Could not validate transaction: {} : {}" , i, _e.what()));
                 _failedTransactions.emplace(i,
-                ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
             }
         }
 
@@ -196,11 +225,19 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromDa
     MONITOR2( __CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime() )
 
 
-    for (auto &&dataField: _dataFields) {
-        auto encryptedAESKey = dataField->getEncryptedAESKey();
-        CHECK_STATE(encryptedAESKey);
-        encryptedAESKeys.push_back(encryptedAESKey);
+    for (size_t i = 0; i < _dataFields.size(); ++i) {
+        auto encryptedAESKey = _dataFields[i]->getEncryptedAESKey();
+        auto epochId = _dataFields[i]->getEpoch();
+        if ( !encryptedAESKey )
+            _failedTransactions.emplace( i, ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION );
+        else if ( epochId != getSchain()->getNode()->getCurrentEpochId() )
+            _failedTransactions.emplace( i, ConnectionSubStatus::CONNECTION_ERROR_INVALID_EPOCH_ID );
+        else
+            encryptedAESKeys.push_back(encryptedAESKey);
     }
+
+    if ( _failedTransactions.size() )
+        return nullptr;
 
     auto result = getDecryptionSharesFromAESKeys(encryptedAESKeys, schain.getSchainIndex(),
         _failedTransactions);
@@ -226,7 +263,7 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
         for (uint64_t i = 0; i < _transactionList.size(); i++) {
             auto tx = txs->at(i);
             tx->parseAndValidate();
-            auto bite = tx->tryGetBiteData(doRealCrypto);
+            auto bite = tx->tryGetBiteData();
             if (bite) {
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);
@@ -277,7 +314,7 @@ BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_de
     ptr< vector< uint8_t > > dataField = make_shared< std::vector< uint8_t > >( decryptedDataRlp[0].asBytes() );
     ptr< vector< uint8_t > > toField = make_shared< std::vector< uint8_t > >( decryptedDataRlp[1].asBytes() );
 
-    auto decryptedFields = DecryptedTransactionFields {
+    auto decryptedFields = DecryptedTransactionFields{
         .data = dataField,
         .to = toField,
     };
@@ -316,6 +353,7 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
 
         auto cipherText = libBLS::ThresholdEncryption::encrypt(stream.encode(), teKey);
         auto bytes = std::make_shared<vector<uint8_t>>(cipherText.toBytes());
+
 
         corruptFromTimeToTime(bytes);
 

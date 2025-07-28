@@ -114,7 +114,7 @@ ptr< BlockProposal > BiteBlockProposalSerializer::deserialize(
 
 
     auto proposal =
-        BlockProposal::make( blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
+        BlockProposal::makeFromSerialized( blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
             blockHeader->getBlockID(), blockHeader->getProposerIndex(), list,
             blockHeader->getStateRoot(), blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
             blockHeader->getSignature(), nullptr );

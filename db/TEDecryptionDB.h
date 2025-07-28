@@ -29,6 +29,8 @@ public:
 
      void addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 
+    bool haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex);
+
      ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList);
 
 

@@ -46,7 +46,6 @@ void ClientSocket::closeSocket() {
     descriptor = 0;
 }
 
-
 file_descriptor ClientSocket::getDescriptor() {
     return descriptor;
 }

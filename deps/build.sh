@@ -1772,7 +1772,7 @@ then
 			cd argtable2
 			mkdir -p build
 			cd build
-			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" ..
+			$CMAKE "${CMAKE_CROSSCOMPILING_OPTS}" -DCMAKE_INSTALL_PREFIX="$INSTALL_ROOT" -DCMAKE_BUILD_TYPE="$TOP_CMAKE_BUILD_TYPE" .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 			cd ..
 		else
 			cd argtable2
@@ -2804,7 +2804,7 @@ then
 				echo -e "${COLOR_INFO}getting it from git${COLOR_DOTS}...${COLOR_RESET}"
 				eval git clone https://github.com/facebook/folly.git --recursive
                                 cd folly
-                                eval git checkout 855a286
+                                eval git checkout 5d415b5
                                 cd ..
                                 echo -e "${COLOR_INFO}archiving it${COLOR_DOTS}...${COLOR_RESET}"
                                 eval tar -czf folly-from-git.tar.gz ./folly

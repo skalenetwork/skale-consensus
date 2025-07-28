@@ -46,11 +46,17 @@ bool OptimizerAgent::doOptimizedConsensus( block_id _blockId, uint64_t _lastBloc
         return false;
     }
 
+#ifdef BITE
+    // for BITE there is always a single proposer
+    return true;
+#else
     // redo full consensus each 65 blocks to
     // determine the winner. Otherwise optimize
     // potentially we could redo full consensus even more rarely, but
     // for now lets be conservative
     return ( uint64_t ) _blockId % ( 4 * nodeCount + 1 ) != 0;
+#endif
+
 }
 
 // returns the priority leader for the current block numbered from 0 to N-1
@@ -107,6 +113,12 @@ uint64_t OptimizerAgent::getPriorityLeaderForBlock( block_id& _blockID ) {
 // this function returns the schain_index previous winner proposer 16 blocks ago
 // or zero if there was no winner  (default block)
 schain_index OptimizerAgent::getPreviousWinner( block_id _blockId ) {
+
+#ifdef BITE
+    // for BITE there is always a single proposer
+    // for now we simply use round-robit algorithm
+    return (uint64_t) _blockId % nodeCount + 1;
+#else
     // first 16 blocks we do not know the  previos winner so we do full consensus
     if ( ( uint64_t ) _blockId <= nodeCount ) {
         return 0;
@@ -117,6 +129,7 @@ schain_index OptimizerAgent::getPreviousWinner( block_id _blockId ) {
     CHECK_STATE( block )
 
     return block->getProposerIndex();
+#endif
 }
 
 
