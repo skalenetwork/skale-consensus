@@ -311,6 +311,7 @@ ptr<BlockProposal>  BlockProposal::makeFromDBSerialized(
 
     BiteManager::parseBITETransactions(proposal);
     CHECK_STATE2(proposal->getFailedTransactionsRef().empty(), "Invalid BITE proposal in database");
+    CHECK_STATE2(proposal->getBiteDataFields(), "Missing data fields");
 
     return proposal;
 }
