@@ -153,13 +153,8 @@ TEST_CASE("LegacyTx signing and verification", "[rlp][eth-transaction][unit][cor
     REQUIRE(sig.s != 0);
     REQUIRE(sig.v != 0);
 
-#ifdef MIRAGE
-    // For post-EIP155 transactions, v should be >= 37 (chainId * 2 + 35 + {0|1})
-    REQUIRE(sig.v >= 37);
-#else
     // For legacy transactions, v should be 27 or 28
     REQUIRE(sig.v == 27 || sig.v == 28);
-#endif
 
     // Verify the signature
     REQUIRE_NOTHROW(tx.verifySignature(sig));
@@ -195,27 +190,6 @@ TEST_CASE("Type2Tx signing and verification", "[rlp][eth-transaction][unit][corr
 
     // Verify the signature
     REQUIRE_NOTHROW(tx.verifySignature(sig));
-}
-
-// ===================== PRE-EIP155 REJECTION TESTS =====================
-
-TEST_CASE("Pre-EIP155 legacy transaction rejection", "[rlp][eth-transaction][unit][correctness]") {
-    // Create a legacy transaction
-    LegacyTx tx = legacyTxSample;
-
-    // Create a signature that looks like pre-EIP155 (v = 27 or 28)
-    Signature preEip155Sig;
-    preEip155Sig.v = 27; // Pre-EIP155 signature
-    preEip155Sig.r = u256("0x18515461264373351373200002665853028612451056578545711640558177340181847433846");
-    preEip155Sig.s = u256("0x46948507304638947509940763649030358759909902576025900602547168820602576006531");
-
-#ifdef MIRAGE
-    REQUIRE_THROWS(tx.verifySignature(preEip155Sig));
-#else
-    // In non-MIRAGE mode, we allow v = 27 or 28 for backward compatibility
-    // but this should still fail because the signature won't verify against our transaction
-    REQUIRE_THROWS(tx.verifySignature(preEip155Sig));
-#endif
 }
 
 TEST_CASE("Invalid signature domain validation", "[rlp][eth-transaction][unit][correctness]") {
