@@ -62,6 +62,10 @@ class ConsensusEngine : public ConsensusInterface {
 
     set< node_id > nodeIDs;
 
+#ifdef BITE
+    uint64_t epochId = 0;
+#endif
+
     bool useTestSGXKeys = false;
 
     bool isSGXEnabled = false;
@@ -316,5 +320,9 @@ public:
     // if isSyncing is false, all fields will be set to zero.
 
     [[nodiscard]] SyncInfo getSyncInfo() override;
+
+#ifdef BITE
+    void setEpochId( uint64_t _epochId ) { epochId = _epochId; }
+#endif
 
 };

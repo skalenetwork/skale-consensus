@@ -395,6 +395,14 @@ uint64_t Node::getInternalInfoDBSize() const {
 uint64_t Node::getTEDecryptionDBSize() const {
     return teDecryptionDBSize;
 }
+
+uint64_t Node::getCurrentEpochId() const {
+    return epochId;
+}
+
+void Node::setEpochId( uint64_t _epochId ) {
+    epochId = _epochId;
+}
 #endif
 
 map<string, uint64_t> Node::getDBUsage() const {

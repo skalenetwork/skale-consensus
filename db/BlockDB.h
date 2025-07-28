@@ -32,7 +32,7 @@ class CommittedBlock;
 class CryptoManager;
 
 class BlockDB : public CacheLevelDB {
-    shared_mutex m;
+    shared_mutex mBlockDB;
 
     void saveBlock2LevelDB( const ptr< CommittedBlock >& _block );
 

@@ -119,8 +119,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
 
     if ( _isByte ) {
         auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
-        bool doRealCrypto = false;
-        BiteDataField biteDataField(encryptedKeyPlusData , 0, doRealCrypto);
+        BiteDataField biteDataField(encryptedKeyPlusData , 0);
         // set data
         txRef.data = *biteDataField.getSerializedData();
         // set to field with BITE magic number
@@ -135,8 +134,6 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     return encodedTx;
 }
 
-// TODO - maybe we should just have 3 methods to parse each different type of tx instead
-// of building an object out of it
 ptr< vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
     ParsedEthTransaction& _ethTransaction ) {
     auto fields = _ethTransaction.getFields();

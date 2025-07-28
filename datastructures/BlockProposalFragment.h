@@ -31,17 +31,18 @@ class AESKeyDecryptionShareList;
 class BiteManager;
 
 namespace skale_fb {
-struct CommittedBlockFragment;
+    struct CommittedBlockFragment;
 }
 #endif
 
 class BlockProposalFragment {
-    ptr< vector< uint8_t > > data;  // tsafe
+    ptr<vector<uint8_t> > data; // tsafe
 
     const block_id blockId = 0;
 #ifdef BITE
     const schain_index proposerIndex = 0;
     const schain_index decryptorIndex = 0;
+    ptr<AESKeyDecryptionShareList> decryptionShares;
 #endif
     const uint64_t blockSize = 0;
     string blockHash;
@@ -50,38 +51,41 @@ class BlockProposalFragment {
     const fragment_index fragmentIndex = 0;
 
 #ifdef BITE
-    const skale_fb::CommittedBlockFragment* fbBlockFragment = nullptr;
-    ptr< AESKeyDecryptionShareList > decryptionShares;
-    ptr< vector< uint8_t > > _fbSerializedBlockFragment;
+    const skale_fb::CommittedBlockFragment *fbBlockFragment = nullptr;
+    ptr<vector<uint8_t> > _fbSerializedBlockFragment;
+
     void deserializeFromFlatBuffer(ptr<BiteManager> _biteManager);
 
 #endif
 
 public:
     // used to deserialze fragment coming from the network
-    BlockProposalFragment( const block_id& _blockId,
+    BlockProposalFragment(const block_id &_blockId,
 #ifdef BITE
-        const schain_index _proposerIndex, const schain_index _decryptorIndex,
-        ptr<BiteManager> _biteManager,
+                          const schain_index _proposerIndex, const schain_index _decryptorIndex,
+                          ptr<BiteManager> _biteManager,
 #endif
-        uint64_t _totalFragments, const fragment_index& fragmentIndex,
-        const ptr< vector< uint8_t > >& _data, uint64_t _blockSize, const string& _blockHash );
+                          uint64_t _totalFragments, const fragment_index &fragmentIndex,
+                          const ptr<vector<uint8_t> > &_data, uint64_t _blockSize, const string &_blockHash);
 
 
     // used to create and serialize a fragment to be sent to the network
-    BlockProposalFragment( const block_id& _blockId,
+
+    BlockProposalFragment(const block_id &_blockId,
+                          schain_index _proposerIndex,
 #ifdef BITE
-        const schain_index _proposerIndex, const schain_index _decryptorIndex,
-        uint64_t _totalFragments, const fragment_index& fragmentIndex,
-        const ptr< vector< uint8_t > >& _data, ptr< AESKeyDecryptionShareList > _decryptionShares,
+                          schain_index _decryptorIndex,
+                          ptr<AESKeyDecryptionShareList> _decryptionShares,
 #endif
-        uint64_t _blockSize, const string& _blockHash );
+                          uint64_t _totalFragments, const fragment_index &_fragmentIndex,
+                          const ptr<vector<uint8_t> > &_data, uint64_t _blockSize,
+                          const string &_blockHash);
 
 #ifdef BITE
     [[nodiscard]] uint64_t size() const {
-        CHECK_STATE( this->fbBlockFragment );
+        CHECK_STATE(this->fbBlockFragment);
         auto d = fbBlockFragment->data();
-        if ( !d ) {
+        if (!d) {
             return 0;
         } else {
             return data->size();
@@ -90,13 +94,7 @@ public:
 
     auto getFBSerializedData() { return fbBlockFragment->data(); }
 
-    void setDecryptionShares(
-        const ptr< AESKeyDecryptionShareList >& _decryptionShares ) {
-        decryptionShares = _decryptionShares;
-    }
-
-
-    const ptr< AESKeyDecryptionShareList >& getDecryptionShares() const { return decryptionShares; }
+    const ptr<AESKeyDecryptionShareList> &getDecryptionShares() const { return decryptionShares; }
 #endif
 
     [[nodiscard]] block_id getBlockId() const;
@@ -105,7 +103,12 @@ public:
 
     [[nodiscard]] fragment_index getIndex() const;
 
-    [[nodiscard]] ptr< vector< uint8_t > > serialize();
+    [[nodiscard]] ptr<vector<uint8_t> > serialize(
+#ifdef BITE
+    bool needDecryptionShares,
+    bool needFragment
+#endif
+    );
 
     [[nodiscard]] uint64_t getBlockSize() const;
 

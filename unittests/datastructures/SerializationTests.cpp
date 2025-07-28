@@ -87,7 +87,7 @@ void test_committed_block_fragment_defragment( bool _fail ) {
             next = 0;
             list->addFragment( t->getFragment( i, j
 #ifdef BITE
-                                   , 1
+                                   , 1, nullptr
 #endif
                                    ), next );
             REQUIRE( next != 0 );
@@ -96,7 +96,7 @@ void test_committed_block_fragment_defragment( bool _fail ) {
 
         list->addFragment( t->getFragment( i, i
 #ifdef BITE
-                               , 1
+                               , 1, nullptr
 #endif
                                ), next );
         REQUIRE( next == 0 );

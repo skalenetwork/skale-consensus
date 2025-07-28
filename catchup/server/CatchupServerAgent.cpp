@@ -40,6 +40,7 @@
 #include "db/DAProofDB.h"
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
+#include "crypto/AESKeyDecryptionShareList.h"
 #endif
 
 #include "abstracttcpserver/ConnectionStatus.h"
@@ -68,10 +69,11 @@
 #include "db/BlockProposalDB.h"
 #include "CatchupServerAgent.h"
 
+
 CatchupServerAgent::CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s )
         : AbstractServerAgent( "CatchupServer", _schain, _s ) {
     CHECK_ARGUMENT( _s );
-    catchupWorkerThreadPool = make_shared< CatchupWorkerThreadPool >( num_threads( 2 ), this );
+    catchupWorkerThreadPool = make_shared< CatchupWorkerThreadPool >( num_threads( 4 ), this );
     catchupWorkerThreadPool->startService();
     createNetworkReadThread();
 }
@@ -325,6 +327,11 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
             return nullptr;
         }
 
+#ifdef BITE
+        bool needDAProofSig = Header::getBool( _jsonRequest, "needDASig");
+        bool needDecryptionShares = Header::getBool( _jsonRequest, "needShares");
+        bool needFragmentData= Header::getBool( _jsonRequest, "needData");
+#endif
 
         // We could have either a proposal or a committed block. Try proposal first.
 
@@ -333,7 +340,7 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
         string daSig;
 
 
-        // did not find the proposal or we do not have da proof from it
+        // did not find the proposal or we do not have da proof f`rom it
         // try committed block
         if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal )) {
             // Could not find proposal with DA proof. Try committed block
@@ -364,17 +371,29 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
                     proposal->getBlockID(), proposal->getProposerIndex() );
         }
 
-        CHECK_STATE( !daSig.empty() );
+        CHECK_STATE2( !daSig.empty(),  "Proposal has empty daSig" );
 
+        auto hash = proposal->getHash().toHex();
+
+        CHECK_STATE2(!hash.empty(), "Proposal has empty hash");
 
 #ifdef BITE
-        auto myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares( proposal->getBlockID(),
-            proposal->getProposerIndex());
-        if (!myDecryptionShares) {
-            _responseHeader->setStatusSubStatus(
-                CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES );
-            _responseHeader->setComplete();
-            return nullptr;
+
+        ptr<AESKeyDecryptionShareList> myDecryptionShares;
+
+        if (needDecryptionShares) {
+            myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares( proposal->getBlockID(),
+                proposal->getProposerIndex());
+            if (!myDecryptionShares) {
+                _responseHeader->setStatusSubStatus(
+                    CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES );
+                _responseHeader->setComplete();
+                return nullptr;
+            }
+        } else {
+            // just returtn emptyu list
+            myDecryptionShares = make_shared<AESKeyDecryptionShareList>(_blockID, proposerIndex,
+                                                                        getSchain()->getSchainIndex());
         }
 #endif
 
@@ -383,26 +402,32 @@ ptr< vector< uint8_t > > CatchupServerAgent:: createBlockFinalizeResponse(
                 proposal->getFragment( ( uint64_t ) getSchain()->getNodeCount() - 1, fragmentIndex
 #ifdef BITE
                 , getSchain()->getSchainIndex()
+                , myDecryptionShares
 #endif
                 );
 
 
         CHECK_STATE( fragment );
 
-#ifdef BITE
-        fragment->setDecryptionShares(myDecryptionShares);
-#endif
-
-
         _responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );
 
 
-        auto serializedFragment = fragment->serialize();
-
+        auto serializedFragment = fragment->serialize(
+#ifdef BITE
+        needDecryptionShares,
+        needFragmentData
+#endif
+        );
         CHECK_STATE( serializedFragment );
+#ifdef BITE
+        if (!needDAProofSig) {
+            // return empty sig
+            daSig = "";
+        }
+#endif
 
         _responseHeader->setFragmentParams( serializedFragment->size(),
-                                            proposal->serializeProposal()->size(), proposal->getHash().toHex(), daSig );
+                                            proposal->serializeProposal()->size(), hash, daSig );
 
         return serializedFragment;
     } catch ( ExitRequestedException& e ) {
