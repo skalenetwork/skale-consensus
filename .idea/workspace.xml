@@ -55,12 +55,14 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DBITE=1 -DMIRAGE=1" BUILD_OPTIONS="-- -j4" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" BUILD_OPTIONS="-- -j4" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="886 Improve performance">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/datastructures/BlockProposal.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -275,6 +277,11 @@
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="bls_test" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="bls_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="bls_test" TEST_MODE="SUITE_TEST">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -470,7 +477,7 @@
     <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
         <env name="TEST_TIME_S" value="300" />
-        <env name="TEST_TRANSACTIONS_PER_BLOCK" value="1000" />
+        <env name="TEST_TRANSACTIONS_PER_BLOCK" value="100" />
       </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -1230,7 +1237,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="314" />
+    <option name="localTasksCounter" value="315" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
