@@ -44,11 +44,17 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     CHECK_STATE(_data);
 
     // parse RLP-encoded tx data field
+    // RLP structure: [[epochId1, encryptedAESKey1],[epochId2, encryptedAESKey2], encryptedData]
+    // where [epochId2, encryptedAESKey2] is an optional element
     RLPItem rlp(*_data);
     CHECK_STATE2(rlp.isList(), "RLP item is not a list");
-    CHECK_STATE2(rlp.size() >= 1, "RLP item should have at least 1 item");
+    CHECK_STATE2(rlp.size() > 0, "RLP item should have at least 1 item");
+    CHECK_STATE2(rlp.size() < 4, "RLP item should not have more than 3 items");
     
     const uint64_t currentEpoch = _currentEpochId.convert_to<uint64_t>();
+
+    // encrypted data always goes last
+    const auto encryptedData = make_shared<std::vector<uint8_t>>(rlp[rlp.size() - 1].asBytes());
     
     auto parseRLPItem = [](const RLPItem& item) {
         CHECK_STATE2(item.isList(), "RLP item is not a list");
@@ -60,32 +66,41 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
         const uint64_t parsedEpoch = u256(epochIdBytes).convert_to<uint64_t>();
 
         // Parse and validate encrypted data
-        auto encryptedData = make_shared<std::vector<uint8_t>>(item[1].asBytes());
-        CHECK_STATE2(encryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
-            "Incorrectly formatted BITE transaction: Encrypted data size is not at least " + 
-            to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " + to_string(encryptedData->size()));
+        auto encryptedAESKey = make_shared<std::vector<uint8_t>>(item[1].asBytes());
+        CHECK_STATE2(encryptedAESKey->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
+            "Incorrectly formatted BITE transaction: Encrypted AES key size is not at least " +
+            to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " + to_string(encryptedAESKey->size()));
 
-        return std::make_pair(parsedEpoch, std::move(encryptedData));
+        return std::make_pair(parsedEpoch, std::move(encryptedAESKey));
     };
 
     // Parse first RLP item
-    auto [firstEpoch, firstData] = parseRLPItem(rlp[0]);
+    auto [firstEpoch, firstEncryptedAESKey] = parseRLPItem(rlp[0]);
     epoch = firstEpoch;
-    keyPlusEncryptedData = std::move(firstData);
+
+    std::shared_ptr<std::vector<uint8_t>> selectedEncryptedAESKey;
 
     // If there's a second item and epochId doesn't match, use the second item
     if (rlp.size() >= 2 && epoch != currentEpoch) {
-        auto [secondEpoch, secondData] = parseRLPItem(rlp[1]);
+        auto [secondEpoch, secondEncryptedAESKey] = parseRLPItem(rlp[1]);
         epoch = secondEpoch;
-        keyPlusEncryptedData = std::move(secondData);
+        selectedEncryptedAESKey = secondEncryptedAESKey;
+    } else {
+        selectedEncryptedAESKey = firstEncryptedAESKey;
     }
     
     CHECK_STATE2(currentEpoch == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
+    
+    // Create array from the first BITE_ENCRYPTED_AES_KEY_LEN bytes
+    auto encryptedAESKeyRawBytes = make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>();
+    std::copy_n(selectedEncryptedAESKey->begin(), BITE_ENCRYPTED_AES_KEY_LEN, encryptedAESKeyRawBytes->begin());
+    encryptedAESKey = make_shared<EncryptedAESKey>(encryptedAESKeyRawBytes);
 
-    auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
-    std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
-    encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
-
+    // Combine selectedEncryptedAESKey + encryptedData
+    keyPlusEncryptedData = make_shared<std::vector<uint8_t>>();
+    keyPlusEncryptedData->reserve(selectedEncryptedAESKey->size() + encryptedData->size());
+    keyPlusEncryptedData->insert(keyPlusEncryptedData->end(), selectedEncryptedAESKey->begin(), selectedEncryptedAESKey->end());
+    keyPlusEncryptedData->insert(keyPlusEncryptedData->end(), encryptedData->begin(), encryptedData->end());
 
     serializedData = _data;
 }
