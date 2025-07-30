@@ -34,10 +34,7 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     RLPStream list;
     list << epochBytes << *_encryptedKeyPlusData;
 
-    RLPStream listOfLists;
-    listOfLists << list;
-
-    serializedData = make_shared<vector<uint8_t> >(listOfLists.encode());
+    serializedData = make_shared<vector<uint8_t> >(list.encode());
 }
 
 BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, u256 _currentEpochId) {
@@ -45,7 +42,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
 
     // parse RLP-encoded tx data field
     // RLP structure: [epochId1, epochId2, encryptedBITEData]
-    // where epochId2 is an optional element
+    // epochId2 is optional
     RLPItem rlp(*_data);
     CHECK_STATE2(rlp.isList(), "RLP item is not a list");
     CHECK_STATE2(rlp.size() > 1, "RLP item should have at least 2 item");
@@ -59,6 +56,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
                   "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
                   to_string(BITE_CIPHERTEXT_MIN_LEN) + " bytes, found: " +
                   to_string(encryptedBITEDataBytes->size()));
+    libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes( *encryptedBITEDataBytes );
 
     // parse epochId
     auto epochIdBytes = rlp[0].asBytes();
@@ -67,15 +65,10 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     if ( rlp.size() == 2 ) {
         // set epochId
         epoch = epochIdCandidate;
-        keyPlusEncryptedData = std::move( encryptedBITEDataBytes );
-        auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
-        std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
-        encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
     } else {
         // if encryptedBITEData contains AES key encrypted with 2 BLS keys
         // need to determine which one was used based on epochId
         // AES key encrypted with wrong BLS key will not be added to keyPlusEncryptedData
-        libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes( *encryptedBITEDataBytes );
         if ( epochIdCandidate != currentEpoch  ) {
             // set epochId
             epochIdBytes = rlp[1].asBytes();
@@ -87,14 +80,15 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
             // set target encrypted AES key
             encryptedBITEData.keepKey( 0 );
         }
-        // set encrypted data and AES key
-        keyPlusEncryptedData = make_shared<vector<uint8_t>>( encryptedBITEData.toBytes() );
-        encryptedAESKey = make_shared<EncryptedAESKey>(
-                    make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(
-                        encryptedBITEData.getTargetKey().toBytes()));
     }
     
     CHECK_STATE2(currentEpoch == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
+
+    // set encrypted data and AES key
+    keyPlusEncryptedData = make_shared<vector<uint8_t>>( encryptedBITEData.toBytes() );
+    encryptedAESKey = make_shared<EncryptedAESKey>(
+                make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(
+                    encryptedBITEData.getTargetKey().toBytes()));
     CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
             "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
                  to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " +
