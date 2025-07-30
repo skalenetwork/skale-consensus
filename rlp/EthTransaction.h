@@ -87,7 +87,7 @@ struct EthTransaction {
      * the transaction should be signed by the client. And consensus only needs
      * to parse / decode the transaction.
      */
-    Signature sign(std::vector< uint8_t > privateKey) const;
+    Signature sign(const std::vector< uint8_t >& privateKey) const;
 
     /**
      * @brief Encodes the EthTransaction into RLP format.

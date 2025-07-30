@@ -121,7 +121,7 @@ std::array< uint8_t, 32 > EthTransaction::hash() const {
     return hash;
 }
 
-Signature EthTransaction::sign(std::vector< uint8_t > privateKey) const {
+Signature EthTransaction::sign(const std::vector< uint8_t >& privateKey) const {
     
     auto txHash = hash();
 
