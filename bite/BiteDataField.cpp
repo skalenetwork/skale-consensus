@@ -42,17 +42,16 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     CHECK_STATE(_data);
 
     // parse RLP-encoded tx data field
-    // RLP structure: [epochId1, epochId2, encryptedBITEData]
-    // epochId2 is optional
+    // RLP structure: [epochId1, encryptedBITEData]
+    // encryptedBITEData may optionally have 1 or 2 encrypted AES keys assosiated with it
     RLPItem rlp(*_data);
     CHECK_STATE2(rlp.isList(), "RLP item is not a list");
-    CHECK_STATE2(rlp.size() > 1, "RLP item should have at least 2 items");
-    CHECK_STATE2(rlp.size() < 4, "RLP item should not have more than 3 items");
+    CHECK_STATE2(rlp.size() == 2, "RLP item should have exactly 2 items");
     
     const uint64_t currentEpoch = _currentEpochId.convert_to<uint64_t>();
 
-    // encrypted data always goes last
-    auto encryptedBITEDataBytes = make_shared<std::vector<uint8_t>>(rlp[rlp.size() - 1].asBytes());
+    // read encryptedBITEData
+    auto encryptedBITEDataBytes = make_shared<std::vector<uint8_t>>(rlp[1].asBytes());
     CHECK_STATE2( encryptedBITEDataBytes->size() > BITE_CIPHERTEXT_MIN_LEN,
                   "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
                   to_string(BITE_CIPHERTEXT_MIN_LEN) + " bytes, found: " +
@@ -62,8 +61,10 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     auto epochIdBytes = rlp[0].asBytes();
     CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long");
     uint64_t epochIdCandidate = u256( epochIdBytes ).convert_to< uint64_t >();
-    // if only 1 epochId is submitted
-    if ( rlp.size() == 2 ) {
+    // first byte stands for the number of encrypted AES keys in payload
+    uint8_t numEncryptedAESKeys = encryptedBITEDataBytes->at(0);
+    // if 2 encrypted AES keys are submitted
+    if ( numEncryptedAESKeys == 1 ) {
         // set epochId
         epoch = epochIdCandidate;
         // set encrypted data and AES key
@@ -75,17 +76,16 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
         encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
     } else {
         // if encryptedBITEData contains AES key encrypted with 2 BLS keys
-        // need to determine which one was used based on epochId
+        // need to determine which one was used to encrypt the original message based on epochId
         // AES key encrypted with wrong BLS key will not be added to keyPlusEncryptedData
         // do not validate inputs
-        bool skipValidation = false;
-        libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes( *encryptedBITEDataBytes, skipValidation );
+        bool toValidate = false;
+        libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes(
+                    *encryptedBITEDataBytes, toValidate );
         size_t keyIndexToKeep;
         if ( epochIdCandidate != currentEpoch  ) {
             // set epochId
-            epochIdBytes = rlp[1].asBytes();
-            CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long");
-            epoch = u256( epochIdBytes ).convert_to< uint64_t >();
+            epoch = epochIdCandidate + 1;
             // set target encrypted AES key
             keyIndexToKeep = 1;
         } else {
