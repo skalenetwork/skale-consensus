@@ -13,6 +13,7 @@
 /// Minimum size of BITE field excluding the ciphertext from libBLS
 /// which includes both the key + ciphered data
 const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
+const auto KEY_COUNT_BYTE_OFFSET = 1;
 
 BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
     : keyPlusEncryptedData(_encryptedKeyPlusData), epoch(_epoch) {
@@ -45,7 +46,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     // epochId2 is optional
     RLPItem rlp(*_data);
     CHECK_STATE2(rlp.isList(), "RLP item is not a list");
-    CHECK_STATE2(rlp.size() > 1, "RLP item should have at least 2 item");
+    CHECK_STATE2(rlp.size() > 1, "RLP item should have at least 2 items");
     CHECK_STATE2(rlp.size() < 4, "RLP item should not have more than 3 items");
     
     const uint64_t currentEpoch = _currentEpochId.convert_to<uint64_t>();
@@ -69,28 +70,32 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
         keyPlusEncryptedData = encryptedBITEDataBytes;
         auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
         // first byte stands for the number of keys in payload - skip it when parsing manually
-        std::copy_n(keyPlusEncryptedData->begin() + 1, BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
+        std::copy_n(keyPlusEncryptedData->begin() + KEY_COUNT_BYTE_OFFSET,
+                    BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
         encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
     } else {
         // if encryptedBITEData contains AES key encrypted with 2 BLS keys
         // need to determine which one was used based on epochId
         // AES key encrypted with wrong BLS key will not be added to keyPlusEncryptedData
         // do not validate inputs
-        libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes( *encryptedBITEDataBytes, false );
+        bool skipValidation = false;
+        libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes( *encryptedBITEDataBytes, skipValidation );
+        size_t keyIndexToKeep;
         if ( epochIdCandidate != currentEpoch  ) {
             // set epochId
             epochIdBytes = rlp[1].asBytes();
             CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long");
             epoch = u256( epochIdBytes ).convert_to< uint64_t >();
             // set target encrypted AES key
-            encryptedBITEData.keepKey( 1 );
+            keyIndexToKeep = 1;
         } else {
             // set epochId
             epoch = epochIdCandidate;
             // set target encrypted AES key
-            encryptedBITEData.keepKey( 0 );
+            keyIndexToKeep = 0;
         }
         // set encrypted data and AES key
+        encryptedBITEData.keepKey( keyIndexToKeep );
         keyPlusEncryptedData = make_shared<vector<uint8_t>>( encryptedBITEData.toBytes() );
         encryptedAESKey = make_shared<EncryptedAESKey>(
                     make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(
