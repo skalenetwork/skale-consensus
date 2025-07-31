@@ -56,19 +56,27 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
                   "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
                   to_string(BITE_CIPHERTEXT_MIN_LEN) + " bytes, found: " +
                   to_string(encryptedBITEDataBytes->size()));
-    libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes( *encryptedBITEDataBytes );
 
     // parse epochId
     auto epochIdBytes = rlp[0].asBytes();
     CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long");
     uint64_t epochIdCandidate = u256( epochIdBytes ).convert_to< uint64_t >();
+    // if only 1 epochId is submitted
     if ( rlp.size() == 2 ) {
         // set epochId
         epoch = epochIdCandidate;
+        // set encrypted data and AES key
+        keyPlusEncryptedData = encryptedBITEDataBytes;
+        auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
+        // first byte stands for the number of keys in payload - skip it when parsing manually
+        std::copy_n(keyPlusEncryptedData->begin() + 1, BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
+        encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
     } else {
         // if encryptedBITEData contains AES key encrypted with 2 BLS keys
         // need to determine which one was used based on epochId
         // AES key encrypted with wrong BLS key will not be added to keyPlusEncryptedData
+        // do not validate inputs
+        libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes( *encryptedBITEDataBytes, false );
         if ( epochIdCandidate != currentEpoch  ) {
             // set epochId
             epochIdBytes = rlp[1].asBytes();
@@ -77,18 +85,20 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
             // set target encrypted AES key
             encryptedBITEData.keepKey( 1 );
         } else {
+            // set epochId
+            epoch = epochIdCandidate;
             // set target encrypted AES key
             encryptedBITEData.keepKey( 0 );
         }
+        // set encrypted data and AES key
+        keyPlusEncryptedData = make_shared<vector<uint8_t>>( encryptedBITEData.toBytes() );
+        encryptedAESKey = make_shared<EncryptedAESKey>(
+                    make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(
+                        encryptedBITEData.getTargetKey().toBytes()));
     }
     
     CHECK_STATE2(currentEpoch == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
 
-    // set encrypted data and AES key
-    keyPlusEncryptedData = make_shared<vector<uint8_t>>( encryptedBITEData.toBytes() );
-    encryptedAESKey = make_shared<EncryptedAESKey>(
-                make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(
-                    encryptedBITEData.getTargetKey().toBytes()));
     CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
             "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
                  to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " +
