@@ -23,7 +23,7 @@ class BiteManager {
 public:
     explicit BiteManager(Schain &_schain);
 
-    static void parseBITETransactions(ptr<BlockProposal> _proposal);
+    static void parseBITETransactions(ptr<BlockProposal> _proposal, u256 _currentEpochId);
 
     // this will return a map of failed transactions
     // if none of the transactions fails, the  proposal is set with decryption shares

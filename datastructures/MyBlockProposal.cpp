@@ -73,7 +73,7 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
                                                            make_shared<vector<ptr<Transaction> > >()),
                                                        _stateRoot, _timeStamp, _timeStampMs,
                                                        _cryptoManager);
-        BiteManager::parseBITETransactions(proposal);
+        BiteManager::parseBITETransactions(proposal, _sChain.getNode()->getCurrentEpochId());
         CHECK_STATE(proposal->getFailedTransactionsRef().empty());
         proposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
                                                    _blockID, _sChain.getSchainIndex(),

@@ -13,6 +13,7 @@
 /// Minimum size of BITE field excluding the ciphertext from libBLS
 /// which includes both the key + ciphered data
 const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
+const auto KEY_COUNT_BYTE_OFFSET = 1;
 
 BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
     : keyPlusEncryptedData(_encryptedKeyPlusData), epoch(_epoch) {
@@ -34,41 +35,79 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     RLPStream list;
     list << epochBytes << *_encryptedKeyPlusData;
 
-    RLPStream listOfLists;
-    listOfLists << list;
-
-    serializedData = make_shared<vector<uint8_t> >(listOfLists.encode());
+    serializedData = make_shared<vector<uint8_t> >(list.encode());
 }
 
-BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data) {
+BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, u256 _currentEpochId) {
     CHECK_STATE(_data);
 
     // parse RLP-encoded tx data field
+    // RLP structure: [epochId1, encryptedBITEData]
+    // encryptedBITEData may optionally have 1 or 2 encrypted AES keys assosiated with it
     RLPItem rlp(*_data);
     CHECK_STATE2(rlp.isList(), "RLP item is not a list");
-    CHECK_STATE2(rlp.size() >= 1, "RLP item should have at least 1 item");
+    CHECK_STATE2(rlp.size() == 2, "RLP item should have exactly 2 items");
     
-    // Get 1st item from list
-    RLPItem rlp0 = rlp[0];
+    const uint64_t currentEpoch = _currentEpochId.convert_to<uint64_t>();
 
-    CHECK_STATE2(rlp0.isList(), "RLP item 0 is not a list");
-    CHECK_STATE2(rlp0.size() == 2, "RLP item 0 should have exactly 2 fields - EPOCH_ID, and bite encrypted data");
+    // read encryptedBITEData
+    auto encryptedBITEDataBytes = make_shared<std::vector<uint8_t>>(rlp[1].asBytes());
+    CHECK_STATE2( encryptedBITEDataBytes->size() > BITE_CIPHERTEXT_MIN_LEN,
+                  "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
+                  to_string(BITE_CIPHERTEXT_MIN_LEN) + " bytes, found: " +
+                  to_string(encryptedBITEDataBytes->size()));
 
-    // set ecpohId
-    auto epochIdBytes = rlp0[0].asBytes();
-    CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long")
-    epoch = u256( epochIdBytes ).convert_to< uint64_t >();
+    // parse epochId
+    auto epochIdBytes = rlp[0].asBytes();
+    CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long");
+    uint64_t epochIdCandidate = u256( epochIdBytes ).convert_to< uint64_t >();
+    // first byte stands for the number of encrypted AES keys in payload
+    uint8_t numEncryptedAESKeys = encryptedBITEDataBytes->at(0);
+    // if 2 encrypted AES keys are submitted
+    if ( numEncryptedAESKeys == 1 ) {
+        // set epochId
+        epoch = epochIdCandidate;
+        // set encrypted data and AES key
+        keyPlusEncryptedData = encryptedBITEDataBytes;
+        auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
+        // first byte stands for the number of keys in payload - skip it when parsing manually
+        std::copy_n(keyPlusEncryptedData->begin() + KEY_COUNT_BYTE_OFFSET,
+                    BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
+        encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
+    } else {
+        // if encryptedBITEData contains AES key encrypted with 2 BLS keys
+        // need to determine which one was used to encrypt the original message based on epochId
+        // AES key encrypted with wrong BLS key will not be added to keyPlusEncryptedData
+        // do not validate inputs
+        bool toValidate = false;
+        libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes(
+                    *encryptedBITEDataBytes, toValidate );
+        size_t keyIndexToKeep;
+        if ( epochIdCandidate != currentEpoch  ) {
+            // set epochId
+            epoch = epochIdCandidate + 1;
+            // set target encrypted AES key
+            keyIndexToKeep = 1;
+        } else {
+            // set epochId
+            epoch = epochIdCandidate;
+            // set target encrypted AES key
+            keyIndexToKeep = 0;
+        }
+        // set encrypted data and AES key
+        encryptedBITEData.keepKey( keyIndexToKeep );
+        keyPlusEncryptedData = make_shared<vector<uint8_t>>( encryptedBITEData.toBytes() );
+        encryptedAESKey = make_shared<EncryptedAESKey>(
+                    make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(
+                        encryptedBITEData.getTargetKey().toBytes()));
+    }
+    
+    CHECK_STATE2(currentEpoch == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
 
-    // validate encrypted data
-    keyPlusEncryptedData = make_shared<std::vector<uint8_t>>(rlp0[1].asBytes());
     CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
-        "Incorrectly formatted BITE transaction: Encrypted data size is not at least " + to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " + to_string(keyPlusEncryptedData->size()));
-    
-
-    auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
-    std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
-    encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
-
+            "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
+                 to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " +
+                 to_string(keyPlusEncryptedData->size()));
 
     serializedData = _data;
 }
@@ -85,7 +124,9 @@ uint64_t BiteDataField::getEpoch() {
 }
 
 
-ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data, ptr<vector<uint8_t> > &_to) {
+ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data,
+                                                       ptr<vector<uint8_t> > &_to,
+                                                       u256 _currentEpochId) {
     CHECK_STATE(_data)
     CHECK_STATE(_to)
 
@@ -95,7 +136,7 @@ ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_d
         return nullptr;
     }
 
-    return ptr<BiteDataField>(new BiteDataField(_data));
+    return ptr<BiteDataField>(new BiteDataField(_data, _currentEpochId));
 }
 
 
