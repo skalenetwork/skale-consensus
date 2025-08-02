@@ -4,18 +4,25 @@
 ![Build and test skale-consensus](https://github.com/skalenetwork/skale-consensus/workflows/Build%20and%20test%20skale-consensus/badge.svg)
 
 
-**SKALE Consensus** is an ultra-high-performance blockchain consensus engine written in C++.
+SKALE ABBA Consensus is a high-performance, provably secure, EVM-compatible protocol that achieves single-block finality. It powers the SKL Gas-Free Network and the FAIR MEV-Free Network. Built on asynchronous Byzantine Binary Agreement (ABBA), BLS signatures, and threshold encryption, the implementation is available on GitHub.      
 
-## Key Features of SKALE Consensus
+# Key Features 
 
-- **Over 10,000 TPS**
-- **Byzantine fault tolerant** — no block gaps, and stable performance even with up to 1/3 of nodes offline
-- **Provably secure**
-- **Forkless**
-- **Single-block finality** — blocks are immediately finalized upon commitment
-- **Resilient to arbitrarily long network disruptions and delays** through an asynchronous network model
-- **Multiple block proposers per block** — ensures protocol stability even when some proposers are offline
-- **Secure against MEV and front-running** — provably resistant to manipulation
+- **High Throughput**: Supports over **10,000 transactions per second (TPS)**, enabling scalable decentralized applications.
+
+- **Byzantine Fault Tolerance (BFT)**: Maintains consensus and liveness with up to **1/3 of validator nodes offline**, with **no block gaps** or degraded performance.
+
+- **Provable Security**: Backed by **formal proofs** ensuring the **integrity** and **correctness** of the protocol under adversarial conditions.
+
+- **Forkless Operation**: Consensus guarantees a **single canonical chain**, eliminating chain splits and reducing complexity.
+
+- **Instant Finality**: Implements **single-block finality**, where each committed block is **immediately finalized**, eliminating the need for confirmations.
+
+- **Asynchronous Network Resilience**: Remains **safe and live** under **arbitrarily long network delays or partitions**, using an **asynchronous consensus model**.
+
+- **Redundant Block Proposers**: **Multiple proposers** participate in each round, ensuring **liveness and stability** even if some proposers are offline or faulty.
+
+- **MEV and Front-Running Resistance**: **Provably secure** against **Maximal Extractable Value (MEV)** attacks and **front-running**, ensuring **fair transaction ordering** and **user protection**.
 
 
 Read the spec for more exciting features [https://docs.skale.network/technology/consensus-spec ](https://github.com/skalenetwork/skale-consensus/blob/develop/docs/consensus-spec.md)
