@@ -90,7 +90,6 @@ When reviewing code in pull requests:
 - blockproposal/       # Logic for block proposal in consensus
 - build/               # Build artifacts and temporary build files
 - catchup/             # Catch-up logic for out-of-sync nodes
-- cget/                # Chain get/query utilities
 - chains/              # Chain management and configuration
 - cmake/               # CMake build configuration scripts and modules
 - cppzmq/              # C++ bindings for ZeroMQ
