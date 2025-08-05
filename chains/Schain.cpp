@@ -591,11 +591,13 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _proposedBlockID, getSchainIndex());
-#ifdef BITE
-            // The proposal was saved do the db, but we need decryption shares
-            CHECK_STATE(getSchain()->getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(
-                myProposal).empty());
-#endif
+            // getBlockProposal() already calls for verifyAndCreateMyDecryptionSharesForProposalTransactions
+            // no need to call it twice
+//#ifdef BITE
+//            // The proposal was saved do the db, but we need decryption shares
+//            CHECK_STATE(getSchain()->getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(
+//                myProposal).empty());
+//#endif
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();
             myProposal = pendingTransactionsAgent->buildBlockProposal(
