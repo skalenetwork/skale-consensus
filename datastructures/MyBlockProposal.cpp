@@ -75,7 +75,7 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
                                                        _cryptoManager);
         BiteManager::parseBITETransactions(proposal, _sChain.getNode()->getCurrentEpochId());
         CHECK_STATE(proposal->getFailedTransactionsRef().empty());
-// shares are already set inside verifyAndCreateMyDecryptionSharesForProposalTransactions fucntion
+// shares are already set inside verifyAndCreateMyDecryptionSharesForProposalTransactions function
 // no need to set them twice
 //        proposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
 //                                                   _blockID, _sChain.getSchainIndex(),
