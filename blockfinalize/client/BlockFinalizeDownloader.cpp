@@ -496,7 +496,7 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
             CHECK_STATE(proposal)
             CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex);
             {
-                LOCK(m)
+                LOCK(m);
                 if (!this->blockHash.empty()) {
                     auto h = BLAKE3Hash::fromHex(blockHash);
                     CHECK_STATE2(proposal->getHash().compare( h ) == 0, "Incorrect block hash");
