@@ -293,18 +293,21 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     auto fragmentSize = readFragmentSize(_responseHeader);
     auto blockSize = readBlockSize(_responseHeader);
     auto h = readBlockHash(_responseHeader);
-    CHECK_STATE(!h.empty())
+    CHECK_STATE(!h.empty());
 
 
-    // if we did not receive block hash yet, set it. Otherwise, compare it to the known hash
-     if (this->blockHash.empty()) {
-         this->blockHash = h;
-     } else {
-         if (this->blockHash != h) {
-             getSchain()->addBlockErrorAnalyzer(make_shared<BlockErrorAnalyzer>());
-             CHECK_STATE(h == blockHash);
-         }
-     }
+    {
+        // if we did not receive block hash yet, set it. Otherwise, compare it to the known hash
+        LOCK(m);
+        if (this->blockHash.empty()) {
+            this->blockHash = h;
+        } else {
+            if (this->blockHash != h) {
+                getSchain()->addBlockErrorAnalyzer(make_shared<BlockErrorAnalyzer>());
+                CHECK_STATE(h == blockHash);
+            }
+        }
+    }
 
 #ifdef BITE
     if (needDAProof()) {
@@ -491,7 +494,8 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
             proposal = BlockProposal::makeFromNetworkSerialized(
                 fragmentList.serialize(), getSchain()->getCryptoManager());
             CHECK_STATE(proposal)
-            CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex); {
+            CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex);
+            {
                 LOCK(m)
                 if (!this->blockHash.empty()) {
                     auto h = BLAKE3Hash::fromHex(blockHash);
