@@ -108,6 +108,9 @@ bool TEDecryptionDB::haveDecryptionShares(block_id _blockID, schain_index _decry
     READ_LOCK(decryptionSetsMutex);
 
     const auto it = decryptionsStore.find(_blockID);
+    if ( it == decryptionsStore.end() )
+        return false;
+
     return it->second.count(_decryptorIndex) > 0;
 
 };
