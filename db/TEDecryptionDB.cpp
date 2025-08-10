@@ -229,6 +229,9 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
 
 
 bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
+    if ( requireSigners == 0 )
+        return true;
+
     READ_LOCK(decryptionSetsMutex);
     const auto it = decryptionsStore.find(_blockID);
     if ( it == decryptionsStore.end() )
@@ -237,6 +240,9 @@ bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
 };
 
 bool TEDecryptionDB::isEnoughForeignShares(block_id _blockID) {
+    if ( requireSigners == 0 )
+        return true;
+
     READ_LOCK(decryptionSetsMutex);
 
     const auto it = decryptionsStore.find(_blockID);
