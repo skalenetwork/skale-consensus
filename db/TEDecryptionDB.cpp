@@ -229,7 +229,7 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
 
 
 bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
-    if ( requireSigners == 0 )
+    if ( requiredSigners == 0 )
         return true;
 
     READ_LOCK(decryptionSetsMutex);
@@ -240,7 +240,7 @@ bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
 };
 
 bool TEDecryptionDB::isEnoughForeignShares(block_id _blockID) {
-    if ( requireSigners == 0 )
+    if ( requiredSigners == 0 )
         return true;
 
     READ_LOCK(decryptionSetsMutex);
