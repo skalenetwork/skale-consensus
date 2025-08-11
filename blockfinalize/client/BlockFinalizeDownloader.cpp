@@ -569,7 +569,7 @@ bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
     }
 
     // downloaded everythin needed
-    if (fragmentList.isComplete() && getSchain()->haveDAProof(blockId, proposerIndex)
+    if (fragmentList.isComplete() &&  daSig
 #ifdef BITE
         && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)
 #endif
