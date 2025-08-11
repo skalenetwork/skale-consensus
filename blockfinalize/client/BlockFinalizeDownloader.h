@@ -100,6 +100,8 @@ public:
     bool downloadProposalDAProofAndDecryptions();
 
 
+    bool completeAndNeedToExitAllThreads();
+
     string readBlockHash( nlohmann::json _responseHeader );
 
     block_id getBlockId();
@@ -124,5 +126,4 @@ public:
 
     void waitAfterNoProposal();
 
-    bool checkIfEverythingDownloadedAndNotifyWaitingThreads();
 };
