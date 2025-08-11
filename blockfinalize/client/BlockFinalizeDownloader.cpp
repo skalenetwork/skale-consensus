@@ -561,14 +561,20 @@ ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig(uint64_t _timeStampS) 
 
 
 bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
-    if (getSchain()->getNode()->isExitRequested() || getSchain()->getLastCommittedBlockID() >= blockId)
+    if (getSchain()->getNode()->isExitRequested() {
         return true;
+    }
+
+    if (getSchain()->getLastCommittedBlockID() >= blockId) {
+        // we received block concurrently through catchup
+        return true;
+    }
     if (getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex)) {
         // received needed things concurrently through block proposal
         return true;
     }
 
-    // downloaded everythin needed
+    // check if we downloaded everything needed
     if (fragmentList.isComplete() &&  daSig
 #ifdef BITE
         && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)
