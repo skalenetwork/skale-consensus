@@ -93,29 +93,28 @@ bool BlockProposalFragmentList::addFragment(
 
     nextIndex = 0;
 
-    if ( fragments.find( _fragment->getIndex() ) != fragments.end() ) {
-        return false;
-    }
-
+    if ( fragments.find( _fragment->getIndex() ) == fragments.end() ) {
 #ifdef BITE
-    fragments.emplace( _fragment->getIndex(), _fragment );
+        fragments.emplace( _fragment->getIndex(), _fragment );
 #else
-    fragments.emplace( _fragment->getIndex(), _fragment->serialize() );
+        fragments.emplace( _fragment->getIndex(), _fragment->serialize() );
 #endif
 
-    std::list< uint64_t >::iterator findIter =
-        std::find( missingFragments.begin(), missingFragments.end(), _fragment->getIndex() );
+        std::list< uint64_t >::iterator findIter =
+            std::find( missingFragments.begin(), missingFragments.end(), _fragment->getIndex() );
 
-    CHECK_STATE( findIter != missingFragments.end() );
+        CHECK_STATE( findIter != missingFragments.end() );
 
-    missingFragments.erase( findIter );
+        missingFragments.erase( findIter );
+
+    }
 
     if ( isComplete() ) {
         return true;
     }
 
-
     CHECK_STATE( missingFragments.size() > 0 );
+
 
     nextIndex = nextIndexToRetrieve();
 

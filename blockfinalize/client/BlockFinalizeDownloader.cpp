@@ -105,7 +105,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
 
     fragmentDownloadCounter++;
 
-    if (fragmentDownloadCounter > getSchain()->getNodeCount() * 4) {
+    if (fragmentDownloadCounter > getSchain()->getNodeCount() * 100) {
         // something is wrong, we are trying to download too many times
         LOG(err, "Fragment download got into infinite loop");
     }
@@ -438,8 +438,6 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
         try {
             cerr << "Try" << nextFragment << endl;
             nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
-            if (nextFragment == 0)
-                break;;
         } catch (DoNotHaveProposalYetException &) {
             cerr << "No" << nextFragment << endl;
             // this is ok, we just do not have proposal yet
@@ -452,9 +450,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
             LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
             SkaleException::logNested(e);
             _agent->waitAfterNetworkError();
-            exit(-1);
         } catch (...) {
-            exit(-1);
             LOG(err, "Unknown error downloading fragment from:" + to_string(_dstIndex));
             _agent->waitAfterNetworkError();
         }
