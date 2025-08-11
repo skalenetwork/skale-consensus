@@ -42,6 +42,7 @@
 #include "datastructures/DAProof.h"
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
+#include "exceptions/DoNotHaveProposalYetException.h"
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
 #endif
@@ -165,17 +166,19 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
 
 
     auto status = (ConnectionStatus) Header::getUint64(response, "status");
+    auto substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
 
-    if (status == CONNECTION_DISCONNECT) {
+    if (status == CONNECTION_DISCONNECT && substatus == CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL) {
         LOG(debug, "BLCK_FRG_DWNLD:NO_FRG:" << to_string( _fragmentIndex ) << ":"
             << to_string( _dstIndex ));
-        return 0;
+        throw DoNotHaveProposalYetException();
     }
 
 
     if (status != CONNECTION_PROCEED) {
         BOOST_THROW_EXCEPTION(NetworkProtocolException(
-            "Server error in BlockFinalize response:" + to_string( status ), __CLASS_NAME__ ));
+            "Server error in BlockFinalize response:" + to_string( status ) + ":" +
+            to_string(substatus), __CLASS_NAME__ ));
     }
 
 
@@ -409,6 +412,13 @@ void BlockFinalizeDownloader::waitAfterNetworkError() {
 }
 
 
+void BlockFinalizeDownloader::waitAfterNoProposal() {
+    // the peer does not have the proposal yet
+    // we will wait 100 ms and try again
+    usleep(static_cast<__useconds_t>(100 * 1000));
+}
+
+
 bool BlockFinalizeDownloader::checkIfEverythingDownloadedAndNotifyWaitingThreads() {
     if (getSchain()->getLastCommittedBlockID() >= blockId || // we already received this block through catchup
         getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex) ||
@@ -471,7 +481,11 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
                 nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
                 if (nextFragment == 0)
                     break;;
-            } catch (ExitRequestedException &) {
+            } catch (DoNotHaveProposalYetException &) {
+                // this is ok, we just do not have proposal yet
+                _agent->waitAfterNoProposal();;
+            }
+            catch (ExitRequestedException &) {
                 break;
             } catch (ConnectionRefusedException &e) {
                 _agent->logConnectionRefused(e, _dstIndex, __PRETTY_FUNCTION__);

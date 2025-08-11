@@ -122,5 +122,7 @@ public:
 
     void waitAfterNetworkError();
 
+    void waitAfterNoProposal();
+
     bool checkIfEverythingDownloadedAndNotifyWaitingThreads();
 };
