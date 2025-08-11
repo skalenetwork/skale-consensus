@@ -53,6 +53,8 @@ private:
 
     recursive_mutex m;
 
+    std::atomic<uint64_t> fragmentDownloadCounter = 0;
+
 #ifdef BITE
     // we already have the proposal, all we need is threshold decryptions
     bool needFragmentData;

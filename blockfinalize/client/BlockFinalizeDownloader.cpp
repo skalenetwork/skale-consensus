@@ -102,6 +102,14 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
     schain_index _dstIndex, fragment_index _fragmentIndex) {
     LOG(debug, "BLCK_FRG_DWNLD:" << to_string( _fragmentIndex ) << ":" << to_string( _dstIndex ));
 
+    fragmentDownloadCounter++;
+
+    if (fragmentDownloadCounter > getSchain()->getNodeCount() * 4) {
+        // something is wrong, we are trying to download too many times
+        LOG(err, "Fragment download got into infinite loop");
+    }
+
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
 
