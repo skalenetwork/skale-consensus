@@ -129,6 +129,11 @@ void BlockProposalFragmentList::checkSanity() {
     CHECK_STATE( fragments.size() <= totalFragments );
 }
 
+uint64_t BlockProposalFragmentList::fragmentCount() {
+    LOCK( m )
+    CHECK_STATE( fragments.size());
+}
+
 bool BlockProposalFragmentList::isComplete() {
     LOCK( m )
 

@@ -72,6 +72,9 @@ public:
 
     bool isComplete();
 
+
+    uint64_t fragmentCount();
+
     const ptr< vector< uint8_t > > serialize();
 };
 
