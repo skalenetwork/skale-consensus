@@ -364,7 +364,11 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     return fragment;
 }
 
-bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t _nextFragmentToDownload) {
+bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t
+#ifdef BITE
+            _nextFragmentToDownload
+#endif
+) {
     if (downloadCompleted) {
         // we already completed the download and notified waiting threads
         return true;

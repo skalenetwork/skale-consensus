@@ -57,9 +57,9 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(
 }
 
 SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(
-    Schain& _sChain, const ptr< DAProof >& _proof, block_id _blockId,
+    Schain& _sChain, const ptr< DAProof >& _proof, block_id _blockId
 #ifdef BITE
-    epoch_id _epochId
+    , epoch_id _epochId
 #endif
     )
     : AbstractBlockRequestHeader( _sChain.getNodeCount(), _sChain.getSchainID(), _blockId,
