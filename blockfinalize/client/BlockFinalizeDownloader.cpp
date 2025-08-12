@@ -96,7 +96,7 @@ nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(
 }
 
 
-uint64_t BlockFinalizeDownloader::downloadFragment(
+void BlockFinalizeDownloader::downloadFragment(
     schain_index _dstIndex, fragment_index _fragmentIndex) {
     CHECK_STATE(_fragmentIndex > 0);
 
@@ -212,7 +212,7 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
 
 
     if (!needFragmentData) {
-        return 0;
+        return;
     }
 
 #endif
@@ -221,7 +221,6 @@ uint64_t BlockFinalizeDownloader::downloadFragment(
 
     fragmentList.addFragment(blockFragment, next);
 
-    return next;
 }
 
 uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeader) {
@@ -356,13 +355,14 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     return fragment;
 }
 
-bool BlockFinalizeDownloader:: exitDownloadLoop() {
+bool BlockFinalizeDownloader:: exitDownloadLoop(uint64_t _nextFragmentToDownload) {
     if (downloadCompleted) {
         // we already completed the download and notified waiting threads
         return true;
     }
 
     if (completeAndNeedToExitAllThreads()) {
+        // the downloader has completed its
         if (!downloadCompleted.exchange(true)) {
             downLoadCompletedBaton.post();
         }
@@ -370,13 +370,10 @@ bool BlockFinalizeDownloader:: exitDownloadLoop() {
     };
 
 #ifdef BITE
-    // if the da and all fragments are downloaded
-    // and the decryption share for this destination
-    // is downloaded, but there is still not enough decryption shares
-    // we exit the loop but do not mark the download as completed
-    // since other threads still need to download their decryption shares
-    if (fragmentList.isComplete()  && daSig && getNode()->getTEDecryptionDB()->haveDecryptionShares(
-            blockId, proposerIndex)) {
+    // if this thread has no more work  but the the downloader completed its work
+    // it means that other threads are still downloading their decryption shares
+    // exit this thread without signalling that the download is completed
+    if (_nextFragmentToDownload == 0) {
         return true;
     }
 #endif
@@ -413,60 +410,71 @@ void BlockFinalizeDownloader::waitAfterNoProposal() {
 }
 
 
+uint64_t BlockFinalizeDownloader::nextFragmentToDownload() {
+#ifdef BITE
+    if (!needFragmentData)
+        return 0;
+#endif
+    return fragmentList.nextIndexToRetrieve();
+}
+
+
+uint64_t BlockFinalizeDownloader::computeFirstFragmentToDowload(schain_index _dstIndex, schain_index _mySchainIndex) {
+    // since the node does not download from itself
+    // and since the number of fragment is one less the number of
+    // nodes, nodes that have sChainIndex more than current node, download _dstNodeIndex - 1
+    // fragment
+    if (_dstIndex > (uint64_t) _mySchainIndex) {
+        return (uint64_t) _dstIndex - 1;
+    } else {
+        return (uint64_t) _dstIndex;
+    }
+}
+
 void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     BlockFinalizeDownloader *_agent, schain_index _dstIndex) {
     CHECK_STATE(_agent)
-
 
     auto sChain = _agent->getSchain();
     auto node = sChain->getNode();
     auto proposalDB = node->getBlockProposalDB();
     auto daProofDB = node->getDaProofDB();
-
-    auto sChainIndex = sChain->getSchainIndex();
+    auto mySchainIndex = sChain->getSchainIndex();
 
 
     setThreadName("BlckFinLoop", node->getConsensusEngine());
 
     node->waitOnGlobalClientStartBarrier();
 
-    // since the node does not download from itself
-    // and since the number of fragment is one less the number of
-    // nodes, nodes that have sChainIndex more than current node, download _dstNodeIndex - 1
-    // fragment
+    auto fragmentToDownload = computeFirstFragmentToDowload(_dstIndex, mySchainIndex);
 
-    uint64_t nextFragment;
-
-    if (_dstIndex > (uint64_t) sChainIndex) {
-        nextFragment = (uint64_t) _dstIndex - 1;
-    } else {
-        nextFragment = (uint64_t) _dstIndex;
-    }
-
-    // we keep running until we have everything
+    // we keep running the download loop until everything has been downloaded
     do  {
         // if testFinalizationDownloadOnly is set to true we do full finalization
         try {
-            cerr << "Try" << nextFragment << endl;
-            nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
-            nextFragment = _agent->needFragmentData? 0 : _agent->fragmentList.nextIndexToRetrieve();
+            _agent->downloadFragment(_dstIndex, fragmentToDownload);
+            // we successfully downloaded the fragment
+            // find out the next fragment to download
+            fragmentToDownload = _agent->nextFragmentToDownload();
         } catch (DoNotHaveProposalYetException &) {
             // this is ok, we just do not have proposal yet on this destionation node
             // we keep trying to download the fragment until the node has the proposal
             _agent->waitAfterNoProposal();;
         } catch (ExitRequestedException &) {
         } catch (ConnectionRefusedException &e) {
+            // the node may be down. We will wait a little and try again
             _agent->logConnectionRefused(e, _dstIndex, __PRETTY_FUNCTION__);
             _agent->waitAfterNetworkError();
         } catch (exception &e) {
             LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
+            // some unexpected error occured. We will wait a little and try again
             SkaleException::logNested(e);
             _agent->waitAfterNetworkError();
         } catch (...) {
             LOG(err, "Unknown error downloading fragment from:" + to_string(_dstIndex));
             _agent->waitAfterNetworkError();
         }
-    } while (!_agent->exitDownloadLoop());
+    } while (!_agent->exitDownloadLoop(fragmentToDownload));
 }
 
 void BlockFinalizeDownloader::joinAllThreads() {

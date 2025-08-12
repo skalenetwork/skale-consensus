@@ -76,7 +76,7 @@ public:
 
     ~BlockFinalizeDownloader() override;
 
-    uint64_t downloadFragment( schain_index _dstIndex, fragment_index _fragmentIndex );
+    void downloadFragment( schain_index _dstIndex, fragment_index _fragmentIndex );
 
 
     static void workerThreadFragmentDownloadLoop(
@@ -120,10 +120,13 @@ public:
     bool needDecryptionShares(schain_index _decryptorIndex);
 #endif
 
-    bool exitDownloadLoop();
+    bool exitDownloadLoop(uint64_t _nextFragmentToDownload);
 
     void waitAfterNetworkError();
 
     void waitAfterNoProposal();
 
+    uint64_t nextFragmentToDownload();
+
+    static uint64_t computeFirstFragmentToDowload(schain_index _dstIndex, schain_index _mySchainIndex);
 };
