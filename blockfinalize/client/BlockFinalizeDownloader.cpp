@@ -444,13 +444,13 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     }
 
     // we keep running until we have everything
-    while (!_agent->exitDownloadLoop()) {
+    do  {
         // if testFinalizationDownloadOnly is set to true we do full finalization
         try {
             cerr << "Try" << nextFragment << endl;
             if (nextFragment == 0) {
+                cerr << "In 0" << endl;
                 // we do not download fragment 0, it is always empty
-                nextFragment = 1;
                 usleep(100 * 1000); // wait 100 ms
             } else {
                 nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
@@ -471,7 +471,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
             LOG(err, "Unknown error downloading fragment from:" + to_string(_dstIndex));
             _agent->waitAfterNetworkError();
         }
-    }
+    } while (!_agent->exitDownloadLoop());
 }
 
 void BlockFinalizeDownloader::joinAllThreads() {
