@@ -11,7 +11,7 @@ class BiteDataField {
     std::shared_ptr<EncryptedData> keyPlusEncryptedData;
     std::atomic_uint64_t epoch = 0;
     ptr<vector<uint8_t >> serializedData;
-    explicit BiteDataField( const shared_ptr< vector< std::uint8_t > >& data, u256 _currentEpochId);
+    explicit BiteDataField( const shared_ptr< vector< std::uint8_t > >& data, epoch_id _currentEpochId);
 
 public:
     BiteDataField( const shared_ptr< EncryptedData >& _encryptedKeyPlusData, uint64_t _epoch);
@@ -23,5 +23,5 @@ public:
 
     [[nodiscard]] static ptr<BiteDataField> createIfMagicMatches(ptr<vector<uint8_t >>& _data,
                                                                  ptr<vector<uint8_t>>& _to,
-                                                                 u256 _currentEpochId);
+                                                                 epoch_id _currentEpochId);
 };

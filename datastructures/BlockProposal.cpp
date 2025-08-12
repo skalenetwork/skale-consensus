@@ -176,6 +176,12 @@ block_id BlockProposal::getBlockID() const {
     return blockID;
 }
 
+#ifdef BITE
+epoch_id BlockProposal::getEpochID() const {
+    return epochID;
+}
+#endif
+
 
 schain_index BlockProposal::getProposerIndex() const {
     return proposerIndex;

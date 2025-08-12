@@ -77,6 +77,9 @@ protected:
     schain_id schainID = 0;
     node_id proposerNodeID = 0;
     block_id blockID = 0;
+#ifdef BITE
+    epoch_id epochID = 0;
+#endif
     schain_index proposerIndex = 0;
     transaction_count transactionCount = 0;
     uint64_t timeStamp = 0;
@@ -151,6 +154,10 @@ public:
     ptr<TransactionList> getTransactionList();
 
     [[nodiscard]] block_id getBlockID() const;
+
+#ifdef BITE
+    [[nodiscard]] epoch_id getEpochID() const;
+#endif
 
     ~BlockProposal() override;
 
