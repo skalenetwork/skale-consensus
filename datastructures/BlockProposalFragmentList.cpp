@@ -73,7 +73,7 @@ uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
 }
 
 bool BlockProposalFragmentList::addFragment(
-    const ptr< BlockProposalFragment >& _fragment, uint64_t& nextIndex ) {
+    const ptr< BlockProposalFragment >& _fragment) {
     CHECK_ARGUMENT( _fragment );
     CHECK_ARGUMENT( _fragment->getBlockId() == blockID );
     CHECK_ARGUMENT( _fragment->getIndex() > 0 )
@@ -90,8 +90,6 @@ bool BlockProposalFragmentList::addFragment(
     }
 
     checkSanity();
-
-    nextIndex = 0;
 
     if ( fragments.find( _fragment->getIndex() ) == fragments.end() ) {
 #ifdef BITE
@@ -114,11 +112,6 @@ bool BlockProposalFragmentList::addFragment(
     }
 
     CHECK_STATE( missingFragments.size() > 0 );
-
-
-    nextIndex = nextIndexToRetrieve();
-
-    CHECK_STATE( nextIndex > 0 );
 
     return true;
 }

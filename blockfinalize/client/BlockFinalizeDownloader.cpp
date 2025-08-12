@@ -217,10 +217,7 @@ void BlockFinalizeDownloader::downloadFragment(
 
 #endif
 
-    uint64_t next = 0;
-
-    fragmentList.addFragment(blockFragment, next);
-
+    fragmentList.addFragment(blockFragment);
 }
 
 uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeader) {

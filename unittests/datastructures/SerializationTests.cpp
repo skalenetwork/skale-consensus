@@ -89,7 +89,8 @@ void test_committed_block_fragment_defragment( bool _fail ) {
 #ifdef BITE
                                    , 1, nullptr
 #endif
-                                   ), next );
+                                   ));
+            next = list->nextIndexToRetrieve();
             REQUIRE( next != 0 );
         }
 
@@ -98,7 +99,8 @@ void test_committed_block_fragment_defragment( bool _fail ) {
 #ifdef BITE
                                , 1, nullptr
 #endif
-                               ), next );
+                               ) );
+        next = list->nextIndexToRetrieve();
         REQUIRE( next == 0 );
 
         REQUIRE( list->isComplete() );
