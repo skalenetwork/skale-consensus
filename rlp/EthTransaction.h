@@ -131,8 +131,11 @@ struct EthTransaction {
     
     /**
      * @brief Signs a transaction, returning the resulting signature.
+     * @note Should only be used for testing purposes. In real workloads,
+     * the transaction should be signed by the client. And consensus only needs
+     * to parse / decode the transaction.
      */
-    Signature sign(std::vector< uint8_t > privateKey) const;
+    Signature sign(const std::vector< uint8_t >& privateKey) const;
 
     /**
      * @brief Encodes the EthTransaction into RLP format.
@@ -183,12 +186,15 @@ protected:
      */
     virtual RLPStream encode() const = 0;
 
+    virtual u256 recoverSignatureV(const Signature& sig) const = 0;
+
+    // --------------------------- Test Related Functions ---------------------------------//
+
     /**
-     * @brief Signs the transaction using type-specific logic of either LegacyTx, Type1Tx or Type2Tx.
+     * @brief Computes V value of signature using type-specific logic of either LegacyTx, Type1Tx or Type2Tx.
+     * @note Should only be used for testing purposes.
      */
     virtual u256 computeSignatureV(int rec_id) const = 0;
-
-    virtual u256 recoverSignatureV(const Signature& sig) const = 0;
     
     // Allow accessing the rlpEncoding functions from Transaction
     friend struct AccessTuple;
@@ -239,6 +245,10 @@ struct AccessTuple {
     std::vector<std::vector<uint8_t>> storageKeys; // 32-byte keys
 
     std::vector< uint8_t > encode() const;
+
+    bool operator==(const AccessTuple& other) const {
+        return address == other.address && storageKeys == other.storageKeys;
+    }
 };
 
 /**

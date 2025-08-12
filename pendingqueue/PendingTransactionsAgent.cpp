@@ -185,7 +185,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 #ifdef BITE
         try {
             pt->parseAndValidate();
-            pt->tryGetBiteData();
+            pt->tryGetBiteData(sChain->getNode()->getCurrentEpochId());
             result->push_back(pt);
             pushKnownTransaction(pt);
         } catch (std::exception &e) {

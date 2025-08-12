@@ -31,7 +31,7 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 
 
 void BiteManager::parseBITETransactions(
-        ptr<BlockProposal> _proposal) {
+    ptr<BlockProposal> _proposal, u256 _currentEpochId) {
     // do simple parsing and validation of BITE format
     // unparsable transactions will be added to failedTransactions
     // transactions starting from the magic number but with incorrect format will be added
@@ -45,7 +45,7 @@ void BiteManager::parseBITETransactions(
     for (auto &tx: *_proposal->getTransactionList()->getItems()) {
         try {
             tx->parseAndValidate();
-            auto biteDataField = tx->tryGetBiteData();
+            auto biteDataField = tx->tryGetBiteData(_currentEpochId);
             if (biteDataField) {
                 biteDataFields->emplace(index, biteDataField);
                 encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
@@ -86,8 +86,16 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
         return;
     }
 
+    auto transactions = _proposal->getTransactionList()->getItems();
 
-    CHECK_STATE(_proposal->getTransactionList()->getItems());
+    CHECK_STATE(transactions);
+
+
+    parseBITETransactions(_proposal, getSchain()->getNode()->getCurrentEpochId());
+
+    if (!_proposal->getFailedTransactionsRef().empty()) {
+        return _proposal->getFailedTransactionsRef();
+    }
 
     CHECK_STATE(_proposal->getBiteDataFields());
 
@@ -235,7 +243,7 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
         for (uint64_t i = 0; i < _transactionList.size(); i++) {
             auto tx = txs->at(i);
             tx->parseAndValidate();
-            auto bite = tx->tryGetBiteData();
+            auto bite = tx->tryGetBiteData(schain.getNode()->getCurrentEpochId());
             if (bite) {
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);

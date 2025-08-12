@@ -604,6 +604,8 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _proposedBlockID, getSchainIndex());
+            // getBlockProposal() already calls for verifyAndCreateMyDecryptionSharesForProposalTransactions
+            // no need to call it twice
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();
             myProposal = pendingTransactionsAgent->buildBlockProposal(

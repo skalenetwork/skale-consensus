@@ -121,7 +121,7 @@ std::array< uint8_t, 32 > EthTransaction::hash() const {
     return hash;
 }
 
-Signature EthTransaction::sign(std::vector< uint8_t > privateKey) const {
+Signature EthTransaction::sign(const std::vector< uint8_t >& privateKey) const {
     
     auto txHash = hash();
 
@@ -228,10 +228,12 @@ u256 LegacyTx::recoverSignatureV(const Signature &sig) const {
         return 0;
     }
     else {
-        CHECK_STATE2(sig.v > 36 || ( sig.v == 27 || sig.v == 28 ),
-        "Invalid signature. Expected <= 36 or 27 or 28, got: " + sig.v.str());
 
         u256 recoveryId;
+
+        CHECK_STATE2(sig.v > 36 || ( sig.v == 27 || sig.v == 28 ),
+        "Invalid signature. Expected > 36 or 27 or 28, got: " + sig.v.str());
+
         if ( sig.v == 27 || sig.v == 28 )
             recoveryId = sig.v - 27;
         else {
@@ -239,7 +241,8 @@ u256 LegacyTx::recoverSignatureV(const Signature &sig) const {
             CHECK_STATE2( chain <= std::numeric_limits< uint64_t >::max(),
             "Invalid signature: Legacy Tx chainID overflow" );
             recoveryId = sig.v - ( chain * 2 + 35 );
-        }  
+        }
+
         return recoveryId;
     }
 }

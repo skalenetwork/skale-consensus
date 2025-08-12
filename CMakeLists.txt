@@ -211,7 +211,7 @@ if (NOT CMAKE_PROJECT_NAME STREQUAL "consensus" AND NOT DEFINED BITE)
     include_directories(${PARENT_BINARY_DIR}/deps/include)
 endif ()
 
-set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options boost_context)
+set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options boost_context )
 
 set(DASH_D_SUFFIX "")
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
