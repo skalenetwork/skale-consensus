@@ -235,7 +235,11 @@ class Schain : public Agent {
 
     void pushBlockToExtFace( const ptr< CommittedBlock >& _block );
 
-    ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );
+    ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId
+#ifdef BITE
+    , epoch_id _epochID
+#endif
+    );
 
     static ptr< ofstream > getVisualizationDataStream();
 

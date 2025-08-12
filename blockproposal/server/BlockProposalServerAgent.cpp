@@ -411,6 +411,9 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
     ptr<Header> finalResponseHeader = nullptr;
 
     auto proposal = make_shared<ReceivedBlockProposal>(*sChain, requestHeader->getBlockId(),
+#ifdef BITE
+        requestHeader->getEpochId(),
+#endif
                                                        requestHeader->getProposerIndex(), transactionList,
                                                        requestHeader->getStateRoot(),
                                                        requestHeader->getTimeStamp(), requestHeader->getTimeStampMs(),

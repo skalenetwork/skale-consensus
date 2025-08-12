@@ -71,7 +71,11 @@ private:
 protected:
 
     CommittedBlock( const schain_id& _schainId, const node_id& _proposerNodeId,
-        const block_id& _blockId, const schain_index& _proposerIndex,
+        const block_id& _blockId,
+#ifdef BITE
+    const epoch_id& _epochID,
+#endif
+        const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& _stateRoot, uint64_t _timeStamp,
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
         const string& _daSig
@@ -97,7 +101,11 @@ public:
         );
 
     static ptr< CommittedBlock > make( schain_id _sChainId, node_id _proposerNodeId,
-        block_id _blockId, schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
+        block_id _blockId,
+#ifdef BITE
+        epoch_id _epochID,
+#endif
+        schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
         const string& _signature, const string& _thresholdSig, const string& _daSig
 #ifdef  BITE

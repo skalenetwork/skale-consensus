@@ -62,9 +62,16 @@
 
 
 BlockFinalizeDownloader::BlockFinalizeDownloader(
-    Schain *_sChain, block_id _blockId, schain_index _proposerIndex)
+    Schain *_sChain, block_id _blockId,
+#ifdef  BITE
+    epoch_id _epochId,
+#endif
+    schain_index _proposerIndex)
     : Agent(*_sChain, false, true),
       blockId(_blockId),
+#ifdef  BITE
+      epochId(_epochId),
+#endif
       proposerIndex(_proposerIndex),
       fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
 #ifdef BITE
@@ -114,7 +121,12 @@ void BlockFinalizeDownloader::downloadFragment(
 
 
     auto header = make_shared<BlockFinalizeRequestHeader>(
-        *sChain, blockId, proposerIndex, this->getNode()->getNodeID(), _fragmentIndex
+        *sChain, blockId,
+#ifdef BITE
+        epochId,
+#endif
+
+        proposerIndex, this->getNode()->getNodeID(), _fragmentIndex
 #ifdef BITE
         , needDAProof()
         , needDecryptionShares(_dstIndex)
@@ -352,7 +364,7 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
     return fragment;
 }
 
-bool BlockFinalizeDownloader:: exitDownloadLoop(uint64_t _nextFragmentToDownload) {
+bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t _nextFragmentToDownload) {
     if (downloadCompleted) {
         // we already completed the download and notified waiting threads
         return true;
@@ -446,7 +458,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     auto fragmentToDownload = computeFirstFragmentToDowload(_dstIndex, mySchainIndex);
 
     // we keep running the download loop until everything has been downloaded
-    do  {
+    do {
         // if testFinalizationDownloadOnly is set to true we do full finalization
         try {
             _agent->downloadFragment(_dstIndex, fragmentToDownload);

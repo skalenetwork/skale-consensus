@@ -46,6 +46,9 @@ using namespace std;
 
 
 BlockFinalizeRequestHeader::BlockFinalizeRequestHeader( Schain& _sChain, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
     schain_index _proposerIndex, node_id _nodeID, fragment_index _fragmentIndex
 #ifdef BITE
     , bool _needDAProofSig
@@ -54,6 +57,10 @@ BlockFinalizeRequestHeader::BlockFinalizeRequestHeader( Schain& _sChain, block_i
 #endif
     )
     : AbstractBlockRequestHeader( _sChain.getNodeCount(), _sChain.getSchainID(), _blockID,
+#ifdef BITE
+        _epochID,
+#endif
+
           Header::BLOCK_FINALIZE_REQ, _proposerIndex )
 #ifdef BITE
         , needDAProofSig(_needDAProofSig)

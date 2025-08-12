@@ -67,7 +67,12 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
     }
 
     return CommittedBlock::make(_proposal->getSchainID(), _proposal->getProposerNodeID(),
-                                _proposal->getBlockID(), _proposal->getProposerIndex(), _proposal->getTransactionList(),
+                                _proposal->getBlockID(),
+#ifdef BITE
+                                _proposal->getEpochID(),
+#endif
+
+                                _proposal->getProposerIndex(), _proposal->getTransactionList(),
                                 _proposal->getStateRoot(), _proposal->getTimeStampS(), _proposal->getTimeStampMs(),
                                 _proposal->getSignature(), _thresholdSig->toString(), daSig
 #ifdef  BITE
@@ -78,6 +83,9 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
 
 ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
                                          const node_id _proposerNodeId, const block_id _blockId,
+#ifdef BITE
+                                         const epoch_id _epochId,
+#endif
                                          schain_index _proposerIndex,
                                          const ptr<TransactionList> &_transactions, const u256 &_stateRoot,
                                          uint64_t _timeStamp,
@@ -98,7 +106,11 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
 #endif
 
 
-    return ptr<CommittedBlock>(new CommittedBlock(_sChainId, _proposerNodeId, _blockId, _proposerIndex,
+    return ptr<CommittedBlock>(new CommittedBlock(_sChainId, _proposerNodeId, _blockId,
+#ifdef BITE
+                                                  _epochId,
+#endif
+    _proposerIndex,
                                                   _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature,
                                                   _thresholdSig, _daSig
 
@@ -134,10 +146,19 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
 
 
     auto p = BlockProposal::makeFromSerialized(
-        1, 1, _blockID, 1, list, stateRoot, MODERN_TIME + 1, 1, nullptr, _manager);
+        1, 1, _blockID,
+#ifdef BITE
+        0,
+#endif
+        1, list, stateRoot, MODERN_TIME + 1, 1, nullptr, _manager);
 
 
     return CommittedBlock::make(p->getSchainID(), p->getProposerNodeID(), p->getBlockID(),
+
+#ifdef BITE
+                                p->getEpochID(),
+#endif
+
                                 p->getProposerIndex(), p->getTransactionList(), p->getStateRoot(), p->getTimeStampS(),
                                 p->getTimeStampMs(), p->getSignature(), "EMPTY", "EMPTY"
 #ifdef BITE
@@ -212,7 +233,11 @@ ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_se
 
     try {
         block = CommittedBlock::make(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
-                                     blockHeader->getBlockID(), blockHeader->getProposerIndex(), list,
+                                     blockHeader->getBlockID(),
+#ifdef BITE
+                                     blockHeader->getEpochID(),
+#endif
+                                     blockHeader->getProposerIndex(), list,
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
@@ -278,7 +303,11 @@ ptr<CommittedBlockHeader> CommittedBlock::parseBlockHeader(const string_view &_h
 
 
 CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_proposerNodeId,
-                               const block_id &_blockId, const schain_index &_proposerIndex,
+                               const block_id &_blockId,
+#ifdef BITE
+    const epoch_id& _epochID,
+#endif
+                               const schain_index &_proposerIndex,
                                const ptr<TransactionList> &_transactions, const u256 &stateRoot, uint64_t timeStamp,
                                __uint32_t timeStampMs, const string &_signature, const string &_thresholdSig,
                                const string &_daSig
@@ -286,7 +315,11 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
                                , ptr<DecryptedAESKeyList> _aesKeyList, ptr<DecryptedTransactionFieldsMap> _decryptedTransactionFields
 #endif
 )
-    : BlockProposal(_schainId, _proposerNodeId, _blockId, _proposerIndex, _transactions, stateRoot,
+    : BlockProposal(_schainId, _proposerNodeId, _blockId,
+#ifdef BITE
+    _epochID,
+#endif
+    _proposerIndex, _transactions, stateRoot,
                     timeStamp, timeStampMs, _signature, nullptr) {
     CHECK_ARGUMENT(_transactions);
     CHECK_ARGUMENT(!_signature.empty());

@@ -43,6 +43,10 @@ class ThresholdSignature;
 class BlockFinalizeDownloader : public Agent {
     block_id blockId = 0;
 
+#ifdef  BITE
+    epoch_id epochId = 0;
+#endif
+
     schain_index proposerIndex = 0;
 
     BlockProposalFragmentList fragmentList;
@@ -72,7 +76,11 @@ public:
 
     ptr< BlockFinalizeDownloaderThreadPool > threadPool = nullptr;
 
-    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex);
+    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId,
+#ifdef  BITE
+    epoch_id _epochId,
+#endif
+    schain_index _proposerIndex);
 
     ~BlockFinalizeDownloader() override;
 

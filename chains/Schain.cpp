@@ -550,7 +550,11 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
             committedProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _committedBlockID, _proposerIndex);
         } else {
-            committedProposal = createDefaultEmptyBlockProposal(_committedBlockID);
+            committedProposal = createDefaultEmptyBlockProposal(_committedBlockID
+#ifdef BITE
+             , getNode()->getCurrentEpochId()
+#endif
+            );
         }
 
         CHECK_STATE(committedProposal);
@@ -1355,14 +1359,22 @@ void Schain::constructServers(const ptr<Sockets> &_sockets) {
             make_shared<BlockProposalServerAgent>(*this, _sockets->blockProposalSocket);
 }
 
-ptr<BlockProposal> Schain::createDefaultEmptyBlockProposal(block_id _blockId) {
+ptr<BlockProposal> Schain::createDefaultEmptyBlockProposal(block_id _blockId
+#ifdef BITE
+    , epoch_id _epochID
+#endif
+) {
     TimeStamp newStamp; {
         lock_guard<mutex> l(lastCommittedBlockInfoMutex);
         newStamp = lastCommittedBlockTimeStamp.incrementByMs();
     }
 
     return make_shared<ReceivedBlockProposal>(
-        *this, _blockId, newStamp.getS(), newStamp.getMs(), 0);
+        *this, _blockId,
+#ifdef BITE
+        _epochID,
+#endif
+        newStamp.getS(), newStamp.getMs(), 0);
 }
 
 
@@ -1445,7 +1457,12 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // Dowload missing objects - proposal, daProof, and decryption shares
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posSess the proposal
-            downloaderAgent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex); {
+            downloaderAgent = make_unique<BlockFinalizeDownloader>(this, _blockId,
+#ifdef BITE
+            getNode()->getCurrentEpochId(),
+#endif
+
+            _proposerIndex); {
                 const string msg = "Finalization download:" + to_string(_blockId) + ":" +
                                    to_string(_proposerIndex);
 

@@ -57,6 +57,13 @@ block_id DAProof::getBlockId() const {
     return blockID;
 }
 
+#ifdef BITE
+epoch_id DAProof::getEpochId() const {
+    return epochID;
+}
+#endif
+
+
 schain_index DAProof::getProposerIndex() const {
     return proposerIndex;
 }

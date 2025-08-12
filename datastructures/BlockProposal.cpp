@@ -105,12 +105,18 @@ BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs)
 };
 
 BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
                              schain_index _proposerIndex, const ptr<TransactionList> &_transactions, u256 _stateRoot,
                              uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
                              const ptr<CryptoManager> &_cryptoManager)
     : schainID(_sChainId),
       proposerNodeID(_proposerNodeId),
       blockID(_blockID),
+#ifdef BITE
+      epochID(_epochID),
+#endif
       proposerIndex(_proposerIndex),
       timeStamp(_timeStamp),
       timeStampMs(_timeStampMs),
@@ -365,7 +371,12 @@ ptr<BlockProposal> BlockProposal::deserialize(
 
     auto proposal =
             BlockProposal::makeFromSerialized(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
-                                              blockHeader->getBlockID(), blockHeader->getProposerIndex(), list,
+                                              blockHeader->getBlockID(),
+#ifdef BITE
+                                              blockHeader->getEpochID(),
+#endif
+
+                                              blockHeader->getProposerIndex(), list,
                                               blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                               blockHeader->getTimeStampMs(),
                                               blockHeader->getSignature(), nullptr);
@@ -555,13 +566,22 @@ uint64_t BlockProposal::getTotalObjects() {
 }
 
 ptr<BlockProposal> BlockProposal::makeFromSerialized(schain_id _sChainId, node_id _proposerNodeId,
-                                                     block_id _blockID, schain_index _proposerIndex,
+                                                     block_id _blockID,
+#ifdef BITE
+                                                        epoch_id _epochID,
+#endif
+
+                                                     schain_index _proposerIndex,
                                                      const ptr<TransactionList> &_transactions,
                                                      u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs,
                                                      const string &_signature,
                                                      const ptr<CryptoManager> &_cryptoManager) {
     return ptr<BlockProposal>(
-        new BlockProposal(_sChainId, _proposerNodeId, _blockID, _proposerIndex, _transactions,
+        new BlockProposal(_sChainId, _proposerNodeId, _blockID,
+#ifdef BITE
+                          _epochID,
+#endif
+        _proposerIndex, _transactions,
                           _stateRoot, _timeStamp, _timeStampMs, _signature, _cryptoManager));
 }
 

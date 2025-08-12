@@ -42,7 +42,12 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(
     nlohmann::json _proposalRequest, node_count _nodeCount )
     : AbstractBlockRequestHeader( _nodeCount,
           ( schain_id ) Header::getUint64( _proposalRequest, "schainID" ),
-          ( block_id ) Header::getUint64( _proposalRequest, "blockID" ), Header::DA_PROOF_REQ,
+          ( block_id ) Header::getUint64( _proposalRequest, "blockID" ),
+#ifdef BITE
+          ( epoch_id ) Header::getUint64( _proposalRequest, "epochID" ),
+#endif
+
+          Header::DA_PROOF_REQ,
           ( schain_index ) Header::getUint64( _proposalRequest, "proposerIndex" ) ) {
     proposerNodeID = ( node_id ) Header::getUint64( _proposalRequest, "proposerNodeID" );
     thresholdSig = Header::getString( _proposalRequest, "thrSig" );
@@ -52,8 +57,16 @@ SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(
 }
 
 SubmitDAProofRequestHeader::SubmitDAProofRequestHeader(
-    Schain& _sChain, const ptr< DAProof >& _proof, block_id _blockId )
+    Schain& _sChain, const ptr< DAProof >& _proof, block_id _blockId,
+#ifdef BITE
+    epoch_id _epochId
+#endif
+    )
     : AbstractBlockRequestHeader( _sChain.getNodeCount(), _sChain.getSchainID(), _blockId,
+#ifdef BITE
+            _epochId,
+#endif
+
           Header::DA_PROOF_REQ, _sChain.getSchainIndex() ) {
     this->proposerNodeID = _sChain.getNode()->getNodeID();
 
@@ -71,6 +84,9 @@ void SubmitDAProofRequestHeader::addFields( nlohmann::json& _jsonRequest ) {
     _jsonRequest["proposerNodeID"] = ( uint64_t ) proposerNodeID;
     _jsonRequest["proposerIndex"] = ( uint64_t ) proposerIndex;
     _jsonRequest["blockID"] = ( uint64_t ) blockID;
+#ifdef BITE
+    _jsonRequest["epochID"] = ( uint64_t ) epochID;
+#endif
     CHECK_STATE( !thresholdSig.empty() )
     _jsonRequest["thrSig"] = thresholdSig;
     _jsonRequest["hash"] = blockHash;

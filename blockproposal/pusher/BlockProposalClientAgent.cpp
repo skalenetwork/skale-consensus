@@ -131,7 +131,11 @@ ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
     const ptr< BlockProposal >& _proposal, schain_index _index ) {
     if ( ( uint64_t ) _index % 2 == 0 ) {
         auto proposal2 = BlockProposal::makeFromSerialized( _proposal->getSchainID(),
-            _proposal->getProposerNodeID(), _proposal->getBlockID(), _proposal->getProposerIndex(),
+            _proposal->getProposerNodeID(), _proposal->getBlockID(),
+#ifdef BITE
+            _proposal->getEpochID(),
+#endif
+            _proposal->getProposerIndex(),
             make_shared< TransactionList >( make_shared< vector< ptr< Transaction > > >() ),
             _proposal->getStateRoot(), MODERN_TIME + 1, 1, nullptr,
             getSchain()->getCryptoManager() );
@@ -394,7 +398,12 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     CHECK_STATE( _daProof );
 
     auto header =
-        make_shared< SubmitDAProofRequestHeader >( *getSchain(), _daProof, _daProof->getBlockId() );
+        make_shared< SubmitDAProofRequestHeader >( *getSchain(), _daProof, _daProof->getBlockId()
+#ifdef BITE
+        , _daProof->getEpochId()
+#endif
+
+        );
 
     try {
         getSchain()->getIo()->writeHeader( _socket, header );

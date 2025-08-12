@@ -108,6 +108,10 @@ protected:
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
     BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
+#ifdef BITE
+        epoch_id _epochID,
+#endif
+
                   schain_index _proposerIndex, const ptr<TransactionList> &_transactions, u256 _stateRoot,
                   uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
                   const ptr<CryptoManager> &_cryptoManager);
@@ -130,7 +134,12 @@ public:
     void setCachedSerializedProposal(const ptr<vector<uint8_t> > &_cachedSerializedProposal);
 
     static ptr<BlockProposal> makeFromSerialized(schain_id _sChainId, node_id _proposerNodeId,
-                                                 block_id _blockID, schain_index _proposerIndex,
+                                                 block_id _blockID,
+#ifdef BITE
+                                                 epoch_id _epochID,
+#endif
+
+                                                 schain_index _proposerIndex,
                                                  const ptr<TransactionList> &_transactions,
                                                  u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs,
                                                  const string &_signature,

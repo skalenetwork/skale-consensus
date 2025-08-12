@@ -29,10 +29,17 @@
 #include "ReceivedBlockProposal.h"
 
 ReceivedBlockProposal::ReceivedBlockProposal( Schain& _sChain, const block_id& _blockID,
+#ifdef BITE
+    const epoch_id& _epochID,
+#endif
+
     const schain_index& _proposerIndex, const ptr< TransactionList >& _transactions,
     u256 _stateRoot, const uint64_t& _timeStamp, const uint32_t& _timeStampMs,
     const string& _signature )
     : BlockProposal( _sChain.getSchainID(), _sChain.getNodeIDByIndex( _proposerIndex ), _blockID,
+#ifdef BITE
+    _epochID,
+#endif
           _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature,
           nullptr ) {
     CHECK_ARGUMENT( _transactions );
@@ -41,8 +48,15 @@ ReceivedBlockProposal::ReceivedBlockProposal( Schain& _sChain, const block_id& _
 }
 
 ReceivedBlockProposal::ReceivedBlockProposal( Schain& _sChain, const block_id& _blockID,
+#ifdef BITE
+const epoch_id& _epochID,
+#endif
     const uint64_t& _timeStamp, const uint32_t& _timeStampMs, u256 _stateRoot )
-    : BlockProposal( _sChain.getSchainID(), 0, _blockID, 0,
+    : BlockProposal( _sChain.getSchainID(), 0, _blockID,
+#ifdef BITE
+    _epochID,
+#endif
+    0,
           make_shared< TransactionList >( make_shared< vector< ptr< Transaction > > >() ),
           _stateRoot, _timeStamp, _timeStampMs, "EMPTY", ptr< CryptoManager >() ) {
     totalObjects++;
