@@ -448,13 +448,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
         // if testFinalizationDownloadOnly is set to true we do full finalization
         try {
             cerr << "Try" << nextFragment << endl;
-            if (nextFragment == 0) {
-                cerr << "In 0" << endl;
-                // we do not download fragment 0, it is always empty
-                usleep(100 * 1000); // wait 100 ms
-            } else {
-                nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
-            }
+            nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
         } catch (DoNotHaveProposalYetException &) {
             cerr << "No" << nextFragment << endl;
             // this is ok, we just do not have proposal yet
