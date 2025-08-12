@@ -449,9 +449,10 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
         try {
             cerr << "Try" << nextFragment << endl;
             nextFragment = _agent->downloadFragment(_dstIndex, nextFragment);
+            nextFragment = _agent->needFragmentData? 0 : _agent->fragmentList.nextIndexToRetrieve();
         } catch (DoNotHaveProposalYetException &) {
-            cerr << "No" << nextFragment << endl;
-            // this is ok, we just do not have proposal yet
+            // this is ok, we just do not have proposal yet on this destionation node
+            // we keep trying to download the fragment until the node has the proposal
             _agent->waitAfterNoProposal();;
         } catch (ExitRequestedException &) {
         } catch (ConnectionRefusedException &e) {
