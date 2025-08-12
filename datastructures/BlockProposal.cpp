@@ -74,6 +74,12 @@ void BlockProposal::calculateHash() {
     HASH_UPDATE(hasher, proposerNodeID);
     HASH_UPDATE(hasher, schainID);
     HASH_UPDATE(hasher, blockID);
+#ifdef BITE
+    HASH_UPDATE(hasher, epochID);
+#endif
+
+
+
     HASH_UPDATE(hasher, transactionCount);
     HASH_UPDATE(hasher, timeStamp);
     HASH_UPDATE(hasher, timeStampMs);
