@@ -24,6 +24,9 @@
 #include "BLSPublicKey.h"
 #include "db/TEDecryptionDB.h"
 #include "rlp/RLPStream.h"
+#include <future>
+#include <thread>
+#include <mutex>
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
@@ -172,19 +175,19 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime())
 
     if (doRealCrypto) {
-        vector<ptr<string> > publicDecryptionValuesBatch;
-
-        for (uint64_t i = 0; i < _encryptedAESKeys.size(); i++) {
+        vector<ptr<string>> publicDecryptionValuesBatch;
+        publicDecryptionValuesBatch.resize(_encryptedAESKeys.size());
+        
+        std::mutex failedTransactionsMutex;
+        
+        // lambda for processing a single encrypted AES key
+        auto processEncryptedAESKey = [&](size_t i, bool useThreadSafety) {
             try {
                 auto encryptedAESKey = _encryptedAESKeys.at(i);
                 CHECK_STATE(encryptedAESKey)
                 auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
-                auto U = cipheredKey.U;
-                U.to_affine_coordinates();
-                // validate U
-                libBLS::ThresholdUtils::validateG2(U);
-
-                auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(U, libBLS::BASE_HEXA);
+                libBLS::ThresholdEncryption::validateEncryption( cipheredKey );
+                auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(cipheredKey.U, libBLS::BASE_HEXA);
 
                 // convert to string
                 auto publicDecryptionValue = make_shared<string>();
@@ -192,11 +195,49 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
                     publicDecryptionValue->append(str);
                 }
 
-                publicDecryptionValuesBatch.push_back(publicDecryptionValue);
+                publicDecryptionValuesBatch[i] = publicDecryptionValue;
             } catch (exception &_e) {
                 LOG(err, fmt::format( "Could not validate transaction: {} : {}" , i, _e.what()));
-                _failedTransactions.emplace(i,
-                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+                if (useThreadSafety) {
+                    lock_guard<mutex> lock(failedTransactionsMutex);
+                    _failedTransactions.emplace(i,
+                                                ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+                } else {
+                    _failedTransactions.emplace(i,
+                                                ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+                }
+            }
+        };
+        
+        if (_encryptedAESKeys.size() < NUM_BITE_VALIDATION_THREADS) {
+            // do sequential processing for small batches
+            for (uint64_t i = 0; i < _encryptedAESKeys.size(); i++) {
+                processEncryptedAESKey(i, false);
+            }
+        } else {
+            std::vector<std::thread> futures;
+            futures.reserve( NUM_BITE_VALIDATION_THREADS );
+
+            const size_t chunkSize = (_encryptedAESKeys.size() + NUM_BITE_VALIDATION_THREADS - 1) /
+                    NUM_BITE_VALIDATION_THREADS;
+            
+            for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
+                size_t startIdx = threadId * chunkSize;
+                size_t endIdx = std::min(startIdx + chunkSize, _encryptedAESKeys.size());
+                
+                if (startIdx >= endIdx)
+                    break;
+                
+                futures.push_back(std::thread( [&]() {
+                    for (size_t i = startIdx; i < endIdx; ++i) {
+                        processEncryptedAESKey(i, true);
+                    }
+                }));
+            }
+            
+            // Wait for all threads to complete
+            for (auto& future : futures) {
+                future.join();
             }
         }
 
@@ -214,6 +255,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
             CHECK_STATE(encryptedAESKey);
             result->push_back(MockupAESKeyDecryptionShare::mockupDecrypt(encryptedAESKey, _decryptorIndex));
         }
+        
         return result;
     }
 }
