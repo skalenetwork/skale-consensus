@@ -21,6 +21,7 @@
     @date 2018-
 */
 
+
 #include "thirdparty/rapidjson/document.h"
 #include "thirdparty/json.hpp"
 #include "thirdparty/rapidjson/prettywriter.h"  // for stringify JSON
@@ -225,6 +226,7 @@ string NetworkMessage::serializeToString() {
     writer.String( "bi" );
     writer.Uint64( ( uint64_t ) blockID );
 #ifdef BITE
+    writer.String( "ei" );
     writer.Uint64( ( uint64_t ) epochID );
 #endif
     writer.String( "bpi" );

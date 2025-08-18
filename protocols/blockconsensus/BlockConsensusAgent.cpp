@@ -186,8 +186,6 @@ void BlockConsensusAgent::propose(
         auto id = ( uint64_t ) msg->getBlockId();
 
         CHECK_STATE( id != 0 );
-        CHECK_STATE( id == _id );
-        CHECK_STATE( msg->getEpochID() == _epochID );
 
         child->processMessage(
             make_shared< InternalMessageEnvelope >( ORIGIN_PARENT, msg, *getSchain() ) );
