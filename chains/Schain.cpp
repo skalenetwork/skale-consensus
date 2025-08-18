@@ -982,7 +982,11 @@ void Schain::startConsensus(
     CHECK_STATE(blockConsensusInstance);
     CHECK_STATE(_proposalVector);
 
-    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, _proposalVector);
+    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID,
+#ifdef BITE
+    getNode()->getCurrentEpochId(),
+#endif
+    _proposalVector);
 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 

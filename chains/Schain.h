@@ -120,7 +120,6 @@ class Schain : public Agent {
     schain_id schainID = 0;
 
 #ifdef BITE
-    epoch_id epochID = 0;
     std::thread blockProcessingThread;
 #endif
 
@@ -358,7 +357,6 @@ public:
     schain_id getSchainID();
 
 #ifdef BITE
-    epoch_id getEpochID();
 
     const shared_ptr< folly::CPUThreadPoolExecutor >& getFinalizationExecutor() const;
 #endif

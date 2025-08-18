@@ -68,12 +68,19 @@ protected:
     string publicKey;
     string pkSig;
 
-    NetworkMessage( MsgType _messageType, block_id _blockID, schain_index _blockProposerIndex,
+    NetworkMessage( MsgType _messageType, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
+    schain_index _blockProposerIndex,
         bin_consensus_round _r, bin_consensus_value _value, uint64_t _timeMs,
         ProtocolInstance& _srcProtocolInstance );
 
 
     NetworkMessage( MsgType _messageType, node_id _srcNodeID, block_id _blockID,
+#ifdef BITE
+        epoch_id _epochID,
+#endif
         schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
         uint64_t _timeMs, schain_id _schainId, msg_id _msgID, const string& _sigShareStr,
         const string& _ecdsaSig, const string& _publicKey, const string& _pkSig,
