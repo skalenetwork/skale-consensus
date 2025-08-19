@@ -105,9 +105,13 @@ bool TEDecryptionDB::haveDecryptionShares(block_id _blockID, schain_index _decry
     CHECK_ARGUMENT(_decryptorIndex > 0);
     CHECK_ARGUMENT(_decryptorIndex <= totalSigners);
 
-    READ_LOCK(decryptionSetsMutex)
+    READ_LOCK(decryptionSetsMutex);
 
-    return decryptionsStore[_blockID].count(_decryptorIndex) > 0;
+    const auto it = decryptionsStore.find(_blockID);
+    if ( it == decryptionsStore.end() )
+        return false;
+
+    return it->second.count(_decryptorIndex) > 0;
 
 };
 
@@ -225,14 +229,25 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
 
 
 bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
-    READ_LOCK(decryptionSetsMutex)
-    return decryptionsStore[_blockID].size() == requiredSigners;
+    READ_LOCK(decryptionSetsMutex);
+    const auto it = decryptionsStore.find(_blockID);
+    if ( it == decryptionsStore.end() )
+        return false;
+    return it->second.size() == requiredSigners;
 };
 
 bool TEDecryptionDB::isEnoughForeignShares(block_id _blockID) {
+    // if required signers < 2, we always have our own share
+    if ( requiredSigners < 2 )
+        return true;
+
     READ_LOCK(decryptionSetsMutex);
 
-    const auto& shares = decryptionsStore[_blockID];
+    const auto it = decryptionsStore.find(_blockID);
+    if ( it == decryptionsStore.end() )
+        return false;
+
+    const auto& shares = it->second;
     bool hasOwnShare = shares.find(sChain->getSchainIndex()) != shares.end();
 
     // if the DB already has the own share, it needs to contain required shares
@@ -243,8 +258,11 @@ bool TEDecryptionDB::isEnoughForeignShares(block_id _blockID) {
 
 
 uint64_t TEDecryptionDB::getDecryptionsCount( block_id _blockID ) {
-    READ_LOCK(decryptionSetsMutex)
-    return decryptionsStore[_blockID].size();
+    READ_LOCK(decryptionSetsMutex);
+    const auto it = decryptionsStore.find(_blockID);
+    if ( it != decryptionsStore.end() )
+        return it->second.size();
+    return 0;
 };
 
 #endif
