@@ -114,7 +114,7 @@ struct EthTransaction {
 
     // we keep cache of last 64 000 recently verified transaction hashes. This amounts to around 1.3MB RAM
     // but guarantees that we do not have to verify signature of the same transaction twice
-    static cache::lru_cache<Key20, bool> verifiedTransactionHashes;
+    static cache::lru_cache<Key20, Signature> verifiedTransactionHashes;
 
 
     EthTransaction(

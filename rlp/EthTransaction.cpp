@@ -165,12 +165,12 @@ void EthTransaction::verifySignature(Signature &sig) const {
 
     auto txHash = hash();
 
+    auto cacheSig = verifiedTransactionHashes.getIfExists(Key20(txHash));
 
-    if (verifiedTransactionHashes.exists(Key20(txHash))) {
-        // we already verified signature for this transaction hash
+    if (cacheSig.has_value() && *cacheSig == sig) {
+        // we already verified signature for this transaction
         return;
     }
-
 
     sig.v = recoverSignatureV(sig);
 
@@ -200,7 +200,7 @@ void EthTransaction::verifySignature(Signature &sig) const {
     CHECK_STATE2(secp256k1_ecdsa_recover(ctx.get(), &pubkey, &signature, txHash.data()),
         "Failed to recover public key from signature");
 
-    verifiedTransactionHashes.putIfDoesNotExist(Key20(txHash), true);
+    verifiedTransactionHashes.putIfDoesNotExist(Key20(txHash), sig);
 }
 
 // -----------------------------------------------------------------------------------
@@ -333,4 +333,4 @@ u256 Type2Tx::computeSignatureV(int rec_id) const {
     return static_cast<u256>(rec_id);
 }
 
-cache::lru_cache<Key20, bool> EthTransaction::verifiedTransactionHashes(VERIFIED_TX_SIGS_CACHE_SIZE);
+cache::lru_cache<Key20, Signature> EthTransaction::verifiedTransactionHashes(VERIFIED_TX_SIGS_CACHE_SIZE);
