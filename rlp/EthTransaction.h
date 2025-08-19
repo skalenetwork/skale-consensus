@@ -58,6 +58,15 @@ struct Signature {
     Signature& operator=(const Signature&) = default;
     Signature& operator=(Signature&&) noexcept = default;
     ~Signature() = default;
+
+    // Equality operators
+    bool operator==(const Signature& other) const noexcept {
+        return v == other.v && r == other.r && s == other.s;
+    }
+
+    bool operator!=(const Signature& other) const noexcept {
+        return !(*this == other);
+    }
 };
 
 struct AccessTuple;
@@ -146,7 +155,7 @@ struct EthTransaction {
      * @brief Verifies the signature of the transaction.
      * Replaces the v field with recovered v value depending on tx type
      */
-    void verifySignature(Signature &signature) const;
+    void  verifySignature(Signature &signature) const;
 
     /**
      * @brief Hashes the transaction using Keccak-256.

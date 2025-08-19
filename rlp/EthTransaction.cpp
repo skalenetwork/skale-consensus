@@ -167,8 +167,13 @@ void EthTransaction::verifySignature(Signature &sig) const {
 
     auto cacheSig = verifiedTransactionHashes.getIfExists(Key20(txHash));
 
-    if (cacheSig.has_value() && *cacheSig == sig) {
-        // we already verified signature for this transaction
+    if (cacheSig.has_value()) {
+        auto cachedSignature = std::any_cast<const Signature&>(cacheSig);
+        if (cachedSignature.r == sig.r &&
+            cachedSignature.s == sig.s) {
+            sig.v = cachedSignature.v;
+            return;
+        }
         return;
     }
 
