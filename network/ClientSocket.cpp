@@ -80,7 +80,11 @@ int ClientSocket::createTCPSocket() {
 
 
     // reuse port as well (Linux only, mostly useful if you're binding to local port)
-    setsockopt(s, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval));
+    if (setsockopt(s, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)) < 0) {
+        close(s);
+        BOOST_THROW_EXCEPTION(
+            FatalError("Could not set SO_REUSEPORT: " + std::string(strerror(errno))));
+    }
 
     // Disable lingering to avoid TIME_WAIT delay
     struct linger ling = {1, 0};  // close() will send RST
