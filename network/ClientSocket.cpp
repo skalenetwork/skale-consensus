@@ -84,7 +84,11 @@ int ClientSocket::createTCPSocket() {
 
     // Disable lingering to avoid TIME_WAIT delay
     struct linger ling = {1, 0};  // close() will send RST
-    setsockopt(s, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling));
+    if (setsockopt(s, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling)) < 0) {
+        close(s);
+        BOOST_THROW_EXCEPTION(
+            FatalError("Could not set SO_LINGER: " + std::string(strerror(errno))));
+    }
 
     int synRetries = 1;
     setsockopt( s, IPPROTO_TCP, TCP_SYNCNT, &synRetries, sizeof( synRetries ) );
