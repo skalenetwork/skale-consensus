@@ -28,7 +28,7 @@
 #include <unordered_set>
 
 #ifdef BITE
-// avoid macro definiton conflicts
+// avoid macro definition conflicts
 #pragma push_macro("CHECK")
 #pragma push_macro("LOG")
 #include <folly/executors/CPUThreadPoolExecutor.h>
