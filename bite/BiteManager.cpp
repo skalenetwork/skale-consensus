@@ -172,6 +172,8 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime())
 
     if (doRealCrypto) {
+        auto validationStartTime = std::chrono::high_resolution_clock::now();
+
         vector<ptr<string> > publicDecryptionValuesBatch;
 
         for (uint64_t i = 0; i < _encryptedAESKeys.size(); i++) {
@@ -205,7 +207,14 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
             return nullptr;
         }
 
-        CHECK_STATE(publicDecryptionValuesBatch.size() == _encryptedAESKeys.size())
+        CHECK_STATE(publicDecryptionValuesBatch.size() == _encryptedAESKeys.size());
+
+        auto validationEndTime = std::chrono::high_resolution_clock::now();
+        auto validationDuration = std::chrono::duration_cast<std::chrono::milliseconds>(validationEndTime - validationStartTime);
+        LOG(info, fmt::format("BITE validation took {} ms for {} encrypted AES keys",
+                              validationDuration.count(),
+                              _encryptedAESKeys.size()));
+
 
         return schain.getCryptoManager()->sgxDecryptAESKeyShareBatch(publicDecryptionValuesBatch);
     } else {
