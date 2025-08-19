@@ -174,7 +174,6 @@ void EthTransaction::verifySignature(Signature &sig) const {
             sig.v = cachedSignature.v;
             return;
         }
-        return;
     }
 
     sig.v = recoverSignatureV(sig);
