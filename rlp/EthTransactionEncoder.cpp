@@ -45,10 +45,10 @@ ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const EthTransa
 
 /// @brief Generates a sample transaction of one of the three types (Legacy, Type1, Type2).
 /// The transaction is signed and encoded. Each time it is called, it rotates through the three types.
-/// @param _isByte Specifies if the transaction data should be BITE encrypted.
+/// @param _isBite Specifies if the transaction data should be BITE encrypted.
 /// @param _biteManager 
 /// @return pointer to RLP-encoded transaction
-ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, ptr<BiteManager> _biteManager ) {
+ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isBite, ptr<BiteManager> _biteManager ) {
     CHECK_STATE(_biteManager)
     static atomic< uint64_t > counter = 0;
     static atomic< uint64_t > nonce = 0;
@@ -117,7 +117,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
     EthTransaction& txRef = *tx;
     txRef.nonce = RLPStream::u256toBytes( static_cast<u256>( currentNonce ) );
 
-    if ( _isByte ) {
+    if ( _isBite ) {
         auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
         BiteDataField biteDataField(encryptedKeyPlusData , 0);
         // set data

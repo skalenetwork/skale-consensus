@@ -27,7 +27,7 @@ public:
     explicit TEDecryptionDB(
         Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-     void addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
+    void addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 
     bool haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex);
 

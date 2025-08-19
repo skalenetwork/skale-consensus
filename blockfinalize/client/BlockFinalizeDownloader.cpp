@@ -464,7 +464,8 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
 }
 
 bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
-    MONITOR(__CLASS_NAME__, __FUNCTION__) {
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+    {
         threadPool = make_shared<BlockFinalizeDownloaderThreadPool>(
             (uint64_t) getSchain()->getNodeCount(), this);
         threadPool->startService();
@@ -491,8 +492,9 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
             proposal = BlockProposal::makeFromNetworkSerialized(
                 fragmentList.serialize(), getSchain()->getCryptoManager());
             CHECK_STATE(proposal)
-            CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex); {
-                LOCK(m)
+            CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex);
+            {
+                LOCK(m);
                 if (!this->blockHash.empty()) {
                     auto h = BLAKE3Hash::fromHex(blockHash);
                     CHECK_STATE2(proposal->getHash().compare( h ) == 0, "Incorrect block hash");

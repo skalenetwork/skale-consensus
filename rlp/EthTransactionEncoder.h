@@ -11,7 +11,7 @@ class BiteManager;
 class EthTransactionEncoder {
 
 public:
-    static std::shared_ptr<std::vector<uint8_t>> generateSampleTx(bool _isByte, ptr<BiteManager> _biteManager);
+    static std::shared_ptr<std::vector<uint8_t>> generateSampleTx(bool _isBite, ptr<BiteManager> _biteManager);
 
     static std::shared_ptr< std::vector< uint8_t > >  rlpEncodeWithoutSig(ParsedEthTransaction& _transaction);
 
