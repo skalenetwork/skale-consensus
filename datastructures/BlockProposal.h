@@ -233,7 +233,7 @@ public:
 
     void setSGXAESKeyBatch(
             ptr<vector<ptr<string>>>  _sgxAESKeyBatch) {
-        CHECK_STATE(!biteDataFields)
+        CHECK_STATE(!sgxAESKeyBatch)
         sgxAESKeyBatch = _sgxAESKeyBatch;
     }
 
