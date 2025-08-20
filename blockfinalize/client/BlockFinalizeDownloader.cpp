@@ -575,6 +575,7 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 }
 
 BlockFinalizeDownloader::~BlockFinalizeDownloader() {
+    joinAllThreads();
 }
 
 block_id BlockFinalizeDownloader::getBlockId() {

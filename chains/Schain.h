@@ -160,6 +160,8 @@ class Schain : public Agent {
 
     ptr<OptimizerAgent> optimizerAgent;
 
+    ptr<BlockFinalizeDownloader> downloaderAgent;
+
     ptr< IO > io;
 
     // not null in regular mode
