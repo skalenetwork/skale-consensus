@@ -240,9 +240,6 @@ public:
 
     [[nodiscard]] ptr<std::map<transaction_index, ptr<BiteDataField> > > getBiteDataFields() const {
         auto result = std::atomic_load(&biteDataFields);
-        if (!result) {
-            cerr << "haha";
-        }
         CHECK_STATE(result);
         return result;
     }
