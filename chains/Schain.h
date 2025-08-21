@@ -150,7 +150,7 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
-#ifndef MIRAGE
+#ifndef FAIR
     ptr< OracleResultAssemblyAgent > oracleResultAssemblyAgent;
 #endif
 
@@ -273,7 +273,7 @@ public:
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
 
-#ifndef MIRAGE
+#ifndef FAIR
     ptr< OracleServerAgent > oracleServer;
     ptr< OracleClient > oracleClient;
 #endif
@@ -351,7 +351,7 @@ public:
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
-#ifndef MIRAGE
+#ifndef FAIR
     ptr< OracleServerAgent > getOracleInstance();
 #endif
 

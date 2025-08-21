@@ -55,7 +55,7 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DBITE=1 -DMIRAGE=1" BUILD_OPTIONS="-- -j4" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DBITE=1 -DFAIR=1" BUILD_OPTIONS="-- -j4" />
     </configurations>
   </component>
   <component name="ChangeListManager">

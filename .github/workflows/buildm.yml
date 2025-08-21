@@ -1,4 +1,4 @@
-name: Build and test skale-consensus Mirage
+name: Build and test skale-consensus Fair
 on: [push]
 jobs:
   build:
@@ -171,9 +171,9 @@ jobs:
         sudo apt-get install -y nettle-dev gnutls-dev
         cd deps && ./build.sh BUILD_LIBSEC256K1=1 && cd ..
 
-    - name: build consensus Mirage
+    - name: build consensus Fair
       run: |
-        cd scripts && ./build.py Debug -buildMIRAGE
+        cd scripts && ./build.py Debug -buildFAIR
     - name: run tests
       run: cd scripts && export CI_BUILD=1 && ./tests.py && cd ..
 

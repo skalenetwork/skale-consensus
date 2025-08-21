@@ -25,7 +25,7 @@
 #include "Log.h"
 
 #include "DynamicPricingStrategy.h"
-#ifdef MIRAGE
+#ifdef FAIR
 #include "ConstantPricingStrategy.h"
 #endif
 #include "ZeroPricingStrategy.h"
@@ -42,7 +42,7 @@
 #include "PricingAgent.h"
 
 PricingAgent::PricingAgent( Schain& _sChain ) : Agent( _sChain, false ) {
-#ifndef MIRAGE
+#ifndef FAIR
     string def( "DYNAMIC" );
 #else
     string def( "CONSTANT" );
@@ -66,7 +66,7 @@ PricingAgent::PricingAgent( Schain& _sChain ) : Agent( _sChain, false ) {
     } else if ( strategy == "ZERO" ) {
         pricingStrategy = make_shared< ZeroPricingStrategy >();
     }
-#ifdef MIRAGE
+#ifdef FAIR
     else if ( strategy == "CONSTANT" ) {
         uint64_t defaultPrice = sChain->getNode()->getConstantGasPrice();
         pricingStrategy = make_shared< ConstantPricingStrategy >( defaultPrice );
@@ -85,7 +85,7 @@ u256 PricingAgent::calculatePrice(
     CHECK_STATE( pricingStrategy );
     try {
         if ( _blockID <= 1 ) {
-#ifndef MIRAGE
+#ifndef FAIR
             price = sChain->getNode()->getParamUint64( "DYNAMIC_PRICING_START_PRICE",
                                                        DEFAULT_MIN_PRICE );
 #else

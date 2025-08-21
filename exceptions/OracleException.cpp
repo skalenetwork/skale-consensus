@@ -22,7 +22,7 @@
 */
 
 
-#ifndef MIRAGE
+#ifndef FAIR
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "OracleException.h"
