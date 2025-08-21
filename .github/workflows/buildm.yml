@@ -1,4 +1,4 @@
-name: Build and test skale-consensus Fair
+name: Build and test skale-consensus FAIR
 on: [push]
 jobs:
   build:
