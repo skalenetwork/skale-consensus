@@ -180,8 +180,6 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
         
         std::mutex failedTransactionsMutex;
 
-        auto validationStartTime = std::chrono::high_resolution_clock::now();
-        
         // lambda for processing a single encrypted AES key
         auto processEncryptedAESKey = [&_encryptedAESKeys, &publicDecryptionValuesBatch, &_failedTransactions, &failedTransactionsMutex](size_t i, bool useThreadSafety) {
             try {
@@ -242,13 +240,6 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
                 future.join();
             }
         }
-
-        auto validationEndTime = std::chrono::high_resolution_clock::now();
-        auto validationDuration = std::chrono::duration_cast<std::chrono::milliseconds>(validationEndTime - validationStartTime);
-        LOG(info, fmt::format("BITE validation took {} ms for {} encrypted AES keys (avg: {:.2f} ms per key)", 
-                              validationDuration.count(), 
-                              _encryptedAESKeys.size(),
-                              static_cast<double>(validationDuration.count()) / _encryptedAESKeys.size()));
 
         if (!_failedTransactions.empty()) {
             // found failed transactions, just return
