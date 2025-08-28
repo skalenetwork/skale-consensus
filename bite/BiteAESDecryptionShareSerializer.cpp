@@ -11,6 +11,10 @@
 #include "BiteAESDecryptionShareSerializer.h"
 
 #include <chains/Schain.h>
+#include <future>
+#include <thread>
+#include <mutex>
+#include <chrono>
 
 
 ptr< std::vector< uint8_t > > BiteAESDecryptionShareSerializer::serialize(
@@ -92,18 +96,116 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
     const flatbuffers::Vector< ::flatbuffers::Offset< skale_fb::DecryptionShare > >*
         _fbDecryptionSharesHandle, ptr<BiteManager> _biteManager) {
     CHECK_STATE(_biteManager)
-    auto shares =
-        make_shared< AESKeyDecryptionShareList >( _blockId, _proposerIndex, _decryptorIndex );
-
-    for ( const auto* fbdecryptionShareHandle : *_fbDecryptionSharesHandle ) {
-        CHECK_STATE( fbdecryptionShareHandle )
-        auto rawData = fbdecryptionShareHandle->data()->data();
-        CHECK_STATE( rawData );
-        string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
-        auto decryptionShare = _biteManager->createAESDecryptionShare(
-            decryptionShareStr, _decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
-        shares->addShare( fbdecryptionShareHandle->transaction_index(), decryptionShare );
+    
+    const size_t numShares = _fbDecryptionSharesHandle->size();
+    auto shares = make_shared< AESKeyDecryptionShareList >( _blockId, _proposerIndex, _decryptorIndex );
+    
+    // Use parallel processing for large numbers of decryption shares
+    const size_t PARALLEL_THRESHOLD = 100; // Process in parallel if more than 100 shares
+    
+    if (numShares <= PARALLEL_THRESHOLD) {
+        // Sequential processing for small numbers of shares
+        for ( const auto* fbdecryptionShareHandle : *_fbDecryptionSharesHandle ) {
+            processSingleDecryptionShare(fbdecryptionShareHandle, _decryptorIndex, _biteManager, shares);
+        }
+    } else {
+        // Parallel processing for large numbers of shares
+        auto processingStartTime = std::chrono::high_resolution_clock::now();
+        
+//        std::mutex sharesMutex;
+        const size_t numThreads = 8;
+        
+        std::vector<std::thread> threads;
+        threads.reserve(numThreads);
+        
+        const size_t chunkSize = (numShares + numThreads - 1) / numThreads;
+        
+        // Thread-local storage for results to minimize lock contention
+        std::vector<std::vector<std::pair<transaction_index, ptr<AESKeyDecryptionShare>>>> threadLocalShares(numThreads);
+        
+        for (size_t threadId = 0; threadId < numThreads; ++threadId) {
+            size_t startIdx = threadId * chunkSize;
+            size_t endIdx = std::min(startIdx + chunkSize, numShares);
+            
+            if (startIdx >= endIdx)
+                break;
+            
+            threads.emplace_back([threadId, startIdx, endIdx, _fbDecryptionSharesHandle, _decryptorIndex,
+                                _biteManager, &threadLocalShares]() {
+                auto threadStartTime = std::chrono::high_resolution_clock::now();
+                size_t processedCount = 0;
+                
+                // Reserve space for this thread's shares
+                threadLocalShares[threadId].reserve(endIdx - startIdx);
+                
+                for (size_t i = startIdx; i < endIdx; ++i) {
+                    try {
+                        const auto* fbdecryptionShareHandle = _fbDecryptionSharesHandle->Get(i);
+                        CHECK_STATE( fbdecryptionShareHandle )
+                        
+                        auto rawData = fbdecryptionShareHandle->data()->data();
+                        CHECK_STATE( rawData );
+                        
+                        string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
+                        auto decryptionShare = _biteManager->createAESDecryptionShare(
+                            decryptionShareStr, _decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
+                        
+                        threadLocalShares[threadId].emplace_back(
+                            fbdecryptionShareHandle->transaction_index(), decryptionShare);
+                        processedCount++;
+                    } catch (const std::exception &e) {
+                        LOG(err, fmt::format("Error processing decryption share {}: {}", i, e.what()));
+                    }
+                }
+                
+                auto threadEndTime = std::chrono::high_resolution_clock::now();
+                auto threadDuration = std::chrono::duration_cast<std::chrono::milliseconds>(threadEndTime - threadStartTime);
+                
+                LOG(info, fmt::format("Decryption share thread {} processed {} shares (indices {}-{}) in {} ms (avg: {:.2f} ms per share)", 
+                                      threadId, 
+                                      processedCount,
+                                      startIdx,
+                                      endIdx - 1,
+                                      threadDuration.count(),
+                                      processedCount > 0 ? static_cast<double>(threadDuration.count()) / processedCount : 0.0));
+            });
+        }
+        
+        // Wait for all threads to complete
+        for (auto& thread : threads) {
+            thread.join();
+        }
+        
+        // Merge results from all threads (single-threaded, no locks needed)
+        for (size_t threadId = 0; threadId < numThreads; ++threadId) {
+            for (auto& shareEntry : threadLocalShares[threadId]) {
+                shares->addShare(shareEntry.first, shareEntry.second);
+            }
+        }
+        
+        auto processingEndTime = std::chrono::high_resolution_clock::now();
+        auto processingDuration = std::chrono::duration_cast<std::chrono::milliseconds>(processingEndTime - processingStartTime);
+        
+        LOG(info, fmt::format("Decryption share processing took {} ms for {} shares (avg: {:.2f} ms per share)", 
+                              processingDuration.count(), 
+                              numShares,
+                              static_cast<double>(processingDuration.count()) / numShares));
     }
 
     return shares;
+}
+
+void BiteAESDecryptionShareSerializer::processSingleDecryptionShare(
+    const skale_fb::DecryptionShare* fbdecryptionShareHandle,
+    schain_index _decryptorIndex,
+    ptr<BiteManager> _biteManager,
+    ptr<AESKeyDecryptionShareList> shares) {
+    
+    CHECK_STATE( fbdecryptionShareHandle )
+    auto rawData = fbdecryptionShareHandle->data()->data();
+    CHECK_STATE( rawData );
+    string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
+    auto decryptionShare = _biteManager->createAESDecryptionShare(
+        decryptionShareStr, _decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
+    shares->addShare( fbdecryptionShareHandle->transaction_index(), decryptionShare );
 }

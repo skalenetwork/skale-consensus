@@ -267,7 +267,8 @@ string BlockFinalizeDownloader::readDAProofSig(nlohmann::json _responseHeader) {
 
 
 void BlockFinalizeDownloader::processDAProofSig(nlohmann::json _responseHeader, string h) {
-    auto sig = readDAProofSig(_responseHeader); {
+    auto sig = readDAProofSig(_responseHeader);
+    {
         LOCK(m)
 
         // if we did not received da sig yet, set it.
@@ -525,7 +526,11 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
             CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId));
 #endif
             proposal = BlockProposal::makeFromNetworkSerialized(
-                fragmentList.serialize(), getSchain()->getCryptoManager());
+                fragmentList.serialize(), getSchain()->getCryptoManager()
+#ifdef BITE
+                        , getSchain()->getBiteManager()
+#endif
+                        );
             CHECK_STATE(proposal)
             CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex);
             {
@@ -540,7 +545,7 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 #ifdef BITE
 
 
-            CHECK_STATE(proposal->getBiteDataFields());
+            CHECK_STATE(proposal->getEncryptedAESKeys());
 
             getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
 

@@ -50,6 +50,7 @@ class BlockProposalHeader;
 class BlockProposalFragment;
 class BlockProposalFragmentList;
 class BiteDataField;
+class BiteManager;
 
 #define SERIALIZE_AS_PROPOSAL 1
 
@@ -124,10 +125,20 @@ public:
     static ptr<BlockProposalHeader> parseBlockHeader(const string_view &_header);
 
     static ptr<BlockProposal> makeFromNetworkSerialized(const ptr<vector<uint8_t> > &_serializedProposal,
-                                                        const ptr<CryptoManager> &_manager);
+                                                        const ptr<CryptoManager> &_cryptoManager
+#ifdef BITE
+                                                        ,
+                                                        const ptr<BiteManager> &_biteManager
+#endif
+    );
 
     static ptr<BlockProposal> makeFromDBSerialized(const ptr<vector<uint8_t> > &_serializedProposal,
-                                                    const ptr<CryptoManager> &_manager);
+                                                   const ptr<CryptoManager> &_cryptoManager
+#ifdef BITE
+                                                   ,
+                                                   const ptr<BiteManager> &_biteManager
+#endif
+);
 
 
 
@@ -238,18 +249,18 @@ public:
     }
 
 
-    [[nodiscard]] ptr<std::map<transaction_index, ptr<BiteDataField> > > getBiteDataFields() const {
-        auto result = std::atomic_load(&biteDataFields);
-        CHECK_STATE(result);
-        return result;
-    }
+    // [[nodiscard]] ptr<std::map<transaction_index, ptr<BiteDataField> > > getBiteDataFields() const {
+    //     auto result = std::atomic_load(&biteDataFields);
+    //     CHECK_STATE(result);
+    //     return result;
+    // }
 
 
-    void setBiteDataFields(
-        ptr<std::map<transaction_index, ptr<BiteDataField> > > _biteDataFields) {
-        CHECK_STATE(!biteDataFields)
-        biteDataFields = _biteDataFields;
-    }
+    // void setBiteDataFields(
+    //     ptr<std::map<transaction_index, ptr<BiteDataField> > > _biteDataFields) {
+    //     CHECK_STATE(!biteDataFields)
+    //     biteDataFields = _biteDataFields;
+    // }
 
     void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
         CHECK_STATE(_myDecryptionShares);

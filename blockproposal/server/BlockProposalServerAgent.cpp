@@ -421,7 +421,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
 
 #ifdef BITE
-    BiteManager::parseBITETransactions(proposal);
+    sChain->getBiteManager()->parseBITETransactions(proposal);
     if (!proposal->getFailedTransactionsRef().empty()) {
         // return the first failed transaction error
         finalResponseHeader =

@@ -316,24 +316,34 @@ ptr<vector<uint8_t> > BlockProposal::serializeTransactionsAndCompleteSerializati
 
 
 ptr<BlockProposal> BlockProposal::makeFromNetworkSerialized(
-    const ptr<vector<uint8_t> > &_serializedProposal, const ptr<CryptoManager> &_manager) {
-    // we verify sigs when receiving from network
-    auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
+    const ptr<vector<uint8_t> > &_serializedProposal, const ptr<CryptoManager> &_cryptoManager
 #ifdef BITE
-    BiteManager::parseBITETransactions(proposal);
+        ,
+        const ptr<BiteManager> &_biteManager
+#endif
+        ) {
+    // we verify sigs when receiving from network
+    auto proposal = BlockProposal::deserialize(_serializedProposal, _cryptoManager, true);
+#ifdef BITE
+    _biteManager->parseBITETransactions(proposal);
 #endif
     return proposal;
 }
 
 ptr<BlockProposal>  BlockProposal::makeFromDBSerialized(
-    const ptr<vector<uint8_t> > &_serializedProposal, const ptr<CryptoManager> &_manager) {
+    const ptr<vector<uint8_t> > &_serializedProposal, const ptr<CryptoManager> &_cryptoManager
+#ifdef BITE
+        ,
+        const ptr<BiteManager> &_biteManager
+#endif
+        ) {
     // we do not verify sigs when reading from internal DB
-    auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
+    auto proposal = BlockProposal::deserialize(_serializedProposal, _cryptoManager, true);
 
 #ifdef BITE
-    BiteManager::parseBITETransactions(proposal);
+    _biteManager->parseBITETransactions(proposal);
     CHECK_STATE2(proposal->getFailedTransactionsRef().empty(), "Invalid BITE proposal received");
-    CHECK_STATE2(proposal->getBiteDataFields(), "Missing data fields");
+    CHECK_STATE2(proposal->getEncryptedAESKeys(), "Missing data fields");
 #endif
 
     return proposal;

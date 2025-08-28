@@ -31,7 +31,7 @@ class BiteManager {
 public:
     explicit BiteManager(Schain &_schain);
 
-    static void parseBITETransactions(ptr<BlockProposal> _proposal);
+    void parseBITETransactions(ptr<BlockProposal> _proposal);
 
     // this will return a map of failed transactions
     // if none of the transactions fails, the  proposal is set with decryption shares
@@ -75,4 +75,11 @@ public:
     [[nodiscard]] bool isRealCryptoEnabled() const;
 
     void  computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
+
+    bool processSingleTransaction(
+        ptr<Transaction> tx,
+        transaction_index index,
+        ptr<BlockProposal> _proposal,
+        ptr<EncryptedAESKeyList> encryptedAESKeyList,
+        ptr<vector<ptr<string>>> publicDecryptionValues);
 };

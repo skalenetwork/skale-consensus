@@ -18,4 +18,11 @@ public:
         const schain_index _proposerIndex, const schain_index _decryptorIndex,
         const flatbuffers::Vector< ::flatbuffers::Offset< skale_fb::DecryptionShare > >*
             _fbDecryptionSharesHandle, ptr<BiteManager> _biteManager);
+
+private:
+    static void processSingleDecryptionShare(
+        const skale_fb::DecryptionShare* fbdecryptionShareHandle,
+        schain_index _decryptorIndex,
+        ptr<BiteManager> _biteManager,
+        ptr<AESKeyDecryptionShareList> shares);
 };

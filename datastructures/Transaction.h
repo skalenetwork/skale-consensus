@@ -87,9 +87,10 @@ public:
 
     void parseAndValidate();
     ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
+    ptr<BiteDataField> biteDataField = nullptr;
 
     // this returns nullptr for non-BITE transactions
-    ptr<BiteDataField> tryGetBiteData(epoch_id _currentEpochId) const;
+    ptr<BiteDataField> tryGetBiteData(epoch_id _currentEpochId);
     ptr<vector<uint8_t>> emplaceAndReencodeTransaction(vector<uint8_t>& _originalDataField );
 #endif
 

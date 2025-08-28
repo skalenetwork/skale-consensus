@@ -188,18 +188,23 @@ void Transaction::parseAndValidate() {
 }
 
 
-ptr< BiteDataField > Transaction::tryGetBiteData(epoch_id _currentEpochId) const {
-    auto tx = std::atomic_load(&parsedAndValidatedEthTransaction );
+ptr< BiteDataField > Transaction::tryGetBiteData(epoch_id _currentEpochId) {
+    auto bf = std::atomic_load(&biteDataField);
+    if (bf)
+        return bf;
 
-    ptr< BiteDataField > result = nullptr;
+    auto tx = std::atomic_load(&parsedAndValidatedEthTransaction );
     
     if (tx->hasToField()) {
         auto dataField = tx->getTransactionDataField();
         auto to = tx->getToField();
-        result = BiteDataField::createIfMagicMatches(dataField, to, _currentEpochId);
+        bf = BiteDataField::createIfMagicMatches(dataField, to, _currentEpochId);
+        if (bf) {
+            std::atomic_store(&biteDataField, bf);
+        }
     }
 
-    return result;
+    return bf;
 }
 
 ptr< vector< uint8_t > > Transaction::emplaceAndReencodeTransaction(

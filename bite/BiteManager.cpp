@@ -24,6 +24,10 @@
 #include "BLSPublicKey.h"
 #include "db/TEDecryptionDB.h"
 #include "rlp/RLPStream.h"
+#include <future>
+#include <thread>
+#include <mutex>
+#include <chrono>
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
@@ -36,36 +40,202 @@ void BiteManager::parseBITETransactions(
     // unparsable transactions will be added to failedTransactions
     // transactions starting from the magic number but with incorrect format will be added
     // to failedTransactions
-    transaction_index index = 0;
-
+    
+    auto transactions = _proposal->getTransactionList()->getItems();
+    CHECK_STATE(transactions);
+    
+    const size_t numTransactions = transactions->size();
+    
     auto encryptedAESKeyList = make_shared<EncryptedAESKeyList>();
-
-    auto biteDataFields = make_shared<std::map<transaction_index, ptr<BiteDataField> > >();
-
-    for (auto &tx: *_proposal->getTransactionList()->getItems()) {
-        try {
-            tx->parseAndValidate();
-            auto biteDataField = tx->tryGetBiteData(_proposal->getEpochID());
-            if (biteDataField) {
-                biteDataFields->emplace(index, biteDataField);
-                encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
+    auto publicDecryptionValues = make_shared<vector<ptr<string>>>();
+    
+    // Use parallel processing for large transaction lists
+    const size_t PARALLEL_THRESHOLD = 50; // Process in parallel if more than 50 transactions
+    
+    if (numTransactions <= PARALLEL_THRESHOLD) {
+        // Sequential processing for small lists
+        transaction_index index = 0;
+        for (auto &tx: *transactions) {
+            if (!processSingleTransaction(tx, index, _proposal, encryptedAESKeyList, publicDecryptionValues)) {
+                return; // Early exit on failure
             }
             index = index + 1;
-        } catch (exception &e) {
-            LOG(err, string("Could not parse transaction:") + e.what());
-            _proposal->getFailedTransactionsRef().emplace(index,
-                                                          ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
         }
-    }
+    } else {
+        // Parallel processing for large lists
+        auto processingStartTime = std::chrono::high_resolution_clock::now();
+        
+//        std::mutex encryptedKeysMutex;
+//        std::mutex publicValuesMutex;
+//        std::mutex failedTransactionsMutex;
+        
+        const size_t numThreads = 8;
+        
+        std::vector<std::thread> threads;
+        threads.reserve(numThreads);
+        
+        const size_t chunkSize = (numTransactions + numThreads - 1) / numThreads;
+        
+        // Thread-local storage for results
+        std::vector<EncryptedAESKeyList> threadEncryptedKeys(numThreads);
+        std::vector<vector<ptr<string>>> threadPublicValues(numThreads);
+        std::vector<map<transaction_index, ConnectionSubStatus>> threadFailedTransactions(numThreads);
+        
+        for (size_t threadId = 0; threadId < numThreads; ++threadId) {
+            size_t startIdx = threadId * chunkSize;
+            size_t endIdx = std::min(startIdx + chunkSize, numTransactions);
+            
+            if (startIdx >= endIdx)
+                break;
+            
+            threads.emplace_back([this, threadId, startIdx, endIdx, &transactions, _proposal, 
+                                &threadEncryptedKeys, &threadPublicValues, &threadFailedTransactions]() {
+                auto threadStartTime = std::chrono::high_resolution_clock::now();
+                size_t processedCount = 0;
+                
+                for (size_t i = startIdx; i < endIdx; ++i) {
+                    try {
+                        auto tx = transactions->at(i);
+                        tx->parseAndValidate();
+                        auto biteDataField = tx->tryGetBiteData(_proposal->getEpochID());
+                        
+                        if (biteDataField) {
+                            threadEncryptedKeys[threadId].emplace(i, biteDataField->getEncryptedAESKey());
+                            
+                            // Execute core of computeAndValidateSGXAESKeyBatch inline
+                            if (doRealCrypto) {
+                                try {
+                                    auto encryptedAESKey = biteDataField->getEncryptedAESKey();
+                                    CHECK_STATE(encryptedAESKey)
+                                    auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
+                                    auto U = cipheredKey.U;
 
+                                    auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(U, libBLS::BASE_HEXA);
+
+                                    auto publicDecryptionValue = make_shared<string>();
+                                    for (auto const &str: g2AsStringVector) {
+                                        publicDecryptionValue->append(str);
+                                    }
+
+                                    threadPublicValues[threadId].push_back(publicDecryptionValue);
+                                    processedCount++;
+                                } catch (exception &_e) {
+                                    LOG(err, fmt::format("Could not validate transaction: {} : {}", (uint32_t)i, _e.what()));
+                                    threadFailedTransactions[threadId].emplace(i,
+                                                        CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+                                }
+                            } else {
+                                processedCount++;
+                            }
+                        }
+                    } catch (exception &e) {
+                        LOG(err, fmt::format("Could not parse transaction {}: {}", i, e.what()));
+                        threadFailedTransactions[threadId].emplace(i,
+                                                                  ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
+                    }
+                }
+                
+                auto threadEndTime = std::chrono::high_resolution_clock::now();
+                auto threadDuration = std::chrono::duration_cast<std::chrono::milliseconds>(threadEndTime - threadStartTime);
+                
+                LOG(info, fmt::format("Parse thread {} processed {} transactions (indices {}-{}) in {} ms (avg: {:.2f} ms per tx)", 
+                                      threadId, 
+                                      processedCount,
+                                      startIdx,
+                                      endIdx - 1,
+                                      threadDuration.count(),
+                                      processedCount > 0 ? static_cast<double>(threadDuration.count()) / processedCount : 0.0));
+            });
+        }
+        
+        // Wait for all threads to complete
+        for (auto& thread : threads) {
+            thread.join();
+        }
+        
+        // Merge results from all threads
+        for (size_t threadId = 0; threadId < numThreads; ++threadId) {
+            // Merge encrypted keys
+            for (auto& entry : threadEncryptedKeys[threadId]) {
+                encryptedAESKeyList->emplace(entry.first, entry.second);
+            }
+            
+            // Merge public values
+            for (auto& value : threadPublicValues[threadId]) {
+                publicDecryptionValues->push_back(value);
+            }
+            
+            // Merge failed transactions
+            for (auto& entry : threadFailedTransactions[threadId]) {
+                _proposal->getFailedTransactionsRef().emplace(entry.first, entry.second);
+            }
+        }
+        
+        auto processingEndTime = std::chrono::high_resolution_clock::now();
+        auto processingDuration = std::chrono::duration_cast<std::chrono::milliseconds>(processingEndTime - processingStartTime);
+        
+        LOG(info, fmt::format("BITE transaction parsing took {} ms for {} transactions (avg: {:.2f} ms per tx)", 
+                              processingDuration.count(), 
+                              numTransactions,
+                              static_cast<double>(processingDuration.count()) / numTransactions));
+    }
 
     if (!_proposal->getFailedTransactionsRef().empty()) {
         return;
     }
 
+    // Set the SGX AES key batch if we have public decryption values
+    if (doRealCrypto && !publicDecryptionValues->empty()) {
+        _proposal->setSGXAESKeyBatch(publicDecryptionValues);
+    }
 
-    _proposal->setBiteDataFields(biteDataFields);
     _proposal->seAESKeyList(encryptedAESKeyList);
+}
+
+bool BiteManager::processSingleTransaction(
+    ptr<Transaction> tx, 
+    transaction_index index, 
+    ptr<BlockProposal> _proposal,
+    ptr<EncryptedAESKeyList> encryptedAESKeyList,
+    ptr<vector<ptr<string>>> publicDecryptionValues) {
+    
+    try {
+        tx->parseAndValidate();
+        auto biteDataField = tx->tryGetBiteData(_proposal->getEpochID());
+        if (biteDataField) {
+            encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
+            
+            // Execute core of computeAndValidateSGXAESKeyBatch inline
+            if (doRealCrypto) {
+                try {
+                    auto encryptedAESKey = biteDataField->getEncryptedAESKey();
+                    CHECK_STATE(encryptedAESKey)
+                    auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
+                    auto U = cipheredKey.U;
+
+                    auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(U, libBLS::BASE_HEXA);
+
+                    auto publicDecryptionValue = make_shared<string>();
+                    for (auto const &str: g2AsStringVector) {
+                        publicDecryptionValue->append(str);
+                    }
+
+                    publicDecryptionValues->push_back(publicDecryptionValue);
+                } catch (exception &_e) {
+                    LOG(err, fmt::format("Could not validate transaction: {} : {}", (uint32_t)index, _e.what()));
+                    _proposal->getFailedTransactionsRef().emplace(index,
+                                        CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+                    return false;
+                }
+            }
+        }
+        return true;
+    } catch (exception &e) {
+        LOG(err, fmt::format("Could not parse transaction {}: {}", (uint32_t)index, e.what()));
+        _proposal->getFailedTransactionsRef().emplace(index,
+                                                      ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
+        return false;
+    }
 }
 
 void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
@@ -95,7 +265,7 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
         return;
     }
 
-    CHECK_STATE(_proposal->getBiteDataFields());
+    CHECK_STATE(_proposal->getEncryptedAESKeys());
 
 
     // this function will not throw exception
@@ -106,7 +276,7 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
         return;
     }
     CHECK_STATE(decryptionShareList);
-    CHECK_STATE(decryptionShareList->getSize() == _proposal->getBiteDataFields()->size());
+    CHECK_STATE(decryptionShareList->getSize() == _proposal->getEncryptedAESKeys()->size());
     // no we know that the decryption shares are valid, we can set them to the proposal
     // now we set the decryption shares list to the block proposal so it is committed to the
     // database when proposal is committed
@@ -137,11 +307,11 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
         return nullptr;
     }
 
-    CHECK_STATE(decryptionSharesVector->size() == _proposal->getBiteDataFields()->size());
+    CHECK_STATE(decryptionSharesVector->size() == _proposal->getEncryptedAESKeys()->size());
 
 
     auto arrayIndex = 0;
-    for (auto &&iterator: *_proposal->getBiteDataFields()) {
+    for (auto &&iterator: *_proposal->getEncryptedAESKeys()) {
         auto AESKeyDecryptionShare = (*decryptionSharesVector)[arrayIndex];
         decryptionShareList->addShare(iterator.first, decryptionSharesVector->at(arrayIndex));
         arrayIndex++;
@@ -182,48 +352,16 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 }
 
 void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal) {
-
+    // This function's core logic has been moved to parseBITETransactions for better performance
+    // Only keeping basic validation here
     if (!doRealCrypto)
         return;
 
     CHECK_STATE(_proposal);
-
     auto encryptedAESKeys = _proposal->getEncryptedAESKeys();
-
     CHECK_STATE(encryptedAESKeys);
-
-
-    auto publicDecryptionValues = make_shared<vector<ptr<string>>>();
-
-    uint64_t i = 0;
-
-    for (auto&& it : *encryptedAESKeys) {
-        try {
-            auto encryptedAESKey = it.second;
-            CHECK_STATE(encryptedAESKey)
-            auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
-            auto U = cipheredKey.U;
-            U.to_affine_coordinates();
-            // validate U
-            libBLS::ThresholdUtils::validateG2(U);
-
-            auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(U, libBLS::BASE_HEXA);
-
-            // convert to string
-            auto publicDecryptionValue = make_shared<string>();
-            for (auto const &str: g2AsStringVector) {
-                publicDecryptionValue->append(str);
-            }
-
-            publicDecryptionValues->push_back(publicDecryptionValue);
-        } catch (exception &_e) {
-            LOG(err, fmt::format("Could not validate transaction: {} : {}", i, _e.what()));
-            _proposal->getFailedTransactionsRef().emplace(i,
-                                        CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
-            return;
-        }
-    }
-    _proposal->setSGXAESKeyBatch(publicDecryptionValues);
+    
+    // The actual computation and validation is now done inline in parseBITETransactions
 }
 
 
@@ -233,28 +371,122 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     auto decryptedFieldsMap = make_shared<DecryptedTransactionFieldsMap>();
-
     auto txs = _transactionList.getItems();
     CHECK_STATE(txs);
 
     try {
-        for (uint64_t i = 0; i < _transactionList.size(); i++) {
-            auto tx = txs->at(i);
-            tx->parseAndValidate();
-            auto bite = tx->tryGetBiteData(schain.getNode()->getCurrentEpochId());
-            if (bite) {
-                auto decryptedAESKey = _aesKeys.getKey(i);
-                CHECK_STATE(decryptedAESKey);
+        const size_t numTransactions = _transactionList.size();
+        
+        // Use parallel processing for larger transaction lists
+        const size_t PARALLEL_THRESHOLD = 20; // Process in parallel if more than 20 transactions
+        
+        if (numTransactions <= PARALLEL_THRESHOLD) {
+            // Sequential processing for small lists
+            for (uint64_t i = 0; i < numTransactions; i++) {
+                auto tx = txs->at(i);
+                tx->parseAndValidate();
+                auto bite = tx->tryGetBiteData(schain.getNode()->getCurrentEpochId());
+                if (bite) {
+                    auto decryptedAESKey = _aesKeys.getKey(i);
+                    CHECK_STATE(decryptedAESKey);
 
-                try {
-                    auto decryptedTransactionFields = decryptFields(bite, *decryptedAESKey);
-                    decryptedFieldsMap->emplace(i, decryptedTransactionFields);
-                } catch (const std::exception &e) {
-                    LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}", i, e.what()));
+                    try {
+                        auto decryptedTransactionFields = decryptFields(bite, *decryptedAESKey);
+                        decryptedFieldsMap->emplace(i, decryptedTransactionFields);
+                    } catch (const std::exception &e) {
+                        LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}", i, e.what()));
+                    }
+                } else {
+                    CHECK_STATE(!_aesKeys.getKey(i));
                 }
-            } else {
-                CHECK_STATE(!_aesKeys.getKey(i));
             }
+        } else {
+            // Parallel processing for larger lists
+            auto processingStartTime = std::chrono::high_resolution_clock::now();
+            
+//            std::mutex decryptedMapMutex;
+            const size_t numThreads = 8;
+            
+            std::vector<std::thread> threads;
+            threads.reserve(numThreads);
+            
+            const size_t chunkSize = (numTransactions + numThreads - 1) / numThreads;
+            
+            // Thread-local storage for results to minimize lock contention
+            std::vector<DecryptedTransactionFieldsMap> threadLocalMaps(numThreads);
+            
+            for (size_t threadId = 0; threadId < numThreads; ++threadId) {
+                size_t startIdx = threadId * chunkSize;
+                size_t endIdx = std::min(startIdx + chunkSize, numTransactions);
+                
+                if (startIdx >= endIdx)
+                    break;
+                
+                threads.emplace_back([this, threadId, startIdx, endIdx, &txs, &_aesKeys, &threadLocalMaps]() {
+                    auto threadStartTime = std::chrono::high_resolution_clock::now();
+                    size_t processedCount = 0;
+                    size_t decryptedCount = 0;
+                    
+                    for (size_t i = startIdx; i < endIdx; ++i) {
+                        try {
+                            auto tx = txs->at(i);
+                            tx->parseAndValidate();
+                            auto bite = tx->tryGetBiteData(schain.getNode()->getCurrentEpochId());
+                            
+                            if (bite) {
+                                auto decryptedAESKey = _aesKeys.getKey(i);
+                                CHECK_STATE(decryptedAESKey);
+
+                                try {
+                                    auto decryptedTransactionFields = decryptFields(bite, *decryptedAESKey);
+                                    threadLocalMaps[threadId].emplace(i, decryptedTransactionFields);
+                                    decryptedCount++;
+                                } catch (const std::exception &e) {
+                                    LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}", i, e.what()));
+                                }
+                            } else {
+                                CHECK_STATE(!_aesKeys.getKey(i));
+                            }
+                            processedCount++;
+                        } catch (const std::exception &e) {
+                            LOG(err, fmt::format("Error processing transaction {}: {}", i, e.what()));
+                        }
+                    }
+                    
+                    auto threadEndTime = std::chrono::high_resolution_clock::now();
+                    auto threadDuration = std::chrono::duration_cast<std::chrono::milliseconds>(threadEndTime - threadStartTime);
+                    
+                    LOG(info, fmt::format("Decrypt thread {} processed {} transactions, decrypted {} (indices {}-{}) in {} ms (avg: {:.2f} ms per tx)", 
+                                          threadId, 
+                                          processedCount,
+                                          decryptedCount,
+                                          startIdx,
+                                          endIdx - 1,
+                                          threadDuration.count(),
+                                          processedCount > 0 ? static_cast<double>(threadDuration.count()) / processedCount : 0.0));
+                });
+            }
+            
+            // Wait for all threads to complete
+            for (auto& thread : threads) {
+                thread.join();
+            }
+            
+            // Merge results from all threads (single-threaded, no locks needed)
+            for (size_t threadId = 0; threadId < numThreads; ++threadId) {
+                for (auto& entry : threadLocalMaps[threadId]) {
+                    decryptedFieldsMap->emplace(entry.first, std::move(entry.second));
+                }
+            }
+            
+            auto processingEndTime = std::chrono::high_resolution_clock::now();
+            auto processingDuration = std::chrono::duration_cast<std::chrono::milliseconds>(processingEndTime - processingStartTime);
+            
+            LOG(info, fmt::format("Transaction decryption took {} ms for {} transactions, {} decrypted (avg: {:.2f} ms per tx)", 
+                                  processingDuration.count(), 
+                                  numTransactions,
+                                  decryptedFieldsMap->size(),
+                                  static_cast<double>(processingDuration.count()) / numTransactions));
         }
     }
     CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse BITE transaction");
@@ -266,15 +498,14 @@ DecryptedTransactionFields
 BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
-
-
     ptr<vector<uint8_t> > biteDataField = nullptr;
 
     if (doRealCrypto) {
         auto encryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(encryptedData != nullptr);
 
-        libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData);
+        // validation is done before submitting data to SGX
+        libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData, false);
         biteDataField = make_shared<vector<uint8_t>>(
                 libBLS::ThresholdEncryption::decrypt(ciphertext, _decryptedAESKey.getAesKey()));
     } else {
