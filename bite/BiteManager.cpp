@@ -184,8 +184,8 @@ void BiteManager::parseBITETransactions(
         return;
     }
 
-    // Set the SGX AES key batch if we have public decryption values
-    if (doRealCrypto && !publicDecryptionValues->empty()) {
+    // Set the SGX AES key batch
+    if (doRealCrypto) {
         _proposal->setSGXAESKeyBatch(publicDecryptionValues);
     }
 
