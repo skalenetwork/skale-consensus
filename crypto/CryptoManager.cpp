@@ -902,6 +902,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
         sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
 
         CHECK_STATE(stringShares);
+        result->reserve( stringShares->size() );
         for (auto&& stringShare : *stringShares) {
             CHECK_STATE(stringShare);
             auto share = make_shared<libBLS::TEDecryptionShare>(*stringShare, (uint64_t) getSchain()->getSchainIndex());
@@ -933,6 +934,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
                 jsonShares["failedRequests"].asString(), __CLASS_NAME__);
         }
 
+        result->reserve( sharesArray.size() );
         for (Json::Value::ArrayIndex i = 0; i < sharesArray.size(); ++i) {
             string shareStr = sharesArray[i].asString();
             auto share = make_shared<libBLS::TEDecryptionShare>(shareStr, (uint64_t) getSchain()->getSchainIndex());
