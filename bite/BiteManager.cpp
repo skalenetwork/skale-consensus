@@ -1,3 +1,12 @@
+// avoid macro definition conflicts
+#pragma push_macro("CHECK")
+#pragma push_macro("LOG")
+#include <folly/executors/CPUThreadPoolExecutor.h>
+#include <folly/futures/Future.h>
+#include <folly/Unit.h>
+#pragma pop_macro("LOG")
+#pragma pop_macro("CHECK")
+
 #include "Log.h"
 #include <chains/Schain.h>
 #include <crypto/AESKeyDecryptionShare.h>
@@ -31,6 +40,7 @@
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
+    threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
 }
 
 
@@ -181,7 +191,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
         std::mutex failedTransactionsMutex;
 
         // lambda for processing a single encrypted AES key
-        auto processEncryptedAESKey = [&_encryptedAESKeys, &publicDecryptionValuesBatch, &_failedTransactions, &failedTransactionsMutex](size_t i, bool useThreadSafety) {
+        auto processEncryptedAESKey = [&_encryptedAESKeys, &publicDecryptionValuesBatch, &_failedTransactions, &failedTransactionsMutex](size_t i, bool useThreadSafety) -> folly::Unit {
             try {
                 auto encryptedAESKey = _encryptedAESKeys.at(i);
                 CHECK_STATE(encryptedAESKey)
@@ -207,6 +217,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
                                                 ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
                 }
             }
+            return folly::unit;
         };
         
         if (_encryptedAESKeys.size() < NUM_BITE_VALIDATION_THREADS) {
@@ -215,8 +226,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
                 processEncryptedAESKey(i, false);
             }
         } else {
-            std::vector<std::thread> futures;
-            futures.reserve( NUM_BITE_VALIDATION_THREADS );
+            std::vector<folly::Future<folly::Unit>> futures(NUM_BITE_VALIDATION_THREADS);
 
             const size_t chunkSize = (_encryptedAESKeys.size() + NUM_BITE_VALIDATION_THREADS - 1) /
                     NUM_BITE_VALIDATION_THREADS;
@@ -227,18 +237,18 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
                 
                 if (startIdx >= endIdx)
                     break;
-                
-                futures.push_back(std::thread( [startIdx, endIdx, &processEncryptedAESKey]() {
+
+                auto future = folly::via(threadPoolExecutor.get(), [startIdx, endIdx, &processEncryptedAESKey]() {
                     for (size_t i = startIdx; i < endIdx; ++i) {
                         processEncryptedAESKey(i, true);
                     }
-                }));
+                });
+
+                futures.push_back(std::move(future));
             }
             
             // Wait for all threads to complete
-            for (auto& future : futures) {
-                future.join();
-            }
+            auto allResults = folly::collectAll(futures).get();
         }
 
         if (!_failedTransactions.empty()) {

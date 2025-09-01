@@ -7,6 +7,7 @@
 #include <crypto/AESKeyDecryptionShareSet.h>
 #include "node/ConsensusInterface.h"
 #include "abstracttcpserver/ConnectionStatus.h"
+
 class Schain;
 class BlockProposal;
 class CommittedBlock;
@@ -15,10 +16,14 @@ class AESKeyDecryptionShareList;
 class BiteDataField;
 class TransactionList;
 class EncryptedAESKey;
+namespace folly {
+class CPUThreadPoolExecutor;
+}
 
 class BiteManager {
     Schain &schain;
     bool doRealCrypto = false;
+    std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
 
 public:
     explicit BiteManager(Schain &_schain);
