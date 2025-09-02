@@ -24,9 +24,14 @@ class TransactionList;
 
 class EncryptedAESKey;
 
+namespace folly {
+class CPUThreadPoolExecutor;
+}
+
 class BiteManager {
     Schain &schain;
     bool doRealCrypto = false;
+    std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
 
 public:
     explicit BiteManager(Schain &_schain);
