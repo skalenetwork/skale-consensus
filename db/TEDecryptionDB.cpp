@@ -174,8 +174,10 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
             auto decryptionSharesSet = decryptionShareSets[transactionIndex];
             for ( auto&& it: decryptionShareLists) {
                 auto decryptionSharesList = it.second;
+                auto share = decryptionSharesList->getDecryptionShare( transactionIndex );
+                CHECK_STATE( share  );
                 // decryption shares set has its own lock
-                decryptionSharesSet->addDecryptionShare( decryptionSharesList->getDecryptionShare( transactionIndex ) );
+                decryptionSharesSet->addDecryptionShare( share );
             }
             if ( decryptionSharesSet->isEnough() ) {
                 auto key = decryptionSharesSet->verifyAndMergeAESKey(_encryptedAESKeyList->at(transactionIndex));

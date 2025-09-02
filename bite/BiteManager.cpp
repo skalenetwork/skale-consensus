@@ -48,8 +48,6 @@ void BiteManager::parseBITETransactions(
     // to failedTransactions
     transaction_index index = 0;
 
-    auto startTime = std::chrono::high_resolution_clock::now();
-
     auto encryptedAESKeyList = make_shared<EncryptedAESKeyList>();
 
     auto biteDataFields = make_shared<std::map<transaction_index, ptr<BiteDataField> > >();
@@ -78,15 +76,11 @@ void BiteManager::parseBITETransactions(
 
     _proposal->setBiteDataFields(biteDataFields);
     _proposal->seAESKeyList(encryptedAESKeyList);
-
-    auto finishTime = std::chrono::high_resolution_clock::now();
-    LOG(info, "parseBITETransactions took " + std::to_string( std::chrono::duration_cast<std::chrono::milliseconds>(finishTime - startTime).count() ));
 }
 
 void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
         ptr<BlockProposal> _proposal) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime());
-    auto startTime = std::chrono::high_resolution_clock::now();
 
     CHECK_STATE(_proposal);
     // check we are not verifying twice
@@ -98,8 +92,6 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
     if (savedShares) {
         // we already successfully parsed and decrypted shares
         _proposal->setMyDecryptionShares(savedShares);
-        auto finishTime = std::chrono::high_resolution_clock::now();
-        LOG(info, "callSGXToCreateMyDecryptionSharesForProposalTransactions took " + std::to_string( std::chrono::duration_cast<std::chrono::milliseconds>(finishTime - startTime).count() ));
         return;
     }
 
@@ -132,9 +124,6 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
     if (_proposal->getFailedTransactionsRef().empty()) {
         getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
     }
-
-    auto finishTime = std::chrono::high_resolution_clock::now();
-    LOG(info, "callSGXToCreateMyDecryptionSharesForProposalTransactions took " + std::to_string( std::chrono::duration_cast<std::chrono::milliseconds>(finishTime - startTime).count() ));
 }
 
 
@@ -205,8 +194,6 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
     if (!doRealCrypto)
         return;
 
-    auto startTime = std::chrono::high_resolution_clock::now();
-
     CHECK_STATE(_proposal);
 
     auto encryptedAESKeys = _proposal->getEncryptedAESKeys();
@@ -244,9 +231,6 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
         }
     }
     _proposal->setSGXAESKeyBatch(publicDecryptionValues);
-
-    auto finishTime = std::chrono::high_resolution_clock::now();
-    LOG(info, "computeAndValidateSGXAESKeyBatch took " + std::to_string( std::chrono::duration_cast<std::chrono::milliseconds>(finishTime - startTime).count() ));
 }
 
 
@@ -255,7 +239,6 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
 
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    auto startTime = std::chrono::high_resolution_clock::now();
     auto decryptedFieldsMap = make_shared<DecryptedTransactionFieldsMap>();
 
     auto txs = _transactionList.getItems();
@@ -293,8 +276,6 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
     }
     CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse BITE transaction");
     auto allResults = folly::collectAll(futures).get();
-    auto finishTime = std::chrono::high_resolution_clock::now();
-    LOG(info, "verifyAndDecryptTransactionList took " + std::to_string( std::chrono::duration_cast<std::chrono::milliseconds>(finishTime - startTime).count() ));
 
     return decryptedFieldsMap;
 }
