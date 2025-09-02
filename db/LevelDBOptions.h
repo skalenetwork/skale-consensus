@@ -57,8 +57,8 @@ public:
     // Block DB already has cache implemented
     // in consensus code on top of LevelDB.
     // Therefore, LevelDB cache is not needed
-    // Typically only latest proposal is ready from the
-    // DB, so we can live with less openfiles in LevelD
+    // Typically only latest proposal is read from the
+    // DB, so we can live with less openfiles in LevelDB
     static leveldb::Options getBlockDBOptions() {
         leveldb::Options options;
 
@@ -76,8 +76,8 @@ public:
     // BlockProposal DB already has cache implemented
     // in consensus code von top of LevelDB.
     // Therefore, LevelDB cache is not needed
-    // Typically only latest proposal is ready from the
-    // DB, so we can live with less openfiles in LevelD
+    // Typically only latest proposal is read from the
+    // DB, so we can live with less openfiles in LevelDB
     static leveldb::Options getBlockProposalDBOptions() {
         leveldb::Options options;
 

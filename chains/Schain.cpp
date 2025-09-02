@@ -1485,9 +1485,9 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         }
 
 
-    auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
-    CHECK_STATE(proposal);
-    blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
+        auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
+        CHECK_STATE(proposal);
+        blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
 
 #ifdef BITE
         getNode()->getTEDecryptionDB()->addDecryptionShares(proposal->getMyDecryptionShares());

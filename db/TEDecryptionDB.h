@@ -11,6 +11,10 @@ class BlockProposal;
 class AESKeyDecryptionShareList;
 class EncryptedAESKey;
 
+namespace folly {
+class CPUThreadPoolExecutor;
+}
+
 using EncryptedAESKeyList = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
 
 
@@ -23,15 +27,17 @@ class TEDecryptionDB : public CacheLevelDB {
     map<block_id, map<schain_index, ptr< AESKeyDecryptionShareList>>> decryptionsStore;
     shared_mutex decryptionSetsMutex;
 
+    std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
+
 public:
     explicit TEDecryptionDB(
         Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
-     void addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
+    void addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 
     bool haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex);
 
-     ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList);
+    ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList);
 
 
     void addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);

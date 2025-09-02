@@ -25,6 +25,15 @@
 #include <oids.h>
 #ifdef BITE
 
+// avoid macro definition conflicts
+#pragma push_macro("CHECK")
+#pragma push_macro("LOG")
+#include <folly/executors/CPUThreadPoolExecutor.h>
+#include <folly/futures/Future.h>
+#include <folly/Unit.h>
+#pragma pop_macro("LOG")
+#pragma pop_macro("CHECK")
+
 #include "TEDecryptionDB.h"
 
 #include "SkaleCommon.h"
@@ -54,7 +63,9 @@ using namespace std;
 TEDecryptionDB::TEDecryptionDB(
     Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
     : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
-          LevelDBOptions::getTEDecryptionDBOptions(), false ) {}
+          LevelDBOptions::getTEDecryptionDBOptions(), false ) {
+    threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
+}
 
 const string& TEDecryptionDB::getFormatVersion() {
     static const string version = "1.0";
@@ -149,27 +160,35 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
                 _blockId, decryptionShareIterator.first );
     }
 
-    for ( auto&& it : decryptionShareLists ) {
-        auto decryptionSharesList = it.second;
-        CHECK_STATE( decryptionSharesList );
-        CHECK_STATE( decryptionSharesList->getProposerIndex() ==
-                         firstDecryptionShareList->getProposerIndex() );
-        for ( auto&& shareIterator : decryptionSharesList->getDecryptionShares() ) {
-            CHECK_STATE( decryptionShareSets.count( shareIterator.first) > 0  );
-            auto decryptionSharesSet = decryptionShareSets.at( shareIterator.first );
-            decryptionSharesSet->addDecryptionShare( shareIterator.second );
-        }
-    }
-
+    std::vector<folly::Future<folly::Unit>> futures;
+    futures.reserve(decryptionShareSets.size());
 
     auto aesKeys = make_shared< DecryptedAESKeyList >();
+    std::mutex aesKeysMutex;
 
-    for ( auto&& it : decryptionShareSets ) {
-        CHECK_STATE( it.second->isEnough() );
-        auto key = it.second->verifyAndMergeAESKey(_encryptedAESKeyList->at(it.first));
-        CHECK_STATE( key );
-        aesKeys->addKey( it.first, *key );
+    for ( auto&& decryptionSharesSetIterator: decryptionShareSets ) {
+        auto transactionIndex = decryptionSharesSetIterator.first;
+        auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareLists,
+                                 &decryptionShareSets, &aesKeys, &aesKeysMutex,
+                                 &_encryptedAESKeyList, transactionIndex]() -> folly::Unit {
+            auto decryptionSharesSet = decryptionShareSets[transactionIndex];
+            for ( auto&& it: decryptionShareLists) {
+                auto decryptionSharesList = it.second;
+                // decryption shares set has its own lock
+                decryptionSharesSet->addDecryptionShare( decryptionSharesList->getDecryptionShare( transactionIndex ) );
+            }
+            if ( decryptionSharesSet->isEnough() ) {
+                auto key = decryptionSharesSet->verifyAndMergeAESKey(_encryptedAESKeyList->at(transactionIndex));
+                CHECK_STATE( key );
+                std::lock_guard<std::mutex> lock(aesKeysMutex);
+                aesKeys->addKey( transactionIndex, *key );
+            }
+            return folly::unit;
+        });
+        futures.push_back(std::move(future));
     }
+
+    auto allResults = folly::collectAll(futures).get();
 
     // clean old shares if they exist in the map
     // we keep in the map shares for the current block and for the previous block
