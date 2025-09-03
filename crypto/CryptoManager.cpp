@@ -136,12 +136,12 @@ string blsKeyToString(ptr<BLSPublicKey> _pk) {
 
 pair<ptr<BLSPublicKey>, ptr<BLSPublicKey> > CryptoManager::getSgxBlsPublicKey(
     uint64_t _timestamp) {
-    LOG(debug, string( "Looking for BLS public key for timestamp " )
-        << to_string( _timestamp )
-        << string( " to verify a block came through catchup" ));
+//    LOG(debug, string( "Looking for BLS public key for timestamp " )
+//        << to_string( _timestamp )
+//        << string( " to verify a block came through catchup" ));
     if (_timestamp == uint64_t(-1) || previousBlsPublicKeys->size() < 2) {
         CHECK_STATE(sgxBLSPublicKey)
-        LOG(debug, string( "Got current BLS public key " ) << blsKeyToString( sgxBLSPublicKey ));
+//        LOG(debug, string( "Got current BLS public key " ) << blsKeyToString( sgxBLSPublicKey ));
         return {sgxBLSPublicKey, nullptr};
     } else {
         // second key is used when the sig corresponds
@@ -153,14 +153,14 @@ pair<ptr<BLSPublicKey>, ptr<BLSPublicKey> > CryptoManager::getSgxBlsPublicKey(
         auto it = previousBlsPublicKeys->upper_bound(_timestamp);
 
         if (it == previousBlsPublicKeys->begin()) {
-            LOG(debug, string( "Got first BLS public key " ) << blsKeyToString( ( *it ).second ));
+//            LOG(debug, string( "Got first BLS public key " ) << blsKeyToString( ( *it ).second ));
             // if begin() then no previous groups for this key
             return {(*it).second, nullptr};
         }
 
-        LOG(debug, string( "Got two BLS public keys " )
-            << blsKeyToString( ( *it ).second ) << " "
-            << blsKeyToString( ( *std::prev( it ) ).second ));
+//        LOG(debug, string( "Got two BLS public keys " )
+//            << blsKeyToString( ( *it ).second ) << " "
+//            << blsKeyToString( ( *std::prev( it ) ).second ));
         return {(*it).second, (*(--it)).second};
     }
 }
@@ -900,6 +900,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
             getSgxBlsKeyName(), _publicDecryptionValues, requiredSigners, totalSigners, false);
         auto finishTimeMs = Time::getCurrentTimeMs();
         sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
+        LOG(info, "decryptAESKeySharesBatch took " + std::to_string( finishTimeMs - startTimeMs ));
 
         CHECK_STATE(stringShares);
         result->reserve( stringShares->size() );

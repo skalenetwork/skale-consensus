@@ -261,8 +261,10 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
                 try {
                     auto future = folly::via(threadPoolExecutor.get(), [this, bite, decryptedAESKey, &decryptedFieldsMap, i, &mapMutex]() -> folly::Unit {
                         auto decryptedTransactionFields = decryptFields(bite, *decryptedAESKey);
-                        std::lock_guard<std::mutex> lock(mapMutex);
-                        decryptedFieldsMap->emplace(i, decryptedTransactionFields);
+                        {
+                            std::lock_guard<std::mutex> lock(mapMutex);
+                            decryptedFieldsMap->emplace(i, decryptedTransactionFields);
+                        }
                         return folly::unit;
                     });
                     futures.push_back(std::move(future));
@@ -365,7 +367,7 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
 
 
 ptr<AESKeyDecryptionShare> BiteManager::createAESDecryptionShare(
-        const string _aesKeyDecryptionShare, schain_index _decryptorIndex, bool _decryptionFailed) {
+        const string& _aesKeyDecryptionShare, schain_index _decryptorIndex, bool _decryptionFailed) {
     if (doRealCrypto) {
         return make_shared<ConsensusAESKeyDecryptionShare>(
                 _aesKeyDecryptionShare, _decryptorIndex, _decryptionFailed);

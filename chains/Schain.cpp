@@ -633,7 +633,9 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
 
 #ifdef BITE
 
+        std::shared_ptr<ExecTimeMeasurement> p = std::make_shared<ExecTimeMeasurement>("computeAndValidateSGXAESKeyBatch");
         getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
+        p.reset();
 
         if (!myProposal->getFailedTransactionsRef().empty()) {
             LOG(err, "Critical error - invalid BITE transactions");
@@ -642,7 +644,9 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         }
 
 
+        p.reset( new ExecTimeMeasurement("callSGXToCreateMyDecryptionSharesForProposalTransactions") );
         getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
+        p.reset();
         if (!myProposal->getFailedTransactionsRef().empty()) {
             LOG(err, "Critical error - could not decrypt BITE transactions");
             LOG(err, "Proposing default block instead");
@@ -1501,16 +1505,19 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
 
         CHECK_STATE(encryptedAESKeys);
 
+        std::shared_ptr<ExecTimeMeasurement> p = std::make_shared<ExecTimeMeasurement>("finalizeDecidedAndSignedBlockInThread::mergeAESKeys");
         auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys(proposal->getBlockID(),
                                                                  encryptedAESKeys);
+        p.reset();
 
         CHECK_STATE(keys);
 
         auto transactions = proposal->getTransactionList();
+        p.reset(new ExecTimeMeasurement("finalizeDecidedAndSignedBlockInThread::verifyAndDecryptTransactionList"));
         auto decryptedTransactionDataFields = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
+        p.reset();
 
         CHECK_STATE(decryptedTransactionDataFields);
-
 
 #endif
 

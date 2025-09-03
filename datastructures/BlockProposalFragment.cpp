@@ -185,9 +185,8 @@ ptr< vector< uint8_t > > BlockProposalFragment::serialize(
 
 #ifdef BITE
 void BlockProposalFragment::deserializeFromFlatBuffer(ptr<BiteManager> _biteManager) {
-    CHECK_STATE( data )
-    CHECK_STATE(_biteManager)
-
+    CHECK_STATE( data );
+    CHECK_STATE(_biteManager);
 
     VERIFY_AND_PARSE_FLATBUFFER_FROM_VECTOR( *data, CommittedBlockFragment, fbBlockFragment );
 
@@ -196,6 +195,7 @@ void BlockProposalFragment::deserializeFromFlatBuffer(ptr<BiteManager> _biteMana
 
     CHECK_STATE( fbDecryptionSharesHandle );
 
+    std::shared_ptr<ExecTimeMeasurement> p = std::make_shared<ExecTimeMeasurement>("BiteAESDecryptionShareSerializer::getDecryptionShares");
     decryptionShares = BiteAESDecryptionShareSerializer::getDecryptionShares(
         blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle, _biteManager );
 }

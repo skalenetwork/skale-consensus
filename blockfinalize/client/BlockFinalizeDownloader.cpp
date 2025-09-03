@@ -542,14 +542,18 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 
             CHECK_STATE(proposal->getBiteDataFields());
 
+            std::shared_ptr<ExecTimeMeasurement> p = std::make_shared<ExecTimeMeasurement>("ProposalDownload::computeAndValidateSGXAESKeyBatch");
             getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
+            p.reset();
 
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                          "Proposal includes invalid format BITE transactions");
 
 
+            p.reset(new ExecTimeMeasurement("ProposalDownload::callSGXToCreateMyDecryptionSharesForProposalTransactions"));
             getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(
                 proposal);
+            p.reset();
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                          "Proposal includes invalid BITE transactions");
 #endif

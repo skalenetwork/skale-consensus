@@ -118,4 +118,19 @@ public:
 
     static level_enum logLevelFromString( string& _s );
 };
+
+class ExecTimeMeasurement {
+private:
+    std::string name;
+    std::chrono::time_point<std::chrono::high_resolution_clock> startTime;
+public:
+    ExecTimeMeasurement(const std::string& _name ) {
+        name = _name;
+        startTime = std::chrono::high_resolution_clock::now();
+    }
+    ~ExecTimeMeasurement() {
+        auto finishTime = std::chrono::high_resolution_clock::now();
+        LOG(info, name + std::string(" took ") + std::to_string( std::chrono::duration_cast<std::chrono::milliseconds>(finishTime - startTime).count() ));
+    }
+};
 #endif

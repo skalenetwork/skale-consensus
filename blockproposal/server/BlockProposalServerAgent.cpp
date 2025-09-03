@@ -421,7 +421,9 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
 
 #ifdef BITE
+    std::shared_ptr<ExecTimeMeasurement> p = std::make_shared<ExecTimeMeasurement>("ProposalArrived::parseBITETransactions");
     BiteManager::parseBITETransactions(proposal);
+    p.reset();
     if (!proposal->getFailedTransactionsRef().empty()) {
         // return the first failed transaction error
         finalResponseHeader =
@@ -447,7 +449,9 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
 
             // check for validity
+            p.reset(new ExecTimeMeasurement("ProposalArrived::computeAndValidateSGXAESKeyBatch"));
             getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
+            p.reset();
             if (!proposal->getFailedTransactionsRef().empty()) {
                 // return the first failed transaction error
                 finalResponseHeader =
@@ -483,6 +487,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
 #ifdef BITE
     // we talk to sgx after we sent response to the proposer since sgx is time consuming
+    p.reset(new ExecTimeMeasurement("ProposalArrived::callSGXToCreateMyDecryptionSharesForProposalTransactions"));
     getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
     if (!proposal->getFailedTransactionsRef().empty()) {
         LOG(err, "Can not create decryptions for network proposal" +
