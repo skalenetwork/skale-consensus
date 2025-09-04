@@ -16,6 +16,10 @@ void AESKeyDecryptionShareList::addShare(transaction_index _index, const ptr<AES
     decryptionShares.emplace(_index, _decryptShare);
 }
 
+void AESKeyDecryptionShareList::reserve(size_t _size) {
+    decryptionShares.reserve( _size );
+}
+
 ptr<AESKeyDecryptionShare> AESKeyDecryptionShareList::getDecryptionShare(transaction_index _transactionIndex) const {
     auto it = decryptionShares.find(_transactionIndex);
     return (it != decryptionShares.end()) ? it->second : nullptr;

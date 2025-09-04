@@ -125,26 +125,21 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
         auto future = folly::via(_biteManager->getExecutor().get(),
                                  [threadId, startIdx, endIdx, _fbDecryptionSharesHandle,
                                 _decryptorIndex, _biteManager, &threadLocalShares]() {
-            // Reserve space for this thread's shares
             threadLocalShares[threadId].reserve(endIdx - startIdx);
 
             for (size_t i = startIdx; i < endIdx; ++i) {
-                try {
-                    const auto* fbdecryptionShareHandle = _fbDecryptionSharesHandle->Get(i);
-                    CHECK_STATE( fbdecryptionShareHandle )
+                const auto* fbdecryptionShareHandle = _fbDecryptionSharesHandle->Get(i);
+                CHECK_STATE( fbdecryptionShareHandle );
 
-                    auto rawData = fbdecryptionShareHandle->data()->data();
-                    CHECK_STATE( rawData );
+                auto rawData = fbdecryptionShareHandle->data()->data();
+                CHECK_STATE( rawData );
 
-                    string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
-                    auto decryptionShare = _biteManager->createAESDecryptionShare(
-                        decryptionShareStr, _decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
+                string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
+                auto decryptionShare = _biteManager->createAESDecryptionShare(
+                    decryptionShareStr, _decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
 
-                    threadLocalShares[threadId].emplace_back(
-                        fbdecryptionShareHandle->transaction_index(), decryptionShare);
-                } catch (const std::exception &e) {
-                    LOG(err, fmt::format("Error processing decryption share {}: {}", i, e.what()));
-                }
+                threadLocalShares[threadId].emplace_back(
+                    fbdecryptionShareHandle->transaction_index(), decryptionShare);
             }
 
             return folly::unit;
@@ -153,10 +148,11 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
         futures.push_back(std::move(future));
     }
 
-    // Wait for all tasks to complete using folly::collectAll
+    // Wait for all tasks to complete
     auto allResults = folly::collectAll(futures).get();
 
-    // Merge results from all threads (single-threaded, no locks needed)
+    // Merge results from all threads
+    shares->reserve( numShares );
     for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
         for (auto& shareEntry : threadLocalShares[threadId]) {
             shares->addShare(shareEntry.first, shareEntry.second);
