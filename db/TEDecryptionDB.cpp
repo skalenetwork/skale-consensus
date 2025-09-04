@@ -91,34 +91,35 @@ void TEDecryptionDB::addDecryptionShares(
     auto serializedList = BiteAESDecryptionShareSerializer::serialize( _decryptionShareList );
     CHECK_STATE( serializedList );
 
-
-    WRITE_LOCK(decryptionSetsMutex);
-
-    map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
-        decryptionsStore[_decryptionShareList->getBlockId()];
-
-
-    if ( decryptionShareListSet.size() >= requiredSigners ) {
-        return;
-    }
-
-    if (!decryptionShareListSet.empty()) {
-        auto firstShare = decryptionShareListSet.begin()->second;
-        CHECK_STATE( firstShare->getProposerIndex() == _decryptionShareList->getProposerIndex() );
-        CHECK_STATE( firstShare->getSize() == _decryptionShareList->getSize() );
-    }
-
-    decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
-
     std::vector<folly::Future<folly::Unit>> futures;
     futures.reserve(decryptionShareSets.size());
     auto blockId = _decryptionShareList->getBlockId();
 
-    if (decryptionShareSets[blockId].empty()) {
-        for ( auto&& decryptionShareIterator : _decryptionShareList->getDecryptionShares() ) {
-            decryptionShareSets[blockId][decryptionShareIterator.first] =
-                sChain->getBiteManager()->createAESDecryptionShareSet(
-                        blockId, decryptionShareIterator.first );
+    {
+        WRITE_LOCK(decryptionSetsMutex);
+
+        map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
+            decryptionsStore[_decryptionShareList->getBlockId()];
+
+
+        if ( decryptionShareListSet.size() >= requiredSigners ) {
+            return;
+        }
+
+        if (!decryptionShareListSet.empty()) {
+            auto firstShare = decryptionShareListSet.begin()->second;
+            CHECK_STATE( firstShare->getProposerIndex() == _decryptionShareList->getProposerIndex() );
+            CHECK_STATE( firstShare->getSize() == _decryptionShareList->getSize() );
+        }
+
+        decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
+
+        if (decryptionShareSets[blockId].empty()) {
+            for ( auto&& decryptionShareIterator : _decryptionShareList->getDecryptionShares() ) {
+                decryptionShareSets[blockId][decryptionShareIterator.first] =
+                    sChain->getBiteManager()->createAESDecryptionShareSet(
+                            blockId, decryptionShareIterator.first );
+            }
         }
     }
 
