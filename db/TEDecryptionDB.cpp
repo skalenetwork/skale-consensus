@@ -213,6 +213,9 @@ void TEDecryptionDB::addMyDecryptionShares(
     CHECK_ARGUMENT( _decryptionShareList )
 
 
+    addDecryptionShares(_decryptionShareList);
+
+
     auto serializedList = BiteAESDecryptionShareSerializer::serialize( _decryptionShareList );
     CHECK_STATE( serializedList );
 

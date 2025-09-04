@@ -121,9 +121,9 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
     // database when proposal is committed
     _proposal->setMyDecryptionShares(decryptionShareList);
 
-    if (_proposal->getFailedTransactionsRef().empty()) {
-        getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
-    }
+
+    getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
+
 }
 
 
