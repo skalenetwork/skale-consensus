@@ -108,7 +108,13 @@ void TEDecryptionDB::addDecryptionShares(
         CHECK_STATE( firstShare->getSize() == _decryptionShareList->getSize() );
     }
 
-    decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
+    auto index = _decryptionShareList->getDecryptorIndex();
+
+    if (decryptionShareListSet.count(index) > 0) {
+        return;
+    }
+
+    decryptionShareListSet[index] = _decryptionShareList;
 
 };
 
@@ -247,8 +253,12 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
         reinterpret_cast< const uint8_t* >( result.data() ),
         reinterpret_cast< const uint8_t* >( result.data() ) + result.size() );
 
-    return BiteAESDecryptionShareSerializer::deserialize(
+    auto shares =  BiteAESDecryptionShareSerializer::deserialize(
         data, getSchain()->getCryptoManager(), false );
+
+    addDecryptionShares(shares);
+
+    return shares;
 }
 
 
