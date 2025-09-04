@@ -9,6 +9,7 @@ class DecryptedAESKeyList;
 class BlockProposal;
 
 class AESKeyDecryptionShareList;
+class AESKeyDecryptionShareSet;
 class EncryptedAESKey;
 
 namespace folly {
@@ -25,6 +26,7 @@ class TEDecryptionDB : public CacheLevelDB {
     recursive_mutex teDecryptionMutex;
 
     map<block_id, map<schain_index, ptr< AESKeyDecryptionShareList>>> decryptionsStore;
+    map<block_id, map< transaction_index, ptr< AESKeyDecryptionShareSet >>> decryptionShareSets;
     shared_mutex decryptionSetsMutex;
 
     std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;

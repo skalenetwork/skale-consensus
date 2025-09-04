@@ -40,7 +40,7 @@ public:
         return decryptionShares;
     }
 
-
+    void reserve(size_t _size);
 
     void addShare(transaction_index _index, const ptr<AESKeyDecryptionShare> &_decryptShare);
 

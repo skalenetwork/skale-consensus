@@ -365,7 +365,7 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
 
 
 ptr<AESKeyDecryptionShare> BiteManager::createAESDecryptionShare(
-        const string _aesKeyDecryptionShare, schain_index _decryptorIndex, bool _decryptionFailed) {
+        const string& _aesKeyDecryptionShare, schain_index _decryptorIndex, bool _decryptionFailed) {
     if (doRealCrypto) {
         return make_shared<ConsensusAESKeyDecryptionShare>(
                 _aesKeyDecryptionShare, _decryptorIndex, _decryptionFailed);

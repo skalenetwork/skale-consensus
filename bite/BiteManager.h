@@ -49,6 +49,9 @@ public:
         return &schain;
     }
 
+    [[nodiscard]] std::shared_ptr<folly::CPUThreadPoolExecutor> getExecutor() {
+        return threadPoolExecutor;
+    }
 
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromAESKeys(
             ptr<BlockProposal> _proposal,
@@ -57,7 +60,7 @@ public:
     [[nodiscard]] ptr<DecryptedTransactionFieldsMap> verifyAndDecryptTransactionList(TransactionList &_transactionList,
                                                                                      DecryptedAESKeyList &_aesKeys);
 
-    [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
+    [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(const string& _aesKeyDecryptionShare,
                                                                       schain_index _decryptorIndex,
                                                                       bool _decryptionFailed);
 
@@ -79,5 +82,5 @@ public:
 
     [[nodiscard]] bool isRealCryptoEnabled() const;
 
-    void  computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
+    void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
 };
