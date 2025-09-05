@@ -88,6 +88,12 @@ void TEDecryptionDB::addDecryptionShares(
     const ::std::shared_ptr< AESKeyDecryptionShareList >& _decryptionShareList ) {
     CHECK_ARGUMENT( _decryptionShareList );
 
+    // we dont need to store shares twice if we have shares from this node already
+    auto index = _decryptionShareList->getDecryptorIndex();
+    if ( decryptionsStore.count(_decryptionShareList->getBlockId()) > 0 )
+        if ( decryptionsStore.at(_decryptionShareList->getBlockId()).count(index) > 0 )
+            return;
+
     auto serializedList = BiteAESDecryptionShareSerializer::serialize( _decryptionShareList );
     CHECK_STATE( serializedList );
 
@@ -112,7 +118,7 @@ void TEDecryptionDB::addDecryptionShares(
             CHECK_STATE( firstShare->getSize() == _decryptionShareList->getSize() );
         }
 
-        decryptionShareListSet[_decryptionShareList->getDecryptorIndex()] = _decryptionShareList;
+        decryptionShareListSet[index] = _decryptionShareList;
 
         if (decryptionShareSets[blockId].empty()) {
             for ( auto&& decryptionShareIterator : _decryptionShareList->getDecryptionShares() ) {
