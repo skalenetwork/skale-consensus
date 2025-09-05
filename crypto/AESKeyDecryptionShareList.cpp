@@ -10,6 +10,9 @@ schain_index AESKeyDecryptionShareList::getDecryptorIndex() const {
     return decryptorIndex;
 }
 
+void AESKeyDecryptionShareList::reserve(size_t _size) {
+    decryptionShares.reserve( _size );
+}
 
 // Optional: Add public access methods
 void AESKeyDecryptionShareList::addShare(transaction_index _index, const ptr<AESKeyDecryptionShare> &_decryptShare) {
