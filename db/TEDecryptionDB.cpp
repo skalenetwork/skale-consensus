@@ -255,9 +255,6 @@ void TEDecryptionDB::addMyDecryptionShares(
 
 
     writeByteArray( key, serializedList );
-
-    CHECK_STATE( getMyDecryptionShares(
-        _decryptionShareList->getBlockId(), _decryptionShareList->getProposerIndex() ) );
 }
 
 ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
