@@ -16,31 +16,29 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file FinalizeMessage.h
+    @file DoNotHaveProposalYetException.h
     @author Stan Kladko
     @date 2018
 */
 
 #pragma once
+class Header;
+class ServerConnection;
 
-class BlockSignBroadcastMessage : public NetworkMessage {
+#include "NetworkProtocolException.h"
+
+class DoNotHaveProposalYetException : public NetworkProtocolException {
+    ptr< Header > responseHeader;
+
 public:
-    BlockSignBroadcastMessage( block_id _blockID,
-#ifdef BITE
-    epoch_id _epochID,
-#endif
-    schain_index _blockProposerIndex, uint64_t _time,
-        ProtocolInstance& _sourceProtocolInstance );
+    ptr< Header > getResponseHeader() const { return responseHeader; }
 
-    BlockSignBroadcastMessage( node_id _srcNodeID, block_id _blockID,
-#ifdef BITE
-    epoch_id _epochID,
-#endif
-        schain_index _blockProposerIndex, uint64_t _time, schain_id _schainId, msg_id _msgID,
-        const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
-        const string& _pubKey, const string& _pkSig, Schain* _sChain );
+    ptr< ServerConnection > getConnection() const { return connection; }
 
-    virtual bin_consensus_round getRound() const override;
+private:
+    ptr< ServerConnection > connection;
 
-    virtual bin_consensus_value getValue() const override;
+public:
+    DoNotHaveProposalYetException( )
+        : NetworkProtocolException( "No proposal yet", "DoNotHaveProposalYetException" ) {};
 };

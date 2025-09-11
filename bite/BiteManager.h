@@ -7,52 +7,65 @@
 #include <crypto/AESKeyDecryptionShareSet.h>
 #include "node/ConsensusInterface.h"
 #include "abstracttcpserver/ConnectionStatus.h"
+
 class Schain;
+
 class BlockProposal;
+
 class CommittedBlock;
+
 class DecryptedAESKeyList;
+
 class AESKeyDecryptionShareList;
+
 class BiteDataField;
+
 class TransactionList;
+
 class EncryptedAESKey;
+
+namespace folly {
+class CPUThreadPoolExecutor;
+}
 
 class BiteManager {
     Schain &schain;
     bool doRealCrypto = false;
+    std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
 
 public:
     explicit BiteManager(Schain &_schain);
 
-    static void parseBITETransactions(ptr<BlockProposal> _proposal, u256 _currentEpochId);
+    static void parseBITETransactions(ptr<BlockProposal> _proposal);
 
     // this will return a map of failed transactions
     // if none of the transactions fails, the  proposal is set with decryption shares
 
-    [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromDataFields(
-        vector<ptr<BiteDataField> > &_dataFields, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
-
 
     [[nodiscard]][[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(
-        ptr<BlockProposal> _proposal);
+            ptr<BlockProposal> _proposal);
 
     [[nodiscard]] Schain *getSchain() const {
         return &schain;
     }
 
+    [[nodiscard]] std::shared_ptr<folly::CPUThreadPoolExecutor> getExecutor() {
+        return threadPoolExecutor;
+    }
 
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromAESKeys(
-        vector<ptr<EncryptedAESKey> > &_encryptedAESKeys,
-        schain_index _decryptorIndex, map<transaction_index, ConnectionSubStatus> &_failedTransactions);
+            ptr<BlockProposal> _proposal,
+            schain_index _decryptorIndex);
 
     [[nodiscard]] ptr<DecryptedTransactionFieldsMap> verifyAndDecryptTransactionList(TransactionList &_transactionList,
-        DecryptedAESKeyList &_aesKeys);
+                                                                                     DecryptedAESKeyList &_aesKeys);
 
-    [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(string _aesKeyDecryptionShare,
+    [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(const string& _aesKeyDecryptionShare,
                                                                       schain_index _decryptorIndex,
                                                                       bool _decryptionFailed);
 
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
-        block_id _blockId, transaction_index _transactionIndex);
+            block_id _blockId, transaction_index _transactionIndex);
 
     // TODO - change the name of this method
     [[nodiscard]] DecryptedTransactionFields decryptFields(const ptr<BiteDataField> &bite, DecryptedAESKey &_key) const;
@@ -63,9 +76,11 @@ public:
                                                                   const vector<uint8_t> &_to);
 
 
-    [[nodiscard]] map<transaction_index, ConnectionSubStatus> verifyAndCreateMyDecryptionSharesForProposalTransactions(
-        ptr<BlockProposal> _proposal);
+    void callSGXToCreateMyDecryptionSharesForProposalTransactions(
+            ptr<BlockProposal> _proposal);
 
 
-    bool isRealCryptoEnabled() const;
+    [[nodiscard]] bool isRealCryptoEnabled() const;
+
+    void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
 };

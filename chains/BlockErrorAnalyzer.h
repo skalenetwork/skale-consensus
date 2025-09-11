@@ -38,6 +38,8 @@ public:
     virtual void analyze( ptr< CommittedBlock > _block );
 
     BlockErrorAnalyzer();
+
+    virtual ~BlockErrorAnalyzer() {};
 };
 
 #endif

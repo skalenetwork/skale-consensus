@@ -47,6 +47,11 @@ protected:
     schain_id schainID;
     node_id proposerNodeID;
     block_id blockID;
+
+#ifdef BITE
+    epoch_id epochID;
+#endif
+
     schain_index proposerIndex;
     BLAKE3Hash hash;
     ptr< ThresholdSignature > thresholdSig;
@@ -59,6 +64,10 @@ public:
     [[nodiscard]] node_id getProposerNodeId() const;
 
     [[nodiscard]] block_id getBlockId() const;
+
+#ifdef BITE
+    [[nodiscard]] epoch_id getEpochId() const;
+#endif
 
     [[nodiscard]] schain_index getProposerIndex() const;
 

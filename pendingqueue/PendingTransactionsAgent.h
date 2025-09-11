@@ -103,7 +103,8 @@ public:
     ptr< Transaction > getKnownTransactionByPartialHash( ptr< partial_sha_hash > hash );
 
     ptr< BlockProposal > buildBlockProposal(
-        block_id _blockID, TimeStamp& _previousBlockTimeStamp, bool _isCalledAfterCatchup );
+        block_id _blockID,
+        TimeStamp& _previousBlockTimeStamp, bool _isCalledAfterCatchup );
 
     uint64_t getTransactionListWaitTime() const { return transactionListWaitTime; };
 

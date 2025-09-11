@@ -176,7 +176,12 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
 
     try {
         block = CommittedBlock::make(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
-                                     blockHeader->getBlockID(), blockHeader->getProposerIndex(), transactionList,
+                                     blockHeader->getBlockID(),
+#ifdef BITE
+                                     blockHeader->getEpochID(),
+#endif
+
+                                     blockHeader->getProposerIndex(), transactionList,
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),

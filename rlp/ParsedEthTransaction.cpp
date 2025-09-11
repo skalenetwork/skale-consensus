@@ -47,7 +47,6 @@ ptr< ParsedEthTransaction > ParsedEthTransaction::parse( const std::vector< uint
     } else if ( prefix >= 0xc0 ) {
         result->type = 0;
         RLPItem rlpItem( _rawTx, offset );
-        size_t parsedItems = rlpItem.size();
         CHECK_STATE2( rlpItem.isList(), "RLP item is not a list" );
         CHECK_STATE2( rlpItem.size() == 9, "Expected " + std::to_string(9) +
                       " fields, found: " + std::to_string(rlpItem.size()) );
@@ -61,7 +60,7 @@ ptr< ParsedEthTransaction > ParsedEthTransaction::parse( const std::vector< uint
     return result;
 }
 
-void ParsedEthTransaction::validateAll() {
+void ParsedEthTransaction::validateAll() const {
     validateFieldsCount();
     validateToField();
     validateSignature();
@@ -86,7 +85,7 @@ void ParsedEthTransaction::validateFieldsCount() const {
                   " fields, found: " + std::to_string(fields.size()) );
 
 }
-void ParsedEthTransaction::validateToField() {
+void ParsedEthTransaction::validateToField() const {
     // if type 0, then idx is 3
     // if type 1, then idx is 4
     // if type 2, then idx is 5
@@ -97,7 +96,7 @@ void ParsedEthTransaction::validateToField() {
     CHECK_STATE2( toField.empty() || toField.size() == 20, "Invalid 'to' address length");
 }
 
-inline bool ParsedEthTransaction::isZero( const std::vector< uint8_t >& _data ) {
+inline bool ParsedEthTransaction::isZero( const std::vector< uint8_t >& _data )  const {
     for ( uint8_t byte : _data ) {
         if ( byte != 0 )
             return false;
@@ -116,7 +115,7 @@ std::vector< uint8_t > padTo32Bytes( const std::vector< uint8_t >& input ) {
     return result;
 }
 
-void ParsedEthTransaction::validateSignature() {
+void ParsedEthTransaction::validateSignature() const{
     const auto v = fields[ fields.size() - 3 ].asBytes();
     const auto r = fields[ fields.size() - 2 ].asBytes();
     const auto s = fields[ fields.size() - 1 ].asBytes();
@@ -149,6 +148,7 @@ void ParsedEthTransaction::validateSignature() {
     auto r_padded = padTo32Bytes( r );
     auto s_padded = padTo32Bytes( s );
     Signature sig(v, r_padded, s_padded);
+
 
     txWithoutSigRef.verifySignature( sig );
 
@@ -238,3 +238,4 @@ size_t ParsedEthTransaction::getDataFieldIndex() const {
     // Type 2    -> 5 + 2 = 7
     return 5 + type;
 }
+

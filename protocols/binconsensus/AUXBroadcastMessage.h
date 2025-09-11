@@ -33,10 +33,17 @@ class BinConsensusInstance;
 class AUXBroadcastMessage : public NetworkMessage {
 public:
     AUXBroadcastMessage( bin_consensus_round _round, bin_consensus_value _value, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
         schain_index _proposerIndex, uint64_t _time,
         BinConsensusInstance& _sourceProtocolInstance );
 
-    AUXBroadcastMessage( node_id _srcNodeID, block_id _blockID, schain_index _blockProposerIndex,
+    AUXBroadcastMessage( node_id _srcNodeID, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
+        schain_index _blockProposerIndex,
         bin_consensus_round _r, bin_consensus_value _value, uint64_t _time, schain_id _schainId,
         msg_id _msgID, const string& _blsSigShare, schain_index _srcSchainIndex,
         const string& _ecdsaSig, const string& _pubKey, const string& _pkSig, Schain* _sChain );

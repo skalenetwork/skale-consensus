@@ -36,7 +36,7 @@ class BlockDB : public CacheLevelDB {
 
     void saveBlock2LevelDB( const ptr< CommittedBlock >& _block );
 
-    cache::lru_cache< uint64_t, ptr< vector< uint8_t > > > blockCache;  // tsafe
+    cache::lru_cache< uint64_t, ptr< CommittedBlock > > blockCache;  // tsafe
 
 public:
     BlockDB(

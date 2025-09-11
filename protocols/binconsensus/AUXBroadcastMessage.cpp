@@ -52,6 +52,9 @@ ptr< BLAKE3Hash > AUXBroadcastMessage::getCommonCoinHash() {
     HASH_UPDATE( hashObj, bpi );
     HASH_UPDATE( hashObj, this->r );
     HASH_UPDATE( hashObj, this->blockID );
+#ifdef BITE
+    HASH_UPDATE( hashObj, this->epochID );
+#endif
     HASH_UPDATE( hashObj, this->schainID );
     HASH_UPDATE( hashObj, this->msgType );
 
@@ -62,9 +65,17 @@ ptr< BLAKE3Hash > AUXBroadcastMessage::getCommonCoinHash() {
 
 
 AUXBroadcastMessage::AUXBroadcastMessage( bin_consensus_round _round, bin_consensus_value _value,
-    block_id _blockID, schain_index _proposerIndex, uint64_t _time,
+    block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
+    schain_index _proposerIndex, uint64_t _time,
     BinConsensusInstance& _sourceProtocolInstance )
-    : NetworkMessage( MSG_AUX_BROADCAST, _blockID, _proposerIndex, _round, _value, _time,
+    : NetworkMessage( MSG_AUX_BROADCAST, _blockID,
+#ifdef BITE
+    _epochID,
+#endif
+    _proposerIndex, _round, _value, _time,
           _sourceProtocolInstance ) {
     printPrefix = "a";
     auto schain = _sourceProtocolInstance.getSchain();
@@ -74,6 +85,9 @@ AUXBroadcastMessage::AUXBroadcastMessage( bin_consensus_round _round, bin_consen
     HASH_UPDATE( hashObj, bpi );
     HASH_UPDATE( hashObj, this->r );
     HASH_UPDATE( hashObj, this->blockID );
+#ifdef BITE
+    HASH_UPDATE( hashObj, this->epochID );
+#endif
     HASH_UPDATE( hashObj, this->schainID );
     HASH_UPDATE( hashObj, this->msgType );
 
@@ -91,11 +105,18 @@ AUXBroadcastMessage::AUXBroadcastMessage( bin_consensus_round _round, bin_consen
 }
 
 AUXBroadcastMessage::AUXBroadcastMessage( node_id _srcNodeID, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
     schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
     uint64_t _time, schain_id _schainId, msg_id _msgID, const string& _blsSigShare,
     schain_index _srcSchainIndex, const string& _ecdsaSig, const string& _pubKey,
     const string& _pkSig, Schain* _sChain )
-    : NetworkMessage( MSG_AUX_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, _r, _value,
+    : NetworkMessage( MSG_AUX_BROADCAST, _srcNodeID, _blockID,
+#ifdef BITE
+    _epochID,
+#endif
+    _blockProposerIndex, _r, _value,
           _time, _schainId, _msgID, _blsSigShare, _ecdsaSig, _pubKey, _pkSig, _srcSchainIndex,
           _sChain->getCryptoManager() ) {
     printPrefix = "a";
