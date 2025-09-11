@@ -27,6 +27,14 @@
 #include <sched.h>
 #include <unordered_set>
 
+#ifdef BITE
+// avoid macro definition conflicts
+#pragma push_macro("CHECK")
+#pragma push_macro("LOG")
+#include <folly/executors/CPUThreadPoolExecutor.h>
+#pragma pop_macro("LOG")
+#pragma pop_macro("CHECK")
+#endif
 
 #include "Log.h"
 #include "SkaleCommon.h"
@@ -329,11 +337,16 @@ void Schain::constructChildAgents() {
 
 #ifdef BITE
         biteManager = make_shared<BiteManager>(*this);
+        finalizationExecutor = ::make_shared<folly::CPUThreadPoolExecutor>(1);
 #endif
+
 
         if (getNode()->isSyncOnlyNode()) {
             return;
         }
+
+
+
 
         pendingTransactionsAgent = make_shared<PendingTransactionsAgent>(*this);
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
@@ -537,7 +550,11 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
             committedProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _committedBlockID, _proposerIndex);
         } else {
-            committedProposal = createDefaultEmptyBlockProposal(_committedBlockID);
+            committedProposal = createDefaultEmptyBlockProposal(_committedBlockID
+#ifdef BITE
+             , getNode()->getCurrentEpochId()
+#endif
+            );
         }
 
         CHECK_STATE(committedProposal);
@@ -593,11 +610,6 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
                 _proposedBlockID, getSchainIndex());
             // getBlockProposal() already calls for verifyAndCreateMyDecryptionSharesForProposalTransactions
             // no need to call it twice
-//#ifdef BITE
-//            // The proposal was saved do the db, but we need decryption shares
-//            CHECK_STATE(getSchain()->getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(
-//                myProposal).empty());
-//#endif
         } else {
             auto stamp = getLastCommittedBlockTimeStamp();
             myProposal = pendingTransactionsAgent->buildBlockProposal(
@@ -608,10 +620,6 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
 
         CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
         CHECK_STATE(myProposal->getSignature() != "");
-#ifdef BITE
-        CHECK_STATE(myProposal->getMyDecryptionShares())
-#endif
-
 
         proposedBlockArrived(myProposal);
 
@@ -621,6 +629,27 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
             // last time
             return; // dont propose
         }
+
+
+#ifdef BITE
+
+        getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
+
+        if (!myProposal->getFailedTransactionsRef().empty()) {
+            LOG(err, "Critical error - invalid BITE transactions");
+            LOG(err, "Proposing default block instead");
+            return;
+        }
+
+
+        getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
+        if (!myProposal->getFailedTransactionsRef().empty()) {
+            LOG(err, "Critical error - could not decrypt BITE transactions");
+            LOG(err, "Proposing default block instead");
+            return;
+        }
+        CHECK_STATE(myProposal->getMyDecryptionShares());
+#endif
 
         LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ));
 
@@ -953,7 +982,11 @@ void Schain::startConsensus(
     CHECK_STATE(blockConsensusInstance);
     CHECK_STATE(_proposalVector);
 
-    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID, _proposalVector);
+    auto message = make_shared<ConsensusProposalMessage>(*this, _blockID,
+#ifdef BITE
+    getNode()->getCurrentEpochId(),
+#endif
+    _proposalVector);
 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
@@ -1330,25 +1363,35 @@ void Schain::constructServers(const ptr<Sockets> &_sockets) {
             make_shared<BlockProposalServerAgent>(*this, _sockets->blockProposalSocket);
 }
 
-ptr<BlockProposal> Schain::createDefaultEmptyBlockProposal(block_id _blockId) {
+ptr<BlockProposal> Schain::createDefaultEmptyBlockProposal(block_id _blockId
+#ifdef BITE
+    , epoch_id _epochID
+#endif
+) {
     TimeStamp newStamp; {
         lock_guard<mutex> l(lastCommittedBlockInfoMutex);
         newStamp = lastCommittedBlockTimeStamp.incrementByMs();
     }
 
     return make_shared<ReceivedBlockProposal>(
-        *this, _blockId, newStamp.getS(), newStamp.getMs(), 0);
+        *this, _blockId,
+#ifdef BITE
+        _epochID,
+#endif
+        newStamp.getS(), newStamp.getMs(), 0);
 }
 
 
 void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex,
                                            const ptr<ThresholdSignature> &_thresholdSig) {
+
+    checkForExit();
 #ifdef BITE
-    std::thread([=]() {
+    getFinalizationExecutor()->add([=]() {
+#endif
         finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
-    }).detach();
-#else
-    finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
+#ifdef BITE
+    });
 #endif
 };
 
@@ -1396,6 +1439,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
     }
 
 
+
     try {
         if (_proposerIndex == 0) {
             // default empty block
@@ -1407,7 +1451,6 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             return;
         }
 
-
         if (!haveAllElementsToFinalizeBlock(_blockId, _proposerIndex) ||
             // force download  - this switch is for testing only
             getNode()->getTestConfig()->isFinalizationDownloadOnly()
@@ -1415,27 +1458,36 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // Dowload missing objects - proposal, daProof, and decryption shares
             // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
             // guaranteed to posSess the proposal
-            auto agent = make_unique<BlockFinalizeDownloader>(this, _blockId, _proposerIndex); {
-                const string msg = "Finalization download:" + to_string(_blockId) + ":" +
+            auto newDownloaderAgent = make_shared<BlockFinalizeDownloader>(this, _blockId,
+#ifdef BITE
+            getNode()->getCurrentEpochId(),
+#endif
+            _proposerIndex);
+
+            // at this point the destructor of the previous agent will be called
+            // this will make all its threads to exit
+            downloaderAgent =  newDownloaderAgent;
+
+
+            const string msg = "Finalization download:" + to_string(_blockId) + ":" +
                                    to_string(_proposerIndex);
 
-                MONITOR(__CLASS_NAME__, msg.c_str());
+            MONITOR(__CLASS_NAME__, msg.c_str());
                 // This will complete successfully also if block arrives through catchup
-                auto completedDownload = agent->downloadProposalDAProofAndDecryptions();
+            auto completedDownload = downloaderAgent->downloadProposalDAProofAndDecryptions();
                 // if null is returned it means that catchup happened first and
                 // the block will be processed through catchup
-                if (!completedDownload) {
+            if (!completedDownload) {
                     // catchup happened
-                    return;
-                }
-                CHECK_STATE(haveAllElementsToFinalizeBlock(_blockId, _proposerIndex));
+                return;
             }
+            CHECK_STATE(haveAllElementsToFinalizeBlock(_blockId, _proposerIndex));
         }
 
 
-    auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
-    CHECK_STATE(proposal);
-    blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
+        auto proposal = getNode()->getBlockProposalDB()->getBlockProposal(_blockId, _proposerIndex);
+        CHECK_STATE(proposal);
+        blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
 
 #ifdef BITE
         getNode()->getTEDecryptionDB()->addDecryptionShares(proposal->getMyDecryptionShares());
@@ -1708,3 +1760,10 @@ uint64_t Schain::getBlockFinalizationStageTimeMs() {
     blockFinalizationStartTimeMs = blockFinalizationFinishTimeMs = 0;
     return blockFinalizationStageTimeMs;
 }
+
+#ifdef BITE
+const shared_ptr< folly::CPUThreadPoolExecutor >& Schain::getFinalizationExecutor() const {
+    CHECK_STATE(finalizationExecutor);
+    return finalizationExecutor;
+}
+#endif

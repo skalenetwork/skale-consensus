@@ -30,10 +30,10 @@ ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
     CHECK_ARGUMENT( _decryptionShare != "" );
 
     try {
+        // validate() is called in TEDecryptionShare constructor
         aesKeyDecryptionShare =
             std::make_shared< TEDecryptionShare >( _decryptionShare, ( uint64_t ) _decryptorIndex );
-        aesKeyDecryptionShare->validate();
-    } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION( err, "Could not create BLSSDecryptionShare" );
+    } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION( err, "Could not create TEDecryptionShare" );
 }
 
 

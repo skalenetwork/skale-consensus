@@ -257,11 +257,11 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
             ecdsaKeyName, ecdsaPublicKeys, blsKeyName, blsPublicKeys, blsPublicKey, gethURL,
             previousBlsPublicKeys, historicECDSAPublicKeys, historicNodeGroups );
 
-        JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
-
 #ifdef BITE
         node->setEpochId( epochId );
 #endif
+
+        JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
 
         nodes[node->getNodeID()] = node;
 

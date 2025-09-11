@@ -37,8 +37,12 @@ class BlockFinalizeRequestHeader : public AbstractBlockRequestHeader {
 
 
 public:
-    BlockFinalizeRequestHeader( Schain& _sChain, block_id _blockID, schain_index _proposerIndex,
-        node_id _nodeID, fragment_index _fragmentIndex
+    BlockFinalizeRequestHeader( Schain& _sChain, block_id _blockID,
+#ifdef BITE
+        epoch_id _epochID,
+#endif
+
+        schain_index _proposerIndex, node_id _nodeID, fragment_index _fragmentIndex
 #ifdef BITE
         ,  bool _needDAProofSig
         , bool _needDecryptionShares

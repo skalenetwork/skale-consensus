@@ -48,8 +48,15 @@ bin_consensus_value BlockSignBroadcastMessage::getValue() const {
 
 
 BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID   ,
+#endif
     schain_index _blockProposerIndex, uint64_t _time, ProtocolInstance& _sourceProtocolInstance )
-    : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _blockID, _blockProposerIndex, 4, 0, _time,
+    : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _blockID,
+#ifdef BITE
+    _epochID,
+#endif
+    _blockProposerIndex, 4, 0, _time,
           _sourceProtocolInstance ) {
     printPrefix = "f";
 
@@ -63,10 +70,17 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
 
 
 BlockSignBroadcastMessage::BlockSignBroadcastMessage( node_id _srcNodeID, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
     schain_index _blockProposerIndex, uint64_t _time, schain_id _schainId, msg_id _msgID,
     const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
     const string& _pubKey, const string& _pkSig, Schain* _sChain )
-    : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID, _blockProposerIndex, 4, 0,
+    : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID,
+#ifdef BITE
+          _epochID,
+#endif
+    _blockProposerIndex, 4, 0,
           _time, _schainId, _msgID, _sigShare, _ecdsaSig, _pubKey, _pkSig, _srcSchainIndex,
           _sChain->getCryptoManager() ) {
     CHECK_ARGUMENT( !_sigShare.empty() );

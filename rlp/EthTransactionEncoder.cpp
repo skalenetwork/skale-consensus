@@ -35,6 +35,8 @@ std::vector< uint8_t > EthTransactionEncoder::generateRandomPrivateKey() {
 
 
 ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const EthTransaction& tx ) {
+
+
     std::vector< uint8_t > privkey = generateRandomPrivateKey();
     Signature signature = tx.sign(privkey);
 

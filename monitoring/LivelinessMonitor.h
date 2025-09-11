@@ -31,10 +31,13 @@
         make_shared< LivelinessMonitor >( getSchain()->getMonitoringAgent(), _C_, _F_, _T_ ); \
     getSchain()->getMonitoringAgent()->registerMonitor( __L__ );
 
+
+#define UNIQUE_NAME(base) base##__LINE__
+
 #define MONITOR( _C_, _F_ )                                                                    \
-    auto __L__ =                                                                               \
+    auto UNIQUE_NAME(__monitor__)  =                                                                               \
         make_shared< LivelinessMonitor >( getSchain()->getMonitoringAgent(), _C_, _F_, 2000 ); \
-    getSchain()->getMonitoringAgent()->registerMonitor( __L__ );
+    getSchain()->getMonitoringAgent()->registerMonitor( UNIQUE_NAME(__monitor__)  );
 
 
 class LivelinessMonitor {

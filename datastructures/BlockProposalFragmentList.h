@@ -66,11 +66,14 @@ public:
     BlockProposalFragmentList( const block_id& _blockId, uint64_t _totalFragments );
 
     bool addFragment(
-        const ptr< BlockProposalFragment >& _fragment, uint64_t& _nextIndexToRetrieve );
+        const ptr< BlockProposalFragment >& _fragment);
 
     uint64_t nextIndexToRetrieve();
 
     bool isComplete();
+
+
+    uint64_t fragmentCount();
 
     const ptr< vector< uint8_t > > serialize();
 };

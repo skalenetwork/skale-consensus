@@ -1,6 +1,14 @@
 #pragma once
 #include <vector>
 #include <cstdint>
+
+
+#include <folly/Range.h>
+#include <folly/hash/Hash.h>
+// since verifying Ethereum transaction is expensive (around 200ms), we cache
+// hashes of previously verified transactionsc  (64 000 transactions)
+#include "thirdparty/lrucache.hpp"
+
 #include "RLPStream.h"
 #include "RLP.h"
 
@@ -50,9 +58,53 @@ struct Signature {
     Signature& operator=(const Signature&) = default;
     Signature& operator=(Signature&&) noexcept = default;
     ~Signature() = default;
+
+    // Equality operators
+    bool operator==(const Signature& other) const noexcept {
+        return v == other.v && r == other.r && s == other.s;
+    }
+
+    bool operator!=(const Signature& other) const noexcept {
+        return !(*this == other);
+    }
 };
 
 struct AccessTuple;
+
+
+// we need this to use array as a key because C++ does not provide hash for std:array before C++20
+// to save memory, first 20 bytes is enough for a key
+struct Key20 : public sha_hash {
+    using sha_hash::array;
+
+    Key20() = default;
+
+    // Constructor from std::array
+    explicit Key20(const std::array<unsigned char, 32>& src) {
+        std::copy(src.begin(), src.end(), this->begin());
+    }
+
+
+    bool operator==(const Key20& other) const {
+        return std::equal(this->begin(), this->end(), other.begin());
+    }
+
+    bool operator!=(const Key20& other) const {
+        return !(*this == other);
+    }
+};
+
+// Specialize std::hash using Folly
+namespace std {
+    template <>
+    struct hash<Key20> {
+        std::size_t operator()(const Key20& key) const noexcept {
+            return folly::hash::hash_range(key.begin(), key.end());
+        }
+    };
+}
+
+constexpr uint64_t VERIFIED_TX_SIGS_CACHE_SIZE = 64 * 1000;
 
 /**
  * @brief Base EthTransaction fields - common to all EthTransactions.
@@ -68,6 +120,11 @@ struct EthTransaction {
     std::vector< uint8_t > data;
     // not included in RLP-encoding for legacy tx
     uint256 chainId;
+
+    // we keep cache of last 64 000 recently verified transaction hashes. This amounts to around 1.3MB RAM
+    // but guarantees that we do not have to verify signature of the same transaction twice
+    static cache::lru_cache<Key20, Signature> verifiedTransactionHashes;
+
 
     EthTransaction(
         const uint256& nonce,
@@ -98,7 +155,7 @@ struct EthTransaction {
      * @brief Verifies the signature of the transaction.
      * Replaces the v field with recovered v value depending on tx type
      */
-    void verifySignature(Signature &signature) const;
+    void  verifySignature(Signature &signature) const;
 
     /**
      * @brief Hashes the transaction using Keccak-256.
@@ -171,7 +228,7 @@ struct LegacyTx : EthTransaction {
     gasPrice(_gasPrice)
     {}
 
-    LegacyTx(RLPItem& fields) :
+    LegacyTx(const RLPItem& fields) :
         EthTransaction(
             fields[ 0 ].asBytes(), // nonce
             fields[ 2 ].asBytes(), // gasLimit
@@ -224,7 +281,7 @@ struct Type1Tx : EthTransaction {
         gasPrice(_gasPrice), accessList(_accessList)
     {}
 
-    Type1Tx(RLPItem& fields) :
+    Type1Tx(const RLPItem& fields) :
         EthTransaction(
             fields[ 1 ].asBytes(), // nonce
             fields[ 3 ].asBytes(), // gasLimit
@@ -266,7 +323,7 @@ struct Type2Tx : EthTransaction {
         maxPriorityFeePerGas(_maxPriorityFeePerGas), maxFeePerGas(_maxFeePerGas), accessList(_accessList)
     {}
 
-    Type2Tx(RLPItem& fields) :
+    Type2Tx(const RLPItem& fields) :
     EthTransaction(
         fields[ 1 ].asBytes(), // nonce
         fields[ 4 ].asBytes(), // gasLimit

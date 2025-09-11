@@ -35,8 +35,15 @@
 #include "ConsensusProposalMessage.h"
 
 ConsensusProposalMessage::ConsensusProposalMessage(
-    Schain& _sChain, const block_id& _blockID, const ptr< BooleanProposalVector > _proposals )
+    Schain& _sChain, const block_id& _blockID,
+#ifdef BITE
+    const epoch_id& _epochID,
+#endif
+    const ptr< BooleanProposalVector > _proposals )
     : Message( _sChain.getSchainID(), MSG_CONSENSUS_PROPOSAL, msg_id( 0 ), node_id( 0 ), _blockID,
+#ifdef BITE
+    _epochID,
+#endif
           schain_index( 1 ) ) {
     CHECK_ARGUMENT( _proposals );
     this->proposals = _proposals;
@@ -95,7 +102,11 @@ ptr< ConsensusProposalMessage > ConsensusProposalMessage::parseMessageLite(
         auto vector = make_shared< BooleanProposalVector >( _sChain->getNodeCount(), proposalsStr );
 
         auto msg = make_shared< ConsensusProposalMessage >(
-            *_sChain, _sChain->getLastCommittedBlockID() + 1, vector );
+            *_sChain, _sChain->getLastCommittedBlockID() + 1,
+#ifdef BITE
+        _sChain->getNode()->getCurrentEpochId(),
+#endif
+            vector );
         return msg;
 
     } catch ( ... ) {

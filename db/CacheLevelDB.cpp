@@ -347,8 +347,13 @@ shared_ptr< leveldb::DB > CacheLevelDB::openDB( uint64_t _index ) {
         leveldb::DB* dbase = nullptr;
 
 
-        CHECK_STATE2( leveldb::DB::Open( this->options, index2Path( _index ), &dbase ).ok(),
-            "Unable to open database" + index2Path( _index ) )
+
+        auto status  = leveldb::DB::Open( this->options, index2Path( _index ), &dbase );
+        if ( !status.ok() ) {
+            BOOST_THROW_EXCEPTION( LevelDBException(
+                "Could not open database: " + index2Path( _index ) + ": " + status.ToString(),
+                __CLASS_NAME__ ) );
+        }
         CHECK_STATE( dbase )
 
         return ptr< DB >( dbase );

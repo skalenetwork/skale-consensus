@@ -27,6 +27,12 @@
 
 
 #ifdef BITE
+// avoid macro definition conflicts
+#pragma push_macro("CHECK")
+#pragma push_macro("LOG")
+#include <folly/executors/CPUThreadPoolExecutor.h>
+#pragma pop_macro("LOG")
+#pragma pop_macro("CHECK")
 #include "bite/server/BiteBlockFinalizeServer.h"
 #endif
 
@@ -688,12 +694,20 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
     }
 
+
+
 #ifdef BITE
     if ( biteBlockFinalizeServer ) {
         biteBlockFinalizeServer->exitProxygenServer();
         LOG( info, "consensus engine exiting: exitProxygenServer called" );
     }
+
+
+    auto finalizationExecutor = getSchain()->getFinalizationExecutor();
 #endif
+
+
+
 }
 
 /*

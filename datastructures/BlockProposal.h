@@ -77,6 +77,9 @@ protected:
     schain_id schainID = 0;
     node_id proposerNodeID = 0;
     block_id blockID = 0;
+#ifdef BITE
+    epoch_id epochID = 0;
+#endif
     schain_index proposerIndex = 0;
     transaction_count transactionCount = 0;
     uint64_t timeStamp = 0;
@@ -105,6 +108,10 @@ protected:
     BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
 
     BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
+#ifdef BITE
+        epoch_id _epochID,
+#endif
+
                   schain_index _proposerIndex, const ptr<TransactionList> &_transactions, u256 _stateRoot,
                   uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
                   const ptr<CryptoManager> &_cryptoManager);
@@ -127,7 +134,12 @@ public:
     void setCachedSerializedProposal(const ptr<vector<uint8_t> > &_cachedSerializedProposal);
 
     static ptr<BlockProposal> makeFromSerialized(schain_id _sChainId, node_id _proposerNodeId,
-                                                 block_id _blockID, schain_index _proposerIndex,
+                                                 block_id _blockID,
+#ifdef BITE
+                                                 epoch_id _epochID,
+#endif
+
+                                                 schain_index _proposerIndex,
                                                  const ptr<TransactionList> &_transactions,
                                                  u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs,
                                                  const string &_signature,
@@ -151,6 +163,10 @@ public:
     ptr<TransactionList> getTransactionList();
 
     [[nodiscard]] block_id getBlockID() const;
+
+#ifdef BITE
+    [[nodiscard]] epoch_id getEpochID() const;
+#endif
 
     ~BlockProposal() override;
 
@@ -195,8 +211,8 @@ private:
 
     // this will normally be empty
     map<transaction_index, ConnectionSubStatus> failedTransactions;
-
-public:
+    // the encrypted AES key batch to send to SGX server
+    ptr<vector<ptr<string>>> sgxAESKeyBatch;
 
 public:
     [[nodiscard]] map<transaction_index, ConnectionSubStatus>& getFailedTransactionsRef() {
@@ -208,6 +224,19 @@ public:
         auto result = std::atomic_load(&myDecryptionShares);
         return result;
     }
+
+
+    [[nodiscard]] ptr<vector<ptr<string>>> getSGXAESKeyBatch() const {
+        auto result = std::atomic_load(&sgxAESKeyBatch);
+        return result;
+    }
+
+    void setSGXAESKeyBatch(
+            ptr<vector<ptr<string>>>  _sgxAESKeyBatch) {
+        CHECK_STATE(!sgxAESKeyBatch)
+        sgxAESKeyBatch = _sgxAESKeyBatch;
+    }
+
 
     [[nodiscard]] ptr<std::map<transaction_index, ptr<BiteDataField> > > getBiteDataFields() const {
         auto result = std::atomic_load(&biteDataFields);

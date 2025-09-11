@@ -39,10 +39,16 @@
 
 
 MyBlockProposal::MyBlockProposal( Schain& _sChain, const block_id& _blockID,
+#ifdef BITE
+    const epoch_id& _epochID,
+#endif
                                   const schain_index& _proposerIndex, const ptr< TransactionList >& _transactions,
                                   u256 _stateRoot, uint64_t _timeStamp, uint32_t _timeStampMs,
                                   const ptr< CryptoManager >& _cryptoManager )
     : BlockProposal( _sChain.getSchainID(), _sChain.getNodeIDByIndex( _proposerIndex ), _blockID,
+#ifdef BITE
+    _epochID,
+#endif
           _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, "",
           _cryptoManager ) {
     CHECK_STATE( _transactions );
@@ -51,40 +57,24 @@ MyBlockProposal::MyBlockProposal( Schain& _sChain, const block_id& _blockID,
 };
 
 ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
-    Schain &_sChain, const block_id &_blockID, const schain_index &_proposerIndex,
+    Schain &_sChain, const block_id &_blockID,
+#ifdef BITE
+    const epoch_id& _epochID,
+#endif
+    const schain_index &_proposerIndex,
     const ptr<TransactionList> &_transactions, u256 _stateRoot, uint64_t _timeStamp,
     uint32_t _timeStampMs, const ptr<CryptoManager> &_cryptoManager) {
     auto proposal = shared_ptr<MyBlockProposal>(new MyBlockProposal(
-        _sChain, _blockID, _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _cryptoManager));
-
+        _sChain, _blockID,
+#ifdef BITE
+        _epochID,
+#endif
+        _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _cryptoManager));
 
 #ifdef BITE
-    auto failedTransactions =
-            _sChain.getBiteManager()->verifyAndCreateMyDecryptionSharesForProposalTransactions(proposal);
-    if (!failedTransactions.empty()) {
-        LOG(err, "Could not decrypt BITE transactions");
-        LOG(err, "Proposing empty transactions instead");
-        // could not decrypt proposals, this means something is wrong with the SGX
-        // do an empty proposal instead
-        // TODO propose non-BITE transactions
-        proposal = MyBlockProposal::createMyProposal(_sChain, _blockID,
-                                                       _sChain.getSchainIndex(),
-                                                       make_shared<TransactionList>(
-                                                           make_shared<vector<ptr<Transaction> > >()),
-                                                       _stateRoot, _timeStamp, _timeStampMs,
-                                                       _cryptoManager);
-        BiteManager::parseBITETransactions(proposal, _sChain.getNode()->getCurrentEpochId());
-        CHECK_STATE(proposal->getFailedTransactionsRef().empty());
-// shares are already set inside verifyAndCreateMyDecryptionSharesForProposalTransactions function
-// no need to set them twice
-//        proposal->setMyDecryptionShares(make_shared<AESKeyDecryptionShareList>(
-//                                                   _blockID, _sChain.getSchainIndex(),
-//                                                   _sChain.getSchainIndex()));
-    }
+    BiteManager::parseBITETransactions(proposal);
+    CHECK_STATE(proposal->getFailedTransactionsRef().empty());
 #endif
-
-
-
     return proposal;
 }
 

@@ -35,6 +35,8 @@
 #include "bite/BiteManager.h"
 #endif
 
+
+
 class ThresholdSignature;
 class CommittedBlockList;
 class NetworkMessageEnvelope;
@@ -98,6 +100,9 @@ class OracleResultAssemblyAgent;
 class BiteBlockFinalizeServer;
 class BiteManager;
 class DecryptedAESKeyList;
+namespace folly {
+class CPUThreadPoolExecutor;
+}
 #endif
 
 class Schain : public Agent {
@@ -115,7 +120,6 @@ class Schain : public Agent {
     schain_id schainID = 0;
 
 #ifdef BITE
-    epoch_id epochID = 0;
     std::thread blockProcessingThread;
 #endif
 
@@ -156,6 +160,8 @@ class Schain : public Agent {
 
     ptr<OptimizerAgent> optimizerAgent;
 
+    ptr<BlockFinalizeDownloader> downloaderAgent;
+
     ptr< IO > io;
 
     // not null in regular mode
@@ -163,7 +169,10 @@ class Schain : public Agent {
 
 #ifdef BITE
     ptr< BiteManager > biteManager;
+    // this is executor thread used to run block finalization
+    ptr<folly::CPUThreadPoolExecutor> finalizationExecutor;
 #endif
+
 
     weak_ptr< Node > node;
 
@@ -227,7 +236,11 @@ class Schain : public Agent {
 
     void pushBlockToExtFace( const ptr< CommittedBlock >& _block );
 
-    ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );
+    ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId
+#ifdef BITE
+    , epoch_id _epochID
+#endif
+    );
 
     static ptr< ofstream > getVisualizationDataStream();
 
@@ -346,7 +359,8 @@ public:
     schain_id getSchainID();
 
 #ifdef BITE
-    epoch_id getEpochID();
+
+    const shared_ptr< folly::CPUThreadPoolExecutor >& getFinalizationExecutor() const;
 #endif
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();

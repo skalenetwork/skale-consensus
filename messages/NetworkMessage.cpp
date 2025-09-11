@@ -21,6 +21,7 @@
     @date 2018-
 */
 
+
 #include "thirdparty/rapidjson/document.h"
 #include "thirdparty/json.hpp"
 #include "thirdparty/rapidjson/prettywriter.h"  // for stringify JSON
@@ -61,11 +62,18 @@
 
 
 NetworkMessage::NetworkMessage( MsgType _messageType, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
     schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
     uint64_t _timeMs, ProtocolInstance& _srcProtocolInstance )
     : Message( _srcProtocolInstance.getSchain()->getSchainID(), _messageType,
           _srcProtocolInstance.createNetworkMessageID(),
-          _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _blockID, _blockProposerIndex ),
+          _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _blockID,
+#ifdef BITE
+          _epochID,
+#endif
+          _blockProposerIndex ),
       BasicHeader( getTypeString( _messageType ) ) {
     this->srcSchainIndex = _srcProtocolInstance.getSchain()->getSchainIndex();
     this->r = _r;
@@ -76,11 +84,18 @@ NetworkMessage::NetworkMessage( MsgType _messageType, block_id _blockID,
 
 
 NetworkMessage::NetworkMessage( MsgType _messageType, node_id _srcNodeID, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
     schain_index _blockProposerIndex, bin_consensus_round _r, bin_consensus_value _value,
     uint64_t _timeMs, schain_id _schainId, msg_id _msgID, const string& _sigShareStr,
     const string& _ecdsaSig, const string& _publicKey, const string& _pkSig,
     schain_index _srcSchainIndex, const ptr< CryptoManager >& _cryptoManager )
-    : Message( _schainId, _messageType, _msgID, _srcNodeID, _blockID, _blockProposerIndex ),
+    : Message( _schainId, _messageType, _msgID, _srcNodeID, _blockID,
+#ifdef BITE
+    _epochID,
+#endif
+    _blockProposerIndex ),
       BasicHeader( getTypeString( _messageType ) ) {
     CHECK_ARGUMENT( _srcSchainIndex > 0 )
     CHECK_ARGUMENT( !_ecdsaSig.empty() )
@@ -210,6 +225,10 @@ string NetworkMessage::serializeToString() {
     writer.Uint64( ( uint64_t ) schainID );
     writer.String( "bi" );
     writer.Uint64( ( uint64_t ) blockID );
+#ifdef BITE
+    writer.String( "ei" );
+    writer.Uint64( ( uint64_t ) epochID );
+#endif
     writer.String( "bpi" );
     writer.Uint64( ( uint64_t ) getBlockProposerIndex() );
     writer.String( "mt" );
@@ -281,6 +300,9 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
     const string& _header, Schain* _sChain, bool _lite ) {
     uint64_t sChainID;
     uint64_t blockID;
+# ifdef BITE
+    uint64_t epochID;
+#endif
     uint64_t blockProposerIndex;
     string type;
     uint64_t msgID;
@@ -307,9 +329,15 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
         if ( _lite ) {
             sChainID = ( uint64_t ) _sChain->getSchainID();
             blockID = ( uint64_t ) _sChain->getLastCommittedBlockID() + 1;
+#ifdef BITE
+            epochID = (uint64_t) _sChain->getNode()->getCurrentEpochId();
+#endif
         } else {
             sChainID = getUint64Rapid( d, "si" );
             blockID = getUint64Rapid( d, "bi" );
+#ifdef BITE
+            epochID = getUint64Rapid( d, "ei" );
+#endif
         }
         blockProposerIndex = getUint64Rapid( d, "bpi" );
         type = getStringRapid( d, "type" );
@@ -345,17 +373,28 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
 
         if ( type == BasicHeader::BV_BROADCAST ) {
             nwkMsg = make_shared< BVBroadcastMessage >( node_id( srcNodeID ), block_id( blockID ),
+#ifdef BITE
+                epoch_id( epochID ),
+#endif
                 schain_index( blockProposerIndex ), bin_consensus_round( round ),
                 bin_consensus_value( value ), timeMs, schain_id( sChainID ), msg_id( msgID ),
                 srcSchainIndex, ecdsaSig, publicKey, pkSig, _sChain );
         } else if ( type == BasicHeader::AUX_BROADCAST ) {
             nwkMsg = make_shared< AUXBroadcastMessage >( node_id( srcNodeID ), block_id( blockID ),
+#ifdef BITE
+                epoch_id(epochID),
+#endif
+
                 schain_index( blockProposerIndex ), bin_consensus_round( round ),
                 bin_consensus_value( value ), timeMs, schain_id( sChainID ), msg_id( msgID ),
                 sigShare, srcSchainIndex, ecdsaSig, publicKey, pkSig, _sChain );
         } else if ( type == BasicHeader::BLOCK_SIG_BROADCAST ) {
             nwkMsg = make_shared< BlockSignBroadcastMessage >( node_id( srcNodeID ),
-                block_id( blockID ), schain_index( blockProposerIndex ), timeMs,
+                block_id( blockID ),
+#ifdef BITE
+                epoch_id(epochID),
+#endif
+                schain_index( blockProposerIndex ), timeMs,
                 schain_id( sChainID ), msg_id( msgID ), sigShare, srcSchainIndex, ecdsaSig,
                 publicKey, pkSig, _sChain );
 #ifndef FAIR
@@ -444,6 +483,9 @@ BLAKE3Hash NetworkMessage::calculateHash() {
     HASH_INIT( hasher );
     HASH_UPDATE( hasher, schainID );
     HASH_UPDATE( hasher, blockID );
+#ifdef BITE
+    HASH_UPDATE( hasher, epochID );
+#endif
     HASH_UPDATE( hasher, blockProposerIndex );
     HASH_UPDATE( hasher, msgID );
     HASH_UPDATE( hasher, srcNodeID );

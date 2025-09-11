@@ -34,7 +34,11 @@ class SubmitDAProofRequestHeader : public AbstractBlockRequestHeader {
     string blockHash;
 
 public:
-    SubmitDAProofRequestHeader( Schain& _sChain, const ptr< DAProof >& _proof, block_id _blockId );
+    SubmitDAProofRequestHeader( Schain& _sChain, const ptr< DAProof >& _proof, block_id _blockId
+#ifdef BITE
+    , epoch_id _epochId
+#endif
+    );
 
     SubmitDAProofRequestHeader( nlohmann::json _proposalRequest, node_count _nodeCount );
 
