@@ -41,7 +41,7 @@ public:
 
     bool haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex);
 
-    ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList, ptr<vector<ptr<BLSPublicKeyShare>>> _keyShares);
+    ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList);
 
     void addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 

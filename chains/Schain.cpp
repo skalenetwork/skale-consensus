@@ -1503,13 +1503,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
 
         CHECK_STATE(encryptedAESKeys);
 
-        ptr<vector<ptr<BLSPublicKeyShare>>> blsKeys = nullptr;
-        if (getNode()->isSgxEnabled()) {
-            blsKeys = make_shared<vector<ptr<BLSPublicKeyShare>>>(getCryptoManager()->getAllBlsPublicKeyShares());
-        }
-
-        auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys(proposal->getBlockID(),
-                                                                 encryptedAESKeys, blsKeys);
+        auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys(proposal->getBlockID(), encryptedAESKeys);
 
         CHECK_STATE(keys);
 
