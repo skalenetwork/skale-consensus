@@ -46,15 +46,17 @@
 
 
 #include "leveldb/db.h"
+#include <crypto/EncryptedAESKey.h>
 #include "crypto/ThresholdSigShare.h"
-#include "crypto/AESKeyDecryptionShareList.h"
 #include "LevelDBOptions.h"
 
 
 #include <bite/BiteManager.h>
 #include <bite/BiteAESDecryptionShareSerializer.h>
 #include <crypto/AESKeyDecryptionShareSet.h>
-#include "TEDecryptionDB.h"
+#include <crypto/ConsensusAESKeyDecryptionShare.h>
+
+#include <bls/BLSPublicKeyShare.h>
 
 
 using namespace std;
@@ -153,8 +155,8 @@ bool TEDecryptionDB::haveDecryptionShares(block_id _blockID, schain_index _decry
 
 };
 
-ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList) {
-
+ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList,
+                                                        ptr<vector<ptr<BLSPublicKeyShare>>> _keyShares) {
     CHECK_STATE(_encryptedAESKeyList);
 
     WRITE_LOCK(decryptionSetsMutex);
@@ -162,29 +164,37 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareLists =
         decryptionsStore[_blockId];
 
-
     CHECK_STATE( decryptionShareLists.size() >= requiredSigners )
-
 
     auto firstDecryptionShareList = decryptionShareLists.begin()->second;
     // TODO - count of decryption shares need to be in DA header
     CHECK_STATE( firstDecryptionShareList );
     auto size = firstDecryptionShareList->getSize();
 
-
     for (auto&& it : decryptionShareLists) {
         auto list = it.second;
         CHECK_STATE(list->getSize() == size);
     }
 
-
-    map< transaction_index, ptr< AESKeyDecryptionShareSet > > decryptionShareSets;
-
+    map<transaction_index, ptr<AESKeyDecryptionShareSet>> decryptionShareSets;
+    map<transaction_index, libBLS::CipheredKey> encryptions;
 
     for ( auto&& decryptionShareIterator : firstDecryptionShareList->getDecryptionShares() ) {
         decryptionShareSets[decryptionShareIterator.first] =
             sChain->getBiteManager()->createAESDecryptionShareSet(
                 _blockId, decryptionShareIterator.first );
+        encryptions[decryptionShareIterator.first] =
+                libBLS::CipheredKey::fromBytes(*_encryptedAESKeyList->at(decryptionShareIterator.first)->getKey());
+    }
+
+    // prepare TE public key shares if real signatures are enabled
+    vector<libBLS::TEPublicKeyShare> tePublicKeys;
+    tePublicKeys.reserve(totalSigners);
+    if ( _keyShares != nullptr ) {
+        for (size_t i = 0; i < tePublicKeys.size(); ++i) {
+            tePublicKeys[i] = libBLS::TEPublicKeyShare(*_keyShares->at(i)->getPublicKey(),
+                                                       i + 1, requiredSigners, totalSigners);
+        }
     }
 
     std::vector<folly::Future<folly::Unit>> futures;
@@ -195,17 +205,29 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
 
     for ( auto&& decryptionSharesSetIterator: decryptionShareSets ) {
         auto transactionIndex = decryptionSharesSetIterator.first;
-        auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareLists,
-                                 &decryptionShareSets, &aesKeys, &aesKeysMutex,
-                                 &_encryptedAESKeyList, transactionIndex]() -> folly::Unit {
+        auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareLists, _keyShares,
+                                 &decryptionShareSets, &aesKeys, &aesKeysMutex, &tePublicKeys,
+                                 &_encryptedAESKeyList, transactionIndex, &encryptions]() -> folly::Unit {
             auto decryptionSharesSet = decryptionShareSets[transactionIndex];
             if ( !decryptionSharesSet->isEnough() ) {
                 for ( auto&& it: decryptionShareLists) {
-                    auto decryptionSharesList = it.second;
-                    auto share = decryptionSharesList->getDecryptionShare( transactionIndex );
-                    CHECK_STATE( share  );
-                    // decryption shares set has its own lock
-                    decryptionSharesSet->addDecryptionShare( share );
+                    try {
+                        auto decryptionSharesList = it.second;
+                        auto share = decryptionSharesList->getDecryptionShare(transactionIndex);
+                        CHECK_STATE(share);
+                        // verify share first if real signatures are enabled
+                        if (_keyShares != nullptr) {
+                            size_t decryptorIndex = (size_t)share->getDecryptorIndex();
+                            auto cipheredKey = encryptions.at(transactionIndex);
+                            libBLS::ThresholdEncryption::validateDecryptionShare(cipheredKey,
+                                *dynamic_cast<ConsensusAESKeyDecryptionShare*>(share.get())->getTEDecryptionShare(),
+                                                                                 tePublicKeys.at(decryptorIndex));
+                        }
+                        // decryption shares set has its own lock
+                        decryptionSharesSet->addDecryptionShare(share);
+                    }  catch ( const std::exception& ex ) {
+                        LOG(trace, std::string("Error during adding shares: ") + ex.what());
+                    }
                 }
             }
             if ( decryptionSharesSet->isEnough() ) {
@@ -231,7 +253,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
     }
 
     CHECK_STATE(decryptionsStore.size() <= 2 * totalSigners);
-
+    CHECK_STATE2(aesKeys->getSize() == _encryptedAESKeyList->size(), "Not all aes keys could be decrypted");
 
     return aesKeys;
 }

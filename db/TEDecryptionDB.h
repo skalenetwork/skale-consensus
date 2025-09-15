@@ -16,6 +16,8 @@ namespace folly {
 class CPUThreadPoolExecutor;
 }
 
+class BLSPublicKeyShare;
+
 using EncryptedAESKeyList = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
 
 
@@ -39,8 +41,7 @@ public:
 
     bool haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex);
 
-    ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList);
-
+    ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList, ptr<vector<ptr<BLSPublicKeyShare>>> _keyShares);
 
     void addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 

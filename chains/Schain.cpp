@@ -1419,6 +1419,8 @@ bool Schain::haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _pro
             ;
 }
 
+#include <libBLS/bls/BLSPublicKeyShare.h>
+
 void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_index _proposerIndex,
                                                    const ptr<ThresholdSignature> &_thresholdSig) {
 
@@ -1501,8 +1503,13 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
 
         CHECK_STATE(encryptedAESKeys);
 
+        ptr<vector<ptr<BLSPublicKeyShare>>> blsKeys = nullptr;
+        if (!getCryptoManager()->getSgxUrl().empty()) {
+            blsKeys = make_shared<vector<ptr<BLSPublicKeyShare>>>(getCryptoManager()->getAllBlsPublicKeyShares());
+        }
+
         auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys(proposal->getBlockID(),
-                                                                 encryptedAESKeys);
+                                                                 encryptedAESKeys, blsKeys);
 
         CHECK_STATE(keys);
 

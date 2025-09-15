@@ -58,6 +58,8 @@ class BLSPublicKey;
 
 class BLSSigShare;
 
+class BLSPublicKeyShare;
+
 namespace CryptoPP {
     class ECP;
 
@@ -243,6 +245,9 @@ public:
 
     void verifyBlsSigShare(ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash);
 
+    ptr<BLSPublicKeyShare> getBlsPublicKeyShare(uint64_t nodeId) const;
+
+    vector<ptr<BLSPublicKeyShare>> getAllBlsPublicKeyShares() const;
 
     ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId);
 

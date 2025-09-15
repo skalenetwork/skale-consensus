@@ -1034,6 +1034,22 @@ void CryptoManager::verifyThresholdSigShare(
     }
 }
 
+ptr<BLSPublicKeyShare> CryptoManager::getBlsPublicKeyShare(uint64_t _nodeId) const {
+    CHECK_STATE(blsPublicKeySharesMapByIndex.count( _nodeId ) > 0 );
+
+    return make_shared<BLSPublicKeyShare>(blsPublicKeySharesMapByIndex.at(_nodeId),
+                                          requiredSigners, totalSigners);
+}
+
+vector<ptr<BLSPublicKeyShare>> CryptoManager::getAllBlsPublicKeyShares() const {
+    vector<ptr<BLSPublicKeyShare>> ret;
+    ret.reserve((uint64_t)getSchain()->getNodeCount());
+    for (uint64_t i = 0; i < getSchain()->getNodeCount(); ++i) {
+        ret[i] = getBlsPublicKeyShare(i);
+    }
+
+    return ret;
+}
 
 // Verify BLS sig share using the current set of BLS keys.
 // Since threshold sig shares are glued for the current block
