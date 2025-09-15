@@ -244,7 +244,8 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
             processEncryptedAESKey(i, false);
         }
     } else {
-        std::vector<folly::Future<folly::Unit>> futures(NUM_BITE_VALIDATION_THREADS);
+        std::vector<folly::Future<folly::Unit>> futures;
+        futures.reserve(NUM_BITE_VALIDATION_THREADS);
 
         const size_t chunkSize = (encryptedAESKeys->size() + NUM_BITE_VALIDATION_THREADS - 1) /
                 NUM_BITE_VALIDATION_THREADS;
