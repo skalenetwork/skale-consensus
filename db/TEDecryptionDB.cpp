@@ -206,7 +206,8 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
         auto transactionIndex = decryptionSharesSetIterator.first;
         auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareLists, _keyShares,
                                  &decryptionShareSets, &aesKeys, &aesKeysMutex, &tePublicKeys,
-                                 &_encryptedAESKeyList, transactionIndex, &encryptions]() -> folly::Unit {
+                                 &_encryptedAESKeyList, transactionIndex, &encryptions,
+                                 sChain = this->sChain]() -> folly::Unit {
             auto decryptionSharesSet = decryptionShareSets[transactionIndex];
             if ( !decryptionSharesSet->isEnough() ) {
                 for ( auto&& it: decryptionShareLists) {
@@ -214,9 +215,9 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
                         auto decryptionSharesList = it.second;
                         auto share = decryptionSharesList->getDecryptionShare(transactionIndex);
                         CHECK_STATE(share);
+                        size_t decryptorIndex = (size_t)share->getDecryptorIndex();
                         // verify share first if real signatures are enabled
-                        if (_keyShares != nullptr) {
-                            size_t decryptorIndex = (size_t)share->getDecryptorIndex();
+                        if (_keyShares != nullptr && sChain->getSchainIndex() != decryptorIndex) {
                             auto cipheredKey = encryptions.at(transactionIndex);
                             libBLS::ThresholdEncryption::validateDecryptionShare(cipheredKey,
                                 *dynamic_cast<ConsensusAESKeyDecryptionShare*>(share.get())->getTEDecryptionShare(),
