@@ -57,7 +57,6 @@ void BiteManager::parseBITETransactions(
             tx->parseAndValidate();
             auto biteDataField = tx->tryGetBiteData(_proposal->getEpochID());
             if (biteDataField) {
-                biteDataFields->emplace(index, biteDataField);
                 encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
             }
             index = index + 1;
@@ -74,7 +73,6 @@ void BiteManager::parseBITETransactions(
     }
 
 
-    _proposal->setBiteDataFields(biteDataFields);
     _proposal->seAESKeyList(encryptedAESKeyList);
 }
 
@@ -104,7 +102,7 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
         return;
     }
 
-    CHECK_STATE(_proposal->getBiteDataFields());
+    CHECK_STATE(_proposal->getEncryptedAESKeys());
 
 
     // this function will not throw exception
@@ -115,7 +113,7 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
         return;
     }
     CHECK_STATE(decryptionShareList);
-    CHECK_STATE(decryptionShareList->getSize() == _proposal->getBiteDataFields()->size());
+    CHECK_STATE(decryptionShareList->getSize() == _proposal->getEncryptedAESKeys()->size());
     // no we know that the decryption shares are valid, we can set them to the proposal
     // now we set the decryption shares list to the block proposal so it is committed to the
     // database when proposal is committed
@@ -145,11 +143,11 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
         return nullptr;
     }
 
-    CHECK_STATE(decryptionSharesVector->size() == _proposal->getBiteDataFields()->size());
+    CHECK_STATE(decryptionSharesVector->size() == _proposal->getEncryptedAESKeys()->size());
 
 
     auto arrayIndex = 0;
-    for (auto &&iterator: *_proposal->getBiteDataFields()) {
+    for (auto &&iterator: *_proposal->getEncryptedAESKeys()) {
         auto AESKeyDecryptionShare = (*decryptionSharesVector)[arrayIndex];
         decryptionShareList->addShare(iterator.first, decryptionSharesVector->at(arrayIndex));
         arrayIndex++;
