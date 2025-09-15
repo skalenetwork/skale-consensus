@@ -121,7 +121,7 @@ void CryptoManager::initSGXClient() {
     }
 }
 
-string blsKeyToString(ptr<BLSPublicKey> _pk) {
+string blsKeyToString(ptr<libBLS::BLSPublicKey> _pk) {
     CHECK_ARGUMENT(_pk)
     auto vectorCoordinates = _pk->toString();
     CHECK_STATE(vectorCoordinates);
@@ -134,7 +134,7 @@ string blsKeyToString(ptr<BLSPublicKey> _pk) {
     return str;
 }
 
-pair<ptr<BLSPublicKey>, ptr<BLSPublicKey> > CryptoManager::getSgxBlsPublicKey(
+pair<ptr<libBLS::BLSPublicKey>, ptr<libBLS::BLSPublicKey> > CryptoManager::getSgxBlsPublicKey(
     uint64_t _timestamp) {
     LOG(debug, string( "Looking for BLS public key for timestamp " )
         << to_string( _timestamp )
@@ -860,7 +860,7 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
 
         auto sigShare = make_shared<string>(ret);
 
-        auto sig = make_shared<BLSSigShare>(
+        auto sig = make_shared<libBLS::BLSSigShare>(
             sigShare, (uint64_t) getSchain()->getSchainIndex(), requiredSigners, totalSigners);
         result = make_shared<ConsensusBLSSigShare>(sig, sChain->getSchainID(), _blockId);
     } else {
@@ -1023,7 +1023,7 @@ void CryptoManager::verifyThresholdSigShare(
 
             CHECK_STATE(consensusBlsSigShare);
 
-            ptr<BLSSigShare> blsSigShare = consensusBlsSigShare->getBlsSigShare();
+            ptr<libBLS::BLSSigShare> blsSigShare = consensusBlsSigShare->getBlsSigShare();
 
             verifyBlsSigShare(blsSigShare, _hash);
         } else {
@@ -1039,7 +1039,7 @@ void CryptoManager::verifyThresholdSigShare(
 // Since threshold sig shares are glued for the current block
 // historic keys are not needed in this case.
 // throw an exception if the share does not verify
-void CryptoManager::verifyBlsSigShare(ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash) {
+void CryptoManager::verifyBlsSigShare(ptr<libBLS::BLSSigShare> _sigShare, BLAKE3Hash &_hash) {
     CHECK_STATE(_sigShare);
 
     try {
@@ -1048,7 +1048,7 @@ void CryptoManager::verifyBlsSigShare(ptr<BLSSigShare> _sigShare, BLAKE3Hash &_h
 
 
         auto blsPublicKeyShare =
-                BLSPublicKeyShare(blsPublicKeySharesMapByIndex.at(_sigShare->getSignerIndex()),
+                libBLS::BLSPublicKeyShare(blsPublicKeySharesMapByIndex.at(_sigShare->getSignerIndex()),
                                   requiredSigners, totalSigners);
 
         bool res = false;

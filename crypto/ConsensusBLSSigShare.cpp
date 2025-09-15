@@ -34,7 +34,7 @@
 
 
 ConsensusBLSSigShare::ConsensusBLSSigShare(
-    const ptr< BLSSigShare >& _sig, schain_id _schainId, block_id _blockID )
+    const ptr< libBLS::BLSSigShare >& _sig, schain_id _schainId, block_id _blockID )
     : ThresholdSigShare( _schainId, _blockID, 1 ) {
     CHECK_ARGUMENT( _sig );
     this->signerIndex = _sig->getSignerIndex();
@@ -42,7 +42,7 @@ ConsensusBLSSigShare::ConsensusBLSSigShare(
 }
 
 
-ptr< BLSSigShare > ConsensusBLSSigShare::getBlsSigShare() const {
+ptr< libBLS::BLSSigShare > ConsensusBLSSigShare::getBlsSigShare() const {
     CHECK_STATE( blsSigShare );
     return blsSigShare;
 }
@@ -53,7 +53,7 @@ ConsensusBLSSigShare::ConsensusBLSSigShare( const string& _sigShare, schain_id _
     CHECK_ARGUMENT( _sigShare != "" );
 
     try {
-        this->blsSigShare = make_shared< BLSSigShare >( make_shared< string >( _sigShare ),
+        this->blsSigShare = make_shared< libBLS::BLSSigShare >( make_shared< string >( _sigShare ),
             ( uint64_t ) _signerIndex, _requiredSigners, _totalSigners );
     } catch ( ... ) {
         throw_with_nested(

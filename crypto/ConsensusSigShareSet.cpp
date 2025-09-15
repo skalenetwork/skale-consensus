@@ -51,7 +51,7 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 
 
 ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
-    ptr< BLSSignature > blsSig = nullptr;
+    ptr< libBLS::BLSSignature > blsSig = nullptr;
 
     {
         LOCK( blsSetLock );

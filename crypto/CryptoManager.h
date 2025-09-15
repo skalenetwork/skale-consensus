@@ -54,9 +54,10 @@ class StubClient;
 
 class ECP;
 
-class BLSPublicKey;
-
-class BLSSigShare;
+namespace libBLS {
+    class BLSPublicKey;
+    class BLSSigShare;
+}
 
 namespace CryptoPP {
     class ECP;
@@ -131,7 +132,7 @@ class CryptoManager {
 
     ptr<vector<string> > sgxECDSAPublicKeys; // tsafe
 
-    ptr<map<uint64_t, ptr<BLSPublicKey> > > previousBlsPublicKeys;
+    ptr<map<uint64_t, ptr<libBLS::BLSPublicKey> > > previousBlsPublicKeys;
 
     ptr<map<uint64_t, string> > historicECDSAPublicKeys;
 
@@ -153,7 +154,7 @@ class CryptoManager {
     string sgxBlsKeyName;
 
 
-    ptr<BLSPublicKey> sgxBLSPublicKey;
+    ptr<libBLS::BLSPublicKey> sgxBLSPublicKey;
 
     Schain *sChain = nullptr;
 
@@ -241,7 +242,7 @@ public:
                                 uint64_t _timeStamp);
 
 
-    void verifyBlsSigShare(ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash);
+    void verifyBlsSigShare(ptr<libBLS::BLSSigShare> _sigShare, BLAKE3Hash &_hash);
 
 
     ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId);
@@ -286,7 +287,7 @@ public:
     tuple<string, string, string> signSessionECDSA(BLAKE3Hash &_hash, block_id _blockID);
 
 
-    pair<ptr<BLSPublicKey>, ptr<BLSPublicKey> > getSgxBlsPublicKey(uint64_t _timestamp = 0);
+    pair<ptr<libBLS::BLSPublicKey>, ptr<libBLS::BLSPublicKey> > getSgxBlsPublicKey(uint64_t _timestamp = 0);
 
     string getSgxBlsKeyName();
 
