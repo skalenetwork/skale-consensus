@@ -1504,7 +1504,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         CHECK_STATE(encryptedAESKeys);
 
         ptr<vector<ptr<BLSPublicKeyShare>>> blsKeys = nullptr;
-        if (!getCryptoManager()->getSgxUrl().empty()) {
+        if (getNode()->isSgxEnabled()) {
             blsKeys = make_shared<vector<ptr<BLSPublicKeyShare>>>(getCryptoManager()->getAllBlsPublicKeyShares());
         }
 

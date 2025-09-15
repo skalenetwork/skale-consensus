@@ -189,11 +189,10 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
 
     // prepare TE public key shares if real signatures are enabled
     vector<libBLS::TEPublicKeyShare> tePublicKeys;
-    tePublicKeys.reserve(totalSigners);
     if ( _keyShares != nullptr ) {
-        for (size_t i = 0; i < tePublicKeys.size(); ++i) {
-            tePublicKeys[i] = libBLS::TEPublicKeyShare(*_keyShares->at(i)->getPublicKey(),
-                                                       i + 1, requiredSigners, totalSigners);
+        for (size_t i = 0; i < totalSigners; ++i) {
+            tePublicKeys.push_back(libBLS::TEPublicKeyShare(*_keyShares->at(i)->getPublicKey(),
+                                                       i + 1, requiredSigners, totalSigners) );
         }
     }
 
@@ -221,7 +220,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
                             auto cipheredKey = encryptions.at(transactionIndex);
                             libBLS::ThresholdEncryption::validateDecryptionShare(cipheredKey,
                                 *dynamic_cast<ConsensusAESKeyDecryptionShare*>(share.get())->getTEDecryptionShare(),
-                                                                                 tePublicKeys.at(decryptorIndex));
+                                                                                 tePublicKeys.at(decryptorIndex - 1));
                         }
                         // decryption shares set has its own lock
                         decryptionSharesSet->addDecryptionShare(share);

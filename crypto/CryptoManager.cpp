@@ -1043,9 +1043,9 @@ ptr<BLSPublicKeyShare> CryptoManager::getBlsPublicKeyShare(uint64_t _nodeId) con
 
 vector<ptr<BLSPublicKeyShare>> CryptoManager::getAllBlsPublicKeyShares() const {
     vector<ptr<BLSPublicKeyShare>> ret;
-    ret.reserve((uint64_t)getSchain()->getNodeCount());
+    ret.resize((uint64_t)getSchain()->getNodeCount());
     for (uint64_t i = 0; i < getSchain()->getNodeCount(); ++i) {
-        ret[i] = getBlsPublicKeyShare(i);
+        ret[i] = getBlsPublicKeyShare(i + 1);
     }
 
     return ret;
