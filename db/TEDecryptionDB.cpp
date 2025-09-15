@@ -183,8 +183,10 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
         decryptionShareSets[decryptionShareIterator.first] =
             sChain->getBiteManager()->createAESDecryptionShareSet(
                 _blockId, decryptionShareIterator.first );
-        encryptions[decryptionShareIterator.first] =
-                libBLS::CipheredKey::fromBytes(*_encryptedAESKeyList->at(decryptionShareIterator.first)->getKey());
+        if (sChain->getNode()->isSgxEnabled()) {
+            encryptions[decryptionShareIterator.first] =
+                    libBLS::CipheredKey::fromBytes(*_encryptedAESKeyList->at(decryptionShareIterator.first)->getKey());
+        }
     }
 
     ptr<vector<ptr<BLSPublicKeyShare>>> keyShares = nullptr;
