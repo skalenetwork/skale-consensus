@@ -220,7 +220,7 @@ public:
     // if isSyncing is false, all fields will be set to zero.
     virtual SyncInfo getSyncInfo() = 0;
 
-#ifdef MIRAGE
+#ifdef FAIR
     virtual void updateLogger() const = 0;
 #endif
 

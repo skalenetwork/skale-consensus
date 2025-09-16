@@ -771,7 +771,7 @@ void ConsensusEngine::exitGracefully() {
     thread( [this]() { exitGracefullyAsync(); } ).detach();
 }
 
-#ifdef MIRAGE
+#ifdef FAIR
 void ConsensusEngine::updateLogger() const {
     logThreadLocal_ = nodes.begin()->second->getLog();
 }

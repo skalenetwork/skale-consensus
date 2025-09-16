@@ -44,7 +44,7 @@
 #include "network/Buffer.h"
 #include "network/Network.h"
 #include "node/NodeInfo.h"
-#ifndef MIRAGE
+#ifndef FAIR
 #include "oracle/OracleRequestBroadcastMessage.h"
 #include "oracle/OracleResponseMessage.h"
 #endif
@@ -397,7 +397,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 schain_index( blockProposerIndex ), timeMs,
                 schain_id( sChainID ), msg_id( msgID ), sigShare, srcSchainIndex, ecdsaSig,
                 publicKey, pkSig, _sChain );
-#ifndef MIRAGE
+#ifndef FAIR
         } else if ( type == BasicHeader::ORACLE_REQUEST_BROADCAST ) {
             string spec = getStringRapid( d, "spec" );
             CHECK_STATE( !spec.empty() )

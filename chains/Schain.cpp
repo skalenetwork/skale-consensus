@@ -98,7 +98,7 @@
 #include "network/Sockets.h"
 #include "network/ZMQSockets.h"
 #include "node/NodeInfo.h"
-#ifndef MIRAGE
+#ifndef FAIR
 #include "oracle/OracleClient.h"
 #include "oracle/OracleMessageThreadPool.h"
 #include "oracle/OracleResultAssemblyAgent.h"
@@ -327,7 +327,7 @@ void Schain::constructChildAgents() {
 
     try {
         optimizerAgent = make_shared<OptimizerAgent>(*this);
-#ifndef MIRAGE
+#ifndef FAIR
         oracleResultAssemblyAgent = make_shared< OracleResultAssemblyAgent >( *this );
 #endif
         pricingAgent = make_shared<PricingAgent>(*this);
@@ -352,7 +352,7 @@ void Schain::constructChildAgents() {
         blockProposalClient = make_shared<BlockProposalClientAgent>(*this);
 
         testMessageGeneratorAgent = make_shared<TestMessageGeneratorAgent>(*this);
-#ifndef MIRAGE
+#ifndef FAIR
         oracleClient = make_shared< OracleClient >( *this );
 #endif
     } catch (...) {
@@ -1655,7 +1655,7 @@ u256 Schain::getRandomForBlockId(block_id _blockId) {
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
 
-#ifndef MIRAGE
+#ifndef FAIR
 const ptr< OracleResultAssemblyAgent >& Schain::getOracleResultAssemblyAgent() const {
     return oracleResultAssemblyAgent;
 }
