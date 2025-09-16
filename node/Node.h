@@ -230,6 +230,7 @@ class Node {
 
 
     bool isSyncNode = false;
+    bool isArchiveModeEnabled = false;
 
     bool inited = false;
 
@@ -334,7 +335,8 @@ public:
         ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< BLSPublicKey > _blsPublicKey,
         string& _gethURL, ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
         ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
-        ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups, bool _isSyncNode );
+        ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups, bool _isSyncNode,
+        bool _isArchiveModeEnabled );
 
 
     ~Node();
@@ -447,6 +449,8 @@ public:
     const string& getGethUrl() const;
 
     bool isSyncOnlyNode() const;
+
+    bool isArchiveNode() const;
 
     bool verifyRealSignatures() const;
 
