@@ -157,7 +157,7 @@ ptr< BlockConsensusAgent > Schain::getBlockConsensusInstance() {
     return blockConsensusInstance;
 }
 
-#ifndef MIRAGE
+#ifndef FAIR
 ptr< OracleServerAgent > Schain::getOracleInstance() {
     CHECK_STATE( oracleServer != nullptr )
     return oracleServer;
@@ -290,7 +290,7 @@ void Schain::createBlockConsensusInstance() {
     blockConsensusInstance = make_shared< BlockConsensusAgent >( *this );
 }
 
-#ifndef MIRAGE
+#ifndef FAIR
 void Schain::createOracleInstance() {
     oracleServer = make_shared< OracleServerAgent >( *this );
 }
@@ -347,7 +347,7 @@ void Schain::setLastCommittedBlockId( uint64_t _lastCommittedBlockId ) {
     lastCommittedBlockID = _lastCommittedBlockId;
 }
 
-#ifndef MIRAGE
+#ifndef FAIR
 const ptr< OracleClient > Schain::getOracleClient() const {
     return oracleClient;
 }

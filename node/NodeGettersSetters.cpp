@@ -299,7 +299,7 @@ uint64_t Node::getMinBlockIntervalMs() const {
     return minBlockIntervalMs;
 }
 
-#ifdef MIRAGE
+#ifdef FAIR
 uint64_t Node::getConstantGasPrice() const {
     return constantGasPrice;
 }

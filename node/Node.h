@@ -227,7 +227,7 @@ class Node {
 
     uint64_t syncNodeReadJsonHeaderTimeoutSec = 0;
 
-#ifdef MIRAGE
+#ifdef FAIR
     uint64_t constantGasPrice = 0;
 #endif
 
@@ -461,7 +461,7 @@ public:
 
     uint64_t getWaitAfterNetworkErrorMs();
 
-#ifdef MIRAGE
+#ifdef FAIR
     uint64_t getConstantGasPrice() const;
 #endif
 
@@ -481,7 +481,7 @@ public:
         this->emptyBlockIntervalAfterCatchupMs = _interval;
     }
 
-#ifdef MIRAGE
+#ifdef FAIR
     void setConstantGasPrice( uint64_t _price ) {
         constantGasPrice = _price;
     }

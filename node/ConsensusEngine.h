@@ -245,7 +245,7 @@ public:
 
     virtual void exitGracefully() override;
 
-#ifdef MIRAGE
+#ifdef FAIR
     virtual void updateLogger() const override;
 #endif
 
