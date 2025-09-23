@@ -338,8 +338,7 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
         auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
         CHECK_STATE(primaryKey);
         auto blsKey = primaryKey->getPublicKey();
-        CHECK_STATE(blsKey);
-        libBLS::TEPublicKey teKey(*blsKey);
+        libBLS::TEPublicKey teKey(blsKey);
 
         auto cipherText = libBLS::ThresholdEncryption::encrypt(stream.encode(), teKey);
         auto bytes = std::make_shared<vector<uint8_t>>(cipherText.toBytes());
