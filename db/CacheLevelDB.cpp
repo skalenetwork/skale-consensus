@@ -466,7 +466,7 @@ pair< uint64_t, uint64_t > CacheLevelDB::findMaxMinDBIndex() {
 }
 
 void CacheLevelDB::rotateDBsIfNeeded() {
-    bool isArchiveNode = sChain->getNode()->isArchiveNode();
+    bool isArchiveMode = sChain->getNode()->isArchiveMode();
     try {
         if ( getActiveDBSize() <= maxDBSize )
             return;
@@ -479,7 +479,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
 
             auto newDB = openDB( highestDBIndex + 1 );
 
-            if ( isArchiveNode ) {
+            if ( isArchiveMode ) {
                 // For archive nodes: add new database
                 db.push_back( newDB );
                 LOG( info, "ARCHIVE_NODE: Added new database, total databases: " << db.size() );
@@ -495,7 +495,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             highestDBIndex++;
 
             // For archive nodes, don't delete old databases - keep them for historical data
-            if ( !isArchiveNode ) {
+            if ( !isArchiveMode ) {
                 uint64_t minIndex;
 
                 while ( ( minIndex = findMaxMinDBIndex().second ) + LEVELDB_SHARDS <= highestDBIndex ) {
@@ -679,7 +679,7 @@ ptr< map< schain_index, string > > CacheLevelDB::writeByteArrayToSetUnsafe(
 }
 
 void CacheLevelDB::verify() {
-    if ( !sChain->getNode()->isArchiveNode() ) {
+    if ( !sChain->getNode()->isArchiveMode() ) {
         CHECK_STATE( db.size() == LEVELDB_SHARDS );
     }
     

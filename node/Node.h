@@ -450,7 +450,7 @@ public:
 
     bool isSyncOnlyNode() const;
 
-    bool isArchiveNode() const;
+    bool isArchiveMode() const;
 
     bool verifyRealSignatures() const;
 

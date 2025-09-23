@@ -731,7 +731,7 @@ bool Node::isSyncOnlyNode() const {
     return isSyncNode;
 }
 
-bool Node::isArchiveNode() const {
+bool Node::isArchiveMode() const {
     return isArchiveModeEnabled;
 }
 

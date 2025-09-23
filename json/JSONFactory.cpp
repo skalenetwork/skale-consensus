@@ -106,14 +106,14 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j,
     const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
     const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups ) {
     bool isSyncNode = false;
-    bool isArchiveNode = false;
+    bool isArchiveMode = false;
 
     if ( _j.find( "syncNode" ) != _j.end() ) {
         isSyncNode = _j.at( "syncNode" ).get< bool >();
     }
 
     if ( _j.find( "archiveMode" ) != _j.end() ) {
-        isArchiveNode = _j.at( "archiveMode" ).get< bool >();
+        isArchiveMode = _j.at( "archiveMode" ).get< bool >();
     }
 
     if ( isSyncNode && _useSGX ) {
@@ -160,7 +160,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j,
             node = make_shared< Node >( _j, _engine, _useSGX, _sgxURL, sgxSSLKeyFileFullPathCopy,
                 sgxSSLCertFileFullPathCopy, _ecdsaKeyName, _ecdsaPublicKeys, _blsKeyName,
                 _blsPublicKeys, _blsPublicKey, _gethURL, _previousBlsPublicKeys,
-                _historicECDSAPublicKeys, _historicNodeGroups, isSyncNode, isArchiveNode );
+                _historicECDSAPublicKeys, _historicNodeGroups, isSyncNode, isArchiveMode );
         } catch ( ... ) {
             throw_with_nested( FatalError( "Could not init node", __CLASS_NAME__ ) );
         }
