@@ -38,8 +38,7 @@ ConsensusBLSSignature::ConsensusBLSSignature(
     CHECK_ARGUMENT( !_sig.empty() );
 
     try {
-        blsSig = make_shared< libBLS::BLSSignature >(
-            make_shared< string >( _sig ), _requiredSigners, _totalSigners );
+        blsSig = make_shared< libBLS::BLSSignature >( _sig, _requiredSigners, _totalSigners );
     } catch ( ... ) {
         throw_with_nested(
             InvalidStateException( "Could not create BLSSignature from string", __CLASS_NAME__ ) );
@@ -58,7 +57,7 @@ ConsensusBLSSignature::ConsensusBLSSignature( const ptr< libBLS::BLSSignature >&
 string ConsensusBLSSignature::toString() {
     CHECK_STATE( blsSig );
     try {
-        return *blsSig->toString();
+        return blsSig->toString();
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( "Could not toString() sig", __CLASS_NAME__ ) );
     }

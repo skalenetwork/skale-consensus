@@ -1053,19 +1053,20 @@ void ConsensusEngine::setPublicKeyInfo( ptr< vector< string > >& _ecdsaPublicKey
     this->blsPublicKeys = _blsPublicKeyShares;
 
     if ( !_isSyncNode ) {
-        map< size_t, shared_ptr< libBLS::BLSPublicKeyShare > > blsPubKeyShares;
+        map< size_t, libBLS::BLSPublicKeyShare > blsPubKeyShares;
         for ( uint64_t i = 0; i < _requiredSigners; i++ ) {
             LOG( info, "Parsing BLS key share:" << blsPublicKeys->at( i )->at( 0 ) );
 
-            libBLS::BLSPublicKeyShare pubKey( blsPublicKeys->at( i ), _requiredSigners, _totalSigners );
+            auto& blsPubKeys = blsPublicKeys->at( i );
+            CHECK_STATE( blsPubKeys );
+            libBLS::BLSPublicKeyShare pubKey( *blsPubKeys, _requiredSigners, _totalSigners );
 
-            blsPubKeyShares[i + 1] = make_shared< libBLS::BLSPublicKeyShare >( pubKey );
+            blsPubKeyShares.insert_or_assign( i + 1, pubKey );
         }
 
         // create pub key
 
-        blsPublicKey = make_shared< libBLS::BLSPublicKey >(
-            make_shared< map< size_t, shared_ptr< libBLS::BLSPublicKeyShare > > >( blsPubKeyShares ),
+        blsPublicKey = make_shared< libBLS::BLSPublicKey >( blsPubKeyShares ,
             _requiredSigners, _totalSigners );
     }
 }
@@ -1081,7 +1082,7 @@ void ConsensusEngine::setRotationHistory( ptr< map< uint64_t, vector< string > >
     map< uint64_t, ptr< libBLS::BLSPublicKey > > _previousBlsPublicKeys;
     for ( const auto& previousGroup : *_previousBLSKeys ) {
         _previousBlsPublicKeys[previousGroup.first] =
-            make_shared< libBLS::BLSPublicKey >( make_shared< vector< string > >( previousGroup.second ) );
+            make_shared< libBLS::BLSPublicKey >( previousGroup.second );
     }
     previousBlsPublicKeys =
         make_shared< map< uint64_t, ptr< libBLS::BLSPublicKey > > >( _previousBlsPublicKeys );

@@ -459,7 +459,7 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
 
     // create pub key
 
-    auto blsPublicKeysMap = make_shared< map< size_t, ptr< libBLS::BLSPublicKeyShare > > >();
+    auto blsPublicKeysMap = map< size_t, libBLS::BLSPublicKeyShare >();
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
         LOG( info, "Configured BLS public key share for node index "
@@ -467,12 +467,10 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
                        << blsPublicKeys->at( i )->at( 1 ) << ":" << blsPublicKeys->at( i )->at( 2 )
                        << ":" << blsPublicKeys->at( i )->at( 3 ) );
 
-        auto share =
-            make_shared< libBLS::BLSPublicKeyShare >( blsPublicKeys->at( i ), _requiredNodes, _totalNodes );
+        auto& c = blsPublicKeys->at(i);
+        libBLS::BLSPublicKeyShare share( *c, _requiredNodes, _totalNodes );
 
-        CHECK_STATE( share->getPublicKey() );
-
-        blsPublicKeysMap->insert( std::pair< size_t, ptr< libBLS::BLSPublicKeyShare > >( i + 1, share ) );
+        blsPublicKeysMap.insert( std::pair< size_t, libBLS::BLSPublicKeyShare >( i + 1, share ) );
     }
 
 
@@ -509,24 +507,19 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
 
         string sigShareStr;
         sigShareStr += getString( blsSigShares[i], "signatureShare" );
-        auto sigShare = make_shared< string >( sigShareStr );
 
-        libBLS::BLSSigShare sig( sigShare, i + 1, _requiredNodes, _totalNodes );
-        sigShareSet.addSigShare( make_shared< libBLS::BLSSigShare >( sig ) );
+        libBLS::BLSSigShare sig( sigShareStr, i + 1, _requiredNodes, _totalNodes );
+        sigShareSet.addSigShare( sig );
 
-        auto pubKey = blsPublicKeysMap->at( i + 1 );
+        auto& pubKey = blsPublicKeysMap.at( i + 1 );
 
-        auto sharedHash = make_shared< array< uint8_t, HASH_LEN > >( hash.getHash() );
-
-        CHECK_STATE( pubKey->VerifySigWithHelper(
-            sharedHash, make_shared< libBLS::BLSSigShare >( sig ), _requiredNodes, _totalNodes ) );
+        CHECK_STATE( pubKey.VerifySigWithHelper(
+            hash.getHash(), sig , _requiredNodes, _totalNodes ) );
     }
 
-    ptr< libBLS::BLSSignature > commonSig = sigShareSet.merge();
+    libBLS::BLSSignature commonSig = sigShareSet.merge();
 
-    auto sharedHash = make_shared< array< uint8_t, HASH_LEN > >( hash.getHash() );
-
-    CHECK_STATE( blsPublicKey->VerifySigWithHelper( sharedHash, commonSig ) );
+    CHECK_STATE( blsPublicKey->VerifySigWithHelper( hash.getHash(), commonSig ) );
 
     LOG( info, "Verified a sample sig" );
 

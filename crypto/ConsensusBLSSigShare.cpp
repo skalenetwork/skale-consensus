@@ -53,7 +53,7 @@ ConsensusBLSSigShare::ConsensusBLSSigShare( const string& _sigShare, schain_id _
     CHECK_ARGUMENT( _sigShare != "" );
 
     try {
-        this->blsSigShare = make_shared< libBLS::BLSSigShare >( make_shared< string >( _sigShare ),
+        this->blsSigShare = make_shared< libBLS::BLSSigShare >( _sigShare ,
             ( uint64_t ) _signerIndex, _requiredSigners, _totalSigners );
     } catch ( ... ) {
         throw_with_nested(
@@ -65,9 +65,7 @@ ConsensusBLSSigShare::~ConsensusBLSSigShare() {}
 
 string ConsensusBLSSigShare::toString() {
     try {
-        auto result = getBlsSigShare()->toString();
-        CHECK_STATE( result );
-        return *result;
+        return getBlsSigShare()->toString();
     } catch ( ... ) {
         throw_with_nested(
             InvalidStateException( "Could not toString() sig share", __CLASS_NAME__ ) );

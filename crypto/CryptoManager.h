@@ -242,7 +242,7 @@ public:
                                 uint64_t _timeStamp);
 
 
-    void verifyBlsSigShare(ptr<libBLS::BLSSigShare> _sigShare, BLAKE3Hash &_hash);
+    void verifyBlsSigShare(libBLS::BLSSigShare& _sigShare, BLAKE3Hash &_hash);
 
 
     ptr<ThresholdSigShareSet> createSigShareSet(block_id _blockId);
