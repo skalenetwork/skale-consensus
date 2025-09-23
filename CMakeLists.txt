@@ -5,9 +5,9 @@ if (BITE)
     add_definitions(-DBITE)
 endif ()
 
-if (MIRAGE)
-    set(MIRAGE "1")
-    add_definitions(-DMIRAGE)
+if (FAIR)
+    set(FAIR "1")
+    add_definitions(-DFAIR)
     set(BITE "1")
     add_definitions(-DBITE)
 endif ()
@@ -155,7 +155,7 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
-if (NOT DEFINED MIRAGE)
+if (NOT DEFINED FAIR)
     AUX_SOURCE_DIRECTORY(oracle oracle_src)
 endif ()
 
@@ -232,10 +232,8 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libmicrohttpd.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
-        bls
         "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
         "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
-        ff
         "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
         gmp
         gcov
@@ -283,7 +281,7 @@ add_library(consensus STATIC ${SRC_FILES})
 
 target_compile_options(consensus PRIVATE -Wno-error=unused-variable)
 
-target_link_libraries(consensus ${LINK_LIBRARIES})
+target_link_libraries(consensus PRIVATE ${LINK_LIBRARIES} PUBLIC bls)
 
 # consensus test agent
 

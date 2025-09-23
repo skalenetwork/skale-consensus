@@ -72,18 +72,7 @@ namespace jsonrpc {
     class HttpClient;
 }
 
-class MPZNumber {
-public:
-    MPZNumber();
-
-    ~MPZNumber();
-
-    mpz_t number;
-};
-
-
 class OpenSSLECDSAKey;
-
 class OpenSSLEdDSAKey;
 
 #ifdef BITE

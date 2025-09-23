@@ -51,9 +51,6 @@
 #pragma GCC diagnostic ignored "-Wparentheses"
 #pragma GCC diagnostic ignored "-Wreorder"
 
-#include <libff/algebra/curves/alt_bn128/alt_bn128_g1.hpp>
-
-
 #include "bls.h"
 #pragma GCC diagnostic pop
 

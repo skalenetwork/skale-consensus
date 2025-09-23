@@ -24,6 +24,7 @@
 
 
 #include <boost/asio.hpp>
+#include <random>
 
 #include "openssl/bio.h"
 
@@ -51,8 +52,6 @@
 
 #include "Log.h"
 #include "SkaleCommon.h"
-
-#include <gmp.h>
 #include <network/ClientSocket.h>
 
 #include "BLAKE3Hash.h"
@@ -351,15 +350,6 @@ void CryptoManager::setSGXKeyAndCert(
 
 Schain *CryptoManager::getSchain() const {
     return sChain;
-}
-
-
-MPZNumber::MPZNumber() {
-    mpz_init(this->number);
-}
-
-MPZNumber::~MPZNumber() {
-    mpz_clear(this->number);
 }
 
 using namespace std;

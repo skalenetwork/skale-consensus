@@ -84,7 +84,6 @@
 #include "boost/stacktrace.hpp"
 #include <libBLS/bls/BLSPublicKeyShare.h>
 #include <boost/multiprecision/cpp_int.hpp>
-#include <libff/common/profiling.hpp>
 
 
 #include "spdlog/sinks/rotating_file_sink.h"
@@ -647,9 +646,7 @@ void ConsensusEngine::systemHealthCheck() {
 void ConsensusEngine::init() {
     cout << "Consensus engine init(): version:" + ConsensusEngine::getEngineVersion() << endl;
 
-    libff::inhibit_profiling_counters = true;
-
-    libBLS::ThresholdUtils::initCurve();
+    libBLS::init();
 
     threadRegistry = make_shared< GlobalThreadRegistry >();
 
@@ -771,7 +768,7 @@ void ConsensusEngine::exitGracefully() {
     thread( [this]() { exitGracefullyAsync(); } ).detach();
 }
 
-#ifdef MIRAGE
+#ifdef FAIR
 void ConsensusEngine::updateLogger() const {
     logThreadLocal_ = nodes.begin()->second->getLog();
 }

@@ -249,7 +249,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(
 
         _node->setEmptyBlockIntervalMs( emptyBlockIntervalMs );
 
-#ifdef MIRAGE
+#ifdef FAIR
         uint64_t constantGasPrice;
         try {
             constantGasPrice = element.at( "constantGasPrice" ).get< uint64_t >();
