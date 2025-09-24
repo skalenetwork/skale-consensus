@@ -81,8 +81,8 @@ class ConsensusEngine : public ConsensusInterface {
     ptr< vector< string > > blsKeyNames;                     // tsafe
     ptr< vector< string > > ecdsaPublicKeys;                 // tsafe
     ptr< vector< ptr< vector< string > > > > blsPublicKeys;  // tsafe
-    ptr< BLSPublicKey > blsPublicKey;
-    ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+    ptr< libBLS::BLSPublicKey > blsPublicKey;
+    ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > previousBlsPublicKeys;
     ptr< map< uint64_t, string > > historicECDSAPublicKeys;
     ptr< map< uint64_t, vector< uint64_t > > > historicNodeGroups;
 
@@ -170,8 +170,8 @@ public:
         string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
         ptr< vector< string > > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
         ptr< vector< ptr< vector< string > > > > _blsPublicKeys = nullptr,
-        ptr< BLSPublicKey > _blsPublicKey = nullptr,
-        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys = nullptr,
+        ptr< libBLS::BLSPublicKey > _blsPublicKey = nullptr,
+        ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > _previousBlsPublicKeys = nullptr,
         ptr< map< uint64_t, string > > _historicECDSAPublicKeys = nullptr,
         ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups = nullptr );
 

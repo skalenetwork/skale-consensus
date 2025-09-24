@@ -37,8 +37,8 @@ public:
         const string& _sgxSSLKeyFileFullPath, const string& _sgxSSLCertFileFullPath,
         const string& _ecdsaKeyName, const ptr< vector< string > >& _ecdsaPublicKeys,
         const string& _blsKeyName, const ptr< vector< ptr< vector< string > > > >& _blsPublicKeys,
-        const ptr< BLSPublicKey >& _blsPublicKey,
-        const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
+        const ptr< libBLS::BLSPublicKey >& _blsPublicKey,
+        const ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > >& _previousBlsPublicKeys,
         const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
         const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups );
 
@@ -47,8 +47,8 @@ public:
         const string& _sgxSSLKeyFileFullPath, const string& _sgxSSLCertFileFullPath,
         const string& _ecdsaKeyName, const ptr< vector< string > >& _ecdsaPublicKeys,
         const string& _blsKeyName, const ptr< vector< ptr< vector< string > > > >& _blsPublicKeys,
-        const ptr< BLSPublicKey >& _blsPublicKey, string& _gethURL,
-        const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
+        const ptr< libBLS::BLSPublicKey >& _blsPublicKey, string& _gethURL,
+        const ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > >& _previousBlsPublicKeys,
         const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
         const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups );
 
@@ -61,7 +61,7 @@ public:
     static void parseJsonFile( nlohmann::json& j, const fs_path& configFile );
 
     static tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
-        ptr< vector< ptr< vector< string > > > >, ptr< BLSPublicKey > >
+        ptr< vector< ptr< vector< string > > > >, ptr< libBLS::BLSPublicKey > >
     parseTestKeyNamesFromJson( const string& _sgxServer4Url, const fs_path& configFile,
         uint64_t _totalNodes, uint64_t _requiredNodes );
 

@@ -5,14 +5,9 @@
 
 #include "AESKeyDecryptionShare.h"
 
-namespace libff {
-    class alt_bn128_G2;
-}
-
 namespace libBLS {
     class TEDecryptionShare;
 }
-
 
 class ConsensusAESKeyDecryptionShare : public AESKeyDecryptionShare {
     ptr<libBLS::TEDecryptionShare> aesKeyDecryptionShare;
