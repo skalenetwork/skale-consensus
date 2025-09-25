@@ -94,8 +94,7 @@ ptr< CommittedBlock > Schain::getBlock( block_id _blockID ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
-        // Ensure the block is committed in DB (including the currently executing block)
-        if (_blockID > readLastCommittedBlockIDFromDb())
+        if (_blockID > getLastCommittedBlockID())
             return nullptr;
         return getNode()->getBlockDB()->getBlock( _blockID, getCryptoManager() );
     } catch ( ExitRequestedException& ) {
