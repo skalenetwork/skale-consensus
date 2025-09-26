@@ -603,11 +603,15 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
         ptr<BlockProposal> myProposal;
+#ifdef BITE
         bool isProposalCameFromDb = false;
+#endif        
 
         proposalStageStartTimeMs = Time::getCurrentTimeMs();
         if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
+#ifdef BITE            
             isProposalCameFromDb = true;
+#endif
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _proposedBlockID, getSchainIndex());
             // getBlockProposal() already calls for verifyAndCreateMyDecryptionSharesForProposalTransactions
