@@ -85,7 +85,6 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
     CHECK_STATE(_proposal);
     // check we are not verifying twice
 
-
     auto savedShares = getSchain()->getNode()->getTEDecryptionDB()->getMyDecryptionShares(_proposal->getBlockID(),
                                                                                           _proposal->getProposerIndex());
 
@@ -121,7 +120,6 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
     // database when proposal is committed
     _proposal->setMyDecryptionShares(decryptionShareList);
 
-
     getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
 
 }
@@ -136,10 +134,8 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
             _proposal->getBlockID(),
             _proposal->getProposerIndex(), schain.getSchainIndex());
 
-
     ptr<vector<ptr<AESKeyDecryptionShare> > > decryptionSharesVector = getDecryptionSharesFromAESKeys(
             _proposal, schain.getSchainIndex());
-
 
     if (!decryptionSharesVector) {
         return nullptr;
@@ -155,7 +151,6 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
         arrayIndex++;
     }
 
-
     return decryptionShareList;
 }
 
@@ -168,8 +163,6 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 
     auto encryptedAESKeys = _proposal->getEncryptedAESKeys();
     CHECK_STATE(encryptedAESKeys);
-
-
 
     if (doRealCrypto) {
 
