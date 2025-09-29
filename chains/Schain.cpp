@@ -603,9 +603,15 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         block_id _proposedBlockID((uint64_t) lastCommittedBlockID + 1);
 
         ptr<BlockProposal> myProposal;
+#ifdef BITE
+        bool isProposalCameFromDb = false;
+#endif        
 
         proposalStageStartTimeMs = Time::getCurrentTimeMs();
         if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
+#ifdef BITE            
+            isProposalCameFromDb = true;
+#endif
             myProposal = getNode()->getBlockProposalDB()->getBlockProposal(
                 _proposedBlockID, getSchainIndex());
             // getBlockProposal() already calls for verifyAndCreateMyDecryptionSharesForProposalTransactions
@@ -632,23 +638,24 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
 
 
 #ifdef BITE
+        // if proposal was stored in the db, it must have the shares already computed
+        if (!isProposalCameFromDb) {
+            getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
 
-        getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
+            if (!myProposal->getFailedTransactionsRef().empty()) {
+                LOG(err, "Critical error - invalid BITE transactions");
+                LOG(err, "Proposing default block instead");
+                return;
+            }
 
-        if (!myProposal->getFailedTransactionsRef().empty()) {
-            LOG(err, "Critical error - invalid BITE transactions");
-            LOG(err, "Proposing default block instead");
-            return;
+            getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
+            if (!myProposal->getFailedTransactionsRef().empty()) {
+                LOG(err, "Critical error - could not decrypt BITE transactions");
+                LOG(err, "Proposing default block instead");
+                return;
+            }
         }
-
-
-        getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
-        if (!myProposal->getFailedTransactionsRef().empty()) {
-            LOG(err, "Critical error - could not decrypt BITE transactions");
-            LOG(err, "Proposing default block instead");
-            return;
-        }
-        CHECK_STATE(myProposal->getMyDecryptionShares());
+        CHECK_STATE(myProposal->getMyDecryptionShares());        
 #endif
 
         LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ));
