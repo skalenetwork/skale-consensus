@@ -106,7 +106,7 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
 
 
     // this function will not throw exception
-    auto decryptionShareList = getDecryptionSharesFromDataFieldsMap(_proposal);
+    auto decryptionShareList = getDecryptionSharesForProposal(_proposal);
     if (!_proposal->getFailedTransactionsRef().empty()) {
         // the block includes invalid transactions, and at this point we know
         // each of them. So we just return them
@@ -125,7 +125,7 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
 }
 
 
-ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap(ptr<BlockProposal> _proposal) {
+ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesForProposal(ptr<BlockProposal> _proposal) {
     CHECK_STATE(_proposal)
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime())
