@@ -205,7 +205,7 @@ pair<string, uint64_t> CryptoManager::parseSGXDomainAndPort(const string &_url) 
 
     if (found == string::npos) {
         BOOST_THROW_EXCEPTION(
-            InvalidStateException( "SGX URL does not include port " + _url, __CLASS_NAME__ ));
+            InvalidStateException( "SGX URL does not include port ", __CLASS_NAME__ ));
     }
 
 
@@ -229,7 +229,7 @@ pair<string, uint64_t> CryptoManager::parseSGXDomainAndPort(const string &_url) 
         result = stoi(port);
     } catch (...) {
         throw_with_nested(
-            InvalidStateException("Could not find port in URL " + _url, __CLASS_NAME__));
+            InvalidStateException("Could not find port in URL ", __CLASS_NAME__));
     }
     return {domain, result};
 }
