@@ -910,7 +910,6 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
         auto finishTimeMs = Time::getCurrentTimeMs();
         sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
         RETRY_END
-
         auto sharesArray = jsonShares["decryptionShares"];
         CHECK_STATE(sharesArray.isArray())
         CHECK_STATE(sharesArray.size() == _publicDecryptionValues.size() )

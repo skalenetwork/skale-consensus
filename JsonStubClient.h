@@ -51,11 +51,15 @@ public:
         const std::string& keyShareName, std::vector<std::shared_ptr<std::string>>& _publicDecryptionValues ) {
 
         Json::Value p;
-        Json::Value batch;
+        Json::Value batch(Json::arrayValue);
 
-        for (auto value : _publicDecryptionValues) {
-            batch.append( *value );
-        };
+        for (const auto& v : _publicDecryptionValues) {
+            if (v && !v->empty()) {
+                batch.append(*v);
+            } else {
+                batch.append(Json::Value(""));
+            }
+        }
 
         p["blsKeyName"] = keyShareName;
 
