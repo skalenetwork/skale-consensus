@@ -48,7 +48,7 @@ public:
 #endif
 
 
-#ifndef MIRAGE
+#ifndef FAIR
 
     void sendTestRequestGet();
 

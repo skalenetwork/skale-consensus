@@ -64,8 +64,8 @@ ptr< Node > JSONFactory::createNodeFromTestJsonFile( const string& _sgxUrl, cons
     const string& _sgxSSLKeyFileFullPath, const string& _sgxSSLCertFileFullPath,
     const string& _ecdsaKeyName, const ptr< vector< string > >& _ecdsaPublicKeys,
     const string& _blsKeyName, const ptr< vector< ptr< vector< string > > > >& _blsPublicKeys,
-    const ptr< BLSPublicKey >& _blsPublicKey,
-    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
+    const ptr< libBLS::BLSPublicKey >& _blsPublicKey,
+    const ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > >& _previousBlsPublicKeys,
     const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
     const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups ) {
     string sgxUrl = "";
@@ -101,8 +101,8 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j,
     const string& _sgxSSLKeyFileFullPath, const string& _sgxSSLCertFileFullPath,
     const string& _ecdsaKeyName, const ptr< vector< string > >& _ecdsaPublicKeys,
     const string& _blsKeyName, const ptr< vector< ptr< vector< string > > > >& _blsPublicKeys,
-    const ptr< BLSPublicKey >& _blsPublicKey, string& _gethURL,
-    const ptr< map< uint64_t, ptr< BLSPublicKey > > >& _previousBlsPublicKeys,
+    const ptr< libBLS::BLSPublicKey >& _blsPublicKey, string& _gethURL,
+    const ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > >& _previousBlsPublicKeys,
     const ptr< map< uint64_t, string > >& _historicECDSAPublicKeys,
     const ptr< map< uint64_t, vector< uint64_t > > >& _historicNodeGroups ) {
     bool isSyncNode = false;
@@ -249,7 +249,7 @@ void JSONFactory::createAndAddSChainFromJsonObject(
 
         _node->setEmptyBlockIntervalMs( emptyBlockIntervalMs );
 
-#ifdef MIRAGE
+#ifdef FAIR
         uint64_t constantGasPrice;
         try {
             constantGasPrice = element.at( "constantGasPrice" ).get< uint64_t >();
@@ -370,7 +370,7 @@ using namespace jsonrpc;
 
 
 tuple< ptr< vector< string > >, ptr< vector< string > >, ptr< vector< string > >,
-    ptr< vector< ptr< vector< string > > > >, ptr< BLSPublicKey > >
+    ptr< vector< ptr< vector< string > > > >, ptr< libBLS::BLSPublicKey > >
 JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_path& configFile,
     uint64_t _totalNodes, uint64_t _requiredNodes ) {
     CHECK_ARGUMENT( _totalNodes > 0 );
@@ -459,7 +459,7 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
 
     // create pub key
 
-    auto blsPublicKeysMap = make_shared< map< size_t, ptr< BLSPublicKeyShare > > >();
+    auto blsPublicKeysMap = map< size_t, libBLS::BLSPublicKeyShare >();
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
         LOG( info, "Configured BLS public key share for node index "
@@ -467,19 +467,17 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
                        << blsPublicKeys->at( i )->at( 1 ) << ":" << blsPublicKeys->at( i )->at( 2 )
                        << ":" << blsPublicKeys->at( i )->at( 3 ) );
 
-        auto share =
-            make_shared< BLSPublicKeyShare >( blsPublicKeys->at( i ), _requiredNodes, _totalNodes );
+        auto& c = blsPublicKeys->at(i);
+        libBLS::BLSPublicKeyShare share( *c, _requiredNodes, _totalNodes );
 
-        CHECK_STATE( share->getPublicKey() );
-
-        blsPublicKeysMap->insert( std::pair< size_t, ptr< BLSPublicKeyShare > >( i + 1, share ) );
+        blsPublicKeysMap.insert( std::pair< size_t, libBLS::BLSPublicKeyShare >( i + 1, share ) );
     }
 
 
     LOG( info, "Computing BLS public key" );
 
     auto blsPublicKey =
-        make_shared< BLSPublicKey >( blsPublicKeysMap, _requiredNodes, _totalNodes );
+        make_shared< libBLS::BLSPublicKey >( blsPublicKeysMap, _requiredNodes, _totalNodes );
 
     LOG( info, "Computed BLS Public Key" );
 
@@ -489,7 +487,7 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
     // sign verify a sample sig
 
     vector< Json::Value > blsSigShares( _totalNodes );
-    BLSSigShareSet sigShareSet( _requiredNodes, _totalNodes );
+    libBLS::BLSSigShareSet sigShareSet( _requiredNodes, _totalNodes );
 
     string SAMPLE_HASH( "09c6137b97cdf159b9950f1492ee059d1e2b10eaf7d51f3a97d61f2eee2e81db" );
 
@@ -509,24 +507,19 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
 
         string sigShareStr;
         sigShareStr += getString( blsSigShares[i], "signatureShare" );
-        auto sigShare = make_shared< string >( sigShareStr );
 
-        BLSSigShare sig( sigShare, i + 1, _requiredNodes, _totalNodes );
-        sigShareSet.addSigShare( make_shared< BLSSigShare >( sig ) );
+        libBLS::BLSSigShare sig( sigShareStr, i + 1, _requiredNodes, _totalNodes );
+        sigShareSet.addSigShare( sig );
 
-        auto pubKey = blsPublicKeysMap->at( i + 1 );
+        auto& pubKey = blsPublicKeysMap.at( i + 1 );
 
-        auto sharedHash = make_shared< array< uint8_t, HASH_LEN > >( hash.getHash() );
-
-        CHECK_STATE( pubKey->VerifySigWithHelper(
-            sharedHash, make_shared< BLSSigShare >( sig ), _requiredNodes, _totalNodes ) );
+        CHECK_STATE( pubKey.VerifySigWithHelper(
+            hash.getHash(), sig , _requiredNodes, _totalNodes ) );
     }
 
-    ptr< BLSSignature > commonSig = sigShareSet.merge();
+    libBLS::BLSSignature commonSig = sigShareSet.merge();
 
-    auto sharedHash = make_shared< array< uint8_t, HASH_LEN > >( hash.getHash() );
-
-    CHECK_STATE( blsPublicKey->VerifySigWithHelper( sharedHash, commonSig ) );
+    CHECK_STATE( blsPublicKey->VerifySigWithHelper( hash.getHash(), commonSig ) );
 
     LOG( info, "Verified a sample sig" );
 
