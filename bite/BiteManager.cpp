@@ -208,12 +208,11 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
             CHECK_STATE(encryptedAESKey)
             auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
             libBLS::ThresholdEncryption::validateEncryption( cipheredKey );
-            auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(cipheredKey.U, libBLS::BASE_HEXA);
 
             // convert to string
             auto decryptionShareInput = cipheredKey.getDecryptionShareInput();
 
-            publicDecryptionValues->at(i) = decryptionShareInput;
+            publicDecryptionValues->at(i) = make_shared<string>(decryptionShareInput);
         } catch (exception &_e) {
             LOG(err, fmt::format( "Could not validate transaction: {} : {}" , i, _e.what()));
             if (useThreadSafety) {
