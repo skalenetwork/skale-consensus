@@ -54,9 +54,10 @@ class StubClient;
 
 class ECP;
 
-class BLSPublicKey;
-
-class BLSSigShare;
+namespace libBLS {
+    class BLSPublicKey;
+    class BLSSigShare;
+}
 
 class BLSPublicKeyShare;
 
@@ -73,18 +74,7 @@ namespace jsonrpc {
     class HttpClient;
 }
 
-class MPZNumber {
-public:
-    MPZNumber();
-
-    ~MPZNumber();
-
-    mpz_t number;
-};
-
-
 class OpenSSLECDSAKey;
-
 class OpenSSLEdDSAKey;
 
 #ifdef BITE
@@ -133,7 +123,7 @@ class CryptoManager {
 
     ptr<vector<string> > sgxECDSAPublicKeys; // tsafe
 
-    ptr<map<uint64_t, ptr<BLSPublicKey> > > previousBlsPublicKeys;
+    ptr<map<uint64_t, ptr<libBLS::BLSPublicKey> > > previousBlsPublicKeys;
 
     ptr<map<uint64_t, string> > historicECDSAPublicKeys;
 
@@ -155,7 +145,7 @@ class CryptoManager {
     string sgxBlsKeyName;
 
 
-    ptr<BLSPublicKey> sgxBLSPublicKey;
+    ptr<libBLS::BLSPublicKey> sgxBLSPublicKey;
 
     Schain *sChain = nullptr;
 
@@ -243,7 +233,7 @@ public:
                                 uint64_t _timeStamp);
 
 
-    void verifyBlsSigShare(ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash);
+    void verifyBlsSigShare(libBLS::BLSSigShare& _sigShare, BLAKE3Hash &_hash);
 
     ptr<BLSPublicKeyShare> getBlsPublicKeyShare(uint64_t nodeId) const;
 
@@ -291,7 +281,7 @@ public:
     tuple<string, string, string> signSessionECDSA(BLAKE3Hash &_hash, block_id _blockID);
 
 
-    pair<ptr<BLSPublicKey>, ptr<BLSPublicKey> > getSgxBlsPublicKey(uint64_t _timestamp = 0);
+    pair<ptr<libBLS::BLSPublicKey>, ptr<libBLS::BLSPublicKey> > getSgxBlsPublicKey(uint64_t _timestamp = 0);
 
     string getSgxBlsKeyName();
 
@@ -371,13 +361,12 @@ public:
                     "server" );                                                                \
             };                                                                                 \
             if ( !CryptoManager::isRetryHappened() )                                           \
-            LOG( err, "Could not connect to sgx server: " + CryptoManager::getSgxUrl() +       \
-              ", retrying each five seconds ... \n" + string( e.what() ) );                    \
+            LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" +   \
+                string( e.what() ) );                                                          \
             CryptoManager::setRetryHappened( true );                                           \
             sleep( 5 );                                                                        \
         } else {                                                                               \
-            LOG( err, "Could not connect to sgx server: " + CryptoManager::getSgxUrl() +       \
-              "\n" + string( e.what() ) );                                                     \
+            LOG( err, "Could not connect to sgx server: " + string( e.what() ) );              \
             throw;                                                                             \
         }                                                                                      \
     }                                                                                          \
