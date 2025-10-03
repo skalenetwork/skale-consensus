@@ -142,7 +142,7 @@ string SgxZmqClient::doZmqRequestReply(
             CHECK_STATE( strlen( reply.c_str() ) == reply.length() )
 
             CHECK_STATE( reply.length() > 5 );
-//            LOG( debug, "ZMQ client received reply:" << reply );
+            LOG( debug, "ZMQ client received reply:" << reply );
             CHECK_STATE( reply.front() == '{' );
             CHECK_STATE( reply.back() == '}' );
 
@@ -452,7 +452,7 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t ) {
 
     auto crt = make_shared< string >( ( *d )["cert"].GetString() );
 
-//    static recursive_mutex m;
+    static recursive_mutex m;
 
     std::shared_ptr<EVP_PKEY> publicKey;
 
