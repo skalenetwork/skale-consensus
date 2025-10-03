@@ -225,7 +225,8 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
                         CHECK_STATE(share);
                         size_t decryptorIndex = (size_t)share->getDecryptorIndex();
                         // verify share first if real signatures are enabled
-                        if (keyShares != nullptr && sChain->getSchainIndex() != decryptorIndex) {
+                        if (sChain->getNode()->isSgxEnabled() &&
+                                sChain->getSchainIndex() != decryptorIndex) {
                             auto cipheredKey = encryptions.at(transactionIndex);
                             libBLS::ThresholdEncryption::validateDecryptionShare(cipheredKey,
                                 *dynamic_cast<ConsensusAESKeyDecryptionShare*>(share.get())->getTEDecryptionShare(),
