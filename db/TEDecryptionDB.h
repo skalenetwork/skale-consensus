@@ -16,8 +16,6 @@ namespace folly {
 class CPUThreadPoolExecutor;
 }
 
-class BLSPublicKeyShare;
-
 using EncryptedAESKeyList = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
 
 
