@@ -164,7 +164,27 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
 
 ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactionsBITE(
     size_t _limit ) {
-    ConsensusExtFace::transactions_vector result;
+    static size_t txIdxInPrecomputedBatch = 0;
+    static ConsensusExtFace::transactions_vector result;
+    static std::once_flag initFlag;
+
+    // build test transactions only once at start (includes encrypting them)
+    std::call_once(initFlag, [&] () {
+        ConsensusExtFace::transactions_vector tmpRes;
+
+        for ( uint64_t i = 0; i < 1000; i++ ) {
+            // 1/4 chance of being bite encoded
+            // make half of them bite encoded
+            // make one quarter unencrypted
+            auto tx = EthTransactionEncoder::generateSampleTx( i % 4 != 0, sChain->getBiteManager()  );
+            tmpRes.emplace_back( *tx );
+        }
+
+        result = std::move(tmpRes);
+    });
+
+
+    ConsensusExtFace::transactions_vector selectedTxs;
 
     auto test = sChain->getBlockProposerTest();
 
@@ -173,14 +193,13 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     if ( test == SchainTest::NONE )
         return result;
 
+    size_t idx = txIdxInPrecomputedBatch;
     for ( uint64_t i = 0; i < _limit; i++ ) {
-        // 1/4 chance of being bite encoded
-        // make half of tg
-        // make one quarter unencrypted
-        auto tx = EthTransactionEncoder::generateSampleTx( i % 4 != 0, sChain->getBiteManager()  );
-        result.emplace_back( *tx );
+        idx = (idx + 1) % result.size();
+        selectedTxs.emplace_back( result.at(idx) );
     }
 
-    return result;
+    txIdxInPrecomputedBatch = idx;
+    return selectedTxs;
 };
 #endif
