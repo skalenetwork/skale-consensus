@@ -540,7 +540,7 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 #ifdef BITE
 
 
-            CHECK_STATE(proposal->getBiteDataFields());
+            CHECK_STATE(proposal->getEncryptedAESKeys());
 
             getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
 
