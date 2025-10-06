@@ -232,7 +232,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
                         // decryption shares set has its own lock
                         decryptionSharesSet->addDecryptionShare(share);
                     }  catch ( const std::exception& ex ) {
-                        LOG(trace, std::string("Error during adding shares: ") + ex.what());
+                        LOG(err, std::string("Error during adding shares: ") + ex.what());
                     }
                 }
             }
