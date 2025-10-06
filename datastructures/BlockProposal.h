@@ -207,7 +207,6 @@ public:
 private:
     ptr<AESKeyDecryptionShareList> myDecryptionShares = nullptr;
     ptr<EncryptedAESKeyList> encryptedAESKeys = nullptr;
-    ptr<std::map<transaction_index, ptr<BiteDataField> > > biteDataFields;
 
     // this will normally be empty
     map<transaction_index, ConnectionSubStatus> failedTransactions;
@@ -237,19 +236,6 @@ public:
         sgxAESKeyBatch = _sgxAESKeyBatch;
     }
 
-
-    [[nodiscard]] ptr<std::map<transaction_index, ptr<BiteDataField> > > getBiteDataFields() const {
-        auto result = std::atomic_load(&biteDataFields);
-        CHECK_STATE(result);
-        return result;
-    }
-
-
-    void setBiteDataFields(
-        ptr<std::map<transaction_index, ptr<BiteDataField> > > _biteDataFields) {
-        CHECK_STATE(!biteDataFields)
-        biteDataFields = _biteDataFields;
-    }
 
     void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
         CHECK_STATE(_myDecryptionShares);
