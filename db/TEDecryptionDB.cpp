@@ -189,17 +189,17 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
         }
     }
 
-    ptr<vector<ptr<BLSPublicKeyShare>>> keyShares = nullptr;
+    ptr<vector<ptr<libBLS::BLSPublicKeyShare>>> keyShares = nullptr;
     if (sChain->getNode()->isSgxEnabled()) {
         keyShares =
-                std::make_shared<vector<ptr<BLSPublicKeyShare>>>(sChain->getCryptoManager()->getAllBlsPublicKeyShares());
+                std::make_shared<vector<ptr<libBLS::BLSPublicKeyShare>>>(sChain->getCryptoManager()->getAllBlsPublicKeyShares());
     }
 
     // prepare TE public key shares if real signatures are enabled
     vector<libBLS::TEPublicKeyShare> tePublicKeys;
     if ( keyShares != nullptr ) {
         for (size_t i = 0; i < totalSigners; ++i) {
-            tePublicKeys.push_back(libBLS::TEPublicKeyShare(*keyShares->at(i)->getPublicKey(),
+            tePublicKeys.push_back(libBLS::TEPublicKeyShare(keyShares->at(i)->getPublicKey(),
                                                        i + 1, requiredSigners, totalSigners) );
         }
     }

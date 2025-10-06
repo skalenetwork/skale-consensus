@@ -1018,15 +1018,15 @@ void CryptoManager::verifyThresholdSigShare(
     }
 }
 
-ptr<BLSPublicKeyShare> CryptoManager::getBlsPublicKeyShare(uint64_t _nodeId) const {
+ptr<libBLS::BLSPublicKeyShare> CryptoManager::getBlsPublicKeyShare(uint64_t _nodeId) const {
     CHECK_STATE(blsPublicKeySharesMapByIndex.count( _nodeId ) > 0 );
 
-    return make_shared<BLSPublicKeyShare>(blsPublicKeySharesMapByIndex.at(_nodeId),
+    return make_shared<libBLS::BLSPublicKeyShare>(*blsPublicKeySharesMapByIndex.at(_nodeId),
                                           requiredSigners, totalSigners);
 }
 
-vector<ptr<BLSPublicKeyShare>> CryptoManager::getAllBlsPublicKeyShares() const {
-    vector<ptr<BLSPublicKeyShare>> ret;
+vector<ptr<libBLS::BLSPublicKeyShare>> CryptoManager::getAllBlsPublicKeyShares() const {
+    vector<ptr<libBLS::BLSPublicKeyShare>> ret;
     ret.resize((uint64_t)getSchain()->getNodeCount());
     for (uint64_t i = 0; i < getSchain()->getNodeCount(); ++i) {
         ret[i] = getBlsPublicKeyShare(i + 1);
