@@ -184,20 +184,17 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
             sChain->getBiteManager()->createAESDecryptionShareSet(
                 _blockId, decryptionShareIterator.first );
         if (sChain->getNode()->isSgxEnabled()) {
+            // fill the map to use in multiple threads later if real signatures are enabled
             encryptions[decryptionShareIterator.first] =
                     libBLS::CipheredKey::fromBytes(*_encryptedAESKeyList->at(decryptionShareIterator.first)->getKey());
         }
     }
 
-    ptr<vector<ptr<libBLS::BLSPublicKeyShare>>> keyShares = nullptr;
-    if (sChain->getNode()->isSgxEnabled()) {
-        keyShares =
-                std::make_shared<vector<ptr<libBLS::BLSPublicKeyShare>>>(sChain->getCryptoManager()->getAllBlsPublicKeyShares());
-    }
-
     // prepare TE public key shares if real signatures are enabled
     vector<libBLS::TEPublicKeyShare> tePublicKeys;
-    if ( keyShares != nullptr ) {
+    if (sChain->getNode()->isSgxEnabled()) {
+        ptr<vector<ptr<libBLS::BLSPublicKeyShare>>> keyShares =
+                std::make_shared<vector<ptr<libBLS::BLSPublicKeyShare>>>(sChain->getCryptoManager()->getAllBlsPublicKeyShares());
         for (size_t i = 0; i < totalSigners; ++i) {
             tePublicKeys.push_back(libBLS::TEPublicKeyShare(keyShares->at(i)->getPublicKey(),
                                                        i + 1, requiredSigners, totalSigners) );
@@ -212,7 +209,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
 
     for ( auto&& decryptionSharesSetIterator: decryptionShareSets ) {
         auto transactionIndex = decryptionSharesSetIterator.first;
-        auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareLists, keyShares,
+        auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareLists,
                                  &decryptionShareSets, &aesKeys, &aesKeysMutex, &tePublicKeys,
                                  &_encryptedAESKeyList, transactionIndex, &encryptions,
                                  sChain = this->sChain]() -> folly::Unit {
