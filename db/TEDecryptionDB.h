@@ -41,7 +41,6 @@ public:
 
     ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList);
 
-
     void addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 
     ptr<AESKeyDecryptionShareList> getMyDecryptionShares(block_id _blockId, schain_index _proposerIndex);

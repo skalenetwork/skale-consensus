@@ -192,25 +192,70 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
 
     CHECK_STATE(encryptedAESKeys);
 
+    auto failedTransactionRef = _proposal->getFailedTransactionsRef();
 
     auto publicDecryptionValues = make_shared<vector<ptr<string>>>();
 
-    uint64_t i = 0;
+    publicDecryptionValues->resize(encryptedAESKeys->size());
+        
+    std::mutex failedTransactionsMutex;
 
-    for (auto&& it : *encryptedAESKeys) {
+    // lambda for processing a single encrypted AES key
+    auto processEncryptedAESKey = [encryptedAESKeys, publicDecryptionValues, &failedTransactionRef, &failedTransactionsMutex](uint64_t i, bool useThreadSafety) -> folly::Unit {
         try {
-            auto encryptedAESKey = it.second;
+            auto encryptedAESKey = encryptedAESKeys->at(i);
             CHECK_STATE(encryptedAESKey)
             auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
+            libBLS::ThresholdEncryption::validateEncryption( cipheredKey );
+
+            // convert to string
             auto decryptionShareInput = cipheredKey.getDecryptionShareInput();
 
-            publicDecryptionValues->push_back( make_shared<string>(decryptionShareInput));
+            publicDecryptionValues->at(i) = make_shared<string>(decryptionShareInput);
         } catch (exception &_e) {
-            LOG(err, fmt::format("Could not validate transaction: {} : {}", i, _e.what()));
-            _proposal->getFailedTransactionsRef().emplace(i,
-                                        CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
-            return;
+            LOG(err, fmt::format( "Could not validate transaction: {} : {}" , i, _e.what()));
+            if (useThreadSafety) {
+                lock_guard<mutex> lock(failedTransactionsMutex);
+                failedTransactionRef.emplace(i,
+                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+            } else {
+                failedTransactionRef.emplace(i,
+                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+            }
         }
+        return folly::unit;
+    };
+    
+    if (encryptedAESKeys->size() < NUM_BITE_VALIDATION_THREADS) {
+        // do sequential processing for small batches
+        for (uint64_t i = 0; i < encryptedAESKeys->size(); i++) {
+            processEncryptedAESKey(i, false);
+        }
+    } else {
+        std::vector<folly::Future<folly::Unit>> futures;
+        futures.reserve(NUM_BITE_VALIDATION_THREADS);
+
+        const size_t chunkSize = (encryptedAESKeys->size() + NUM_BITE_VALIDATION_THREADS - 1) /
+                NUM_BITE_VALIDATION_THREADS;
+        
+        for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
+            size_t startIdx = threadId * chunkSize;
+            size_t endIdx = std::min(startIdx + chunkSize, encryptedAESKeys->size());
+            
+            if (startIdx >= endIdx)
+                break;
+
+            auto future = folly::via(threadPoolExecutor.get(), [startIdx, endIdx, &processEncryptedAESKey]() {
+                for (size_t i = startIdx; i < endIdx; ++i) {
+                    processEncryptedAESKey(i, true);
+                }
+            });
+
+            futures.push_back(std::move(future));
+        }
+        
+        // Wait for all threads to complete
+        auto allResults = folly::collectAll(futures).get();
     }
     _proposal->setSGXAESKeyBatch(publicDecryptionValues);
 }
