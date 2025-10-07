@@ -33,6 +33,7 @@
 #include "BLSPublicKey.h"
 #include "db/TEDecryptionDB.h"
 #include "rlp/RLPStream.h"
+#include "utils/Time.h"
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
@@ -273,7 +274,8 @@ BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_de
         auto encryptedData = _bite->getKeyPlusEncryptedData();
         CHECK_STATE(encryptedData != nullptr);
 
-        libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData);
+        bool validateCiphertext = false;
+        libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData, validateCiphertext);
         biteDataField = make_shared<vector<uint8_t>>(
                 libBLS::ThresholdEncryption::decrypt(ciphertext, _decryptedAESKey.getAesKey()));
     } else {

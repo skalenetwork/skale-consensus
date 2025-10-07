@@ -547,7 +547,6 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                          "Proposal includes invalid format BITE transactions");
 
-
             getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(
                 proposal);
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),

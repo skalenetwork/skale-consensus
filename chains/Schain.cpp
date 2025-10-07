@@ -636,28 +636,6 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
             return; // dont propose
         }
 
-
-#ifdef BITE
-        // if proposal was stored in the db, it must have the shares already computed
-        if (!isProposalCameFromDb) {
-            getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
-
-            if (!myProposal->getFailedTransactionsRef().empty()) {
-                LOG(err, "Critical error - invalid BITE transactions");
-                LOG(err, "Proposing default block instead");
-                return;
-            }
-
-            getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
-            if (!myProposal->getFailedTransactionsRef().empty()) {
-                LOG(err, "Critical error - could not decrypt BITE transactions");
-                LOG(err, "Proposing default block instead");
-                return;
-            }
-        }
-        CHECK_STATE(myProposal->getMyDecryptionShares());        
-#endif
-
         LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ));
 
         auto db = getNode()->getProposalHashDB();
@@ -677,6 +655,29 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         pubKeySig = "";
 
         getSchain()->daProofSigShareArrived(mySig, myProposal);
+
+#ifdef BITE
+        // Compute decryption shares only after sending the proposal to the network
+        // if proposal was stored in the db, it must have the shares already computed
+        if (!isProposalCameFromDb) {
+            getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
+
+            if (!myProposal->getFailedTransactionsRef().empty()) {
+                LOG(err, "Critical error - invalid BITE transactions");
+                LOG(err, "Proposing default block instead");
+                return;
+            }
+
+            getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
+            if (!myProposal->getFailedTransactionsRef().empty()) {
+                LOG(err, "Critical error - could not decrypt BITE transactions");
+                LOG(err, "Proposing default block instead");
+                return;
+            }
+        }
+        CHECK_STATE(myProposal->getMyDecryptionShares());        
+#endif
+    
     } catch (ExitRequestedException &e) {
         throw;
     } catch (...) {
@@ -1474,7 +1475,6 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // at this point the destructor of the previous agent will be called
             // this will make all its threads to exit
             downloaderAgent =  newDownloaderAgent;
-
 
             const string msg = "Finalization download:" + to_string(_blockId) + ":" +
                                    to_string(_proposerIndex);
