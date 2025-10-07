@@ -185,8 +185,11 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
                 _blockId, decryptionShareIterator.first );
         if (sChain->getNode()->isSgxEnabled()) {
             // fill the map to use in multiple threads later if real signatures are enabled
+            // dont validate inputs - were already validated before
+            bool toValidate = false;
             encryptions[decryptionShareIterator.first] =
-                    libBLS::CipheredKey::fromBytes(*_encryptedAESKeyList->at(decryptionShareIterator.first)->getKey());
+                    libBLS::CipheredKey::fromBytes(*_encryptedAESKeyList->at(decryptionShareIterator.first)->getKey(),
+                                                   toValidate);
         }
     }
 
