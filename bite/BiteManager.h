@@ -7,6 +7,7 @@
 #include <crypto/AESKeyDecryptionShareSet.h>
 #include "node/ConsensusInterface.h"
 #include "abstracttcpserver/ConnectionStatus.h"
+#include <folly/Unit.h>
 
 class Schain;
 
@@ -32,6 +33,45 @@ class BiteManager {
     Schain &schain;
     bool doRealCrypto = false;
     std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
+
+    // struct for passing data to the thread pool
+    struct AESKeyValidationBatch {
+
+        // vec with pointers to each element in the EncryptedAESKey Map
+        std::vector< EncryptedAESKeyList::iterator >* work;
+        // start & end indices in the work vec
+        size_t startIdx;
+        size_t endIdx;
+
+        // output vec with public decryption values. Only contains values for valid transactions, in the order of the input work vec
+        ptr<std::vector<ptr<string>>> publicDecryptionValues;    
+
+        // reference to the map of failed transactions in the proposal
+        std::map<transaction_index, ConnectionSubStatus>* failedTransactionRef;
+
+        // mutex for thread safety when adding to failedTransactions map
+        std::mutex* failedTransactionsMutex;
+        bool useThreadSafety;
+
+        explicit AESKeyValidationBatch(
+                std::vector< EncryptedAESKeyList::iterator >* _work,
+                size_t _startIdx,
+                size_t _endIdx,
+                ptr<std::vector<ptr<string>>> _publicDecryptionValues,
+                std::map<transaction_index, ConnectionSubStatus>* _failedTransactionRef,
+                std::mutex* _failedTransactionsMutex,
+                bool _useThreadSafety
+        ) : work(_work),
+            startIdx(_startIdx),
+            endIdx(_endIdx),
+            publicDecryptionValues(_publicDecryptionValues),
+            failedTransactionRef(_failedTransactionRef),
+            failedTransactionsMutex(_failedTransactionsMutex),
+            useThreadSafety(_useThreadSafety)
+        {}
+    };
+
+    folly::Unit validateEncryptedAESKeyBatch( AESKeyValidationBatch& batch );
 
 public:
     explicit BiteManager(Schain &_schain);
