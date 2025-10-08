@@ -56,9 +56,10 @@ class BiteDataField;
 #ifdef BITE
 #include "abstracttcpserver/ConnectionStatus.h"
 class AESKeyDecryptionShareList;
+#endif
+
 class EncryptedAESKey;
 using EncryptedAESKeyList = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
-#endif
 
 
 class BlockProposal : public SendableItem {
