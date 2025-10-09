@@ -156,8 +156,8 @@ bool TEDecryptionDB::haveDecryptionShares(block_id _blockID, schain_index _decry
 
 };
 
-ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList) {
-    CHECK_STATE(_encryptedAESKeyList);
+ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyMap> _EncryptedAESKeyMap) {
+    CHECK_STATE(_EncryptedAESKeyMap);
 
     WRITE_LOCK(decryptionSetsMutex);
 
@@ -188,7 +188,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
             // dont validate inputs - were already validated before
             bool toValidate = false;
             encryptions[decryptionShareIterator.first] =
-                    libBLS::CipheredKey::fromBytes(*_encryptedAESKeyList->at(decryptionShareIterator.first)->getKey(),
+                    libBLS::CipheredKey::fromBytes(*_EncryptedAESKeyMap->at(decryptionShareIterator.first)->getKey(),
                                                    toValidate);
         }
     }
@@ -214,7 +214,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
         auto transactionIndex = decryptionSharesSetIterator.first;
         auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareLists,
                                  &decryptionShareSets, &aesKeys, &aesKeysMutex, &tePublicKeys,
-                                 &_encryptedAESKeyList, transactionIndex, &encryptions,
+                                 &_EncryptedAESKeyMap, transactionIndex, &encryptions,
                                  sChain = this->sChain]() -> folly::Unit {
             auto decryptionSharesSet = decryptionShareSets[transactionIndex];
             if ( !decryptionSharesSet->isEnough() ) {
@@ -240,7 +240,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
                 }
             }
             if ( decryptionSharesSet->isEnough() ) {
-                auto key = decryptionSharesSet->verifyAndMergeAESKey(_encryptedAESKeyList->at(transactionIndex));
+                auto key = decryptionSharesSet->verifyAndMergeAESKey(_EncryptedAESKeyMap->at(transactionIndex));
                 CHECK_STATE( key );
                 std::lock_guard<std::mutex> lock(aesKeysMutex);
                 aesKeys->addKey( transactionIndex, *key );
@@ -262,7 +262,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
     }
 
     CHECK_STATE(decryptionsStore.size() <= 2 * totalSigners);
-    CHECK_STATE2(aesKeys->getSize() == _encryptedAESKeyList->size(), "Not all aes keys could be decrypted");
+    CHECK_STATE2(aesKeys->getSize() == _EncryptedAESKeyMap->size(), "Not all aes keys could be decrypted");
 
     return aesKeys;
 }

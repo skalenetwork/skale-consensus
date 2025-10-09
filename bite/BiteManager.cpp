@@ -49,7 +49,7 @@ void BiteManager::parseBITETransactions(
     // to failedTransactions
     transaction_index index = 0;
 
-    auto encryptedAESKeyList = make_shared<EncryptedAESKeyList>();
+    auto EncryptedAESKeyMap = make_shared<EncryptedAESKeyMap>();
 
     auto biteDataFields = make_shared<std::map<transaction_index, ptr<BiteDataField> > >();
 
@@ -58,7 +58,7 @@ void BiteManager::parseBITETransactions(
             tx->parseAndValidate();
             auto biteDataField = tx->tryGetBiteData(_proposal->getEpochID());
             if (biteDataField) {
-                encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
+                EncryptedAESKeyMap->emplace(index, biteDataField->getEncryptedAESKey());
             }
             index = index + 1;
         } catch (exception &e) {
@@ -74,7 +74,7 @@ void BiteManager::parseBITETransactions(
     }
 
 
-    _proposal->seAESKeyList(encryptedAESKeyList);
+    _proposal->seAESKeyList(EncryptedAESKeyMap);
 }
 
 void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
@@ -245,7 +245,7 @@ folly::Unit BiteManager::validateEncryptedAESKeyBatch( AESKeyValidationBatch& ba
 }
 
 void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal) {
-    using It = EncryptedAESKeyList::iterator;
+    using It = EncryptedAESKeyMap::iterator;
 
     if (!doRealCrypto)
         return;

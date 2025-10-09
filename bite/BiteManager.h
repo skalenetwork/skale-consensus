@@ -38,7 +38,7 @@ class BiteManager {
     struct AESKeyValidationBatch {
 
         // vec with pointers to each element in the EncryptedAESKey Map
-        std::vector< EncryptedAESKeyList::iterator >* work;
+        std::vector< EncryptedAESKeyMap::iterator >* work;
         // start & end indices in the work vec
         size_t startIdx;
         size_t endIdx;
@@ -54,7 +54,7 @@ class BiteManager {
         bool useThreadSafety;
 
         explicit AESKeyValidationBatch(
-                std::vector< EncryptedAESKeyList::iterator >* _work,
+                std::vector< EncryptedAESKeyMap::iterator >* _work,
                 size_t _startIdx,
                 size_t _endIdx,
                 ptr<std::vector<ptr<string>>> _publicDecryptionValues,
