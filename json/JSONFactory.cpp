@@ -114,7 +114,7 @@ ptr< Node > JSONFactory::createNodeFromJsonObject( const nlohmann::json& _j,
 
 
     if ( isSyncNode && _useSGX ) {
-        LOG( err, "SGX mode is not available for a sync node" );
+        CONS_LOG( err, "SGX mode is not available for a sync node" );
         _useSGX = false;
     }
 
@@ -422,7 +422,7 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
     HttpClient client( _sgxServerURL );
     StubClient c( client, JSONRPC_CLIENT_V2 );
 
-    LOG( info, "Getting BLS Public Key Shares." );
+    CONS_LOG( info, "Getting BLS Public Key Shares." );
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
         Json::Value response;
@@ -462,7 +462,7 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
     auto blsPublicKeysMap = map< size_t, libBLS::BLSPublicKeyShare >();
 
     for ( uint64_t i = 0; i < _requiredNodes; i++ ) {
-        LOG( info, "Configured BLS public key share for node index "
+        CONS_LOG( info, "Configured BLS public key share for node index "
                        << to_string( i + 1 ) << ":" << blsPublicKeys->at( i )->at( 0 ) << ":"
                        << blsPublicKeys->at( i )->at( 1 ) << ":" << blsPublicKeys->at( i )->at( 2 )
                        << ":" << blsPublicKeys->at( i )->at( 3 ) );
@@ -474,14 +474,14 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
     }
 
 
-    LOG( info, "Computing BLS public key" );
+    CONS_LOG( info, "Computing BLS public key" );
 
     auto blsPublicKey =
         make_shared< libBLS::BLSPublicKey >( blsPublicKeysMap, _requiredNodes, _totalNodes );
 
-    LOG( info, "Computed BLS Public Key" );
+    CONS_LOG( info, "Computed BLS Public Key" );
 
-    LOG( info, "Verifying a sample sig" );
+    CONS_LOG( info, "Verifying a sample sig" );
 
 
     // sign verify a sample sig
@@ -521,12 +521,12 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
 
     CHECK_STATE( blsPublicKey->VerifySigWithHelper( hash.getHash(), commonSig ) );
 
-    LOG( info, "Verified a sample sig" );
+    CONS_LOG( info, "Verified a sample sig" );
 
-    LOG( info, "Getting ECDSA keys" );
+    CONS_LOG( info, "Getting ECDSA keys" );
 
     for ( uint64_t i = 0; i < _totalNodes; i++ ) {
-        LOG( info,
+        CONS_LOG( info,
             "Getting ECDSA public key for " << ecdsaKeyNames->at( i ).substr( 0, 8 ) << "..." );
 
         auto response = c.getPublicECDSAKey( ecdsaKeyNames->at( i ) );
@@ -535,7 +535,7 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
 
         auto publicKey = getString( response, "publicKey" );
 
-        LOG( info, "Got ECDSA public key:" << publicKey );
+        CONS_LOG( info, "Got ECDSA public key:" << publicKey );
 
         ecdsaPublicKeys->push_back( publicKey );
     }
@@ -546,7 +546,7 @@ JSONFactory::parseTestKeyNamesFromJson( const string& _sgxServerURL, const fs_pa
     CHECK_STATE( ecdsaPublicKeys->size() == _totalNodes )
     CHECK_STATE( blsPublicKeys->size() == _totalNodes );
 
-    LOG( info, "Got ECDSA keys" );
+    CONS_LOG( info, "Got ECDSA keys" );
 
     return { ecdsaKeyNames, ecdsaPublicKeys, blsKeyNames, blsPublicKeys, blsPublicKey };
 }
@@ -573,8 +573,8 @@ void JSONFactory::checkSGXStatus( Json::Value& _result ) {
     auto status = JSONFactory::getInt64( _result, "status" );
 
     if ( status != 0 ) {
-        LOG( err, "SGX server returned error status:" << to_string( status ) );
-        LOG( err, _result["errorMessage"].asString() );
+        CONS_LOG( err, "SGX server returned error status:" << to_string( status ) );
+        CONS_LOG( err, _result["errorMessage"].asString() );
     }
 
     CHECK_STATE( status == 0 );

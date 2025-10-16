@@ -81,7 +81,7 @@ bool ConsensusAESKeyDecryptionShareSet::addDecryptionShare(
         totalObjects.fetch_add( 1 );
     }
     catch ( const std::exception& e ) {
-        LOG( warn, "Failed to add decryption share: " << e.what() );
+        CONS_LOG( warn, "Failed to add decryption share: " << e.what() );
         return false;
     }
 

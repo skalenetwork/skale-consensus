@@ -9,7 +9,7 @@
 #include <jsonrpccpp/client/connectors/httpclient.h>
 
 
-TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx][end-to-end][correctness]" ) {
+CATCH_TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx][end-to-end][correctness]" ) {
     string certDir( "/tmp" );
 
 
@@ -59,11 +59,11 @@ TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx][end-to-
 
     auto key = CryptoManager::decodeSGXPublicKey( string( publicKeys->at( 0 ) ) );
 
-    SUCCEED();
+    CATCH_SUCCEED();
 }
 
 
-TEST_CASE( "Parse sgx keys", "[sgx-parse][end-to-end][correctness]" ) {
+CATCH_TEST_CASE( "Parse sgx keys", "[sgx-parse][end-to-end][correctness]" ) {
     auto serverURL = string( "http://localhost:1029" );
     auto eng = make_shared< ConsensusEngine >( 0, 100000000 );
     eng->setTestKeys( serverURL, "run_sgx_test/sgx_data/4node.json", 4, 1 );

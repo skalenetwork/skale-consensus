@@ -6,7 +6,6 @@
 #include <folly/io/IOBuf.h>
 #include "block_transactions_response_generated.h"
 
-#undef LOG // address incompatibility with folly
 #include "Log.h"
 #include "BlockTransactionsRequestObject.h"
 #include "BlockTransactionsResponseObject.h"

@@ -418,7 +418,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 ecdsaSig, publicKey, pkSig, _sChain );
 #endif
         } else {
-            LOG( warn, "Incorrect message type in received message:" << type );
+            CONS_LOG( warn, "Incorrect message type in received message:" << type );
             CHECK_STATE( false )
         }
 
@@ -522,7 +522,7 @@ void NetworkMessage::verify( const ptr< CryptoManager >& _mgr ) {
     try {
         _mgr->verifyNetworkMsg( *this );
     } catch ( ... ) {
-        LOG( err, "ECDSA sig did not verify" );
+        CONS_LOG( err, "ECDSA sig did not verify" );
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }

@@ -25,14 +25,9 @@
 #include <oids.h>
 #ifdef BITE
 
-// avoid macro definition conflicts
-#pragma push_macro("CHECK")
-#pragma push_macro("LOG")
 #include <folly/executors/CPUThreadPoolExecutor.h>
 #include <folly/futures/Future.h>
 #include <folly/Unit.h>
-#pragma pop_macro("LOG")
-#pragma pop_macro("CHECK")
 
 #include "TEDecryptionDB.h"
 
@@ -161,17 +156,17 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
 
     WRITE_LOCK(decryptionSetsMutex);
 
-    map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareLists =
+    map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareMap =
         decryptionsStore[_blockId];
 
-    CHECK_STATE( decryptionShareLists.size() >= requiredSigners )
+    CHECK_STATE( decryptionShareMap.size() >= requiredSigners )
 
-    auto firstDecryptionShareList = decryptionShareLists.begin()->second;
+    auto firstDecryptionShareList = decryptionShareMap.begin()->second;
     // TODO - count of decryption shares need to be in DA header
     CHECK_STATE( firstDecryptionShareList );
     auto size = firstDecryptionShareList->getSize();
 
-    for (auto&& it : decryptionShareLists) {
+    for (auto&& it : decryptionShareMap) {
         auto list = it.second;
         CHECK_STATE(list->getSize() == size);
     }
@@ -212,33 +207,65 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
 
     for ( auto&& decryptionSharesSetIterator: decryptionShareSets ) {
         auto transactionIndex = decryptionSharesSetIterator.first;
-        auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareLists,
+        auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareMap,
                                  &decryptionShareSets, &aesKeys, &aesKeysMutex, &tePublicKeys,
                                  &_EncryptedAESKeyMap, transactionIndex, &encryptions,
                                  sChain = this->sChain]() -> folly::Unit {
             auto decryptionSharesSet = decryptionShareSets[transactionIndex];
+
+            // still not enough shares - validate & add more
             if ( !decryptionSharesSet->isEnough() ) {
-                for ( auto&& it: decryptionShareLists) {
+
+                // data to send to the batch validation
+                std::vector< libBLS::CipheredKey > cipheredKeys;
+                std::vector< libBLS::TEDecryptionShare > shares;
+                shares.reserve(decryptionShareMap.size());
+                std::vector< libBLS::TEPublicKeyShare > publicKeys;
+                publicKeys.reserve(decryptionShareMap.size());
+
+                // additional data to track decryptor indices
+                std::vector< schain_index > decryptorIndices;
+                std::vector< ptr< AESKeyDecryptionShare > > sharesList;
+                sharesList.reserve(decryptionShareMap.size());
+
+                // collect all shares for this transaction index
+                for ( auto&& it: decryptionShareMap) {
                     try {
                         auto decryptionSharesList = it.second;
                         auto share = decryptionSharesList->getDecryptionShare(transactionIndex);
+                        sharesList.push_back(share);
                         CHECK_STATE(share);
                         size_t decryptorIndex = (size_t)share->getDecryptorIndex();
-                        // verify share first if real signatures are enabled
-                        if (sChain->getNode()->isSgxEnabled() &&
-                                sChain->getSchainIndex() != decryptorIndex) {
-                            auto cipheredKey = encryptions.at(transactionIndex);
-                            libBLS::ThresholdEncryption::validateDecryptionShare(cipheredKey,
-                                *dynamic_cast<ConsensusAESKeyDecryptionShare*>(share.get())->getTEDecryptionShare(),
-                                                                                 tePublicKeys.at(decryptorIndex - 1));
-                        }
-                        // decryption shares set has its own lock
-                        decryptionSharesSet->addDecryptionShare(share);
+
+                        shares.push_back(*dynamic_cast<ConsensusAESKeyDecryptionShare*>(share.get())->getTEDecryptionShare());
+                        publicKeys.push_back(tePublicKeys.at(decryptorIndex - 1));
+                        decryptorIndices.push_back(decryptorIndex);
+                        
                     }  catch ( const std::exception& ex ) {
-                        LOG(err, std::string("Error during adding shares: ") + ex.what());
+                        CONS_LOG(err, std::string("Error during adding shares: ") + ex.what());
                     }
                 }
+
+                // verify share first if real signatures are enabled
+                if (sChain->getNode()->isSgxEnabled() ) {
+                    // push the 1 ciphertext (our batch is only for 1 ciphertext)
+                    cipheredKeys.push_back(encryptions.at(transactionIndex));
+                    auto result = libBLS::ThresholdEncryption::validateDecryptionSharesBatch(
+                            cipheredKeys, shares, publicKeys);
+                    for (size_t i = 0; i < result.size(); ++i) {
+                        // only validate shares from other decryptors
+                        if (sChain->getSchainIndex() != decryptorIndices[i] && !result[i]) {
+                            CONS_LOG(err, "Decryption share validation failed for transaction: " + 
+                                std::to_string(static_cast<uint32_t>(transactionIndex)));
+                        }
+                        else {
+                            decryptionSharesSet->addDecryptionShare(sharesList[i]);
+                        }
+                    }
+                    
+                }
             }
+            // enough shares - merge
             if ( decryptionSharesSet->isEnough() ) {
                 auto key = decryptionSharesSet->verifyAndMergeAESKey(_EncryptedAESKeyMap->at(transactionIndex));
                 CHECK_STATE( key );

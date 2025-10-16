@@ -71,7 +71,7 @@ namespace {
 
 // ===================== BASIC TRANSACTION CREATION TESTS =====================
 
-TEST_CASE("LegacyTx creation and basic properties", "[eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("LegacyTx creation and basic properties", "[eth-transaction][unit][correctness]") {
     uint256 nonce = RLPStream::u256toBytes(1);
     uint256 gasLimit = RLPStream::u256toBytes(21000);
     auto to = getTestAddress();
@@ -82,17 +82,17 @@ TEST_CASE("LegacyTx creation and basic properties", "[eth-transaction][unit][cor
 
     LegacyTx tx(nonce, gasLimit, to, value, data, chainId, gasPrice);
 
-    REQUIRE(tx.nonce == nonce);
-    REQUIRE(tx.gasLimit == gasLimit);
-    REQUIRE(tx.to == to);
-    REQUIRE(tx.value == value);
-    REQUIRE(tx.data == data);
-    REQUIRE(tx.chainId == chainId);
-    REQUIRE(tx.gasPrice == gasPrice);
-    REQUIRE(tx.getBytePrefix() == TxPrefix::NONE);
+    CATCH_REQUIRE(tx.nonce == nonce);
+    CATCH_REQUIRE(tx.gasLimit == gasLimit);
+    CATCH_REQUIRE(tx.to == to);
+    CATCH_REQUIRE(tx.value == value);
+    CATCH_REQUIRE(tx.data == data);
+    CATCH_REQUIRE(tx.chainId == chainId);
+    CATCH_REQUIRE(tx.gasPrice == gasPrice);
+    CATCH_REQUIRE(tx.getBytePrefix() == TxPrefix::NONE);
 }
 
-TEST_CASE("Type1Tx creation and basic properties", "[eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("Type1Tx creation and basic properties", "[eth-transaction][unit][correctness]") {
     uint256 nonce = RLPStream::u256toBytes(2);
     uint256 gasLimit = RLPStream::u256toBytes(30000);
     auto to = getTestAddress();
@@ -104,18 +104,18 @@ TEST_CASE("Type1Tx creation and basic properties", "[eth-transaction][unit][corr
 
     Type1Tx tx(nonce, gasLimit, to, value, data, chainId, gasPrice, accessList);
 
-    REQUIRE(tx.nonce == nonce);
-    REQUIRE(tx.gasLimit == gasLimit);
-    REQUIRE(tx.to == to);
-    REQUIRE(tx.value == value);
-    REQUIRE(tx.data == data);
-    REQUIRE(tx.chainId == chainId);
-    REQUIRE(tx.gasPrice == gasPrice);
-    REQUIRE(tx.accessList.empty());
-    REQUIRE(tx.getBytePrefix() == TxPrefix::TYPE1);
+    CATCH_REQUIRE(tx.nonce == nonce);
+    CATCH_REQUIRE(tx.gasLimit == gasLimit);
+    CATCH_REQUIRE(tx.to == to);
+    CATCH_REQUIRE(tx.value == value);
+    CATCH_REQUIRE(tx.data == data);
+    CATCH_REQUIRE(tx.chainId == chainId);
+    CATCH_REQUIRE(tx.gasPrice == gasPrice);
+    CATCH_REQUIRE(tx.accessList.empty());
+    CATCH_REQUIRE(tx.getBytePrefix() == TxPrefix::TYPE1);
 }
 
-TEST_CASE("Type2Tx creation and basic properties", "[eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("Type2Tx creation and basic properties", "[eth-transaction][unit][correctness]") {
     uint256 nonce = RLPStream::u256toBytes(3);
     uint256 gasLimit = RLPStream::u256toBytes(25000);
     auto to = getTestAddress();
@@ -128,72 +128,72 @@ TEST_CASE("Type2Tx creation and basic properties", "[eth-transaction][unit][corr
 
     Type2Tx tx(nonce, gasLimit, to, value, data, chainId, maxPriorityFeePerGas, maxFeePerGas, accessList);
 
-    REQUIRE(tx.nonce == nonce);
-    REQUIRE(tx.gasLimit == gasLimit);
-    REQUIRE(tx.to == to);
-    REQUIRE(tx.value == value);
-    REQUIRE(tx.data == data);
-    REQUIRE(tx.chainId == chainId);
-    REQUIRE(tx.maxPriorityFeePerGas == maxPriorityFeePerGas);
-    REQUIRE(tx.maxFeePerGas == maxFeePerGas);
-    REQUIRE(tx.accessList.empty());
-    REQUIRE(tx.getBytePrefix() == TxPrefix::TYPE2);
+    CATCH_REQUIRE(tx.nonce == nonce);
+    CATCH_REQUIRE(tx.gasLimit == gasLimit);
+    CATCH_REQUIRE(tx.to == to);
+    CATCH_REQUIRE(tx.value == value);
+    CATCH_REQUIRE(tx.data == data);
+    CATCH_REQUIRE(tx.chainId == chainId);
+    CATCH_REQUIRE(tx.maxPriorityFeePerGas == maxPriorityFeePerGas);
+    CATCH_REQUIRE(tx.maxFeePerGas == maxFeePerGas);
+    CATCH_REQUIRE(tx.accessList.empty());
+    CATCH_REQUIRE(tx.getBytePrefix() == TxPrefix::TYPE2);
 }
 
 // ===================== TRANSACTION SIGNING TESTS =====================
 
-TEST_CASE("LegacyTx signing and verification", "[rlp][eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("LegacyTx signing and verification", "[rlp][eth-transaction][unit][correctness]") {
 
     LegacyTx tx = legacyTxSample;
     auto privateKey = getTestPrivateKey();
     Signature sig = tx.sign(privateKey);
 
     // Verify signature is non-zero
-    REQUIRE(sig.r != 0);
-    REQUIRE(sig.s != 0);
-    REQUIRE(sig.v != 0);
+    CATCH_REQUIRE(sig.r != 0);
+    CATCH_REQUIRE(sig.s != 0);
+    CATCH_REQUIRE(sig.v != 0);
 
     // Test-generated signatures only allow for post-EIP155 txs
 
-    REQUIRE(sig.v >= 36);
+    CATCH_REQUIRE(sig.v >= 36);
 
     // Verify the signature
-    REQUIRE_NOTHROW(tx.verifySignature(sig));
+    CATCH_REQUIRE_NOTHROW(tx.verifySignature(sig));
 }
 
-TEST_CASE("Type1Tx signing and verification", "[rlp][eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("Type1Tx signing and verification", "[rlp][eth-transaction][unit][correctness]") {
 
     Type1Tx tx = type1TxSample;
     auto privateKey = getTestPrivateKey();
     Signature sig = tx.sign(privateKey);
 
     // Verify signature is non-zero
-    REQUIRE(sig.r != 0);
-    REQUIRE(sig.s != 0);
+    CATCH_REQUIRE(sig.r != 0);
+    CATCH_REQUIRE(sig.s != 0);
     // For Type1 transactions, v should be 0 or 1
-    REQUIRE((sig.v == 0 || sig.v == 1));
+    CATCH_REQUIRE((sig.v == 0 || sig.v == 1));
 
     // Verify the signature
-    REQUIRE_NOTHROW(tx.verifySignature(sig));
+    CATCH_REQUIRE_NOTHROW(tx.verifySignature(sig));
 }
 
-TEST_CASE("Type2Tx signing and verification", "[rlp][eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("Type2Tx signing and verification", "[rlp][eth-transaction][unit][correctness]") {
 
     Type2Tx tx = type2TxSample;
     auto privateKey = getTestPrivateKey();
     Signature sig = tx.sign(privateKey);
 
     // Verify signature is non-zero
-    REQUIRE(sig.r != 0);
-    REQUIRE(sig.s != 0);
+    CATCH_REQUIRE(sig.r != 0);
+    CATCH_REQUIRE(sig.s != 0);
     // For Type2 transactions, v should be 0 or 1
-    REQUIRE((sig.v == 0 || sig.v == 1));
+    CATCH_REQUIRE((sig.v == 0 || sig.v == 1));
 
     // Verify the signature
-    REQUIRE_NOTHROW(tx.verifySignature(sig));
+    CATCH_REQUIRE_NOTHROW(tx.verifySignature(sig));
 }
 
-TEST_CASE("Invalid signature domain validation", "[rlp][eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("Invalid signature domain validation", "[rlp][eth-transaction][unit][correctness]") {
     LegacyTx tx = legacyTxSample;
 
     // Test signature with r = 0 (invalid)
@@ -203,7 +203,7 @@ TEST_CASE("Invalid signature domain validation", "[rlp][eth-transaction][unit][c
         invalidSig.r = 0; // Invalid: r must be > 0
         invalidSig.s = u256("0x46948507304638947509940763649030358759909902576025900602547168820602576006531");
         
-        REQUIRE_THROWS(tx.verifySignature(invalidSig));
+        CATCH_REQUIRE_THROWS(tx.verifySignature(invalidSig));
     }
 
     // Test signature with s = 0 (invalid)
@@ -213,7 +213,7 @@ TEST_CASE("Invalid signature domain validation", "[rlp][eth-transaction][unit][c
         invalidSig.r = u256("0x18515461264373351373200002665853028612451056578545711640558177340181847433846");
         invalidSig.s = 0; // Invalid: s must be > 0
         
-        REQUIRE_THROWS(tx.verifySignature(invalidSig));
+        CATCH_REQUIRE_THROWS(tx.verifySignature(invalidSig));
     }
 
     // Test signature with r >= curve order (invalid)
@@ -223,95 +223,95 @@ TEST_CASE("Invalid signature domain validation", "[rlp][eth-transaction][unit][c
         invalidSig.r = u256("0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"); // >= curve order
         invalidSig.s = u256("0x46948507304638947509940763649030358759909902576025900602547168820602576006531");
         
-        REQUIRE_THROWS(tx.verifySignature(invalidSig));
+        CATCH_REQUIRE_THROWS(tx.verifySignature(invalidSig));
     }
 }
 
 // ===================== RLP ENCODING TESTS =====================
 
-TEST_CASE("LegacyTx RLP encoding without signature", "[rlp][eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("LegacyTx RLP encoding without signature", "[rlp][eth-transaction][unit][correctness]") {
     LegacyTx tx = legacyTxSample;
 
     auto encoded = tx.rlpEncode(std::nullopt);
     
-    REQUIRE(!encoded.empty());
+    CATCH_REQUIRE(!encoded.empty());
 
     RLPItem item(encoded);
-    REQUIRE(item.isList());
+    CATCH_REQUIRE(item.isList());
     LegacyTx decodedTx(item);
 
     // encoded tx must be equal to original
-    REQUIRE(decodedTx.nonce == tx.nonce);
-    REQUIRE(decodedTx.gasLimit == tx.gasLimit);
-    REQUIRE(decodedTx.to == tx.to);
-    REQUIRE(decodedTx.value == tx.value);
-    REQUIRE(decodedTx.data == tx.data);
+    CATCH_REQUIRE(decodedTx.nonce == tx.nonce);
+    CATCH_REQUIRE(decodedTx.gasLimit == tx.gasLimit);
+    CATCH_REQUIRE(decodedTx.to == tx.to);
+    CATCH_REQUIRE(decodedTx.value == tx.value);
+    CATCH_REQUIRE(decodedTx.data == tx.data);
     // we do not compare the chainId - it is only used when building / encoding the tx into RLP.
     // When decoding, we do not set chainId field.
-    REQUIRE(decodedTx.gasPrice == tx.gasPrice);
-    REQUIRE(decodedTx.getBytePrefix() == tx.getBytePrefix());
+    CATCH_REQUIRE(decodedTx.gasPrice == tx.gasPrice);
+    CATCH_REQUIRE(decodedTx.getBytePrefix() == tx.getBytePrefix());
 }
 
-TEST_CASE("Type1Tx RLP encoding with prefix", "[rlp][eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("Type1Tx RLP encoding with prefix", "[rlp][eth-transaction][unit][correctness]") {
     Type1Tx tx = type1TxSample;
 
     auto encoded = tx.rlpEncode(std::nullopt);
-    REQUIRE(!encoded.empty());
+    CATCH_REQUIRE(!encoded.empty());
 
     // Type1 transactions should have 0x01 prefix
-    REQUIRE(encoded[0] == 0x01);
+    CATCH_REQUIRE(encoded[0] == 0x01);
 
     // remove the prefix for RLPItem parsing
     encoded.erase(encoded.begin());
 
     // decode
     RLPItem item(encoded);
-    REQUIRE(item.isList());
+    CATCH_REQUIRE(item.isList());
     Type1Tx decodedTx(item);
 
     // encoded tx must be equal to original
-    REQUIRE(decodedTx.nonce == tx.nonce);
-    REQUIRE(decodedTx.gasLimit == tx.gasLimit);
-    REQUIRE(decodedTx.to == tx.to);
-    REQUIRE(decodedTx.value == tx.value);
-    REQUIRE(decodedTx.data == tx.data);
-    REQUIRE(decodedTx.chainId == tx.chainId);
-    REQUIRE(decodedTx.gasPrice == tx.gasPrice);
-    REQUIRE(decodedTx.accessList == tx.accessList);
-    REQUIRE(decodedTx.getBytePrefix() == tx.getBytePrefix());
+    CATCH_REQUIRE(decodedTx.nonce == tx.nonce);
+    CATCH_REQUIRE(decodedTx.gasLimit == tx.gasLimit);
+    CATCH_REQUIRE(decodedTx.to == tx.to);
+    CATCH_REQUIRE(decodedTx.value == tx.value);
+    CATCH_REQUIRE(decodedTx.data == tx.data);
+    CATCH_REQUIRE(decodedTx.chainId == tx.chainId);
+    CATCH_REQUIRE(decodedTx.gasPrice == tx.gasPrice);
+    CATCH_REQUIRE(decodedTx.accessList == tx.accessList);
+    CATCH_REQUIRE(decodedTx.getBytePrefix() == tx.getBytePrefix());
 }
 
-TEST_CASE("Type2Tx RLP encoding with prefix", "[rlp][eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("Type2Tx RLP encoding with prefix", "[rlp][eth-transaction][unit][correctness]") {
     Type2Tx tx = type2TxSample;
 
     auto encoded = tx.rlpEncode(std::nullopt);
-    REQUIRE(!encoded.empty());
+    CATCH_REQUIRE(!encoded.empty());
 
     // Type2 transactions should have 0x02 prefix
-    REQUIRE(encoded[0] == 0x02);
+    CATCH_REQUIRE(encoded[0] == 0x02);
 
     // remove the prefix for RLPItem parsing
     encoded.erase(encoded.begin());
 
     // decode
     RLPItem item(encoded);
-    REQUIRE(item.isList());
+    CATCH_REQUIRE(item.isList());
     Type2Tx decodedTx(item);
 
     // encoded tx must be equal to original
-    REQUIRE(decodedTx.nonce == tx.nonce);
-    REQUIRE(decodedTx.gasLimit == tx.gasLimit);
-    REQUIRE(decodedTx.to == tx.to);
-    REQUIRE(decodedTx.value == tx.value);
-    REQUIRE(decodedTx.data == tx.data);
-    REQUIRE(decodedTx.chainId == tx.chainId);
-    REQUIRE(decodedTx.maxPriorityFeePerGas == tx.maxPriorityFeePerGas);
-    REQUIRE(decodedTx.maxFeePerGas == tx.maxFeePerGas);
-    REQUIRE(decodedTx.accessList == tx.accessList);
-    REQUIRE(decodedTx.getBytePrefix() == tx.getBytePrefix());
+    CATCH_REQUIRE(decodedTx.nonce == tx.nonce);
+    CATCH_REQUIRE(decodedTx.gasLimit == tx.gasLimit);
+    CATCH_REQUIRE(decodedTx.to == tx.to);
+    CATCH_REQUIRE(decodedTx.value == tx.value);
+    CATCH_REQUIRE(decodedTx.data == tx.data);
+    CATCH_REQUIRE(decodedTx.chainId == tx.chainId);
+    CATCH_REQUIRE(decodedTx.maxPriorityFeePerGas == tx.maxPriorityFeePerGas);
+    CATCH_REQUIRE(decodedTx.maxFeePerGas == tx.maxFeePerGas);
+    CATCH_REQUIRE(decodedTx.accessList == tx.accessList);
+    CATCH_REQUIRE(decodedTx.getBytePrefix() == tx.getBytePrefix());
 }
 
-TEST_CASE("Transaction RLP encoding with signature", "[rlp][eth-transaction][unit][correctness]") {
+CATCH_TEST_CASE("Transaction RLP encoding with signature", "[rlp][eth-transaction][unit][correctness]") {
     LegacyTx tx = legacyTxSample;
 
     auto privateKey = getTestPrivateKey();
@@ -321,5 +321,5 @@ TEST_CASE("Transaction RLP encoding with signature", "[rlp][eth-transaction][uni
     auto encodedWithoutSig = tx.rlpEncode(std::nullopt);
 
     // Encoded transaction with signature should be longer than without
-    REQUIRE(encodedWithSig.size() > encodedWithoutSig.size());
+    CATCH_REQUIRE(encodedWithSig.size() > encodedWithoutSig.size());
 }

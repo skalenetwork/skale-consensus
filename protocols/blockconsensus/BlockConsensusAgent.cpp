@@ -105,10 +105,10 @@ void BlockConsensusAgent::startConsensusProposal(
     block_id _blockID, const ptr< BooleanProposalVector >& _proposal ) {
     try {
         if ( getSchain()->getLastCommittedBlockID() >= _blockID ) {
-            LOG( debug, "Terminating consensus proposal since already committed." );
+            CONS_LOG( debug, "Terminating consensus proposal since already committed." );
         }
 
-        LOG( debug, "CONSENSUS START:BLOCK:" << to_string( _blockID ) );
+        CONS_LOG( debug, "CONSENSUS START:BLOCK:" << to_string( _blockID ) );
 
         if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockID,
                  getSchain()->getLastCommittedBlockTimeStamp().getS())) {
@@ -205,7 +205,7 @@ void BlockConsensusAgent::decideBlock(
     try {
         BinConsensusInstance::logGlobalStats();
 
-        LOG( info, string( "BLOCK_DECIDED:PROPOSER:" )
+        CONS_LOG( info, string( "BLOCK_DECIDED:PROPOSER:" )
                        << to_string( _sChainIndex ) << ":BID:" + to_string( _blockId ) << ":STATS:|"
                        << _stats << "| Now signing block ..." );
 
@@ -274,7 +274,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(
                                                                    getSchain()->getLastCommittedBlockTimeStamp().getS()) &&
             (uint64_t) blockProposerIndex !=
                  getSchain()->getOptimizerAgent()->getPreviousWinner( blockID )) {
-            LOG(warn, "Consensus got ChildBVBroadcastMessage for non-winner in optimized round:" + blockProposerIndex);
+            CONS_LOG(warn, "Consensus got ChildBVBroadcastMessage for non-winner in optimized round:" + blockProposerIndex);
             return;
         }
 
@@ -310,7 +310,7 @@ void BlockConsensusAgent::processBlockSignMessage(
         auto proposer = _message->getBlockProposerIndex();
         auto blockId = _message->getBlockId();
 
-        LOG( info, string( "BLOCK_DECIDED_AND_SIGNED:PRPSR:" )
+        CONS_LOG( info, string( "BLOCK_DECIDED_AND_SIGNED:PRPSR:" )
                        << to_string( proposer ) << ":BID:" << to_string( blockId )
                        << ":SIG:" << signature->toString() );
 
@@ -364,7 +364,7 @@ void BlockConsensusAgent::routeAndProcessMessage( const ptr< MessageEnvelope >& 
         }
 
         if ( _me->getOrigin() == ORIGIN_CHILD ) {
-            LOG( debug, "Got child message "
+            CONS_LOG( debug, "Got child message "
                             << to_string( _me->getMessage()->getBlockId() ) << ":"
                             << to_string( _me->getMessage()->getBlockProposerIndex() ) );
 

@@ -181,7 +181,7 @@ ptr< CommittedBlock > BlockDB::getBlock(
         auto serializedBlock = getSerializedBlockFromLevelDB( _blockID );
 
         if ( serializedBlock == nullptr ) {
-            LOG( debug, "Got null block in BlockDB::getBlock" );
+            CONS_LOG( debug, "Got null block in BlockDB::getBlock" );
             return nullptr;
         }
 

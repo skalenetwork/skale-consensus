@@ -245,7 +245,7 @@ public:
     }
 
 
-    void seAESKeyList(ptr<EncryptedAESKeyMap> _EncryptedAESKeyMap) {
+    void setAESKeyMap(ptr<EncryptedAESKeyMap> _EncryptedAESKeyMap) {
         CHECK_STATE(_EncryptedAESKeyMap)
         // verify we are not setting it twice
         CHECK_STATE(std::atomic_exchange(&encryptedAESKeys, _EncryptedAESKeyMap) == nullptr);

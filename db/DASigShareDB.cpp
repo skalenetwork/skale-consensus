@@ -69,7 +69,7 @@ ptr< DAProof > DASigShareDB::addAndMergeSigShareAndVerifySig(
 
     LOCK( sigShareMutex )
 
-    LOG( trace, "Adding sigshare" );
+    CONS_LOG( trace, "Adding sigshare" );
 
     auto result = this->writeStringToSet(
         _sigShare->toString(), _sigShare->getBlockId(), _sigShare->getSignerIndex() );
@@ -87,7 +87,7 @@ ptr< DAProof > DASigShareDB::addAndMergeSigShareAndVerifySig(
         }
 
 
-        LOG( trace, "Merged signature" );
+        CONS_LOG( trace, "Merged signature" );
         auto sig = set->mergeSignature();
         CHECK_STATE( sig );
 

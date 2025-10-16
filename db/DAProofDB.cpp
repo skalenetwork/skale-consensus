@@ -74,7 +74,7 @@ string DAProofDB::getDASig( block_id _blockId, schain_index _proposerIndex ) {
 ptr< BooleanProposalVector > DAProofDB::addDAProof( const ptr< DAProof >& _daProof ) {
     CHECK_ARGUMENT( _daProof )
 
-    LOG( trace, "Adding daProof" );
+    CONS_LOG( trace, "Adding daProof" );
 
     auto daProofSet = this->writeStringToSet( _daProof->getThresholdSig()->toString(),
         _daProof->getBlockId(), _daProof->getProposerIndex() );
@@ -87,14 +87,14 @@ ptr< BooleanProposalVector > DAProofDB::addDAProof( const ptr< DAProof >& _daPro
 
     auto proposalVector =
         make_shared< BooleanProposalVector >( node_count( totalSigners ), daProofSet );
-    LOG( trace, "Created proposal vector" );
+    CONS_LOG( trace, "Created proposal vector" );
 
     return proposalVector;
 }
 
 
 ptr< BooleanProposalVector > DAProofDB::getCurrentProposalVector( block_id _blockID ) {
-    LOG( trace, "Getting current proposal vector" );
+    CONS_LOG( trace, "Getting current proposal vector" );
 
     auto daProofSet = this->readSet( _blockID );
 
@@ -102,7 +102,7 @@ ptr< BooleanProposalVector > DAProofDB::getCurrentProposalVector( block_id _bloc
 
     auto proposalVector =
         make_shared< BooleanProposalVector >( node_count( totalSigners ), daProofSet );
-    LOG( trace, "Created proposal vector" );
+    CONS_LOG( trace, "Created proposal vector" );
     return proposalVector;
 }
 

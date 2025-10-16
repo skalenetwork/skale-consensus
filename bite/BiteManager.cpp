@@ -1,11 +1,6 @@
-// avoid macro definition conflicts
-#pragma push_macro("CHECK")
-#pragma push_macro("LOG")
 #include <folly/executors/CPUThreadPoolExecutor.h>
 #include <folly/futures/Future.h>
 #include <folly/Unit.h>
-#pragma pop_macro("LOG")
-#pragma pop_macro("CHECK")
 
 #include "Log.h"
 #include <chains/Schain.h>
@@ -49,7 +44,7 @@ void BiteManager::parseBITETransactions(
     // to failedTransactions
     transaction_index index = 0;
 
-    auto EncryptedAESKeyMap = make_shared<EncryptedAESKeyMap>();
+    auto encryptedAESKeyMap = make_shared<EncryptedAESKeyMap>();
 
     auto biteDataFields = make_shared<std::map<transaction_index, ptr<BiteDataField> > >();
 
@@ -58,11 +53,11 @@ void BiteManager::parseBITETransactions(
             tx->parseAndValidate();
             auto biteDataField = tx->tryGetBiteData(_proposal->getEpochID());
             if (biteDataField) {
-                EncryptedAESKeyMap->emplace(index, biteDataField->getEncryptedAESKey());
+                encryptedAESKeyMap->emplace(index, biteDataField->getEncryptedAESKey());
             }
             index = index + 1;
         } catch (exception &e) {
-            LOG(err, string("Could not parse transaction:") + e.what());
+            CONS_LOG(err, string("Could not parse transaction:") + e.what());
             _proposal->getFailedTransactionsRef().emplace(index,
                                                           ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
         }
@@ -74,7 +69,7 @@ void BiteManager::parseBITETransactions(
     }
 
 
-    _proposal->seAESKeyList(EncryptedAESKeyMap);
+    _proposal->setAESKeyMap(encryptedAESKeyMap);
 }
 
 void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
@@ -181,72 +176,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
     }
 }
 
-folly::Unit BiteManager::validateEncryptedAESKeyBatch( AESKeyValidationBatch& batch ) {
-    std::vector< libBLS::CipheredKey > cipheredKeys;
-    std::vector< transaction_index > validGlobalIndices; // global indices of all valid txs
-    std::set< transaction_index > failedIndices;         // global indices of all failed txs
-    cipheredKeys.reserve(batch.endIdx - batch.startIdx);
-    validGlobalIndices.reserve(batch.endIdx - batch.startIdx);
-
-    // build batch of ciphered keys from raw bytes
-    for (size_t i = batch.startIdx; i < batch.endIdx; ++i) {
-        try {
-            auto encryptedAESKey = (*batch.work)[i]->second;
-            CHECK_STATE(encryptedAESKey)
-            auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
-            cipheredKeys.push_back(cipheredKey);
-            validGlobalIndices.push_back((*batch.work)[i]->first);
-        }
-        catch (exception &_e) {
-            LOG(err, fmt::format( "Could not build transaction from bytes: {} : {}" , static_cast<std::uint32_t>((*batch.work)[i]->first), _e.what()));
-            failedIndices.insert((*batch.work)[i]->first); // need to use global index
-        }
-    }
-
-    // Validate batch of ciphered keys
-    auto validationResult = libBLS::ThresholdEncryption::validateEncryptionBatch( cipheredKeys );
-    bool all_true = std::find(validationResult.begin(), validationResult.end(), false) == validationResult.end();
-
-    if (!all_true) {
-        for (size_t i = 0; i < validationResult.size(); ++i) {
-            if (!validationResult[i]) {
-                LOG(err, fmt::format( "Could not validate transaction: {}" , static_cast<std::uint32_t>(validGlobalIndices[i])));
-                failedIndices.insert(validGlobalIndices[i]); // need to use global index
-            }
-        }
-    }
-
-    // if some indices failed (either during ciphertext building or validation), we need to mark them as failed
-    if (!failedIndices.empty()) {
-        if (batch.useThreadSafety) {
-            lock_guard<mutex> lock(*batch.failedTransactionsMutex);
-            for (auto idx : failedIndices) {
-                (*batch.failedTransactionRef).emplace(idx,
-                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
-            }
-        } else {
-            for (auto idx : failedIndices) {
-                (*batch.failedTransactionRef).emplace(idx,
-                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
-            }
-        }
-    }
-
-    // convert to string all successful decryption shares
-    auto decryptionShareInput = libBLS::CipheredKey::getDecryptionShareInputBatch( cipheredKeys );
-    // set output decryption shares using global indices from all threads
-    for (size_t i = 0; i < cipheredKeys.size(); ++i) {
-        if (validationResult[i]) {
-            batch.publicDecryptionValues->at(batch.startIdx + i) = make_shared<string>(decryptionShareInput[i]);
-        }
-    }
-    
-    return folly::unit;
-}
-
 void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal) {
-    using It = EncryptedAESKeyMap::iterator;
-
     if (!doRealCrypto)
         return;
 
@@ -256,60 +186,34 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
     auto failedTransactionRef = _proposal->getFailedTransactionsRef();
     auto publicDecryptionValues = make_shared<vector<ptr<string>>>();
     publicDecryptionValues->resize(encryptedAESKeys->size());
-    std::mutex failedTransactionsMutex;
-    
-    // build vec of iterators pointing to each item O(n)
-    // this allows linear access to items (its a vector of pointers)
-    // No logN lookups
-    std::vector< It > work;
-    work.reserve(encryptedAESKeys->size());
-    for (auto it = encryptedAESKeys->begin(); it != encryptedAESKeys->end(); ++it) work.push_back(it);
 
-    // if we have less work than threads, just do sequential processing
-    if (work.size() < NUM_BITE_VALIDATION_THREADS) {
-        auto batch = AESKeyValidationBatch(
-                &work,
-                0, // startIdx
-                work.size(), // endIdx
-                publicDecryptionValues,
-                &failedTransactionRef,
-                &failedTransactionsMutex,
-                false // no thread safety needed for single thread
-        );
-        validateEncryptedAESKeyBatch(batch);
-    } 
-    else {
-        std::vector<folly::Future<folly::Unit>> futures;
-        futures.reserve(NUM_BITE_VALIDATION_THREADS);
+    std::vector< transaction_index > validGlobalIndices; // global indices of all valid txs
+    std::vector< libBLS::CipheredKey > cipheredKeys;
+    cipheredKeys.reserve(encryptedAESKeys->size());
 
-        const size_t chunkSize = (work.size() + NUM_BITE_VALIDATION_THREADS - 1) /
-                NUM_BITE_VALIDATION_THREADS;
-        
-        for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
-            size_t startIdx = threadId * chunkSize;
-            size_t endIdx = std::min(startIdx + chunkSize, work.size());
-            
-            if (startIdx >= endIdx)
-                break;
-
-            auto future = folly::via(threadPoolExecutor.get(), [this, &work, startIdx, endIdx, &publicDecryptionValues, &failedTransactionRef, &failedTransactionsMutex]() {
-                AESKeyValidationBatch batch(
-                    &work,
-                    startIdx,
-                    endIdx,
-                    publicDecryptionValues,
-                    &failedTransactionRef,
-                    &failedTransactionsMutex,
-                    true // thread safety needed for multiple threads
-                );
-                validateEncryptedAESKeyBatch(batch);
-            });
-
-            futures.push_back(std::move(future));
+    for ( auto && it: *encryptedAESKeys) {
+        try {
+            auto encryptedAESKey = it.second;
+            CHECK_STATE(encryptedAESKey)
+            auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
+            cipheredKeys.push_back(cipheredKey);
+            validGlobalIndices.push_back(it.first);
         }
-        
-        // Wait for all threads to complete
-        auto allResults = folly::collectAll(futures).get();
+        catch (exception &_e) {
+            CONS_LOG(err, fmt::format( "Could not build transaction from bytes: {} : {}" , static_cast<std::uint32_t>(it.first), _e.what()));
+            failedTransactionRef.emplace(it.first,
+                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+        }
+    }
+
+    std::vector< bool > validationResult = libBLS::ThresholdEncryption::validateEncryptionBatchParallel( cipheredKeys );
+    // convert to string all successful decryption shares
+    auto decryptionShareInput = libBLS::CipheredKey::getDecryptionShareInputBatch( cipheredKeys );
+    // set output decryption shares using global indices from all threads
+    for (size_t i = 0; i < cipheredKeys.size(); ++i) {
+        if (validationResult[i]) {
+            publicDecryptionValues->at(i) = make_shared<string>(decryptionShareInput[i]);
+        }
     }
 
     // some of the elements in publicDecryptionValues can be nullptr if the corresponding
@@ -356,7 +260,7 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
                     });
                     futures.push_back(std::move(future));
                 } catch (const std::exception &e) {
-                    LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}", i, e.what()));
+                    CONS_LOG(err, fmt::format("Corrupt tx:{} that doesnt decrypt: {}", i, e.what()));
                 }
             } else {
                 CHECK_STATE(!_aesKeys.getKey(i));

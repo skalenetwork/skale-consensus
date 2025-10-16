@@ -4,7 +4,6 @@
 
 #include <folly/io/IOBuf.h>
 #include "block_finalize_request_generated.h"
-#undef LOG // fix conflict with folly
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/Node.h"

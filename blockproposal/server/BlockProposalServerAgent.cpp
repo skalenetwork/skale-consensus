@@ -153,7 +153,7 @@ BlockProposalServerAgent::getPresentAndMissingTransactions(
         Schain &_sChain, const ptr<Header> /*tcpHeader*/, const ptr<PartialHashesList> &_phList) {
     CHECK_ARGUMENT(_phList);
 
-    LOG(debug, "Calculating missing hashes");
+    CONS_LOG(debug, "Calculating missing hashes");
 
     auto transactionsCount = _phList->getTransactionCount();
 
@@ -264,7 +264,7 @@ void BlockProposalServerAgent::processDAProofRequest(
                 NetworkProtocolException("Couldnt send daProof response header", __CLASS_NAME__));
     }
 
-    LOG(trace, "Got DA proof");
+    CONS_LOG(trace, "Got DA proof");
 }
 
 pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processProposalRequest(
@@ -337,9 +337,9 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
             missingTransactions = nullptr;
 
     if (missingTransactionHashes->size() == 0) {
-        LOG(debug, "Server: No missing partial hashes");
+        CONS_LOG(debug, "Server: No missing partial hashes");
     } else {
-        LOG(debug, "Server: missing partial hashes");
+        CONS_LOG(debug, "Server: missing partial hashes");
         try {
             getSchain()->getIo()->writePartialHashes(
                     _connection->getDescriptor(), missingTransactionHashes);
@@ -368,7 +368,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
         }
     }
 
-    LOG(debug, "Storing block proposal");
+    CONS_LOG(debug, "Storing block proposal");
 
     auto transactions = make_shared<vector<ptr<Transaction> > >();
 
@@ -391,7 +391,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
             CHECK_STATE(missingTransactions);
 
             if (missingTransactions->count(partialHash) > 0) {
-                LOG(err, "Found in missing");
+                CONS_LOG(err, "Found in missing");
             }
 
             CHECK_STATE(false);
@@ -485,7 +485,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
     // we talk to sgx after we sent response to the proposer since sgx is time consuming
     getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
     if (!proposal->getFailedTransactionsRef().empty()) {
-        LOG(err, "Can not create decryptions for network proposal" +
+        CONS_LOG(err, "Can not create decryptions for network proposal" +
         to_string(proposal->getFailedTransactionsRef().begin()->second));
     }
     CHECK_STATE(proposal->getMyDecryptionShares())
@@ -498,7 +498,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
 
 void BlockProposalServerAgent::checkForOldBlock(const block_id &_blockID) {
-    LOG(debug, "BID:" << to_string(_blockID)
+    CONS_LOG(debug, "BID:" << to_string(_blockID)
                       << ":CBID:" << to_string(getSchain()->getLastCommittedBlockID())
                       << ":MQ:" << to_string(getSchain()->getMessagesCount()));
     if (_blockID <= getSchain()->getLastCommittedBlockID())
@@ -514,7 +514,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     if ((uint64_t) sChain->getSchainID() != (uint64_t) _header.getSchainId()) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
         responseHeader->setComplete();
-        LOG(err, "Incorrect schain " << to_string(_header.getSchainId()));
+        CONS_LOG(err, "Incorrect schain " << to_string(_header.getSchainId()));
         return responseHeader;
     };
 
@@ -525,7 +525,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         responseHeader->setStatusSubStatus(
                 CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
         responseHeader->setComplete();
-        LOG(err, "Could not find node info for NODE_ID:" << to_string(
+        CONS_LOG(err, "Could not find node info for NODE_ID:" << to_string(
                 (uint64_t) _header.getProposerNodeId()));
         return responseHeader;
     }
@@ -535,7 +535,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     if (nmi->getSchainIndex() != (uint64_t) _header.getProposerIndex()) {
         responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_ERROR_INVALID_NODE_INDEX);
         responseHeader->setComplete();
-        LOG(err, "Node schain index does not match " << _header.getProposerIndex());
+        CONS_LOG(err, "Node schain index does not match " << _header.getProposerIndex());
         return responseHeader;
     }
 
@@ -590,7 +590,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
 
 
     if (_header.getTimeStamp() <= MODERN_TIME) {
-        LOG(info, "Time less than modern time");
+        CONS_LOG(info, "Time less than modern time");
         responseHeader->setStatusSubStatus(
                 CONNECTION_ERROR, CONNECTION_ERROR_TIME_LESS_THAN_MODERN_DAY);
         responseHeader->setComplete();
@@ -600,7 +600,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     auto t = Time::getCurrentTimeSec();
 
     if (t > (uint64_t) MODERN_TIME * 2) {
-        LOG(info, "Time too far in the future");
+        CONS_LOG(info, "Time too far in the future");
         responseHeader->setStatusSubStatus(
                 CONNECTION_ERROR, CONNECTION_ERROR_TIME_TOO_FAR_IN_THE_FUTURE);
         responseHeader->setComplete();
@@ -608,7 +608,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     }
 
     if (Time::getCurrentTimeSec() + 1 < _header.getTimeStamp()) {
-        LOG(info, "Incorrect timestamp:" << to_string(_header.getTimeStamp())
+        CONS_LOG(info, "Incorrect timestamp:" << to_string(_header.getTimeStamp())
                                          << ":vs:" << to_string(Time::getCurrentTimeSec()));
         responseHeader->setStatusSubStatus(
                 CONNECTION_ERROR, CONNECTION_ERROR_TIME_STAMP_IN_THE_FUTURE);
@@ -619,7 +619,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
     auto timeStamp = TimeStamp(_header.getTimeStamp(), _header.getTimeStampMs());
 
     if (!(sChain->getLastCommittedBlockTimeStamp() < timeStamp)) {
-        LOG(info, "Timestamp is less or equal prev block:"
+        CONS_LOG(info, "Timestamp is less or equal prev block:"
                 << to_string(_header.getTimeStamp())
                 << ":vs:" << sChain->getLastCommittedBlockTimeStamp().toString());
 
@@ -631,7 +631,7 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
 
     if (!getSchain()->getNode()->getProposalHashDB()->checkAndSaveHash(
             _header.getBlockId(), _header.getProposerIndex(), _header.getHash())) {
-        LOG(info, "Double proposal for block:" << to_string(_header.getBlockId())
+        CONS_LOG(info, "Double proposal for block:" << to_string(_header.getBlockId())
                                                << "  proposer index:"
                                                << to_string(_header.getProposerIndex()));
         responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_DOUBLE_PROPOSAL);
@@ -646,22 +646,22 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
 void BlockProposalServerAgent::logStateRootMismatchError(BlockProposalRequestHeader &_header,
                                                          block_id &blockIDInHeader,
                                                          const ptr<BlockProposal> &myBlockProposalForTheSameBlockID) {
-    LOG(err, "Proposal state root does not match: ");
-    LOG(err, " My schain index:" << to_string(getSchain()->getSchainIndex()) << " My root:"
+    CONS_LOG(err, "Proposal state root does not match: ");
+    CONS_LOG(err, " My schain index:" << to_string(getSchain()->getSchainIndex()) << " My root:"
                                  << myBlockProposalForTheSameBlockID->getStateRoot().str());
 
-    LOG(err, "Sender schain index:" << to_string(_header.getProposerIndex())
+    CONS_LOG(err, "Sender schain index:" << to_string(_header.getProposerIndex())
                                     << " Sender root:" << _header.getStateRoot().str());
 
 
-    LOG(err, "State roots of other proposals:");
+    CONS_LOG(err, "State roots of other proposals:");
 
     auto proposalDB = getNode()->getBlockProposalDB();
 
     for (uint64_t i = 1; i <= getSchain()->getNodeCount(); i++) {
         auto proposal = proposalDB->getBlockProposal(blockIDInHeader, i);
         if (proposal) {
-            LOG(err, "schain_index:" << to_string(proposal->getProposerIndex())
+            CONS_LOG(err, "schain_index:" << to_string(proposal->getProposerIndex())
                                      << " root:" << proposal->getStateRoot().str());
         }
     }

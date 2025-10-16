@@ -6,7 +6,6 @@
 #include <array>
 #include <folly/io/IOBuf.h>
 #include "block_finalize_response_generated.h"
-#undef LOG // avoid conflict with folly
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "FlatBufferRequest.h"

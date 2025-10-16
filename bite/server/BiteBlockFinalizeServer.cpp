@@ -22,17 +22,12 @@
 */
 
 
-// avoid macro definition conflicts with proxygen LOG
-
-
 #include <flatb/block_finalize_request_generated.h>
 #include <flatb/block_finalize_response_generated.h>
 #include <flatb/block_transactions_request_generated.h>
 #include <flatb/block_transactions_response_generated.h>
 #include <proxygen/httpserver/HTTPServer.h>
 #include "BlockFinalizeHandlerFactory.h"
-#undef LOG // avoid macro definition conflicts with proxygen LOG
-#undef CHECK // avoid macro definition conflicts with proxygen CHECK
 
 #include "SkaleCommon.h"
 #include "Log.h"
@@ -70,9 +65,9 @@ void BiteBlockFinalizeServer::startProxygenServer() {
 void BiteBlockFinalizeServer::runServer() {
     CHECK_STATE(proxygenServerInstance);
     try {
-        LOG(info, "Starting Proxygen server");
+        CONS_LOG(info, "Starting Proxygen server");
         proxygenServerInstance->start();
-        LOG(info, "Proxygen server exited");
+        CONS_LOG(info, "Proxygen server exited");
     } CATCH_AND_LOG_ANY_EXCEPTION(critical, "Exception in proxygen start");
 }
 
@@ -81,13 +76,13 @@ void BiteBlockFinalizeServer::exitProxygenServer() noexcept {
         return;
     }
 
-    LOG(info, "Exiting Proxygen server");
+    CONS_LOG(info, "Exiting Proxygen server");
 
     try {
         proxygenServerInstance->stopListening(); // Stop new connection
     } CATCH_AND_LOG_ANY_EXCEPTION(critical, "Exception in proxygen stopListening");
 
-    LOG(info, "Proxygen server stopped listening");
+    CONS_LOG(info, "Proxygen server stopped listening");
     // give on-going requests a little time to complete
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
@@ -95,7 +90,7 @@ void BiteBlockFinalizeServer::exitProxygenServer() noexcept {
         proxygenServerInstance->stop(); // Shutdown completely
     } CATCH_AND_LOG_ANY_EXCEPTION(critical, "Exception in proxygen stopListening");
 
-    LOG(info, "Proxygen server stopped");
+    CONS_LOG(info, "Proxygen server stopped");
 }
 
 

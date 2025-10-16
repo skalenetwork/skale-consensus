@@ -343,7 +343,7 @@ public:
 #define RETRY_END                                                                              \
     ;                                                                                          \
     if ( CryptoManager::isRetryHappened() ) {                                                  \
-        LOG( info, "Successfully reconnected to SGX server:" );                                \
+        CONS_LOG( info, "Successfully reconnected to SGX server:" );                                \
         CryptoManager::setRetryHappened( false );                                              \
     }                                                                                          \
     break;                                                                                     \
@@ -355,22 +355,22 @@ public:
                              string( e.what() ).find( "libcurl error: 52" ) != string::npos || \
                              string( e.what() ).find( "timed out" ) != string::npos ) ) {      \
             if ( string( e.what() ).find( "libcurl error: 52" ) != string::npos ) {            \
-                LOG( err,                                                                      \
+                CONS_LOG( err,                                                                      \
                     "Got libcurl error 52. You may be trying to connect with http to https "   \
                     "server" );                                                                \
             };                                                                                 \
             if ( !CryptoManager::isRetryHappened() )                                           \
-            LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" +   \
+            CONS_LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" +   \
                 string( e.what() ) );                                                          \
             CryptoManager::setRetryHappened( true );                                           \
             sleep( 5 );                                                                        \
         } else {                                                                               \
-            LOG( err, "Could not connect to sgx server: " + string( e.what() ) );              \
+            CONS_LOG( err, "Could not connect to sgx server: " + string( e.what() ) );              \
             throw;                                                                             \
         }                                                                                      \
     }                                                                                          \
     catch ( ... ) {                                                                            \
-        LOG( err, "FATAL Unknown error while connecting to sgx server:" );                     \
+        CONS_LOG( err, "FATAL Unknown error while connecting to sgx server:" );                     \
         throw;                                                                                 \
     }                                                                                          \
     }

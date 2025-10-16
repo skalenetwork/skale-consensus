@@ -107,13 +107,13 @@ void BlockFinalizeDownloader::downloadFragment(
     schain_index _dstIndex, fragment_index _fragmentIndex) {
     CHECK_STATE(_fragmentIndex > 0);
 
-    LOG(debug, "BLCK_FRG_DWNLD:" << to_string( _fragmentIndex ) << ":" << to_string( _dstIndex ));
+    CONS_LOG(debug, "BLCK_FRG_DWNLD:" << to_string( _fragmentIndex ) << ":" << to_string( _dstIndex ));
 
     fragmentDownloadCounter++;
 
     if (fragmentDownloadCounter > getSchain()->getNodeCount() * 100) {
         // something is wrong, we are trying to download too many times
-        LOG(err, "Fragment download got into infinite loop");
+        CONS_LOG(err, "Fragment download got into infinite loop");
     }
 
 
@@ -158,7 +158,7 @@ void BlockFinalizeDownloader::downloadFragment(
         throw;
     } catch (...) {
         auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
-        LOG(err, errString);
+        CONS_LOG(err, errString);
         throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
     }
 
@@ -170,7 +170,7 @@ void BlockFinalizeDownloader::downloadFragment(
         throw;
     } catch (...) {
         auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
-        LOG(err, errString);
+        CONS_LOG(err, errString);
         throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
     }
 
@@ -179,7 +179,7 @@ void BlockFinalizeDownloader::downloadFragment(
     auto substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
 
     if (status == CONNECTION_DISCONNECT && substatus == CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL) {
-        LOG(debug, "BLCK_FRG_DWNLD:NO_FRG:" << to_string( _fragmentIndex ) << ":"
+        CONS_LOG(debug, "BLCK_FRG_DWNLD:NO_FRG:" << to_string( _fragmentIndex ) << ":"
             << to_string( _dstIndex ));
         throw DoNotHaveProposalYetException();
     }
@@ -206,7 +206,7 @@ void BlockFinalizeDownloader::downloadFragment(
         throw;
     } catch (...) {
         auto errString = "BlockFinalizec step 3: can not read fragment";
-        LOG(err, errString);
+        CONS_LOG(err, errString);
         throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
     }
 
@@ -483,12 +483,12 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
             _agent->logConnectionRefused(e, _dstIndex, __PRETTY_FUNCTION__);
             _agent->waitAfterNetworkError();
         } catch (exception &e) {
-            LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
+            CONS_LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
             // some unexpected error occured. We will wait a little and try again
             SkaleException::logNested(e);
             _agent->waitAfterNetworkError();
         } catch (...) {
-            LOG(err, "Unknown error downloading fragment from:" + to_string(_dstIndex));
+            CONS_LOG(err, "Unknown error downloading fragment from:" + to_string(_dstIndex));
             _agent->waitAfterNetworkError();
         }
     } while (!_agent->exitDownloadLoop(fragmentToDownload));
