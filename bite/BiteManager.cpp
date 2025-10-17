@@ -177,8 +177,9 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 }
 
 void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal) {
-    if (!doRealCrypto)
+    if (!doRealCrypto) {
         return;
+    }
 
     CHECK_STATE(_proposal);
 
