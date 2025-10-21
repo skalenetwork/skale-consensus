@@ -215,7 +215,6 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
 
             // still not enough shares - validate & add more
             if ( !decryptionSharesSet->isEnough() ) {
-
                 // data to send to the batch validation
                 std::vector< libBLS::CipheredKey > cipheredKeys;
                 // shares at libBLS level
@@ -241,7 +240,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
                         size_t decryptorIndex = (size_t)share->getDecryptorIndex();
 
                         // Only add share for validation if real signatures are enabled
-                        if (sChain->getNode()->isSgxEnabled() && sChain->getSchainIndex() != decryptorIndex) {
+                        if (sChain->getNode()->isSgxEnabled()) {
                             // this conversion only works when using real validation. Else, it will be of Mockup type
                             auto shareConsensus = dynamic_cast<ConsensusAESKeyDecryptionShare*>(share.get());
                             CHECK_STATE(shareConsensus);
