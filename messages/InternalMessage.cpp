@@ -42,6 +42,9 @@ InternalMessage::InternalMessage( MsgType _msgType, ProtocolInstance& _srcProtoc
       Message( _srcProtocolInstance.getSchain()->getSchainID(), _msgType,
           _srcProtocolInstance.createNetworkMessageID(),
           _srcProtocolInstance.getSchain()->getNode()->getNodeID(), _protocolKey->getBlockID(),
+#ifdef BITE
+          _protocolKey->getEpochID(),
+#endif
           _protocolKey->getBlockProposerIndex() ) {
     CHECK_ARGUMENT( _protocolKey );
     CHECK_ARGUMENT( _protocolKey->getBlockID() != 0 );

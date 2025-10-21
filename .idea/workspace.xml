@@ -55,36 +55,12 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DBITE=1 -DMIRAGE=1" BUILD_OPTIONS="-- -j4" />
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DFAIR=1 -DBITE=1" BUILD_OPTIONS="-- -j4" />
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec15c893-7f20-4493-be40-38b8f69efc54" name="Default Changelist" comment="886 Improve performance">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockDB.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/BlockDB.h" beforeDir="false" afterPath="$PROJECT_DIR$/db/BlockDB.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/benchmark" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/glog" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/glog" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" beforeDir="false" afterPath="$PROJECT_DIR$/deps/crc32c/third_party/googletest" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/folly/CMake/folly-deps.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/deps/folly/CMake/folly-deps.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/aclocal.m4" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/aclocal.m4" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/config.h.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/config.h.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/configure" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/configure" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/debug/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/debug/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/lib/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/lib/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/liblzma/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/liblzma/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/liblzma/api/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/liblzma/api/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/lzmainfo/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/lzmainfo/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/scripts/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/scripts/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/xz/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/xz/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/src/xzdec/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/src/xzdec/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/liblzma/tests/Makefile.in" beforeDir="false" afterPath="$PROJECT_DIR$/deps/liblzma/tests/Makefile.in" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/proxygen/proxygen/httpserver/samples/echo/EchoHandler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/deps/proxygen/proxygen/httpserver/samples/echo/EchoHandler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/zlib/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/deps/zlib/zconf.h" beforeDir="false" afterPath="$PROJECT_DIR$/deps/zlib/zconf.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" beforeDir="false" afterPath="$PROJECT_DIR$/libBLS/deps/libff/depends/xbyak" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,16 +104,8 @@
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteCommittedBlockSerializer.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteDataField.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/bite/BiteManager.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/bite/BiteManager.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.cpp" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/bite/BiteManager.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/bite/BiteManager.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/bite/BiteManager.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/bite/BiteManager.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/bite/BiteManager.h" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/bite/BiteManager.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///d/skale-consensus/bite/BiteManager.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockfinalize/client/BlockFinalizeDownloader.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/blockproposal/pusher/BlockProposalClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/catchup/client/CatchupClientAgent.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -172,10 +140,15 @@
     <setting file="file://$PROJECT_DIR$/json/JSONFactory.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/bls/BLSPublicKey.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/libBLS/deps/deps_inst/x86_or_x64/include/folly/synchronization/Baton.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/deps/deps_inst/x86_or_x64/include/libff/algebra/curves/alt_bn128/alt_bn128_g2.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/deps/deps_inst/x86_or_x64/include/openssl/aes.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/libBLS/threshold_encryption/threshold_encryption.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/messages/ConsensusProposalMessage.cpp" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/messages/ConsensusProposalMessage.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/messages/ConsensusProposalMessage.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/messages/NetworkMessage.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///d/skale-consensus/messages/NetworkMessage.h" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/OptimizerAgent.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/monitoring/TimeoutAgent.cpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/network/IO.cpp" root0="FORCE_HIGHLIGHTING" />
@@ -199,6 +172,7 @@
     <setting file="file://$PROJECT_DIR$/test/fournodes/node4/Node.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/thirdparty/zguide/zhelpers.hpp" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/unittests/consensus_tests.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file:///usr/include/c++/11/bits/atomic_base.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/include/c++/11/bits/shared_ptr_base.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/include/x86_64-linux-gnu/bits/confname.h" root0="FORCE_HIGHLIGHTING" />
     <setting file="file:///usr/lib/python3.10/subprocess.py" root0="FORCE_HIGHLIGHTING" />
@@ -226,6 +200,9 @@
   &quot;associatedIndex&quot;: 2
 }</component>
   <component name="ProjectId" id="1tLjZg8PrXyNb5KH1T9D17V0hIk" />
+  <component name="ProjectStatusUIService">{
+  &quot;uiKindId&quot;: &quot;Widget&quot;
+}</component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -249,7 +226,7 @@
     &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;886-improve-bite-performance&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;886__improve__performance__second__part&quot;,
     &quot;last_opened_file_path&quot;: &quot;/d/skale-consensus&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
@@ -273,6 +250,11 @@
     <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
     <configuration name="bls_test" type="CMakeBoostTestRunConfigurationType" factoryName="Boost Test" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="bls_test" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="bls_test" TEST_MODE="SUITE_TEST">
@@ -467,10 +449,10 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/test/fournodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
+    <configuration name="consensust" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="[consensus-basic]" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/test/sixteennodes" PASS_PARENT_ENVS_2="true" PROJECT_NAME="consensus" TARGET_NAME="consensus" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="consensus" RUN_TARGET_NAME="consensust">
       <envs>
-        <env name="TEST_TIME_S" value="180" />
-        <env name="TEST_TRANSACTIONS_PER_BLOCK" value="1000" />
+        <env name="TEST_TIME_S" value="300" />
+        <env name="TEST_TRANSACTIONS_PER_BLOCK" value="100" />
       </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -638,32 +620,32 @@
       <item itemvalue="Boost.Test.bls_test" />
       <item itemvalue="Boost.Test.bls_unit_test" />
       <item itemvalue="Boost.Test.dkg_unit_test" />
-      <item itemvalue="Boost.Test.utils_unit_test" />
+      <item itemvalue="Boost.Test.te_encrypt_message" />
       <item itemvalue="Boost.Test.te_test" />
       <item itemvalue="Boost.Test.te_unit_test" />
-      <item itemvalue="Boost.Test.te_encrypt_message" />
-      <item itemvalue="CMake Application.consensusd" />
-      <item itemvalue="CMake Application.consensust" />
+      <item itemvalue="Boost.Test.utils_unit_test" />
+      <item itemvalue="CMake Application.1st-4 " />
+      <item itemvalue="CMake Application.2-4" />
+      <item itemvalue="CMake Application.2nd-4" />
+      <item itemvalue="CMake Application.3d-4" />
       <item itemvalue="CMake Application.all_bls_tests" />
+      <item itemvalue="CMake Application.all_te_tests" />
       <item itemvalue="CMake Application.bls" />
       <item itemvalue="CMake Application.bls_glue" />
+      <item itemvalue="CMake Application.consensusd" />
+      <item itemvalue="CMake Application.consensust" />
+      <item itemvalue="CMake Application.decrypt_message" />
       <item itemvalue="CMake Application.dkg_attack" />
       <item itemvalue="CMake Application.dkg_glue" />
       <item itemvalue="CMake Application.dkg_keygen" />
+      <item itemvalue="CMake Application.encrypt_message" />
+      <item itemvalue="CMake Application.generate_bls_keys" />
       <item itemvalue="CMake Application.generate_key_system" />
       <item itemvalue="CMake Application.hash_g1" />
       <item itemvalue="CMake Application.sign_bls" />
-      <item itemvalue="CMake Application.verify_bls" />
-      <item itemvalue="CMake Application.all_te_tests" />
-      <item itemvalue="CMake Application.decrypt_message" />
-      <item itemvalue="CMake Application.encrypt_message" />
-      <item itemvalue="CMake Application.generate_bls_keys" />
       <item itemvalue="CMake Application.te" />
       <item itemvalue="CMake Application.te_sample_sgx" />
-      <item itemvalue="CMake Application.2-4" />
-      <item itemvalue="CMake Application.1st-4 " />
-      <item itemvalue="CMake Application.3d-4" />
-      <item itemvalue="CMake Application.2nd-4" />
+      <item itemvalue="CMake Application.verify_bls" />
       <item itemvalue="Python.generate_flatbuffers_code" />
     </list>
     <recent_temporary>
@@ -879,6 +861,15 @@
       <workItem from="1752850812730" duration="5000" />
       <workItem from="1753204560948" duration="1341000" />
       <workItem from="1753206199752" duration="219000" />
+      <workItem from="1753382632529" duration="1301000" />
+      <workItem from="1753442161379" duration="161000" />
+      <workItem from="1753442332623" duration="10768000" />
+      <workItem from="1753466172992" duration="367000" />
+      <workItem from="1753466549876" duration="176000" />
+      <workItem from="1753466735374" duration="630000" />
+      <workItem from="1753467367863" duration="6548000" />
+      <workItem from="1755000327696" duration="22123000" />
+      <workItem from="1755526021462" duration="10553000" />
     </task>
     <task id="LOCAL-00173" summary="709 memory leak in skaled">
       <created>1682101651285</created>
@@ -1223,7 +1214,7 @@
       <option name="project" value="LOCAL" />
       <updated>1684769149731</updated>
     </task>
-    <option name="localTasksCounter" value="295" />
+    <option name="localTasksCounter" value="323" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1299,6 +1290,10 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/cppzmq" />
+      <path value="$PROJECT_DIR$/sgxwallet/cppzmq" />
+    </ignored-roots>
     <MESSAGE value="#127 log tuneup" />
     <MESSAGE value="#238 better log handling" />
     <MESSAGE value="MEMORY_CHECKS" />
@@ -1340,9 +1335,9 @@
           <option name="timeStamp" value="37" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/datastructures/Transaction.cpp</url>
-          <line>112</line>
-          <option name="timeStamp" value="38" />
+          <url>file://$PROJECT_DIR$/datastructures/BlockProposal.h</url>
+          <line>243</line>
+          <option name="timeStamp" value="42" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

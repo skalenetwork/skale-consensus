@@ -41,7 +41,7 @@ enum MsgType {
     MSG_BLOCK_PROPOSAL = 13,
     MSG_BLOCK_COMMIT = 14,
     MSG_DA_PROOF = 15,
-#ifndef MIRAGE
+#ifndef FAIR
     MSG_ORACLE_REQ_BROADCAST = 16,
     MSG_ORACLE_RSP = 17
 #endif
@@ -51,12 +51,17 @@ class ProtocolInstance;
 class ProtocolKey;
 
 class Message {
-private:
+
     static atomic< int64_t > totalObjects;
 
 protected:
     schain_id schainID = 0;
     block_id blockID = 0;
+#ifdef BITE
+    epoch_id epochID = 0;
+#endif
+
+
     schain_index blockProposerIndex = 0;
     MsgType msgType;
     msg_id msgID = 0;
@@ -66,7 +71,11 @@ protected:
 
 public:
     Message( const schain_id& schainID, MsgType msgType, const msg_id& msgID,
-        const node_id& srcNodeID, const block_id& blockID, const schain_index& blockProposerIndex );
+        const node_id& srcNodeID, const block_id& blockID,
+#ifdef BITE
+        const epoch_id& epochID,
+#endif
+        const schain_index& blockProposerIndex );
 
     [[nodiscard]] node_id getSrcNodeID() const;
 
@@ -82,6 +91,10 @@ public:
     ptr< ProtocolKey > createProtocolKey();
 
     block_id getBlockID();
+
+#ifdef BITE
+    epoch_id getEpochID();
+#endif
 
     MsgType getMsgType();
 

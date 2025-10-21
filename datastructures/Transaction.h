@@ -33,6 +33,10 @@
 
 #include "datastructures/DataStructure.h"
 
+#ifdef BITE
+#include "node/ConsensusInterface.h"
+#endif
+
 class BLAKE3Hash;
 
 
@@ -52,6 +56,10 @@ class Transaction : public DataStructure {
 
     ptr< partial_sha_hash > partialHash = nullptr;
 
+#ifdef BITE
+    ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
+    ptr<BiteDataField> parsedBiteDataField = nullptr;
+#endif
 public:
     Transaction( const ptr< vector< uint8_t > >& _data, bool _includesPartialHash );
 
@@ -83,14 +91,10 @@ public:
         boost::random::uniform_int_distribution<>& _ubyte );
 
 #ifdef BITE
-#include "node/ConsensusInterface.h"
-
     void parseAndValidate();
 
-    ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
-
     // this returns nullptr for non-BITE transactions
-    ptr<BiteDataField> tryGetBiteData(u256 _currentEpochId) const;
+    ptr<BiteDataField> tryGetBiteData(epoch_id _currentEpochId);
     ptr<vector<uint8_t>> emplaceAndReencodeTransaction(vector<uint8_t>& _originalDataField );
 #endif
 

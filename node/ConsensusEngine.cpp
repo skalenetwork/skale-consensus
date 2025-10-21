@@ -84,7 +84,6 @@
 #include "boost/stacktrace.hpp"
 #include <libBLS/bls/BLSPublicKeyShare.h>
 #include <boost/multiprecision/cpp_int.hpp>
-#include <libff/common/profiling.hpp>
 
 
 #include "spdlog/sinks/rotating_file_sink.h"
@@ -257,11 +256,11 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
             ecdsaKeyName, ecdsaPublicKeys, blsKeyName, blsPublicKeys, blsPublicKey, gethURL,
             previousBlsPublicKeys, historicECDSAPublicKeys, historicNodeGroups );
 
-        JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
-
 #ifdef BITE
         node->setEpochId( epochId );
 #endif
+
+        JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
 
         nodes[node->getNodeID()] = node;
 
@@ -275,11 +274,11 @@ ptr< Node > ConsensusEngine::readNodeTestConfigFileAndCreateNode( const string p
     set< node_id >& _nodeIDs, bool _useSGX, string _sgxSSLKeyFileFullPath,
     string _sgxSSLCertFileFullPath, string _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,
     string _blsKeyName, ptr< vector< ptr< vector< string > > > > _blsPublicKeys,
-    ptr< BLSPublicKey > _blsPublicKey,
-    ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+    ptr< libBLS::BLSPublicKey > _blsPublicKey,
+    ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > _previousBlsPublicKeys,
     ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
     ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups ) {
-    _previousBlsPublicKeys = make_shared< map< uint64_t, ptr< BLSPublicKey > > >();
+    _previousBlsPublicKeys = make_shared< map< uint64_t, ptr< libBLS::BLSPublicKey > > >();
     _historicECDSAPublicKeys = make_shared< map< uint64_t, string > >();
     _historicNodeGroups = make_shared< map< uint64_t, vector< uint64_t > > >();
 
@@ -647,9 +646,7 @@ void ConsensusEngine::systemHealthCheck() {
 void ConsensusEngine::init() {
     cout << "Consensus engine init(): version:" + ConsensusEngine::getEngineVersion() << endl;
 
-    libff::inhibit_profiling_counters = true;
-
-    libBLS::ThresholdUtils::initCurve();
+    libBLS::init();
 
     threadRegistry = make_shared< GlobalThreadRegistry >();
 
@@ -771,7 +768,7 @@ void ConsensusEngine::exitGracefully() {
     thread( [this]() { exitGracefullyAsync(); } ).detach();
 }
 
-#ifdef MIRAGE
+#ifdef FAIR
 void ConsensusEngine::updateLogger() const {
     logThreadLocal_ = nodes.begin()->second->getLog();
 }
@@ -1053,19 +1050,20 @@ void ConsensusEngine::setPublicKeyInfo( ptr< vector< string > >& _ecdsaPublicKey
     this->blsPublicKeys = _blsPublicKeyShares;
 
     if ( !_isSyncNode ) {
-        map< size_t, shared_ptr< BLSPublicKeyShare > > blsPubKeyShares;
+        map< size_t, libBLS::BLSPublicKeyShare > blsPubKeyShares;
         for ( uint64_t i = 0; i < _requiredSigners; i++ ) {
             LOG( info, "Parsing BLS key share:" << blsPublicKeys->at( i )->at( 0 ) );
 
-            BLSPublicKeyShare pubKey( blsPublicKeys->at( i ), _requiredSigners, _totalSigners );
+            auto& blsPubKeys = blsPublicKeys->at( i );
+            CHECK_STATE( blsPubKeys );
+            libBLS::BLSPublicKeyShare pubKey( *blsPubKeys, _requiredSigners, _totalSigners );
 
-            blsPubKeyShares[i + 1] = make_shared< BLSPublicKeyShare >( pubKey );
+            blsPubKeyShares.insert_or_assign( i + 1, pubKey );
         }
 
         // create pub key
 
-        blsPublicKey = make_shared< BLSPublicKey >(
-            make_shared< map< size_t, shared_ptr< BLSPublicKeyShare > > >( blsPubKeyShares ),
+        blsPublicKey = make_shared< libBLS::BLSPublicKey >( blsPubKeyShares ,
             _requiredSigners, _totalSigners );
     }
 }
@@ -1078,13 +1076,13 @@ void ConsensusEngine::setRotationHistory( ptr< map< uint64_t, vector< string > >
     CHECK_STATE( _historicECDSAKeys );
     CHECK_STATE( _historicNodeGroups );
 
-    map< uint64_t, ptr< BLSPublicKey > > _previousBlsPublicKeys;
+    map< uint64_t, ptr< libBLS::BLSPublicKey > > _previousBlsPublicKeys;
     for ( const auto& previousGroup : *_previousBLSKeys ) {
         _previousBlsPublicKeys[previousGroup.first] =
-            make_shared< BLSPublicKey >( make_shared< vector< string > >( previousGroup.second ) );
+            make_shared< libBLS::BLSPublicKey >( previousGroup.second );
     }
     previousBlsPublicKeys =
-        make_shared< map< uint64_t, ptr< BLSPublicKey > > >( _previousBlsPublicKeys );
+        make_shared< map< uint64_t, ptr< libBLS::BLSPublicKey > > >( _previousBlsPublicKeys );
     historicECDSAPublicKeys = _historicECDSAKeys;
     historicNodeGroups = _historicNodeGroups;
 

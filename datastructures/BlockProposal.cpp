@@ -74,6 +74,12 @@ void BlockProposal::calculateHash() {
     HASH_UPDATE(hasher, proposerNodeID);
     HASH_UPDATE(hasher, schainID);
     HASH_UPDATE(hasher, blockID);
+#ifdef BITE
+    HASH_UPDATE(hasher, epochID);
+#endif
+
+
+
     HASH_UPDATE(hasher, transactionCount);
     HASH_UPDATE(hasher, timeStamp);
     HASH_UPDATE(hasher, timeStampMs);
@@ -105,12 +111,18 @@ BlockProposal::BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs)
 };
 
 BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
+#ifdef BITE
+    epoch_id _epochID,
+#endif
                              schain_index _proposerIndex, const ptr<TransactionList> &_transactions, u256 _stateRoot,
                              uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
                              const ptr<CryptoManager> &_cryptoManager)
     : schainID(_sChainId),
       proposerNodeID(_proposerNodeId),
       blockID(_blockID),
+#ifdef BITE
+      epochID(_epochID),
+#endif
       proposerIndex(_proposerIndex),
       timeStamp(_timeStamp),
       timeStampMs(_timeStampMs),
@@ -175,6 +187,12 @@ BlockProposal::~BlockProposal() {
 block_id BlockProposal::getBlockID() const {
     return blockID;
 }
+
+#ifdef BITE
+epoch_id BlockProposal::getEpochID() const {
+    return epochID;
+}
+#endif
 
 
 schain_index BlockProposal::getProposerIndex() const {
@@ -301,6 +319,9 @@ ptr<BlockProposal> BlockProposal::makeFromNetworkSerialized(
     const ptr<vector<uint8_t> > &_serializedProposal, const ptr<CryptoManager> &_manager) {
     // we verify sigs when receiving from network
     auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
+#ifdef BITE
+    BiteManager::parseBITETransactions(proposal);
+#endif
     return proposal;
 }
 
@@ -309,10 +330,14 @@ ptr<BlockProposal>  BlockProposal::makeFromDBSerialized(
     // we do not verify sigs when reading from internal DB
     auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
 
+#ifdef BITE
+    BiteManager::parseBITETransactions(proposal);
+    CHECK_STATE2(proposal->getFailedTransactionsRef().empty(), "Invalid BITE proposal received");
+    CHECK_STATE2(proposal->getEncryptedAESKeys(), "Missing encrypted AES keys");
+#endif
 
     return proposal;
 }
-
 
 
 ptr<BlockProposal> BlockProposal::deserialize(
@@ -352,7 +377,12 @@ ptr<BlockProposal> BlockProposal::deserialize(
 
     auto proposal =
             BlockProposal::makeFromSerialized(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
-                                              blockHeader->getBlockID(), blockHeader->getProposerIndex(), list,
+                                              blockHeader->getBlockID(),
+#ifdef BITE
+                                              blockHeader->getEpochID(),
+#endif
+
+                                              blockHeader->getProposerIndex(), list,
                                               blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                               blockHeader->getTimeStampMs(),
                                               blockHeader->getSignature(), nullptr);
@@ -542,13 +572,22 @@ uint64_t BlockProposal::getTotalObjects() {
 }
 
 ptr<BlockProposal> BlockProposal::makeFromSerialized(schain_id _sChainId, node_id _proposerNodeId,
-                                                     block_id _blockID, schain_index _proposerIndex,
+                                                     block_id _blockID,
+#ifdef BITE
+                                                        epoch_id _epochID,
+#endif
+
+                                                     schain_index _proposerIndex,
                                                      const ptr<TransactionList> &_transactions,
                                                      u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs,
                                                      const string &_signature,
                                                      const ptr<CryptoManager> &_cryptoManager) {
     return ptr<BlockProposal>(
-        new BlockProposal(_sChainId, _proposerNodeId, _blockID, _proposerIndex, _transactions,
+        new BlockProposal(_sChainId, _proposerNodeId, _blockID,
+#ifdef BITE
+                          _epochID,
+#endif
+        _proposerIndex, _transactions,
                           _stateRoot, _timeStamp, _timeStampMs, _signature, _cryptoManager));
 }
 

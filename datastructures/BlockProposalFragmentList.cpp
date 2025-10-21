@@ -73,7 +73,7 @@ uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
 }
 
 bool BlockProposalFragmentList::addFragment(
-    const ptr< BlockProposalFragment >& _fragment, uint64_t& nextIndex ) {
+    const ptr< BlockProposalFragment >& _fragment) {
     CHECK_ARGUMENT( _fragment );
     CHECK_ARGUMENT( _fragment->getBlockId() == blockID );
     CHECK_ARGUMENT( _fragment->getIndex() > 0 )
@@ -91,35 +91,27 @@ bool BlockProposalFragmentList::addFragment(
 
     checkSanity();
 
-    nextIndex = 0;
-
-    if ( fragments.find( _fragment->getIndex() ) != fragments.end() ) {
-        return false;
-    }
-
+    if ( fragments.find( _fragment->getIndex() ) == fragments.end() ) {
 #ifdef BITE
-    fragments.emplace( _fragment->getIndex(), _fragment );
+        fragments.emplace( _fragment->getIndex(), _fragment );
 #else
-    fragments.emplace( _fragment->getIndex(), _fragment->serialize() );
+        fragments.emplace( _fragment->getIndex(), _fragment->serialize() );
 #endif
 
-    std::list< uint64_t >::iterator findIter =
-        std::find( missingFragments.begin(), missingFragments.end(), _fragment->getIndex() );
+        std::list< uint64_t >::iterator findIter =
+            std::find( missingFragments.begin(), missingFragments.end(), _fragment->getIndex() );
 
-    CHECK_STATE( findIter != missingFragments.end() );
+        CHECK_STATE( findIter != missingFragments.end() );
 
-    missingFragments.erase( findIter );
+        missingFragments.erase( findIter );
+
+    }
 
     if ( isComplete() ) {
         return true;
     }
 
-
     CHECK_STATE( missingFragments.size() > 0 );
-
-    nextIndex = nextIndexToRetrieve();
-
-    CHECK_STATE( nextIndex > 0 );
 
     return true;
 }
@@ -127,6 +119,11 @@ bool BlockProposalFragmentList::addFragment(
 void BlockProposalFragmentList::checkSanity() {
     LOCK( m )
     CHECK_STATE( fragments.size() <= totalFragments );
+}
+
+uint64_t BlockProposalFragmentList::fragmentCount() {
+    LOCK( m )
+    return fragments.size();
 }
 
 bool BlockProposalFragmentList::isComplete() {

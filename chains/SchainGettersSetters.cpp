@@ -94,6 +94,8 @@ ptr< CommittedBlock > Schain::getBlock( block_id _blockID ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
+        if (_blockID > getLastCommittedBlockID())
+            return nullptr;
         return getNode()->getBlockDB()->getBlock( _blockID, getCryptoManager() );
     } catch ( ExitRequestedException& ) {
         throw;
@@ -138,12 +140,6 @@ schain_id Schain::getSchainID() {
     return schainID;
 }
 
-#ifdef BITE
-epoch_id Schain::getEpochID() {
-    return epochID;
-}
-#endif
-
 node_id Schain::getNodeIDByIndex( schain_index _index ) {
     if ( ( ( uint64_t ) _index ) > ( uint64_t ) this->getNodeCount() ) {
         BOOST_THROW_EXCEPTION(
@@ -161,7 +157,7 @@ ptr< BlockConsensusAgent > Schain::getBlockConsensusInstance() {
     return blockConsensusInstance;
 }
 
-#ifndef MIRAGE
+#ifndef FAIR
 ptr< OracleServerAgent > Schain::getOracleInstance() {
     CHECK_STATE( oracleServer != nullptr )
     return oracleServer;
@@ -294,7 +290,7 @@ void Schain::createBlockConsensusInstance() {
     blockConsensusInstance = make_shared< BlockConsensusAgent >( *this );
 }
 
-#ifndef MIRAGE
+#ifndef FAIR
 void Schain::createOracleInstance() {
     oracleServer = make_shared< OracleServerAgent >( *this );
 }
@@ -351,7 +347,7 @@ void Schain::setLastCommittedBlockId( uint64_t _lastCommittedBlockId ) {
     lastCommittedBlockID = _lastCommittedBlockId;
 }
 
-#ifndef MIRAGE
+#ifndef FAIR
 const ptr< OracleClient > Schain::getOracleClient() const {
     return oracleClient;
 }

@@ -59,10 +59,11 @@ using namespace std;
 
 
 PendingTransactionsAgent::PendingTransactionsAgent(Schain &ref_sChain)
-        : Agent(ref_sChain, false) {}
+    : Agent(ref_sChain, false) {
+}
 
 ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
-        block_id _blockID, TimeStamp &_previousBlockTimeStamp, bool _isCalledAfterCatchup) {
+    block_id _blockID, TimeStamp &_previousBlockTimeStamp, bool _isCalledAfterCatchup) {
     MICROPROFILE_ENTERI("PendingTransactionsAgent", "sleep", MP_DIMGRAY);
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
     MICROPROFILE_LEAVE();
@@ -83,17 +84,17 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
     auto stamp = TimeStamp::getCurrentTimeStamp();
 
     auto myBlockProposal = MyBlockProposal::createMyProposal(*sChain, _blockID,
-                                                        sChain->getSchainIndex(), transactionList, stateRoot,
-                                                        stamp.getS(), stamp.getMs(),
-                                                        getSchain()->getCryptoManager());
+#ifdef BITE
+                                                             getNode()->getCurrentEpochId(),
+#endif
+                                                             sChain->getSchainIndex(), transactionList, stateRoot,
+                                                             stamp.getS(), stamp.getMs(),
+                                                             getSchain()->getCryptoManager());
 
     LOG(trace, "Created proposal, transactions:" << to_string(transactions->size()));
 
     auto pHashesList = myBlockProposal->createPartialHashesList();
     CHECK_STATE(pHashesList);
-#ifdef  BITE
-    CHECK_STATE(myBlockProposal->getMyDecryptionShares());
-#endif
 
     transactionCounter += (uint64_t) pHashesList->getTransactionCount();
 
@@ -103,7 +104,6 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
 pair<ptr<vector<ptr<Transaction> > >, u256>
 PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterCatchup) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime())
-
 
 
     size_t needMax;
@@ -172,8 +172,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         if (waitTimeMs < 10 * 32) {
             waitTimeMs *= 2;
         }
-
-    }  // while
+    } // while
 
     auto finishTimeMs = Time::getCurrentTimeMs();
 
@@ -206,7 +205,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
 
 ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(
-        const ptr<partial_sha_hash> hash) {
+    const ptr<partial_sha_hash> hash) {
     READ_LOCK(transactionsMutex);
     if (knownTransactions.count(hash))
         return knownTransactions.at(hash);

@@ -38,7 +38,7 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     serializedData = make_shared<vector<uint8_t> >(list.encode());
 }
 
-BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, u256 _currentEpochId) {
+BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, epoch_id _currentEpochId) {
     CHECK_STATE(_data);
 
     // parse RLP-encoded tx data field
@@ -47,8 +47,6 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     RLPItem rlp(*_data);
     CHECK_STATE2(rlp.isList(), "RLP item is not a list");
     CHECK_STATE2(rlp.size() == 2, "RLP item should have exactly 2 items");
-    
-    const uint64_t currentEpoch = _currentEpochId.convert_to<uint64_t>();
 
     // read encryptedBITEData
     auto encryptedBITEDataBytes = make_shared<std::vector<uint8_t>>(rlp[1].asBytes());
@@ -83,7 +81,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
         libBLS::Ciphertext encryptedBITEData = libBLS::Ciphertext::fromBytes(
                     *encryptedBITEDataBytes, toValidate );
         size_t keyIndexToKeep;
-        if ( epochIdCandidate != currentEpoch  ) {
+        if ( epochIdCandidate != _currentEpochId  ) {
             // set epochId
             epoch = epochIdCandidate + 1;
             // set target encrypted AES key
@@ -102,7 +100,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
                         encryptedBITEData.getTargetKey().toBytes()));
     }
     
-    CHECK_STATE2(currentEpoch == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
+    CHECK_STATE2((uint64_t) _currentEpochId == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
 
     CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
             "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
@@ -126,7 +124,7 @@ uint64_t BiteDataField::getEpoch() {
 
 ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data,
                                                        ptr<vector<uint8_t> > &_to,
-                                                       u256 _currentEpochId) {
+                                                       epoch_id _currentEpochId) {
     CHECK_STATE(_data)
     CHECK_STATE(_to)
 

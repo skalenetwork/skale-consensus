@@ -56,7 +56,11 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void decideBlock( block_id _blockId, schain_index _sChainIndex, const string& _stats );
 
-    void propose( bin_consensus_value _proposal, schain_index index, block_id _id );
+    void propose( bin_consensus_value _proposal, schain_index index, block_id _id
+#ifdef BITE
+                , epoch_id _epochID
+#endif
+    );
 
     void reportConsensusAndDecideIfNeeded( const ptr< ChildBVDecidedMessage >& _msg );
 

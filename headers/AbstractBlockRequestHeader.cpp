@@ -33,35 +33,51 @@
 #include "AbstractBlockRequestHeader.h"
 
 
-AbstractBlockRequestHeader::AbstractBlockRequestHeader( node_count _nodeCount, schain_id _schainId,
-    block_id _blockId, const char* _type, schain_index _proposerIndex )
-    : Header( _type ), proposerIndex( _proposerIndex ), blockID( _blockId ) {
-    CHECK_ARGUMENT( ( uint64_t ) proposerIndex <= ( uint64_t ) _nodeCount );
+AbstractBlockRequestHeader::AbstractBlockRequestHeader(node_count _nodeCount, schain_id _schainId,
+                                                       block_id _blockId,
+#ifdef BITE
+                                                       epoch_id _epochId,
+#endif
+                                                       const char *_type, schain_index _proposerIndex)
+    : Header(_type), schainID(_schainId), proposerIndex(_proposerIndex), blockID(_blockId)
+#ifdef BITE
+      , epochID(_epochId)
+#endif
+{
+    CHECK_ARGUMENT(( uint64_t ) proposerIndex <= ( uint64_t ) _nodeCount);
 
-    CHECK_ARGUMENT( proposerIndex > 0 );
-
-    this->schainID = _schainId;
+    CHECK_ARGUMENT(proposerIndex > 0);
 }
 
 
-void AbstractBlockRequestHeader::addFields( nlohmann::basic_json<>& jsonRequest ) {
-    Header::addFields( jsonRequest );
+void AbstractBlockRequestHeader::addFields(nlohmann::basic_json<> &jsonRequest) {
+    Header::addFields(jsonRequest);
 
-    jsonRequest["schainID"] = ( uint64_t ) schainID;
+    jsonRequest["schainID"] = (uint64_t) schainID;
 
-    jsonRequest["proposerIndex"] = ( uint64_t ) proposerIndex;
+    jsonRequest["proposerIndex"] = (uint64_t) proposerIndex;
 
-    jsonRequest["blockID"] = ( uint64_t ) blockID;
+    jsonRequest["blockID"] = (uint64_t) blockID;
+
+#ifdef BITE
+    jsonRequest["epochID"] = (uint64_t) epochID;
+#endif
 }
 
-const schain_id& AbstractBlockRequestHeader::getSchainId() const {
+const schain_id &AbstractBlockRequestHeader::getSchainId() const {
     return schainID;
 }
 
-const schain_index& AbstractBlockRequestHeader::getProposerIndex() const {
+const schain_index &AbstractBlockRequestHeader::getProposerIndex() const {
     return proposerIndex;
 }
 
-const block_id& AbstractBlockRequestHeader::getBlockId() const {
+const block_id &AbstractBlockRequestHeader::getBlockId() const {
     return blockID;
 }
+
+#ifdef BITE
+const epoch_id &AbstractBlockRequestHeader::getEpochId() const {
+    return epochID;
+}
+#endif

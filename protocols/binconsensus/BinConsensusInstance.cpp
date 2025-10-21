@@ -77,6 +77,9 @@ void BinConsensusInstance::processMessage( const ptr< MessageEnvelope >& _me ) {
     CHECK_STATE( msg );
 
     CHECK_STATE( msg->getBlockID() == getBlockID() );
+#ifdef BITE
+    CHECK_STATE( msg->getEpochID() == getEpochID() );
+#endif
     CHECK_STATE( msg->getBlockProposerIndex() == getBlockProposerIndex() );
 
     auto msgType = _me->getMessage()->getMsgType();
@@ -413,7 +416,12 @@ void BinConsensusInstance::networkBroadcastValue( const ptr< BVBroadcastMessage 
     if ( broadcastValues[r].count( v ) > 0 )
         return;
 
-    auto newMsg = make_shared< BVBroadcastMessage >( _m->getBlockID(), _m->getBlockProposerIndex(),
+    auto newMsg = make_shared< BVBroadcastMessage >( _m->getBlockID(),
+#ifdef BITE
+    _m->getEpochID(),
+#endif
+
+    _m->getBlockProposerIndex(),
         _m->getRound(), _m->getValue(), Time::getCurrentTimeMs(), *this );
 
     getSchain()->getNode()->getNetwork()->broadcastMessage( newMsg );
@@ -425,7 +433,11 @@ void BinConsensusInstance::networkBroadcastValue( const ptr< BVBroadcastMessage 
 void BinConsensusInstance::auxSelfVoteAndBroadcastValue(
     bin_consensus_round _r, bin_consensus_value _v ) {
     auto m = make_shared< AUXBroadcastMessage >(
-        _r, _v, blockID, blockProposerIndex, Time::getCurrentTimeMs(), *this );
+        _r, _v, blockID,
+#ifdef BITE
+    epochID,
+#endif
+    blockProposerIndex, Time::getCurrentTimeMs(), *this );
 
     if ( _r >= COMMON_COIN_ROUND ) {
         auxSelfVote( _r, _v, m->getSigShare() );
@@ -547,7 +559,11 @@ void BinConsensusInstance::proceedWithNextRound( bin_consensus_value _value ) {
 
     addNextRoundToHistory( getCurrentRound(), _value );
 
-    auto m = make_shared< BVBroadcastMessage >( getBlockID(), getBlockProposerIndex(),
+    auto m = make_shared< BVBroadcastMessage >( getBlockID(),
+#ifdef BITE
+                getEpochID(),
+#endif
+    getBlockProposerIndex(),
         getCurrentRound(), _value, Time::getCurrentTimeMs(), *this );
 
     ptr< MessageEnvelope > me =
@@ -652,19 +668,36 @@ const block_id BinConsensusInstance::getBlockID() const {
     return blockID;
 }
 
+#ifdef BITE
+const epoch_id BinConsensusInstance::getEpochID() const {
+    return epochID;
+}
+#endif
+
 const schain_index BinConsensusInstance::getBlockProposerIndex() const {
     return blockProposerIndex;
 }
 
 
 BinConsensusInstance::BinConsensusInstance( BlockConsensusAgent* _instance, block_id _blockId,
+#ifdef BITE
+    epoch_id _epochId,
+#endif
     schain_index _blockProposerIndex, bool _initFromDB )
     : ProtocolInstance( BIN_CONSENSUS, *_instance->getSchain() ),
       blockConsensusInstance( _instance ),
       blockID( _blockId ),
+#ifdef BITE
+      epochID( _epochId),
+#endif
+
       blockProposerIndex( _blockProposerIndex ),
       nodeCount( _instance ? _instance->getSchain()->getNodeCount() : 0 ),
-      protocolKey( make_shared< ProtocolKey >( _blockId, _blockProposerIndex ) ) {
+      protocolKey( make_shared< ProtocolKey >( _blockId,
+#ifdef BITE
+                        _epochId,
+#endif
+                        _blockProposerIndex ) ) {
     CHECK_ARGUMENT( ( uint64_t ) _blockId > 0 );
     CHECK_ARGUMENT( ( uint64_t ) _blockProposerIndex > 0 );
     CHECK_ARGUMENT( _instance );

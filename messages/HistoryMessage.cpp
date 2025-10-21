@@ -38,6 +38,9 @@
 HistoryMessage::HistoryMessage( MsgType _messageType, bin_consensus_round _r,
     bin_consensus_value _value, BinConsensusInstance& _srcProtocolInstance )
     : NetworkMessage( _messageType, _srcProtocolInstance.getBlockID(),
+#ifdef BITE
+    _srcProtocolInstance.getEpochID(),
+#endif
           _srcProtocolInstance.getBlockProposerIndex(), _r, _value, 0, _srcProtocolInstance ) {}
 
 

@@ -27,6 +27,12 @@
 
 
 #ifdef BITE
+// avoid macro definition conflicts
+#pragma push_macro("CHECK")
+#pragma push_macro("LOG")
+#include <folly/executors/CPUThreadPoolExecutor.h>
+#pragma pop_macro("LOG")
+#pragma pop_macro("CHECK")
 #include "bite/server/BiteBlockFinalizeServer.h"
 #endif
 
@@ -94,8 +100,8 @@ const string& Node::getGethUrl() const {
 Node::Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
     string _sgxURL, string _sgxSSLKeyFileFullPath, string _sgxSSLCertFileFullPath,
     string _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys, string _blsKeyName,
-    ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< BLSPublicKey > _blsPublicKey,
-    string& _gethURL, ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+    ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< libBLS::BLSPublicKey > _blsPublicKey,
+    string& _gethURL, ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > _previousBlsPublicKeys,
     ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
     ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups, bool _isSyncNode )
     : gethURL( _gethURL ), isSyncNode( _isSyncNode ) {
@@ -504,7 +510,7 @@ void Node::initSchain( const ptr< Node >& _node, schain_index _schainIndex, scha
         }
 
         chain->createBlockConsensusInstance();
-#ifndef MIRAGE
+#ifndef FAIR
         chain->createOracleInstance();
 #endif
 
@@ -688,12 +694,20 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
     }
 
+
+
 #ifdef BITE
     if ( biteBlockFinalizeServer ) {
         biteBlockFinalizeServer->exitProxygenServer();
         LOG( info, "consensus engine exiting: exitProxygenServer called" );
     }
+
+
+    auto finalizationExecutor = getSchain()->getFinalizationExecutor();
 #endif
+
+
+
 }
 
 /*
@@ -756,11 +770,11 @@ ptr< vector< ptr< vector< string > > > > Node::getBlsPublicKeys() {
     CHECK_STATE( blsPublicKeys );
     return blsPublicKeys;
 }
-ptr< BLSPublicKey > Node::getBlsPublicKey() {
+ptr< libBLS::BLSPublicKey > Node::getBlsPublicKey() {
     CHECK_STATE( blsPublicKey );
     return blsPublicKey;
 }
-ptr< map< uint64_t, ptr< BLSPublicKey > > > Node::getPreviousBLSPublicKeys() {
+ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > Node::getPreviousBLSPublicKeys() {
     CHECK_STATE( previousBlsPublicKeys );
     return previousBlsPublicKeys;
 }

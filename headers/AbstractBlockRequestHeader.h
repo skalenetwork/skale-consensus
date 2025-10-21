@@ -38,9 +38,18 @@ protected:
     schain_index proposerIndex;
     block_id blockID;
 
+#ifdef BITE
+    epoch_id epochID;
+#endif
+
     void addFields( nlohmann::basic_json<>& jsonRequest ) override;
 
     AbstractBlockRequestHeader( node_count _nodeCount, schain_id _schainId, block_id _blockId,
+
+#ifdef BITE
+        epoch_id _epochId,
+#endif
+
         const char* _type, schain_index _proposerIndex );
 
     virtual ~AbstractBlockRequestHeader() {}
@@ -51,6 +60,11 @@ public:
     const schain_index& getProposerIndex() const;
 
     const block_id& getBlockId() const;
+
+#ifdef BITE
+    const epoch_id& getEpochId() const;
+#endif
+
     ;
 };
 

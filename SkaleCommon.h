@@ -201,9 +201,9 @@ static constexpr size_t PARTIAL_HASH_LEN = 8;
 
 #ifdef BITE
 static constexpr size_t EXTRA_DATA_LEN = 32;
+
+static constexpr size_t NUM_BITE_VALIDATION_THREADS = 8;
 #endif
-
-
 
 static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE = 0;
 // static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE  = 10000;
@@ -369,7 +369,7 @@ static const uint64_t ZMQ_RECEIVE_RETRY_MS = 10;
 
 static const uint64_t DEFAULT_MIN_PRICE = 100000;
 
-#ifdef MIRAGE
+#ifdef FAIR
 static const uint64_t CONSTANT_PRICING_DEFAULT_PRICE = 100 * 1000;
 #endif
 

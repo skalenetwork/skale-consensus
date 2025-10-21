@@ -5,9 +5,9 @@ if (BITE)
     add_definitions(-DBITE)
 endif ()
 
-if (MIRAGE)
-    set(MIRAGE "1")
-    add_definitions(-DMIRAGE)
+if (FAIR)
+    set(FAIR "1")
+    add_definitions(-DFAIR)
     set(BITE "1")
     add_definitions(-DBITE)
 endif ()
@@ -155,8 +155,8 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
-if (NOT DEFINED MIRAGE)
-AUX_SOURCE_DIRECTORY(oracle oracle_src)
+if (NOT DEFINED FAIR)
+    AUX_SOURCE_DIRECTORY(oracle oracle_src)
 endif ()
 
 
@@ -209,7 +209,7 @@ include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/in
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 if (NOT CMAKE_PROJECT_NAME STREQUAL "consensus" AND NOT DEFINED BITE)
     include_directories(${PARENT_BINARY_DIR}/deps/include)
-endif()
+endif ()
 
 set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options boost_context )
 
@@ -232,10 +232,8 @@ SET(LINK_LIBRARIES
         "${DEPS_INSTALL_ROOT}/lib/libmicrohttpd.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
         "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
-        bls
         "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
         "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
-        ff
         "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
         gmp
         gcov
@@ -252,34 +250,29 @@ SET(LINK_LIBRARIES
         pthread
         idn2
         blake3
+        "${DEPS_INSTALL_ROOT}/lib/libquicwebtransport.a"
+        "${DEPS_INSTALL_ROOT}/lib/libproxygenhttpserver.a"
+        "${DEPS_INSTALL_ROOT}/lib/libproxygen.a"
+        "${DEPS_INSTALL_ROOT}/lib/libmvfst_exception.a"
+        "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
+        "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
+        "${DEPS_INSTALL_ROOT}/lib/libfizz.a"
+        "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
+        "${DEPS_INSTALL_ROOT}/lib/libboost_context.a"
+        "${DEPS_INSTALL_ROOT}/lib/libevent.a"
+        "${DEPS_INSTALL_ROOT}/lib/libz.a"
+        "${DEPS_INSTALL_ROOT}/lib/libzstd.a"
+        "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
+        "${DEPS_INSTALL_ROOT}/lib/libglog.a"
+        "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
+        "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
+        "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
+        te
 )
-
-if (DEFINED BITE)
-    SET(LINK_LIBRARIES ${LINK_LIBRARIES}
-            "${DEPS_INSTALL_ROOT}/lib/libquicwebtransport.a"
-            "${DEPS_INSTALL_ROOT}/lib/libproxygenhttpserver.a"
-            "${DEPS_INSTALL_ROOT}/lib/libproxygen.a"
-            "${DEPS_INSTALL_ROOT}/lib/libmvfst_exception.a"
-            "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
-            "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
-            "${DEPS_INSTALL_ROOT}/lib/libfizz.a"
-            "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
-            "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
-            "${DEPS_INSTALL_ROOT}/lib/libboost_context.a"
-            "${DEPS_INSTALL_ROOT}/lib/libevent.a"
-            "${DEPS_INSTALL_ROOT}/lib/libz.a"
-            "${DEPS_INSTALL_ROOT}/lib/libzstd.a"
-            "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
-            "${DEPS_INSTALL_ROOT}/lib/libglog.a"
-            "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
-            "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
-            te
-    )
-    if (CMAKE_PROJECT_NAME STREQUAL "consensus")
-        SET(LINK_LIBRARIES ${LINK_LIBRARIES} "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a")
-    else()
-        SET(LINK_LIBRARIES ${LINK_LIBRARIES} Secp256k1)
-    endif ()
+if (CMAKE_PROJECT_NAME STREQUAL "consensus")
+    SET(LINK_LIBRARIES ${LINK_LIBRARIES} "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a")
+else ()
+    SET(LINK_LIBRARIES ${LINK_LIBRARIES} Secp256k1)
 endif ()
 
 # consensus library
@@ -288,7 +281,7 @@ add_library(consensus STATIC ${SRC_FILES})
 
 target_compile_options(consensus PRIVATE -Wno-error=unused-variable)
 
-target_link_libraries(consensus ${LINK_LIBRARIES})
+target_link_libraries(consensus PRIVATE ${LINK_LIBRARIES} PUBLIC bls)
 
 # consensus test agent
 
@@ -313,26 +306,26 @@ file(GLOB_RECURSE ALL_TEST_SOURCES "unittests/*.cpp")
 
 # Common test folders (non-rlp)
 file(GLOB_RECURSE COMMON_TEST_SOURCES
-    "unittests/datastructures/*.cpp"
-    "unittests/db/*.cpp"
-    "unittests/consensus_tests.cpp"
-    "unittests/sgx_tests.cpp"
-    # Add other folders as needed, excluding rlp/
+        "unittests/datastructures/*.cpp"
+        "unittests/db/*.cpp"
+        "unittests/consensus_tests.cpp"
+        "unittests/sgx_tests.cpp"
+        # Add other folders as needed, excluding rlp/
 )
 
 set(TEST_SOURCES ${COMMON_TEST_SOURCES})
 
 # Conditionally add rlp test sources if BITE is enabled
-if(DEFINED BITE)
+if (DEFINED BITE)
     file(GLOB_RECURSE RLP_TEST_SOURCES "unittests/rlp/*.cpp")
     list(APPEND TEST_SOURCES ${RLP_TEST_SOURCES})
-endif()
+endif ()
 
 # Create the test executable from the main driver and all discovered test files.
 # Note: Consensust.h is not needed here as it's a header file.
-add_executable(consensust 
-    Consensust.cpp 
-    ${TEST_SOURCES}
+add_executable(consensust
+        Consensust.cpp
+        ${TEST_SOURCES}
 )
 
 target_link_libraries(consensust PRIVATE consensus)

@@ -33,14 +33,14 @@
 class ConsensusSigShareSet;
 
 class ConsensusBLSSignature : public ThresholdSignature {
-    ptr< BLSSignature > blsSig = nullptr;
+    ptr< libBLS::BLSSignature > blsSig = nullptr;
 
 public:
     ConsensusBLSSignature(
         const string& _sig, block_id _blockID, size_t _totalSigners, size_t _requiredSigners );
 
 
-    ConsensusBLSSignature( const ptr< BLSSignature >& _blsSig, block_id _blockID,
+    ConsensusBLSSignature( const ptr< libBLS::BLSSignature >& _blsSig, block_id _blockID,
         size_t _totalSigners, size_t _requiredSigners );
 
     string toString() override;
@@ -48,7 +48,7 @@ public:
 
     uint64_t getRandom() override;
 
-    [[nodiscard]] ptr< BLSSignature > getBlsSig() const;
+    [[nodiscard]] ptr< libBLS::BLSSignature > getBlsSig() const;
 };
 
 
