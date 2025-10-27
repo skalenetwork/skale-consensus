@@ -39,6 +39,7 @@
 #include "protocols/ProtocolInstance.h"
 #include "utils/Time.h"
 #include "exceptions/OracleException.h"
+#include "datastructures/CommittedBlock.h"
 
 
 OracleClient::OracleClient( Schain& _sChain )
@@ -126,8 +127,12 @@ pair< uint64_t, string > OracleClient::submitOracleRequest(
     ptr< OracleRequestBroadcastMessage > msg = nullptr;
 
     try {
+
         msg =
             make_shared< OracleRequestBroadcastMessage >( _spec, sChain->getLastCommittedBlockID(),
+#ifdef BITE
+            epoch_id( sChain->getNode()->getCurrentEpochId() ),
+#endif
                 Time::getCurrentTimeMs(), *sChain->getOracleClient() );
 
         auto spec = msg->getParsedSpec();
