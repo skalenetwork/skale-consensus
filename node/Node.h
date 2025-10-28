@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <mutex>
 
 using namespace std;
@@ -269,9 +270,9 @@ class Node {
     atomic< bool > exitOnBlockBoundaryRequested = false;
 
 #ifdef BITE
-    uint64_t epochId = 0;
+    std::atomic< uint64_t > epochId = 0;
 
-    //provide a fast way to get schainId and node_count from
+    // provide a fast way to get schainId and node_count from
     // anywhere in the count since they never change during the execution
     static node_count nodeCount;
     static schain_id schainId;
@@ -450,7 +451,7 @@ public:
     uint64_t getMaxTransactionsPerBlock() const;
 
     uint64_t getMinBlockIntervalMs() const;
-    
+
     uint64_t getCatchupTimeoutSec() const;
 
     uint64_t getsyncNodeCatchupTimeoutSec() const;
@@ -482,9 +483,7 @@ public:
     }
 
 #ifdef FAIR
-    void setConstantGasPrice( uint64_t _price ) {
-        constantGasPrice = _price;
-    }
+    void setConstantGasPrice( uint64_t _price ) { constantGasPrice = _price; }
 #endif
 
     void testNodeInfos();

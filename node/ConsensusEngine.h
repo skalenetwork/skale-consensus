@@ -63,7 +63,7 @@ class ConsensusEngine : public ConsensusInterface {
     set< node_id > nodeIDs;
 
 #ifdef BITE
-    uint64_t epochId = 0;
+    std::atomic< uint64_t > epochId = 0;
 #endif
 
     bool useTestSGXKeys = false;
@@ -322,7 +322,6 @@ public:
     [[nodiscard]] SyncInfo getSyncInfo() override;
 
 #ifdef BITE
-    void setEpochId( uint64_t _epochId ) { epochId = _epochId; }
+    void setEpochId( uint64_t _epochId );
 #endif
-
 };
