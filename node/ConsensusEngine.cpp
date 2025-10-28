@@ -270,6 +270,7 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
     }
 }
 
+#ifdef BITE
 void ConsensusEngine::setEpochId( uint64_t _epochId ) {
     epochId = _epochId;
 
@@ -279,6 +280,7 @@ void ConsensusEngine::setEpochId( uint64_t _epochId ) {
         }
     }
 }
+#endif
 
 ptr< Node > ConsensusEngine::readNodeTestConfigFileAndCreateNode( const string path,
     set< node_id >& _nodeIDs, bool _useSGX, string _sgxSSLKeyFileFullPath,
