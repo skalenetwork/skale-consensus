@@ -110,11 +110,6 @@ WORKING_DIR_OLD=$("$READLINK" -f "$WORKING_DIR_OLD")
 WORKING_DIR_NEW=$("$READLINK" -f "$WORKING_DIR_NEW")
 cd "$WORKING_DIR_NEW"
 
-cd "$WORKING_DIR_NEW/../libBLS/deps"
-./build.sh DEBUG=$DEBUG
-echo "BLS deps visible build result" $?
-cd ../../deps
-
 simple_find_tool_program () { # program_name, var_name_to_export_full_path, is_optional("yes" or "no")
 	echo -e "checking for tool program: $1"
 	#echo $1
@@ -401,6 +396,25 @@ then
 	export CONF_CROSSCOMPILING_OPTS_VPX=""
 	export CONF_CROSSCOMPILING_OPTS_X264=""
 	export CONF_CROSSCOMPILING_OPTS_FFMPEG=""
+
+	# add blake3_avx512_x86-64_unix.S if we ever want to support AVX512
+	export CONF_CROSSCOMPILING_OPTS_BLAKE="blake3.c blake3_dispatch.c blake3_portable.c \
+            blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S"
+
+	# disable FMA, ADX, AVX512 for better compatibility
+	if [ -z "$ISA_CEILING" ];
+	then
+		ISA_CEILING="-march=x86-64 -mtune=generic"
+	fi
+
+	if [ -z "$ISA_NO" ];
+	then 
+		ISA_NO="-mno-avx512f -mno-adx -mno-fma"
+	fi
+	# will also be visible in libBLS when building it
+	export CFLAGS="$CFLAGS $ISA_CEILING $ISA_NO"
+	export CXXFLAGS="$CXXFLAGS $ISA_CEILING $ISA_NO"
+
 	#export CC=$(which gcc)
 	#export CXX=$(which g++)
 	if [ "$USE_LLVM" = "1" ];
@@ -562,6 +576,23 @@ then
 	exit 255
 fi
 export CMAKE="$CMAKE -DUSE_LLVM=$USE_LLVM -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_LINKER=$LD -DCMAKE_AR=$AR -DCMAKE_OBJCOPY=$OBJCOPY -DCMAKE_OBJDUMP=$OBJDUMP -DCMAKE_RANLIB=$RANLIB -DCMAKE_NM=$NM"
+
+
+echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
+echo -e "${COLOR_YELLOW}Consensus building libBLS ...${COLOR_RESET}"
+echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
+
+
+cd "$WORKING_DIR_NEW/../libBLS/deps"
+./build.sh DEBUG=$DEBUG
+echo "BLS deps visible build result" $?
+cd ../../deps
+
+
+echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
+echo -e "${COLOR_YELLOW}Consensus building dependencies ...${COLOR_RESET}"
+echo -e "${COLOR_SEPARATOR}===================================================================${COLOR_RESET}"
+
 #
 echo -e "${COLOR_VAR_NAME}WORKING_DIR_OLD${COLOR_DOTS}........${COLOR_VAR_DESC}Started in directory${COLOR_DOTS}...................${COLOR_VAR_VAL}$WORKING_DIR_OLD${COLOR_RESET}"
 echo -e "${COLOR_VAR_NAME}WORKING_DIR_NEW${COLOR_DOTS}........${COLOR_VAR_DESC}Switched to directory${COLOR_DOTS}..................${COLOR_VAR_VAL}$WORKING_DIR_NEW${COLOR_RESET}"
@@ -2413,16 +2444,13 @@ if [ "$WITH_BLAKE3" = "yes" ]; then
         if [ "$DEBUG" = "1" ]; then
             BLAKE_DEBUG_OPTION="-g"
         fi
+		BLAKE3_FLAGS="-O3 $ISA_CEILING $ISA_NO -DBLAKE3_NO_AVX512=1 $BLAKE_DEBUG_OPTION"
         if [ "$UNIX_SYSTEM_NAME" = "Darwin" ]; then
-          gcc -c -O3 ${BLAKE_DEBUG_OPTION} blake3.c blake3_dispatch.c blake3_portable.c \
-            blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
-            blake3_avx512_x86-64_unix.S
+          gcc -c ${BLAKE3_FLAGS} ${CONF_CROSSCOMPILING_OPTS_BLAKE}
           ar rcs libblake3.a *.o
         else
-          gcc -c -O3 ${BLAKE_DEBUG_OPTION} blake3.c blake3_dispatch.c blake3_portable.c \
-            blake3_sse2_x86-64_unix.S blake3_sse41_x86-64_unix.S blake3_avx2_x86-64_unix.S \
-            blake3_avx512_x86-64_unix.S
-            ar rcs libblake3.a *.o
+          gcc -c ${BLAKE3_FLAGS} ${CONF_CROSSCOMPILING_OPTS_BLAKE}
+          ar rcs libblake3.a *.o
         fi
       fi
       #$MAKE ${PARALLEL_MAKE_OPTIONS} depend
