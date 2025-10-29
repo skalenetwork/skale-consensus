@@ -180,6 +180,7 @@ jobs:
         CI_BUILD: "1"
       run: |
         cd scripts
+        export CI_BUILD=1
         for N in 1 2 5 10 500 1000 5000; do
           echo "Running tests with TEST_TRANSACTIONS_PER_BLOCK=$N"
           TEST_TRANSACTIONS_PER_BLOCK="$N" ./tests.py
