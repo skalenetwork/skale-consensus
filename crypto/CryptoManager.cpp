@@ -24,6 +24,7 @@
 
 
 #include <boost/asio.hpp>
+#include <random>
 
 #include "openssl/bio.h"
 
@@ -51,8 +52,6 @@
 
 #include "Log.h"
 #include "SkaleCommon.h"
-
-#include <gmp.h>
 #include <network/ClientSocket.h>
 
 #include "BLAKE3Hash.h"
@@ -121,20 +120,19 @@ void CryptoManager::initSGXClient() {
     }
 }
 
-string blsKeyToString(ptr<BLSPublicKey> _pk) {
+string blsKeyToString(ptr<libBLS::BLSPublicKey> _pk) {
     CHECK_ARGUMENT(_pk)
     auto vectorCoordinates = _pk->toString();
-    CHECK_STATE(vectorCoordinates);
 
     string str;
-    for (const auto &coord: *vectorCoordinates) {
+    for (const auto &coord: vectorCoordinates) {
         str.append(coord);
         str.append(":");
     }
     return str;
 }
 
-pair<ptr<BLSPublicKey>, ptr<BLSPublicKey> > CryptoManager::getSgxBlsPublicKey(
+pair<ptr<libBLS::BLSPublicKey>, ptr<libBLS::BLSPublicKey> > CryptoManager::getSgxBlsPublicKey(
     uint64_t _timestamp) {
     LOG(debug, string( "Looking for BLS public key for timestamp " )
         << to_string( _timestamp )
@@ -207,7 +205,7 @@ pair<string, uint64_t> CryptoManager::parseSGXDomainAndPort(const string &_url) 
 
     if (found == string::npos) {
         BOOST_THROW_EXCEPTION(
-            InvalidStateException( "SGX URL does not include port " + _url, __CLASS_NAME__ ));
+            InvalidStateException( "SGX URL does not include port ", __CLASS_NAME__ ));
     }
 
 
@@ -231,7 +229,7 @@ pair<string, uint64_t> CryptoManager::parseSGXDomainAndPort(const string &_url) 
         result = stoi(port);
     } catch (...) {
         throw_with_nested(
-            InvalidStateException("Could not find port in URL " + _url, __CLASS_NAME__));
+            InvalidStateException("Could not find port in URL ", __CLASS_NAME__));
     }
     return {domain, result};
 }
@@ -352,15 +350,6 @@ void CryptoManager::setSGXKeyAndCert(
 
 Schain *CryptoManager::getSchain() const {
     return sChain;
-}
-
-
-MPZNumber::MPZNumber() {
-    mpz_init(this->number);
-}
-
-MPZNumber::~MPZNumber() {
-    mpz_clear(this->number);
 }
 
 using namespace std;
@@ -858,10 +847,8 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
             ret = JSONFactory::getString(jsonShare, "signatureShare");
         }
 
-        auto sigShare = make_shared<string>(ret);
-
-        auto sig = make_shared<BLSSigShare>(
-            sigShare, (uint64_t) getSchain()->getSchainIndex(), requiredSigners, totalSigners);
+        auto sig = make_shared<libBLS::BLSSigShare>(
+            ret, (uint64_t) getSchain()->getSchainIndex(), requiredSigners, totalSigners);
         result = make_shared<ConsensusBLSSigShare>(sig, sChain->getSchainID(), _blockId);
     } else {
         auto sigShare = _hash.toHex();
@@ -923,7 +910,6 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
         auto finishTimeMs = Time::getCurrentTimeMs();
         sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
         RETRY_END
-
         auto sharesArray = jsonShares["decryptionShares"];
         CHECK_STATE(sharesArray.isArray())
         CHECK_STATE(sharesArray.size() == _publicDecryptionValues.size() )
@@ -978,11 +964,10 @@ void CryptoManager::verifyThresholdSig(
             auto libBlsSig = blsSig->getBlsSig();
 
 
-            if (!blsKeys.first->VerifySig(
-                make_shared<array<uint8_t, HASH_LEN> >(_hash.getHash()), libBlsSig)) {
+            if (!blsKeys.first->VerifySig( _hash.getHash(), *libBlsSig)) {
                 LOG(err, "Could not BLS verify signature:"
                     << _signature->toString() << string( ":KEY:" )
-                    << blsKeys.first->toString()->at( 0 ) << ":HASH:" << _hash.toHex());
+                    << blsKeys.first->toString().at( 0 ) << ":HASH:" << _hash.toHex());
 
                 // second key is used when the sig corresponds
                 // to the last block before node rotation!
@@ -991,8 +976,7 @@ void CryptoManager::verifyThresholdSig(
 
                 CHECK_STATE2(blsKeys.second, "BLS signature verification failed");
                 CHECK_STATE2(
-                    blsKeys.second->VerifySig(
-                        make_shared< array< uint8_t, HASH_LEN > >( _hash.getHash() ), libBlsSig ),
+                    blsKeys.second->VerifySig( _hash.getHash(), *libBlsSig ),
                     "BLS sig verification failed using both current and previous key");
             }
         } else {
@@ -1023,9 +1007,9 @@ void CryptoManager::verifyThresholdSigShare(
 
             CHECK_STATE(consensusBlsSigShare);
 
-            ptr<BLSSigShare> blsSigShare = consensusBlsSigShare->getBlsSigShare();
+            ptr<libBLS::BLSSigShare> blsSigShare = consensusBlsSigShare->getBlsSigShare();
 
-            verifyBlsSigShare(blsSigShare, _hash);
+            verifyBlsSigShare(*blsSigShare, _hash);
         } else {
             // mockup sigshares are not verified
         }
@@ -1034,32 +1018,47 @@ void CryptoManager::verifyThresholdSigShare(
     }
 }
 
+ptr<libBLS::BLSPublicKeyShare> CryptoManager::getBlsPublicKeyShare(uint64_t _nodeId) const {
+    CHECK_STATE(blsPublicKeySharesMapByIndex.count( _nodeId ) > 0 );
+
+    return make_shared<libBLS::BLSPublicKeyShare>(*blsPublicKeySharesMapByIndex.at(_nodeId),
+                                          requiredSigners, totalSigners);
+}
+
+vector<ptr<libBLS::BLSPublicKeyShare>> CryptoManager::getAllBlsPublicKeyShares() const {
+    vector<ptr<libBLS::BLSPublicKeyShare>> ret;
+    ret.resize((uint64_t)getSchain()->getNodeCount());
+    for (uint64_t i = 0; i < getSchain()->getNodeCount(); ++i) {
+        ret[i] = getBlsPublicKeyShare(i + 1);
+    }
+
+    return ret;
+}
 
 // Verify BLS sig share using the current set of BLS keys.
 // Since threshold sig shares are glued for the current block
 // historic keys are not needed in this case.
 // throw an exception if the share does not verify
-void CryptoManager::verifyBlsSigShare(ptr<BLSSigShare> _sigShare, BLAKE3Hash &_hash) {
-    CHECK_STATE(_sigShare);
+void CryptoManager::verifyBlsSigShare(libBLS::BLSSigShare& _sigShare, BLAKE3Hash &_hash) {
 
     try {
         CHECK_STATE(blsPublicKeySharesMapByIndex.size() == getSchain()->getNodeCount());
-        CHECK_STATE(blsPublicKeySharesMapByIndex.count( _sigShare->getSignerIndex() > 0 ));
+        CHECK_STATE(blsPublicKeySharesMapByIndex.count( _sigShare.getSignerIndex() > 0 ));
 
 
-        auto blsPublicKeyShare =
-                BLSPublicKeyShare(blsPublicKeySharesMapByIndex.at(_sigShare->getSignerIndex()),
-                                  requiredSigners, totalSigners);
+        auto& pubKeyShare = blsPublicKeySharesMapByIndex.at( _sigShare.getSignerIndex() );
+        CHECK_STATE(pubKeyShare);
+
+        auto blsPublicKeyShare = libBLS::BLSPublicKeyShare(*pubKeyShare, requiredSigners, totalSigners);
 
         bool res = false;
 
         try {
-            res = blsPublicKeyShare.VerifySig(
-                std::make_shared<std::array<uint8_t, 32> >(_hash.getHash()), _sigShare,
+            res = blsPublicKeyShare.VerifySig( _hash.getHash(), _sigShare,
                 requiredSigners, totalSigners);
         } catch (...) {
             LOG(err, "Bls sig share did not verify NODE_ID:" << to_string(
-                    ( uint64_t ) _sigShare->getSignerIndex() ));
+                    ( uint64_t ) _sigShare.getSignerIndex() ));
             throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
         }
 
