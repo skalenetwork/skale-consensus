@@ -207,22 +207,32 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
         }
     }
 
+    // validate all in parallel
     std::vector< bool > validationResult = libBLS::ThresholdEncryption::validateEncryptionBatchParallel( cipheredKeys );
-    // convert to string all successful decryption shares
-    auto decryptionShareInput = libBLS::CipheredKey::getDecryptionShareInputBatch( cipheredKeys );
-    // set output decryption shares using global indices from all threads
-    for (size_t i = 0; i < cipheredKeys.size(); ++i) {
-        if (validationResult[i]) {
-            publicDecryptionValues->at(i) = make_shared<string>(decryptionShareInput[i]);
+
+    // If at least 1 is not valid - mark as failed, log and return
+    bool allValid = std::all_of(validationResult.begin(), validationResult.end(),
+                                  [](bool v) { return v; });
+    if (!allValid) {
+        // some transactions failed validation
+        for (size_t i = 0; i < validationResult.size(); ++i) {
+            if (!validationResult[i]) {
+                auto globalIndex = validGlobalIndices[i];
+                CONS_LOG(err, fmt::format("AES key encryption validation failed for transaction: {}", static_cast<std::uint32_t>(globalIndex)));
+                failedTransactionRef.emplace(globalIndex,
+                                                ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+            }
         }
+        return;
     }
 
-    // some of the elements in publicDecryptionValues can be nullptr if the corresponding
-    // transaction failed validation. We need to remove them
-    publicDecryptionValues->erase(
-        std::remove(publicDecryptionValues->begin(), publicDecryptionValues->end(), nullptr),
-        publicDecryptionValues->end()
-    );
+    // convert to string all successful decryption shares
+    auto decryptionShareInput = libBLS::CipheredKey::getDecryptionShareInputBatch( cipheredKeys );
+
+    // set output decryption shares using global indices from all threads
+    for (size_t i = 0; i < cipheredKeys.size(); ++i) {
+        publicDecryptionValues->at(i) = make_shared<string>(decryptionShareInput[i]);
+    }
 
     _proposal->setSGXAESKeyBatch(publicDecryptionValues);
 }
