@@ -53,13 +53,13 @@ PricingAgent::PricingAgent( Schain& _sChain ) : Agent( _sChain, false ) {
 
     if ( strategy == "DYNAMIC" ) {
         u256 minPrice = sChain->getNode()->getParamUint64(
-            string( "DYNAMIC_PRICING_MIN_PRICE" ), DEFAULT_MIN_PRICE );
+            string( "DynamicPricingMinPrice" ), DEFAULT_MIN_PRICE );
         u256 maxPrice =
-            -sChain->getNode()->getParamUint64( "DYNAMIC_PRICING_MAX_PRICE", 1000000000 );
+            sChain->getNode()->getParamUint64( "DynamicPricingMaxPrice", 1000000000 );
         uint64_t optimalLoadPercentage =
-            sChain->getNode()->getParamUint64( "DYNAMIC_PRICING_OPTIMAL_LOAD_PERCENTAGE", 70 );
+            sChain->getNode()->getParamUint64( "DynamicPricingOptimalLoadPercentage", 70 );
         uint64_t adjustmentSpeed =
-            sChain->getNode()->getParamUint64( "DYNAMIC_PRICING_ADJUSTMENT_SPEED", 1000 );
+            sChain->getNode()->getParamUint64( "DynamicPricingAdjustmentSpeed", 1000 );
         pricingStrategy = make_shared< DynamicPricingStrategy >(
             minPrice, maxPrice, optimalLoadPercentage, adjustmentSpeed );
 
