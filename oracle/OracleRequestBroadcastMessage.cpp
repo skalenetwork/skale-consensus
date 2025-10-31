@@ -41,9 +41,17 @@
 #include "OracleRequestBroadcastMessage.h"
 
 OracleRequestBroadcastMessage::OracleRequestBroadcastMessage( const string& _requestSpec,
-    block_id _blockID, uint64_t _timeMs, OracleClient& sourceProtocolInstance )
+    block_id _blockID, 
+#ifdef BITE
+    epoch_id epochId,
+#endif
+    uint64_t _timeMs, OracleClient& sourceProtocolInstance )
     : NetworkMessage(
-          MSG_ORACLE_REQ_BROADCAST, _blockID, 0, 0, 0, _timeMs, sourceProtocolInstance ),
+          MSG_ORACLE_REQ_BROADCAST, _blockID, 
+#ifdef BITE
+          epochId,
+#endif
+          0, 0, 0, _timeMs, sourceProtocolInstance ),
       requestSpec( _requestSpec ) {
     requestSpec.erase(
         std::remove_if( requestSpec.begin(), requestSpec.end(), ::isspace ), requestSpec.end() );
@@ -55,10 +63,18 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage( const string& _req
 
 
 OracleRequestBroadcastMessage::OracleRequestBroadcastMessage( const string& _requestSpec,
-    node_id _srcNodeID, block_id _blockID, uint64_t _timeMs, schain_id _schainId, msg_id _msgID,
+    node_id _srcNodeID, block_id _blockID, 
+#ifdef BITE
+    epoch_id epochId,
+#endif
+    uint64_t _timeMs, schain_id _schainId, msg_id _msgID,
     schain_index _srcSchainIndex, const string& _ecdsaSig, const string& _publicKey,
     const string& _pkSig, Schain* _sChain )
-    : NetworkMessage( MSG_ORACLE_REQ_BROADCAST, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId,
+    : NetworkMessage( MSG_ORACLE_REQ_BROADCAST, _srcNodeID, _blockID, 
+#ifdef BITE
+        epochId,
+#endif
+          0, 0, 0, _timeMs, _schainId,
           _msgID, "", _ecdsaSig, _publicKey, _pkSig, _srcSchainIndex, _sChain->getCryptoManager() ),
       requestSpec( _requestSpec ) {
     CHECK_STATE( _requestSpec.front() == '{' && _requestSpec.back() == '}' )

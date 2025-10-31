@@ -46,13 +46,21 @@ protected:
 
 
 public:
-    OracleRequestBroadcastMessage( const string& _requestSpec, block_id _blockID, uint64_t _timeMs,
+    OracleRequestBroadcastMessage( const string& _requestSpec, block_id _blockID, 
+#ifdef BITE
+        epoch_id epochId,
+#endif
+        uint64_t _timeMs,
         OracleClient& sourceProtocolInstance );
 
     const ptr< OracleRequestSpec >& getParsedSpec() const;
 
     OracleRequestBroadcastMessage( const string& _requestSpec, node_id _srcNodeID,
-        block_id _blockID, uint64_t _timeMs, schain_id _schainId, msg_id _msgID,
+        block_id _blockID, 
+#ifdef BITE
+        epoch_id epochId,
+#endif
+        uint64_t _timeMs, schain_id _schainId, msg_id _msgID,
         schain_index _srcSchainIndex, const string& _ecdsaSig, const string& _publicKey,
         const string& _pkSig, Schain* _sChain );
 };
