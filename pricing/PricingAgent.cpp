@@ -86,7 +86,7 @@ u256 PricingAgent::calculatePrice(
     try {
         if ( _blockID <= 1 ) {
 #ifndef FAIR
-            price = sChain->getNode()->getParamUint64( "DYNAMIC_PRICING_START_PRICE",
+            price = sChain->getNode()->getParamUint64( "DynamicPricingStartPrice",
                                                        DEFAULT_MIN_PRICE );
 #else
             price = sChain->getNode()->getParamUint64( "CONSTANT_PRICING_DEFAULT_PRICE",
