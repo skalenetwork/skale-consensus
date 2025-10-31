@@ -42,7 +42,7 @@ public:
     // if none of the transactions fails, the  proposal is set with decryption shares
 
 
-    [[nodiscard]][[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesFromDataFieldsMap(
+    [[nodiscard]][[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesForProposal(
             ptr<BlockProposal> _proposal);
 
     [[nodiscard]] Schain *getSchain() const {

@@ -333,7 +333,7 @@ ptr<BlockProposal>  BlockProposal::makeFromDBSerialized(
 #ifdef BITE
     BiteManager::parseBITETransactions(proposal);
     CHECK_STATE2(proposal->getFailedTransactionsRef().empty(), "Invalid BITE proposal received");
-    CHECK_STATE2(proposal->getBiteDataFields(), "Missing data fields");
+    CHECK_STATE2(proposal->getEncryptedAESKeys(), "Missing encrypted AES keys");
 #endif
 
     return proposal;
