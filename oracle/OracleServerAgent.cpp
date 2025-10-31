@@ -238,7 +238,11 @@ ptr< OracleResponseMessage > OracleServerAgent::doEndpointRequestResponse(
     string receipt = _requestSpec->getReceipt();
 
     return make_shared< OracleResponseMessage >( resultStr, receipt,
-        getSchain()->getLastCommittedBlockID() + 1, Time::getCurrentTimeMs(),
+        getSchain()->getLastCommittedBlockID() + 1, 
+#ifdef BITE
+        epoch_id( getSchain()->getNode()->getCurrentEpochId() ),
+#endif
+        Time::getCurrentTimeMs(),
         *getSchain()->getOracleClient() );
 }
 
