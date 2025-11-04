@@ -36,7 +36,7 @@ class ConsensusBLSSignature;
 class BLAKE3Hash;
 
 class ConsensusSigShareSet : public ThresholdSigShareSet {
-    BLSSigShareSet blsSet;  // tsafe
+    libBLS::BLSSigShareSet blsSet;  // tsafe
     recursive_mutex blsSetLock;
 
 public:

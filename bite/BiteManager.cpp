@@ -57,7 +57,6 @@ void BiteManager::parseBITETransactions(
             tx->parseAndValidate();
             auto biteDataField = tx->tryGetBiteData(_proposal->getEpochID());
             if (biteDataField) {
-                biteDataFields->emplace(index, biteDataField);
                 encryptedAESKeyList->emplace(index, biteDataField->getEncryptedAESKey());
             }
             index = index + 1;
@@ -74,7 +73,6 @@ void BiteManager::parseBITETransactions(
     }
 
 
-    _proposal->setBiteDataFields(biteDataFields);
     _proposal->seAESKeyList(encryptedAESKeyList);
 }
 
@@ -84,7 +82,6 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
 
     CHECK_STATE(_proposal);
     // check we are not verifying twice
-
 
     auto savedShares = getSchain()->getNode()->getTEDecryptionDB()->getMyDecryptionShares(_proposal->getBlockID(),
                                                                                           _proposal->getProposerIndex());
@@ -104,30 +101,29 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
         return;
     }
 
-    CHECK_STATE(_proposal->getBiteDataFields());
+    CHECK_STATE(_proposal->getEncryptedAESKeys());
 
 
     // this function will not throw exception
-    auto decryptionShareList = getDecryptionSharesFromDataFieldsMap(_proposal);
+    auto decryptionShareList = getDecryptionSharesForProposal(_proposal);
     if (!_proposal->getFailedTransactionsRef().empty()) {
         // the block includes invalid transactions, and at this point we know
         // each of them. So we just return them
         return;
     }
     CHECK_STATE(decryptionShareList);
-    CHECK_STATE(decryptionShareList->getSize() == _proposal->getBiteDataFields()->size());
+    CHECK_STATE(decryptionShareList->getSize() == _proposal->getEncryptedAESKeys()->size());
     // no we know that the decryption shares are valid, we can set them to the proposal
     // now we set the decryption shares list to the block proposal so it is committed to the
     // database when proposal is committed
     _proposal->setMyDecryptionShares(decryptionShareList);
-
 
     getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
 
 }
 
 
-ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap(ptr<BlockProposal> _proposal) {
+ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesForProposal(ptr<BlockProposal> _proposal) {
     CHECK_STATE(_proposal)
 
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime())
@@ -136,25 +132,22 @@ ptr<AESKeyDecryptionShareList> BiteManager::getDecryptionSharesFromDataFieldsMap
             _proposal->getBlockID(),
             _proposal->getProposerIndex(), schain.getSchainIndex());
 
-
     ptr<vector<ptr<AESKeyDecryptionShare> > > decryptionSharesVector = getDecryptionSharesFromAESKeys(
             _proposal, schain.getSchainIndex());
-
 
     if (!decryptionSharesVector) {
         return nullptr;
     }
 
-    CHECK_STATE(decryptionSharesVector->size() == _proposal->getBiteDataFields()->size());
+    CHECK_STATE(decryptionSharesVector->size() == _proposal->getEncryptedAESKeys()->size());
 
 
     auto arrayIndex = 0;
-    for (auto &&iterator: *_proposal->getBiteDataFields()) {
+    for (auto &&iterator: *_proposal->getEncryptedAESKeys()) {
         auto AESKeyDecryptionShare = (*decryptionSharesVector)[arrayIndex];
         decryptionShareList->addShare(iterator.first, decryptionSharesVector->at(arrayIndex));
         arrayIndex++;
     }
-
 
     return decryptionShareList;
 }
@@ -168,8 +161,6 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > BiteManager::getDecryptionSharesFromAE
 
     auto encryptedAESKeys = _proposal->getEncryptedAESKeys();
     CHECK_STATE(encryptedAESKeys);
-
-
 
     if (doRealCrypto) {
 
@@ -200,35 +191,70 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
 
     CHECK_STATE(encryptedAESKeys);
 
+    auto failedTransactionRef = _proposal->getFailedTransactionsRef();
 
     auto publicDecryptionValues = make_shared<vector<ptr<string>>>();
 
-    uint64_t i = 0;
+    publicDecryptionValues->resize(encryptedAESKeys->size());
+        
+    std::mutex failedTransactionsMutex;
 
-    for (auto&& it : *encryptedAESKeys) {
+    // lambda for processing a single encrypted AES key
+    auto processEncryptedAESKey = [encryptedAESKeys, publicDecryptionValues, &failedTransactionRef, &failedTransactionsMutex](uint64_t i, bool useThreadSafety) -> folly::Unit {
         try {
-            auto encryptedAESKey = it.second;
+            auto encryptedAESKey = encryptedAESKeys->at(i);
             CHECK_STATE(encryptedAESKey)
             auto cipheredKey = libBLS::CipheredKey::fromBytes(*encryptedAESKey->getKey());
-            auto U = cipheredKey.U;
-            U.to_affine_coordinates();
-            libBLS::ThresholdUtils::validateG2(U);
-
-            auto g2AsStringVector = libBLS::ThresholdUtils::G2ToString(U, libBLS::BASE_HEXA);
+            libBLS::ThresholdEncryption::validateEncryption( cipheredKey );
 
             // convert to string
-            auto publicDecryptionValue = make_shared<string>();
-            for (auto const &str: g2AsStringVector) {
-                publicDecryptionValue->append(str);
-            }
+            auto decryptionShareInput = cipheredKey.getDecryptionShareInput();
 
-            publicDecryptionValues->push_back(publicDecryptionValue);
+            publicDecryptionValues->at(i) = make_shared<string>(decryptionShareInput);
         } catch (exception &_e) {
-            LOG(err, fmt::format("Could not validate transaction: {} : {}", i, _e.what()));
-            _proposal->getFailedTransactionsRef().emplace(i,
-                                        CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
-            return;
+            LOG(err, fmt::format( "Could not validate transaction: {} : {}" , i, _e.what()));
+            if (useThreadSafety) {
+                lock_guard<mutex> lock(failedTransactionsMutex);
+                failedTransactionRef.emplace(i,
+                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+            } else {
+                failedTransactionRef.emplace(i,
+                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
+            }
         }
+        return folly::unit;
+    };
+    
+    if (encryptedAESKeys->size() < NUM_BITE_VALIDATION_THREADS) {
+        // do sequential processing for small batches
+        for (uint64_t i = 0; i < encryptedAESKeys->size(); i++) {
+            processEncryptedAESKey(i, false);
+        }
+    } else {
+        std::vector<folly::Future<folly::Unit>> futures;
+        futures.reserve(NUM_BITE_VALIDATION_THREADS);
+
+        const size_t chunkSize = (encryptedAESKeys->size() + NUM_BITE_VALIDATION_THREADS - 1) /
+                NUM_BITE_VALIDATION_THREADS;
+        
+        for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
+            size_t startIdx = threadId * chunkSize;
+            size_t endIdx = std::min(startIdx + chunkSize, encryptedAESKeys->size());
+            
+            if (startIdx >= endIdx)
+                break;
+
+            auto future = folly::via(threadPoolExecutor.get(), [startIdx, endIdx, &processEncryptedAESKey]() {
+                for (size_t i = startIdx; i < endIdx; ++i) {
+                    processEncryptedAESKey(i, true);
+                }
+            });
+
+            futures.push_back(std::move(future));
+        }
+        
+        // Wait for all threads to complete
+        auto allResults = folly::collectAll(futures).get();
     }
     _proposal->setSGXAESKeyBatch(publicDecryptionValues);
 }
@@ -348,8 +374,7 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
         auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
         CHECK_STATE(primaryKey);
         auto blsKey = primaryKey->getPublicKey();
-        CHECK_STATE(blsKey);
-        libBLS::TEPublicKey teKey(*blsKey);
+        libBLS::TEPublicKey teKey(blsKey);
 
         auto cipherText = libBLS::ThresholdEncryption::encrypt(stream.encode(), teKey);
         auto bytes = std::make_shared<vector<uint8_t>>(cipherText.toBytes());

@@ -41,20 +41,23 @@
 #include "thirdparty/json.hpp"
 #include "chains/Schain.h"
 #include "datastructures/BlockProposal.h"
+#include "crypto/CryptoManager.h"
 #include "crypto/DecryptedAESKeyList.h"
 #include "crypto/AESKeyDecryptionShareList.h"
 
 
 #include "leveldb/db.h"
+#include <crypto/EncryptedAESKey.h>
 #include "crypto/ThresholdSigShare.h"
-#include "crypto/AESKeyDecryptionShareList.h"
 #include "LevelDBOptions.h"
 
 
 #include <bite/BiteManager.h>
 #include <bite/BiteAESDecryptionShareSerializer.h>
 #include <crypto/AESKeyDecryptionShareSet.h>
-#include "TEDecryptionDB.h"
+#include <crypto/ConsensusAESKeyDecryptionShare.h>
+
+#include <bls/BLSPublicKeyShare.h>
 
 
 using namespace std;
@@ -154,7 +157,6 @@ bool TEDecryptionDB::haveDecryptionShares(block_id _blockID, schain_index _decry
 };
 
 ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyList> _encryptedAESKeyList) {
-
     CHECK_STATE(_encryptedAESKeyList);
 
     WRITE_LOCK(decryptionSetsMutex);
@@ -162,29 +164,44 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareLists =
         decryptionsStore[_blockId];
 
-
     CHECK_STATE( decryptionShareLists.size() >= requiredSigners )
-
 
     auto firstDecryptionShareList = decryptionShareLists.begin()->second;
     // TODO - count of decryption shares need to be in DA header
     CHECK_STATE( firstDecryptionShareList );
     auto size = firstDecryptionShareList->getSize();
 
-
     for (auto&& it : decryptionShareLists) {
         auto list = it.second;
         CHECK_STATE(list->getSize() == size);
     }
 
-
-    map< transaction_index, ptr< AESKeyDecryptionShareSet > > decryptionShareSets;
-
+    map<transaction_index, ptr<AESKeyDecryptionShareSet>> decryptionShareSets;
+    map<transaction_index, libBLS::CipheredKey> encryptions;
 
     for ( auto&& decryptionShareIterator : firstDecryptionShareList->getDecryptionShares() ) {
         decryptionShareSets[decryptionShareIterator.first] =
             sChain->getBiteManager()->createAESDecryptionShareSet(
                 _blockId, decryptionShareIterator.first );
+        if (sChain->getNode()->isSgxEnabled()) {
+            // fill the map to use in multiple threads later if real signatures are enabled
+            // dont validate inputs - were already validated before
+            bool toValidate = false;
+            encryptions[decryptionShareIterator.first] =
+                    libBLS::CipheredKey::fromBytes(*_encryptedAESKeyList->at(decryptionShareIterator.first)->getKey(),
+                                                   toValidate);
+        }
+    }
+
+    // prepare TE public key shares if real signatures are enabled
+    vector<libBLS::TEPublicKeyShare> tePublicKeys;
+    if (sChain->getNode()->isSgxEnabled()) {
+        ptr<vector<ptr<libBLS::BLSPublicKeyShare>>> keyShares =
+                std::make_shared<vector<ptr<libBLS::BLSPublicKeyShare>>>(sChain->getCryptoManager()->getAllBlsPublicKeyShares());
+        for (size_t i = 0; i < totalSigners; ++i) {
+            tePublicKeys.push_back(libBLS::TEPublicKeyShare(keyShares->at(i)->getPublicKey(),
+                                                       i + 1, requiredSigners, totalSigners) );
+        }
     }
 
     std::vector<folly::Future<folly::Unit>> futures;
@@ -196,16 +213,30 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
     for ( auto&& decryptionSharesSetIterator: decryptionShareSets ) {
         auto transactionIndex = decryptionSharesSetIterator.first;
         auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareLists,
-                                 &decryptionShareSets, &aesKeys, &aesKeysMutex,
-                                 &_encryptedAESKeyList, transactionIndex]() -> folly::Unit {
+                                 &decryptionShareSets, &aesKeys, &aesKeysMutex, &tePublicKeys,
+                                 &_encryptedAESKeyList, transactionIndex, &encryptions,
+                                 sChain = this->sChain]() -> folly::Unit {
             auto decryptionSharesSet = decryptionShareSets[transactionIndex];
             if ( !decryptionSharesSet->isEnough() ) {
                 for ( auto&& it: decryptionShareLists) {
-                    auto decryptionSharesList = it.second;
-                    auto share = decryptionSharesList->getDecryptionShare( transactionIndex );
-                    CHECK_STATE( share  );
-                    // decryption shares set has its own lock
-                    decryptionSharesSet->addDecryptionShare( share );
+                    try {
+                        auto decryptionSharesList = it.second;
+                        auto share = decryptionSharesList->getDecryptionShare(transactionIndex);
+                        CHECK_STATE(share);
+                        size_t decryptorIndex = (size_t)share->getDecryptorIndex();
+                        // verify share first if real signatures are enabled
+                        if (sChain->getNode()->isSgxEnabled() &&
+                                sChain->getSchainIndex() != decryptorIndex) {
+                            auto cipheredKey = encryptions.at(transactionIndex);
+                            libBLS::ThresholdEncryption::validateDecryptionShare(cipheredKey,
+                                *dynamic_cast<ConsensusAESKeyDecryptionShare*>(share.get())->getTEDecryptionShare(),
+                                                                                 tePublicKeys.at(decryptorIndex - 1));
+                        }
+                        // decryption shares set has its own lock
+                        decryptionSharesSet->addDecryptionShare(share);
+                    }  catch ( const std::exception& ex ) {
+                        LOG(err, std::string("Error during adding shares: ") + ex.what());
+                    }
                 }
             }
             if ( decryptionSharesSet->isEnough() ) {
@@ -231,7 +262,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<E
     }
 
     CHECK_STATE(decryptionsStore.size() <= 2 * totalSigners);
-
+    CHECK_STATE2(aesKeys->getSize() == _encryptedAESKeyList->size(), "Not all aes keys could be decrypted");
 
     return aesKeys;
 }

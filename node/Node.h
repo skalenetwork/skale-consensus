@@ -41,8 +41,6 @@ class ConsensusExtFace;
 class ConsensusEngine;
 class ConsensusBLSSigShare;
 class BLAKE3Hash;
-class BLSPublicKey;
-class BLSPrivateKeyShare;
 class CacheLevelDB;
 class BlockDB;
 class BlockProposalDB;
@@ -64,6 +62,11 @@ class BiteBlockFinalizeServer;
 
 namespace leveldb {
 class DB;
+}
+
+namespace libBLS {
+    class BLSPublicKey;
+    class BLSPrivateKeyShare;
 }
 
 
@@ -147,9 +150,9 @@ class Node {
 
     ptr< vector< ptr< vector< string > > > > blsPublicKeys;  // tsafe
 
-    ptr< BLSPublicKey > blsPublicKey;
+    ptr< libBLS::BLSPublicKey > blsPublicKey;
 
-    ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+    ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > previousBlsPublicKeys;
 
     ptr< map< uint64_t, string > > historicECDSAPublicKeys;
 
@@ -293,9 +296,9 @@ public:
 
     ptr< vector< ptr< vector< string > > > > getBlsPublicKeys();
 
-    ptr< BLSPublicKey > getBlsPublicKey();
+    ptr< libBLS::BLSPublicKey > getBlsPublicKey();
 
-    ptr< map< uint64_t, ptr< BLSPublicKey > > > getPreviousBLSPublicKeys();
+    ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > getPreviousBLSPublicKeys();
 
     ptr< map< uint64_t, string > > getHistoricECDSAPublicKeys();
 
@@ -364,7 +367,7 @@ public:
 
     map< string, uint64_t > getDBUsage() const;
 
-    ptr< BLSPublicKey > getBlsPublicKey() const;
+    ptr< libBLS::BLSPublicKey > getBlsPublicKey() const;
 
     void initLevelDBs();
 
@@ -373,8 +376,8 @@ public:
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
         string _sgxURL, string _sgxSSLKeyFileFullPath, string _sgxSSLCertFileFullPath,
         string _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys, string _blsKeyName,
-        ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< BLSPublicKey > _blsPublicKey,
-        string& _gethURL, ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< libBLS::BLSPublicKey > _blsPublicKey,
+        string& _gethURL, ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > _previousBlsPublicKeys,
         ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
         ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups, bool _isSyncNode );
 
