@@ -31,7 +31,7 @@ class CPUThreadPoolExecutor;
 class BiteManager {
     Schain &schain;
     bool doRealCrypto = false;
-    std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
+    std::unique_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
 
 public:
     explicit BiteManager(Schain &_schain);
@@ -49,9 +49,11 @@ public:
         return &schain;
     }
 
-    [[nodiscard]] std::shared_ptr<folly::CPUThreadPoolExecutor> getExecutor() {
+    [[nodiscard]] std::unique_ptr<folly::CPUThreadPoolExecutor>& getExecutor() {
         return threadPoolExecutor;
     }
+
+    void stopAndDestroyThreadPoolExecutor();
 
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromAESKeys(
             ptr<BlockProposal> _proposal,

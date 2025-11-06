@@ -685,7 +685,6 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         LOG( info, "consensus engine exiting: block proposal socket touched" );
     }
 
-
     getSchain()->getCryptoManager()->exitZMQClient();
     LOG( info, "consensus engine exiting: exitZMQClient called" );
 
@@ -694,20 +693,15 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
     }
 
-
-
 #ifdef BITE
     if ( biteBlockFinalizeServer ) {
         biteBlockFinalizeServer->exitProxygenServer();
         LOG( info, "consensus engine exiting: exitProxygenServer called" );
     }
 
-
-    auto finalizationExecutor = getSchain()->getFinalizationExecutor();
+    getSchain()->stopAndDestroyFinalizationExecutor();
+    getSchain()->getBiteManager()->stopAndDestroyThreadPoolExecutor();
 #endif
-
-
-
 }
 
 /*
