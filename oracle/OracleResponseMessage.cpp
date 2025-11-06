@@ -42,8 +42,16 @@
 #include "OracleResponseMessage.h"
 
 OracleResponseMessage::OracleResponseMessage( string& _oracleResult, string& _receipt,
-    block_id _blockID, uint64_t _timeMs, OracleClient& sourceProtocolInstance )
-    : NetworkMessage( MSG_ORACLE_RSP, _blockID, 0, 0, 0, _timeMs, sourceProtocolInstance ),
+    block_id _blockID,
+#ifdef BITE
+    epoch_id epochId,
+#endif
+    uint64_t _timeMs, OracleClient& sourceProtocolInstance )
+    : NetworkMessage( MSG_ORACLE_RSP, _blockID,
+#ifdef BITE
+        epochId,
+#endif
+        0, 0, 0, _timeMs, sourceProtocolInstance ),
       oracleResultStr( _oracleResult ),
       receipt( _receipt ) {
     printPrefix = "r";
@@ -51,10 +59,19 @@ OracleResponseMessage::OracleResponseMessage( string& _oracleResult, string& _re
 
 
 OracleResponseMessage::OracleResponseMessage( string& _oracleResult, string& _receipt,
-    node_id _srcNodeID, block_id _blockID, uint64_t _timeMs, schain_id _schainId, msg_id _msgID,
+    node_id _srcNodeID, block_id _blockID, 
+#ifdef BITE
+    epoch_id epochId,
+#endif
+
+    uint64_t _timeMs, schain_id _schainId, msg_id _msgID,
     schain_index _srcSchainIndex, const string& _ecdsaSig, const string& _publicKey,
     const string& _pkSig, Schain* _sChain )
-    : NetworkMessage( MSG_ORACLE_RSP, _srcNodeID, _blockID, 0, 0, 0, _timeMs, _schainId, _msgID, "",
+    : NetworkMessage( MSG_ORACLE_RSP, _srcNodeID, _blockID, 
+#ifdef BITE
+        epochId,
+#endif
+        0, 0, 0, _timeMs, _schainId, _msgID, "",
           _ecdsaSig, _publicKey, _pkSig, _srcSchainIndex, _sChain->getCryptoManager() ),
       oracleResultStr( _oracleResult ),
       receipt( _receipt ) {

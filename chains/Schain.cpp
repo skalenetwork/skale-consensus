@@ -1647,7 +1647,10 @@ void Schain::writeToVisualizationStream(string &_s) {
 
 
 u256 Schain::getRandomForBlockId(block_id _blockId) {
-    auto block = getBlock(_blockId);
+    // Ensure the block has already been committed to the database
+    CHECK_STATE(_blockId <= readLastCommittedBlockIDFromDb());
+    auto block = getNode()->getBlockDB()->getBlock( _blockId, getCryptoManager() );
+    
     CHECK_STATE(block);
     auto signature = block->getThresholdSig();
 
