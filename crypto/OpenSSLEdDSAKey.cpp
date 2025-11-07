@@ -60,6 +60,7 @@ std::shared_ptr<EVP_PKEY> OpenSSLEdDSAKey::genFastKeyImpl() {
         ctx = std::shared_ptr<EVP_PKEY_CTX>(EVP_PKEY_CTX_new_id( NID_ED25519, NULL ), EVP_PKEY_CTX_free);
         CHECK_STATE( ctx );
         CHECK_STATE( EVP_PKEY_keygen_init( ctx.get() ) > 0 );
+        edkey = EVP_PKEY_new();
         CHECK_STATE( EVP_PKEY_keygen( ctx.get(), &edkey ) > 0 );
         CHECK_STATE( edkey );
 
