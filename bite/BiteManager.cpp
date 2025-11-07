@@ -39,6 +39,9 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     threadPoolExecutor = std::make_unique<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
 }
 
+BiteManager::~BiteManager() {
+    stopAndDestroyThreadPoolExecutor();
+}
 
 void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {

@@ -36,6 +36,8 @@ class BiteManager {
 public:
     explicit BiteManager(Schain &_schain);
 
+    ~BiteManager();
+
     static void parseBITETransactions(ptr<BlockProposal> _proposal);
 
     // this will return a map of failed transactions
@@ -49,11 +51,9 @@ public:
         return &schain;
     }
 
-    [[nodiscard]] std::unique_ptr<folly::CPUThreadPoolExecutor>& getExecutor() {
+    [[nodiscard]] const std::unique_ptr<folly::CPUThreadPoolExecutor>& getExecutor() const {
         return threadPoolExecutor;
     }
-
-    void stopAndDestroyThreadPoolExecutor();
 
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromAESKeys(
             ptr<BlockProposal> _proposal,
@@ -85,4 +85,6 @@ public:
     [[nodiscard]] bool isRealCryptoEnabled() const;
 
     void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
+private:
+    void stopAndDestroyThreadPoolExecutor();
 };

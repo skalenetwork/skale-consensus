@@ -700,7 +700,6 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     }
 
     getSchain()->stopAndDestroyFinalizationExecutor();
-    getSchain()->getBiteManager()->stopAndDestroyThreadPoolExecutor();
 #endif
 }
 
