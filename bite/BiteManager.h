@@ -7,6 +7,7 @@
 #include <crypto/AESKeyDecryptionShareSet.h>
 #include "node/ConsensusInterface.h"
 #include "abstracttcpserver/ConnectionStatus.h"
+#include <folly/Unit.h>
 
 class Schain;
 

@@ -22,7 +22,6 @@
 */
 
 
-#include "thirdparty/catch.hpp"
 #include "SkaleCommon.h"
 #include "Consensusd.h"
 #include "node/ConsensusEngine.h"

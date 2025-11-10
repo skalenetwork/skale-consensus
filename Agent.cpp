@@ -81,7 +81,7 @@ ptr< GlobalThreadRegistry > Agent::getThreadRegistry() {
 
 void Agent::logConnectionRefused( ConnectionRefusedException& _e, schain_index _index, const char* _function) {
     if ( _e.triedConnect() ) {
-        LOG(err, string("Connection refused connecting to node:" + to_string(_index) + " in " + _function));
+        CONS_LOG(err, string("Connection refused connecting to node:" + to_string(_index) + " in " + _function));
         SkaleException::logNested( _e );
     }
 }

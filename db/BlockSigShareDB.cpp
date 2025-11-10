@@ -160,7 +160,7 @@ ptr< map< schain_index, string > > BlockSigShareDB::writeStringToSetInMemory(
 
     if ( sigShares.exists( entryKey ) ) {
         if ( !isDuplicateAddOK )
-            LOG( trace, "Double db entry " << this->prefix << "\n"
+            CONS_LOG( trace, "Double db entry " << this->prefix << "\n"
                                            << to_string( _blockId ) << ":" << to_string( _index ) );
         return nullptr;
     }
@@ -173,7 +173,7 @@ ptr< map< schain_index, string > > BlockSigShareDB::writeStringToSetInMemory(
         try {
             count = stoull( sigShares.get( counterKey ), NULL, 10 );
         } catch ( ... ) {
-            LOG( err, "Incorrect value in LevelDB:" << sigShares.get( counterKey ) );
+            CONS_LOG( err, "Incorrect value in LevelDB:" << sigShares.get( counterKey ) );
             return 0;
         }
     } else {

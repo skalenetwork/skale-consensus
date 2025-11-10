@@ -65,7 +65,7 @@ void OracleResultAssemblyAgent::messageThreadProcessingLoop( OracleResultAssembl
                     CHECK_STATE( false );
                 }
             } catch ( exception& e ) {
-                LOG( err, "Exception in Schain::oracleAssemblylLoop" );
+                CONS_LOG( err, "Exception in Schain::oracleAssemblylLoop" );
                 SkaleException::logNested( e );
                 if ( _agent->getNode()->isExitRequested() )
                     return;

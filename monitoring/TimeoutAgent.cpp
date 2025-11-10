@@ -59,7 +59,7 @@ void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
     if ( _agent->getSchain()->getNode()->isExitRequested() )
         return;
 
-    LOG( info, "Timeout agent started monitoring" );
+    CONS_LOG( info, "Timeout agent started monitoring" );
 
     uint64_t blockProcessingStart =
         max( _agent->getSchain()->getLastCommitTimeMs(), _agent->getSchain()->getStartTimeMs() );

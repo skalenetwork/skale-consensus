@@ -263,7 +263,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_se
             _manager->verifyProposalECDSA(
                 block, blockHeader->getBlockHash(), blockHeader->getSignature() );
         } catch ( ... ) {
-            LOG( err, "Block ECDSA signature did not verify in deserialization" );
+            CONS_LOG( err, "Block ECDSA signature did not verify in deserialization" );
             throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
         }
     }

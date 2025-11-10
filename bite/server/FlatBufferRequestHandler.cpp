@@ -1,7 +1,6 @@
 #include "abstracttcpserver/ConnectionStatus.h"
 
 #include "FlatBufferRequestHandler.h"
-#undef LOG // avoid macro definition  conflicts with proxygen LOG
 #include "Log.h"
 #include "flatb/ErrorResponseObject.h"
 
@@ -95,13 +94,13 @@ void FlatBufferRequestHandler::onEOM() noexcept {
     } catch (std::exception &_e) {
         // Something really bad happened so we could not send a response, even an error response
         // tell client to disconnect
-        LOG(critical, "Could not send response, disconnecting client " + string( _e.what() ));
+        CONS_LOG(critical, "Could not send response, disconnecting client " + string( _e.what() ));
         goto send_abort;
     }
     catch (...) {
         // Something really bad happened so we could not send a response, even an error response
         // tell client to disconnect
-        LOG(critical, "Could not send response, disconnecting client");
+        CONS_LOG(critical, "Could not send response, disconnecting client");
         goto send_abort;
     }
 
@@ -132,7 +131,7 @@ void FlatBufferRequestHandler::sendHTTPResponse(uint16_t _statusCode, const stri
 
 
 void FlatBufferRequestHandler::onError(ProxygenError _err) noexcept {
-    LOG(err, "Error in FlatBufferRequestHandler: " + to_string( _err ));
+    CONS_LOG(err, "Error in FlatBufferRequestHandler: " + to_string( _err ));
 }
 
 void FlatBufferRequestHandler::sendFlatBufferSuccessResponse(const string &response) noexcept {

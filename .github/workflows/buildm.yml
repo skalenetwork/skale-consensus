@@ -174,6 +174,12 @@ jobs:
     - name: build consensus Fair
       run: |
         cd scripts && ./build.py Debug -buildFAIR
-    - name: run tests
-      run: cd scripts && export CI_BUILD=1 && ./tests.py && cd ..
+
+    - name: run tests (block sizes)
+      env:
+        CI_BUILD: "1"
+        TEST_TRANSACTIONS_PER_BLOCK: "1000"
+      run: |
+        cd scripts 
+        ./tests.py && cd ..
 

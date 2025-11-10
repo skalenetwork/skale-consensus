@@ -103,7 +103,7 @@ void abort_handler( int ) {
 
 block_id basicRun( int64_t _lastId ) {
     try {
-        REQUIRE( ConsensusEngine::getEngineVersion().size() > 0 );
+        CATCH_REQUIRE( ConsensusEngine::getEngineVersion().size() > 0 );
 
         engine = new ConsensusEngine( _lastId, 1000000000 );
 
@@ -123,15 +123,15 @@ block_id basicRun( int64_t _lastId ) {
             };
         }
 
-        REQUIRE( engine->nodesCount() > 0 );
+        CATCH_REQUIRE( engine->nodesCount() > 0 );
         auto lastId = engine->getLargestCommittedBlockID();
-        REQUIRE( lastId > 0 );
+        CATCH_REQUIRE( lastId > 0 );
 
         auto [transactions, timestampS, timeStampMs, price, stateRoot] = engine->getBlock( 1 );
 
 
-        REQUIRE( transactions );
-        REQUIRE( timestampS > 0 );
+        CATCH_REQUIRE( transactions );
+        CATCH_REQUIRE( timestampS > 0 );
 
         cerr << price << ":" << stateRoot << endl;
         signal( SIGABRT, abort_handler );
