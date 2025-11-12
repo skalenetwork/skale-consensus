@@ -19,7 +19,7 @@ class DecryptedAESKeyList;
 
 class AESKeyDecryptionShareList;
 
-class BiteDataField;
+class BiteCiphertext;
 
 class TransactionList;
 
@@ -52,14 +52,14 @@ public:
     static void parseBITETransactions(ptr<BlockProposal> _proposal);
 
     // Tries to match the TO field to BITE1 magic number. If it matches - tries to parse the BITE1 data field.
-    // If parsing is successful - returns BiteDataField object, else returns 'nullopt'
-    static ptr<BiteDataField> tryGetEncryptedRegularTxFields(
+    // If parsing is successful - returns BiteCiphertext object, else returns 'nullopt'
+    static ptr<BiteCiphertext> tryGetEncryptedRegularTxFields(
             const ptr<Transaction> &_transaction, epoch_id _currentEpochId);
 
     // Tries to match the beginning of DATA field to BITE2 function selector.
     // If it matches - tries to parse the BITE2 data field(s) for encrypted call arguments.
-    // If parsing is successful - returns vector of BiteDataField objects, else returns 'nullopt'
-    static ptr<std::vector<BiteDataField>> tryGetEncryptedCATArgs(
+    // If parsing is successful - returns vector of BiteCiphertext objects, else returns 'nullopt'
+    static ptr<std::vector<BiteCiphertext>> tryGetEncryptedCATArgs(
             const ptr<Transaction> &_transaction, epoch_id _currentEpochId);
 
     // =============== Ciphertext Parsing =============== //
@@ -92,7 +92,7 @@ public:
             block_id _blockId, transaction_index _transactionIndex);
 
     // TODO - change the name of this method - should be made generic for both BITE1 & BITE2
-    [[nodiscard]] DecryptedRegularTxFields decryptFields(const ptr<BiteDataField> &bite, DecryptedAESKey &_key) const;
+    [[nodiscard]] DecryptedRegularTxFields decryptFields(const ptr<BiteCiphertext> &bite, DecryptedAESKey &_key) const;
 
     void corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result);
 

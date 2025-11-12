@@ -6,7 +6,7 @@
 #include "Log.h"
 #include <crypto/EncryptedAESKey.h>
 
-#include "bite/BiteDataField.h"
+#include "bite/BiteCiphertext.h"
 #include "rlp/RLPStream.h"
 #include "rlp/RLP.h"
 
@@ -16,7 +16,7 @@ const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 const auto KEY_COUNT_BYTE_OFFSET = 1;
 
 // TODO - change name to BiteCiphertext insteadno
-BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
+BiteCiphertext::BiteCiphertext(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
     : keyPlusEncryptedData(_encryptedKeyPlusData), epoch(_epoch) {
     CHECK_STATE(_encryptedKeyPlusData);
     CHECK_STATE(_encryptedKeyPlusData->size() > BITE_ENCRYPTED_AES_KEY_LEN);
@@ -39,7 +39,7 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     serializedData = make_shared<vector<uint8_t> >(list.encode());
 }
 
-BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, epoch_id _currentEpochId) {
+BiteCiphertext::BiteCiphertext(const std::shared_ptr<std::vector<uint8_t> > &_data, epoch_id _currentEpochId) {
     CHECK_STATE(_data);
 
     // parse RLP-encoded tx data field
@@ -111,17 +111,17 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     serializedData = _data;
 }
 
-ptr<EncryptedAESKey> &BiteDataField::getEncryptedAESKey() {
+ptr<EncryptedAESKey> &BiteCiphertext::getEncryptedAESKey() {
     return encryptedAESKey;
 }
-const shared_ptr< EncryptedData >& BiteDataField::getKeyPlusEncryptedData() const {
+const shared_ptr< EncryptedData >& BiteCiphertext::getKeyPlusEncryptedData() const {
     return keyPlusEncryptedData;
 }
 
-uint64_t BiteDataField::getEpoch() {
+uint64_t BiteCiphertext::getEpoch() {
     return epoch;
 }
 
-ptr<vector<uint8_t> > &BiteDataField::getSerializedData() {
+ptr<vector<uint8_t> > &BiteCiphertext::getSerializedData() {
     return serializedData;
 }

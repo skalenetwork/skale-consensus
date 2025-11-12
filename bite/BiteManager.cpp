@@ -11,7 +11,7 @@
 #include <crypto/MockupAESKeyDecryptionShareSet.h>
 #include <algorithm>
 
-#include "BiteDataField.h"
+#include "BiteCiphertext.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
@@ -36,7 +36,7 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 }
 
 
-ptr<BiteDataField> BiteManager::tryGetEncryptedRegularTxFields(
+ptr<BiteCiphertext> BiteManager::tryGetEncryptedRegularTxFields(
             const ptr<Transaction> &_transaction, epoch_id _currentEpochId) {
     CHECK_STATE(_transaction);
 
@@ -50,7 +50,7 @@ ptr<BiteDataField> BiteManager::tryGetEncryptedRegularTxFields(
 
     auto ethTx = _transaction->getAsEthereumTransaction();
     
-    ptr<BiteDataField> result;
+    ptr<BiteCiphertext> result;
     if (ethTx->hasToField()) {
         
         auto to = ethTx->getToField();
@@ -65,7 +65,7 @@ ptr<BiteDataField> BiteManager::tryGetEncryptedRegularTxFields(
         auto dataField = ethTx->getTransactionDataField();
         CHECK_STATE(dataField);
 
-        result = ptr<BiteDataField>(new BiteDataField(dataField, _currentEpochId));
+        result = ptr<BiteCiphertext>(new BiteCiphertext(dataField, _currentEpochId));
         _transaction->setRegularTxEncryptedData(result); // cache it
     }
 
@@ -73,7 +73,7 @@ ptr<BiteDataField> BiteManager::tryGetEncryptedRegularTxFields(
 }
 
 
-ptr<std::vector<BiteDataField>> BiteManager::tryGetEncryptedCATArgs(
+ptr<std::vector<BiteCiphertext>> BiteManager::tryGetEncryptedCATArgs(
             const ptr<Transaction> &, epoch_id ) {
     // TODO
 }
@@ -84,7 +84,7 @@ void BiteManager::parseBITETransactions(
     transaction_index index = 0;
 
     auto encryptedAESKeyMap = make_shared<EncryptedAESKeyMap>();
-    auto biteDataFields     = make_shared<std::map<transaction_index, ptr<BiteDataField> > >();
+    auto biteDataFields     = make_shared<std::map<transaction_index, ptr<BiteCiphertext> > >();
 
     ptr<vector<ptr<Transaction> > > transactions = _proposal->getTransactionList()->getItems();
     for (size_t i = 0; i < transactions->size(); i++) {
@@ -323,7 +323,7 @@ ptr<DecryptedRegularTxsMap> BiteManager::verifyAndDecryptTransactionList(
     return decryptedFieldsMap;
 }
 
-DecryptedRegularTxFields BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
+DecryptedRegularTxFields BiteManager::decryptFields(const ptr<BiteCiphertext> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
 

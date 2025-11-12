@@ -41,7 +41,7 @@ class BLAKE3Hash;
 
 
 #ifdef BITE
-class BiteDataField;
+class BiteCiphertext;
 class ParsedEthTransaction;
 #endif
 
@@ -58,7 +58,7 @@ class Transaction : public DataStructure {
 
 #ifdef BITE
     ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
-    ptr<BiteDataField> parsedBiteDataField = nullptr;
+    ptr<BiteCiphertext> parsedBiteDataField = nullptr;
 #endif
 public:
     Transaction( const ptr< vector< uint8_t > >& _data, bool _includesPartialHash );
@@ -95,8 +95,8 @@ public:
     ptr<ParsedEthTransaction> getAsEthereumTransaction();
 
     // Allows caching parsed encrypted regular transactions' data field
-    ptr<BiteDataField> getRegularTxEncryptedData();
-    void setRegularTxEncryptedData( ptr<BiteDataField> _biteDataField );
+    ptr<BiteCiphertext> getRegularTxEncryptedData();
+    void setRegularTxEncryptedData( ptr<BiteCiphertext> _biteDataField );
 
     ptr<vector<uint8_t>> emplaceAndReencodeTransaction(vector<uint8_t>& _originalDataField );
 #endif

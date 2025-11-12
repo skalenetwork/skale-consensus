@@ -11,7 +11,7 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusInterface.h"
-#include "bite/BiteDataField.h"
+#include "bite/BiteCiphertext.h"
 #include "bite/BiteManager.h"
 #include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "crypto/EncryptedAESKey.h"
@@ -121,7 +121,7 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
 
     if ( _isByte ) {
         auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
-        BiteDataField biteDataField(encryptedKeyPlusData , 0);
+        BiteCiphertext biteDataField(encryptedKeyPlusData , 0);
         // set data
         txRef.data = *biteDataField.getSerializedData();
         // set to field with BITE magic number

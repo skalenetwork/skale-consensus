@@ -49,7 +49,7 @@ class BasicHeader;
 class BlockProposalHeader;
 class BlockProposalFragment;
 class BlockProposalFragmentList;
-class BiteDataField;
+class BiteCiphertext;
 
 #define SERIALIZE_AS_PROPOSAL 1
 

@@ -35,7 +35,7 @@
 
 #ifdef  BITE
 #include "rlp/ParsedEthTransaction.h"
-#include "bite/BiteDataField.h"
+#include "bite/BiteCiphertext.h"
 #include "rlp/EthTransactionEncoder.h"
 #endif
 
@@ -186,12 +186,12 @@ ptr<ParsedEthTransaction> Transaction::getAsEthereumTransaction() {
 }
 
 
-ptr<BiteDataField> Transaction::getRegularTxEncryptedData() {
+ptr<BiteCiphertext> Transaction::getRegularTxEncryptedData() {
     // thread safe
     return std::atomic_load(&parsedBiteDataField );
 }
 
-void Transaction::setRegularTxEncryptedData( ptr<BiteDataField> _biteDataField ) {
+void Transaction::setRegularTxEncryptedData( ptr<BiteCiphertext> _biteDataField ) {
     // thread safe
     std::atomic_store(&parsedBiteDataField, _biteDataField);
 }
