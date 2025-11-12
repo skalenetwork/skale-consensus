@@ -6,7 +6,7 @@
 #include "Log.h"
 #include <crypto/EncryptedAESKey.h>
 
-#include "bite/BiteDataFiled.h"
+#include "bite/BiteDataField.h"
 #include "rlp/RLPStream.h"
 #include "rlp/RLP.h"
 
@@ -15,6 +15,7 @@
 const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 const auto KEY_COUNT_BYTE_OFFSET = 1;
 
+// TODO - change name to BiteCiphertext insteadno
 BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
     : keyPlusEncryptedData(_encryptedKeyPlusData), epoch(_epoch) {
     CHECK_STATE(_encryptedKeyPlusData);
@@ -120,24 +121,6 @@ const shared_ptr< EncryptedData >& BiteDataField::getKeyPlusEncryptedData() cons
 uint64_t BiteDataField::getEpoch() {
     return epoch;
 }
-
-
-ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data,
-                                                       ptr<vector<uint8_t> > &_to,
-                                                       epoch_id _currentEpochId) {
-    CHECK_STATE(_data)
-    CHECK_STATE(_to)
-
-    // compare _to field to BITE magic number
-    if (!std::equal(BITE_ADDRESS_AS_BYTE_ARRAY, BITE_ADDRESS_AS_BYTE_ARRAY + ADDRESS_SIZE,
-                    _to->begin())) {
-        return nullptr;
-    }
-
-    return ptr<BiteDataField>(new BiteDataField(_data, _currentEpochId));
-}
-
-
 
 ptr<vector<uint8_t> > &BiteDataField::getSerializedData() {
     return serializedData;

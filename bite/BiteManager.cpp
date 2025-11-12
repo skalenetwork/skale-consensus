@@ -11,7 +11,7 @@
 #include <crypto/MockupAESKeyDecryptionShareSet.h>
 #include <algorithm>
 
-#include "BiteDataFiled.h"
+#include "BiteDataField.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
@@ -36,22 +36,61 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
 }
 
 
+ptr<BiteDataField> BiteManager::tryGetEncryptedRegularTxFields(
+            const ptr<Transaction> &_transaction, epoch_id _currentEpochId) {
+    CHECK_STATE(_transaction);
+
+    auto encryptedRegularTxData = _transaction->getRegularTxEncryptedData();
+
+    if (encryptedRegularTxData) {
+        return encryptedRegularTxData;
+    }
+
+    // if not set bite data already - try parse it
+
+    auto ethTx = _transaction->getAsEthereumTransaction();
+    
+    ptr<BiteDataField> result;
+    if (ethTx->hasToField()) {
+        
+        auto to = ethTx->getToField();
+        CHECK_STATE(to);
+
+        // compare _to field to BITE magic number
+        if (!std::equal(BITE_ADDRESS_AS_BYTE_ARRAY, BITE_ADDRESS_AS_BYTE_ARRAY + ADDRESS_SIZE,
+                        to->begin())) {
+            return nullptr;
+        }
+
+        auto dataField = ethTx->getTransactionDataField();
+        CHECK_STATE(dataField);
+
+        result = ptr<BiteDataField>(new BiteDataField(dataField, _currentEpochId));
+        _transaction->setRegularTxEncryptedData(result); // cache it
+    }
+
+    return result;
+}
+
+
+ptr<std::vector<BiteDataField>> BiteManager::tryGetEncryptedCATArgs(
+            const ptr<Transaction> &, epoch_id ) {
+    // TODO
+}
+
+
 void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {
-    // do simple parsing and validation of BITE format
-    // unparsable transactions will be added to failedTransactions
-    // transactions starting from the magic number but with incorrect format will be added
-    // to failedTransactions
     transaction_index index = 0;
 
     auto encryptedAESKeyMap = make_shared<EncryptedAESKeyMap>();
+    auto biteDataFields     = make_shared<std::map<transaction_index, ptr<BiteDataField> > >();
 
-    auto biteDataFields = make_shared<std::map<transaction_index, ptr<BiteDataField> > >();
-
-    for (auto &tx: *_proposal->getTransactionList()->getItems()) {
+    ptr<vector<ptr<Transaction> > > transactions = _proposal->getTransactionList()->getItems();
+    for (size_t i = 0; i < transactions->size(); i++) {
         try {
-            tx->parseAndValidate();
-            auto biteDataField = tx->tryGetBiteData(_proposal->getEpochID());
+            auto tx = transactions->at(i);
+            auto biteDataField = tryGetEncryptedRegularTxFields(tx, _proposal->getEpochID());
             if (biteDataField) {
                 encryptedAESKeyMap->emplace(index, biteDataField->getEncryptedAESKey());
             }
@@ -238,12 +277,13 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
 }
 
 
-ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
+
+ptr<DecryptedRegularTxsMap> BiteManager::verifyAndDecryptTransactionList(
         TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys) {
 
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
-    auto decryptedFieldsMap = make_shared<DecryptedTransactionFieldsMap>();
+    auto decryptedFieldsMap = make_shared<DecryptedRegularTxsMap>();
 
     auto txs = _transactionList.getItems();
     CHECK_STATE(txs);
@@ -256,8 +296,7 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
     try {
         for (uint64_t i = 0; i < _transactionList.size(); i++) {
             auto tx = txs->at(i);
-            tx->parseAndValidate();
-            auto bite = tx->tryGetBiteData(schain.getNode()->getCurrentEpochId());
+            auto bite = tryGetEncryptedRegularTxFields(tx, schain.getNode()->getCurrentEpochId());
             if (bite) {
                 auto decryptedAESKey = _aesKeys.getKey(i);
                 CHECK_STATE(decryptedAESKey);
@@ -284,8 +323,7 @@ ptr<DecryptedTransactionFieldsMap> BiteManager::verifyAndDecryptTransactionList(
     return decryptedFieldsMap;
 }
 
-DecryptedTransactionFields
-BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
+DecryptedRegularTxFields BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
 
@@ -315,12 +353,14 @@ BiteManager::decryptFields(const ptr<BiteDataField> &_bite, DecryptedAESKey &_de
     CHECK_STATE2(decryptedDataRlp.size() == 2,
                  "Encrypted data rlp lsit must have exactly 2 elements");
     // extract decrypted data and to fields
-    ptr<vector<uint8_t> > dataField = make_shared<std::vector<uint8_t> >(decryptedDataRlp[0].asBytes());
-    ptr<vector<uint8_t> > toField = make_shared<std::vector<uint8_t> >(decryptedDataRlp[1].asBytes());
+    vector<uint8_t> dataField = decryptedDataRlp[0].asBytes();
+    
+    std::array<uint8_t, 20> toField;
+    std::copy(decryptedDataRlp[1].asBytes().begin(), decryptedDataRlp[1].asBytes().end(), toField.begin());
 
-    auto decryptedFields = DecryptedTransactionFields{
-            .data = dataField,
-            .to = toField,
+    auto decryptedFields = DecryptedRegularTxFields {
+            .data = std::move(decryptedDataRlp[0].asBytes()),
+            .to = std::move(toField),
     };
 
     return decryptedFields;

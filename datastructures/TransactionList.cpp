@@ -145,7 +145,7 @@ size_t TransactionList::size() {
 
 ptr< ConsensusExtFace::transactions_vector > TransactionList::createTransactionVector(
 #ifdef BITE
-ptr< DecryptedTransactionFieldsMap >
+ptr< DecryptedRegularTxsMap >
 #endif
 ) {
     LOCK( m )

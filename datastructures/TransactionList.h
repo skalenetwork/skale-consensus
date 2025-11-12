@@ -65,7 +65,7 @@ public:
 
     ptr< ConsensusExtFace::transactions_vector > createTransactionVector(
 #ifdef BITE
-    ptr< DecryptedTransactionFieldsMap > _decryptedTransactions
+    ptr< DecryptedRegularTxsMap > _decryptedTransactions
 #endif
     );
 

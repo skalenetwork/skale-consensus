@@ -493,7 +493,7 @@ bool Schain::verifyBlsSyncPatch(uint64_t
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex,
                                 const ptr<ThresholdSignature> &_thresholdSig, ptr<ThresholdSignature> _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactionFields
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedRegularTxsMap > _decryptedTransactionFields
 #endif
 ) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getMaxExternalBlockProcessingTime())
@@ -825,8 +825,8 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
             // pending transaction ageent does not exist on a sync node
             CHECK_STATE(pendingTransactionsAgent);
 #ifdef BITE
-            CHECK_STATE(_block->getDecryptedTransactionFields())
-            auto biteDecryptedTransactions = _block->getDecryptedTransactionFields()->size();
+            CHECK_STATE(_block->getDecryptedRegularTxFields())
+            auto biteDecryptedTransactions = _block->getDecryptedRegularTxFields()->size();
 #endif
 
 
@@ -903,7 +903,7 @@ void Schain::pushBlockToExtFace(const ptr<CommittedBlock> &_block) {
     try {
         auto tv = _block->getTransactionList()->createTransactionVector(
 #ifdef BITE
-        _block->getDecryptedTransactionFields()
+        _block->getDecryptedRegularTxFields()
 #endif
         );
 
@@ -921,7 +921,7 @@ void Schain::pushBlockToExtFace(const ptr<CommittedBlock> &_block) {
 
 
 #ifdef BITE
-        CHECK_STATE(_block->getDecryptedTransactionFields() || _block->getProposerIndex() == 0)
+        CHECK_STATE(_block->getDecryptedRegularTxFields() || _block->getProposerIndex() == 0)
 #endif
 
         if (extFace) {
@@ -929,7 +929,7 @@ void Schain::pushBlockToExtFace(const ptr<CommittedBlock> &_block) {
                 inCreateBlock = true;
                 extFace->createBlock(*tv,
 #ifdef BITE
-                    _block->getDecryptedTransactionFields(),
+                    _block->getDecryptedRegularTxFields(),
 #endif
                                      _block->getTimeStampS(), _block->getTimeStampMs(),
                                      (__uint64_t) _block->getBlockID(), currentPrice, _block->getStateRoot(),
@@ -1449,7 +1449,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // default empty block
             blockCommitArrived(_blockId, _proposerIndex, _thresholdSig, nullptr
 #ifdef BITE
-            , make_shared<DecryptedAESKeyList>(), make_shared< DecryptedTransactionFieldsMap >()
+            , make_shared<DecryptedAESKeyList>(), make_shared< DecryptedRegularTxsMap >()
 #endif
             );
             return;

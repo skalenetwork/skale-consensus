@@ -57,6 +57,12 @@ constexpr uint8_t BITE_ADDRESS_AS_BYTE_ARRAY[ADDRESS_SIZE] = {0x42, 0x49, 0x54, 
     0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
     0x59, 0x50, 0x54, 0x44};
 
+#ifdef BITE2
+constexpr uint64_t FUNCTION_SELECTOR_SIZE_BYTES = 4;
+// TODO - update to the actual function selector once decided
+constexpr uint8_t BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY[FUNCTION_SELECTOR_SIZE_BYTES] = {0x42, 0x49, 0x54, 0x45};
+#endif
+
 static constexpr uint64_t BITE_EPOCH_ID_LEN = sizeof(uint64_t);
 static constexpr uint64_t BITE_AES_KEY_LEN = libBLS::AES_256_KEY_SIZE_BYTES;
 static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = libBLS::CipheredKey::CIPHERED_KEY_SIZE_BYTES;
@@ -226,45 +232,105 @@ public:
 
 };
 
-
-/**
- * Contains the needed decrypted fields of a transaction
- * Data - contains only the original plaintext 'data'
- * To - contains the original plaintext 'to' address
- */
-struct DecryptedTransactionFields {
-    std::shared_ptr< std::vector< uint8_t > > data;
-    // TODO better to make it std::array of size 20
-    std::shared_ptr< std::vector< uint8_t > > to;
-};
+// ====== Common Types ======
 
 using TxId = uint64_t;
+using Address = std::array<uint8_t, 20>;
+using Bytes = std::vector<uint8_t>;
 
-using DecryptedTransactionFieldsMap = std::map< TxId, DecryptedTransactionFields >;
+// Contains the needed decrypted fields of a regular transaction.
+// - data: original plaintext calldata
+// - to:   original plaintext 'to' address (20 bytes)
+struct DecryptedRegularTxFields {
+    Bytes data;
+    Address to;
+};
 
+// Contains all decrypted arguments of a CAT transaction.
+// Will only be filled if decryption was successful.
+// Else, the map will contain std::nullopt for that transaction.
+struct DecryptedCATArgs {
+    std::vector<Bytes> args;
+};
+
+// TODO - std::optional would encode better the txs that did not succesfully decrypt
+using DecryptedRegularTxsMap = std::map< TxId, DecryptedRegularTxFields >;
+using DecryptedCATxsMap = std::map< TxId, DecryptedCATArgs >;
 
 /**
  * Through this interface Consensus interacts with the rest of the system
  */
 class ConsensusExtFace {
 public:
-    typedef std::vector<std::vector<uint8_t> > transactions_vector;
+
+    typedef std::vector<Bytes > transactions_vector;
+
+#ifdef BITE2
+    // BITE2 pending transactions include both regular and CAT transactions.
+    // CAT should be placed before regular transactions.
+    struct Transactions {
+        transactions_vector all;
+        
+        std::size_t cats_size = 0;
+
+        using iterator = typename transactions_vector::iterator;
+        using const_iterator = typename transactions_vector::const_iterator;
+
+        bool empty() const noexcept {
+            return all.empty();
+        }
+
+        std::size_t size() const noexcept {
+            return all.size();
+        }
+
+        iterator begin() {
+            return all.begin();
+        }
+
+        iterator end() {
+            return all.end();
+        }
+
+        const_iterator begin() const {
+            return all.begin();
+        }
+
+        const_iterator end() const {
+            return all.end();
+        }
+
+        void push_back(const Bytes &b) {
+            all.push_back(b);
+        }
+
+        bool isCat(const_iterator it) const {
+            return std::distance(all.begin(), it) < static_cast<std::ptrdiff_t>(cats_size);
+        }
+
+    };
+#else
+    using Transactions = std::vector<Bytes >;
+#endif
+
 
     // Returns hashes and bytes of new transactions as well as state root to put into block proposal
-    virtual transactions_vector pendingTransactions(size_t _limit, u256 &_stateRoot) = 0;
+    virtual Transactions pendingTransactions(size_t _limit, u256 &_stateRoot) = 0;
+
+
 
     // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock(const transactions_vector &_approvedTransactions,
+    virtual void createBlock(const Transactions &_approvedTransactions,
 #ifdef BITE
-        // map of transaction index in the block starting from 0 to transaction
-        // empty mapped is passed for now
-        // Note: if BITE transaction did not decrypt well due to invalid AES ciphertext
-        // , _decryptedTransactionDataFields will include
-        // null for this transaction
-        std::shared_ptr< DecryptedTransactionFieldsMap > _decryptedTransactionDataFields,
+        std::shared_ptr< DecryptedRegularTxsMap > _decryptedRegularTransactions,
+#endif
+#ifdef BITE2
+        std::shared_ptr< DecryptedCATxsMap > _decryptedCATTransactions,
 #endif
         uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
                              uint64_t _winningNodeIndex) = 0;
+
+
 
     virtual ~ConsensusExtFace() = default;
 

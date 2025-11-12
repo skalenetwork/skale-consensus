@@ -35,7 +35,7 @@
 
 #ifdef  BITE
 #include "rlp/ParsedEthTransaction.h"
-#include "bite/BiteDataFiled.h"
+#include "bite/BiteDataField.h"
 #include "rlp/EthTransactionEncoder.h"
 #endif
 
@@ -173,34 +173,27 @@ ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::rando
 
 #ifdef BITE
 
-void Transaction::parseAndValidate() {
+ptr<ParsedEthTransaction> Transaction::getAsEthereumTransaction() {
     // thread safe
     auto pt = std::atomic_load(&parsedAndValidatedEthTransaction );
-    if (pt)
-        return;
+    
+    if (pt) return pt;
+    
     pt = ParsedEthTransaction::parse( *data);
     CHECK_STATE(pt)
     std::atomic_store(&parsedAndValidatedEthTransaction, pt );
+    return pt;
 }
 
 
-ptr< BiteDataField > Transaction::tryGetBiteData(epoch_id _currentEpochId) {
-    auto pt = std::atomic_load(&parsedBiteDataField);
-    if (pt)
-        return pt;
+ptr<BiteDataField> Transaction::getRegularTxEncryptedData() {
+    // thread safe
+    return std::atomic_load(&parsedBiteDataField );
+}
 
-    auto tx = std::atomic_load(&parsedAndValidatedEthTransaction );
-
-    ptr< BiteDataField > result = nullptr;
-    
-    if (tx->hasToField()) {
-        auto dataField = tx->getTransactionDataField();
-        auto to = tx->getToField();
-        result = BiteDataField::createIfMagicMatches(dataField, to, _currentEpochId);
-        std::atomic_store(&parsedBiteDataField, result);
-    }
-
-    return result;
+void Transaction::setRegularTxEncryptedData( ptr<BiteDataField> _biteDataField ) {
+    // thread safe
+    std::atomic_store(&parsedBiteDataField, _biteDataField);
 }
 
 ptr< vector< uint8_t > > Transaction::emplaceAndReencodeTransaction(

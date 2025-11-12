@@ -1139,7 +1139,7 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     auto currentPrice = schain->getPriceForBlockId( ( uint64_t ) committedBlock->getBlockID() - 1 );
     auto tv = committedBlock->getTransactionList()->createTransactionVector(
 #ifdef BITE
-        committedBlock->getDecryptedTransactionFields()
+        committedBlock->getDecryptedRegularTxFields()
 #endif
 
         );

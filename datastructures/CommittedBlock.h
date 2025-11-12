@@ -49,10 +49,10 @@ class CommittedBlock : public BlockProposal {
     string daSig;
 #ifdef BITE
     ptr<DecryptedAESKeyList> decryptedAesKeyList = nullptr;
-    ptr< DecryptedTransactionFieldsMap > decryptedTransactionFields = nullptr;
+    ptr< DecryptedRegularTxsMap > decryptedTransactionFields = nullptr;
 
 public:
-    [[nodiscard]] ptr< std::map<TxId, DecryptedTransactionFields> > getDecryptedTransactionFields() const;
+    [[nodiscard]] ptr< std::map<TxId, DecryptedRegularTxFields> > getDecryptedRegularTxFields() const;
 #endif
 
 
@@ -80,7 +80,7 @@ protected:
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
         const string& _daSig
 #ifdef  BITE
-, ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactionFields
+, ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedRegularTxsMap > _decryptedTransactionFields
 #endif
         );
 
@@ -96,7 +96,7 @@ public:
     static ptr< CommittedBlock > makeFromProposal( const ptr< BlockProposal >& _proposal,
         const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactions
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedRegularTxsMap > _decryptedTransactions
 #endif
         );
 
@@ -109,7 +109,7 @@ public:
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
         const string& _signature, const string& _thresholdSig, const string& _daSig
 #ifdef  BITE
-    , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactrions
+    , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedRegularTxsMap > _decryptedTransactrions
 #endif
         );
 

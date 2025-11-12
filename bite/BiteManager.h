@@ -25,6 +25,8 @@ class TransactionList;
 
 class EncryptedAESKey;
 
+class ParsedEthTransaction;
+
 namespace folly {
 class CPUThreadPoolExecutor;
 }
@@ -37,13 +39,34 @@ class BiteManager {
 public:
     explicit BiteManager(Schain &_schain);
 
+    // =============== Transaction Parsing Calls =============== //
+
+    // Runs through all transactions in the proposal and tries to parse all BITE transactions.
+    // This includes both:
+    // 1) BITE1 transactions - with both 'to' and 'data' fields encrypted
+    // 2) BITE2 transactions - with only function arguments encrypted, placed in the data field.
+    //
+    // Unparsable transactions will be added to failedTransactions.
+    // Transactions starting from the magic number but with incorrect format will be added
+    // to failedTransactions.
     static void parseBITETransactions(ptr<BlockProposal> _proposal);
+
+    // Tries to match the TO field to BITE1 magic number. If it matches - tries to parse the BITE1 data field.
+    // If parsing is successful - returns BiteDataField object, else returns 'nullopt'
+    static ptr<BiteDataField> tryGetEncryptedRegularTxFields(
+            const ptr<Transaction> &_transaction, epoch_id _currentEpochId);
+
+    // Tries to match the beginning of DATA field to BITE2 function selector.
+    // If it matches - tries to parse the BITE2 data field(s) for encrypted call arguments.
+    // If parsing is successful - returns vector of BiteDataField objects, else returns 'nullopt'
+    static ptr<std::vector<BiteDataField>> tryGetEncryptedCATArgs(
+            const ptr<Transaction> &_transaction, epoch_id _currentEpochId);
+
+    // =============== Ciphertext Parsing =============== //
 
     // this will return a map of failed transactions
     // if none of the transactions fails, the  proposal is set with decryption shares
-
-
-    [[nodiscard]][[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesForProposal(
+    [[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesForProposal(
             ptr<BlockProposal> _proposal);
 
     [[nodiscard]] Schain *getSchain() const {
@@ -58,7 +81,7 @@ public:
             ptr<BlockProposal> _proposal,
             schain_index _decryptorIndex);
 
-    [[nodiscard]] ptr<DecryptedTransactionFieldsMap> verifyAndDecryptTransactionList(TransactionList &_transactionList,
+    [[nodiscard]] ptr<DecryptedRegularTxsMap> verifyAndDecryptTransactionList(TransactionList &_transactionList,
                                                                                      DecryptedAESKeyList &_aesKeys);
 
     [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(const string& _aesKeyDecryptionShare,
@@ -68,8 +91,8 @@ public:
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
             block_id _blockId, transaction_index _transactionIndex);
 
-    // TODO - change the name of this method
-    [[nodiscard]] DecryptedTransactionFields decryptFields(const ptr<BiteDataField> &bite, DecryptedAESKey &_key) const;
+    // TODO - change the name of this method - should be made generic for both BITE1 & BITE2
+    [[nodiscard]] DecryptedRegularTxFields decryptFields(const ptr<BiteDataField> &bite, DecryptedAESKey &_key) const;
 
     void corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result);
 

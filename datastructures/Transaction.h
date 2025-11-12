@@ -91,10 +91,13 @@ public:
         boost::random::uniform_int_distribution<>& _ubyte );
 
 #ifdef BITE
-    void parseAndValidate();
+    // parses the data bytes of current transaction as an Ethereum RLP-encoded transaction 
+    ptr<ParsedEthTransaction> getAsEthereumTransaction();
 
-    // this returns nullptr for non-BITE transactions
-    ptr<BiteDataField> tryGetBiteData(epoch_id _currentEpochId);
+    // Allows caching parsed encrypted regular transactions' data field
+    ptr<BiteDataField> getRegularTxEncryptedData();
+    void setRegularTxEncryptedData( ptr<BiteDataField> _biteDataField );
+
     ptr<vector<uint8_t>> emplaceAndReencodeTransaction(vector<uint8_t>& _originalDataField );
 #endif
 

@@ -64,6 +64,7 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
     const schain_index &_proposerIndex,
     const ptr<TransactionList> &_transactions, u256 _stateRoot, uint64_t _timeStamp,
     uint32_t _timeStampMs, const ptr<CryptoManager> &_cryptoManager) {
+
     auto proposal = shared_ptr<MyBlockProposal>(new MyBlockProposal(
         _sChain, _blockID,
 #ifdef BITE
@@ -71,7 +72,7 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
 #endif
         _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _cryptoManager));
 
-#ifdef BITE
+        #ifdef BITE
     BiteManager::parseBITETransactions(proposal);
     CHECK_STATE(proposal->getFailedTransactionsRef().empty());
 #endif
