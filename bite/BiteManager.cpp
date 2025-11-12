@@ -32,7 +32,7 @@
 
 BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     doRealCrypto = _schain.getNode()->verifyRealSignatures();
-    threadPoolExecutor = std::make_unique<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
+    threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
 }
 
 BiteManager::~BiteManager() {
