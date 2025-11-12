@@ -209,7 +209,7 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
             _cryptoManager->verifyProposalECDSA(
                 block, blockHeader->getBlockHash(), blockHeader->getSignature());
         } catch (...) {
-            LOG(err, "Block ECDSA signature did not verify in deserialization");
+            CONS_LOG(err, "Block ECDSA signature did not verify in deserialization");
             throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
         }
     }

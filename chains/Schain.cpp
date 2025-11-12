@@ -28,12 +28,7 @@
 #include <unordered_set>
 
 #ifdef BITE
-// avoid macro definition conflicts
-#pragma push_macro("CHECK")
-#pragma push_macro("LOG")
 #include <folly/executors/CPUThreadPoolExecutor.h>
-#pragma pop_macro("LOG")
-#pragma pop_macro("CHECK")
 #endif
 
 #include "Log.h"
@@ -224,7 +219,7 @@ void Schain::messageThreadProcessingLoop(Schain *_sChain) {
                 try {
                     _sChain->getBlockConsensusInstance()->routeAndProcessMessage(m);
                 } catch (exception &e) {
-                    LOG(err, "Exception in Schain::messageThreadProcessingLoop");
+                    CONS_LOG(err, "Exception in Schain::messageThreadProcessingLoop");
                     SkaleException::logNested(e);
                     if (_sChain->getNode()->isExitRequested())
                         return;
@@ -363,7 +358,7 @@ void Schain::constructChildAgents() {
 
 void Schain::lockWithDeadLockCheck(const char *_functionName) {
     while (!blockProcessMutex.try_lock_for(chrono::seconds(60))) {
-        LOG(err, "Trying to lock in:" << string( _functionName ));
+        CONS_LOG(err, "Trying to lock in:" << string( _functionName ));
     }
 }
 
@@ -386,7 +381,7 @@ void Schain::lockWithDeadLockCheck(const char *_functionName) {
     // catchup blocks
     while (!getSchain()->getIsStateInitialized()) {
         usleep(500 * 1000);
-        LOG(info, "Waiting for boostrap to complete ...");
+        CONS_LOG(info, "Waiting for boostrap to complete ...");
     }
 
     // the node could fail to proccess a block in usual way
@@ -403,7 +398,7 @@ void Schain::lockWithDeadLockCheck(const char *_functionName) {
             // Could not lock for 60 seconds. There is probably a deadlock.
             // Skipping this catchup iteration
             checkForExit();
-            LOG(err, "Could not lock in:" << string( __FUNCTION__ ));
+            CONS_LOG(err, "Could not lock in:" << string( __FUNCTION__ ));
             return 0;
         }
 
@@ -433,7 +428,7 @@ void Schain::lockWithDeadLockCheck(const char *_functionName) {
         auto catchupProcessTimeMs = Time::getCurrentTimeMs() - catchupProcessStartTimeMs;
 
         if (committedIDOld < getLastCommittedBlockID()) {
-            LOG(info, "CATCHUP_PROCESSED_BLOCKS:COUNT:"
+            CONS_LOG(info, "CATCHUP_PROCESSED_BLOCKS:COUNT:"
                 << to_string( getLastCommittedBlockID() - committedIDOld )
                 << ":DTM:" << _catchupDownloadTimeMs << ":PTM:" << catchupProcessTimeMs
                 << ":LTM:" << catchupLockTimeMs);
@@ -516,7 +511,7 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
     // catchup blocks
     while (!getSchain()->getIsStateInitialized()) {
         usleep(500 * 1000);
-        LOG(info, "Waiting for boostrap to complete ...");
+        CONS_LOG(info, "Waiting for boostrap to complete ...");
     }
 
     // no regular block commits happen for sync nodes
@@ -606,7 +601,6 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
 #ifdef BITE
         bool isProposalCameFromDb = false;
 #endif        
-
         proposalStageStartTimeMs = Time::getCurrentTimeMs();
         if ( getNode()->getProposalHashDB()->haveProposal( _proposedBlockID, getSchainIndex() ) ) {
 #ifdef BITE            
@@ -636,29 +630,29 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
             return; // dont propose
         }
 
-
 #ifdef BITE
-        // if proposal was stored in the db, it must have the shares already computed
+        // Compute decryption shares before proposing block - else, could include incorrect
+        // BITE transactions
         if (!isProposalCameFromDb) {
             getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
 
             if (!myProposal->getFailedTransactionsRef().empty()) {
-                LOG(err, "Critical error - invalid BITE transactions");
-                LOG(err, "Proposing default block instead");
+                CONS_LOG(err, "Critical error - invalid BITE transactions");
+                CONS_LOG(err, "Proposing default block instead");
                 return;
             }
 
             getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
             if (!myProposal->getFailedTransactionsRef().empty()) {
-                LOG(err, "Critical error - could not decrypt BITE transactions");
-                LOG(err, "Proposing default block instead");
+                CONS_LOG(err, "Critical error - could not decrypt BITE transactions");
+                CONS_LOG(err, "Proposing default block instead");
                 return;
             }
         }
-        CHECK_STATE(myProposal->getMyDecryptionShares());        
+        CHECK_STATE(myProposal->getMyDecryptionShares());       
 #endif
 
-        LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ));
+        CONS_LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ));
 
         auto db = getNode()->getProposalHashDB();
 
@@ -677,6 +671,7 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         pubKeySig = "";
 
         getSchain()->daProofSigShareArrived(mySig, myProposal);
+    
     } catch (ExitRequestedException &e) {
         throw;
     } catch (...) {
@@ -767,7 +762,7 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
 
     output << ":STAMP:" << stamp.toString();
 
-    LOG(info, output.str());
+    CONS_LOG(info, output.str());
 
     // get periodic stats
     static atomic<uint64_t> counter = 1;
@@ -786,8 +781,8 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
         output << ":PCS:" << getNode()->getPriceDB()->getMemoryUsed();
         output << ":IIN:" << getNode()->getInternalInfoDB()->getMemoryUsed();
         output << ":DAS:" << getNode()->getDaSigShareDB()->getMemoryUsed();
-        LOG(info, output.str());
-        LOG(info, Utils::getRusage());
+        CONS_LOG(info, output.str());
+        CONS_LOG(info, Utils::getRusage());
     }
 
     counter++;
@@ -834,7 +829,7 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
 #endif
 
 
-            LOG(info, "CWT:" + to_string( blockPushedToExtFaceTimeMs -
+            CONS_LOG(info, "CWT:" + to_string( blockPushedToExtFaceTimeMs -
                                            pendingTransactionsAgent->transactionListReceivedTime() )
                              + ":TLWT:" + to_string( pendingTransactionsAgent->getTransactionListWaitTime() )
                              + ":SBPT:" + to_string( cryptoManager->sgxBlockProcessingTime() )
@@ -843,7 +838,7 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
 #endif
 
                              );
-            LOG( debug, "BCT:" + std::to_string( blockCommitTimeMs ) +
+            CONS_LOG( debug, "BCT:" + std::to_string( blockCommitTimeMs ) +
                         ":BFST:" + std::to_string( getBlockFinalizationStageTimeMs() ) +
                         ":PST:" + std::to_string( getProposalStageTimeMs() ) );
         }
@@ -966,20 +961,20 @@ void Schain::startConsensus(
 
         checkForExit();
 
-        LOG(info, "CONSENSUS_STARTED:PROPOSING: " << _proposalVector->toString());
+        CONS_LOG(info, "CONSENSUS_STARTED:PROPOSING: " << _proposalVector->toString());
 
-        LOG(debug, "Got proposed block set for block:" << to_string( _blockID ));
+        CONS_LOG(debug, "Got proposed block set for block:" << to_string( _blockID ));
 
-        LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" << to_string( ( _blockID ) ));
+        CONS_LOG(debug, "StartConsensusIfNeeded BLOCK NUMBER:" << to_string( ( _blockID ) ));
 
         if (_blockID <= getLastCommittedBlockID()) {
-            LOG(debug, "Too late to start consensus: already committed "
+            CONS_LOG(debug, "Too late to start consensus: already committed "
                 << to_string( lastCommittedBlockID ));
             return;
         }
 
         if (_blockID > getLastCommittedBlockID() + 1) {
-            LOG(debug, "Consensus is in the future" << to_string( lastCommittedBlockID ));
+            CONS_LOG(debug, "Consensus is in the future" << to_string( lastCommittedBlockID ));
             return;
         }
     }
@@ -996,7 +991,7 @@ void Schain::startConsensus(
 
     auto envelope = make_shared<InternalMessageEnvelope>(ORIGIN_EXTERNAL, message, *this);
 
-    LOG(debug, "Starting consensus for block id:" << to_string( _blockID ));
+    CONS_LOG(debug, "Starting consensus for block id:" << to_string( _blockID ));
     postMessage(envelope);
 }
 
@@ -1092,17 +1087,17 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
     updateInternalChainInfo(_lastCommittedBlockID);
 
 
-    LOG(info, "Bootstrapping consensus ...");
+    CONS_LOG(info, "Bootstrapping consensus ...");
 
     auto lastCommittedBlockIDInConsensus = readLastCommittedBlockIDFromDb();
 
-    LOG(info,
+    CONS_LOG(info,
         "Last committed block in consensus:" << to_string( lastCommittedBlockIDInConsensus ));
 
-    LOG(info, "Last committed block in skaled:" << to_string( _lastCommittedBlockID ));
+    CONS_LOG(info, "Last committed block in skaled:" << to_string( _lastCommittedBlockID ));
 
 
-    LOG(info, "Check the consensus database for corruption ...");
+    CONS_LOG(info, "Check the consensus database for corruption ...");
     fixCorruptStateIfNeeded(lastCommittedBlockIDInConsensus);
 
     checkForExit();
@@ -1112,7 +1107,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
 
     if (lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128) {
-        LOG(critical,
+        CONS_LOG(critical,
             "CRITICAL ERROR: consensus has way more blocks than skaled. This should never "
             "happen,"
             "since consensus passes blocks to skaled.");
@@ -1122,7 +1117,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
 
     if (lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
-        LOG(critical,
+        CONS_LOG(critical,
             "CRITICAL ERROR: last committed block in consensus is smaller than"
             " last committed block in skaled. This can never happen because consensus passes "
             "blocks to skaled");
@@ -1153,7 +1148,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         // process these blocks
 
 
-        LOG(warn,
+        CONS_LOG(warn,
             "Consensus has more blocks than skaled. This should not happen normally since "
             "consensus passes"
             "blocks to skaled.  Skaled may have crashed in the past.");
@@ -1168,10 +1163,10 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
                 _lastCommittedBlockID = _lastCommittedBlockID + 1;
                 _lastCommittedBlockTimeStamp = block->getTimeStampS();
                 _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
-                LOG(info, "Pushed block to skaled:" << _lastCommittedBlockID);
+                CONS_LOG(info, "Pushed block to skaled:" << _lastCommittedBlockID);
             } catch (...) {
                 // Cant read the block from db, may be it is corrupt in the  snapshot
-                LOG(err, "Bootstrap could not read block from db. Repair.");
+                CONS_LOG(err, "Bootstrap could not read block from db. Repair.");
                 // The block will be hopefully pulled by catchup
             }
     }
@@ -1180,7 +1175,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
 
     // Step 2 : now bootstrap
 
-    LOG(info, "Starting normal boostrap ...");
+    CONS_LOG(info, "Starting normal boostrap ...");
 
     try {
         bootstrapBlockID = (uint64_t) _lastCommittedBlockID;
@@ -1190,7 +1185,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         initLastCommittedBlockInfo((uint64_t) _lastCommittedBlockID, stamp);
 
 
-        LOG(info, "Jump starting the system with block:" << to_string( _lastCommittedBlockID ));
+        CONS_LOG(info, "Jump starting the system with block:" << to_string( _lastCommittedBlockID ));
 
         if (getLastCommittedBlockID() == 0)
             this->pricingAgent->calculatePrice(ConsensusExtFace::transactions_vector(), 0, 0, 0);
@@ -1209,12 +1204,12 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
             getNode()->setEmptyBlockIntervalMs(50);
             proposeNextBlock(false);
             getNode()->setEmptyBlockIntervalMs(emptyBlockInterval);
-            LOG(info, "Successfully proposed block in boostrap");
+            CONS_LOG(info, "Successfully proposed block in boostrap");
         }
 
 
         ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCurrentBlock();
-        LOG(info, "Successfully completed boostrap");
+        CONS_LOG(info, "Successfully completed boostrap");
     } catch (exception &e) {
         SkaleException::logNested(e);
         return;
@@ -1225,11 +1220,11 @@ void Schain::ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCur
     auto proposalVector = getNode()->getProposalVectorDB()->getVector(lastCommittedBlockID + 1);
     if (proposalVector) {
         startConsensus(lastCommittedBlockID + 1, proposalVector);
-        LOG(info, "Incompleted consensus detected.");
+        CONS_LOG(info, "Incompleted consensus detected.");
 
         auto messages = getNode()->getOutgoingMsgDB()->getMessages(lastCommittedBlockID + 1);
         CHECK_STATE(messages);
-        LOG(info, "Rebroadcasting " << to_string( messages->size() ) << " messages for block "
+        CONS_LOG(info, "Rebroadcasting " << to_string( messages->size() ) << " messages for block "
             << to_string( lastCommittedBlockID + 1 ));
         for (auto &&m: *messages) {
             getNode()->getNetwork()->rebroadcastMessage(m);
@@ -1240,7 +1235,7 @@ void Schain::ifIncompleteConsensusDetectedRestartAndRebroadcastAllMessagesForCur
 void Schain::rebroadcastAllMessagesForCurrentBlock() {
     auto messages = getNode()->getOutgoingMsgDB()->getMessages(lastCommittedBlockID + 1);
     CHECK_STATE(messages);
-    LOG(info, "Rebroadcasting " << to_string( messages->size() ) << " messages for block "
+    CONS_LOG(info, "Rebroadcasting " << to_string( messages->size() ) << " messages for block "
         << to_string( lastCommittedBlockID + 1 ));
     for (auto &&m: *messages) {
         getNode()->getNetwork()->rebroadcastMessage(m);
@@ -1255,7 +1250,7 @@ void Schain::healthCheck() {
     auto beginTime = Time::getCurrentTimeSec();
     auto lastWarningPrintTimeSec = 0;
 
-    LOG(info, "Waiting to connect to peers (could be up to two minutes)");
+    CONS_LOG(info, "Waiting to connect to peers (could be up to two minutes)");
 
     // If the node is part of the chain, we do getNodeCount() - 1
     // health check connections, since the node does not connect to itself.
@@ -1277,21 +1272,21 @@ void Schain::healthCheck() {
         // 2/3 nodes skaled will restart
         if (Time::getCurrentTimeSec() - beginTime > HEALTHCHECK_ON_START_RETRY_TIME_SEC) {
             setHealthCheckFile(0);
-            LOG(err, "Coult not connect to 2/3 of peers");
+            CONS_LOG(err, "Coult not connect to 2/3 of peers");
             exit(110);
         }
 
         // check if it is time to print a warning again and print it
         if (Time::getCurrentTimeSec() - lastWarningPrintTimeSec >
             HEALTHCHECK_ON_START_TIME_BETWEEN_WARNINGS_SEC) {
-            LOG(warn, "Coult not connect to 2/3 of peers. Retrying ...");
+            CONS_LOG(warn, "Coult not connect to 2/3 of peers. Retrying ...");
             string aliveNodeIndices = "Alive node indices:";
 
             for (auto &index: connections) {
                 aliveNodeIndices += to_string(index) + ":";
             };
 
-            LOG(warn, aliveNodeIndices);
+            CONS_LOG(warn, aliveNodeIndices);
 
             lastWarningPrintTimeSec = Time::getCurrentTimeSec();
         }
@@ -1314,7 +1309,7 @@ void Schain::healthCheck() {
                             (getNode()->isSyncOnlyNode() ? port_type::CATCHUP : port_type::PROPOSAL);
 
                     auto socket = make_shared<ClientSocket>(*this, schain_index(i), port);
-                    LOG(debug, "Health check: connected to peer");
+                    CONS_LOG(debug, "Health check: connected to peer");
                     getIo()->writeMagic(socket, true);
                     connections.insert(i);
                 } catch (ExitRequestedException &) {
@@ -1325,7 +1320,7 @@ void Schain::healthCheck() {
         }
     }
 
-    LOG(info, "Successfully connected to two thirds of peers");
+    CONS_LOG(info, "Successfully connected to two thirds of peers");
 
     setHealthCheckFile(2);
 }
@@ -1350,7 +1345,7 @@ void Schain::daProofSigShareArrived(
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
-        LOG(err, "Could not add/merge sig");
+        CONS_LOG(err, "Could not add/merge sig");
         throw_with_nested(InvalidStateException("Could not add/merge sig", __CLASS_NAME__));
     }
 }
@@ -1440,7 +1435,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
     proposalStageFinishTimeMs = Time::getCurrentTimeMs();
     blockFinalizationStartTimeMs = Time::getCurrentTimeMs();
     if ( _blockId <= getLastCommittedBlockID() ) {
-        LOG( debug, "Ignoring old block decide, already got this through catchup: BID:"
+        CONS_LOG( debug, "Ignoring old block decide, already got this through catchup: BID:"
                         << to_string( _blockId ) << ":PRP:" << to_string( _proposerIndex ) );
 
         return;
@@ -1475,7 +1470,6 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             // at this point the destructor of the previous agent will be called
             // this will make all its threads to exit
             downloaderAgent =  newDownloaderAgent;
-
 
             const string msg = "Finalization download:" + to_string(_blockId) + ":" +
                                    to_string(_proposerIndex);
@@ -1536,10 +1530,10 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         return;
     } catch (exception &e) {
         SkaleException::logNested(e);
-        LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
+        CONS_LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
     } catch (...) {
-        LOG(critical, "Unknown exception in finalizeDecidedAndSignedBlock");
-        LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
+        CONS_LOG(critical, "Unknown exception in finalizeDecidedAndSignedBlock");
+        CONS_LOG(critical, "Could not finalizeDecidedAndSignedBlock. Hopefully catchup will work.");
     }
 }
 
@@ -1551,7 +1545,7 @@ bool Schain::fixCorruptStateIfNeeded(block_id _lastCommittedBlockID) {
     block_id nextBlock = _lastCommittedBlockID + 1;
     if (getNode()->getBlockDB()->unfinishedBlockExists(nextBlock)) {
         return true;
-        LOG(warn,
+        CONS_LOG(warn,
             "Corrupt consensus database has been repaired successfully."
             "Starting from repaired consensus database.");
     }
@@ -1567,9 +1561,9 @@ void Schain::startStatusServer() {
 
 #ifdef CONSENSUS_DEMO
     CHECK_STATE( s );
-    LOG( info, "Starting status server ..." );
+    CONS_LOG( info, "Starting status server ..." );
     CHECK_STATE( s->StartListening() );
-    LOG( info, "Successfully started status server ..." );
+    CONS_LOG( info, "Successfully started status server ..." );
 #endif
 }
 
@@ -1608,7 +1602,7 @@ void Schain::markAliveNode(uint64_t _schainIndex) {
     }
 
     if (wasDead) {
-        LOG(info, "Node " + to_string( _schainIndex ) + " is now alive");
+        CONS_LOG(info, "Node " + to_string( _schainIndex ) + " is now alive");
     }
 }
 

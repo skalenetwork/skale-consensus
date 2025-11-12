@@ -69,7 +69,7 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
 
     CHECK_STATE( requester );
 
-    LOG( debug,
+    CONS_LOG( debug,
         getThreadName() << " zmq debug: requester = " << to_string( ( uint64_t ) requester ) );
 
     int timeout = ZMQ_TIMEOUT;
@@ -82,7 +82,7 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
 
     int result = zmq_connect( requester,
         ( "tcp://" + ipAddress + ":" + to_string( basePort + BINARY_CONSENSUS ) ).c_str() );
-    LOG( debug, "Connected ZMQ socket" << to_string( result ) );
+    CONS_LOG( debug, "Connected ZMQ socket" << to_string( result ) );
     sendSockets[schainIndex] = requester;
 
     return requester;
@@ -111,7 +111,7 @@ void* ZMQSockets::getReceiveSocket() {
 
         CHECK_STATE( receiveSocket );
 
-        LOG( debug, getThreadName() << " zmq debug: receiveSocket = "
+        CONS_LOG( debug, getThreadName() << " zmq debug: receiveSocket = "
                                     << to_string( ( uint64_t ) receiveSocket ) );
 
         int timeout = ZMQ_TIMEOUT;
@@ -128,7 +128,7 @@ void* ZMQSockets::getReceiveSocket() {
                 string( "Could not bind ZMQ server socket:" ) + zmq_strerror( errno ) ) );
         }
 
-        LOG( debug, "Successfull bound ZMQ socket" );
+        CONS_LOG( debug, "Successfull bound ZMQ socket" );
     }
     return receiveSocket;
 }
@@ -140,11 +140,11 @@ void ZMQSockets::closeReceive() {
 
     LOCK( m );
 
-    LOG( info, "consensus engine exiting: closing receive sockets" );
+    CONS_LOG( info, "consensus engine exiting: closing receive sockets" );
 
     if ( receiveSocket ) {
         if ( zmq_close( receiveSocket ) != 0 ) {
-            LOG( err, "zmq_close returned an error on receiveSocket;" );
+            CONS_LOG( err, "zmq_close returned an error on receiveSocket;" );
         }
         receiveSocket = nullptr;
     }
@@ -155,13 +155,13 @@ void ZMQSockets::closeSend() {
     if ( closeSendCalled.exchange( true ) )
         return;
     LOCK( m );
-    LOG( info, "consensus engine exiting: closing ZMQ send sockets" );
+    CONS_LOG( info, "consensus engine exiting: closing ZMQ send sockets" );
     for ( auto&& item : sendSockets ) {
         if ( item.second ) {
-            LOG( debug, getThreadName() << " zmq debug in closeSend(): closing "
+            CONS_LOG( debug, getThreadName() << " zmq debug in closeSend(): closing "
                                         << to_string( ( uint64_t ) item.second ) );
             if ( zmq_close( item.second ) != 0 ) {
-                LOG( err, "zmq_close returned an error on sendSocket;" );
+                CONS_LOG( err, "zmq_close returned an error on sendSocket;" );
             }
         }
     }
@@ -175,27 +175,27 @@ void ZMQSockets::closeAndCleanupAll() {
 
     LOCK( m );
 
-    LOG( info, "Cleaning up ZMQ sockets" );
+    CONS_LOG( info, "Cleaning up ZMQ sockets" );
 
     try {
         closeSend();
         closeReceive();
     } catch ( const exception& e ) {
-        LOG( err, "Exception in zmq socket close:" << string( e.what() ) );
+        CONS_LOG( err, "Exception in zmq socket close:" << string( e.what() ) );
     }
 
-    LOG( info, "Closing ZMQ context" );
+    CONS_LOG( info, "Closing ZMQ context" );
 
     try {
         zmq_ctx_term( context );
     } catch ( const exception& ex ) {
-        LOG( err, "Exception in zmq_ctx_term" );
-        LOG( err, ex.what() );
+        CONS_LOG( err, "Exception in zmq_ctx_term" );
+        CONS_LOG( err, ex.what() );
     } catch ( ... ) {
-        LOG( err, "Unknown exception in zmq_ctx_term" );
+        CONS_LOG( err, "Unknown exception in zmq_ctx_term" );
     }
 
-    LOG( info, "Closed ZMQ context" );
+    CONS_LOG( info, "Closed ZMQ context" );
 }
 
 

@@ -35,6 +35,6 @@ TestConfig::TestConfig( nlohmann::json /*cgf */ ) {
     finalizationDownloadOnly = ( option != nullptr );
 
     if ( finalizationDownloadOnly ) {
-        LOG( info, "Testing the case of only finalization download" );
+        CONS_LOG( info, "Testing the case of only finalization download" );
     }
 }

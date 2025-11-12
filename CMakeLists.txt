@@ -60,7 +60,17 @@ else ()
     message(INFO "---- CMAKE_BUILD_TYPE = ${DEPS_INSTALL_ROOT} is not supported explicitly")
 endif ()
 
+
+###################################
+#            libBLS               #
+###################################
+# Disable libBLS components we don't need
+set(LIBBLS_BUILD_TESTS OFF CACHE BOOL "Don't build libBLS tests")
+set(LIBBLS_BUILD_BENCHMARKS OFF CACHE BOOL "Don't build libBLS benchmarks")
+set(LIBBLS_BUILD_UTILS OFF CACHE BOOL "Don't build libBLS utils")
+set(SKALE_SKIP_INSTALLING_DIRECTIVES ON CACHE BOOL "Skip libBLS install() calls")
 add_subdirectory(libBLS)
+
 
 project(consensus)
 
@@ -104,7 +114,6 @@ endif ()
 
 
 #Threads package
-
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
@@ -218,56 +227,52 @@ if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
     set(DASH_SUFFIX "-d")
 endif ()
 
-
 SET(LINK_LIBRARIES
-        backtrace
-        Threads::Threads
-        ${BOOST_LIBS_FOR_CONSENSUS}
-        ${LIB_NAME_cryptopp}
-        leveldb
-        snappy
-        crc32c
-        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
-        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-server.a"
-        "${DEPS_INSTALL_ROOT}/lib/libmicrohttpd.a"
-        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
-        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
-        "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
-        "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
-        "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
-        gmp
-        gcov
-        gnutls
-        gcrypt
-        "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
-        "${DEPS_INSTALL_ROOT}/lib/libssl.a"
-        "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
-        "${DEPS_INSTALL_ROOT}/lib/libcurl.a"
-        "${DEPS_INSTALL_ROOT}/lib/libssl.a"
-        "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
-        dl
-        z
-        pthread
-        idn2
-        blake3
-        "${DEPS_INSTALL_ROOT}/lib/libquicwebtransport.a"
-        "${DEPS_INSTALL_ROOT}/lib/libproxygenhttpserver.a"
-        "${DEPS_INSTALL_ROOT}/lib/libproxygen.a"
-        "${DEPS_INSTALL_ROOT}/lib/libmvfst_exception.a"
-        "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
-        "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
-        "${DEPS_INSTALL_ROOT}/lib/libfizz.a"
-        "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
-        "${DEPS_INSTALL_ROOT}/lib/libboost_context.a"
-        "${DEPS_INSTALL_ROOT}/lib/libevent.a"
-        "${DEPS_INSTALL_ROOT}/lib/libz.a"
-        "${DEPS_INSTALL_ROOT}/lib/libzstd.a"
-        "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
-        "${DEPS_INSTALL_ROOT}/lib/libglog.a"
-        "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
-        "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
-        "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
-        te
+    backtrace
+    Threads::Threads
+    ${BOOST_LIBS_FOR_CONSENSUS}
+    ${LIB_NAME_cryptopp}
+    leveldb
+    snappy
+    crc32c
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-server.a"
+    "${DEPS_INSTALL_ROOT}/lib/libmicrohttpd.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
+    "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
+    "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
+    "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
+    gmp
+    gcov
+    gnutls
+    gcrypt
+    "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
+    "${DEPS_INSTALL_ROOT}/lib/libcurl.a"
+    dl
+    pthread
+    idn2
+    blake3
+    "${DEPS_INSTALL_ROOT}/lib/libquicwebtransport.a"
+    "${DEPS_INSTALL_ROOT}/lib/libproxygenhttpserver.a"
+    "${DEPS_INSTALL_ROOT}/lib/libproxygen.a"
+    "${DEPS_INSTALL_ROOT}/lib/libmvfst_exception.a"
+    "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
+    "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
+    "${DEPS_INSTALL_ROOT}/lib/libfizz.a"
+    "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
+    "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
+    "${DEPS_INSTALL_ROOT}/lib/libz.a"
+    "${DEPS_INSTALL_ROOT}/lib/libzstd.a"
+    "${DEPS_INSTALL_ROOT}/lib/libboost_context.a"
+    "${DEPS_INSTALL_ROOT}/lib/libevent.a"
+    "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
+    "${DEPS_INSTALL_ROOT}/lib/libglog.a"
+    "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
+    "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
+    "${DEPS_INSTALL_ROOT}/lib/libssl.a"
+    "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
+    te
 )
 if (CMAKE_PROJECT_NAME STREQUAL "consensus")
     SET(LINK_LIBRARIES ${LINK_LIBRARIES} "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a")
@@ -275,18 +280,39 @@ else ()
     SET(LINK_LIBRARIES ${LINK_LIBRARIES} Secp256k1)
 endif ()
 
-# consensus library
+###################################
+#      consensus dependencies     #
+###################################
+
+add_library(consensus_dependencies INTERFACE)
+target_link_libraries( consensus_dependencies INTERFACE ${LINK_LIBRARIES} )
+
+###################################
+#       consensus library         #
+###################################
 
 add_library(consensus STATIC ${SRC_FILES})
-
 target_compile_options(consensus PRIVATE -Wno-error=unused-variable)
+target_link_libraries(consensus PUBLIC consensus_dependencies PUBLIC bls)
 
-target_link_libraries(consensus PRIVATE ${LINK_LIBRARIES} PUBLIC bls)
+###################################
+#      consensus executables      #
+###################################
 
-# consensus test agent
+# Build a consensus wrapper to have both consensus exposed code + all
+# consensus dependencies
+add_library(consensus_full INTERFACE)
+target_link_libraries(consensus_full INTERFACE 
+    "-Wl,--start-group"                         # makes ld/lld rescan archives until all cross-archive symbols resolve.
+    consensus consensus_dependencies
+    "-Wl,--end-group"
+)
+
+# ---------------------------------
+# consensusd - the main consensus node executable
+# ---------------------------------
 
 add_executable(consensusd Consensusd.h Consensusd.cpp)
-
 target_compile_options(consensusd PRIVATE -Wno-error=unused-variable)
 
 # # libgoogle-perftools-dev
@@ -295,11 +321,14 @@ target_compile_options(consensusd PRIVATE -Wno-error=unused-variable)
 #     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 #     target_link_libraries(consensusd  consensus tcmalloc)
 # else ()
-target_link_libraries(consensusd consensus)
+target_link_libraries(consensusd consensus_full)
 # endif ()
 
 
-### consensust executable
+# ---------------------------------
+# consensust - the main consensus unit 
+# tests executable
+# ---------------------------------
 
 # Automatically discover all test source files in the unittests directory and its subdirectories.
 file(GLOB_RECURSE ALL_TEST_SOURCES "unittests/*.cpp")
@@ -328,9 +357,11 @@ add_executable(consensust
         ${TEST_SOURCES}
 )
 
-target_link_libraries(consensust PRIVATE consensus)
+target_link_libraries(consensust PRIVATE consensus_full)
 
 target_compile_options(consensust PRIVATE -Wno-error=unused-variable)
+# force catch2 macros to be prefixed with CATCH_ to avoid conflicts
+target_compile_definitions(consensust PRIVATE CATCH_CONFIG_PREFIX_ALL)
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")

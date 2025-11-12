@@ -79,7 +79,7 @@ void MonitoringAgent::monitor() {
             auto currentTime = Time::getCurrentTimeMs();
 
             if ( currentTime > monitor->getExpiryTime() ) {
-                LOG( warn, monitor->toString()
+                CONS_LOG( warn, monitor->toString()
                                << " has been stuck for "
                                << to_string( currentTime - monitor->getStartTime() ) + " ms" );
             }
@@ -94,7 +94,7 @@ void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
     setThreadName( "MonitoringLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
 
-    LOG( info, "Monitoring agent started monitoring" );
+    CONS_LOG( info, "Monitoring agent started monitoring" );
 
     try {
         while ( !_agent->getSchain()->getNode()->isExitRequested() ) {

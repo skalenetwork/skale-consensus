@@ -50,7 +50,8 @@ ConsensusAESKeyDecryptionShareSet::~ConsensusAESKeyDecryptionShareSet() = defaul
 ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKey(ptr<EncryptedAESKey> _encryptedAESKey) {
     LOCK( decryptionSharesLock )
 
-    auto cipheredKey = libBLS::CipheredKey::fromBytes( *_encryptedAESKey->getKey() );
+    bool validateCiphertext = false;
+    auto cipheredKey = libBLS::CipheredKey::fromBytes( *_encryptedAESKey->getKey(), validateCiphertext );
 
     // Checks if decryption set can be merged & merges if so
     libBLS::AES256Key aesKey = libBLS::ThresholdEncryption::combineShares( cipheredKey, decryptionShares);
@@ -80,7 +81,7 @@ bool ConsensusAESKeyDecryptionShareSet::addDecryptionShare(
         totalObjects.fetch_add( 1 );
     }
     catch ( const std::exception& e ) {
-        LOG( warn, "Failed to add decryption share: " << e.what() );
+        CONS_LOG( warn, "Failed to add decryption share: " << e.what() );
         return false;
     }
 

@@ -38,7 +38,7 @@ TCPServerSocket::TCPServerSocket( const string& _bindIP, uint16_t _basePort, por
 
     CHECK_STATE( socketaddr );
 
-    LOG( debug, "Creating TCP listen socket" );
+    CONS_LOG( debug, "Creating TCP listen socket" );
 
     int s;
 
@@ -59,7 +59,7 @@ TCPServerSocket::TCPServerSocket( const string& _bindIP, uint16_t _basePort, por
     // Init the connection
     listen( s, SOCKET_BACKLOG );
 
-    LOG( debug, "Successfully created TCP listen socket" );
+    CONS_LOG( debug, "Successfully created TCP listen socket" );
 
     descriptor = s;
 

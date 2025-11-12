@@ -91,7 +91,7 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
                                                              stamp.getS(), stamp.getMs(),
                                                              getSchain()->getCryptoManager());
 
-    LOG(trace, "Created proposal, transactions:" << to_string(transactions->size()));
+    CONS_LOG(trace, "Created proposal, transactions:" << to_string(transactions->size()));
 
     auto pHashesList = myBlockProposal->createPartialHashesList();
     CHECK_STATE(pHashesList);
@@ -191,8 +191,8 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
             result->push_back(pt);
             pushKnownTransaction(pt);
         } catch (std::exception &e) {
-            LOG(err, e.what());
-            LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my proposal.");
+            CONS_LOG(err, e.what());
+            CONS_LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my proposal.");
         }
 #else
         result->push_back(pt);
@@ -218,7 +218,7 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction> &_tra
     WRITE_LOCK(transactionsMutex);
 
     if (knownTransactions.count(_transaction->getPartialHash())) {
-        LOG(trace, "Duplicate transaction pushed to known transactions");
+        CONS_LOG(trace, "Duplicate transaction pushed to known transactions");
         return;
     }
 

@@ -91,7 +91,7 @@ void test_committed_block_fragment_defragment( bool _fail ) {
 #endif
                                    ));
             next = list->nextIndexToRetrieve();
-            REQUIRE( next != 0 );
+            CATCH_REQUIRE( next != 0 );
         }
 
 
@@ -101,9 +101,9 @@ void test_committed_block_fragment_defragment( bool _fail ) {
 #endif
                                ) );
         next = list->nextIndexToRetrieve();
-        REQUIRE( next == 0 );
+        CATCH_REQUIRE( next == 0 );
 
-        REQUIRE( list->isComplete() );
+        CATCH_REQUIRE( list->isComplete() );
 
 
         // auto out = t->getSerialized();
@@ -113,10 +113,10 @@ void test_committed_block_fragment_defragment( bool _fail ) {
         }
 
 
-        // REQUIRE( out != nullptr );
+        // CATCH_REQUIRE( out != nullptr );
 
         if ( _fail ) {
-            REQUIRE_THROWS( BlockProposal::defragment( list, cryptoManager ) );
+            CATCH_REQUIRE_THROWS( BlockProposal::defragment( list, cryptoManager ) );
         } else {
             ptr< BlockProposal > imp = nullptr;
 
@@ -126,9 +126,9 @@ void test_committed_block_fragment_defragment( bool _fail ) {
                 SkaleException::logNested( e, err );
                 throw( e );
             }
-            REQUIRE( imp );
+            CATCH_REQUIRE( imp );
 
-            REQUIRE( *imp->serializeProposal() == *t->serializeProposal() );
+            CATCH_REQUIRE( *imp->serializeProposal() == *t->serializeProposal() );
         }
     }
 }
@@ -153,10 +153,10 @@ void test_tx_serialize_deserialize( bool _fail ) {
             }
 
             if ( _fail ) {
-                REQUIRE_THROWS( Transaction::deserialize( out, 0, out->size(), true ) );
+                CATCH_REQUIRE_THROWS( Transaction::deserialize( out, 0, out->size(), true ) );
             } else {
                 auto imp = Transaction::deserialize( out, 0, out->size(), true );
-                REQUIRE( imp != nullptr );
+                CATCH_REQUIRE( imp != nullptr );
             }
         }
     }
@@ -180,15 +180,15 @@ void test_tx_list_serialize_deserialize( bool _fail ) {
             }
 
 
-            REQUIRE( out != nullptr );
+            CATCH_REQUIRE( out != nullptr );
 
             if ( _fail ) {
-                REQUIRE_THROWS( TransactionList::deserialize(
+                CATCH_REQUIRE_THROWS( TransactionList::deserialize(
                     t->createTransactionSizesVector( true ), out, 0, true ) );
             } else {
                 auto imp = TransactionList::deserialize(
                     t->createTransactionSizesVector( true ), out, 0, true );
-                REQUIRE( imp != nullptr );
+                CATCH_REQUIRE( imp != nullptr );
             }
         }
     }
@@ -219,10 +219,10 @@ void test_committed_block_serialize_deserialize( bool _fail ) {
             }
 
 
-            REQUIRE( out != nullptr );
+            CATCH_REQUIRE( out != nullptr );
 
             if ( _fail ) {
-                REQUIRE_THROWS( CommittedBlock::deserialize( out, cryptoManager,
+                CATCH_REQUIRE_THROWS( CommittedBlock::deserialize( out, cryptoManager,
 #ifdef BITE
                 biteManager,
 #endif
@@ -240,8 +240,8 @@ void test_committed_block_serialize_deserialize( bool _fail ) {
                     SkaleException::logNested( e, err );
                     throw( e );
                 }
-                REQUIRE( imp != nullptr );
-                REQUIRE( imp->getStateRoot() == t->getStateRoot() );
+                CATCH_REQUIRE( imp != nullptr );
+                CATCH_REQUIRE( imp->getStateRoot() == t->getStateRoot() );
             }
         }
     }
@@ -266,7 +266,7 @@ void test_committed_block_list_serialize_deserialize() {
             auto out = t->serialize();
 
 
-            REQUIRE( out != nullptr );
+            CATCH_REQUIRE( out != nullptr );
 
 
             ptr< CommittedBlockList > imp = nullptr;
@@ -281,43 +281,43 @@ void test_committed_block_list_serialize_deserialize() {
                 SkaleException::logNested( e, err );
                 throw( e );
             }
-            REQUIRE( imp != nullptr );
+            CATCH_REQUIRE( imp != nullptr );
         }
     }
 }
 
 
-TEST_CASE( "Serialize/deserialize transaction", "[tx-serialize][unit][correctness]" ) {
-    SECTION( "Test successful serialize/deserialize" )
+CATCH_TEST_CASE( "Serialize/deserialize transaction", "[tx-serialize][unit][correctness]" ) {
+    CATCH_SECTION( "Test successful serialize/deserialize" )
 
 
     test_tx_serialize_deserialize( false );
 
-    SECTION( "Test corrupt serialize/deserialize" )
+    CATCH_SECTION( "Test corrupt serialize/deserialize" )
 
     test_tx_serialize_deserialize( true );
 
     // Test successful serialize/deserialize failure
 }
 
-TEST_CASE( "Serialize/deserialize transaction list", "[tx-list-serialize][unit][correctness]" ) {
-    SECTION( "Test successful serialize/deserialize" )
+CATCH_TEST_CASE( "Serialize/deserialize transaction list", "[tx-list-serialize][unit][correctness]" ) {
+    CATCH_SECTION( "Test successful serialize/deserialize" )
 
 
     test_tx_list_serialize_deserialize( false );
 
-    SECTION( "Test corrupt serialize/deserialize" )
+    CATCH_SECTION( "Test corrupt serialize/deserialize" )
 
     test_tx_list_serialize_deserialize( true );
 }
 
 
-TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize][end-to-end][correctness]" ) {
-    SECTION( "Test successful serialize/deserialize" )
+CATCH_TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize][end-to-end][correctness]" ) {
+    CATCH_SECTION( "Test successful serialize/deserialize" )
 
     test_committed_block_serialize_deserialize( false );
 
-    // SECTION( "Test corrupt serialize/deserialize" )
+    // CATCH_SECTION( "Test corrupt serialize/deserialize" )
 
     // test_committed_block_serialize_deserialize( true);
 
@@ -325,24 +325,24 @@ TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize]
 }
 
 
-TEST_CASE( "Serialize/deserialize committed block list", "[committed-block-list-serialize][end-to-end][correctness]" ) {
-    SECTION( "Test successful serialize/deserialize" )
+CATCH_TEST_CASE( "Serialize/deserialize committed block list", "[committed-block-list-serialize][end-to-end][correctness]" ) {
+    CATCH_SECTION( "Test successful serialize/deserialize" )
 
     test_committed_block_list_serialize_deserialize();
 
-    // SECTION( "Test corrupt serialize/deserialize" )
+    // CATCH_SECTION( "Test corrupt serialize/deserialize" )
 
     // test_committed_block_serialize_deserialize( true);
 
     // Test successful serialize/deserialize failure
 }
 
-TEST_CASE( "Test committed block fragment/defragment", "[committed-block-defragment][end-to-end][correctness]" ) {
-    SECTION( "Test successful serialize/deserialize" )
+CATCH_TEST_CASE( "Test committed block fragment/defragment", "[committed-block-defragment][end-to-end][correctness]" ) {
+    CATCH_SECTION( "Test successful serialize/deserialize" )
 
     test_committed_block_fragment_defragment( false );
 
-    // SECTION( "Test corrupt serialize/deserialize" )
+    // CATCH_SECTION( "Test corrupt serialize/deserialize" )
 
     // test_committed_block_serialize_deserialize( true);
 

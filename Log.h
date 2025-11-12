@@ -52,7 +52,7 @@ namespace spdlog {
 #define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
 
 
-#define LOG( __SEVERITY__, __MESSAGE__ )                                                  \
+#define CONS_LOG( __SEVERITY__, __MESSAGE__ )                                             \
     {                                                                                     \
         std::stringstream __TMP__LOG__STREAM__;                                           \
         __TMP__LOG__STREAM__ << __MESSAGE__;                                              \
@@ -77,13 +77,13 @@ namespace spdlog {
     catch (const std::exception& e) {                                                        \
         const std::string __catch_msg = std::string(__MESSAGE__) +                           \
             ": in " + std::string(__FUNCTION__) + ": " + e.what();                           \
-        ConsensusEngine::log(__LEVEL__, __catch_msg, __CLASS_NAME__);                         \
-        throw_with_nested(InvalidStateException(__catch_msg, __CLASS_NAME__));                \
+        ConsensusEngine::log(__LEVEL__, __catch_msg, __CLASS_NAME__);                        \
+        throw_with_nested(InvalidStateException(__catch_msg, __CLASS_NAME__));               \
     } catch (...) {                                                                          \
         const std::string __catch_msg = std::string(__MESSAGE__) +                           \
             ": in " + std::string(__FUNCTION__) + ": Unknown exception";                     \
-        ConsensusEngine::log(__LEVEL__, __catch_msg, __CLASS_NAME__);                         \
-        throw_with_nested(InvalidStateException(__catch_msg, __CLASS_NAME__));                \
+        ConsensusEngine::log(__LEVEL__, __catch_msg, __CLASS_NAME__);                        \
+        throw_with_nested(InvalidStateException(__catch_msg, __CLASS_NAME__));               \
     }
 #endif
 

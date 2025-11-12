@@ -68,7 +68,6 @@
         return ( decryptionShares.size() >= requiredDecryptors );
     }
 
-
     bool MockupAESKeyDecryptionShareSet::addDecryptionShare(
         const ptr< AESKeyDecryptionShare >& _decryptionShare ) {
         CHECK_ARGUMENT( _decryptionShare );
@@ -90,4 +89,3 @@
 
         return true;
     }
-

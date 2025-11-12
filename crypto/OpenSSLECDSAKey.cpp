@@ -139,14 +139,14 @@ void OpenSSLECDSAKey::verifySGXSig( const string& _sig, const char* _hash ) {
     firstColumn = _sig.find( ":" );
 
     if ( firstColumn == string::npos || firstColumn == _sig.length() - 1 ) {
-        LOG( warn, "Misfomatted signature" );
+        CONS_LOG( warn, "Misfomatted signature" );
         goto clean;
     }
 
     secondColumn = _sig.find( ":", firstColumn + 1 );
 
     if ( secondColumn == string::npos || secondColumn == _sig.length() - 1 ) {
-        LOG( warn, "Misformatted signature 2" );
+        CONS_LOG( warn, "Misformatted signature 2" );
         goto clean;
     }
 
@@ -154,7 +154,7 @@ void OpenSSLECDSAKey::verifySGXSig( const string& _sig, const char* _hash ) {
     s = _sig.substr( secondColumn + 1, _sig.length() - secondColumn - 1 );
 
     if ( r == s ) {
-        LOG( warn, "r == s " );
+        CONS_LOG( warn, "r == s " );
         goto clean;
     }
 
@@ -162,19 +162,19 @@ void OpenSSLECDSAKey::verifySGXSig( const string& _sig, const char* _hash ) {
 
 
     if ( BN_hex2bn( &rBN, r.c_str() ) == 0 ) {
-        LOG( warn, "BN_hex2bn( &rBN, r.c_str() ) == 0" );
+        CONS_LOG( warn, "BN_hex2bn( &rBN, r.c_str() ) == 0" );
         goto clean;
     };
 
     if ( BN_hex2bn( &sBN, s.c_str() ) == 0 ) {
-        LOG( warn, "BN_hex2bn( &sBN, s.c_str() ) == 0" );
+        CONS_LOG( warn, "BN_hex2bn( &sBN, s.c_str() ) == 0" );
         goto clean;
     };
 
     oSig = ECDSA_SIG_new();
 
     if ( ECDSA_SIG_set0( oSig, rBN, sBN ) == 0 ) {
-        LOG( warn, "ECDSA_SIG_set0( oSig, rBN, sBN ) == 0" );
+        CONS_LOG( warn, "ECDSA_SIG_set0( oSig, rBN, sBN ) == 0" );
         goto clean;
     }
 

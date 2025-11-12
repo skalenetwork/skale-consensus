@@ -84,7 +84,7 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
             if ( _cryptoManager->getSchain()->verifyDASigsPatch( block->getTimeStampS() ) ) {
                 // a default block has a zero proposer index and no DA sig
                 if ( block->getProposerIndex() != 0 && block->getDaSig().empty() ) {
-                    LOG( err,
+                    CONS_LOG( err,
                         "EMPTY_DA_SIG_ON_CATCHUP:BLOCK_STAMP:"
                             << to_string( block->getTimeStampS() ) << ":PATCH_STAMP:"
                             << to_string(
@@ -104,7 +104,7 @@ CommittedBlockList::CommittedBlockList( const ptr< CryptoManager >& _cryptoManag
         }
     } catch ( ... ) {
         if ( _blockSizes->size() > 1 ) {
-            LOG( err, "Successfully deserialized "
+            CONS_LOG( err, "Successfully deserialized "
                           << to_string( counter ) << " blocks, got exception on block "
                           << to_string( _cryptoManager->getSchain()->getLastCommittedBlockID() +
                                         counter + 1 ) );

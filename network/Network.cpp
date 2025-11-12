@@ -156,7 +156,7 @@ void Network::broadcastMessageImpl( const ptr< NetworkMessage >& _msg, bool _isF
             try {
                 getSchain()->getNode()->getOutgoingMsgDB()->saveMsg( _msg );
             } catch ( exception& e ) {
-                LOG( err, "Could not save outgoing message:" << string( e.what() ) );
+                CONS_LOG( err, "Could not save outgoing message:" << string( e.what() ) );
             }
         }
 
@@ -404,7 +404,7 @@ void Network::deferredMessagesLoop() {
             trySendingDelayedSends();
         } catch ( ExitRequestedException& ) {
             // exit
-            LOG( info, "Exit requested, exiting deferred messages loop" );
+            CONS_LOG( info, "Exit requested, exiting deferred messages loop" );
             return;
         } catch ( SkaleException& e ) {
             // print the error and continue the loop

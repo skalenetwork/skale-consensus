@@ -101,7 +101,7 @@ shared_ptr< SgxZmqMessage > SgxZmqMessage::parse(
     uint64_t status = ( *d )["status"].GetInt64();
 
     if ( status != 0 ) {
-        LOG( err, ( *d )["errorMessage"].GetString() );
+        CONS_LOG( err, ( *d )["errorMessage"].GetString() );
     }
 
     CHECK_STATE( status == 0 );

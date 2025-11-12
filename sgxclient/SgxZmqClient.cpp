@@ -97,7 +97,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
         CHECK_STATE2( result->getStatus() == 0, "SGX server returned error:" + resultStr );
 
         if ( result->getWarning() ) {
-            LOG( warn, "SGX server reported warning:" << *result->getWarning() );
+            CONS_LOG( warn, "SGX server reported warning:" << *result->getWarning() );
         }
         return result;
 
@@ -142,7 +142,7 @@ string SgxZmqClient::doZmqRequestReply(
             CHECK_STATE( strlen( reply.c_str() ) == reply.length() )
 
             CHECK_STATE( reply.length() > 5 );
-            LOG( debug, "ZMQ client received reply:" << reply );
+            CONS_LOG( debug, "ZMQ client received reply:" << reply );
             CHECK_STATE( reply.front() == '{' );
             CHECK_STATE( reply.back() == '}' );
 
@@ -151,10 +151,10 @@ string SgxZmqClient::doZmqRequestReply(
         } else {
             serverDown = true;
             if ( _throwExceptionOnTimeout ) {
-                LOG( err, "No response from sgx server for:" << _description );
+                CONS_LOG( err, "No response from sgx server for:" << _description );
                 CHECK_STATE( false );
             }
-            LOG( err, "No response from SGX server for " << _description << ". Retrying..." );
+            CONS_LOG( err, "No response from SGX server for " << _description << ". Retrying..." );
             usleep( SGX_REQUEST_TIMEOUT_MS * 1000 );
             reconnect();
 
@@ -173,7 +173,7 @@ string SgxZmqClient::readFileIntoString( const string& _fileName ) {
     try {
         str = string( ( istreambuf_iterator< char >( t ) ), istreambuf_iterator< char >() );
     } catch ( ... ) {
-        LOG( err, "Could not read file:" << _fileName );
+        CONS_LOG( err, "Could not read file:" << _fileName );
         throw;
     }
 
@@ -228,7 +228,7 @@ string SgxZmqClient::signString( std::shared_ptr<EVP_PKEY> _pkey, const string& 
 pair< std::shared_ptr<EVP_PKEY>, std::shared_ptr<X509> > SgxZmqClient::readPublicKeyFromCertStr( const string& _certStr ) {
     CHECK_STATE( !_certStr.empty() )
 
-    LOG( info, "Reading server public key:\n" << _certStr );
+    CONS_LOG( info, "Reading server public key:\n" << _certStr );
 
 
     // Create BIO and wrap in a smart pointer
@@ -253,14 +253,14 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
     CHECK_STATE( _sChain );
     this->schain = _sChain;
 
-    LOG( info, "Initing ZMQClient. Sign:" << to_string( sign ) );
+    CONS_LOG( info, "Initing ZMQClient. Sign:" << to_string( sign ) );
 
     if ( sign ) {
         CHECK_STATE( !_certFileName.empty() );
         try {
             cert = readFileIntoString( _certFileName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" << _certFileName << ":" << e.what() );
+            CONS_LOG( err, "Could not read file:" << _certFileName << ":" << e.what() );
             throw;
         }
         CHECK_STATE( !cert.empty() );
@@ -268,7 +268,7 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
         try {
             key = readFileIntoString( _certKeyName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" << _certKeyName << ":" << e.what() );
+            CONS_LOG( err, "Could not read file:" << _certKeyName << ":" << e.what() );
             throw;
         }
 
@@ -415,19 +415,19 @@ uint64_t SgxZmqClient::getProcessID() {
 
 
 void SgxZmqClient::exit() {
-    LOG( info, "Exiting SgxZmqClient" );
+    CONS_LOG( info, "Exiting SgxZmqClient" );
     LOCK( socketMutex );
 
     if ( exited )
         return;
-    LOG( info, "Shutting down SgxZmq context" );
+    CONS_LOG( info, "Shutting down SgxZmq context" );
     this->ctx.shutdown();
-    LOG( info, "Shut down SgxZmq context" );
-    LOG( info, "Closing SgxZmq client sockets" );
+    CONS_LOG( info, "Shut down SgxZmq context" );
+    CONS_LOG( info, "Closing SgxZmq client sockets" );
     if ( clientSocket )
         clientSocket->close();
     exited = true;
-    LOG( info, "Exited SgxZmqClient" );
+    CONS_LOG( info, "Exited SgxZmqClient" );
 }
 
 
