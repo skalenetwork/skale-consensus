@@ -1544,10 +1544,10 @@ Schain::Schain() : Agent() {
 bool Schain::fixCorruptStateIfNeeded(block_id _lastCommittedBlockID) {
     block_id nextBlock = _lastCommittedBlockID + 1;
     if (getNode()->getBlockDB()->unfinishedBlockExists(nextBlock)) {
-        return true;
         CONS_LOG(warn,
             "Corrupt consensus database has been repaired successfully."
             "Starting from repaired consensus database.");
+        return true;
     }
     return false;
 }
@@ -1770,6 +1770,8 @@ const shared_ptr< folly::CPUThreadPoolExecutor >& Schain::getFinalizationExecuto
 }
 
 void Schain::stopAndDestroyFinalizationExecutor() {
+    if ( !finalizationExecutor )
+        return;
     finalizationExecutor->stop();
     finalizationExecutor->join();
 }

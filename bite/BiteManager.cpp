@@ -394,6 +394,8 @@ ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(
 }
 
 void BiteManager::stopAndDestroyThreadPoolExecutor() {
+    if ( !threadPoolExecutor )
+        return;
     threadPoolExecutor->stop();
     threadPoolExecutor->join();
 }
