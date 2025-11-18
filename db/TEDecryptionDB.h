@@ -11,12 +11,12 @@ class BlockProposal;
 class AESKeyDecryptionShareList;
 class AESKeyDecryptionShareSet;
 class EncryptedAESKey;
+class TransactionCiphertextsMap;
 
 namespace folly {
 class CPUThreadPoolExecutor;
 }
 
-using EncryptedAESKeyMap = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
 
 
 #include "CacheLevelDB.h"
@@ -39,7 +39,7 @@ public:
 
     bool haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex);
 
-    ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<EncryptedAESKeyMap> _EncryptedAESKeyMap);
+    ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<TransactionCiphertextsMap> _ciphertextsMap);
 
     void addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 

@@ -105,9 +105,7 @@ pair<ptr<vector<ptr<Transaction> > >, u256>
 PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterCatchup) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime())
 
-
     size_t needMax;
-
 
     auto env = getenv("TEST_TRANSACTIONS_PER_BLOCK");
 
@@ -127,7 +125,6 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
     static u256 stateRootSample = 1;
 
     uint64_t waitTimeMs = 10;
-
 
     while (transactions.empty()) {
         getSchain()->getNode()->exitCheck();

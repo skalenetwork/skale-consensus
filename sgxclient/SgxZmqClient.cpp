@@ -362,8 +362,8 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
 
 
 #ifdef BITE
-ptr<vector<ptr<string>>> SgxZmqClient::decryptAESKeySharesBatch( const std::string& keyShareName,
-     std::vector<std::shared_ptr<std::string> > & _aesKeySharesBatch, int t, int n, bool _throwExceptionOnTimeout ) {
+ptr<vector<string>> SgxZmqClient::decryptAESKeySharesBatch( const std::string& keyShareName,
+     std::vector<std::string > & _aesKeySharesBatch, int t, int n, bool _throwExceptionOnTimeout ) {
     Json::Value p;
     p["type"] = SgxZmqMessage::DECRYPT_SHARE_REQ;
     p["blsKeyName"] = keyShareName;
@@ -371,8 +371,7 @@ ptr<vector<ptr<string>>> SgxZmqClient::decryptAESKeySharesBatch( const std::stri
     // Correctly create an array of strings
     Json::Value _aesKeySharesBatchAsJson(Json::arrayValue);
     for (const auto& share  : _aesKeySharesBatch) {
-        CHECK_STATE(share);
-        _aesKeySharesBatchAsJson.append(*share);
+        _aesKeySharesBatchAsJson.append(share);
     }
 
     p["publicDecryptionValues"] = _aesKeySharesBatchAsJson;

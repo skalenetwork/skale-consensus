@@ -1500,7 +1500,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
 
         CHECK_STATE(count >= getRequiredSigners())
 
-        auto encryptedAESKeys = proposal->getEncryptedAESKeys();
+        auto encryptedAESKeys = proposal->getTransactionCiphertexts();
 
         CHECK_STATE(encryptedAESKeys);
 
