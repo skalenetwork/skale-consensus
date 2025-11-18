@@ -18,8 +18,8 @@ string MockupAESKeyDecryptionShare::toString() {
 }
 
 
-ptr<MockupAESKeyDecryptionShare> MockupAESKeyDecryptionShare::mockupDecrypt(ptr<EncryptedAESKey> _key,
+ptr<MockupAESKeyDecryptionShare> MockupAESKeyDecryptionShare::mockupDecrypt(EncryptedAESKey& _key,
                                                       schain_index _decryptorIndex) {
-    return make_shared<MockupAESKeyDecryptionShare>(*_key->toHex(),
+    return make_shared<MockupAESKeyDecryptionShare>(*_key.toHex(),
                                                     _decryptorIndex, false);
 }

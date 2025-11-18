@@ -2,8 +2,10 @@
 #include <datastructures/BlockProposal.h>
 
 class EncryptedAESKey;
-class AESKeyDecryptionShare;
-class DecryptedAESKey;
+
+#include "crypto/AESKeyDecryptionShare.h"
+#include "crypto/DecryptedAESKey.h"
+#include "crypto/EncryptedAESKey.h"
 
 class AESKeyDecryptionShareSet {
 public:
@@ -22,9 +24,9 @@ public:
         return totalObjects;
     }
 
-    virtual ptr< DecryptedAESKey > verifyAndMergeAESKey(ptr<EncryptedAESKey> _encryptedAesKey) = 0;
+    virtual ptr< DecryptedAESKeys > verifyAndMergeAESKeys(EncryptedAESKeys& _encryptedAesKey) = 0;
 
     virtual bool isEnough() = 0;
 
-    virtual bool addDecryptionShare( const ptr< AESKeyDecryptionShare >& _decryptionShare ) = 0;
+    virtual bool addDecryptionShares( const ptr< AESKeyDecryptionShares >& _decryptionShare ) = 0;
 };

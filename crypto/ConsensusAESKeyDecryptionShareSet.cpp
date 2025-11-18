@@ -25,15 +25,14 @@
 
 #include "bls_include.h"
 #include <oids.h>
+#include <memory>
 #include "Log.h"
 #include "SkaleCommon.h"
 #include "libBLS/threshold_encryption/TEDecryptSet.h"
 
-
 #include "ConsensusAESKeyDecryptionShare.h"
 #include "ConsensusAESKeyDecryptionShareSet.h"
-#include "DecryptedAESKey.h"
-#include "EncryptedAESKey.h"
+#include "crypto/AESKeyDecryptionShare.h"
 #include "threshold_encryption/ThresholdEncryption.h"
 
 
@@ -41,49 +40,62 @@ using namespace std;
 
 
 ConsensusAESKeyDecryptionShareSet::ConsensusAESKeyDecryptionShareSet( block_id _blockId,
-    transaction_index _transactionIndex, size_t _totalDecryptors, size_t _requiredDecryptors )
-    : AESKeyDecryptionShareSet( _blockId, _transactionIndex ), 
-    decryptionShares(_requiredDecryptors, _totalDecryptors) {};
+    transaction_index _transactionIndex, size_t numCiphertexts, size_t _totalDecryptors, size_t _requiredDecryptors )
+    : AESKeyDecryptionShareSet( _blockId, _transactionIndex ) {
+        decryptionSets.reserve( numCiphertexts );
+        for ( size_t i = 0; i < numCiphertexts; i++ ) {
+            decryptionSets.emplace_back(libBLS::TEDecryptSet( _requiredDecryptors, _totalDecryptors ));
+        }
+    };
 
 ConsensusAESKeyDecryptionShareSet::~ConsensusAESKeyDecryptionShareSet() = default;
 
-ptr< DecryptedAESKey > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKey(ptr<EncryptedAESKey> _encryptedAESKey) {
+ptr< DecryptedAESKeys > ConsensusAESKeyDecryptionShareSet::verifyAndMergeAESKeys(EncryptedAESKeys& _encryptedAESKeys) {
+    CHECK_STATE( _encryptedAESKeys.size() == decryptionSets.size() );
     LOCK( decryptionSharesLock )
 
     bool validateCiphertext = false;
-    auto cipheredKey = libBLS::CipheredKey::fromBytes( *_encryptedAESKey->getKey(), validateCiphertext );
+    auto decryptedKeys = make_shared< DecryptedAESKeys >();
+    for ( size_t i = 0; i < _encryptedAESKeys.size(); i++ ) {
+        auto cipheredKey = libBLS::CipheredKey::fromBytes( _encryptedAESKeys.at(i).data(), validateCiphertext );
+        // Checks if decryption set can be merged & merges if so
+        libBLS::AES256Key aesKey = libBLS::ThresholdEncryption::combineShares( cipheredKey, decryptionSets.at(i) );
+        decryptedKeys->push_back( DecryptedAESKey( aesKey ) );
+    }
 
-    // Checks if decryption set can be merged & merges if so
-    libBLS::AES256Key aesKey = libBLS::ThresholdEncryption::combineShares( cipheredKey, decryptionShares);
-
-    return make_shared< DecryptedAESKey >( aesKey );
+    return decryptedKeys;
 }
 
 bool ConsensusAESKeyDecryptionShareSet::isEnough() {
     {
         LOCK( decryptionSharesLock )
-        return decryptionShares.canMerge();
+        return decryptionSets.at(0).canMerge();
     }
 }
 
 
-bool ConsensusAESKeyDecryptionShareSet::addDecryptionShare(
-    const ptr< AESKeyDecryptionShare >& _decryptionShare ) {
-    CHECK_ARGUMENT( _decryptionShare );
+bool ConsensusAESKeyDecryptionShareSet::addDecryptionShares(
+    const ptr< AESKeyDecryptionShares >& _decryptionShares ) {
+    CHECK_ARGUMENT( _decryptionShares );
+    CHECK_STATE( _decryptionShares->size() == decryptionSets.size() );
 
     LOCK( decryptionSharesLock )
     
-    auto ds = dynamic_pointer_cast< ConsensusAESKeyDecryptionShare >( _decryptionShare );
-    CHECK_STATE( ds );
+    for ( size_t i = 0; i < decryptionSets.size(); i++ ) {
+        ptr< AESKeyDecryptionShare > val = _decryptionShares->at(i);
+        auto ds = std::dynamic_pointer_cast< ConsensusAESKeyDecryptionShare >( val );
+        CHECK_STATE( ds );
 
-    try {
-        decryptionShares.addDecryptShare( *ds->getTEDecryptionShare() );
-        totalObjects.fetch_add( 1 );
+        try {
+            decryptionSets.at(i).addDecryptShare( *ds->getTEDecryptionShare() );
+        }
+        catch ( const std::exception& e ) {
+            CONS_LOG( warn, "Failed to add decryption share: " << e.what() );
+            return false;
+        }
     }
-    catch ( const std::exception& e ) {
-        CONS_LOG( warn, "Failed to add decryption share: " << e.what() );
-        return false;
-    }
+    // count as a single share added (we count all shares for current tx as one)
+    totalObjects.fetch_add( 1 );
 
     return true;
 }
