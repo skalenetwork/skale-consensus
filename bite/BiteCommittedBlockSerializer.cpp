@@ -161,25 +161,44 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
     auto fbAesKeys = fbBlock->aes_keys();
 
     CHECK_STATE(fbAesKeys)
-
     if (fbAesKeys) {
-
-        bool keyForSameTxIdx = false;
+        DecryptedAESKeys  keysForCurrTx;
         transaction_index lastTxIdx = std::numeric_limits<transaction_index>::max();
-        DecryptedAESKeys keysForCurrTx;
-        
-        for (const auto *aesKey: *fbAesKeys) {
+        bool              haveTx    = false;
+
+        // Keys are stored contiguously:
+        // Tx0Key0, Tx0Key1, ..., Tx1Key0, Tx1Key1, ...
+        for (size_t i = 0; i < fbAesKeys->size(); ++i) {
+            const auto* aesKey = (*fbAesKeys)[i];
             CHECK_STATE(aesKey->data() && aesKey->data()->size() == BITE_AES_KEY_LEN);
+
             std::array<uint8_t, BITE_AES_KEY_LEN> rawKey;
             std::memcpy(rawKey.data(), aesKey->data()->data(), BITE_AES_KEY_LEN);
 
-            keyForSameTxIdx = (lastTxIdx == aesKey->transaction_index());
-            if (!keyForSameTxIdx) {
-                lastTxIdx = aesKey->transaction_index();
+            transaction_index txIdx = aesKey->transaction_index();
+
+            // First key we see: initialize current tx
+            if (!haveTx) {
+                lastTxIdx = txIdx;
+                haveTx    = true;
+            }
+            // Transaction index changed: flush previous group
+            else if (txIdx != lastTxIdx) {
+                CHECK_STATE(!keysForCurrTx.empty());
+                decryptedAesKeyList->addKeys(lastTxIdx, keysForCurrTx);
+                keysForCurrTx.clear();
+
+                lastTxIdx = txIdx;
             }
 
-            DecryptedAESKey key(rawKey);
-            keysForCurrTx.push_back(key);
+            // Add current key to the current transaction's group
+            keysForCurrTx.emplace_back(rawKey);
+        }
+
+        // After the loop, flush the last transaction's keys (if any)
+        if (haveTx) {
+            CHECK_STATE(!keysForCurrTx.empty());
+            decryptedAesKeyList->addKeys(lastTxIdx, keysForCurrTx);
         }
     }
 

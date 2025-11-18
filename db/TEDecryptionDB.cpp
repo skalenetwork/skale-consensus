@@ -199,7 +199,11 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
     vector<libBLS::TEPublicKeyShare> tePublicKeys;
     if (sChain->getNode()->isSgxEnabled()) {
         ptr<vector<ptr<libBLS::BLSPublicKeyShare>>> keyShares =
-                std::make_shared<vector<ptr<libBLS::BLSPublicKeyShare>>>(sChain->getCryptoManager()->getAllBlsPublicKeyShares());
+                std::make_shared<vector<ptr<libBLS::BLSPublicKeyShare>>>(
+                    sChain->getCryptoManager()->getAllBlsPublicKeyShares());
+
+        CHECK_STATE(keyShares->size() == totalSigners);
+        
         for (size_t i = 0; i < totalSigners; ++i) {
             tePublicKeys.push_back(libBLS::TEPublicKeyShare(keyShares->at(i)->getPublicKey(),
                                                        i + 1, requiredSigners, totalSigners) );
@@ -214,28 +218,30 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
 
     for ( auto&& [txId, decryptionSet]: decryptionShareSets ) {
         auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareMap,
-                                 &decryptionShareSets, &decryptionSet, &aesKeys, &aesKeysMutex, &tePublicKeys,
+                                 &decryptionShareSets, decryptionSet,
+                                 &aesKeys, &aesKeysMutex, &tePublicKeys,
                                  &_transactionCiphertextsMap, txId, &encryptions,
                                  sChain = this->sChain]() -> folly::Unit {
+
+            size_t numberOfCiphertexts = _transactionCiphertextsMap->at(txId)->count();
             // still not enough shares - validate & add more
             if ( !decryptionSet->isEnough() ) {
 
-                // data to send to the batch validation
-                std::vector< libBLS::CipheredKey > cipheredKeys;
                 // shares at libBLS level (ciphertext idx -> list of shares for that ciphertext)
                 std::vector< std::vector< libBLS::TEDecryptionShare > > teShares;
                 std::vector< std::vector< libBLS::TEPublicKeyShare > > publicKeys;
-                teShares.reserve(decryptionShareMap.size());
-                publicKeys.reserve(decryptionShareMap.size());
-
                 // additional data to track decryptor indices
                 std::vector< schain_index > decryptorIndices;
                 // shares at consensus level
                 // ciphertext -> shares from all decryptors for that ciphertext
                 std::vector< ptr< AESKeyDecryptionShares > > sharesList;
-                sharesList.reserve(decryptionShareMap.size());
-
-                size_t numberOfCiphertexts = encryptions.at(txId).size();
+                // initialize vectors
+                teShares.assign(numberOfCiphertexts, {});
+                publicKeys.assign(numberOfCiphertexts, {});
+                sharesList.resize(numberOfCiphertexts);
+                for (size_t i = 0; i < numberOfCiphertexts; ++i) {
+                    sharesList[i] = std::make_shared<AESKeyDecryptionShares>();
+                }
 
                 // collect all shares from all nodes for current Tx
                 for ( auto&& [decryptorIdx, decryptionSharesList]: decryptionShareMap) {

@@ -7,6 +7,11 @@
 #pragma GCC diagnostic pop
 #include "DecryptedAESKey.h"
 
+
+/**
+ * @brief Holds a list of decrypted AES keys for transactions in a block.
+ * Each transaction may have multiple ciphertexts, thus multiple decrypted AES keys.
+ */
 class DecryptedAESKeyList {
 public:
 

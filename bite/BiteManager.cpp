@@ -128,12 +128,11 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteManager::tryGetEncryptedCATArgs(
 
 void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {
-    transaction_index index = 0;
 
     auto encryptedAESKeyMap = make_shared<TransactionCiphertextsMap>();
     auto biteDataFields     = make_shared<std::map<transaction_index, ptr<BiteCiphertext> > >();
 
-    bool regularTxsStartIdx = 0;
+    size_t regularTxsStartIdx = 0;
     ptr<vector<ptr<Transaction> > > transactions = _proposal->getTransactionList()->getItems(); 
 
 #ifdef BITE2
@@ -145,7 +144,7 @@ void BiteManager::parseBITETransactions(
 
             if (catArgs) {
                 auto txCiphertexts = make_shared<TransactionCiphertexts>(catArgs);
-                encryptedAESKeyMap->emplace(index, txCiphertexts);
+                encryptedAESKeyMap->emplace(i, txCiphertexts);
             } else {
                 // the first non-CAT transaction indicates the start of regular transactions
                 regularTxsStartIdx = i;
@@ -166,7 +165,7 @@ void BiteManager::parseBITETransactions(
             auto ciphertext = tryGetEncryptedRegularTxFields(tx, _proposal->getEpochID());
             if (ciphertext) {
                 auto txCiphertexts = make_shared<TransactionCiphertexts>(ciphertext);
-                encryptedAESKeyMap->emplace(index, txCiphertexts);
+                encryptedAESKeyMap->emplace(i, txCiphertexts);
             }
         } catch (exception &e) {
             CONS_LOG(err, string("Could not parse transaction:") + e.what());
