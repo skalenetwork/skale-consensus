@@ -57,8 +57,18 @@ class Transaction : public DataStructure {
     ptr< partial_sha_hash > partialHash = nullptr;
 
 #ifdef BITE
+    // --------- Cached Fields -----------
+
+    // Stores transaction bytes parsed as Ethereum transaction
     ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
-    ptr<BiteCiphertext> parsedBiteDataField = nullptr;
+    // Stores parsed BITE ciphertext for regular transactions
+    ptr<BiteCiphertext> parsedEncryptedRegularTx = nullptr;
+    
+#ifdef BITE2
+    // Stores a list of encrypted arguments from CAT transaction
+    ptr<std::vector<ptr<BiteCiphertext>>> parsedEncryptedCATArgs = nullptr;
+#endif
+
 #endif
 public:
     Transaction( const ptr< vector< uint8_t > >& _data, bool _includesPartialHash );
@@ -97,6 +107,12 @@ public:
     // Allows caching parsed encrypted regular transactions' data field
     ptr<BiteCiphertext> getRegularTxEncryptedData();
     void setRegularTxEncryptedData( ptr<BiteCiphertext> _biteDataField );
+
+#ifdef BITE2
+    // Allows caching parsed encrypted CAT transaction arguments
+    ptr<std::vector<ptr<BiteCiphertext>>> getCATEncryptedArgs();
+    void setCATEncryptedArgs( ptr<std::vector<ptr<BiteCiphertext>>> _biteDataField );
+#endif
 
     ptr<vector<uint8_t>> emplaceAndReencodeTransaction(vector<uint8_t>& _originalDataField );
 #endif

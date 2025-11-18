@@ -54,12 +54,11 @@ class BiteCiphertext;
 #define SERIALIZE_AS_PROPOSAL 1
 
 #ifdef BITE
+#include "crypto/TransactionCiphertexts.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 class AESKeyDecryptionShareList;
+class TransactionCiphertextsMap;
 #endif
-
-class EncryptedAESKey;
-using EncryptedAESKeyMap = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
 
 
 class BlockProposal : public SendableItem {
@@ -207,12 +206,14 @@ public:
 
 private:
     ptr<AESKeyDecryptionShareList> myDecryptionShares = nullptr;
-    ptr<EncryptedAESKeyMap> encryptedAESKeys = nullptr;
+
+    // Stores 1 or more ciphertexts associated with some transaction index
+    ptr<TransactionCiphertextsMap> transactionCiphertexts = nullptr;
 
     // this will normally be empty
     map<transaction_index, ConnectionSubStatus> failedTransactions;
     // the encrypted AES key batch to send to SGX server
-    ptr<vector<ptr<string>>> sgxAESKeyBatch;
+    ptr<vector<string>> sgxAESKeyBatch;
 
 public:
     [[nodiscard]] map<transaction_index, ConnectionSubStatus>& getFailedTransactionsRef() {
@@ -226,13 +227,12 @@ public:
     }
 
 
-    [[nodiscard]] ptr<vector<ptr<string>>> getSGXAESKeyBatch() const {
+    [[nodiscard]] ptr<vector<string>> getSGXAESKeyBatch() const {
         auto result = std::atomic_load(&sgxAESKeyBatch);
         return result;
     }
 
-    void setSGXAESKeyBatch(
-            ptr<vector<ptr<string>>>  _sgxAESKeyBatch) {
+    void setSGXAESKeyBatch(ptr<vector<string>>  _sgxAESKeyBatch) {
         CHECK_STATE(!sgxAESKeyBatch)
         sgxAESKeyBatch = _sgxAESKeyBatch;
     }
@@ -245,16 +245,16 @@ public:
     }
 
 
-    void setAESKeyMap(ptr<EncryptedAESKeyMap> _EncryptedAESKeyMap) {
+    void setTransactionCiphertexts(ptr<TransactionCiphertextsMap> _EncryptedAESKeyMap) {
         CHECK_STATE(_EncryptedAESKeyMap)
         // verify we are not setting it twice
-        CHECK_STATE(std::atomic_exchange(&encryptedAESKeys, _EncryptedAESKeyMap) == nullptr);
+        CHECK_STATE(std::atomic_exchange(&transactionCiphertexts, _EncryptedAESKeyMap) == nullptr);
     }
 
 
-    [[nodiscard]] ptr<EncryptedAESKeyMap> getEncryptedAESKeys() const {
-        auto result = std::atomic_load(&encryptedAESKeys);
-        CHECK_STATE(encryptedAESKeys);
+    [[nodiscard]] ptr<TransactionCiphertextsMap> getTransactionCiphertexts() const {
+        auto result = std::atomic_load(&transactionCiphertexts);
+        CHECK_STATE(transactionCiphertexts);
         return result;
     }
 #endif
