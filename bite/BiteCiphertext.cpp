@@ -15,7 +15,7 @@
 const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 const auto KEY_COUNT_BYTE_OFFSET = 1;
 
-// TODO - change name to BiteCiphertext insteadno
+
 BiteCiphertext::BiteCiphertext(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
     : keyPlusEncryptedData(_encryptedKeyPlusData), epoch(_epoch) {
     CHECK_STATE(_encryptedKeyPlusData);
@@ -23,9 +23,9 @@ BiteCiphertext::BiteCiphertext(const shared_ptr<EncryptedData> &_encryptedKeyPlu
     
 
     // Do not validate the key nor the ciphertext, just copy the first BITE_ENCRYPTED_AES_KEY_LEN bytes
-    auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
-    std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
-    encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
+    auto keyVec = std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>();
+    std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec.begin());
+    encryptedAESKey.emplace(EncryptedAESKey(keyVec));
 
 
     // build serialized RLP-encoded data field
@@ -68,11 +68,11 @@ BiteCiphertext::BiteCiphertext(const std::shared_ptr<std::vector<uint8_t> > &_da
         epoch = epochIdCandidate;
         // set encrypted data and AES key
         keyPlusEncryptedData = encryptedBITEDataBytes;
-        auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
+        auto keyVec = std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>();
         // first byte stands for the number of keys in payload - skip it when parsing manually
         std::copy_n(keyPlusEncryptedData->begin() + KEY_COUNT_BYTE_OFFSET,
-                    BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
-        encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
+                    BITE_ENCRYPTED_AES_KEY_LEN, keyVec.begin());
+        encryptedAESKey = EncryptedAESKey(keyVec);
     } else {
         // if encryptedBITEData contains AES key encrypted with 2 BLS keys
         // need to determine which one was used to encrypt the original message based on epochId
@@ -96,9 +96,7 @@ BiteCiphertext::BiteCiphertext(const std::shared_ptr<std::vector<uint8_t> > &_da
         // set encrypted data and AES key
         encryptedBITEData.keepKey( keyIndexToKeep );
         keyPlusEncryptedData = make_shared<vector<uint8_t>>( encryptedBITEData.toBytes() );
-        encryptedAESKey = make_shared<EncryptedAESKey>(
-                    make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(
-                        encryptedBITEData.getTargetKey().toBytes()));
+        encryptedAESKey.emplace(EncryptedAESKey(encryptedBITEData.getTargetKey().toBytes()));
     }
     
     CHECK_STATE2((uint64_t) _currentEpochId == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
@@ -111,8 +109,8 @@ BiteCiphertext::BiteCiphertext(const std::shared_ptr<std::vector<uint8_t> > &_da
     serializedData = _data;
 }
 
-ptr<EncryptedAESKey> &BiteCiphertext::getEncryptedAESKey() {
-    return encryptedAESKey;
+EncryptedAESKey &BiteCiphertext::getEncryptedAESKey() {
+    return encryptedAESKey.value();
 }
 const shared_ptr< EncryptedData >& BiteCiphertext::getKeyPlusEncryptedData() const {
     return keyPlusEncryptedData;

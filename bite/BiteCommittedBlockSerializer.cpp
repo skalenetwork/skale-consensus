@@ -60,17 +60,20 @@ ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAn
     // ---- Serialize AES Keys ----
     std::vector<skale_fb::AesKey> aesKeysVec;
 
-    for (auto &&it: _decryptedAesKeyList.getKeys()) {
-        auto key = it.second;
-        CHECK_STATE(key)
+    for (auto &&[txIdx, keys]: _decryptedAesKeyList.getKeys()) {
+        CHECK_STATE(keys)
 
-        auto rawKey = key->getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
-        aesKeysVec.push_back(skale_fb::AesKey{
-            static_cast<uint32_t>(it.first),
-            rawKey // rawKey is std::array<uint8_t, 32>
-        });
+        // run over all aesKeys / ciphertexts for this transaction
+        // TODO - we should define a V2 structure that holds multiple keys per transaction
+        // without repeating transaction_index
+        for (const auto &key: *keys) {
+            auto rawKey = key.getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
+            aesKeysVec.push_back(skale_fb::AesKey{
+                static_cast<uint32_t>(txIdx),
+                rawKey // rawKey is std::array<uint8_t, 32>
+            });
+        }
     }
-
 
     auto aesKeysOffset = builder.CreateVectorOfStructs(aesKeysVec);
 
@@ -160,13 +163,23 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
     CHECK_STATE(fbAesKeys)
 
     if (fbAesKeys) {
+
+        bool keyForSameTxIdx = false;
+        transaction_index lastTxIdx = std::numeric_limits<transaction_index>::max();
+        DecryptedAESKeys keysForCurrTx;
+        
         for (const auto *aesKey: *fbAesKeys) {
             CHECK_STATE(aesKey->data() && aesKey->data()->size() == BITE_AES_KEY_LEN);
             std::array<uint8_t, BITE_AES_KEY_LEN> rawKey;
             std::memcpy(rawKey.data(), aesKey->data()->data(), BITE_AES_KEY_LEN);
 
+            keyForSameTxIdx = (lastTxIdx == aesKey->transaction_index());
+            if (!keyForSameTxIdx) {
+                lastTxIdx = aesKey->transaction_index();
+            }
+
             DecryptedAESKey key(rawKey);
-            decryptedAesKeyList->addKey(aesKey->transaction_index(), key);
+            keysForCurrTx.push_back(key);
         }
     }
 

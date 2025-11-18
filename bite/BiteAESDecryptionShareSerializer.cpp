@@ -32,8 +32,15 @@ ptr< std::vector< uint8_t > > BiteAESDecryptionShareSerializer::serialize(
 
     for ( const auto& decryptionShare : decryptionShares ) {
         uint32_t transactionIndex = ( uint32_t ) decryptionShare.first;
-        const auto data =
-            decryptionShare.second->toString();  // Assumes std::string or std::vector<uint8_t>
+        // convert all shares for this ciphertext into a single string
+        std::string data;
+        for ( size_t i = 0; i < decryptionShare.second->size(); i++ ) {
+            data += decryptionShare.second->at(i)->toString();
+            if ( i != decryptionShare.second->size() - 1 ) {
+                data += ",";
+            }
+        }
+
         auto dataOffset =
             builder.CreateVector( reinterpret_cast< const uint8_t* >( data.data() ), data.size() );
 
@@ -59,7 +66,7 @@ ptr< std::vector< uint8_t > > BiteAESDecryptionShareSerializer::serialize(
 
 void BiteAESDecryptionShareSerializer::serializedSanityCheck(
     const ptr< vector< uint8_t > >& _serializedDecryptionShares ) {
-    // 🔍 Verify the resulting buffer before returning
+    // Verify the resulting buffer before returning
     CHECK_STATE( _serializedDecryptionShares );
     flatbuffers::Verifier verifier(
         _serializedDecryptionShares->data(), _serializedDecryptionShares->size() );
@@ -106,7 +113,7 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
     const size_t chunkSize = (numShares + NUM_BITE_VALIDATION_THREADS - 1) / NUM_BITE_VALIDATION_THREADS;
 
     // Thread-local storage for results to minimize lock contention
-    std::vector<std::vector<std::pair<transaction_index, ptr<AESKeyDecryptionShare>>>>
+    std::vector<std::vector<std::pair<transaction_index, ptr<AESKeyDecryptionShares>>>>
             threadLocalShares(NUM_BITE_VALIDATION_THREADS);
 
     for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
@@ -129,11 +136,11 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
                 CHECK_STATE( rawData );
 
                 string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
-                auto decryptionShare = _biteManager->createAESDecryptionShare(
+                auto decryptionShares = _biteManager->createAESDecryptionShares(
                     decryptionShareStr, _decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
 
                 threadLocalShares[threadId].emplace_back(
-                    fbdecryptionShareHandle->transaction_index(), decryptionShare);
+                    fbdecryptionShareHandle->transaction_index(), decryptionShares);
             }
 
             return folly::unit;
@@ -148,8 +155,8 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
     // Merge results from all threads
     shares->reserve( numShares );
     for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
-        for (auto& shareEntry : threadLocalShares[threadId]) {
-            shares->addShare(shareEntry.first, shareEntry.second);
+        for (auto& [txId, decryptionShares] : threadLocalShares[threadId]) {
+            shares->addShares(txId, decryptionShares);
         }
     }
 

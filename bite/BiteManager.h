@@ -56,11 +56,16 @@ public:
     static ptr<BiteCiphertext> tryGetEncryptedRegularTxFields(
             const ptr<Transaction> &_transaction, epoch_id _currentEpochId);
 
-    // Tries to match the beginning of DATA field to BITE2 function selector.
-    // If it matches - tries to parse the BITE2 data field(s) for encrypted call arguments.
-    // If parsing is successful - returns vector of BiteCiphertext objects, else returns 'nullopt'
-    static ptr<std::vector<BiteCiphertext>> tryGetEncryptedCATArgs(
+#ifdef BITE2
+    /**
+     * @brief Tries to match the beginning of DATA field to BITE2 function selector.
+     * If it matches - tries to parse the BITE2 data field(s) for encrypted call arguments.
+     * If parsing is successful - returns vector of BiteCiphertext objects, else returns 'nullopt'
+     * @throws if it matches the function selector but fails to parse the rest of the data
+     */
+    static ptr<std::vector<ptr<BiteCiphertext>>> tryGetEncryptedCATArgs(
             const ptr<Transaction> &_transaction, epoch_id _currentEpochId);
+#endif
 
     // =============== Ciphertext Parsing =============== //
 
@@ -77,22 +82,29 @@ public:
         return threadPoolExecutor;
     }
 
-    [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShare> > > getDecryptionSharesFromAESKeys(
+    [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShares> > > getDecryptionSharesFromAESKeys(
             ptr<BlockProposal> _proposal,
             schain_index _decryptorIndex);
 
     [[nodiscard]] ptr<DecryptedRegularTxsMap> verifyAndDecryptTransactionList(TransactionList &_transactionList,
                                                                                      DecryptedAESKeyList &_aesKeys);
 
-    [[nodiscard]] ptr<AESKeyDecryptionShare> createAESDecryptionShare(const string& _aesKeyDecryptionShare,
+
+    /**
+     * @brief Builds a vec of all decryptionShares for a given transaction from a serialized string format.
+     * @param _aesKeyDecryptionShares - serialized string format of decryption shares. Each share is in string format
+     * separated by commas.
+     * @param _decryptorIndex - index of the decryptor node that created these shares
+     * @param _decryptionFailed - whether decryption failed for this transaction
+     */
+    [[nodiscard]] ptr<AESKeyDecryptionShares> createAESDecryptionShares(const string& _aesKeyDecryptionShares,
                                                                       schain_index _decryptorIndex,
                                                                       bool _decryptionFailed);
 
-    [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
-            block_id _blockId, transaction_index _transactionIndex);
 
-    // TODO - change the name of this method - should be made generic for both BITE1 & BITE2
-    [[nodiscard]] DecryptedRegularTxFields decryptFields(const ptr<BiteCiphertext> &bite, DecryptedAESKey &_key) const;
+
+    [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
+            block_id _blockId, transaction_index _transactionIndex, size_t numberOfCiphertexts);
 
     void corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result);
 
@@ -107,4 +119,14 @@ public:
     [[nodiscard]] bool isRealCryptoEnabled() const;
 
     void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
+
+private:
+    // Decrypts a single ciphertext using the provided AES key 
+    vector<uint8_t> decryptCiphertext(const ptr<BiteCiphertext> &_bite, DecryptedAESKey &_decryptedAESKey) const;
+
+    // Parses decrypted data as a regular transaction, extracting 'data' and 'to' fields
+    DecryptedRegularTxFields parseDecryptedDataAsRegularTx(const vector<uint8_t> &_data) const;
+
+    // Parses decrypted data as a set of CAT function arguments
+    DecryptedCATArgs parseDecryptedDataAsCATArgs(const vector<uint8_t> &_data) const;
 };
