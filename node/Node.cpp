@@ -693,8 +693,6 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         biteBlockFinalizeServer->exitProxygenServer();
         CONS_LOG( info, "consensus engine exiting: exitProxygenServer called" );
     }
-
-    getSchain()->stopAndDestroyFinalizationExecutor();
 #endif
 }
 
