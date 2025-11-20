@@ -18,7 +18,7 @@ public:
     [[nodiscard]] boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>>& getKeys();
 
     // Optional: Constructor
-    DecryptedAESKeyList() = default;
+    DecryptedAESKeyList() : totalDecryptedCiphertexts(0) {}
 
 
     // Optional: Add public access methods

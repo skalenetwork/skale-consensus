@@ -43,15 +43,8 @@ public:
      */
     ptr<DecryptedAESKeys> verifyAndMergeAESKeys(EncryptedAESKeys& _encryptedAESKey) override;
 
-    /**
-     * @brief Adds a list of decryption shares corresponding to each ciphertext in a single transaction.
-     * @param _decryptionShares The decryption shares to be added. MUST be all from the same decryptor, since
-     * they refer to a set of shares all computed for a single transaction (multiple ciphertexts).
-     * @return true if the shares were added successfully, false otherwise
-     */
-    virtual bool addDecryptionShares(
+    virtual bool addDecryptionSharesFromSameDecryptor(
         const ptr< AESKeyDecryptionShares >& _decryptionShares ) override;
-
 
     bool isEnough() override;
 

@@ -133,7 +133,7 @@ void TEDecryptionDB::addDecryptionShares(
 
     for (const auto& [txIdx, shares]: _decryptionShareList->getDecryptionShares()) {
         auto future = folly::via(threadPoolExecutor.get(), [blockId, this, shares, txIdx]() -> folly::Unit {
-            decryptionShareSets[blockId][txIdx]->addDecryptionShares( shares );
+            decryptionShareSets[blockId][txIdx]->addDecryptionSharesFromSameDecryptor( shares );
             return folly::unit;
         });
         futures.push_back(std::move(future));
@@ -215,10 +215,11 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
 
     auto aesKeys = make_shared< DecryptedAESKeyList >();
     std::mutex aesKeysMutex;
+    const auto totalSigners = this->totalSigners;
 
     for ( auto&& [txId, decryptionSet]: decryptionShareSets ) {
         auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareMap,
-                                 &decryptionShareSets, decryptionSet,
+                                 &decryptionShareSets, decryptionSet, &totalSigners,
                                  &aesKeys, &aesKeysMutex, &tePublicKeys,
                                  &_transactionCiphertextsMap, txId, &encryptions,
                                  sChain = this->sChain]() -> folly::Unit {
@@ -231,34 +232,31 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
                 std::vector< std::vector< libBLS::TEDecryptionShare > > teShares;
                 std::vector< std::vector< libBLS::TEPublicKeyShare > > publicKeys;
                 // additional data to track decryptor indices
-                std::vector< schain_index > decryptorIndices;
+                std::vector< size_t > decryptorIndices;
                 // shares at consensus level
-                // ciphertext -> shares from all decryptors for that ciphertext
+                // each index holds a list of shares for all ciphertexts within current tx for some decryptor
                 std::vector< ptr< AESKeyDecryptionShares > > sharesList;
                 // initialize vectors
                 teShares.assign(numberOfCiphertexts, {});
                 publicKeys.assign(numberOfCiphertexts, {});
-                sharesList.resize(numberOfCiphertexts);
-                for (size_t i = 0; i < numberOfCiphertexts; ++i) {
-                    sharesList[i] = std::make_shared<AESKeyDecryptionShares>();
+                sharesList.resize(totalSigners);
+                for (size_t i = 0; i < totalSigners; ++i) {
+                    sharesList[i] = make_shared<AESKeyDecryptionShares>();
                 }
 
                 // collect all shares from all nodes for current Tx
                 for ( auto&& [decryptorIdx, decryptionSharesList]: decryptionShareMap) {
                     try {
-                        decryptorIndices.push_back(decryptorIdx);
-
                         // shares for all ciphertexts within current tx from current decryptor
                         ptr<AESKeyDecryptionShares> ciphertextsShares = decryptionSharesList->getDecryptionShares(txId);
                         CHECK_STATE(ciphertextsShares);
+                        // every decryptor should provide shares for all ciphertexts
                         CHECK_STATE(ciphertextsShares->size() == numberOfCiphertexts);
 
-                        for ( size_t i = 0; i < numberOfCiphertexts; ++i ) {
-                            sharesList.at(i)->push_back( ciphertextsShares->at(i) );
-                        }
-                    
-                        size_t decryptorIndex = (size_t)decryptorIdx;
-
+                        size_t decryptorIndex = (size_t)decryptorIdx - 1;
+                        decryptorIndices.push_back(decryptorIndex);
+                        sharesList.at(decryptorIndex) = ciphertextsShares;
+                
                         // Only add share for validation if real signatures are enabled
                         if (sChain->getNode()->isSgxEnabled()) {
 
@@ -270,7 +268,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
 
                                 auto shareTE = shareConsensus->getTEDecryptionShare();
                                 teShares.at(i).push_back(*shareTE);
-                                publicKeys.at(i).push_back(tePublicKeys.at(decryptorIndex - 1));
+                                publicKeys.at(i).push_back(tePublicKeys.at(decryptorIndex));
                             }
                         }
                         
@@ -282,42 +280,39 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
                 // verify shares batch if real signatures are enabled
                 if (sChain->getNode()->isSgxEnabled() ) {
 
-                    for (size_t ciphertextId = 0; ciphertextId < numberOfCiphertexts; ++ciphertextId) {
-                        // tmp list to hold all valid shares for current ciphertext
-                        ptr<AESKeyDecryptionShares> sharesForCurrCiphertext = std::make_shared<AESKeyDecryptionShares>();
+                    std::vector<bool> allSharesFromNodeAreValid;
+                    allSharesFromNodeAreValid.resize(totalSigners, true);
 
+                    for (size_t ciphertextId = 0; ciphertextId < numberOfCiphertexts; ++ciphertextId) {
                         std::vector<libBLS::CipheredKey> cipheredKeys{ encryptions.at(txId).at(ciphertextId) };
 
                         auto result = libBLS::ThresholdEncryption::validateDecryptionSharesBatch(
                                 cipheredKeys, teShares.at(ciphertextId), publicKeys.at(ciphertextId));
 
                         for (size_t shareId = 0; shareId < result.size(); ++shareId) {
-                            if (result[shareId]) {
-                                // Only add valid shares
-                                sharesForCurrCiphertext->push_back(sharesList[ciphertextId]->at(shareId));
-                            }
-                            else {
+                            if (!result[shareId]) {
+                                // shares from this node are invalid
+                                allSharesFromNodeAreValid[decryptorIndices[shareId]] = false;
                                 CONS_LOG(err, fmt::format(
                                     "Decryption share validation failed: tx_id={}, ciphertext_id={}, share_id={}",
                                     (uint32_t)txId, ciphertextId, shareId)
                                 );
                             }
                         }
-                        // add all valid shares
-                        decryptionSet->addDecryptionShares(sharesForCurrCiphertext);
                     }
 
+                    // Only add shares for current transaction if all shares for all ciphertexts are valid for some node
+                    for (size_t i = 0; i < decryptorIndices.size(); ++i) {
+                        if (allSharesFromNodeAreValid[decryptorIndices[i]]) {
+                            // add all valid shares
+                            decryptionSet->addDecryptionSharesFromSameDecryptor(sharesList[decryptorIndices[i]]);
+                        }
+                    }
                 }
                 else {
-                    for (size_t ciphertextId = 0; ciphertextId < numberOfCiphertexts; ++ciphertextId) {
-                        // tmp list to hold all valid shares for current ciphertext
-                        ptr<AESKeyDecryptionShares> sharesForCurrCiphertext = std::make_shared<AESKeyDecryptionShares>();
-
-                        for (size_t shareId = 0; shareId < sharesList[ciphertextId]->size(); ++shareId) {
-                            sharesForCurrCiphertext->push_back(sharesList[ciphertextId]->at(shareId));
-                        }
+                    for (size_t i = 0; i < decryptorIndices.size(); ++i) {
                         // add all valid shares
-                        decryptionSet->addDecryptionShares(sharesForCurrCiphertext);
+                        decryptionSet->addDecryptionSharesFromSameDecryptor(sharesList[decryptorIndices[i]]);
                     }
                 }
             }

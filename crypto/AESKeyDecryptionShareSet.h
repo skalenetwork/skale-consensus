@@ -28,5 +28,13 @@ public:
 
     virtual bool isEnough() = 0;
 
-    virtual bool addDecryptionShares( const ptr< AESKeyDecryptionShares >& _decryptionShare ) = 0;
+    /**
+     * @brief Adds a list of decryption shares corresponding to each ciphertext in a single transaction.
+     * @param _decryptionShares The decryption shares to be added. MUST be all from the same decryptor, since
+     * they refer to a set of shares all computed for a single transaction (multiple ciphertexts).
+     * Meaning index 0 will be share for ciphertext 0, index 1 for ciphertext 1, etc.
+     * @return true if the shares were added successfully, false otherwise
+     */
+    virtual bool addDecryptionSharesFromSameDecryptor(
+        const ptr< AESKeyDecryptionShares >& _decryptionShares ) = 0;
 };

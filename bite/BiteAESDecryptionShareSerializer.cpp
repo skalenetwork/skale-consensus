@@ -30,13 +30,14 @@ ptr< std::vector< uint8_t > > BiteAESDecryptionShareSerializer::serialize(
     std::vector< flatbuffers::Offset< skale_fb::DecryptionShare > > decryptionShareVec;
     decryptionShareVec.reserve( decryptionShares.size() );
 
-    for ( const auto& decryptionShare : decryptionShares ) {
-        uint32_t transactionIndex = ( uint32_t ) decryptionShare.first;
+    // run over all shares of all txs from this decryptor
+    for ( const auto& [txId, shares] : decryptionShares ) {
+        uint32_t transactionIndex = ( uint32_t ) txId;
         // convert all shares for this ciphertext into a single string
         std::string data;
-        for ( size_t i = 0; i < decryptionShare.second->size(); i++ ) {
-            data += decryptionShare.second->at(i)->toString();
-            if ( i != decryptionShare.second->size() - 1 ) {
+        for ( size_t i = 0; i < shares->size(); i++ ) {
+            data += shares->at(i)->toString();
+            if ( i != shares->size() - 1 ) {
                 data += ",";
             }
         }

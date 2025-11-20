@@ -34,6 +34,7 @@
 #include "ConsensusAESKeyDecryptionShareSet.h"
 #include "crypto/AESKeyDecryptionShare.h"
 #include "threshold_encryption/ThresholdEncryption.h"
+#include <cstdint>
 
 
 using namespace std;
@@ -73,8 +74,8 @@ bool ConsensusAESKeyDecryptionShareSet::isEnough() {
     }
 }
 
-
-bool ConsensusAESKeyDecryptionShareSet::addDecryptionShares(
+// TODO - not used (?) - remove from this and from base interface class
+bool ConsensusAESKeyDecryptionShareSet::addDecryptionSharesFromSameDecryptor(
     const ptr< AESKeyDecryptionShares >& _decryptionShares ) {
     CHECK_ARGUMENT( _decryptionShares );
     CHECK_STATE( _decryptionShares->size() == decryptionSets.size() );
@@ -90,7 +91,13 @@ bool ConsensusAESKeyDecryptionShareSet::addDecryptionShares(
             decryptionSets.at(i).addDecryptShare( *ds->getTEDecryptionShare() );
         }
         catch ( const std::exception& e ) {
-            CONS_LOG( warn, "Failed to add decryption share: " << e.what() );
+            CONS_LOG( warn, 
+                fmt::format("Failed to add decryption share {} from decryptor {} to ciphertext {}, when trying to add all shares from a single decryptor: {}", 
+                    decryptionSets.at(i).size(),
+                    static_cast<uint64_t>(val->getDecryptorIndex()),
+                    i,
+                    e.what()) 
+                );
             return false;
         }
     }

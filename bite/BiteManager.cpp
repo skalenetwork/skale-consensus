@@ -283,11 +283,11 @@ ptr<vector<ptr<AESKeyDecryptionShares> > > BiteManager::getDecryptionSharesFromA
         CHECK_STATE(sgxAESKeyBatch->size() == ciphertexts->totalCiphertextCount());
 
         auto flatDecryptionShares = schain.getCryptoManager()->sgxDecryptAESKeyShareBatch(*sgxAESKeyBatch);
-        addShareForCurrentTx = [&](ptr<AESKeyDecryptionShares>& decryptSharesForTx, EncryptedAESKey&, size_t globalCiphertextIdxForCurrTx) {
+        addShareForCurrentTx = [flatDecryptionShares](ptr<AESKeyDecryptionShares>& decryptSharesForTx, EncryptedAESKey&, size_t globalCiphertextIdxForCurrTx) {
             decryptSharesForTx->push_back(flatDecryptionShares->at(globalCiphertextIdxForCurrTx));
         };
     } else {
-        addShareForCurrentTx = [&](ptr<AESKeyDecryptionShares>& decryptSharesForTx, EncryptedAESKey& ciphertext, size_t) {
+        addShareForCurrentTx = [_decryptorIndex](ptr<AESKeyDecryptionShares>& decryptSharesForTx, EncryptedAESKey& ciphertext, size_t) {
             decryptSharesForTx->push_back(MockupAESKeyDecryptionShare::mockupDecrypt(ciphertext, _decryptorIndex));
         }; 
     }
@@ -427,11 +427,14 @@ ptr<DecryptedRegularTxsMap> BiteManager::verifyAndDecryptTransactionList(
         const auto currentEpoch = schain.getNode()->getCurrentEpochId();
         const std::size_t txCount = _transactionList.size();
 
+#ifdef BITE2
+        bool allCATsParsed = false;
+#endif
+
         for (std::size_t txIdx = 0; txIdx < txCount; ++txIdx) {
             auto tx = txs->at(txIdx);
 
 #ifdef BITE2
-        bool allCATsParsed = false;
             // ---------- Try CAT path first ----------
             if (!allCATsParsed) {
                 auto encryptedArgs = tryGetEncryptedCATArgs(tx, currentEpoch);

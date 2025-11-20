@@ -31,7 +31,7 @@ public:
 
     ptr< DecryptedAESKeys > verifyAndMergeAESKeys(EncryptedAESKeys&  _encryptedAESKey) override;
 
-    bool addDecryptionShares( const ptr< AESKeyDecryptionShares >& _sigShare ) override;
+    bool addDecryptionSharesFromSameDecryptor( const ptr< AESKeyDecryptionShares >& _sigShare ) override;
 
     bool isEnough() override;
 
