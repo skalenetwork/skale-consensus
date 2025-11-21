@@ -37,6 +37,8 @@ class BiteManager {
 public:
     explicit BiteManager(Schain &_schain);
 
+    ~BiteManager();
+
     static void parseBITETransactions(ptr<BlockProposal> _proposal);
 
     // this will return a map of failed transactions
@@ -84,4 +86,6 @@ public:
     [[nodiscard]] bool isRealCryptoEnabled() const;
 
     void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
+private:
+    void stopAndDestroyThreadPoolExecutor();
 };

@@ -35,6 +35,9 @@ BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
     threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
 }
 
+BiteManager::~BiteManager() {
+    stopAndDestroyThreadPoolExecutor();
+}
 
 void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {
@@ -388,6 +391,13 @@ ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(
         return make_shared<MockupAESKeyDecryptionShareSet>(
                 _blockId, _transactionIndex, schain.getTotalSigners(), schain.getRequiredSigners());
     }
+}
+
+void BiteManager::stopAndDestroyThreadPoolExecutor() {
+    if ( !threadPoolExecutor )
+        return;
+    threadPoolExecutor->stop();
+    threadPoolExecutor->join();
 }
 
 bool BiteManager::isRealCryptoEnabled() const {
