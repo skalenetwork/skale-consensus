@@ -79,7 +79,7 @@ PricingAgent::PricingAgent( Schain& _sChain ) : Agent( _sChain, false ) {
 }
 
 u256 PricingAgent::calculatePrice(
-    const ConsensusExtFace::transactions_vector& _approvedTransactions, uint64_t _timeStamp,
+    const ConsensusExtFace::Transactions& _approvedTransactions, uint64_t _timeStamp,
     uint32_t _timeStampMs, block_id _blockID ) {
     u256 price;
     CHECK_STATE( pricingStrategy );
