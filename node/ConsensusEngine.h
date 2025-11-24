@@ -200,7 +200,7 @@ public:
      *   }
      */
 
-    tuple< ptr< ConsensusExtFace::transactions_vector >, uint32_t, uint32_t, u256, u256 > getBlock(
+    tuple< ptr< ConsensusExtFace::Transactions >, uint32_t, uint32_t, u256, u256 > getBlock(
         block_id _blockID );
 
     set< node_id >& getNodeIDs();

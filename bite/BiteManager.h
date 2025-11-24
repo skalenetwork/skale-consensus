@@ -86,7 +86,7 @@ public:
             ptr<BlockProposal> _proposal,
             schain_index _decryptorIndex);
 
-    [[nodiscard]] ptr<DecryptedRegularTxsMap> verifyAndDecryptTransactionList(TransactionList &_transactionList,
+    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(TransactionList &_transactionList,
                                                                                      DecryptedAESKeyList &_aesKeys);
 
 
@@ -108,9 +108,6 @@ public:
 
     void corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result);
 
-    [[nodiscard]] ptr<vector<uint8_t> > teEncryptDataAndToAddress(const vector<uint8_t> &_data,
-                                                                  const vector<uint8_t> &_to);
-
 
     void callSGXToCreateMyDecryptionSharesForProposalTransactions(
             ptr<BlockProposal> _proposal);
@@ -119,6 +116,33 @@ public:
     [[nodiscard]] bool isRealCryptoEnabled() const;
 
     void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
+
+
+    // =============== Test Encryption Calls =============== //
+
+    /**
+     * @brief Encrypts regular transaction data and to address using BITE1 scheme.
+     * @param _data - data field of the transaction
+     * @param _to - to address of the transaction
+     */
+    [[nodiscard]] ptr<vector<uint8_t> > encryptRegularTx(const vector<uint8_t> &_data,
+                                                                  const vector<uint8_t> &_to);
+
+
+#ifdef BITE2
+    /**
+     * @brief Encrypts CAT function arguments using BITE2 scheme.
+     * @param _data - Returned data follows the format:
+     * [
+     *      funcSelector,  // 4 bytes
+     *      RLP( 
+     *          RLP(cipher1, cipher2, ...), 
+     *          RLP(plaintext1, plaintext2, ...) 
+     *      ),
+     * ]
+     */
+    [[nodiscard]] ptr<vector<uint8_t> > generateEncryptedCATData();
+#endif
 
 private:
     // Decrypts a single ciphertext using the provided AES key 
@@ -129,4 +153,6 @@ private:
 
     // Parses decrypted data as a set of CAT function arguments
     DecryptedCATArgs parseDecryptedDataAsCATArgs(const vector<uint8_t> &_data) const;
+
+    ptr<vector<uint8_t>> encryptData(const vector<uint8_t>& data);
 };

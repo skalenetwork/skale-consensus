@@ -177,25 +177,27 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
     auto result = make_shared<vector<ptr<Transaction> > >();
 
-    for (const auto &e: transactions) {
+    for (size_t i = 0; i < transactions.size(); i++) {
+        auto tx = transactions.at(i);
         ptr<Transaction> pt = Transaction::deserialize(
-            make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
+            make_shared<std::vector<uint8_t> >(tx), 0, tx.size(), false);
 
 #ifdef BITE
         auto biteManager = sChain->getBiteManager();
         auto currentEpoch = sChain->getNode()->getCurrentEpochId();
         try {
 #ifdef BITE2
-            if (transactions.isCat(e)) {
-                pt->tryGetCATEncryptedArgs(pt, currentEpoch);
+            if (transactions.isCat(i)) {
+                biteManager->tryGetEncryptedCATArgs(pt, currentEpoch);
             }
             else
-#else
-            // only used for validation purposes
-            // If BITE2, only do this validation for non-CATs
-            biteManager->tryGetEncryptedRegularTxFields(pt, currentEpoch);
-            
 #endif
+            {
+                // only used for validation purposes
+                // If BITE2, only do this validation for non-CATs
+                biteManager->tryGetEncryptedRegularTxFields(pt, currentEpoch);
+            }
+
             result->push_back(pt);
             pushKnownTransaction(pt);
         } catch (std::exception &e) {

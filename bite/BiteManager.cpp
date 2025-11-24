@@ -23,6 +23,7 @@
 #include "rlp/ParsedEthTransaction.h"
 
 #include "BiteManager.h"
+#include "node/ConsensusInterface.h"
 
 #include <crypto/ConsensusAESKeyDecryptionShare.h>
 #include <crypto/ConsensusAESKeyDecryptionShareSet.h>
@@ -94,15 +95,18 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteManager::tryGetEncryptedCATArgs(
 
         // compare first 4 bytes to BITE2 expected function selector
         if (dataField->size() < BITE_FUNCTION_SELECTOR_SIZE_BYTES || 
-            !std::equal(BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY, BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY + BITE_FUNCTION_SELECTOR_SIZE_BYTES,
-                        dataField->begin())) {
+            std::memcmp(
+                dataField->data(),
+                BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
+                BITE_FUNCTION_SELECTOR_SIZE_BYTES
+            ) != 0
+        ) {
             return nullptr;
         }
 
         // Parse args as RLP list
         // Data comes as:
         // [funcSelector, RLP( RLP(cipher1, cipher2, ...), RLP(plaintext1, plaintext2, ...) )]
-
         // offset function selector
         auto dataWithoutSelector = std::vector<uint8_t>(dataField->begin() + BITE_FUNCTION_SELECTOR_SIZE_BYTES, dataField->end());
         RLPItem rlpItem(dataWithoutSelector);
@@ -143,7 +147,7 @@ void BiteManager::parseBITETransactions(
             auto catArgs = tryGetEncryptedCATArgs(tx, _proposal->getEpochID());
 
             if (catArgs) {
-                auto txCiphertexts = make_shared<TransactionCiphertexts>(catArgs);
+                auto txCiphertexts = make_shared<TransactionCiphertexts>(*catArgs);
                 encryptedAESKeyMap->emplace(i, txCiphertexts);
             } else {
                 // the first non-CAT transaction indicates the start of regular transactions
@@ -157,7 +161,7 @@ void BiteManager::parseBITETransactions(
         }
     }
 #endif
-                
+
     // Parse regular txs
     for (size_t i = regularTxsStartIdx; i < transactions->size(); i++) {
         try {
@@ -398,14 +402,19 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
 
 
 
-ptr<DecryptedRegularTxsMap> BiteManager::verifyAndDecryptTransactionList(
+DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
         TransactionList &_transactionList,
         DecryptedAESKeyList &_aesKeys) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     auto decryptedFieldsMap = std::make_shared<DecryptedRegularTxsMap>();
+    std::mutex regularTxMapMutex;
+    
+#ifdef BITE2
     auto catTxsMap          = std::make_shared<DecryptedCATxsMap>();
+    std::mutex catTxsMapMutex;
+#endif
 
     auto txs = _transactionList.getItems();
     CHECK_STATE(txs);
@@ -413,8 +422,7 @@ ptr<DecryptedRegularTxsMap> BiteManager::verifyAndDecryptTransactionList(
     std::vector<folly::Future<folly::Unit>> futures;
     futures.reserve(_aesKeys.getSize());
 
-    std::mutex regularTxMapMutex;
-    std::mutex catTxsMapMutex;
+
 
     // Helper to avoid repeating folly::via boilerplate
     auto schedule = [&](auto &&fn) {
@@ -515,7 +523,12 @@ ptr<DecryptedRegularTxsMap> BiteManager::verifyAndDecryptTransactionList(
 
     folly::collectAll(futures).get();
 
-    return decryptedFieldsMap;  // catTxsMap is still local; decide its final ownership/model
+    return DecryptedTransactions(
+#ifdef BITE2 
+        catTxsMap,
+#endif 
+        decryptedFieldsMap 
+    );
 }
 
 
@@ -579,21 +592,23 @@ void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> >) {
     }
 }
 
-ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_t> &_data, const vector<uint8_t> &_to) {
+ptr<vector<uint8_t>> BiteManager::encryptData(const vector<uint8_t>& data) {
+    auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
+    CHECK_STATE(primaryKey);
+    auto blsKey = primaryKey->getPublicKey();
+    libBLS::TEPublicKey teKey(blsKey);
+
+    auto cipherText = libBLS::ThresholdEncryption::encrypt(data, teKey);
+    return std::make_shared<vector<uint8_t>>(cipherText.toBytes());
+}
+
+ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data, const vector<uint8_t> &_to) {
     // RLP encode
     RLPStream stream;
     stream << _data << _to;
 
     if (this->doRealCrypto) {
-        auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
-        CHECK_STATE(primaryKey);
-        auto blsKey = primaryKey->getPublicKey();
-        libBLS::TEPublicKey teKey(blsKey);
-
-        auto cipherText = libBLS::ThresholdEncryption::encrypt(stream.encode(), teKey);
-        auto bytes = std::make_shared<vector<uint8_t>>(cipherText.toBytes());
-
-
+        auto bytes = encryptData(stream.encode());
         corruptFromTimeToTime(bytes);
 
         return bytes;
@@ -601,6 +616,63 @@ ptr<vector<uint8_t> > BiteManager::teEncryptDataAndToAddress(const vector<uint8_
         return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(stream.encode()));
     }
 }
+
+#ifdef BITE2
+ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData() {
+    static size_t numberOfCiphertexts = 2;
+
+    // Keep ciphertext count between 3 and 5 (inclusive)
+    numberOfCiphertexts++;
+    if (numberOfCiphertexts % 6 == 0) {
+        numberOfCiphertexts = 2;
+    }
+
+    RLPStream allArgs;
+    
+    RLPStream encryptedArgs;
+    for (size_t i = 0; i < numberOfCiphertexts; ++i) {
+        std::vector<uint8_t> rndData;
+        std::vector<uint8_t> encryptedData;
+        rndData.resize(numberOfCiphertexts * 10);
+        if (this->doRealCrypto) {
+            encryptedData = *encryptData(rndData);
+        }
+        else {
+            encryptedData = libBLS::ThresholdEncryption::mockupEncrypt(rndData);
+        }
+        BiteCiphertext biteCiphertext(
+            make_shared<vector<uint8_t>>(std::move(encryptedData)),
+            0 // epoch id not relevant here
+        );
+        encryptedArgs << *biteCiphertext.getSerializedData();
+    }
+    RLPStream plainArgs;
+    size_t numPlaintexts = numberOfCiphertexts - 1;
+    for (size_t i = 0; i < numPlaintexts; ++i) {
+        std::vector<uint8_t> rndData;
+        rndData.resize(numberOfCiphertexts * 5);
+        plainArgs << rndData;
+    }
+
+    allArgs << encryptedArgs << plainArgs;
+    auto finalData = allArgs.encode();
+
+    std::vector<uint8_t> data;
+    data.reserve(BITE_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
+
+    // prefix with function selector 
+    data.insert(
+        data.end(),
+        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
+        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY + BITE_FUNCTION_SELECTOR_SIZE_BYTES
+    );
+
+    // append RLP data
+    data.insert(data.end(), finalData.begin(), finalData.end());
+
+    return std::make_shared<std::vector<uint8_t>>(std::move(data));
+}
+#endif
 
 
 

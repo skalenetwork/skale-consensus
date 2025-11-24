@@ -33,43 +33,13 @@
 
 #pragma GCC diagnostic pop
 
-#include <map>
-#include <string>
-#include <vector>
-#include <string_view>
-#include <memory>
-
-#include "libBLS/threshold_encryption/ThresholdEncryption.h"
+#include "node/ConsensusTypes.h"
+#include "node/BiteConstants.h"
 
 enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0,
     CONSENSUS_EXITED = 1,
 };
-
-
-constexpr uint64_t BITE_CHAIN_ID = 0xD1D2D3;
-constexpr std::string_view BITE_CHAIN_ID_AS_STRING = "D1D2D3";
-constexpr uint8_t BITE_CHAIN_ID_AS_BYTE_ARRAY[3] = {0xD1, 0xD2, 0xD3};
-
-constexpr uint64_t ADDRESS_SIZE = 20;
-constexpr std::string_view BITE_ADDRESS_AS_STRING = "42495445204D452049274D20454E435259505444";
-constexpr uint8_t BITE_ADDRESS_AS_BYTE_ARRAY[ADDRESS_SIZE] = {0x42, 0x49, 0x54, 0x45, 0x20, 0x4D, 0x45, 0x20,
-    0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
-    0x59, 0x50, 0x54, 0x44};
-
-#ifdef BITE2
-constexpr uint64_t BITE_FUNCTION_SELECTOR_SIZE_BYTES = 4;
-// TODO - update to the actual function selector once decided
-constexpr uint8_t BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY[BITE_FUNCTION_SELECTOR_SIZE_BYTES] = {0x42, 0x49, 0x54, 0x45};
-#endif
-
-static constexpr uint64_t BITE_EPOCH_ID_LEN = sizeof(uint64_t);
-static constexpr uint64_t BITE_AES_KEY_LEN = libBLS::AES_256_KEY_SIZE_BYTES;
-static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = libBLS::CipheredKey::CIPHERED_KEY_SIZE_BYTES;
-static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = libBLS::G2_SIZE_BYTES;
-static constexpr uint64_t BITE_TE_RANDOM_LEN = libBLS::RANDOM_SECRET_SIZE_BYTES;
-static constexpr uint64_t BITE_CIPHERTEXT_MIN_LEN = BITE_ENCRYPTED_AES_KEY_LEN + BITE_TE_RANDOM_LEN + ADDRESS_SIZE;
-
 
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
         256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
@@ -232,30 +202,6 @@ public:
 
 };
 
-// ====== Common Types ======
-
-using TxId = uint64_t;
-using Address = std::array<uint8_t, 20>;
-using Bytes = std::vector<uint8_t>;
-
-// Contains the needed decrypted fields of a regular transaction.
-// - data: original plaintext calldata
-// - to:   original plaintext 'to' address (20 bytes)
-struct DecryptedRegularTxFields {
-    Bytes data;
-    Address to;
-};
-
-// Contains all decrypted arguments of a CAT transaction.
-// Will only be filled if decryption was successful.
-// Else, the map will contain std::nullopt for that transaction.
-struct DecryptedCATArgs {
-    std::vector<Bytes> args;
-};
-
-// TODO - std::optional would encode better the txs that did not succesfully decrypt
-using DecryptedRegularTxsMap = std::map< TxId, DecryptedRegularTxFields >;
-using DecryptedCATxsMap = std::map< TxId, DecryptedCATArgs >;
 
 /**
  * Through this interface Consensus interacts with the rest of the system
@@ -263,18 +209,47 @@ using DecryptedCATxsMap = std::map< TxId, DecryptedCATArgs >;
 class ConsensusExtFace {
 public:
 
-    typedef std::vector<Bytes > transactions_vector;
-
-#ifdef BITE2
     // BITE2 pending transactions include both regular and CAT transactions.
     // CAT should be placed before regular transactions.
     struct Transactions {
+    private:
         transactions_vector all;
         
-        std::size_t cats_size = 0;
+#ifdef BITE2
+        // number of CAT txs in 'all' vector
+        std::size_t catsSize = 0;
+#endif
 
         using iterator = typename transactions_vector::iterator;
         using const_iterator = typename transactions_vector::const_iterator;
+
+    public:
+
+#ifdef BITE2
+        std::size_t sizeCAT() const noexcept {
+            return catsSize;
+        }
+
+        bool isCat(size_t index) const {
+            return index < catsSize;
+        }
+
+        void emplaceBackCAT(Bytes&& b) {
+            CHECK_STATE(catsSize == all.size()); // ensure all cats are contiguous at the start
+            all.emplace_back(std::move(b));
+            catsSize++;
+        }
+
+        void pushBackCAT(const Bytes &b) {
+            CHECK_STATE(catsSize == all.size());
+            all.push_back(b);
+            catsSize++;
+        }
+#endif
+
+        Bytes at(size_t index) const {
+            return all.at(index);
+        }
 
         bool empty() const noexcept {
             return all.empty();
@@ -300,32 +275,23 @@ public:
             return all.end();
         }
 
-        void push_back(const Bytes &b) {
+        void emplaceBackRegular(Bytes&& b) {
+            all.emplace_back(std::move(b));
+        }
+
+        void pushBackRegular(const Bytes &b) {
             all.push_back(b);
         }
-
-        bool isCat(const_iterator it) const {
-            return std::distance(all.begin(), it) < static_cast<std::ptrdiff_t>(cats_size);
-        }
-
     };
-#else
-    using Transactions = std::vector<Bytes >;
-#endif
 
 
     // Returns hashes and bytes of new transactions as well as state root to put into block proposal
     virtual Transactions pendingTransactions(size_t _limit, u256 &_stateRoot) = 0;
 
-
-
     // Creates new block with specified transactions AND removes them from the queue
     virtual void createBlock(const Transactions &_approvedTransactions,
 #ifdef BITE
-        std::shared_ptr< DecryptedRegularTxsMap > _decryptedRegularTransactions,
-#endif
-#ifdef BITE2
-        std::shared_ptr< DecryptedCATxsMap > _decryptedCATTransactions,
+        DecryptedTransactions _decryptedTransactions,
 #endif
         uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
                              uint64_t _winningNodeIndex) = 0;

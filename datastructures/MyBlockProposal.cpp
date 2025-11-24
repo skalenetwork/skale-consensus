@@ -72,7 +72,7 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
 #endif
         _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _cryptoManager));
 
-        #ifdef BITE
+#ifdef BITE
     BiteManager::parseBITETransactions(proposal);
     CHECK_STATE(proposal->getFailedTransactionsRef().empty());
 #endif
