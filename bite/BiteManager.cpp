@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "BiteCiphertext.h"
+#include "BiteEngine.h"
 #include "datastructures/BlockProposal.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
@@ -34,157 +35,39 @@
 #include "BLSPublicKey.h"
 #include "db/TEDecryptionDB.h"
 #include "rlp/RLPStream.h"
+#include "bite/BiteCodec.h"
 
-BiteManager::BiteManager(Schain &_schain) : schain(_schain) {
-    doRealCrypto = _schain.getNode()->verifyRealSignatures();
+BiteManager::BiteManager(Schain& _schain)
+  : biteEngine(
+        BiteCore{_schain.getNode()->verifyRealSignatures() },
+        BiteConfig{_schain.getRequiredSigners(), _schain.getTotalSigners()}
+    ), schain(_schain)
+{
     threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
 }
 
-
-ptr<BiteCiphertext> BiteManager::tryGetEncryptedRegularTxFields(
-            const ptr<Transaction> &_transaction, epoch_id _currentEpochId) {
-    CHECK_STATE(_transaction);
-
-    auto encryptedRegularTxData = _transaction->getRegularTxEncryptedData();
-
-    if (encryptedRegularTxData) {
-        return encryptedRegularTxData;
-    }
-
-    // if not set bite data already - try parse it
-
-    auto ethTx = _transaction->getAsEthereumTransaction();
-    
-    ptr<BiteCiphertext> biteCiphertext;
-    if (ethTx->hasToField()) {
-        
-        auto to = ethTx->getToField();
-        CHECK_STATE(to);
-
-        // compare _to field to BITE magic number
-        if (!std::equal(BITE_ADDRESS_AS_BYTE_ARRAY, BITE_ADDRESS_AS_BYTE_ARRAY + ADDRESS_SIZE,
-                        to->begin())) {
-            return nullptr;
-        }
-
-        auto dataField = ethTx->getTransactionDataField();
-        CHECK_STATE(dataField);
-
-        biteCiphertext = ptr<BiteCiphertext>(new BiteCiphertext(dataField, _currentEpochId));
-        _transaction->setRegularTxEncryptedData(biteCiphertext); // cache it
-    }
-
-    return biteCiphertext;
-}
-
-#ifdef BITE2
-ptr<std::vector<ptr<BiteCiphertext>>> BiteManager::tryGetEncryptedCATArgs(
-            const ptr<Transaction>& _transaction, epoch_id _currentEpochId ) {
-    CHECK_STATE(_transaction);
-
-    auto encryptedCATArgs = _transaction->getCATEncryptedArgs();
-
-    // if not cached - try to parse it
-    if (!encryptedCATArgs) {
-
-        // if not set bite data already - try parse it
-        auto ethTx = _transaction->getAsEthereumTransaction();
-        
-        auto dataField = ethTx->getTransactionDataField();
-        CHECK_STATE(dataField);
-
-        // compare first 4 bytes to BITE2 expected function selector
-        if (dataField->size() < BITE_FUNCTION_SELECTOR_SIZE_BYTES || 
-            std::memcmp(
-                dataField->data(),
-                BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
-                BITE_FUNCTION_SELECTOR_SIZE_BYTES
-            ) != 0
-        ) {
-            return nullptr;
-        }
-
-        // Parse args as RLP list
-        // Data comes as:
-        // [funcSelector, RLP( RLP(cipher1, cipher2, ...), RLP(plaintext1, plaintext2, ...) )]
-        // offset function selector
-        auto dataWithoutSelector = std::vector<uint8_t>(dataField->begin() + BITE_FUNCTION_SELECTOR_SIZE_BYTES, dataField->end());
-        RLPItem rlpItem(dataWithoutSelector);
-        CHECK_STATE(rlpItem.isList());
-        CHECK_STATE(rlpItem.size() == 2); // RLP(ciphertexts, plaintexts)
-        RLPItem encryptedArgsRLP = rlpItem[0];
-        CHECK_STATE(encryptedArgsRLP.isList());
-
-        encryptedCATArgs = ptr<std::vector<ptr<BiteCiphertext>>>(new std::vector<ptr<BiteCiphertext>>());
-        
-        encryptedCATArgs->reserve(encryptedArgsRLP.size());
-        for (size_t i = 0; i < encryptedArgsRLP.size(); i++) {
-            auto argData = make_shared<std::vector<uint8_t>>(encryptedArgsRLP[i].asBytes());
-            ptr<BiteCiphertext> biteCiphertext = make_shared<BiteCiphertext>(argData, _currentEpochId);
-            encryptedCATArgs->emplace_back( biteCiphertext );
-        }
-        _transaction->setCATEncryptedArgs(encryptedCATArgs); // cache it   
-    }
-    return encryptedCATArgs;
-}
-#endif
 
 
 void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {
 
-    auto encryptedAESKeyMap = make_shared<TransactionCiphertextsMap>();
-    auto biteDataFields     = make_shared<std::map<transaction_index, ptr<BiteCiphertext> > >();
+    BiteRuntimeContext runtimeCtx {
+        .currentEpoch = _proposal->getEpochID()
+    };
 
-    size_t regularTxsStartIdx = 0;
-    ptr<vector<ptr<Transaction> > > transactions = _proposal->getTransactionList()->getItems(); 
+    auto result = biteEngine.parseAndCacheBITETransactions(*_proposal->getTransactionList(), 
+                                                runtimeCtx);
 
-#ifdef BITE2
-    // Try parsing CAT transactions first
-    for (size_t i = 0 ; i < transactions->size(); i++) {
-        try {
-            auto tx = transactions->at(i);
-            auto catArgs = tryGetEncryptedCATArgs(tx, _proposal->getEpochID());
-
-            if (catArgs) {
-                auto txCiphertexts = make_shared<TransactionCiphertexts>(*catArgs);
-                encryptedAESKeyMap->emplace(i, txCiphertexts);
-            } else {
-                // the first non-CAT transaction indicates the start of regular transactions
-                regularTxsStartIdx = i;
-                break;
-            }
-        } catch (exception &e) {
-            CONS_LOG(err, string("Could not parse CAT transaction:") + e.what());
-            _proposal->getFailedTransactionsRef().emplace(i,
-                                                          ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
-        }
+    for (auto failedTxIdx : result.failedTransactions) {
+        _proposal->getFailedTransactionsRef().emplace(std::move(failedTxIdx));
     }
-#endif
-
-    // Parse regular txs
-    for (size_t i = regularTxsStartIdx; i < transactions->size(); i++) {
-        try {
-            auto tx = transactions->at(i);
-            auto ciphertext = tryGetEncryptedRegularTxFields(tx, _proposal->getEpochID());
-            if (ciphertext) {
-                auto txCiphertexts = make_shared<TransactionCiphertexts>(ciphertext);
-                encryptedAESKeyMap->emplace(i, txCiphertexts);
-            }
-        } catch (exception &e) {
-            CONS_LOG(err, string("Could not parse transaction:") + e.what());
-            _proposal->getFailedTransactionsRef().emplace(i,
-                                                          ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
-        }
-    }
-
 
     if (!_proposal->getFailedTransactionsRef().empty()) {
         return;
     }
 
-
-    _proposal->setTransactionCiphertexts(encryptedAESKeyMap);
+    auto txsCiphertexts = make_shared<TransactionCiphertextsMap>(std::move(result.txsCiphertexts));
+    _proposal->setTransactionCiphertexts(txsCiphertexts);
 }
 
 void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
@@ -276,7 +159,7 @@ ptr<vector<ptr<AESKeyDecryptionShares> > > BiteManager::getDecryptionSharesFromA
 
     // define how to add share depending on real or mockup crypto
     // EncryptedAESKey is the current ciphertext being processed (may be multiple per tx)
-    // size_t is the global ciphertext
+    // size_t is the global ciphertext index
     std::function<void(ptr<AESKeyDecryptionShares>&, EncryptedAESKey&, size_t)> addShareForCurrentTx;
 
     if (doRealCrypto) {
@@ -311,93 +194,25 @@ ptr<vector<ptr<AESKeyDecryptionShares> > > BiteManager::getDecryptionSharesFromA
     return shares;
 }
 
-/**
- * @brief Helper function - appends ciphertexts from TransactionCiphertexts to vector of CipheredKey
- */
-void appendCiphertextsToVector(ptr<TransactionCiphertexts> _ciphertexts, std::vector< libBLS::CipheredKey >& _vec, size_t& _ciphertextIdx) {
-    if (_ciphertexts->count() > 1) {
-        std::vector< libBLS::CipheredKey > cipheredKeysLocal;
-        cipheredKeysLocal.reserve(_ciphertexts->count());
-        for (const auto& encryptedKey : *_ciphertexts) {
-            auto cipheredKey = libBLS::CipheredKey::fromBytes(encryptedKey.data());
-            cipheredKeysLocal.push_back(cipheredKey);
-            _ciphertextIdx++;
-        }
-        // Only insert all after all have been successfully created (there could be exceptions thrown)
-        _vec.insert(_vec.end(), cipheredKeysLocal.begin(), cipheredKeysLocal.end());
-    }
-    else {
-        auto cipheredKey = libBLS::CipheredKey::fromBytes((*_ciphertexts)[0].data());
-        _vec.push_back(cipheredKey);
-    }
-}
-
 void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal) {
-    if (!doRealCrypto) {
-        return;
-    }
-
     CHECK_STATE(_proposal);
 
     ptr<TransactionCiphertextsMap> txsCiphertexts = _proposal->getTransactionCiphertexts();
     auto failedTransactionRef = _proposal->getFailedTransactionsRef();
-    auto publicDecryptionValues = make_shared<vector<string>>();
 
-    std::vector< transaction_index > validGlobalIndices; // global indices of all valid txs
-    std::vector< libBLS::CipheredKey > cipheredKeys;
+    BiteEngine::CiphertextValidationResult validationResult = biteEngine.validateCiphertexts(*txsCiphertexts);
 
-    publicDecryptionValues->reserve(txsCiphertexts->totalCiphertextCount());
-    cipheredKeys.reserve(txsCiphertexts->totalCiphertextCount());
-
-    for ( auto && it: *txsCiphertexts) {
-        size_t failingIdx = 0; // ciphertext idx for each tx starts at 0
-        try {
-            ptr<TransactionCiphertexts> ciphertexts = it.second;
-            CHECK_STATE(ciphertexts)
-            
-            appendCiphertextsToVector(ciphertexts, cipheredKeys, failingIdx);
-
-            for (size_t i = 0; i < ciphertexts->count(); ++i) {
-                validGlobalIndices.push_back(it.first); // repeat global index for each ciphertext
-            }
-        }
-        catch (exception &_e) {
-            CONS_LOG(err, fmt::format( "Could not build ciphertext {} of transaction {} from bytes: {}" , failingIdx, static_cast<std::uint32_t>(it.first), _e.what()));
-            failedTransactionRef.emplace(it.first,
-                                            ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
-        }
-    }
-
-    // validate all in parallel
-    std::vector< bool > validationResult = libBLS::ThresholdEncryption::validateEncryptionBatchParallel( cipheredKeys );
-
-    // If at least 1 is not valid - mark as failed, log and return
-    bool allValid = std::all_of(validationResult.begin(), validationResult.end(),
-                                  [](bool v) { return v; });
-
-    // some transactions failed validationgetDecryptionSharesFromAESKeys
-    if (!allValid) {
-        size_t ciphertextGlobalIdx = 0;
-        for (auto& [idx, ciphertexts] : *txsCiphertexts) {
-            size_t numCiphertexts = ciphertexts->count();
-            for (size_t i = 0; i < numCiphertexts; ++i) {
-                if (!validationResult[ciphertextGlobalIdx]) {
-                    CONS_LOG(err, fmt::format("AES key encryption validation failed for ciphertext {} of transaction {}", i, (uint32_t)idx));
-                    failedTransactionRef.emplace(idx,
-                                                    ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
-                }
-                ciphertextGlobalIdx++;
-            }
+    if (!validationResult.allValid()) {
+        for (auto invalidIdx : validationResult.invalidCiphertextIndices) {
+            CONS_LOG(err, fmt::format("AES key encryption validation failed for transaction {}", (uint32_t)invalidIdx));
+            failedTransactionRef.emplace(invalidIdx,
+                                        ConnectionSubStatus::CONNECTION_ERROR_INVALID_AES_KEY_ENCRYPTION_IN_PROPOSAL_TRANSACTION);
         }
         return;
     }
 
-    // convert to string all successful decryption shares
-    publicDecryptionValues = make_shared<vector<string>>(
-        libBLS::CipheredKey::getDecryptionShareInputBatch( cipheredKeys )
-    );
-
-    _proposal->setSGXAESKeyBatch(publicDecryptionValues);
+    auto sgxAESKeyBatch = std::make_shared<std::vector<std::string>>(std::move(validationResult.publicDecryptionValues));
+    _proposal->setSGXAESKeyBatch(sgxAESKeyBatch);
 }
 
 
@@ -408,213 +223,21 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
-    auto decryptedFieldsMap = std::make_shared<DecryptedRegularTxsMap>();
-    std::mutex regularTxMapMutex;
-    
-#ifdef BITE2
-    auto catTxsMap          = std::make_shared<DecryptedCATxsMap>();
-    std::mutex catTxsMapMutex;
-#endif
-
-    auto txs = _transactionList.getItems();
-    CHECK_STATE(txs);
-
-    std::vector<folly::Future<folly::Unit>> futures;
-    futures.reserve(_aesKeys.getSize());
-
-
-
-    // Helper to avoid repeating folly::via boilerplate
-    auto schedule = [&](auto &&fn) {
-        futures.emplace_back(
-            folly::via(threadPoolExecutor.get(), std::forward<decltype(fn)>(fn))
-        );
-    };
-
-    try {
-        const auto currentEpoch = schain.getNode()->getCurrentEpochId();
-        const std::size_t txCount = _transactionList.size();
-
-#ifdef BITE2
-        bool allCATsParsed = false;
-#endif
-
-        for (std::size_t txIdx = 0; txIdx < txCount; ++txIdx) {
-            auto tx = txs->at(txIdx);
-
-#ifdef BITE2
-            // ---------- Try CAT path first ----------
-            if (!allCATsParsed) {
-                auto encryptedArgs = tryGetEncryptedCATArgs(tx, currentEpoch);
-                if (encryptedArgs) {
-                    auto decryptedAESKey = _aesKeys.getKeys(txIdx);
-                    CHECK_STATE(decryptedAESKey);
-                    CHECK_STATE(encryptedArgs->size() == decryptedAESKey->size());
-
-                    try {
-                        schedule([this, encryptedArgs, decryptedAESKey, catTxsMap, txIdx, &catTxsMapMutex]() 
-                        -> folly::Unit {
-                            DecryptedCATArgs decryptedData;
-                            decryptedData.args.reserve(encryptedArgs->size());
-
-                            for (std::size_t argIdx = 0; argIdx < encryptedArgs->size(); ++argIdx) {
-                                decryptedData.args.push_back(
-                                    decryptCiphertext(
-                                        encryptedArgs->at(argIdx),
-                                        decryptedAESKey->at(argIdx)
-                                    )
-                                );
-                            }
-
-                            std::lock_guard<std::mutex> lock(catTxsMapMutex);
-                            catTxsMap->emplace(txIdx, std::move(decryptedData));
-
-                            return folly::unit;
-                        });
-                    } catch (const std::exception &e) {
-                        CONS_LOG(err, fmt::format("Corrupt CAT tx:{} that doesn't decrypt: {}", txIdx, e.what()));
-                    }
-
-                    // This tx is CAT, do not treat it as regular
-                    continue;
-                }
-                else {
-                    // No more CAT transactions expected after the first non-CAT one
-                    allCATsParsed = true;
-                }
-            }
-
-#endif // BITE2
-
-            // ---------- Regular BITE1-style encryption ----------
-            auto bite = tryGetEncryptedRegularTxFields(tx, currentEpoch);
-            if (bite) {
-                auto decryptedAESKey = _aesKeys.getKeys(txIdx);
-                CHECK_STATE(decryptedAESKey);
-                CHECK_STATE(decryptedAESKey->size() == 1); // single AES key expected
-
-                try {
-                    schedule([this, bite, decryptedAESKey, decryptedFieldsMap, txIdx, &regularTxMapMutex]() 
-                    -> folly::Unit {
-                        auto decryptedTransactionFields =
-                            decryptCiphertext(bite, decryptedAESKey->at(0));
-
-                        auto parsedRegularTx =
-                            parseDecryptedDataAsRegularTx(decryptedTransactionFields);
-
-                        std::lock_guard<std::mutex> lock(regularTxMapMutex);
-                        decryptedFieldsMap->emplace(txIdx, std::move(parsedRegularTx));
-
-                        return folly::unit;
-                    });
-                } catch (const std::exception &e) {
-                    CONS_LOG(err, fmt::format("Corrupt regular tx:{} that doesn't decrypt: {}", txIdx, e.what()));
-                }
-
-                continue;
-            }
-
-            // ---------- No BITE data at all ----------
-            // If it's neither CAT nor regular encrypted, we must not have AES keys
-            CHECK_STATE(!_aesKeys.getKeys(txIdx));
-        }
-    }
-    CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse BITE transaction");
-
-    folly::collectAll(futures).get();
-
-    return DecryptedTransactions(
-#ifdef BITE2 
-        catTxsMap,
-#endif 
-        decryptedFieldsMap 
+    return decryptTransactionsListInParallel(
+            _transactionList,
+            _aesKeys,
+            schain.getNode()->getCurrentEpochId(),
+            threadPoolExecutor,
+            doRealCrypto
     );
 }
 
-
-DecryptedRegularTxFields BiteManager::parseDecryptedDataAsRegularTx(
-        const vector<uint8_t> &_data) const {
-    
-    CHECK_STATE2(_data.size() >= ADDRESS_SIZE,
-                 "Decrypted data is not long enough to include the original tx.to field!");
-
-    RLPItem decryptedDataRlp(_data);
-    CHECK_STATE2(decryptedDataRlp.isList(), "Encrypted data rlp size must be a list");
-    CHECK_STATE2(decryptedDataRlp.size() == 2,
-                 "Encrypted data rlp lsit must have exactly 2 elements");
-    // extract decrypted data and to fields
-    vector<uint8_t> dataField = decryptedDataRlp[0].asBytes();
-    
-    std::array<uint8_t, 20> toField;
-    std::copy(decryptedDataRlp[1].asBytes().begin(), decryptedDataRlp[1].asBytes().end(), toField.begin());
-
-    auto decryptedFields = DecryptedRegularTxFields {
-            .data = std::move(decryptedDataRlp[0].asBytes()),
-            .to = std::move(toField),
-    };
-
-    return decryptedFields;
-}
-
-
-vector<uint8_t> BiteManager::decryptCiphertext(const ptr<BiteCiphertext> &_bite, DecryptedAESKey &_decryptedAESKey) const {
-    CHECK_STATE(_bite);
-
-    vector<uint8_t> decryptedData;
-
-    if (doRealCrypto) {
-        auto encryptedData = _bite->getKeyPlusEncryptedData();
-        CHECK_STATE(encryptedData != nullptr);
-
-        libBLS::Ciphertext ciphertext = libBLS::Ciphertext::fromBytes(*encryptedData);
-        return libBLS::ThresholdEncryption::decrypt(ciphertext, _decryptedAESKey.getAesKey());
-    } else {
-        auto keyPlusEncryptedData = _bite->getKeyPlusEncryptedData();
-        CHECK_STATE(keyPlusEncryptedData);
-        return libBLS::ThresholdEncryption::mockupDecrypt(*keyPlusEncryptedData);
-    }
-}
-
-void BiteManager::corruptFromTimeToTime(shared_ptr<vector<unsigned char> >) {
-    static atomic<uint64_t> counter = 0;
-    counter++;
-    // corrupt AES transactions infrequently
-    auto corruptionType = counter % 111;
-    if (corruptionType == 1) {
-        // introduce some corrupt transactions
-        //result->back() = 1;
-    } else if (corruptionType == 2) {
-        //result->push_back(1);
-    } else if (corruptionType == 3) {
-        //result->resize(result->size() - 1);
-    } else if (corruptionType == 4) {
-        // result->front() = 1;
-    }
-}
-
-ptr<vector<uint8_t>> BiteManager::encryptData(const vector<uint8_t>& data) {
+ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data, const vector<uint8_t> &_to) {
     auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
     CHECK_STATE(primaryKey);
     auto blsKey = primaryKey->getPublicKey();
     libBLS::TEPublicKey teKey(blsKey);
-
-    auto cipherText = libBLS::ThresholdEncryption::encrypt(data, teKey);
-    return std::make_shared<vector<uint8_t>>(cipherText.toBytes());
-}
-
-ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data, const vector<uint8_t> &_to) {
-    // RLP encode
-    RLPStream stream;
-    stream << _data << _to;
-
-    if (this->doRealCrypto) {
-        auto bytes = encryptData(stream.encode());
-        corruptFromTimeToTime(bytes);
-
-        return bytes;
-    } else {
-        return make_shared<vector<uint8_t> >(libBLS::ThresholdEncryption::mockupEncrypt(stream.encode()));
-    }
+    return std::make_shared<vector<uint8_t>>(BiteCodec::buildRegularTxData(teKey, _data, _to, doRealCrypto));
 }
 
 #ifdef BITE2
@@ -627,53 +250,14 @@ ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData() {
         numberOfCiphertexts = 2;
     }
 
-    RLPStream allArgs;
-    
-    RLPStream encryptedArgs;
-    for (size_t i = 0; i < numberOfCiphertexts; ++i) {
-        std::vector<uint8_t> rndData;
-        std::vector<uint8_t> encryptedData;
-        rndData.resize(numberOfCiphertexts * 10);
-        if (this->doRealCrypto) {
-            encryptedData = *encryptData(rndData);
-        }
-        else {
-            encryptedData = libBLS::ThresholdEncryption::mockupEncrypt(rndData);
-        }
-        BiteCiphertext biteCiphertext(
-            make_shared<vector<uint8_t>>(std::move(encryptedData)),
-            0 // epoch id not relevant here
-        );
-        encryptedArgs << *biteCiphertext.getSerializedData();
-    }
-    RLPStream plainArgs;
-    size_t numPlaintexts = numberOfCiphertexts - 1;
-    for (size_t i = 0; i < numPlaintexts; ++i) {
-        std::vector<uint8_t> rndData;
-        rndData.resize(numberOfCiphertexts * 5);
-        plainArgs << rndData;
-    }
+    auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
+    CHECK_STATE(primaryKey);
+    auto blsKey = primaryKey->getPublicKey();
+    libBLS::TEPublicKey teKey(blsKey);
 
-    allArgs << encryptedArgs << plainArgs;
-    auto finalData = allArgs.encode();
-
-    std::vector<uint8_t> data;
-    data.reserve(BITE_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
-
-    // prefix with function selector 
-    data.insert(
-        data.end(),
-        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
-        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY + BITE_FUNCTION_SELECTOR_SIZE_BYTES
-    );
-
-    // append RLP data
-    data.insert(data.end(), finalData.begin(), finalData.end());
-
-    return std::make_shared<std::vector<uint8_t>>(std::move(data));
+    return std::make_shared<vector<uint8_t>>(BiteCodec::buildCATData(teKey, numberOfCiphertexts, doRealCrypto));
 }
 #endif
-
 
 
 // Helper function to split string_view by commas

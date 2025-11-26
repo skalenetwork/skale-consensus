@@ -12,6 +12,7 @@
 class Schain;
 
 class BlockProposal;
+class BiteEngine;
 
 class CommittedBlock;
 
@@ -33,8 +34,9 @@ class CPUThreadPoolExecutor;
 
 class BiteManager {
     Schain &schain;
-    bool doRealCrypto = false;
     std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
+
+    BiteEngine biteEngine;
 
 public:
     explicit BiteManager(Schain &_schain);
@@ -49,7 +51,7 @@ public:
     // Unparsable transactions will be added to failedTransactions.
     // Transactions starting from the magic number but with incorrect format will be added
     // to failedTransactions.
-    static void parseBITETransactions(ptr<BlockProposal> _proposal);
+    void parseBITETransactions(ptr<BlockProposal> _proposal);
 
     // Tries to match the TO field to BITE1 magic number. If it matches - tries to parse the BITE1 data field.
     // If parsing is successful - returns BiteCiphertext object, else returns 'nullopt'
@@ -69,8 +71,9 @@ public:
 
     // =============== Ciphertext Parsing =============== //
 
-    // this will return a map of failed transactions
-    // if none of the transactions fails, the  proposal is set with decryption shares
+    /**
+     * @brief Converts the vector of AESKeys (corresponding to decryption shares) into a mapping of txId -> decryption shares.
+     */
     [[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesForProposal(
             ptr<BlockProposal> _proposal);
 
@@ -82,12 +85,23 @@ public:
         return threadPoolExecutor;
     }
 
+    /**
+     * @brief For a given proposal, computes the decrypt shares for all ciphertexts of all transactions.
+     */
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShares> > > getDecryptionSharesFromAESKeys(
             ptr<BlockProposal> _proposal,
             schain_index _decryptorIndex);
 
     [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(TransactionList &_transactionList,
                                                                                      DecryptedAESKeyList &_aesKeys);
+
+    static DecryptedTransactions decryptTransactionsListInParallel(
+            TransactionList &_transactionList,
+            DecryptedAESKeyList &_aesKeys,
+            epoch_id currentEpochId,
+            std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor,
+            bool doRealCrypto
+    );
 
 
     /**
@@ -105,8 +119,6 @@ public:
 
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
             block_id _blockId, transaction_index _transactionIndex, size_t numberOfCiphertexts);
-
-    void corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result);
 
 
     void callSGXToCreateMyDecryptionSharesForProposalTransactions(
@@ -141,18 +153,9 @@ public:
      *      ),
      * ]
      */
-    [[nodiscard]] ptr<vector<uint8_t> > generateEncryptedCATData();
+    ptr<vector<uint8_t> > generateEncryptedCATData();
+
+    ptr<vector<uint8_t> > generateEncryptedCATDataWithCount(size_t numberOfCiphertexts, bool useRealCrypto);
 #endif
 
-private:
-    // Decrypts a single ciphertext using the provided AES key 
-    vector<uint8_t> decryptCiphertext(const ptr<BiteCiphertext> &_bite, DecryptedAESKey &_decryptedAESKey) const;
-
-    // Parses decrypted data as a regular transaction, extracting 'data' and 'to' fields
-    DecryptedRegularTxFields parseDecryptedDataAsRegularTx(const vector<uint8_t> &_data) const;
-
-    // Parses decrypted data as a set of CAT function arguments
-    DecryptedCATArgs parseDecryptedDataAsCATArgs(const vector<uint8_t> &_data) const;
-
-    ptr<vector<uint8_t>> encryptData(const vector<uint8_t>& data);
 };
