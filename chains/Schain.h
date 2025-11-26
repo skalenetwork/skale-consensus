@@ -361,6 +361,7 @@ public:
 #ifdef BITE
 
     const shared_ptr< folly::CPUThreadPoolExecutor >& getFinalizationExecutor() const;
+    void stopAndDestroyFinalizationExecutor();
 #endif
 
     ptr< BlockConsensusAgent > getBlockConsensusInstance();

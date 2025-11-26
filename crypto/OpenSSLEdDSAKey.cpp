@@ -38,53 +38,40 @@
 #define NID_FAST NID_X9_62_prime256v1
 #define NID_ETH NID_secp256k1
 
-OpenSSLEdDSAKey::OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate ) : isPrivate( _isPrivate ) {
+OpenSSLEdDSAKey::OpenSSLEdDSAKey( std::shared_ptr<EVP_PKEY> _edKey, bool _isPrivate ) : isPrivate( _isPrivate ) {
     CHECK_STATE( _edKey );
 
     this->edKey = _edKey;
 }
-OpenSSLEdDSAKey::~OpenSSLEdDSAKey() {
-    if ( edKey ) {
-        EVP_PKEY_free( edKey );
-    }
-}
+OpenSSLEdDSAKey::~OpenSSLEdDSAKey() {}
 
 
 ptr< OpenSSLEdDSAKey > OpenSSLEdDSAKey::generateKey() {
-    EVP_PKEY* edkey = nullptr;
-
-    edkey = genFastKeyImpl();
+    auto edkey = genFastKeyImpl();
 
     return make_shared< OpenSSLEdDSAKey >( edkey, true );
 }
 
 
-EVP_PKEY* OpenSSLEdDSAKey::genFastKeyImpl() {
+std::shared_ptr<EVP_PKEY> OpenSSLEdDSAKey::genFastKeyImpl() {
     EVP_PKEY* edkey = nullptr;
-    EVP_PKEY_CTX* ctx = nullptr;
+    std::shared_ptr<EVP_PKEY_CTX> ctx;
     try {
-        ctx = EVP_PKEY_CTX_new_id( NID_ED25519, NULL );
+        ctx = std::shared_ptr<EVP_PKEY_CTX>(EVP_PKEY_CTX_new_id( NID_ED25519, NULL ), EVP_PKEY_CTX_free);
         CHECK_STATE( ctx );
-        EVP_PKEY_keygen_init( ctx );
+        CHECK_STATE( EVP_PKEY_keygen_init( ctx.get() ) > 0 );
         edkey = EVP_PKEY_new();
+        CHECK_STATE( EVP_PKEY_keygen( ctx.get(), &edkey ) > 0 );
         CHECK_STATE( edkey );
-        CHECK_STATE( EVP_PKEY_keygen( ctx, &edkey ) > 0 );
 
     } catch ( ... ) {
-        if ( ctx ) {
-            EVP_PKEY_CTX_free( ctx );
-        }
         if ( edkey ) {
             EVP_PKEY_free( edkey );
         }
         throw;
     }
 
-    if ( ctx ) {
-        EVP_PKEY_CTX_free( ctx );
-    }
-
-    return edkey;
+    return std::shared_ptr<EVP_PKEY>(edkey, EVP_PKEY_free);
 }
 
 
@@ -109,7 +96,7 @@ string OpenSSLEdDSAKey::fastSignImpl( const char* _hash ) {
 
         CHECK_STATE( edKey )
 
-        CHECK_STATE( EVP_DigestSignInit( ctx, NULL, NULL, NULL, edKey ) > 0 )
+        CHECK_STATE( EVP_DigestSignInit( ctx, NULL, NULL, NULL, edKey.get() ) > 0 )
 
 
         size_t len = 0;
@@ -141,31 +128,19 @@ string OpenSSLEdDSAKey::fastSignImpl( const char* _hash ) {
     return encodedSignature;
 }
 
-EVP_PKEY* OpenSSLEdDSAKey::deserializeFastPubKey( const string& encodedPubKeyStr ) {
-    EVP_PKEY* pubKey = nullptr;
-    BIO* encodedPubKeyBio = nullptr;
+std::shared_ptr<EVP_PKEY> OpenSSLEdDSAKey::deserializeFastPubKey( const string& encodedPubKeyStr ) {
+    std::shared_ptr<EVP_PKEY> pubKey;
+    std::shared_ptr<BIO> encodedPubKeyBio;
 
-    try {
-        CHECK_STATE( !encodedPubKeyStr.empty() );
+    CHECK_STATE( !encodedPubKeyStr.empty() );
 
-        encodedPubKeyBio = BIO_new_mem_buf( encodedPubKeyStr.data(), encodedPubKeyStr.size() );
+    encodedPubKeyBio = std::shared_ptr<BIO>(BIO_new_mem_buf( encodedPubKeyStr.data(), encodedPubKeyStr.size() ), BIO_free);
 
-        CHECK_STATE( encodedPubKeyBio );
+    CHECK_STATE( encodedPubKeyBio );
 
-        pubKey = PEM_read_bio_PUBKEY( encodedPubKeyBio, nullptr, nullptr, nullptr );
+    pubKey = std::shared_ptr<EVP_PKEY>(PEM_read_bio_PUBKEY( encodedPubKeyBio.get(), nullptr, nullptr, nullptr ), EVP_PKEY_free);
 
-        CHECK_STATE( pubKey );
-
-    } catch ( ... ) {
-        if ( encodedPubKeyBio ) {
-            BIO_free( encodedPubKeyBio );
-        }
-        throw;
-    }
-
-    if ( encodedPubKeyBio ) {
-        BIO_free( encodedPubKeyBio );
-    }
+    CHECK_STATE( pubKey );
 
     return pubKey;
 }
@@ -177,7 +152,7 @@ string OpenSSLEdDSAKey::serializePubKey() const {
         bio = BIO_new( BIO_s_mem() );
         CHECK_STATE( bio );
         CHECK_STATE( edKey );
-        CHECK_STATE( PEM_write_bio_PUBKEY( bio, edKey ) );
+        CHECK_STATE( PEM_write_bio_PUBKEY( bio, edKey.get() ) );
 
         char* encodedPubKey = nullptr;
         auto pubKeyEncodedLen = BIO_get_mem_data( bio, &encodedPubKey );
@@ -219,7 +194,7 @@ void OpenSSLEdDSAKey::verifySig( const string& _encodedSignature, const char* _h
 
         CHECK_STATE( verifyCtx );
 
-        CHECK_STATE( EVP_DigestVerifyInit( verifyCtx, NULL, NULL, NULL, edKey ) > 0 )
+        CHECK_STATE( EVP_DigestVerifyInit( verifyCtx, NULL, NULL, NULL, edKey.get() ) > 0 )
 
         CHECK_STATE( EVP_DigestVerify( verifyCtx, decodedSig.data(), 64,
                          ( const unsigned char* ) _hash, 32 ) == 1 );
