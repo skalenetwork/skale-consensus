@@ -378,7 +378,7 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
     bool allValid = std::all_of(validationResult.begin(), validationResult.end(),
                                   [](bool v) { return v; });
 
-    // some transactions failed validationgetDecryptionSharesFromAESKeys
+    // some transactions failed validation getDecryptionSharesFromAESKeys
     if (!allValid) {
         size_t ciphertextGlobalIdx = 0;
         for (auto& [idx, ciphertexts] : *txsCiphertexts) {
@@ -545,8 +545,6 @@ DecryptedRegularTxFields BiteManager::parseDecryptedDataAsRegularTx(
     CHECK_STATE2(decryptedDataRlp.isList(), "Encrypted data rlp size must be a list");
     CHECK_STATE2(decryptedDataRlp.size() == 2,
                  "Encrypted data rlp lsit must have exactly 2 elements");
-    // extract decrypted data and to fields
-    vector<uint8_t> dataField = decryptedDataRlp[0].asBytes();
     
     std::array<uint8_t, 20> toField;
     std::copy(decryptedDataRlp[1].asBytes().begin(), decryptedDataRlp[1].asBytes().end(), toField.begin());
@@ -624,7 +622,7 @@ ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data
 ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData() {
     static size_t numberOfCiphertexts = 2;
 
-    // Keep ciphertext count between 3 and 5 (inclusive)
+    // Keep ciphertext count between 2 and 5 (inclusive)
     numberOfCiphertexts++;
     if (numberOfCiphertexts % 6 == 0) {
         numberOfCiphertexts = 2;

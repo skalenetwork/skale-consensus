@@ -17,7 +17,7 @@ if (FAIR)
     add_definitions(-DFAIR)
     set(BITE "1")
     add_definitions(-DBITE)
-    set(BITE "2")
+    set(BITE2 "1")
     add_definitions(-DBITE2)
 endif ()
 
