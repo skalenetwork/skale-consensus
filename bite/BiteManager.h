@@ -38,6 +38,7 @@ class BiteManager {
 
 public:
     explicit BiteManager(Schain &_schain);
+    ~BiteManager();
 
     // =============== Transaction Parsing Calls =============== //
 
@@ -117,7 +118,6 @@ public:
 
     void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
 
-
     // =============== Test Encryption Calls =============== //
 
     /**
@@ -155,4 +155,7 @@ private:
     DecryptedCATArgs parseDecryptedDataAsCATArgs(const vector<uint8_t> &_data) const;
 
     ptr<vector<uint8_t>> encryptData(const vector<uint8_t>& data);
+
+    void stopAndDestroyThreadPoolExecutor();
+
 };
