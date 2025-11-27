@@ -28,6 +28,10 @@ public:
     BiteEngine(BiteCore _core, BiteConfig _config)
         : core(_core), config(_config) {}
 
+    bool usingRealCrypto() const {
+        return core.doRealCrypto;
+    }
+
     //=================== Stage 1: Parsing BITE transactions =================== //
     struct ParseResult {
         TransactionCiphertextsMap txsCiphertexts;
@@ -78,5 +82,16 @@ public:
     ptr<std::vector<ptr<BiteCiphertext>>> tryGetEncryptedCATArgs(
             const ptr<Transaction>& _transaction, epoch_id _currentEpochId ) const;
 #endif
+
+
+    std::vector<uint8_t> BiteEngine::buildRegularTxData(
+        const libBLS::TEPublicKey& key,
+        const std::vector<uint8_t>& plainData,
+        const std::vector<uint8_t>& to
+    ) const;
+
+    std::vector<uint8_t> buildCATData(
+        const libBLS::TEPublicKey& key,
+        size_t numberOfCiphertexts);
 
 };

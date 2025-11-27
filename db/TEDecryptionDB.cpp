@@ -215,11 +215,10 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
 
     auto aesKeys = make_shared< DecryptedAESKeyList >();
     std::mutex aesKeysMutex;
-    const auto totalSigners = this->totalSigners;
 
     for ( auto&& [txId, decryptionSet]: decryptionShareSets ) {
         auto future = folly::via(threadPoolExecutor.get(), [&decryptionShareMap,
-                                 &decryptionShareSets, decryptionSet, &totalSigners,
+                                 &decryptionShareSets, decryptionSet, totalSigners = this->totalSigners,
                                  &aesKeys, &aesKeysMutex, &tePublicKeys,
                                  &_transactionCiphertextsMap, txId, &encryptions,
                                  sChain = this->sChain]() -> folly::Unit {

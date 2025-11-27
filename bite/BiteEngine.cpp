@@ -234,10 +234,9 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                                 const auto argCiphertext = encryptedArgs->at(argIdx);
                                 CHECK_STATE(argCiphertext);
                                 decryptedData.args.push_back(
-                                    BiteCodec::decryptCiphertext(
-                                        *argCiphertext,
+                                    BiteCodec::decryptCiphertext(*argCiphertext,
                                         decryptedAESKey->at(argIdx).getAesKey(),
-                                        corePtr
+                                        *corePtr
                                     )
                                 );
                             }
@@ -270,10 +269,12 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                 CHECK_STATE(decryptedAESKey->size() == 1); // single AES key expected
 
                 try {
-                    schedule([this, bite, decryptedAESKey, decryptedFieldsMap, txIdx, &regularTxMapMutex]() 
+                    schedule([corePtr = &this->core, bite, decryptedAESKey, decryptedFieldsMap, txIdx, &regularTxMapMutex]() 
                     -> folly::Unit {
-                        auto decryptedTransactionFields =
-                            BiteCodec::decryptCiphertext(*bite, decryptedAESKey->at(0).getAesKey(), this->core);
+                        auto decryptedTransactionFields = BiteCodec::decryptCiphertext(*bite, 
+                                decryptedAESKey->at(0).getAesKey(), 
+                                *corePtr
+                            );
 
                         auto parsedRegularTx =
                             BiteCodec::parseRegularTxDecryptedData(decryptedTransactionFields);
@@ -306,4 +307,47 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
         decryptedFieldsMap 
     );
 
+}
+
+
+std::vector<uint8_t> BiteEngine::buildRegularTxData(
+    const libBLS::TEPublicKey& key,
+    const std::vector<uint8_t>& plainData,
+    const std::vector<uint8_t>& to
+) const {
+    auto payload = BiteCodec::encodeRegularTxPayload(plainData, to);
+    return core.encryptData(key, payload);      // core uses doRealCrypto internally
+}
+
+
+std::vector<uint8_t> BiteEngine::buildCATData(
+    const libBLS::TEPublicKey& key,
+    size_t numberOfCiphertexts
+) const {
+    std::vector<std::vector<uint8_t>> encryptedSerializedArgs;
+    encryptedSerializedArgs.reserve(numberOfCiphertexts);
+
+    for (size_t i = 0; i < numberOfCiphertexts; ++i) {
+        std::vector<uint8_t> rndData(numberOfCiphertexts * 10);
+        auto encryptedData = core.encryptData(key, rndData);
+
+        BiteCiphertext biteCiphertext(
+            std::make_shared<std::vector<uint8_t>>(std::move(encryptedData)),
+            0 // epoch id not relevant here
+        );
+
+        auto serialized = biteCiphertext.getSerializedData();
+        CHECK_STATE(serialized);
+        encryptedSerializedArgs.push_back(*serialized);
+    }
+
+    std::vector<std::vector<uint8_t>> plainArgs;
+    const size_t numPlaintexts = numberOfCiphertexts - 1;
+    plainArgs.reserve(numPlaintexts);
+
+    for (size_t i = 0; i < numPlaintexts; ++i) {
+        plainArgs.emplace_back(numberOfCiphertexts * 5);
+    }
+
+    return BiteCodec::encodeCATData(encryptedSerializedArgs, plainArgs);
 }

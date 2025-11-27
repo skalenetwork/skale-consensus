@@ -38,7 +38,7 @@ BiteCore::CiphertextValidationResult BiteCore::validateCiphertexts(
     result.allValid = std::all_of(result.validationResults.begin(), result.validationResults.end(),
                                   [](bool v) { return v; });
 
-    // some transactions failed validationgetDecryptionSharesFromAESKeys
+    // some transactions failed validation getDecryptionSharesFromAESKeys
     if (result.allValid) {
         // convert to string all successful decryption shares
         result.publicDecryptionValues =

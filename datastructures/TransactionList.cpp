@@ -161,9 +161,10 @@ ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
 
 #ifdef BITE2
     if (biteManager) {
+        auto epochId = biteManager->getSchain()->getNode()->getCurrentEpochId();
         for (size_t i = 0; i < transactions->size(); i++) {
             auto tx = transactions->at(i);
-            if (biteManager->tryGetEncryptedCATArgs(tx, biteManager->getSchain()->getNode()->getCurrentEpochId())) {
+            if (biteManager->tryGetEncryptedCATArgs(tx, epochId)) {
                 tv->pushBackCAT(*(tx->getData()));
             }
             else {

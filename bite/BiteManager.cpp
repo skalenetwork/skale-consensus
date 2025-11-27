@@ -162,7 +162,7 @@ ptr<vector<ptr<AESKeyDecryptionShares> > > BiteManager::getDecryptionSharesFromA
     // size_t is the global ciphertext index
     std::function<void(ptr<AESKeyDecryptionShares>&, EncryptedAESKey&, size_t)> addShareForCurrentTx;
 
-    if (doRealCrypto) {
+    if (biteEngine.usingRealCrypto()) {
         // flatten out vec
         auto sgxAESKeyBatch = _proposal->getSGXAESKeyBatch();
 
@@ -223,12 +223,15 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
-    return decryptTransactionsListInParallel(
+    BiteRuntimeContext runtimeCtx {
+        .currentEpoch = schain.getNode()->getCurrentEpochId(),
+        .threadPoolExecutor = threadPoolExecutor
+    };
+
+    return biteEngine.decryptTransactionsListInParallel(
             _transactionList,
             _aesKeys,
-            schain.getNode()->getCurrentEpochId(),
-            threadPoolExecutor,
-            doRealCrypto
+            runtimeCtx
     );
 }
 
@@ -237,14 +240,14 @@ ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data
     CHECK_STATE(primaryKey);
     auto blsKey = primaryKey->getPublicKey();
     libBLS::TEPublicKey teKey(blsKey);
-    return std::make_shared<vector<uint8_t>>(BiteCodec::buildRegularTxData(teKey, _data, _to, doRealCrypto));
+    return std::make_shared<vector<uint8_t>>(biteEngine.buildRegularTxData(teKey, _data, _to));
 }
 
 #ifdef BITE2
 ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData() {
     static size_t numberOfCiphertexts = 2;
 
-    // Keep ciphertext count between 3 and 5 (inclusive)
+    // Keep ciphertext count between 2 and 5 (inclusive)
     numberOfCiphertexts++;
     if (numberOfCiphertexts % 6 == 0) {
         numberOfCiphertexts = 2;

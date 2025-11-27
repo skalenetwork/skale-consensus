@@ -37,11 +37,12 @@ struct BiteCodec {
     // ==================== BiteCiphertext building for Transaction fields ==================== //
     
 
-    static std::vector<uint8_t> buildCATData(const libBLS::TEPublicKey& _key, 
-        size_t numberOfCiphertexts, const BiteCore& core);
+    static std::vector<uint8_t> encodeCATData(
+        const std::vector<std::vector<uint8_t>>& encryptedSerializedArgs,
+        const std::vector<std::vector<uint8_t>>& plainArgs);
 
-    static std::vector<uint8_t> buildRegularTxData(const libBLS::TEPublicKey& _key, 
-        const std::vector<uint8_t>& _plainData, const std::vector<uint8_t>& _to, const BiteCore& core);
+    static std::vector<uint8_t> encodeRegularTxPayload(
+        const std::vector<uint8_t>& _plainData, const std::vector<uint8_t>& _to);
 
 
     static vector<uint8_t> decryptCiphertext(const BiteCiphertext&_bite, 

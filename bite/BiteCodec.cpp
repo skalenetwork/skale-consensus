@@ -58,36 +58,30 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
 // ==================== BiteCiphertext building for Transaction fields ==================== //
 
 
-vector<uint8_t> BiteCodec::buildCATData(const libBLS::TEPublicKey& _key, size_t numberOfCiphertexts, const BiteCore& core) {
-    RLPStream allArgs;
-    
-    RLPStream encryptedArgs;
-    for (size_t i = 0; i < numberOfCiphertexts; ++i) {
-        std::vector<uint8_t> rndData;
-        std::vector<uint8_t> encryptedData;
-        rndData.resize(numberOfCiphertexts * 10);
-        encryptedData = core.encryptData(_key, rndData);
-        BiteCiphertext biteCiphertext(
-            make_shared<vector<uint8_t>>(std::move(encryptedData)),
-            0 // epoch id not relevant here
-        );
-        encryptedArgs << *biteCiphertext.getSerializedData();
-    }
-    RLPStream plainArgs;
-    size_t numPlaintexts = numberOfCiphertexts - 1;
-    for (size_t i = 0; i < numPlaintexts; ++i) {
-        std::vector<uint8_t> rndData;
-        rndData.resize(numberOfCiphertexts * 5);
-        plainArgs << rndData;
+// Encode CAT arguments given serialized encrypted args + plaintext args
+std::vector<uint8_t> BiteCodec::encodeCATData(
+    const std::vector<std::vector<uint8_t>>& encryptedSerializedArgs,
+    const std::vector<std::vector<uint8_t>>& plainArgs
+) {
+    RLPStream encryptedRlp;
+    for (const auto& enc : encryptedSerializedArgs) {
+        encryptedRlp << enc;
     }
 
-    allArgs << encryptedArgs << plainArgs;
+    RLPStream plainRlp;
+    for (const auto& plain : plainArgs) {
+        plainRlp << plain;
+    }
+
+    RLPStream allArgs;
+    allArgs << encryptedRlp << plainRlp;
+
     auto finalData = allArgs.encode();
 
     std::vector<uint8_t> data;
     data.reserve(BITE_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
 
-    // prefix with function selector 
+    // prefix with function selector
     data.insert(
         data.end(),
         BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
@@ -97,16 +91,16 @@ vector<uint8_t> BiteCodec::buildCATData(const libBLS::TEPublicKey& _key, size_t 
     // append RLP data
     data.insert(data.end(), finalData.begin(), finalData.end());
 
-    return std::move(data);
+    return data;
 }
 
 
-std::vector<uint8_t> BiteCodec::buildRegularTxData(const libBLS::TEPublicKey& _key, 
-        const std::vector<uint8_t>& _plainData, const std::vector<uint8_t>& _to, const BiteCore& core) {
-    // RLP encode
+
+std::vector<uint8_t> BiteCodec::encodeRegularTxPayload(
+        const std::vector<uint8_t>& _plainData, const std::vector<uint8_t>& _to) {
     RLPStream stream;
     stream << _plainData << _to;
-    return core.encryptData(_key, stream.encode());
+    return stream.encode();
 }
 
 

@@ -5,13 +5,21 @@ if (BITE)
     add_definitions(-DBITE)
 endif ()
 
+if (BITE2)
+    set(BITE2 "1")
+    add_definitions(-DBITE2)
+    set(BITE "1")
+    add_definitions(-DBITE)
+endif ()
+
 if (FAIR)
     set(FAIR "1")
     add_definitions(-DFAIR)
     set(BITE "1")
     add_definitions(-DBITE)
+    set(BITE2 "1")
+    add_definitions(-DBITE2)
 endif ()
-
 
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
