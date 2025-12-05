@@ -476,6 +476,8 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
                         });
                     } catch (const std::exception &e) {
                         CONS_LOG(err, fmt::format("Corrupt CAT tx:{} that doesn't decrypt: {}", txIdx, e.what()));
+                        std::lock_guard<std::mutex> lock(catTxsMapMutex);
+                        catTxsMap->emplace(txIdx, std::nullopt);
                     }
 
                     // This tx is CAT, do not treat it as regular
@@ -512,6 +514,8 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
                     });
                 } catch (const std::exception &e) {
                     CONS_LOG(err, fmt::format("Corrupt regular tx:{} that doesn't decrypt: {}", txIdx, e.what()));
+                    std::lock_guard<std::mutex> lock(regularTxMapMutex);
+                    decryptedFieldsMap->emplace(txIdx, std::nullopt);
                 }
 
                 continue;

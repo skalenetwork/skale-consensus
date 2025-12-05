@@ -19,15 +19,13 @@ struct DecryptedRegularTxFields {
     Address to;
 };
 
-// Contains all decrypted arguments of a CAT transaction.
-// Will only be filled if decryption was successful.
-// Else, the map will contain std::nullopt for that transaction.
 struct DecryptedCATArgs {
     std::vector<Bytes> args;
 };
 
-using DecryptedRegularTxsMap = std::map< TxId, DecryptedRegularTxFields >;
-using DecryptedCATxsMap = std::map< TxId, DecryptedCATArgs >;
+// For both maps, an entry will be marked as std::nullopt if decryption failed for that tx.
+using DecryptedRegularTxsMap = std::map< TxId, std::optional<DecryptedRegularTxFields> >;
+using DecryptedCATxsMap = std::map< TxId, std::optional<DecryptedCATArgs> >;
 
 // Used to return both regular txs and CAT txs decryption results
 struct DecryptedTransactions {
