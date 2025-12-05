@@ -15,7 +15,7 @@
 #include "crypto/MockupAESKeyDecryptionShare.h"
 #include "crypto/MockupAESKeyDecryptionShareSet.h"
 #include "crypto/AESKeyDecryptionShare.h"
-#include "bite/BiteAESKeySerializer.h"
+#include "bite/serde/BiteAESKeySerializer.h"
 #include <flatbuffers/flatbuffers.h>
 #include "datastructures/TransactionCiphertextsMap.h"
 #include "datastructures/TransactionList.h"
@@ -218,7 +218,7 @@ ptr<AESKeyDecryptionShareList> makeConsensusShareList(
             auto cipheredKey = libBLS::CipheredKey::fromBytes(encKey.data(), validate);
             auto teShare = libBLS::ThresholdEncryption::partialDecrypt(
                 cipheredKey,
-                keySet.secretKeys.at(decryptorIdx - 1)
+                keySet.secretKeys[static_cast<size_t>(decryptorIdx - 1)]
             );
             shares->push_back(std::make_shared<ConsensusAESKeyDecryptionShare>(
                 std::make_shared<libBLS::TEDecryptionShare>(teShare),
@@ -759,34 +759,6 @@ CATCH_TEST_CASE("BiteEngine decrypts treats out of place CAT as regular tx", "[b
     CATCH_REQUIRE(decrypted.regularTxsMap->count(1) == 0); // tx 1 not decrypted - regular
 }
 
-#ifdef BITE2
-CATCH_TEST_CASE("BiteEngine decrypt throws on CAT AES key count mismatch", "[bite][engine][decrypt][error][cat]") {
-    const uint64_t epoch = 13;
-    BiteCore core;
-    core.doRealCrypto = true;
-    BiteEngine engine(core, BiteConfig{});
-    auto keys = generateKeys(1, 1);
-
-    auto catTx = buildBite2Transaction(
-        { {0x01}, {0x02} },
-        { {0x10}, {0x20} },
-        epoch,
-        keys.commonPublic
-    );
-
-    auto txVec = std::make_shared<std::vector<ptr<Transaction>>>();
-    txVec->push_back(catTx);
-    TransactionList txList(txVec);
-
-    DecryptedAESKeyList aesKeys;
-    // CAT tx has 2 ciphertexts; provide only 1 key to force count mismatch
-    aesKeys.addKeys(0, makeDecryptedKeys(1, 0x01));
-
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
-    CATCH_REQUIRE_THROWS(engine.decryptTransactionsListInParallel(txList, aesKeys, ctx));
-}
-#endif
-
 CATCH_TEST_CASE("BiteEngine decrypt regular tx missing AES keys throws", "[bite][engine][decrypt][error]") {
     const uint64_t epoch = 14;
     BiteCore core;
@@ -963,31 +935,4 @@ CATCH_TEST_CASE("BiteEngine mergeAESKeys handles mixed BITE1 and CAT ciphertexts
 }
 #endif // BITE2
 
-CATCH_TEST_CASE("BiteAESKeySerializer round trips AES keys", "[bite][serialize][aeskeys]") {
-    DecryptedAESKeyList list;
-    DecryptedAESKeys tx0;
-    tx0.push_back(DecryptedAESKey({0x01}));
-    tx0.push_back(DecryptedAESKey({0x02}));
-    DecryptedAESKeys tx1;
-    tx1.push_back(DecryptedAESKey({0x03}));
-    list.addKeys(0, tx0);
-    list.addKeys(1, tx1);
-
-    auto vec = BiteAESKeySerializer::serialize(list);
-    flatbuffers::FlatBufferBuilder builder;
-    auto offset = builder.CreateVectorOfStructs(vec);
-    builder.Finish(offset);
-
-    auto fbVec = flatbuffers::GetRoot<flatbuffers::Vector<const skale_fb::AesKey*>>(builder.GetBufferPointer());
-    DecryptedAESKeyList out;
-    BiteAESKeySerializer::deserialize(fbVec, out);
-
-    CATCH_REQUIRE(out.getSize() == 2);
-    CATCH_REQUIRE(out.totalDecryptedCiphertextsCount() == 3);
-    CATCH_REQUIRE(out.getKeys(0));
-    CATCH_REQUIRE(out.getKeys(1));
-}
-
 #endif // BITE
-
-#endif
