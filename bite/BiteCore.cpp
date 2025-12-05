@@ -34,7 +34,7 @@ BiteCore::CiphertextValidationResult BiteCore::validateCiphertexts(
     // validate all in parallel
     result.validationResults = libBLS::ThresholdEncryption::validateEncryptionBatchParallel( ciphertexts );
 
-    // If at least 1 is not valid - mark as failed, log and return
+    // true only if all validations passed
     result.allValid = std::all_of(result.validationResults.begin(), result.validationResults.end(),
                                   [](bool v) { return v; });
 

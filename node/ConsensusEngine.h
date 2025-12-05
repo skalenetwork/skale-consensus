@@ -151,6 +151,8 @@ public:
 
     static void log( level_enum _severity, const string& _message, const string& _className );
 
+    static void ensureConfigLogger();
+
     static void logConfig( level_enum _severity, const string& _message, const string& _className );
 
     ptr< spdlog::logger > createLogger( const string& loggerName );

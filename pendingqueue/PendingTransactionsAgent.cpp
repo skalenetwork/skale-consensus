@@ -188,14 +188,14 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         try {
 #ifdef BITE2
             if (transactions.isCat(i)) {
-                biteManager->tryGetEncryptedCATArgs(pt, currentEpoch);
+                BiteEngine::tryGetEncryptedCATArgs(pt, currentEpoch);
             }
             else
 #endif
             {
                 // only used for validation purposes
                 // If BITE2, only do this validation for non-CATs
-                biteManager->tryGetEncryptedRegularTxFields(pt, currentEpoch);
+                BiteEngine::tryGetEncryptedRegularTxFields(pt, currentEpoch);
             }
 
             result->push_back(pt);

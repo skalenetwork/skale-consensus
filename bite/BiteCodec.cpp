@@ -3,10 +3,13 @@
 #include "rlp/RLPStream.h"
 #include "Log.h"
 
+#include <boost/endian/conversion.hpp>
+#include <boost/endian/arithmetic.hpp>
+
 // ==================== BiteCiphertext parsing  from Transaction fields ==================== //
 
-std::shared_ptr<BiteCiphertext> BiteCodec::tryParseEncryptedRegularTxFields(
-        std::vector<uint8_t>& _to, std::vector<uint8_t>& _data, epoch_id _currentEpochId) {
+ptr<BiteCiphertext> BiteCodec::tryParseEncryptedRegularTxFields(
+        std::vector<uint8_t>& _to, ptr<std::vector<uint8_t>> _data, epoch_id _currentEpochId) {
     // compare _to field to BITE magic number
     if (!std::equal(BITE_ADDRESS_AS_BYTE_ARRAY, BITE_ADDRESS_AS_BYTE_ARRAY + ADDRESS_SIZE,
                     _to.begin())) {
@@ -16,6 +19,7 @@ std::shared_ptr<BiteCiphertext> BiteCodec::tryParseEncryptedRegularTxFields(
     return std::make_shared<BiteCiphertext>(_data,  _currentEpochId);
 }
 
+#ifdef BITE2
 std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryParseEncryptedCATArgs(
         const std::vector<uint8_t>& _dataField, epoch_id _currentEpochId) {
     // compare first 4 bytes to BITE2 expected function selector
@@ -45,11 +49,11 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
     encryptedCATArgs->reserve(encryptedArgsRLP.size());
     for (size_t i = 0; i < encryptedArgsRLP.size(); i++) {
         auto argData = std::make_shared<std::vector<uint8_t>>(encryptedArgsRLP[i].asBytes());
-        BiteCiphertext biteCiphertext(argData, _currentEpochId);
-        encryptedCATArgs->emplace_back( std::make_shared<BiteCiphertext>(biteCiphertext) );
+        encryptedCATArgs->emplace_back( std::make_shared<BiteCiphertext>(argData, _currentEpochId) );
     }
     return encryptedCATArgs;
 }
+#endif
 
 
 
@@ -59,6 +63,7 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
 
 
 // Encode CAT arguments given serialized encrypted args + plaintext args
+#ifdef BITE2
 std::vector<uint8_t> BiteCodec::encodeCATData(
     const std::vector<std::vector<uint8_t>>& encryptedSerializedArgs,
     const std::vector<std::vector<uint8_t>>& plainArgs
@@ -93,6 +98,7 @@ std::vector<uint8_t> BiteCodec::encodeCATData(
 
     return data;
 }
+#endif
 
 
 
@@ -136,4 +142,62 @@ DecryptedRegularTxFields BiteCodec::parseRegularTxDecryptedData(
     };
 
     return decryptedFields;
+}
+
+
+std::vector<uint8_t> BiteCodec::encodeEpochedBiteData(
+    const std::vector<uint8_t>& _keyPlusEncryptedData, uint64_t _epoch) {
+    CHECK_STATE(_keyPlusEncryptedData.size() > BITE_ENCRYPTED_AES_KEY_LEN);
+
+    // build serialized RLP-encoded data field
+    uint64_t epochBE = boost::endian::native_to_big(_epoch);
+    std::vector<uint8_t> epochBytes(reinterpret_cast<uint8_t*>(&epochBE),
+                                reinterpret_cast<uint8_t*>(&epochBE) + sizeof(epochBE));
+
+    RLPStream list;
+    list << epochBytes << _keyPlusEncryptedData;
+
+    return list.encode();
+}
+
+BiteCodec::EpochedBiteData BiteCodec::decodeEpochedBiteData(
+    const std::vector<uint8_t>& _dataField) {
+    RLPItem rlpItem(_dataField);
+    CHECK_STATE(rlpItem.isList());
+    CHECK_STATE(rlpItem.size() == 2); // [epochId, keyPlusEncryptedData]
+
+    // parse epochId
+    auto epochIdBytes = rlpItem[0].asBytes();
+    CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long");
+    uint64_t epochId = u256( epochIdBytes ).convert_to< uint64_t >();
+
+    auto keyPlusEncryptedData = std::make_shared<std::vector<uint8_t>>(rlpItem[1].asBytes());
+
+    return EpochedBiteData {
+        .epochId = epochId,
+        .keyPlusEncryptedData = keyPlusEncryptedData
+    };
+}
+
+
+
+
+
+
+
+// Helper function to split string_view by commas
+std::vector<std::string_view> BiteCodec::splitShares(std::string_view s) {
+    std::vector<std::string_view> out;
+
+    while (!s.empty()) {
+        size_t pos = s.find(',');
+        if (pos == std::string_view::npos) {
+            out.push_back(s);
+            break;
+        }
+        out.push_back(s.substr(0, pos));
+        s.remove_prefix(pos + 1);
+    }
+
+    return out;
 }

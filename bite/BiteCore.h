@@ -2,10 +2,10 @@
 #include <vector>
 #include "SkaleCommon.h"
 #include <cstdint>
+#include "libBLS/threshold_encryption/threshold_encryption.h"
 
 namespace libBLS {
     class TEPublicKey;
-    class AES256Key;
 } // namespace libBLS
 
 /**
@@ -31,5 +31,13 @@ public:
     std::vector<uint8_t> decryptData( const libBLS::AES256Key& _aesKey, 
         std::vector<uint8_t>& _cipherData, bool validate = true ) const;
 
+    /**
+     * @brief Validates a batch of ciphertexts.
+     * If all are valid, also prepares public decryption values for them.
+     * If any is invalid, then the invalid index is marked in validationResults as false,
+     * and publicDecryptionValues is left empty.
+     */
     CiphertextValidationResult validateCiphertexts(const std::vector<libBLS::CipheredKey>& _decryptedAESKeys) const;
+
+    void useMockCrypto() { doRealCrypto = false; }
 };

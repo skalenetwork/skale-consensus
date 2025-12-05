@@ -17,13 +17,12 @@ struct BiteCodec {
     // ==================== BiteCiphertext parsing  from Transaction fields ==================== //
 
     static std::shared_ptr<BiteCiphertext> tryParseEncryptedRegularTxFields(
-        std::vector<uint8_t>& _to, std::vector<uint8_t>& _data, epoch_id _currentEpochId);
+        std::vector<uint8_t>& _to, ptr<std::vector<uint8_t>> _data, epoch_id _currentEpochId);
 
+#ifdef BITE2
     static std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> tryParseEncryptedCATArgs(
         const std::vector<uint8_t>& _dataField, epoch_id _currentEpochId);
-
-
-
+#endif
 
     // ======================== Parsing decrypted data into tx fields ======================== //
 
@@ -36,10 +35,11 @@ struct BiteCodec {
 
     // ==================== BiteCiphertext building for Transaction fields ==================== //
     
-
+#ifdef BITE2
     static std::vector<uint8_t> encodeCATData(
         const std::vector<std::vector<uint8_t>>& encryptedSerializedArgs,
         const std::vector<std::vector<uint8_t>>& plainArgs);
+#endif
 
     static std::vector<uint8_t> encodeRegularTxPayload(
         const std::vector<uint8_t>& _plainData, const std::vector<uint8_t>& _to);
@@ -47,5 +47,36 @@ struct BiteCodec {
 
     static vector<uint8_t> decryptCiphertext(const BiteCiphertext&_bite, 
         const libBLS::AES256Key& _decryptedAESKey, const BiteCore& core);
+
+    
+
+    // ==================== Bite epoched data ==================== //
+
+    struct EpochedBiteData {
+        uint64_t epochId;
+        std::shared_ptr<std::vector<uint8_t>> keyPlusEncryptedData;
+    };
+    
+    /**
+     * @brief Builds serialized BITE data with epoch prefix, in RLP format.
+     */
+    static std::vector<uint8_t> encodeEpochedBiteData(
+        const std::vector<uint8_t>& _keyPlusEncryptedData,
+        uint64_t _epoch
+    );
+
+    /**
+     * @brief Decodes serialized BITE data with epoch prefix, in RLP format.
+     * Doesn't do any epoch validation against the keys. Performs only deserialization.
+     */
+    static EpochedBiteData decodeEpochedBiteData(
+        const std::vector<uint8_t>& _serializedData
+    );
+
+    
+
+    // ==================== Share serialization into/from string ==================== //
+
+    static std::vector<std::string_view> splitShares(std::string_view s);
 
 };

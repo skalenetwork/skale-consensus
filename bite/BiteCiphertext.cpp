@@ -7,6 +7,7 @@
 #include <crypto/EncryptedAESKey.h>
 
 #include "bite/BiteCiphertext.h"
+#include "bite/BiteCodec.h"
 #include "rlp/RLPStream.h"
 #include "rlp/RLP.h"
 
@@ -16,50 +17,21 @@ const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 const auto KEY_COUNT_BYTE_OFFSET = 1;
 
 
-BiteCiphertext::BiteCiphertext(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
-    : keyPlusEncryptedData(_encryptedKeyPlusData), epoch(_epoch) {
-    CHECK_STATE(_encryptedKeyPlusData);
-    CHECK_STATE(_encryptedKeyPlusData->size() > BITE_ENCRYPTED_AES_KEY_LEN);
-    
-
-    // Do not validate the key nor the ciphertext, just copy the first BITE_ENCRYPTED_AES_KEY_LEN bytes
-    auto keyVec = std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>();
-    std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec.begin());
-    encryptedAESKey.emplace(EncryptedAESKey(keyVec));
-
-
-    // build serialized RLP-encoded data field
-    uint64_t epochBE = boost::endian::native_to_big(_epoch);
-    std::vector<uint8_t> epochBytes(reinterpret_cast<uint8_t*>(&epochBE),
-                                reinterpret_cast<uint8_t*>(&epochBE) + sizeof(epochBE));
-
-    RLPStream list;
-    list << epochBytes << *_encryptedKeyPlusData;
-
-    serializedData = make_shared<vector<uint8_t> >(list.encode());
-}
-
 BiteCiphertext::BiteCiphertext(const std::shared_ptr<std::vector<uint8_t> > &_data, epoch_id _currentEpochId) {
     CHECK_STATE(_data);
 
-    // parse RLP-encoded tx data field
-    // RLP structure: [epochId1, encryptedBITEData]
-    // encryptedBITEData may optionally have 1 or 2 encrypted AES keys assosiated with it
-    RLPItem rlp(*_data);
-    CHECK_STATE2(rlp.isList(), "RLP item is not a list");
-    CHECK_STATE2(rlp.size() == 2, "RLP item should have exactly 2 items");
+    // get epoch and ciphered data from RLP-encoded payload
+    BiteCodec::EpochedBiteData parsedData = BiteCodec::decodeEpochedBiteData( *_data );
 
-    // read encryptedBITEData
-    auto encryptedBITEDataBytes = make_shared<std::vector<uint8_t>>(rlp[1].asBytes());
-    CHECK_STATE2( encryptedBITEDataBytes->size() > BITE_CIPHERTEXT_MIN_LEN,
-                  "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
-                  to_string(BITE_CIPHERTEXT_MIN_LEN) + " bytes, found: " +
+    uint64_t epochIdCandidate = parsedData.epochId;
+    auto encryptedBITEDataBytes = parsedData.keyPlusEncryptedData;
+
+    // parse keyPlusEncryptedData
+    CHECK_STATE2( encryptedBITEDataBytes->size() > BITE_ENCRYPTED_AES_KEY_LEN,
+                  "Incorrectly formatted BITE data: Encrypted data size is not at least " +
+                  to_string(BITE_ENCRYPTED_AES_KEY_LEN) + " bytes, found: " +
                   to_string(encryptedBITEDataBytes->size()));
-
-    // parse epochId
-    auto epochIdBytes = rlp[0].asBytes();
-    CHECK_STATE2(epochIdBytes.size() <= sizeof(uint64_t), "Epoch id too long");
-    uint64_t epochIdCandidate = u256( epochIdBytes ).convert_to< uint64_t >();
+                  
     // first byte stands for the number of encrypted AES keys in payload
     uint8_t numEncryptedAESKeys = encryptedBITEDataBytes->at(0);
     // if 2 encrypted AES keys are submitted

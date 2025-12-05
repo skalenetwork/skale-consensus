@@ -8,6 +8,7 @@
 #include "flatb/common_structures_generated.h"
 #include "flatb/committed_bloc_generated.h"
 #include "headers/BlockProposalHeader.h"
+#include "bite/serde/BiteAESKeySerializer.h"
 #include "exceptions/ParsingException.h"
 #include "network/Buffer.h"
 #include "datastructures/Transaction.h"
@@ -55,26 +56,7 @@ ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAn
     auto transactionsOffset = builder.CreateVector(transactionsVec);
 
 
-    // no do keys
-
-    // ---- Serialize AES Keys ----
-    std::vector<skale_fb::AesKey> aesKeysVec;
-
-    for (auto &&[txIdx, keys]: _decryptedAesKeyList.getKeys()) {
-        CHECK_STATE(keys)
-
-        // run over all aesKeys / ciphertexts for this transaction
-        // TODO - we should define a V2 structure that holds multiple keys per transaction
-        // without repeating transaction_index
-        for (const auto &key: *keys) {
-            auto rawKey = key.getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
-            aesKeysVec.push_back(skale_fb::AesKey{
-                static_cast<uint32_t>(txIdx),
-                rawKey // rawKey is std::array<uint8_t, 32>
-            });
-        }
-    }
-
+    auto aesKeysVec = BiteAESKeySerializer::serialize(_decryptedAesKeyList);
     auto aesKeysOffset = builder.CreateVectorOfStructs(aesKeysVec);
 
     auto emptyVec = builder.CreateVector(std::vector<uint8_t>{});
@@ -162,44 +144,7 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
 
     CHECK_STATE(fbAesKeys)
     if (fbAesKeys) {
-        DecryptedAESKeys  keysForCurrTx;
-        transaction_index lastTxIdx = std::numeric_limits<transaction_index>::max();
-        bool              haveTx    = false;
-
-        // Keys are stored contiguously:
-        // Tx0Key0, Tx0Key1, ..., Tx1Key0, Tx1Key1, ...
-        for (size_t i = 0; i < fbAesKeys->size(); ++i) {
-            const auto* aesKey = (*fbAesKeys)[i];
-            CHECK_STATE(aesKey->data() && aesKey->data()->size() == BITE_AES_KEY_LEN);
-
-            std::array<uint8_t, BITE_AES_KEY_LEN> rawKey;
-            std::memcpy(rawKey.data(), aesKey->data()->data(), BITE_AES_KEY_LEN);
-
-            transaction_index txIdx = aesKey->transaction_index();
-
-            // First key we see: initialize current tx
-            if (!haveTx) {
-                lastTxIdx = txIdx;
-                haveTx    = true;
-            }
-            // Transaction index changed: flush previous group
-            else if (txIdx != lastTxIdx) {
-                CHECK_STATE(!keysForCurrTx.empty());
-                decryptedAesKeyList->addKeys(lastTxIdx, keysForCurrTx);
-                keysForCurrTx.clear();
-
-                lastTxIdx = txIdx;
-            }
-
-            // Add current key to the current transaction's group
-            keysForCurrTx.emplace_back(rawKey);
-        }
-
-        // After the loop, flush the last transaction's keys (if any)
-        if (haveTx) {
-            CHECK_STATE(!keysForCurrTx.empty());
-            decryptedAesKeyList->addKeys(lastTxIdx, keysForCurrTx);
-        }
+        BiteAESKeySerializer::deserialize(fbAesKeys, *decryptedAesKeyList);
     }
 
     auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(*transactionList,
