@@ -157,7 +157,7 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
     // Merge results from all threads
     shares->reserve( numShares );
     for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
-        for (auto& [txId, decryptionShares] : threadLocalShares[threadId]) {
+        for (auto& [txId, decryptionShares] : threadLocalShares.at(threadId)) {
             shares->addShares(txId, decryptionShares);
         }
     }
