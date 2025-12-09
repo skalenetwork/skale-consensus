@@ -536,8 +536,9 @@ CATCH_TEST_CASE("BiteEngine decrypts regular BITE transactions in parallel - sin
     CATCH_REQUIRE(decrypted.regularTxsMap->size() == 1);
     auto it = decrypted.regularTxsMap->find(0);
     CATCH_REQUIRE(it != decrypted.regularTxsMap->end());
-    CATCH_REQUIRE(it->second.data == plainData);
-    std::vector<uint8_t> parsedTo(it->second.to.begin(), it->second.to.end());
+    CATCH_REQUIRE(it->second.has_value());
+    CATCH_REQUIRE(it->second->data == plainData);
+    std::vector<uint8_t> parsedTo(it->second->to.begin(), it->second->to.end());
     CATCH_REQUIRE(parsedTo == toBytes);
 }
 
@@ -586,8 +587,9 @@ CATCH_TEST_CASE("BiteEngine decrypts regular BITE transactions in parallel - mul
     for (size_t i = 0; i < numTxs; ++i) {
         auto it = decrypted.regularTxsMap->find(i);
         CATCH_REQUIRE(it != decrypted.regularTxsMap->end());
-        CATCH_REQUIRE(it->second.data == plainDatas[i]);
-        std::vector<uint8_t> parsedTo(it->second.to.begin(), it->second.to.end());
+        CATCH_REQUIRE(it->second.has_value());
+        CATCH_REQUIRE(it->second->data == plainDatas[i]);
+        std::vector<uint8_t> parsedTo(it->second->to.begin(), it->second->to.end());
         CATCH_REQUIRE(parsedTo == toAddresses[i]);
     }
 }

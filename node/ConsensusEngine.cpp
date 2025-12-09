@@ -1154,8 +1154,12 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     auto timeStampMs = committedBlock->getTimeStampMs();
     auto stateRoot = committedBlock->getStateRoot();
     auto currentPrice = schain->getPriceForBlockId( ( uint64_t ) committedBlock->getBlockID() - 1 );
-    auto tv = committedBlock->getTransactionList()->createTransactionVector( schain->getBiteManager() );
-    return { tv, timeStampS, timeStampMs, currentPrice, stateRoot };
+    auto tv = committedBlock->getTransactionList()->createTransactionVector(
+#ifdef BITE2
+        schain->getBiteManager()
+#endif
+    );
+    return std::make_tuple(tv, timeStampS, timeStampMs, currentPrice, stateRoot);
 }
 
 #ifdef BITE
