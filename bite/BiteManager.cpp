@@ -97,11 +97,11 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteManager::tryGetEncryptedCATArgs(
         CHECK_STATE(dataField);
 
         // compare first 4 bytes to BITE2 expected function selector
-        if (dataField->size() < BITE_FUNCTION_SELECTOR_SIZE_BYTES || 
+        if (dataField->size() < BITE2_FUNCTION_SELECTOR_SIZE_BYTES || 
             std::memcmp(
                 dataField->data(),
                 BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
-                BITE_FUNCTION_SELECTOR_SIZE_BYTES
+                BITE2_FUNCTION_SELECTOR_SIZE_BYTES
             ) != 0
         ) {
             return nullptr;
@@ -111,7 +111,7 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteManager::tryGetEncryptedCATArgs(
         // Data comes as:
         // [funcSelector, RLP( RLP(cipher1, cipher2, ...), RLP(plaintext1, plaintext2, ...) )]
         // offset function selector
-        auto dataWithoutSelector = std::vector<uint8_t>(dataField->begin() + BITE_FUNCTION_SELECTOR_SIZE_BYTES, dataField->end());
+        auto dataWithoutSelector = std::vector<uint8_t>(dataField->begin() + BITE2_FUNCTION_SELECTOR_SIZE_BYTES, dataField->end());
         RLPItem rlpItem(dataWithoutSelector);
         CHECK_STATE(rlpItem.isList());
         CHECK_STATE(rlpItem.size() == 2); // RLP(ciphertexts, plaintexts)
@@ -406,8 +406,8 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
 
 
 DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
-        TransactionList &_transactionList,
-        DecryptedAESKeyList &_aesKeys) {
+        const TransactionList &_transactionList,
+        const DecryptedAESKeyList &_aesKeys) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
@@ -562,7 +562,7 @@ DecryptedRegularTxFields BiteManager::parseDecryptedDataAsRegularTx(
 }
 
 
-vector<uint8_t> BiteManager::decryptCiphertext(const ptr<BiteCiphertext> &_bite, DecryptedAESKey &_decryptedAESKey) const {
+vector<uint8_t> BiteManager::decryptCiphertext(const ptr<BiteCiphertext> &_bite, const DecryptedAESKey &_decryptedAESKey) const {
     CHECK_STATE(_bite);
 
     vector<uint8_t> decryptedData;
@@ -663,13 +663,13 @@ ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData() {
     auto finalData = allArgs.encode();
 
     std::vector<uint8_t> data;
-    data.reserve(BITE_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
+    data.reserve(BITE2_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
 
     // prefix with function selector 
     data.insert(
         data.end(),
         BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
-        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY + BITE_FUNCTION_SELECTOR_SIZE_BYTES
+        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY + BITE2_FUNCTION_SELECTOR_SIZE_BYTES
     );
 
     // append RLP data

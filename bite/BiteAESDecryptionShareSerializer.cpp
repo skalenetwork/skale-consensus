@@ -36,6 +36,7 @@ ptr< std::vector< uint8_t > > BiteAESDecryptionShareSerializer::serialize(
         // convert all shares for this ciphertext into a single string
         std::string data;
         for ( size_t i = 0; i < shares->size(); i++ ) {
+            CHECK_STATE( shares->at(i) );
             data += shares->at(i)->toString();
             if ( i != shares->size() - 1 ) {
                 data += ",";

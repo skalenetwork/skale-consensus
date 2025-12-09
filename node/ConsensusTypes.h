@@ -8,7 +8,7 @@
 // ====== Common Types ======
 
 using TxId = uint64_t;
-using Address = std::array<uint8_t, 20>;
+using AddressBytes = std::array<uint8_t, 20>;
 using Bytes = std::vector<uint8_t>;
 
 // Contains the needed decrypted fields of a regular transaction.
@@ -16,7 +16,7 @@ using Bytes = std::vector<uint8_t>;
 // - to:   original plaintext 'to' address (20 bytes)
 struct DecryptedRegularTxFields {
     Bytes data;
-    Address to;
+    AddressBytes to;
 };
 
 struct DecryptedCATArgs {

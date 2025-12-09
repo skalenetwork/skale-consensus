@@ -15,7 +15,9 @@
 class DecryptedAESKeyList {
 public:
 
-    [[nodiscard]] boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>>& getKeys();
+    const boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>>& getKeys() const;
+
+    boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>>& getKeys();
 
     // Optional: Constructor
     DecryptedAESKeyList() : totalDecryptedCiphertexts(0) {}

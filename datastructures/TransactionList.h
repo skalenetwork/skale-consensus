@@ -56,11 +56,11 @@ public:
 
     explicit TransactionList( const ptr< vector< ptr< Transaction > > >& _transactions );
 
-    ptr< vector< ptr< Transaction > > > getItems();
+    ptr< vector< ptr< Transaction > > > getItems() const;
 
     ptr< vector< uint8_t > > serialize( bool _writeTxPartialHash );
 
-    size_t size();
+    size_t size() const;
 
     ~TransactionList() override;
 

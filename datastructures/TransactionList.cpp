@@ -101,7 +101,7 @@ TransactionList::TransactionList( const ptr< vector< uint64_t > >& _transactionS
 };
 
 
-ptr< vector< ptr< Transaction > > > TransactionList::getItems() {
+ptr< vector< ptr< Transaction > > > TransactionList::getItems() const {
     CHECK_STATE( transactions );
     return transactions;
 }
@@ -140,7 +140,7 @@ TransactionList::~TransactionList() {
 
 atomic< int64_t > TransactionList::totalObjects( 0 );
 
-size_t TransactionList::size() {
+size_t TransactionList::size() const {
     CHECK_STATE( transactions );
     return transactions->size();
 }

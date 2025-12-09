@@ -87,8 +87,8 @@ public:
             ptr<BlockProposal> _proposal,
             schain_index _decryptorIndex);
 
-    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(TransactionList &_transactionList,
-                                                                                     DecryptedAESKeyList &_aesKeys);
+    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(const TransactionList &_transactionList,
+                                                                                     const DecryptedAESKeyList &_aesKeys);
 
 
     /**
@@ -146,7 +146,7 @@ public:
 
 private:
     // Decrypts a single ciphertext using the provided AES key 
-    vector<uint8_t> decryptCiphertext(const ptr<BiteCiphertext> &_bite, DecryptedAESKey &_decryptedAESKey) const;
+    vector<uint8_t> decryptCiphertext(const ptr<BiteCiphertext> &_bite, const DecryptedAESKey &_decryptedAESKey) const;
 
     // Parses decrypted data as a regular transaction, extracting 'data' and 'to' fields
     DecryptedRegularTxFields parseDecryptedDataAsRegularTx(const vector<uint8_t> &_data) const;
