@@ -9,7 +9,7 @@
 
 namespace BiteAESKeySerializer {
 
-inline std::vector<skale_fb::AesKey> serialize(DecryptedAESKeyList& decryptedList) {
+inline std::vector<skale_fb::AesKey> serialize(const DecryptedAESKeyList& decryptedList) {
     static_assert(BITE_AES_KEY_LEN == 32, "FlatBuffer AesKey requires 32-byte AES keys");
 
     std::vector<skale_fb::AesKey> aesKeysVec;
@@ -30,12 +30,14 @@ inline void deserialize(const flatbuffers::Vector<const skale_fb::AesKey*>* fbAe
                         DecryptedAESKeyList& outList) {
     CHECK_STATE(fbAesKeys);
 
-    DecryptedAESKeys  keysForCurrTx;
-    transaction_index lastTxIdx = std::numeric_limits<transaction_index>::max();
-    bool              haveTx    = false;
+    if (fbAesKeys->empty()) {
+        return;
+    }
 
-    for (size_t i = 0; i < fbAesKeys->size(); ++i) {
-        const auto* aesKey = (*fbAesKeys)[i];
+    DecryptedAESKeys  keysForCurrTx;
+    transaction_index lastTxIdx = (*fbAesKeys)[0]->transaction_index();
+
+    for (const auto* aesKey : *fbAesKeys) {
         CHECK_STATE(aesKey->data() && aesKey->data()->size() == BITE_AES_KEY_LEN);
 
         std::array<uint8_t, BITE_AES_KEY_LEN> rawKey{};
@@ -43,10 +45,7 @@ inline void deserialize(const flatbuffers::Vector<const skale_fb::AesKey*>* fbAe
 
         transaction_index txIdx = aesKey->transaction_index();
 
-        if (!haveTx) {
-            lastTxIdx = txIdx;
-            haveTx    = true;
-        } else if (txIdx != lastTxIdx) {
+        if (txIdx != lastTxIdx) {
             CHECK_STATE(!keysForCurrTx.empty());
             outList.addKeys(lastTxIdx, keysForCurrTx);
             keysForCurrTx.clear();
@@ -56,10 +55,8 @@ inline void deserialize(const flatbuffers::Vector<const skale_fb::AesKey*>* fbAe
         keysForCurrTx.emplace_back(rawKey);
     }
 
-    if (haveTx) {
-        CHECK_STATE(!keysForCurrTx.empty());
-        outList.addKeys(lastTxIdx, keysForCurrTx);
-    }
+    CHECK_STATE(!keysForCurrTx.empty());
+    outList.addKeys(lastTxIdx, keysForCurrTx);
 }
 
 }  // namespace BiteAESKeySerializer

@@ -371,8 +371,8 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
 
 
 DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
-        TransactionList &_transactionList,
-        DecryptedAESKeyList &_aesKeys,
+        const TransactionList &_transactionList,
+        const DecryptedAESKeyList &_aesKeys,
         BiteRuntimeContext& runtimeCtx
 ) const {
  

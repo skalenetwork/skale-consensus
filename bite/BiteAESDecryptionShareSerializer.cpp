@@ -36,6 +36,7 @@ ptr< std::vector< uint8_t > > BiteAESDecryptionShareSerializer::serialize(
         // convert all shares for this ciphertext into a single string
         std::string data;
         for ( size_t i = 0; i < shares->size(); i++ ) {
+            CHECK_STATE( shares->at(i) );
             data += shares->at(i)->toString();
             if ( i != shares->size() - 1 ) {
                 data += ",";
@@ -156,7 +157,7 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
     // Merge results from all threads
     shares->reserve( numShares );
     for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
-        for (auto& [txId, decryptionShares] : threadLocalShares[threadId]) {
+        for (auto& [txId, decryptionShares] : threadLocalShares.at(threadId)) {
             shares->addShares(txId, decryptionShares);
         }
     }

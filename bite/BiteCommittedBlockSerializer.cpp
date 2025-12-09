@@ -18,8 +18,8 @@
 
 
 ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
-    BasicHeader& _blockHeader, TransactionList& transactionList,
-    DecryptedAESKeyList& _decryptedAesKeyList) {
+    BasicHeader& _blockHeader, const TransactionList& transactionList,
+    const DecryptedAESKeyList& _decryptedAesKeyList) {
     static_assert(BITE_AES_KEY_LEN == 32, "FlatBuffer AesKey requires 32-byte AES keys");
 
 

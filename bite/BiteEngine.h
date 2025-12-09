@@ -105,8 +105,8 @@ public:
     //=================== Stage 4: Decrypt transactions from decrypted keys  =================== //
 
     DecryptedTransactions decryptTransactionsListInParallel(
-            TransactionList &_transactionList,
-            DecryptedAESKeyList &_aesKeys,
+            const TransactionList &_transactionList,
+            const DecryptedAESKeyList &_aesKeys,
             BiteRuntimeContext& runtimeCtx
     ) const;
 

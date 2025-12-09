@@ -48,7 +48,7 @@ public:
 
 #ifdef BITE
     Json::Value getDecryptionShares(
-        const std::string& keyShareName, std::vector<std::string>& _publicDecryptionValues ) {
+        const std::string& keyShareName, const std::vector<std::string>& _publicDecryptionValues ) {
 
         Json::Value p;
         Json::Value batch(Json::arrayValue);

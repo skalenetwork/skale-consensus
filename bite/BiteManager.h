@@ -72,7 +72,7 @@ public:
 
     // =============== Stage 5: Transaction Decryption =============== //
 
-    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(TransactionList &_transactionList, DecryptedAESKeyList &_aesKeys);
+    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(const TransactionList &_transactionList, const DecryptedAESKeyList &_aesKeys);
 
 
     // ============== Getters ============== //

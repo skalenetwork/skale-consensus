@@ -131,7 +131,7 @@ public:
 
 #ifdef BITE
     ptr<vector<string>>decryptAESKeySharesBatch( const string& _keyShareName,
-    std::vector<std::string> & _aesKeySharesBatch, int _t, int _n,
+    const std::vector<std::string> & _aesKeySharesBatch, int _t, int _n,
     bool _throwExceptionOnTimeout );
 #endif
 

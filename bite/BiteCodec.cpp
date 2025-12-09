@@ -1,4 +1,5 @@
 #include "bite/BiteCodec.h"
+#include "bite/Constants.h"
 #include "rlp/RLP.h"
 #include "rlp/RLPStream.h"
 #include "Log.h"
@@ -23,11 +24,11 @@ ptr<BiteCiphertext> BiteCodec::tryParseEncryptedRegularTxFields(
 std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryParseEncryptedCATArgs(
         const std::vector<uint8_t>& _dataField, epoch_id _currentEpochId) {
     // compare first 4 bytes to BITE2 expected function selector
-    if (_dataField.size() < BITE_FUNCTION_SELECTOR_SIZE_BYTES ||
+    if (_dataField.size() < BITE2_FUNCTION_SELECTOR_SIZE_BYTES ||
         std::memcmp(
             _dataField.data(),
-            BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
-            BITE_FUNCTION_SELECTOR_SIZE_BYTES
+            BITE2_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
+            BITE2_FUNCTION_SELECTOR_SIZE_BYTES
         ) != 0
     ) {
         return nullptr;
@@ -37,7 +38,7 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
     // Data comes as:
     // [funcSelector, RLP( RLP(cipher1, cipher2, ...), RLP(plaintext1, plaintext2, ...) )]
     // offset function selector
-    auto dataWithoutSelector = std::vector<uint8_t>(_dataField.begin() + BITE_FUNCTION_SELECTOR_SIZE_BYTES, _dataField.end());
+    auto dataWithoutSelector = std::vector<uint8_t>(_dataField.begin() + BITE2_FUNCTION_SELECTOR_SIZE_BYTES, _dataField.end());
     RLPItem rlpItem(dataWithoutSelector);
     CHECK_STATE(rlpItem.isList());
     CHECK_STATE(rlpItem.size() == 2); // RLP(ciphertexts, plaintexts)
@@ -84,13 +85,13 @@ std::vector<uint8_t> BiteCodec::encodeCATData(
     auto finalData = allArgs.encode();
 
     std::vector<uint8_t> data;
-    data.reserve(BITE_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
+    data.reserve(BITE2_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
 
     // prefix with function selector
     data.insert(
         data.end(),
-        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
-        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY + BITE_FUNCTION_SELECTOR_SIZE_BYTES
+        BITE2_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
+        BITE2_FUNCTION_SELECTOR_AS_BYTE_ARRAY + BITE2_FUNCTION_SELECTOR_SIZE_BYTES
     );
 
     // append RLP data

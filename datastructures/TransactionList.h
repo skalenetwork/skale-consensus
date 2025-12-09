@@ -60,7 +60,7 @@ public:
 
     ptr< vector< uint8_t > > serialize( bool _writeTxPartialHash );
 
-    size_t size();
+    size_t size() const;
 
     ~TransactionList() override;
 

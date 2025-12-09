@@ -363,7 +363,7 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
 
 #ifdef BITE
 ptr<vector<string>> SgxZmqClient::decryptAESKeySharesBatch( const std::string& keyShareName,
-     std::vector<std::string > & _aesKeySharesBatch, int t, int n, bool _throwExceptionOnTimeout ) {
+     const std::vector<std::string > & _aesKeySharesBatch, int t, int n, bool _throwExceptionOnTimeout ) {
     Json::Value p;
     p["type"] = SgxZmqMessage::DECRYPT_SHARE_REQ;
     p["blsKeyName"] = keyShareName;

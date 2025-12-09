@@ -141,7 +141,7 @@ TransactionList::~TransactionList() {
 
 atomic< int64_t > TransactionList::totalObjects( 0 );
 
-size_t TransactionList::size() {
+size_t TransactionList::size() const {
     CHECK_STATE( transactions );
     return transactions->size();
 }

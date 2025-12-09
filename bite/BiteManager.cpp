@@ -161,8 +161,8 @@ std::shared_ptr<DecryptedAESKeyList> BiteManager::mergeAESKeys(
 // =============== Stage 5: Transaction Decryption =============== //
 
 DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
-        TransactionList &_transactionList,
-        DecryptedAESKeyList &_aesKeys) {
+        const TransactionList &_transactionList,
+        const DecryptedAESKeyList &_aesKeys) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
