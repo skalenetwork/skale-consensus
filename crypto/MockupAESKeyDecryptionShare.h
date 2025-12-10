@@ -16,6 +16,6 @@ public:
 
     ~MockupAESKeyDecryptionShare() override;
 
-    static ptr<MockupAESKeyDecryptionShare> mockupDecrypt(ptr <EncryptedAESKey> _key, schain_index _decryptorIndex);
+    static ptr<MockupAESKeyDecryptionShare> mockupDecrypt(EncryptedAESKey& _key, schain_index _decryptorIndex);
 };
 

@@ -33,37 +33,13 @@
 
 #pragma GCC diagnostic pop
 
-#include <map>
-#include <string>
-#include <vector>
-#include <string_view>
-#include <memory>
-
-#include "libBLS/threshold_encryption/ThresholdEncryption.h"
+#include "node/ConsensusTypes.h"
+#include "node/BiteConstants.h"
 
 enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0,
     CONSENSUS_EXITED = 1,
 };
-
-
-constexpr uint64_t BITE_CHAIN_ID = 0xD1D2D3;
-constexpr std::string_view BITE_CHAIN_ID_AS_STRING = "D1D2D3";
-constexpr uint8_t BITE_CHAIN_ID_AS_BYTE_ARRAY[3] = {0xD1, 0xD2, 0xD3};
-
-constexpr uint64_t ADDRESS_SIZE = 20;
-constexpr std::string_view BITE_ADDRESS_AS_STRING = "42495445204D452049274D20454E435259505444";
-constexpr uint8_t BITE_ADDRESS_AS_BYTE_ARRAY[ADDRESS_SIZE] = {0x42, 0x49, 0x54, 0x45, 0x20, 0x4D, 0x45, 0x20,
-    0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
-    0x59, 0x50, 0x54, 0x44};
-
-static constexpr uint64_t BITE_EPOCH_ID_LEN = sizeof(uint64_t);
-static constexpr uint64_t BITE_AES_KEY_LEN = libBLS::AES_256_KEY_SIZE_BYTES;
-static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = libBLS::CipheredKey::CIPHERED_KEY_SIZE_BYTES;
-static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = libBLS::G2_SIZE_BYTES;
-static constexpr uint64_t BITE_TE_RANDOM_LEN = libBLS::RANDOM_SECRET_SIZE_BYTES;
-static constexpr uint64_t BITE_CIPHERTEXT_MIN_LEN = BITE_ENCRYPTED_AES_KEY_LEN + BITE_TE_RANDOM_LEN + ADDRESS_SIZE;
-
 
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
         256, boost::multiprecision::unsigned_magnitude, boost::multiprecision::unchecked, void> >;
@@ -228,43 +204,99 @@ public:
 
 
 /**
- * Contains the needed decrypted fields of a transaction
- * Data - contains only the original plaintext 'data'
- * To - contains the original plaintext 'to' address
- */
-struct DecryptedTransactionFields {
-    std::shared_ptr< std::vector< uint8_t > > data;
-    // TODO better to make it std::array of size 20
-    std::shared_ptr< std::vector< uint8_t > > to;
-};
-
-using TxId = uint64_t;
-
-using DecryptedTransactionFieldsMap = std::map< TxId, DecryptedTransactionFields >;
-
-
-/**
  * Through this interface Consensus interacts with the rest of the system
  */
 class ConsensusExtFace {
 public:
-    typedef std::vector<std::vector<uint8_t> > transactions_vector;
+
+    // BITE2 pending transactions include both regular and CAT transactions.
+    // CAT should be placed before regular transactions.
+    struct Transactions {
+    private:
+        transactions_vector all;
+        
+#ifdef BITE2
+        // number of CAT txs in 'all' vector
+        std::size_t catsSize = 0;
+#endif
+
+        using iterator = typename transactions_vector::iterator;
+        using const_iterator = typename transactions_vector::const_iterator;
+
+    public:
+
+#ifdef BITE2
+        std::size_t sizeCAT() const noexcept {
+            return catsSize;
+        }
+
+        bool isCat(size_t index) const {
+            return index < catsSize;
+        }
+
+        void emplaceBackCAT(Bytes&& b) {
+            CHECK_STATE(catsSize == all.size()); // ensure all cats are contiguous at the start
+            all.emplace_back(std::move(b));
+            catsSize++;
+        }
+
+        void pushBackCAT(const Bytes &b) {
+            CHECK_STATE(catsSize == all.size());
+            all.push_back(b);
+            catsSize++;
+        }
+#endif
+
+        Bytes at(size_t index) const {
+            return all.at(index);
+        }
+
+        bool empty() const noexcept {
+            return all.empty();
+        }
+
+        std::size_t size() const noexcept {
+            return all.size();
+        }
+
+        iterator begin() {
+            return all.begin();
+        }
+
+        iterator end() {
+            return all.end();
+        }
+
+        const_iterator begin() const {
+            return all.begin();
+        }
+
+        const_iterator end() const {
+            return all.end();
+        }
+
+        void emplaceBackRegular(Bytes&& b) {
+            all.emplace_back(std::move(b));
+        }
+
+        void pushBackRegular(const Bytes &b) {
+            all.push_back(b);
+        }
+    };
+
 
     // Returns hashes and bytes of new transactions as well as state root to put into block proposal
-    virtual transactions_vector pendingTransactions(size_t _limit, u256 &_stateRoot) = 0;
+    virtual Transactions pendingTransactions(size_t _limit, u256 &_stateRoot) = 0;
 
     // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock(const transactions_vector &_approvedTransactions,
+    virtual void createBlock(const Transactions &_approvedTransactions,
 #ifdef BITE
-        // map of transaction index in the block starting from 0 to transaction
-        // empty mapped is passed for now
-        // Note: if BITE transaction did not decrypt well due to invalid AES ciphertext
-        // , _decryptedTransactionDataFields will include
-        // null for this transaction
-        std::shared_ptr< DecryptedTransactionFieldsMap > _decryptedTransactionDataFields,
+        DecryptedTransactions _decryptedTransactions,
 #endif
         uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
                              uint64_t _winningNodeIndex) = 0;
+
+
 
     virtual ~ConsensusExtFace() = default;
 

@@ -1120,7 +1120,7 @@ ptr< StorageLimits > ConsensusEngine::getStorageLimits() const {
     return storageLimits;
 }
 
-tuple< ptr< ConsensusExtFace::transactions_vector >, uint32_t, uint32_t, u256, u256 >
+tuple< ptr< ConsensusExtFace::Transactions >, uint32_t, uint32_t, u256, u256 >
 ConsensusEngine::getBlock( block_id _blockId ) {
     CHECK_STATE( nodes.size() > 0 )
     auto node = nodes.begin()->second;
@@ -1140,12 +1140,11 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     auto timeStampMs = committedBlock->getTimeStampMs();
     auto stateRoot = committedBlock->getStateRoot();
     auto currentPrice = schain->getPriceForBlockId( ( uint64_t ) committedBlock->getBlockID() - 1 );
-    auto tv = committedBlock->getTransactionList()->createTransactionVector(
-#ifdef BITE
-        committedBlock->getDecryptedTransactionFields()
-#endif
-
-        );
+    auto tv = committedBlock->getTransactionList()->createTransactionVector( 
+#ifdef BITE2
+        schain->getBiteManager()
+#endif 
+    );
     return { tv, timeStampS, timeStampMs, currentPrice, stateRoot };
 }
 

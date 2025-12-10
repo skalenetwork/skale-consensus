@@ -421,7 +421,8 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
 
 #ifdef BITE
-    BiteManager::parseBITETransactions(proposal);
+    auto biteManager = sChain->getBiteManager();
+    biteManager->parseBITETransactions(proposal);
     if (!proposal->getFailedTransactionsRef().empty()) {
         // return the first failed transaction error
         finalResponseHeader =
@@ -447,7 +448,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
 
             // check for validity
-            getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
+            biteManager->computeAndValidateSGXAESKeyBatch(proposal);
             if (!proposal->getFailedTransactionsRef().empty()) {
                 // return the first failed transaction error
                 finalResponseHeader =
@@ -483,7 +484,7 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
 #ifdef BITE
     // we talk to sgx after we sent response to the proposer since sgx is time consuming
-    getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
+    biteManager->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
     if (!proposal->getFailedTransactionsRef().empty()) {
         CONS_LOG(err, "Can not create decryptions for network proposal" +
         to_string(proposal->getFailedTransactionsRef().begin()->second));

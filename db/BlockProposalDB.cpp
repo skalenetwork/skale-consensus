@@ -198,21 +198,23 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
     // dont check signatures on proposals stored in the db since they have already been verified
     auto proposal =
         BlockProposal::makeFromDBSerialized( serializedProposal, getSchain()->getCryptoManager());
-
+    
     if ( !proposal )
         return nullptr;
 
     CHECK_STATE( !proposal->getSignature().empty() );
 
 #ifdef BITE
+    auto biteManager = getSchain()->getBiteManager();
 
+    
 
-    getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
-
+    biteManager->computeAndValidateSGXAESKeyBatch(proposal);
     CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                  "Proposal in database includes invalid format BITE transactions");
 
-    getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
+
+    biteManager->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
     CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                  "Proposal in database includes invalid BITE transactions");
 #endif

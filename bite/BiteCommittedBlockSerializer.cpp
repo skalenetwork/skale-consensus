@@ -17,8 +17,8 @@
 
 
 ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
-    BasicHeader& _blockHeader, TransactionList& transactionList,
-    DecryptedAESKeyList& _decryptedAesKeyList) {
+    BasicHeader& _blockHeader, const TransactionList& transactionList,
+    const DecryptedAESKeyList& _decryptedAesKeyList) {
     static_assert(BITE_AES_KEY_LEN == 32, "FlatBuffer AesKey requires 32-byte AES keys");
 
 
@@ -60,17 +60,20 @@ ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAn
     // ---- Serialize AES Keys ----
     std::vector<skale_fb::AesKey> aesKeysVec;
 
-    for (auto &&it: _decryptedAesKeyList.getKeys()) {
-        auto key = it.second;
-        CHECK_STATE(key)
+    for (auto &&[txIdx, keys]: _decryptedAesKeyList.getKeys()) {
+        CHECK_STATE(keys)
 
-        auto rawKey = key->getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
-        aesKeysVec.push_back(skale_fb::AesKey{
-            static_cast<uint32_t>(it.first),
-            rawKey // rawKey is std::array<uint8_t, 32>
-        });
+        // run over all aesKeys / ciphertexts for this transaction
+        // TODO - we should define a V2 structure that holds multiple keys per transaction
+        // without repeating transaction_index
+        for (const auto &key: *keys) {
+            auto rawKey = key.getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
+            aesKeysVec.push_back(skale_fb::AesKey{
+                static_cast<uint32_t>(txIdx),
+                rawKey // rawKey is std::array<uint8_t, 32>
+            });
+        }
     }
-
 
     auto aesKeysOffset = builder.CreateVectorOfStructs(aesKeysVec);
 
@@ -159,16 +162,33 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
 
     CHECK_STATE(fbAesKeys)
 
-    if (fbAesKeys) {
-        for (const auto *aesKey: *fbAesKeys) {
-            CHECK_STATE(aesKey->data() && aesKey->data()->size() == BITE_AES_KEY_LEN);
+    // Assumes all fbaesKeys for the same transaction are contiguous
+    if (fbAesKeys && !fbAesKeys->empty()) {
+        DecryptedAESKeys  keysForCurrTx;
+        transaction_index lastTxIdx = (*fbAesKeys)[0]->transaction_index();
+
+        for (const auto* aesKey : *fbAesKeys) {
+            CHECK_STATE(aesKey && aesKey->data() && aesKey->data()->size() == BITE_AES_KEY_LEN);
+
+            const transaction_index txIdx = aesKey->transaction_index();
+
+            if (txIdx != lastTxIdx) {
+                CHECK_STATE(!keysForCurrTx.empty());
+                decryptedAesKeyList->addKeys(lastTxIdx, keysForCurrTx);
+                keysForCurrTx.clear();
+                lastTxIdx = txIdx;
+            }
+
             std::array<uint8_t, BITE_AES_KEY_LEN> rawKey;
             std::memcpy(rawKey.data(), aesKey->data()->data(), BITE_AES_KEY_LEN);
+            keysForCurrTx.emplace_back(rawKey);
+        }
 
-            DecryptedAESKey key(rawKey);
-            decryptedAesKeyList->addKey(aesKey->transaction_index(), key);
+        if (!keysForCurrTx.empty()) {
+            decryptedAesKeyList->addKeys(lastTxIdx, keysForCurrTx);
         }
     }
+
 
     auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(*transactionList,
         *decryptedAesKeyList);

@@ -526,6 +526,10 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 #endif
             proposal = BlockProposal::makeFromNetworkSerialized(
                 fragmentList.serialize(), getSchain()->getCryptoManager());
+#ifdef BITE
+            auto biteManager = getSchain()->getBiteManager();
+            biteManager->parseBITETransactions(proposal);
+#endif
             CHECK_STATE(proposal)
             CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex);
             {
@@ -540,15 +544,14 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 #ifdef BITE
 
 
-            CHECK_STATE(proposal->getEncryptedAESKeys());
+            CHECK_STATE(proposal->getTransactionCiphertexts());
 
-            getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
+            biteManager->computeAndValidateSGXAESKeyBatch(proposal);
 
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                          "Proposal includes invalid format BITE transactions");
 
-            getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(
-                proposal);
+            biteManager->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                          "Proposal includes invalid BITE transactions");
 #endif

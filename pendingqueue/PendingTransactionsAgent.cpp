@@ -105,9 +105,7 @@ pair<ptr<vector<ptr<Transaction> > >, u256>
 PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterCatchup) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime())
 
-
     size_t needMax;
-
 
     auto env = getenv("TEST_TRANSACTIONS_PER_BLOCK");
 
@@ -119,7 +117,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         needMax = getNode()->getMaxTransactionsPerBlock();
     }
 
-    ConsensusExtFace::transactions_vector txVector;
+    ConsensusExtFace::Transactions transactions;
 
     auto startTimeMs = Time::getCurrentTimeMs();
 
@@ -128,13 +126,12 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
     uint64_t waitTimeMs = 10;
 
-
-    while (txVector.empty()) {
+    while (transactions.empty()) {
         getSchain()->getNode()->exitCheck();
 
         if (sChain->getExtFace()) {
             getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
-            txVector = sChain->getExtFace()->pendingTransactions(needMax, stateRoot);
+            transactions = sChain->getExtFace()->pendingTransactions(needMax, stateRoot);
             // block boundary is the safest place for exit
             // exit immediately if exit has been requested
             // this will initiate immediate exit and throw ExitRequestedException
@@ -143,9 +140,9 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
             stateRootSample++;
             stateRoot = 7;
 #ifdef BITE
-            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactionsBITE(needMax);
+            transactions = sChain->getTestMessageGeneratorAgent()->pendingTransactionsBITE(needMax);
 #else
-            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(needMax);
+            transactions = sChain->getTestMessageGeneratorAgent()->pendingTransactions(needMax);
 #endif
         }
 
@@ -180,14 +177,27 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
     auto result = make_shared<vector<ptr<Transaction> > >();
 
-    for (const auto &e: txVector) {
+    for (size_t i = 0; i < transactions.size(); i++) {
+        auto tx = transactions.at(i);
         ptr<Transaction> pt = Transaction::deserialize(
-            make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
+            make_shared<std::vector<uint8_t> >(tx), 0, tx.size(), false);
 
 #ifdef BITE
+        auto biteManager = sChain->getBiteManager();
+        auto currentEpoch = sChain->getNode()->getCurrentEpochId();
         try {
-            pt->parseAndValidate();
-            pt->tryGetBiteData(sChain->getNode()->getCurrentEpochId());
+#ifdef BITE2
+            if (transactions.isCat(i)) {
+                biteManager->tryGetEncryptedCATArgs(pt, currentEpoch);
+            }
+            else
+#endif
+            {
+                // only used for validation purposes
+                // If BITE2, only do this validation for non-CATs
+                biteManager->tryGetEncryptedRegularTxFields(pt, currentEpoch);
+            }
+
             result->push_back(pt);
             pushKnownTransaction(pt);
         } catch (std::exception &e) {

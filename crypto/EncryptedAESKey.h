@@ -3,19 +3,22 @@
 #include <memory>
 #include <array>
 #include <cstdint>
+#include "datastructures/SmallVector.h"
+#include "node/ConsensusInterface.h"
 
 using namespace std;
 
-
 class EncryptedAESKey {
-   shared_ptr< array< uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> > key;
+   array< uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> regularTxKey;
 
 public:
-   explicit EncryptedAESKey(shared_ptr<array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>> key);
+   explicit EncryptedAESKey(array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> key);
 
-   [[nodiscard]] shared_ptr<array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>> getKey() const {
-      return key;
+   [[nodiscard]] array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> data() const {
+      return regularTxKey;
    }
 
    [[nodiscard]] shared_ptr<string> toHex() const;
 };
+
+using EncryptedAESKeys = small_vector< EncryptedAESKey >;

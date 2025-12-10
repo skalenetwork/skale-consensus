@@ -327,7 +327,7 @@ public:
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
 #ifdef BITE
-        , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactions
+        , ptr< DecryptedAESKeyList > _aesKeyList, DecryptedTransactions _decryptedTransactions
 #endif
         );
 

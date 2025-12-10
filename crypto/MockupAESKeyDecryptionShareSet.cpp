@@ -27,16 +27,11 @@
         totalObjects--;
     }
 
-    ptr< DecryptedAESKey > MockupAESKeyDecryptionShareSet::verifyAndMergeAESKey(ptr<EncryptedAESKey>) {
-        string h( "" );
-
+    ptr< DecryptedAESKeys > MockupAESKeyDecryptionShareSet::verifyAndMergeAESKeys(EncryptedAESKeys& _encryptedAESKeys) {
         READ_LOCK( decryptionSharesLock )
-
         CHECK_STATE(decryptionShares.size() >= requiredDecryptors);
 
-
         //check all shares are the same
-
         std::string first;
         for (auto&& item : decryptionShares) {
             CHECK_STATE(item.second);
@@ -46,6 +41,7 @@
                 CHECK_STATE(item.second->toString() == first);  // Add this line
             }
         }
+
         CHECK_STATE( !first.empty() );
         CHECK_STATE(first.size() == BITE_ENCRYPTED_AES_KEY_LEN * 2);
 
@@ -54,9 +50,13 @@
 
         Utils::cArrayFromHex(first, encryptedKey.data(), BITE_ENCRYPTED_AES_KEY_LEN);
 
-        std::copy_n(encryptedKey.begin(), BITE_AES_KEY_LEN, decryptedKey.begin());
+        ptr< DecryptedAESKeys > decryptedKeys = std::make_shared<DecryptedAESKeys>();
+        for (size_t i = 0 ; i < _encryptedAESKeys.size(); i++) {
+            std::copy_n(encryptedKey.begin(), BITE_AES_KEY_LEN, decryptedKey.begin());
+            decryptedKeys->push_back( DecryptedAESKey( decryptedKey ) );
+        }
 
-        return make_shared< DecryptedAESKey >(decryptedKey);
+        return decryptedKeys;
     }
 
     bool MockupAESKeyDecryptionShareSet::isEnough() {
@@ -68,24 +68,24 @@
         return ( decryptionShares.size() >= requiredDecryptors );
     }
 
-    bool MockupAESKeyDecryptionShareSet::addDecryptionShare(
-        const ptr< AESKeyDecryptionShare >& _decryptionShare ) {
-        CHECK_ARGUMENT( _decryptionShare );
+    bool MockupAESKeyDecryptionShareSet::addDecryptionSharesFromSameDecryptor(
+        const ptr< AESKeyDecryptionShares >& _decryptionShares ) {
+        CHECK_ARGUMENT( _decryptionShares );
 
         WRITE_LOCK( decryptionSharesLock )
 
         if ( isEnoughUnsafe() )
             return false;
 
-        if ( decryptionShares.count( ( uint64_t ) _decryptionShare->getDecryptorIndex() ) > 0 ) {
+        if ( decryptionShares.count( ( uint64_t ) _decryptionShares->at(0)->getDecryptorIndex() ) > 0 ) {
             return false;
         }
 
-        auto ds = dynamic_pointer_cast< MockupAESKeyDecryptionShare >( _decryptionShare );
-
+        // only add the 1st share
+        ptr< MockupAESKeyDecryptionShare > ds = dynamic_pointer_cast< MockupAESKeyDecryptionShare >( _decryptionShares->at(0) );
         CHECK_STATE( ds );
+        decryptionShares[( uint64_t ) _decryptionShares->at(0)->getDecryptorIndex()] = ds;
 
-        decryptionShares[( uint64_t ) _decryptionShare->getDecryptorIndex()] = ds;
 
         return true;
     }

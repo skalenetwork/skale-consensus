@@ -28,3 +28,5 @@ public:
 
     virtual ~DecryptedAESKey();
 };
+
+using DecryptedAESKeys = small_vector<DecryptedAESKey>;

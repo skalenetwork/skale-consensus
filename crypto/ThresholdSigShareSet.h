@@ -42,6 +42,8 @@ public:
 
     static int64_t getTotalObjects();
 
+    uint64_t getRequiredSigners() const;
+
     virtual ptr< ThresholdSignature > mergeSignature() = 0;
 
     virtual bool isEnough() = 0;

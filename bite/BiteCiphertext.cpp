@@ -6,7 +6,7 @@
 #include "Log.h"
 #include <crypto/EncryptedAESKey.h>
 
-#include "bite/BiteDataFiled.h"
+#include "bite/BiteCiphertext.h"
 #include "rlp/RLPStream.h"
 #include "rlp/RLP.h"
 
@@ -15,16 +15,17 @@
 const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 const auto KEY_COUNT_BYTE_OFFSET = 1;
 
-BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
+
+BiteCiphertext::BiteCiphertext(const shared_ptr<EncryptedData> &_encryptedKeyPlusData, uint64_t _epoch)
     : keyPlusEncryptedData(_encryptedKeyPlusData), epoch(_epoch) {
     CHECK_STATE(_encryptedKeyPlusData);
     CHECK_STATE(_encryptedKeyPlusData->size() > BITE_ENCRYPTED_AES_KEY_LEN);
     
 
     // Do not validate the key nor the ciphertext, just copy the first BITE_ENCRYPTED_AES_KEY_LEN bytes
-    auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
-    std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
-    encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
+    auto keyVec = std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>();
+    std::copy_n(keyPlusEncryptedData->begin(), BITE_ENCRYPTED_AES_KEY_LEN, keyVec.begin());
+    encryptedAESKey.emplace(EncryptedAESKey(keyVec));
 
 
     // build serialized RLP-encoded data field
@@ -38,7 +39,7 @@ BiteDataField::BiteDataField(const shared_ptr<EncryptedData> &_encryptedKeyPlusD
     serializedData = make_shared<vector<uint8_t> >(list.encode());
 }
 
-BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data, epoch_id _currentEpochId) {
+BiteCiphertext::BiteCiphertext(const std::shared_ptr<std::vector<uint8_t> > &_data, epoch_id _currentEpochId) {
     CHECK_STATE(_data);
 
     // parse RLP-encoded tx data field
@@ -67,11 +68,11 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
         epoch = epochIdCandidate;
         // set encrypted data and AES key
         keyPlusEncryptedData = encryptedBITEDataBytes;
-        auto keyVec = std::make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> >();
+        auto keyVec = std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>();
         // first byte stands for the number of keys in payload - skip it when parsing manually
         std::copy_n(keyPlusEncryptedData->begin() + KEY_COUNT_BYTE_OFFSET,
-                    BITE_ENCRYPTED_AES_KEY_LEN, keyVec->begin());
-        encryptedAESKey = make_shared<EncryptedAESKey>(keyVec);
+                    BITE_ENCRYPTED_AES_KEY_LEN, keyVec.begin());
+        encryptedAESKey = EncryptedAESKey(keyVec);
     } else {
         // if encryptedBITEData contains AES key encrypted with 2 BLS keys
         // need to determine which one was used to encrypt the original message based on epochId
@@ -95,9 +96,7 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
         // set encrypted data and AES key
         encryptedBITEData.keepKey( keyIndexToKeep );
         keyPlusEncryptedData = make_shared<vector<uint8_t>>( encryptedBITEData.toBytes() );
-        encryptedAESKey = make_shared<EncryptedAESKey>(
-                    make_shared<std::array<uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>(
-                        encryptedBITEData.getTargetKey().toBytes()));
+        encryptedAESKey.emplace(EncryptedAESKey(encryptedBITEData.getTargetKey().toBytes()));
     }
     
     CHECK_STATE2((uint64_t) _currentEpochId == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
@@ -110,35 +109,17 @@ BiteDataField::BiteDataField(const std::shared_ptr<std::vector<uint8_t> > &_data
     serializedData = _data;
 }
 
-ptr<EncryptedAESKey> &BiteDataField::getEncryptedAESKey() {
-    return encryptedAESKey;
+EncryptedAESKey &BiteCiphertext::getEncryptedAESKey() {
+    return encryptedAESKey.value();
 }
-const shared_ptr< EncryptedData >& BiteDataField::getKeyPlusEncryptedData() const {
+const shared_ptr< EncryptedData >& BiteCiphertext::getKeyPlusEncryptedData() const {
     return keyPlusEncryptedData;
 }
 
-uint64_t BiteDataField::getEpoch() {
+uint64_t BiteCiphertext::getEpoch() {
     return epoch;
 }
 
-
-ptr<BiteDataField> BiteDataField::createIfMagicMatches(ptr<vector<uint8_t> > &_data,
-                                                       ptr<vector<uint8_t> > &_to,
-                                                       epoch_id _currentEpochId) {
-    CHECK_STATE(_data)
-    CHECK_STATE(_to)
-
-    // compare _to field to BITE magic number
-    if (!std::equal(BITE_ADDRESS_AS_BYTE_ARRAY, BITE_ADDRESS_AS_BYTE_ARRAY + ADDRESS_SIZE,
-                    _to->begin())) {
-        return nullptr;
-    }
-
-    return ptr<BiteDataField>(new BiteDataField(_data, _currentEpochId));
-}
-
-
-
-ptr<vector<uint8_t> > &BiteDataField::getSerializedData() {
+ptr<vector<uint8_t> > &BiteCiphertext::getSerializedData() {
     return serializedData;
 }

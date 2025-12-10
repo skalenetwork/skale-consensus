@@ -30,7 +30,10 @@
 
 #include "Transaction.h"
 #include "TransactionList.h"
-
+#ifdef BITE2
+#include "bite/BiteManager.h"
+#include "chains/Schain.h"
+#endif
 
 TransactionList::TransactionList( const ptr< vector< ptr< Transaction > > >& _transactions ) {
     CHECK_ARGUMENT( _transactions );
@@ -98,7 +101,7 @@ TransactionList::TransactionList( const ptr< vector< uint64_t > >& _transactionS
 };
 
 
-ptr< vector< ptr< Transaction > > > TransactionList::getItems() {
+ptr< vector< ptr< Transaction > > > TransactionList::getItems() const {
     CHECK_STATE( transactions );
     return transactions;
 }
@@ -137,28 +140,50 @@ TransactionList::~TransactionList() {
 
 atomic< int64_t > TransactionList::totalObjects( 0 );
 
-size_t TransactionList::size() {
+size_t TransactionList::size() const {
     CHECK_STATE( transactions );
     return transactions->size();
 }
 
 
-ptr< ConsensusExtFace::transactions_vector > TransactionList::createTransactionVector(
-#ifdef BITE
-ptr< DecryptedTransactionFieldsMap >
+ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
+#ifdef BITE2
+    ptr< BiteManager> biteManager
 #endif
 ) {
     LOCK( m )
 
-    auto tv = make_shared< ConsensusExtFace::transactions_vector >();
+    auto tv = make_shared< ConsensusExtFace::Transactions >();
 
     CHECK_STATE( transactions );
 
-    for ( auto&& t : *transactions ) {
-        tv->push_back( *( t->getData() ) );
+    size_t startRegularTxsIdx = 0;
+
+#ifdef BITE2
+    if (biteManager) {
+        auto epochId = biteManager->getSchain()->getNode()->getCurrentEpochId();
+        for (size_t i = 0; i < transactions->size(); i++) {
+            auto tx = transactions->at(i);
+            if (biteManager->tryGetEncryptedCATArgs(tx, epochId)) {
+                tv->pushBackCAT(*(tx->getData()));
+            }
+            else {
+                // first regular tx found
+                startRegularTxsIdx = i;
+                break;
+            }
+        }
     }
+#endif
+
+    for (size_t i = startRegularTxsIdx; i < transactions->size(); i++) {
+        auto tx = transactions->at(i);
+        tv->pushBackRegular(*(tx->getData()));
+    }
+
     return tv;
 }
+
 ptr< TransactionList > TransactionList::deserialize(
     const ptr< vector< uint64_t > >& _transactionSizes,
     const ptr< vector< uint8_t > >& _serializedTransactions, uint32_t _offset,

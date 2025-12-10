@@ -8,7 +8,7 @@
 #include <SkaleCommon.h>
 #include "Log.h"
 #include "node/ConsensusInterface.h"
-#include "bite/BiteDataFiled.h"
+#include "bite/BiteCiphertext.h"
 #include "bite/BiteManager.h"
 #include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "crypto/EncryptedAESKey.h"

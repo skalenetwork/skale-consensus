@@ -42,13 +42,13 @@ int DecryptedAESKey::compare( DecryptedAESKey& _key2 ) {
 
 
 ptr<EncryptedAESKey> DecryptedAESKey::generate() {
-    auto randomKey = std::make_shared<std::array<std::uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>>();
+    auto randomKey = std::array<std::uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>();
     // thread safe permanent objects
     thread_local std::random_device rd;
     thread_local std::mt19937 gen(rd());
     thread_local  std::uniform_int_distribution<std::uint8_t> dis(0, 255);
 
-    for (auto& byte : *randomKey) {
+    for (auto& byte : randomKey) {
         byte = dis(gen);
     }
 
