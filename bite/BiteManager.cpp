@@ -15,6 +15,7 @@
 #include <crypto/ConsensusAESKeyDecryptionShareSet.h>
 #include <crypto/CryptoManager.h>
 #include <crypto/DecryptedAESKeyList.h>
+#include "libBLS/threshold_encryption/ThresholdEncryption.h"
 
 #include "bite/BiteManager.h"
 #include "bite/BiteEngine.h"
@@ -72,6 +73,10 @@ void BiteManager::parseBITETransactions(
 // =============== Stage 2: Ciphertext Validation =============== //
 
 void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal) {
+    if (!biteEngine.usingRealCrypto()) {
+        return;
+    }
+
     CHECK_STATE(_proposal);
 
     ptr<TransactionCiphertextsMap> txsCiphertexts = _proposal->getTransactionCiphertexts();
@@ -230,7 +235,7 @@ ptr<vector<ptr<AESKeyDecryptionShares> > > BiteManager::getDecryptionSharesFromA
         CHECK_STATE(sgxAESKeyBatch);
         CHECK_STATE(sgxAESKeyBatch->size() == ciphertexts->totalCiphertextCount());
 
-        auto flatDecryptionShares = schain.getCryptoManager()->sgxDecryptAESKeyShareBatch(*sgxAESKeyBatch);
+        flattenedShares = schain.getCryptoManager()->sgxDecryptAESKeyShareBatch(*sgxAESKeyBatch);
     }
 
     return biteEngine.unflattenDecryptionShares(
@@ -256,16 +261,24 @@ ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(
 
 // =============== Test Encryption Calls =============== //
 
-ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data, const vector<uint8_t> &_to) {
-    auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
-    CHECK_STATE(primaryKey);
-    auto blsKey = primaryKey->getPublicKey();
-    libBLS::TEPublicKey teKey(blsKey);
-    return std::make_shared<vector<uint8_t>>(biteEngine.buildRegularTxData(teKey, _data, _to));
+ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data, const vector<uint8_t> &_to, uint64_t epochId) {
+    if (biteEngine.usingRealCrypto()) {
+        auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
+        CHECK_STATE(primaryKey);
+        auto blsKey = primaryKey->getPublicKey();
+        libBLS::TEPublicKey teKey(blsKey);
+        return std::make_shared<vector<uint8_t>>(biteEngine.buildRegularTxData(teKey, _data, _to, epochId));
+    }
+
+    // mock path: avoid SGX keys and use mockup encrypt + epoch wrapping
+    auto payload = BiteCodec::encodeRegularTxPayload(_data, _to);
+    auto cipher = libBLS::ThresholdEncryption::mockupEncrypt(payload);
+    auto serialized = BiteCodec::encodeEpochedBiteData(cipher, epochId);
+    return std::make_shared<vector<uint8_t>>(std::move(serialized));
 }
 
 #ifdef BITE2
-ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData() {
+ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData(uint64_t epochId) {
     static size_t numberOfCiphertexts = 2;
 
     // Keep ciphertext count between 2 and 5 (inclusive)
@@ -274,11 +287,30 @@ ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData() {
         numberOfCiphertexts = 2;
     }
 
-    auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
-    CHECK_STATE(primaryKey);
-    auto blsKey = primaryKey->getPublicKey();
-    libBLS::TEPublicKey teKey(blsKey);
+    if (biteEngine.usingRealCrypto()) {
+        auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
+        CHECK_STATE(primaryKey);
+        auto blsKey = primaryKey->getPublicKey();
+        libBLS::TEPublicKey teKey(blsKey);
+        return std::make_shared<vector<uint8_t>>(biteEngine.buildCATData(teKey, numberOfCiphertexts, epochId));
+    }
 
-    return std::make_shared<vector<uint8_t>>(biteEngine.buildCATData(teKey, numberOfCiphertexts));
+    // mock path: build ciphertexts using mockup encryption + epoch wrapping
+    std::vector<std::vector<uint8_t>> encryptedSerializedArgs;
+    encryptedSerializedArgs.reserve(numberOfCiphertexts);
+    for (size_t i = 0; i < numberOfCiphertexts; ++i) {
+        std::vector<uint8_t> rndData(numberOfCiphertexts * 10);
+        auto cipher = libBLS::ThresholdEncryption::mockupEncrypt(rndData);
+        encryptedSerializedArgs.push_back(BiteCodec::encodeEpochedBiteData(cipher, epochId));
+    }
+
+    std::vector<std::vector<uint8_t>> plainArgs;
+    const size_t numPlaintexts = numberOfCiphertexts - 1;
+    plainArgs.reserve(numPlaintexts);
+    for (size_t i = 0; i < numPlaintexts; ++i) {
+        plainArgs.emplace_back(numberOfCiphertexts * 5);
+    }
+
+    return std::make_shared<vector<uint8_t>>(BiteCodec::encodeCATData(encryptedSerializedArgs, plainArgs));
 }
 #endif

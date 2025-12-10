@@ -127,7 +127,7 @@ public:
      * @param _to - to address of the transaction
      */
     [[nodiscard]] ptr<vector<uint8_t> > encryptRegularTx(const vector<uint8_t> &_data,
-                                                                  const vector<uint8_t> &_to);
+                                                                  const vector<uint8_t> &_to, uint64_t epochId);
 
 #ifdef BITE2
     /**
@@ -141,7 +141,7 @@ public:
      *      ),
      * ]
      */
-    ptr<vector<uint8_t> > generateEncryptedCATData();
+    ptr<vector<uint8_t> > generateEncryptedCATData(uint64_t epochId);
 #endif
 
 };

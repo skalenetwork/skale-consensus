@@ -31,6 +31,8 @@ public:
      */
     static void encryptRegularTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager);
 
+    static void encryptCATTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager);
+
     static std::shared_ptr<std::vector<uint8_t>> signAndEncodeTx(const std::unique_ptr<EthTransaction>& tx);
 
 

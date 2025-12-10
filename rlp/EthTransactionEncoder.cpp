@@ -114,14 +114,20 @@ std::unique_ptr<EthTransaction> EthTransactionEncoder::generateSampleTx() {
 
 
 void EthTransactionEncoder::encryptRegularTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
-    auto encryptedKeyPlusData = _biteManager->encryptRegularTx(tx->data, tx->to);
-    BiteCiphertext biteDataField(encryptedKeyPlusData , 0);
+    uint64_t epochId = 0;
+    auto encryptedKeyPlusData = _biteManager->encryptRegularTx(tx->data, tx->to, epochId);
     // set data
-    tx->data = *biteDataField.getSerializedData();
+    tx->data = *encryptedKeyPlusData;
     // set to field with BITE magic number
     tx->to = { 0x42, 0x49, 0x54, 0x45, 0x20, 0x4D, 0x45, 0x20,
                 0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
                 0x59, 0x50, 0x54, 0x44 };
+}
+
+void EthTransactionEncoder::encryptCATTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
+    uint64_t epochId = 0;
+    auto catData = _biteManager->generateEncryptedCATData(epochId);
+    tx->data = *catData;
 }
 
 std::shared_ptr< std::vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(

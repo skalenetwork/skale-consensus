@@ -202,8 +202,9 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
         for ( uint64_t i = 0; i < numTotalCATTxs; i++ ) {
             auto tx = EthTransactionEncoder::generateSampleTx();
             
-            auto catData = sChain->getBiteManager()->generateEncryptedCATData();
-            tx->data = *catData;
+            // generate random CAT args & encrypt them
+            EthTransactionEncoder::encryptCATTransaction( tx, sChain->getBiteManager() );
+            
             auto signedTx = EthTransactionEncoder::signAndEncodeTx( tx );
             tmpOnlyCATs.emplaceBackCAT( std::move(*signedTx) );
         }

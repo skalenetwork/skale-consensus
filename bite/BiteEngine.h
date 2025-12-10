@@ -122,7 +122,8 @@ public:
     std::vector<uint8_t> buildRegularTxData(
         const libBLS::TEPublicKey& key,
         const std::vector<uint8_t>& plainData,
-        const std::vector<uint8_t>& to
+        const std::vector<uint8_t>& to,
+        uint64_t epochId
     ) const;
 
 
@@ -132,7 +133,8 @@ public:
 
     std::vector<uint8_t> buildCATData(
         const libBLS::TEPublicKey& key,
-        size_t numberOfCiphertexts
+        size_t numberOfCiphertexts,
+        uint64_t epochId
     ) const;
 
 #endif

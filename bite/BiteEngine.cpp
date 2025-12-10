@@ -522,16 +522,19 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
 std::vector<uint8_t> BiteEngine::buildRegularTxData(
     const libBLS::TEPublicKey& key,
     const std::vector<uint8_t>& plainData,
-    const std::vector<uint8_t>& to
+    const std::vector<uint8_t>& to,
+    uint64_t epochId
 ) const {
     auto payload = BiteCodec::encodeRegularTxPayload(plainData, to);
-    return core.encryptData(key, payload);      // core uses doRealCrypto internally
+    auto cipher = core.encryptData(key, payload);      // core uses doRealCrypto internally
+    return BiteCodec::encodeEpochedBiteData(cipher, epochId);
 }
 
 
 std::vector<uint8_t> BiteEngine::buildCATData(
     const libBLS::TEPublicKey& key,
-    size_t numberOfCiphertexts
+    size_t numberOfCiphertexts,
+    uint64_t epochId
 ) const {
     std::vector<std::vector<uint8_t>> encryptedSerializedArgs;
     encryptedSerializedArgs.reserve(numberOfCiphertexts);
@@ -540,14 +543,9 @@ std::vector<uint8_t> BiteEngine::buildCATData(
         std::vector<uint8_t> rndData(numberOfCiphertexts * 10);
         auto encryptedData = core.encryptData(key, rndData);
 
-        BiteCiphertext biteCiphertext(
-            std::make_shared<std::vector<uint8_t>>(std::move(encryptedData)),
-            0 // epoch id not relevant here
+        encryptedSerializedArgs.push_back(
+            BiteCodec::encodeEpochedBiteData(encryptedData, epochId)
         );
-
-        auto serialized = biteCiphertext.getSerializedData();
-        CHECK_STATE(serialized);
-        encryptedSerializedArgs.push_back(*serialized);
     }
 
     std::vector<std::vector<uint8_t>> plainArgs;
