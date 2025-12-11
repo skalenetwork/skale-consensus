@@ -20,9 +20,6 @@ struct DecryptedRegularTxFields {
     AddressBytes to;
 };
 
-// Contains all decrypted arguments of a CAT transaction.
-// Will only be filled if decryption was successful.
-// Else, the map will contain std::nullopt for that transaction.
 struct DecryptedCATArgs {
     std::vector<Bytes> args;
 };

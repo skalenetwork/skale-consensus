@@ -45,8 +45,11 @@ BiteManager::BiteManager(Schain& _schain)
     threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
 }
 
-// =============== Stage 1: Ciphertext Parsing =============== //
+BiteManager::~BiteManager() {
+    stopAndDestroyThreadPoolExecutor();
+}
 
+// =============== Stage 1: Ciphertext Parsing =============== //
 void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {
 
@@ -243,6 +246,7 @@ ptr<vector<ptr<AESKeyDecryptionShares> > > BiteManager::getDecryptionSharesFromA
         flattenedShares,
         _decryptorIndex
     );
+
 }
 
 
@@ -275,6 +279,7 @@ ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data
     auto cipher = libBLS::ThresholdEncryption::mockupEncrypt(payload);
     auto serialized = BiteCodec::encodeEpochedBiteData(cipher, epochId);
     return std::make_shared<vector<uint8_t>>(std::move(serialized));
+
 }
 
 #ifdef BITE2
@@ -314,3 +319,10 @@ ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData(uint64_t epochId) {
     return std::make_shared<vector<uint8_t>>(BiteCodec::encodeCATData(encryptedSerializedArgs, plainArgs));
 }
 #endif
+
+void BiteManager::stopAndDestroyThreadPoolExecutor() {
+    if ( !threadPoolExecutor )
+        return;
+    threadPoolExecutor->stop();
+    threadPoolExecutor->join();
+}

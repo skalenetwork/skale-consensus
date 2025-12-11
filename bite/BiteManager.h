@@ -38,6 +38,7 @@ class BiteManager {
 
 public:
     explicit BiteManager(Schain &_schain);
+    ~BiteManager();
 
     // =============== Stage 1: Ciphertext Parsing =============== //
 
@@ -101,7 +102,6 @@ public:
             ptr<BlockProposal> _proposal,
             schain_index _decryptorIndex);
 
-
     /**
      * @brief Builds a vec of all decryptionShares for a given transaction from a serialized string format.
      * @param _aesKeyDecryptionShares - serialized string format of decryption shares. Each share is in string format
@@ -116,7 +116,6 @@ public:
 
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
             block_id _blockId, transaction_index _transactionIndex, size_t numberOfCiphertexts);
-
 
 
     // =============== Test Encryption Calls =============== //
@@ -144,4 +143,6 @@ public:
     ptr<vector<uint8_t> > generateEncryptedCATData(uint64_t epochId);
 #endif
 
+private:
+    void stopAndDestroyThreadPoolExecutor();
 };

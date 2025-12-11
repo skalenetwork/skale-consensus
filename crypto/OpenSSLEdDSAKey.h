@@ -29,16 +29,16 @@
 class OpenSSLEdDSAKey {
     bool isPrivate = false;
 
-    EVP_PKEY* edKey = nullptr;
+    std::shared_ptr<EVP_PKEY> edKey;
 
-    static EVP_PKEY* genFastKeyImpl();
+    static std::shared_ptr<EVP_PKEY> genFastKeyImpl();
 
     string fastSignImpl( const char* _hash );
 
-    static EVP_PKEY* deserializeFastPubKey( const string& encodedPubKeyStr );
+    static std::shared_ptr<EVP_PKEY> deserializeFastPubKey( const string& encodedPubKeyStr );
 
 public:
-    OpenSSLEdDSAKey( EVP_PKEY* _edKey, bool _isPrivate );
+    OpenSSLEdDSAKey( std::shared_ptr<EVP_PKEY> _edKey, bool _isPrivate );
 
     static ptr< OpenSSLEdDSAKey > importPubKey( const string& _publicKey );
 

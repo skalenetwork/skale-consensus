@@ -143,9 +143,11 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
     auto fbAesKeys = fbBlock->aes_keys();
 
     CHECK_STATE(fbAesKeys)
+
     if (fbAesKeys) {
         BiteAESKeySerializer::deserialize(fbAesKeys, *decryptedAesKeyList);
     }
+
 
     auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(*transactionList,
         *decryptedAesKeyList);

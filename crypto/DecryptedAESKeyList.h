@@ -18,7 +18,8 @@ public:
 
     const boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>>& getKeys() const;
 
-    [[nodiscard]] boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>>& getKeys();
+    boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>>& getKeys();
+
 
     // Optional: Constructor
     DecryptedAESKeyList() : totalDecryptedCiphertexts(0) {}

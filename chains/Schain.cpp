@@ -738,7 +738,6 @@ void Schain::saveToVisualization(ptr<CommittedBlock> _block, uint64_t _visualiza
                   "\"p\":" + to_string(_block->getProposerIndex()) + "," +
                   "\"i\":" + to_string(_block->getBlockID()) + "}\n";
 
-
     if (_visualizationType == 1)
         Schain::writeToVisualizationStream(info);
 }
@@ -937,8 +936,10 @@ void Schain::pushBlockToExtFace(const ptr<CommittedBlock> &_block) {
     checkForExit();
 
     try {
-        // no need to pass biteManager to the call - we dont need to know about CATs here
-        auto tv = _block->getTransactionList()->createTransactionVector();
+        auto biteManager = getSchain()->getBiteManager();
+        CHECK_STATE(biteManager);
+
+        auto tv = _block->getTransactionList()->createTransactionVector( biteManager );
 
         // auto next_price = // VERIFY PRICING
 
@@ -1576,15 +1577,13 @@ Schain::Schain() : Agent() {
 bool Schain::fixCorruptStateIfNeeded(block_id _lastCommittedBlockID) {
     block_id nextBlock = _lastCommittedBlockID + 1;
     if (getNode()->getBlockDB()->unfinishedBlockExists(nextBlock)) {
-        return true;
         CONS_LOG(warn,
             "Corrupt consensus database has been repaired successfully."
             "Starting from repaired consensus database.");
-    } else {
-        return false;
+        return true;
     }
+    return false;
 }
-
 
 void Schain::startStatusServer() {
     if (!s) {
@@ -1801,5 +1800,12 @@ uint64_t Schain::getBlockFinalizationStageTimeMs() {
 const shared_ptr< folly::CPUThreadPoolExecutor >& Schain::getFinalizationExecutor() const {
     CHECK_STATE(finalizationExecutor);
     return finalizationExecutor;
+}
+
+void Schain::stopAndDestroyFinalizationExecutor() {
+    if ( !finalizationExecutor )
+        return;
+    finalizationExecutor->stop();
+    finalizationExecutor->join();
 }
 #endif

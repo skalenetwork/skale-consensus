@@ -187,7 +187,6 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
         BiteRuntimeContext{ sChain->getNode()->isSgxEnabled(), threadPoolExecutor }
     );
 
-
     // clean old shares if they exist in the map
     // we keep in the map shares for the current block and for the previous block
     // Find first element >= previous block
