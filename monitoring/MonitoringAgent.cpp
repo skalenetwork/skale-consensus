@@ -80,8 +80,8 @@ void MonitoringAgent::monitor() {
 
             if ( currentTime > monitor->getExpiryTime() ) {
                 CONS_LOG( warn, monitor->toString()
-                               << " has been stuck for "
-                               << to_string( currentTime - monitor->getStartTime() ) + " ms" );
+                                    << " has been stuck for "
+                                    << to_string( currentTime - monitor->getStartTime() ) + " ms" );
             }
         }
     }
@@ -97,8 +97,23 @@ void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
     CONS_LOG( info, "Monitoring agent started monitoring" );
 
     try {
-        while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
-            usleep( _agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000 );
+        auto intervalMs = _agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000;
+
+        while ( true ) {
+            {
+                std::unique_lock< std::mutex > lock( _agent->stopMutex );
+                _agent->stopCond.wait_for( lock, std::chrono::milliseconds( intervalMs ),
+                    [_agent] { return _agent->stopRequested.load(); } );
+
+                if ( _agent->stopRequested.load() ) {
+                    return;
+                }
+            }
+
+            // Will follow this exit path in production consen
+            if ( _agent->getSchain()->getNode()->isExitRequested() ) {
+                return;
+            }
 
             try {
                 _agent->monitor();
@@ -108,7 +123,7 @@ void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
             } catch ( exception& e ) {
                 SkaleException::logNested( e );
             }
-        };
+        }
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
         _agent->getSchain()->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
@@ -126,6 +141,14 @@ void MonitoringAgent::unregisterMonitor( uint64_t _id ) {
     activeMonitors.erase( _id );
 }
 
+
+void MonitoringAgent::stop() {
+    {
+        std::lock_guard< std::mutex > lock( stopMutex );
+        stopRequested = true;
+    }
+    stopCond.notify_all();
+}
 
 void MonitoringAgent::join() {
     CHECK_STATE( monitoringThreadPool );

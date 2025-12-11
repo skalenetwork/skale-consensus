@@ -606,7 +606,8 @@ std::string ConsensusEngine::exec( const char* cmd ) {
 
     std::array< char, 128 > buffer;
     std::string result;
-    std::unique_ptr< FILE, decltype( &pclose ) > pipe( popen( cmd, "r" ), pclose );
+    auto pcloseDeleter = []( FILE* f ) { return pclose( f ); };
+    std::unique_ptr< FILE, decltype( pcloseDeleter ) > pipe( popen( cmd, "r" ), pcloseDeleter );
     if ( !pipe ) {
         BOOST_THROW_EXCEPTION( std::runtime_error( "popen() failed!" ) );
     }

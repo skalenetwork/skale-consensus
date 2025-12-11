@@ -33,12 +33,20 @@ class MonitoringAgent : public Agent {
 
     ptr< MonitoringThreadPool > monitoringThreadPool = nullptr;
 
+    // Thread lifecycle control
+    std::atomic< bool > stopRequested{ false };
+    std::mutex stopMutex;
+    std::condition_variable stopCond;
+
 public:
     explicit MonitoringAgent( Schain& _sChain );
 
     static void monitoringLoop( MonitoringAgent* agent );
 
     void monitor();
+
+    // Signals the monitoring thread to stop immediately
+    void stop();
 
     void join();
 

@@ -254,6 +254,7 @@ uint64_t Schain::getMaxExternalBlockProcessingTime() const {
 
 void Schain::joinMonitorAndTimeoutThreads() {
     CHECK_STATE( monitoringAgent );
+    monitoringAgent->stop();
     monitoringAgent->join();
 
     if ( getNode()->isSyncOnlyNode() )
