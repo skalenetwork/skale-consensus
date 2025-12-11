@@ -139,8 +139,9 @@ void BiteManager::parseBITETransactions(
     auto encryptedAESKeyMap = make_shared<TransactionCiphertextsMap>();
     auto biteDataFields     = make_shared<std::map<transaction_index, ptr<BiteCiphertext> > >();
 
-    size_t regularTxsStartIdx = 0;
-    ptr<vector<ptr<Transaction> > > transactions = _proposal->getTransactionList()->getItems(); 
+    ptr<vector<ptr<Transaction> > > transactions = _proposal->getTransactionList()->getItems();
+    // Assume no regular txs by default; only process regular txs if a non-CAT is found
+    size_t regularTxsStartIdx = transactions->size();
 
 #ifdef BITE2
     // Try parsing CAT transactions first
@@ -163,6 +164,9 @@ void BiteManager::parseBITETransactions(
                                                           ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_PROPOSAL_TRANSACTION);
         }
     }
+#else
+    // No BITE2 means all txs are regular
+    regularTxsStartIdx = 0;
 #endif
 
     // Parse regular txs
