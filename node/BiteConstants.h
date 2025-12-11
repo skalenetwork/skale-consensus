@@ -16,7 +16,7 @@ constexpr uint8_t BITE_ADDRESS_AS_BYTE_ARRAY[ADDRESS_SIZE] = {0x42, 0x49, 0x54, 
 #ifdef BITE2
 constexpr uint64_t BITE2_FUNCTION_SELECTOR_SIZE_BYTES = 4;
 // TODO - update to the actual function selector once decided
-constexpr uint8_t BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY[BITE2_FUNCTION_SELECTOR_SIZE_BYTES] = {0x42, 0x49, 0x54, 0x45};
+constexpr uint8_t BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY[BITE2_FUNCTION_SELECTOR_SIZE_BYTES] = { 0x57, 0x98, 0x3A, 0xC8 };
 #endif
 
 static constexpr uint64_t BITE_EPOCH_ID_LEN = sizeof(uint64_t);
