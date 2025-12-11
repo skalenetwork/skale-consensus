@@ -905,8 +905,10 @@ void Schain::pushBlockToExtFace(const ptr<CommittedBlock> &_block) {
     checkForExit();
 
     try {
-        // no need to pass biteManager to the call - we dont need to know about CATs here
-        auto tv = _block->getTransactionList()->createTransactionVector();
+        auto biteManager = getSchain()->getBiteManager();
+        CHECK_STATE(biteManager);
+
+        auto tv = _block->getTransactionList()->createTransactionVector( biteManager );
 
         // auto next_price = // VERIFY PRICING
 
