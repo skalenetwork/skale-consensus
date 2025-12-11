@@ -3,18 +3,10 @@
 #ifdef BITE
 
 #include "bite/BiteCommittedBlockSerializer.h"
-#include "bite/BiteManager.h"
 #include "headers/CommittedBlockHeader.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/TransactionList.h"
 #include "crypto/DecryptedAESKeyList.h"
-#include "crypto/CryptoManager.h"
-#include "chains/Schain.h"
-#include "node/ConsensusEngine.h"
-#include "node/Node.h"
-#include "node/NodeInfo.h"
-#include "thirdparty/json.hpp"
-#include <ctime>
 
 #include "BiteTestUtils.h"
 #include "libBLS/test/utils.h"
@@ -22,38 +14,12 @@
 using namespace std;
 using namespace BiteTestUtils;
 
-// Helper to create a valid CryptoManager with necessary dependencies
-static std::shared_ptr< CryptoManager > createTestCryptoManager(
-    std::shared_ptr< Schain >& chain_out, std::shared_ptr< Node >& node_out,
-    ConsensusEngine& engine ) {
-    nlohmann::json cfg;
-    cfg["nodeID"] = 1;
-    cfg["nodeName"] = "testNode";
-    cfg["bindIP"] = "127.0.0.1";
-    cfg["basePort"] = 10000;
-    string gethUrl = "";
-    string schainName = "testChain";
-    schain_id schainId = 1337;
-
-    node_out = std::make_shared< Node >( cfg, &engine, false, "", "", "", "", nullptr, "", nullptr,
-        nullptr, gethUrl, nullptr, nullptr, nullptr, false );
-
-    auto nodeInfo = std::make_shared< NodeInfo >( 1, "127.0.0.1", 10000, 1337, 1 );
-    node_out->setNodeInfo( nodeInfo );
-
-    chain_out = std::make_shared< Schain >( node_out, 1, schainId, nullptr, schainName );
-
-    // node_out->setSchain(chain_out); // Avoid loop to prevent DB init crash/issues if any
-
-    return std::make_shared< CryptoManager >( *chain_out );
-}
-
-CATCH_TEST_CASE( "BiteCommittedBlockSerializer functionality", "[bite][serializer]" ) {
+CATCH_TEST_CASE( "BiteCommittedBlockSerializer serialize and deserialize", "[bite][serializer][committed]" ) {
     ConsensusEngine engine( 0, 100000000 );
     std::shared_ptr< Schain > chain;
     std::shared_ptr< Node > node;
     auto cryptoManager = createTestCryptoManager( chain, node, engine );
-    auto biteManager = make_shared< BiteManager >( *chain );
+    auto biteManager = createTestBiteManager( chain );
 
     // Setup Block Data
     schain_id schainID = 1;
@@ -62,14 +28,13 @@ CATCH_TEST_CASE( "BiteCommittedBlockSerializer functionality", "[bite][serialize
     epoch_id epochID = 10;
     schain_index proposerIndex = 1;
     u256 stateRoot = 0xabcdef;
-    uint64_t timeStamp = std::time( nullptr );  // Use current time to satisfy MODERN_TIME check
+    uint64_t timeStamp = std::time( nullptr );
     uint32_t timeStampMs = 123;
     string signature = "mock_sig";
     string thresholdSig = "mock_threshold_sig";
     string daSig = "mock_da_sig";
 
     // Create plain (non-BITE) transactions for serialization test
-    // Plain transactions don't need crypto decryption during deserialization
     auto plainTx1 = EthTransactionEncoder::generateSampleTx();
     plainTx1->to = std::vector< uint8_t >( ADDRESS_SIZE, 0x11 );  // non-BITE address
     plainTx1->data = { 0x01, 0x02 };
@@ -90,14 +55,9 @@ CATCH_TEST_CASE( "BiteCommittedBlockSerializer functionality", "[bite][serialize
     // Empty AES Keys - plain transactions don't need them
     auto aesKeys = make_shared< DecryptedAESKeyList >();
 
-    // Create Block Header
-    // We need a CommittedBlock to create a header easily, or manually construct one if constructor
-    // available CommittedBlockHeader constructor takes json or CommittedBlock. Let's create a
-    // CommittedBlock first to get the header.
-
     auto block = CommittedBlock::make( schainID, proposerNodeID, blockID, epochID, proposerIndex,
         txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig, daSig, aesKeys,
-        DecryptedTransactions()  // empty decrypted txs for now
+        DecryptedTransactions()
     );
 
     auto header = make_shared< CommittedBlockHeader >( *block );
@@ -116,24 +76,7 @@ CATCH_TEST_CASE( "BiteCommittedBlockSerializer functionality", "[bite][serialize
 
     // 3. Test Deserialization
     ptr< CommittedBlock > deserialized = nullptr;
-    // Note: BiteCommittedBlockSerializer::deserialize requires BiteManager to verify/decrypt,
-    // which might fail if we don't have real keys set up in BiteManager/CryptoManager.
-    // However, we can basic check if it constructs the block.
-    // If BiteManager tries to verify real crypto, it might fail.
-    // We can use a mock BiteManager or configure it to skip real crypto if possible?
-    // BiteManager constructor takes Schain.
-    // BiteManager::verifyAndDecryptTransactionList uses BiteEngine.
-    // If we passed real crypto flag?
-    // Let's assume for serialization unit test we might hit issues if it tries real decryption.
-    // But verifyAndDecryptTransactionList runs automatically on deserialize.
-
-    // To make this pass without complex setup, we might need to rely on the fact
-    // that deserialize calls _biteManager->verifyAndDecryptTransactionList.
-    // If we want to test PURE serialization, we verified it produces a buffer.
-
-    // Let's attempt deserialization. If it throws due to crypto, we'll verify it parses at least.
-
-    bool verifySig = false;  // skip sig verify to avoid crypto manager errors
+    bool verifySig = false;
 
     CATCH_REQUIRE_NOTHROW( deserialized = BiteCommittedBlockSerializer::deserialize(
                                serialized, cryptoManager, biteManager, verifySig ) );
@@ -143,19 +86,121 @@ CATCH_TEST_CASE( "BiteCommittedBlockSerializer functionality", "[bite][serialize
     CATCH_REQUIRE( deserialized->getEpochID() == epochID );
     CATCH_REQUIRE( deserialized->getTransactionList()->size() == 2 );
 
-    // Verify AES keys were deserialized (accessible via friend/getter if available, or just trust
-    // correct block creation) CommittedBlock doesn't expose getDecryptedAesKeyList publically
-    // easily directly? It does! block->decryptedAesKeyList is private but we passed it to
-    // constructor. Wait, CommittedBlock has no getter for aesKeyList? I see in CommittedBlock.cpp:
-    // DecryptedAESKeyList _aesKeyList ... -> this->decryptedAesKeyList = _aesKeyList
-    // But no getter in header file probably?
-    // Actually `BiteCommittedBlockSerializer.cpp` does `BiteAESKeySerializer::deserialize` and
-    // passes it.
+    // Verify transaction data is preserved
+    auto deserializedTxs = deserialized->getTransactionList()->getItems();
+    CATCH_REQUIRE( *deserializedTxs->at( 0 )->getData() == *txVec->at( 0 )->getData() );
+    CATCH_REQUIRE( *deserializedTxs->at( 1 )->getData() == *txVec->at( 1 )->getData() );
 
-    // We can indirectly check by re-serializing?
+    // Verify roundtrip
     auto reserialized = deserialized->serialize();
     CATCH_REQUIRE( reserialized->size() == serialized->size() );
     CATCH_REQUIRE( *reserialized == *serialized );
 }
 
+CATCH_TEST_CASE(
+    "BiteCommittedBlockSerializer sanity check fails on corrupt data", "[bite][serializer][committed][error]" ) {
+    // Create corrupt data that is not a valid FlatBuffer
+    auto corruptData = make_shared< vector< uint8_t > >( 100, 0xFF );
+
+    CATCH_REQUIRE_THROWS( BiteCommittedBlockSerializer::serializedSanityCheck( corruptData ) );
+}
+
+CATCH_TEST_CASE(
+    "BiteCommittedBlockSerializer deserialize fails on corrupt FlatBuffer", "[bite][serializer][committed][error]" ) {
+    ConsensusEngine engine( 0, 100000000 );
+    std::shared_ptr< Schain > chain;
+    std::shared_ptr< Node > node;
+    auto cryptoManager = createTestCryptoManager( chain, node, engine );
+    auto biteManager = createTestBiteManager( chain );
+
+    // Create corrupt data
+    auto corruptData = make_shared< vector< uint8_t > >( 100, 0xFF );
+
+    CATCH_REQUIRE_THROWS( BiteCommittedBlockSerializer::deserialize(
+        corruptData, cryptoManager, biteManager, false ) );
+}
+
+CATCH_TEST_CASE(
+    "BiteCommittedBlockSerializer with multiple plain transactions", "[bite][serializer][committed]" ) {
+    ConsensusEngine engine( 0, 100000000 );
+    std::shared_ptr< Schain > chain;
+    std::shared_ptr< Node > node;
+    auto cryptoManager = createTestCryptoManager( chain, node, engine );
+    auto biteManager = createTestBiteManager( chain );
+
+    // Setup Block Data
+    schain_id schainID = 1;
+    node_id proposerNodeID = 1;
+    block_id blockID = 200;
+    epoch_id epochID = 20;
+    schain_index proposerIndex = 1;
+    u256 stateRoot = 0x123456;
+    uint64_t timeStamp = std::time( nullptr );
+    uint32_t timeStampMs = 456;
+    string signature = "sig_multi_plain";
+    string thresholdSig = "threshold_sig_multi";
+    string daSig = "da_sig_multi";
+
+    // Create multiple plain transactions
+    auto plainTx1 = EthTransactionEncoder::generateSampleTx();
+    plainTx1->to = std::vector< uint8_t >( ADDRESS_SIZE, 0x33 );
+    plainTx1->data = { 0xAA, 0xBB };
+    auto tx1 = std::make_shared< Transaction >(
+        EthTransactionEncoder::signAndEncodeTx( plainTx1 ), false );
+
+    auto plainTx2 = EthTransactionEncoder::generateSampleTx();
+    plainTx2->to = std::vector< uint8_t >( ADDRESS_SIZE, 0x44 );
+    plainTx2->data = { 0xCC, 0xDD };
+    auto tx2 = std::make_shared< Transaction >(
+        EthTransactionEncoder::signAndEncodeTx( plainTx2 ), false );
+
+    auto plainTx3 = EthTransactionEncoder::generateSampleTx();
+    plainTx3->to = std::vector< uint8_t >( ADDRESS_SIZE, 0x55 );
+    plainTx3->data = { 0xEE, 0xFF };
+    auto tx3 = std::make_shared< Transaction >(
+        EthTransactionEncoder::signAndEncodeTx( plainTx3 ), false );
+
+    auto txVec = make_shared< vector< ptr< Transaction > > >();
+    txVec->push_back( tx1 );
+    txVec->push_back( tx2 );
+    txVec->push_back( tx3 );
+    auto txList = make_shared< TransactionList >( txVec );
+
+    // Empty AES Keys - plain transactions don't need them
+    auto aesKeys = make_shared< DecryptedAESKeyList >();
+
+    auto block = CommittedBlock::make( schainID, proposerNodeID, blockID, epochID, proposerIndex,
+        txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig, daSig, aesKeys,
+        DecryptedTransactions()
+    );
+
+    auto header = make_shared< CommittedBlockHeader >( *block );
+
+    // Serialize
+    auto serialized = BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
+        *header, *txList, *aesKeys );
+    CATCH_REQUIRE( serialized != nullptr );
+
+    // Sanity check
+    CATCH_REQUIRE_NOTHROW( BiteCommittedBlockSerializer::serializedSanityCheck( serialized ) );
+
+    // Deserialize
+    auto deserialized = BiteCommittedBlockSerializer::deserialize(
+        serialized, cryptoManager, biteManager, false );
+    CATCH_REQUIRE( deserialized != nullptr );
+    CATCH_REQUIRE( deserialized->getBlockID() == blockID );
+    CATCH_REQUIRE( deserialized->getTransactionList()->size() == 3 );
+
+    // Verify individual transaction data is preserved
+    auto deserializedTxs = deserialized->getTransactionList()->getItems();
+    CATCH_REQUIRE( *deserializedTxs->at( 0 )->getData() == *txVec->at( 0 )->getData() );
+    CATCH_REQUIRE( *deserializedTxs->at( 1 )->getData() == *txVec->at( 1 )->getData() );
+    CATCH_REQUIRE( *deserializedTxs->at( 2 )->getData() == *txVec->at( 2 )->getData() );
+
+    // Roundtrip check
+    auto reserialized = deserialized->serialize();
+    CATCH_REQUIRE( *reserialized == *serialized );
+}
+
 #endif
+

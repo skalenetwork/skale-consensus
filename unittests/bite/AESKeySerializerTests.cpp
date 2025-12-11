@@ -7,7 +7,7 @@
 #include <flatbuffers/flatbuffers.h>
 
 CATCH_TEST_CASE("BiteAESKeySerializer backward compatible with single-ciphertext txs", "[bite][serialize][aeskeys][backward]") {
-    // Simulate legacy layout: one ciphertext per transaction, serialized in order
+    // Simulate BITE1 layout: one ciphertext per transaction, serialized in order
     DecryptedAESKeyList list;
     DecryptedAESKeys tx0;
     tx0.push_back(DecryptedAESKey({0x0A}));
