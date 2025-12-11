@@ -75,8 +75,9 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
 ) {
     ParseResult result;
 
-    size_t regularTxsStartIdx = 0;
     ptr<vector<ptr<Transaction> > > transactions = txList.getItems();
+    // Assume no regular txs by default; only process regular txs if a non-CAT is found
+    size_t regularTxsStartIdx = transactions->size();
 
     std::set<size_t> failedTxIndices;
 
@@ -100,6 +101,9 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
             failedTxIndices.insert(i);
         }
     }
+#else
+    // No BITE2 means all txs are regular
+    regularTxsStartIdx = 0;
 #endif
 
     // Parse regular txs

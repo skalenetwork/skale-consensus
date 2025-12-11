@@ -936,10 +936,17 @@ void Schain::pushBlockToExtFace(const ptr<CommittedBlock> &_block) {
     checkForExit();
 
     try {
+
+#ifdef BITE
         auto biteManager = getSchain()->getBiteManager();
         CHECK_STATE(biteManager);
+#endif
 
-        auto tv = _block->getTransactionList()->createTransactionVector( biteManager );
+        auto tv = _block->getTransactionList()->createTransactionVector( 
+#ifdef BITE
+            biteManager
+#endif
+        );
 
         // auto next_price = // VERIFY PRICING
 

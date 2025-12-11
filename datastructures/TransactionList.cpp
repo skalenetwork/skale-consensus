@@ -158,7 +158,8 @@ ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
 
     CHECK_STATE( transactions );
 
-    size_t startRegularTxsIdx = 0;
+    // Assume no regular txs by default; only process regular txs if a non-CAT is found
+    size_t startRegularTxsIdx = transactions->size();
 
 #ifdef BITE2
     // TODO - refactor to simply call biteManager->parseBITETransactions
@@ -175,7 +176,13 @@ ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
                 break;
             }
         }
+    } else {
+        // No biteManager means all txs are regular
+        startRegularTxsIdx = 0;
     }
+#else
+    // No BITE2 means all txs are regular
+    startRegularTxsIdx = 0;
 #endif
 
     for (size_t i = startRegularTxsIdx; i < transactions->size(); i++) {
