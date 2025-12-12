@@ -83,8 +83,6 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
     CHECK_STATE(_sChain->getNodeCount() > 1)
 
     try {
-        logThreadLocal_ = _sChain->getNode()->getLog();
-
         CHECK_STATE(sChain)
     } catch (ExitRequestedException &) {
         throw;

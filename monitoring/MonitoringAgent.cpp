@@ -39,7 +39,6 @@
 
 MonitoringAgent::MonitoringAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
         this->monitoringThreadPool = make_shared< MonitoringThreadPool >( 1, this );
@@ -91,6 +90,7 @@ void MonitoringAgent::monitor() {
 void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
 
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
     setThreadName( "MonitoringLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
 
@@ -105,12 +105,15 @@ void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
                 _agent->stopCond.wait_for( lock, std::chrono::milliseconds( intervalMs ),
                     [_agent] { return _agent->stopRequested.load(); } );
 
+                // In test, we set the condition variable to exit,
+                // thus we exit the loop from this condition
                 if ( _agent->stopRequested.load() ) {
                     return;
                 }
             }
 
-            // Will follow this exit path in production consen
+            // In production, we do not set the condition variable to exit.
+            // So it will wake up after the interval, and will just check if the node is exiting.
             if ( _agent->getSchain()->getNode()->isExitRequested() ) {
                 return;
             }
