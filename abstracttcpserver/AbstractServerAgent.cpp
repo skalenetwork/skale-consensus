@@ -115,7 +115,6 @@ void AbstractServerAgent::send(
 AbstractServerAgent::AbstractServerAgent(
     const string& _name, Schain& _schain, const ptr< TCPServerSocket >& _socket )
     : Agent( _schain, true ), name( _name ), socket( _socket ), networkReadThread( nullptr ) {
-    logThreadLocal_ = _schain.getNode()->getLog();
 }
 
 AbstractServerAgent::~AbstractServerAgent() {

@@ -13,7 +13,6 @@
 OracleResultAssemblyAgent::OracleResultAssemblyAgent( Schain& _sChain )
     : Agent( _sChain, true ), oracleMessageThreadPool( new OracleMessageThreadPool( this ) ) {
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
         oracleMessageThreadPool->startService();
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
