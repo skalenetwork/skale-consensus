@@ -39,7 +39,6 @@
 
 MonitoringAgent::MonitoringAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
         this->monitoringThreadPool = make_shared< MonitoringThreadPool >( 1, this );
@@ -91,6 +90,7 @@ void MonitoringAgent::monitor() {
 void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
 
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
     setThreadName( "MonitoringLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
 
