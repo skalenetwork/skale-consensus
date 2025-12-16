@@ -842,6 +842,9 @@ void ConsensusEngine::exitGracefullyAsync() {
 
         for ( auto&& it : nodes ) {
             it.second->getSchain()->joinMonitorAndTimeoutThreads();
+#ifdef BITE
+            it.second->getSchain()->stopAndDestroyFinalizationExecutor();
+#endif
         }
     } catch ( exception& e ) {
         SkaleException::logNested( e );
