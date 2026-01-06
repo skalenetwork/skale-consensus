@@ -490,7 +490,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             if ( isArchiveMode ) {
                 // For archive nodes: add new database
                 db.push_back( newDB );
-                LOG( info, "ARCHIVE_NODE: Added new database, total databases: " << db.size() );
+                CONS_LOG( info, "ARCHIVE_NODE: Added new database, total databases: " << db.size() );
             } else {
                 // For regular nodes: keep exactly LEVELDB_SHARDS databases
                 for ( uint64_t i = 1; i < LEVELDB_SHARDS; i++ ) {
