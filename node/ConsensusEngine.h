@@ -62,6 +62,10 @@ class ConsensusEngine : public ConsensusInterface {
 
     set< node_id > nodeIDs;
 
+#ifdef BITE
+    uint64_t epochId = 0;
+#endif
+
     bool useTestSGXKeys = false;
 
     bool isSGXEnabled = false;
@@ -77,8 +81,8 @@ class ConsensusEngine : public ConsensusInterface {
     ptr< vector< string > > blsKeyNames;                     // tsafe
     ptr< vector< string > > ecdsaPublicKeys;                 // tsafe
     ptr< vector< ptr< vector< string > > > > blsPublicKeys;  // tsafe
-    ptr< BLSPublicKey > blsPublicKey;
-    ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+    ptr< libBLS::BLSPublicKey > blsPublicKey;
+    ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > previousBlsPublicKeys;
     ptr< map< uint64_t, string > > historicECDSAPublicKeys;
     ptr< map< uint64_t, vector< uint64_t > > > historicNodeGroups;
 
@@ -166,8 +170,8 @@ public:
         string _sgxSSLCertFileFullPath = "", string _ecdsaKeyName = "",
         ptr< vector< string > > _ecdsaPublicKeys = nullptr, string _blsKeyName = "",
         ptr< vector< ptr< vector< string > > > > _blsPublicKeys = nullptr,
-        ptr< BLSPublicKey > _blsPublicKey = nullptr,
-        ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys = nullptr,
+        ptr< libBLS::BLSPublicKey > _blsPublicKey = nullptr,
+        ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > _previousBlsPublicKeys = nullptr,
         ptr< map< uint64_t, string > > _historicECDSAPublicKeys = nullptr,
         ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups = nullptr );
 
@@ -241,6 +245,10 @@ public:
 
     virtual void exitGracefully() override;
 
+#ifdef FAIR
+    virtual void updateLogger() const override;
+#endif
+
 
     // used in tests
     void testExitGracefullyBlocking();
@@ -298,6 +306,7 @@ public:
 
     static int getOpenDescriptors();
 
+
     uint64_t submitOracleRequest(
         const string& _spec, string& _receipt, string& _errorMessage ) override;
 
@@ -311,5 +320,9 @@ public:
     // if isSyncing is false, all fields will be set to zero.
 
     [[nodiscard]] SyncInfo getSyncInfo() override;
+
+#ifdef BITE
+    void setEpochId( uint64_t _epochId ) { epochId = _epochId; }
+#endif
 
 };

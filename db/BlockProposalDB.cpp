@@ -74,7 +74,7 @@ void BlockProposalDB::addBlockProposal( const ptr< BlockProposal > _proposal ) {
     CHECK_STATE( ( uint64_t ) proposerIndex <= getSchain()->getNodeCount() );
     CHECK_STATE( proposerIndex > 0 );
 
-    LOG( trace, "addBlockProposal blockID_=" << to_string( _proposal->getBlockID() )
+    CONS_LOG( trace, "addBlockProposal blockID_=" << to_string( _proposal->getBlockID() )
                                              << " proposerIndex="
                                              << to_string( _proposal->getProposerIndex() ) );
 
@@ -108,13 +108,13 @@ void BlockProposalDB::addProposalToCacheIfDoesNotExist( const ptr< BlockProposal
         auto previousProposal = proposalCaches->at( ( uint64_t ) proposerIndex - 1 );
         if ( previousProposal ) {
             if ( previousProposal->getBlockID() > ( uint64_t ) _proposal->getBlockID() ) {
-                LOG( warn,
+                CONS_LOG( warn,
                     "Trying to add a proposal with smaller block id:" << _proposal->getBlockID() );
                 return;
             }
 
             if ( previousProposal->getBlockID() > ( uint64_t ) _proposal->getBlockID() ) {
-                LOG( warn,
+                CONS_LOG( warn,
                     "Trying to add a proposal with same block id:" << _proposal->getBlockID() );
                 return;
             }
@@ -197,12 +197,25 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
 
     // dont check signatures on proposals stored in the db since they have already been verified
     auto proposal =
-        BlockProposal::deserialize( serializedProposal, getSchain()->getCryptoManager(), false );
+        BlockProposal::makeFromDBSerialized( serializedProposal, getSchain()->getCryptoManager());
 
     if ( !proposal )
         return nullptr;
 
     CHECK_STATE( !proposal->getSignature().empty() );
+
+#ifdef BITE
+
+
+    getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
+
+    CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
+                 "Proposal in database includes invalid format BITE transactions");
+
+    getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
+    CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
+                 "Proposal in database includes invalid BITE transactions");
+#endif
 
     return proposal;
 }

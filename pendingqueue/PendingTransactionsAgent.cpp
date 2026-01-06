@@ -43,6 +43,11 @@
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
 #include "db/CommittedTransactionDB.h"
+#ifdef BITE
+#include "bite/BiteManager.h"
+#include "crypto/AESKeyDecryptionShareList.h"
+#endif
+
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
@@ -54,10 +59,11 @@ using namespace std;
 
 
 PendingTransactionsAgent::PendingTransactionsAgent(Schain &ref_sChain)
-        : Agent(ref_sChain, false) {}
+    : Agent(ref_sChain, false) {
+}
 
 ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
-        block_id _blockID, TimeStamp &_previousBlockTimeStamp, bool _isCalledAfterCatchup) {
+    block_id _blockID, TimeStamp &_previousBlockTimeStamp, bool _isCalledAfterCatchup) {
     MICROPROFILE_ENTERI("PendingTransactionsAgent", "sleep", MP_DIMGRAY);
     usleep(getNode()->getMinBlockIntervalMs() * 1000);
     MICROPROFILE_LEAVE();
@@ -77,12 +83,15 @@ ptr<BlockProposal> PendingTransactionsAgent::buildBlockProposal(
 
     auto stamp = TimeStamp::getCurrentTimeStamp();
 
-    auto myBlockProposal = make_shared<MyBlockProposal>(*sChain, _blockID,
-                                                        sChain->getSchainIndex(), transactionList, stateRoot,
-                                                        stamp.getS(), stamp.getMs(),
-                                                        getSchain()->getCryptoManager());
+    auto myBlockProposal = MyBlockProposal::createMyProposal(*sChain, _blockID,
+#ifdef BITE
+                                                             getNode()->getCurrentEpochId(),
+#endif
+                                                             sChain->getSchainIndex(), transactionList, stateRoot,
+                                                             stamp.getS(), stamp.getMs(),
+                                                             getSchain()->getCryptoManager());
 
-    LOG(trace, "Created proposal, transactions:" << to_string(transactions->size()));
+    CONS_LOG(trace, "Created proposal, transactions:" << to_string(transactions->size()));
 
     auto pHashesList = myBlockProposal->createPartialHashesList();
     CHECK_STATE(pHashesList);
@@ -96,7 +105,6 @@ pair<ptr<vector<ptr<Transaction> > >, u256>
 PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterCatchup) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, getSchain()->getMaxExternalBlockProcessingTime())
 
-    auto result = make_shared<vector<ptr<Transaction> > >();
 
     size_t needMax;
 
@@ -107,11 +115,9 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         needMax = strtoul(env, nullptr, 10);
 
         CHECK_STATE(needMax > 0)
-
     } else {
         needMax = getNode()->getMaxTransactionsPerBlock();
     }
-
 
     ConsensusExtFace::transactions_vector txVector;
 
@@ -136,7 +142,11 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         } else {
             stateRootSample++;
             stateRoot = 7;
+#ifdef BITE
+            txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactionsBITE(needMax);
+#else
             txVector = sChain->getTestMessageGeneratorAgent()->pendingTransactions(needMax);
+#endif
         }
 
         auto finishTime = Time::getCurrentTimeMs();
@@ -162,18 +172,32 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         if (waitTimeMs < 10 * 32) {
             waitTimeMs *= 2;
         }
-
-    }  // while
+    } // while
 
     auto finishTimeMs = Time::getCurrentTimeMs();
 
     transactionListWaitTime = finishTimeMs - startTimeMs;
 
+    auto result = make_shared<vector<ptr<Transaction> > >();
+
     for (const auto &e: txVector) {
         ptr<Transaction> pt = Transaction::deserialize(
-                make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
+            make_shared<std::vector<uint8_t> >(e), 0, e.size(), false);
+
+#ifdef BITE
+        try {
+            pt->parseAndValidate();
+            pt->tryGetBiteData(sChain->getNode()->getCurrentEpochId());
+            result->push_back(pt);
+            pushKnownTransaction(pt);
+        } catch (std::exception &e) {
+            CONS_LOG(err, e.what());
+            CONS_LOG(err, "Found incorrectly formatted BITE transaction. Skipping it from my proposal.");
+        }
+#else
         result->push_back(pt);
         pushKnownTransaction(pt);
+#endif
     }
 
     return {result, stateRoot};
@@ -181,7 +205,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
 
 ptr<Transaction> PendingTransactionsAgent::getKnownTransactionByPartialHash(
-        const ptr<partial_sha_hash> hash) {
+    const ptr<partial_sha_hash> hash) {
     READ_LOCK(transactionsMutex);
     if (knownTransactions.count(hash))
         return knownTransactions.at(hash);
@@ -194,7 +218,7 @@ void PendingTransactionsAgent::pushKnownTransaction(const ptr<Transaction> &_tra
     WRITE_LOCK(transactionsMutex);
 
     if (knownTransactions.count(_transaction->getPartialHash())) {
-        LOG(trace, "Duplicate transaction pushed to known transactions");
+        CONS_LOG(trace, "Duplicate transaction pushed to known transactions");
         return;
     }
 

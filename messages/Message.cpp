@@ -33,11 +33,19 @@
 ptr< ProtocolKey > Message::createProtocolKey() {
     CHECK_STATE( msgType == PARENT_COMPLETED || msgType == MSG_BVB_BROADCAST ||
                  msgType == MSG_AUX_BROADCAST || msgType == BIN_CONSENSUS_COMMIT ||
-                 msgType == MSG_BLOCK_SIGN_BROADCAST || msgType == MSG_ORACLE_REQ_BROADCAST ||
-                 msgType == MSG_ORACLE_RSP );
+                 msgType == MSG_BLOCK_SIGN_BROADCAST
+#ifndef FAIR
+                 || msgType == MSG_ORACLE_REQ_BROADCAST
+                 || msgType == MSG_ORACLE_RSP
+#endif
+                 );
     CHECK_STATE( blockID > 0 );
     if ( protocolKey == nullptr ) {
-        protocolKey = make_shared< ProtocolKey >( blockID, blockProposerIndex );
+        protocolKey = make_shared< ProtocolKey >( blockID,
+#ifdef BITE
+        epochID,
+#endif
+        blockProposerIndex );
     }
     return protocolKey;
 }
@@ -62,9 +70,16 @@ schain_index Message::getBlockProposerIndex() const {
 }
 
 Message::Message( const schain_id& schainID, MsgType msgType, const msg_id& msgID,
-    const node_id& srcNodeID, const block_id& blockID, const schain_index& blockProposerIndex )
+    const node_id& srcNodeID, const block_id& blockID,
+#ifdef BITE
+    const epoch_id& epochID,
+#endif
+    const schain_index& blockProposerIndex )
     : schainID( schainID ),
       blockID( blockID ),
+#ifdef BITE
+      epochID( epochID ),
+#endif
       blockProposerIndex( blockProposerIndex ),
       msgType( msgType ),
       msgID( msgID ),
@@ -77,6 +92,12 @@ Message::Message( const schain_id& schainID, MsgType msgType, const msg_id& msgI
 block_id Message::getBlockID() {
     return blockID;
 }
+
+#ifdef BITE
+epoch_id Message::getEpochID() {
+    return epochID;
+}
+#endif
 
 MsgType Message::getMsgType() {
     return msgType;

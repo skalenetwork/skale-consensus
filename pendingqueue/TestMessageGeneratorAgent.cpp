@@ -30,8 +30,13 @@
 #include "chains/Schain.h"
 #include "chains/SchainTest.h"
 #include "datastructures/Transaction.h"
+#ifndef FAIR
 #include "oracle/OracleClient.h"
 #include "oracle/OracleRequestSpec.h"
+#endif
+#ifdef BITE
+#include "rlp/EthTransactionEncoder.h"
+#endif
 #include "utils/Time.h"
 #include "pendingqueue/TestMessageGeneratorAgent.h"
 
@@ -78,18 +83,22 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     static atomic< uint64_t > iterations = 0;
     // send oracle test once from schain index 1
 
+
+#ifndef FAIR
     if ( getSchain()->getNode()->isTestNet() && getSchain()->getSchainIndex() == 1 ) {
         if ( iterations.fetch_add( 1 ) == 2 ) {
-            LOG( info, "Sending Oracle test eth_call " );
+            CONS_LOG( info, "Sending Oracle test eth_call " );
             sendTestRequestEthCall();
-            LOG( info, "Sent Oracle eth_call request" );
+            CONS_LOG( info, "Sent Oracle eth_call request" );
         }
     }
 
+#endif
     return result;
 };
 
 
+#ifndef FAIR
 void TestMessageGeneratorAgent::sendTestRequestGet() {
     string uri = "https://worldtimeapi.org/api/timezone/Europe/Kiev";
     vector< string > jsps{ "/unixtime", "/day_of_year", "/xxx" };
@@ -148,3 +157,49 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
+
+#endif
+
+#ifdef BITE
+
+ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactionsBITE(
+    size_t _limit ) {
+    static size_t txIdxInPrecomputedBatch = 0;
+    static ConsensusExtFace::transactions_vector result;
+    static std::once_flag initFlag;
+
+    // build test transactions only once at start (includes encrypting them)
+    std::call_once(initFlag, [&] () {
+        ConsensusExtFace::transactions_vector tmpRes;
+
+        for ( uint64_t i = 0; i < 1000; i++ ) {
+            // 1/4 chance of being bite encoded
+            // make half of them bite encoded
+            // make one quarter unencrypted
+            auto tx = EthTransactionEncoder::generateSampleTx( i % 4 != 0, sChain->getBiteManager()  );
+            tmpRes.emplace_back( *tx );
+        }
+
+        result = std::move(tmpRes);
+    });
+
+
+    ConsensusExtFace::transactions_vector selectedTxs;
+
+    auto test = sChain->getBlockProposerTest();
+
+    CHECK_STATE( !test.empty() );
+
+    if ( test == SchainTest::NONE )
+        return result;
+
+    size_t idx = txIdxInPrecomputedBatch;
+    for ( uint64_t i = 0; i < _limit; i++ ) {
+        idx = (idx + 1) % result.size();
+        selectedTxs.emplace_back( result.at(idx) );
+    }
+
+    txIdxInPrecomputedBatch = idx;
+    return selectedTxs;
+};
+#endif

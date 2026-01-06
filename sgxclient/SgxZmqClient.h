@@ -35,6 +35,7 @@
 #define ZMQ_NO_SIG_IN_MESSAGE -95
 #define ZMQ_NO_CERT_IN_MESSAGE -96
 #define ZMQ_COULD_NOT_VERIFY_SIG -97
+#define ZMQ_COULD_NOT_DECRYPT_SHARE -98
 
 
 #include <openssl/pem.h>
@@ -49,6 +50,10 @@
 #include "sgxclient/SgxZmqMessage.h"
 #include "thirdparty/zguide/zhelpers.hpp"
 #pragma GCC diagnostic pop
+
+#ifdef BITE
+class AESKeyDecryptionShare;
+#endif
 
 
 #define REQUEST_TIMEOUT 10000  //  msecs, (> 1000!)
@@ -69,9 +74,9 @@ private:
     zmq_status zmqStatus = UNKNOWN;
 
 
-    EVP_PKEY* pkey = 0;
-    EVP_PKEY* pubkey = 0;
-    X509* x509Cert = 0;
+    std::shared_ptr<EVP_PKEY> pkey;
+    std::shared_ptr<EVP_PKEY> pubkey;
+    std::shared_ptr<X509> x509Cert;
 
     bool exited = false;
 
@@ -98,7 +103,7 @@ public:
     Schain* getSchain() const;
 
 private:
-    static cache::lru_cache< string, pair< EVP_PKEY*, X509* > > verifiedCerts;
+    static cache::lru_cache< string, pair< std::shared_ptr<EVP_PKEY>, std::shared_ptr<X509> > > verifiedCerts;
 
     shared_ptr< SgxZmqMessage > doRequestReply(
         Json::Value& _req, string& _description, bool _throwExceptionOnTimeout = false );
@@ -117,19 +122,26 @@ public:
 
     void reconnect();
 
-    static pair< EVP_PKEY*, X509* > readPublicKeyFromCertStr( const string& _cert );
+    static pair< std::shared_ptr<EVP_PKEY>, std::shared_ptr<X509> > readPublicKeyFromCertStr( const string& _cert );
 
-    static string signString( EVP_PKEY* _pkey, const string& _str );
+    static string signString( std::shared_ptr<EVP_PKEY> _pkey, const string& _str );
 
     string blsSignMessageHash( const string& _keyShareName, const string& _messageHash, int _t,
         int _n, bool _throwExceptionOnTimeout );
 
+#ifdef BITE
+    ptr<vector<ptr<string>>>decryptAESKeySharesBatch( const string& _keyShareName,
+    std::vector<std::shared_ptr<std::string> > & _aesKeySharesBatch, int _t, int _n,
+    bool _throwExceptionOnTimeout );
+#endif
+
     string ecdsaSignMessageHash( int _base, const string& _keyName, const string& _messageHash,
         bool _throwExceptionOnTimeout );
 
+
     void exit();
 
-    static void verifySig( EVP_PKEY* _pubkey, const string& _str, const string& _sig );
+    static void verifySig( std::shared_ptr<EVP_PKEY> _pubkey, const string& _str, const string& _sig );
 
     void verifyMsgSig( const char* _msg, size_t _size );
 };

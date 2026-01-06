@@ -51,7 +51,6 @@
 
 StuckDetectionAgent::StuckDetectionAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
         // we only need one agent
         this->stuckDetectionThreadPool = make_shared< StuckDetectionThreadPool >( 1, this );
@@ -64,17 +63,18 @@ StuckDetectionAgent::StuckDetectionAgent( Schain& _sChain ) : Agent( _sChain, fa
 
 void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
     setThreadName( "StuckDetectionLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
 
-    LOG( info, "StuckDetection agent: started monitoring." );
+    CONS_LOG( info, "StuckDetection agent: started monitoring." );
 
     // determine if this is the first restart, or there we restarts
     // before
     auto numberOfPreviousRestarts = _agent->getNumberOfPreviousRestarts();
 
     if ( numberOfPreviousRestarts > 0 ) {
-        LOG( info, "Stuck detection engine: previous restarts detected:" << numberOfPreviousRestarts );
+        CONS_LOG( info, "Stuck detection engine: previous restarts detected:" << numberOfPreviousRestarts );
     }
 
     uint64_t restartIteration = numberOfPreviousRestarts + 1;
@@ -96,7 +96,7 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
 
     // Stuck detection loop detected stuck. Restart.
     try {
-        LOG( info, "Stuck detection engine: restarting skaled because of stuck detected." );
+        CONS_LOG( info, "Stuck detection engine: restarting skaled because of stuck detected." );
         _agent->restart(whenToRestart, restartIteration );
     } catch ( ExitRequestedException& ) {
         return;
@@ -121,7 +121,7 @@ void StuckDetectionAgent::join() {
 
 
 bool StuckDetectionAgent::checkNodesAreOnline() {
-    LOG( info, "StuckDetectionEngine:: stuck detected. Checking network connectivity ..." );
+    CONS_LOG( info, "StuckDetectionEngine:: stuck detected. Checking network connectivity ..." );
 
     std::unordered_set< uint64_t > connections;
     auto beginTime = Time::getCurrentTimeSec();
@@ -130,7 +130,7 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
     // check if can connect to 2/3 of peers. If yes, restart
     while ( 3 * ( connections.size() + 1 ) < 2 * nodeCount ) {
         if ( Time::getCurrentTimeSec() - beginTime > 10 ) {
-            LOG( info, "Stuck check Could not connect to 2/3 of nodes. Will not restart" );
+            CONS_LOG( info, "Stuck check Could not connect to 2/3 of nodes. Will not restart" );
             return false;  // could not connect to 2/3 of peers
         }
 
@@ -152,7 +152,7 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
             }
         }
     }
-    LOG( info, "Stuck detection engine: could connect to 2/3 of nodes." );
+    CONS_LOG( info, "Stuck detection engine: could connect to 2/3 of nodes." );
     return true;
 }
 
@@ -197,10 +197,10 @@ uint64_t StuckDetectionAgent::doStuckCheckAndReturnTimeWhenToRestart(uint64_t _r
         usleep( 5 * 1000 * 1000 );
     }
 
-    LOG( info, "Need for restart detected. Cleaning and restarting " );
+    CONS_LOG( info, "Need for restart detected. Cleaning and restarting " );
     cleanupState();
 
-    LOG( info, "Cleaned up state" );
+    CONS_LOG( info, "Cleaned up state" );
 
     return lastBlockTimeStampMs + restartIntervalMs + 120000;
 }
@@ -218,7 +218,7 @@ void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration 
 
     createStuckRestartFile( _iteration );
 
-    LOG( err,
+    CONS_LOG( err,
         "Consensus engine stuck detected, because no blocks were mined for a long time and "
         "majority of other nodes in the chain seem to be reachable on network. Restarting ..." );
 

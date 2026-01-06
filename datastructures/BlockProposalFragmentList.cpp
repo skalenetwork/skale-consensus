@@ -30,6 +30,9 @@
 #include "Log.h"
 #include "SkaleCommon.h"
 #include "exceptions/SerializeException.h"
+#ifdef BITE
+#include "bite/BiteBlockProposalSerializer.h"
+#endif
 
 #include "BlockProposalFragment.h"
 
@@ -70,7 +73,7 @@ uint64_t BlockProposalFragmentList::nextIndexToRetrieve() {
 }
 
 bool BlockProposalFragmentList::addFragment(
-    const ptr< BlockProposalFragment >& _fragment, uint64_t& nextIndex ) {
+    const ptr< BlockProposalFragment >& _fragment) {
     CHECK_ARGUMENT( _fragment );
     CHECK_ARGUMENT( _fragment->getBlockId() == blockID );
     CHECK_ARGUMENT( _fragment->getIndex() > 0 )
@@ -88,31 +91,27 @@ bool BlockProposalFragmentList::addFragment(
 
     checkSanity();
 
-    nextIndex = 0;
+    if ( fragments.find( _fragment->getIndex() ) == fragments.end() ) {
+#ifdef BITE
+        fragments.emplace( _fragment->getIndex(), _fragment );
+#else
+        fragments.emplace( _fragment->getIndex(), _fragment->serialize() );
+#endif
 
-    if ( fragments.find( _fragment->getIndex() ) != fragments.end() ) {
-        return false;
+        std::list< uint64_t >::iterator findIter =
+            std::find( missingFragments.begin(), missingFragments.end(), _fragment->getIndex() );
+
+        CHECK_STATE( findIter != missingFragments.end() );
+
+        missingFragments.erase( findIter );
+
     }
-
-    fragments.emplace( _fragment->getIndex(), _fragment->serialize() );
-
-    std::list< uint64_t >::iterator findIter =
-        std::find( missingFragments.begin(), missingFragments.end(), _fragment->getIndex() );
-
-    CHECK_STATE( findIter != missingFragments.end() );
-
-    missingFragments.erase( findIter );
 
     if ( isComplete() ) {
         return true;
     }
 
-
     CHECK_STATE( missingFragments.size() > 0 );
-
-    nextIndex = nextIndexToRetrieve();
-
-    CHECK_STATE( nextIndex > 0 );
 
     return true;
 }
@@ -120,6 +119,11 @@ bool BlockProposalFragmentList::addFragment(
 void BlockProposalFragmentList::checkSanity() {
     LOCK( m )
     CHECK_STATE( fragments.size() <= totalFragments );
+}
+
+uint64_t BlockProposalFragmentList::fragmentCount() {
+    LOCK( m )
+    return fragments.size();
 }
 
 bool BlockProposalFragmentList::isComplete() {
@@ -155,15 +159,28 @@ const ptr< vector< uint8_t > > BlockProposalFragmentList::serialize() {
     try {
         for ( auto&& item : fragments ) {
             CHECK_STATE( item.second );
+#ifdef BITE
+            totalLen += item.second->size();
+#else
             totalLen += item.second->size() - 2;
+#endif
+
         }
 
         result->reserve( totalLen );
 
+        /// we have enough fragments. Reconstruct the block
         for ( auto&& item : fragments ) {
             auto fragment = item.second;
             CHECK_STATE( fragment );
+#ifdef BITE
+            auto data = fragment->getFBSerializedData();
+            CHECK_STATE(data);
+            result->insert( result->end(), data->data(), data->data() + data->size());
+
+#else
             result->insert( result->end(), fragment->begin() + 1, fragment->end() - 1 );
+#endif
         }
 
     } catch ( ... ) {
@@ -171,11 +188,15 @@ const ptr< vector< uint8_t > > BlockProposalFragmentList::serialize() {
     }
 
 
+#ifdef BITE
+    BiteBlockProposalSerializer::serializedSanityCheck(result);
+    return result;
+#else
     CHECK_STATE( result->size() == totalLen );
-
     CHECK_STATE( result->at( sizeof( uint64_t ) ) == '{' );
     CHECK_STATE( result->back() == '>' );
     return result;
+#endif
 }
 
 

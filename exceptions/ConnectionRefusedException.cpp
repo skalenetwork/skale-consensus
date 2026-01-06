@@ -24,5 +24,5 @@
 #include "ConnectionRefusedException.h"
 
 ConnectionRefusedException::ConnectionRefusedException(
-    const string& _what, int _errno, const string& _className )
-    : IOException( _what, _errno, _className ){};
+    const string& _what, int _errno, const string& _className, bool _triedConnecting )
+    : IOException( _what, _errno, _className ), triedConnecting(   _triedConnecting ) {};

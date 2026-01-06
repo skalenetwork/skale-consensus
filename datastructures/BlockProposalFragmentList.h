@@ -37,7 +37,12 @@ class BlockProposalFragment;
 
 
 class BlockProposalFragmentList : public DataStructure {
-    map< fragment_index, ptr< vector< uint8_t > > > fragments;  // tsafe
+#ifdef BITE
+    map< fragment_index, ptr< BlockProposalFragment > > fragments;
+#else
+    map<  fragment_index, ptr< vector< uint8_t > > > fragments;  // tsafe
+#endif
+
 
     list< uint64_t > missingFragments;
 
@@ -61,11 +66,14 @@ public:
     BlockProposalFragmentList( const block_id& _blockId, uint64_t _totalFragments );
 
     bool addFragment(
-        const ptr< BlockProposalFragment >& _fragment, uint64_t& _nextIndexToRetrieve );
+        const ptr< BlockProposalFragment >& _fragment);
 
     uint64_t nextIndexToRetrieve();
 
     bool isComplete();
+
+
+    uint64_t fragmentCount();
 
     const ptr< vector< uint8_t > > serialize();
 };

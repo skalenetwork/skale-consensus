@@ -49,57 +49,103 @@ class BasicHeader;
 class BlockProposalHeader;
 class BlockProposalFragment;
 class BlockProposalFragmentList;
+class BiteDataField;
 
 #define SERIALIZE_AS_PROPOSAL 1
+
+#ifdef BITE
+#include "abstracttcpserver/ConnectionStatus.h"
+class AESKeyDecryptionShareList;
+#endif
+
+class EncryptedAESKey;
+using EncryptedAESKeyMap = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
+
 
 class BlockProposal : public SendableItem {
     uint64_t creationTime;
 
-    ptr< BlockProposalRequestHeader > cachedProposalRequestHeader = nullptr;  // tsafe
+    ptr<BlockProposalRequestHeader> cachedProposalRequestHeader = nullptr; // tsafe
 
-    ptr< vector< uint8_t > > cachedSerializedProposal = nullptr;  // tsafe
 
-    ptr< BasicHeader > createProposalHeader();
+    ptr<BasicHeader> createProposalHeader();
 
-    static atomic< int64_t > totalBlockProposalObjects;
+    static atomic<int64_t> totalBlockProposalObjects;
 
 protected:
+    ptr<vector<uint8_t> > cachedSerializedProposal = nullptr; // tsafe
+
     schain_id schainID = 0;
     node_id proposerNodeID = 0;
     block_id blockID = 0;
+#ifdef BITE
+    epoch_id epochID = 0;
+#endif
     schain_index proposerIndex = 0;
     transaction_count transactionCount = 0;
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
     u256 stateRoot = 0;
 
-    ptr< TransactionList > transactionList = nullptr;  // tsafe
+    ptr<TransactionList> transactionList = nullptr; // tsafe
 
-    BLAKE3Hash hash;  // tsafe
+    BLAKE3Hash hash; // tsafe
 
     string signature;
 
     void calculateHash();
 
 
-    ptr< vector< uint8_t > > serializeTransactionsAndCompleteSerialization(
-        ptr< BasicHeader > _blockHeader );
+    ptr<vector<uint8_t> > serializeTransactionsAndCompleteSerialization(
+        ptr<BasicHeader> _blockHeader);
 
-    static ptr< TransactionList > deserializeTransactions(
-        const ptr< BlockProposalHeader >& _header, const string& _headerString,
-        const ptr< vector< uint8_t > >& _serializedBlock );
+    static ptr<TransactionList> deserializeTransactions(
+        const ptr<BlockProposalHeader> &_header, const string &_headerString,
+        const ptr<vector<uint8_t> > &_serializedBlock);
 
-    static string extractHeader( const ptr< vector< uint8_t > >& _serializedBlock );
+    static string extractHeader(const ptr<vector<uint8_t> > &_serializedBlock);
 
-    static ptr< BlockProposalHeader > parseBlockHeader( const string& _header );
+
+    BlockProposal(uint64_t _timeStamp, uint32_t _timeStampMs);
+
+    BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
+#ifdef BITE
+        epoch_id _epochID,
+#endif
+
+                  schain_index _proposerIndex, const ptr<TransactionList> &_transactions, u256 _stateRoot,
+                  uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
+                  const ptr<CryptoManager> &_cryptoManager);
+
+
+    static ptr<BlockProposal> deserialize(const ptr<vector<uint8_t> > &_serializedProposal,
+                                          const ptr<CryptoManager> &_manager, bool _verifySig);
 
 public:
-    BlockProposal( uint64_t _timeStamp, uint32_t _timeStampMs );
+    static ptr<BlockProposalHeader> parseBlockHeader(const string_view &_header);
 
-    BlockProposal( schain_id _sChainId, node_id _proposerNodeId, block_id _blockID,
-        schain_index _proposerIndex, const ptr< TransactionList >& _transactions, u256 _stateRoot,
-        uint64_t _timeStamp, __uint32_t _timeStampMs, const string& _signature,
-        const ptr< CryptoManager >& _cryptoManager );
+    static ptr<BlockProposal> makeFromNetworkSerialized(const ptr<vector<uint8_t> > &_serializedProposal,
+                                                        const ptr<CryptoManager> &_manager);
+
+    static ptr<BlockProposal> makeFromDBSerialized(const ptr<vector<uint8_t> > &_serializedProposal,
+                                                    const ptr<CryptoManager> &_manager);
+
+
+
+    void setCachedSerializedProposal(const ptr<vector<uint8_t> > &_cachedSerializedProposal);
+
+    static ptr<BlockProposal> makeFromSerialized(schain_id _sChainId, node_id _proposerNodeId,
+                                                 block_id _blockID,
+#ifdef BITE
+                                                 epoch_id _epochID,
+#endif
+
+                                                 schain_index _proposerIndex,
+                                                 const ptr<TransactionList> &_transactions,
+                                                 u256 _stateRoot, uint64_t _timeStamp, __uint32_t _timeStampMs,
+                                                 const string &_signature,
+                                                 const ptr<CryptoManager> &_cryptoManager);
+
 
     [[nodiscard]] uint64_t getTimeStampS() const;
 
@@ -113,11 +159,15 @@ public:
 
     BLAKE3Hash getHash();
 
-    ptr< PartialHashesList > createPartialHashesList();
+    ptr<PartialHashesList> createPartialHashesList();
 
-    ptr< TransactionList > getTransactionList();
+    ptr<TransactionList> getTransactionList();
 
     [[nodiscard]] block_id getBlockID() const;
+
+#ifdef BITE
+    [[nodiscard]] epoch_id getEpochID() const;
+#endif
 
     ~BlockProposal() override;
 
@@ -125,25 +175,87 @@ public:
 
     [[nodiscard]] transaction_count getTransactionCount() const;
 
-    void addSignature( const string& _signature );
+    void addSignature(const string &_signature);
 
     string getSignature();
 
-    ptr< vector< uint8_t > > serializeProposal();
+    ptr<vector<uint8_t> > serializeProposal();
 
-    ptr< BlockProposalFragment > getFragment( uint64_t _totalFragments, fragment_index _index );
+    ptr<BlockProposalFragment> getFragment(uint64_t _totalFragments, fragment_index _index
+#ifdef BITE
+                                           , schain_index _decryptorIndex
+                                           , ptr< AESKeyDecryptionShareList > _decryptionShares
+#endif
+    );
 
     [[nodiscard]] u256 getStateRoot() const;
 
-    ptr< BlockProposalRequestHeader > createProposalRequestHeader( Schain* _sChain );
+    ptr<BlockProposalRequestHeader> createProposalRequestHeader(Schain *_sChain);
 
-    static ptr< BlockProposal > deserialize( const ptr< vector< uint8_t > >& _serializedProposal,
-        const ptr< CryptoManager >& _manager, bool _verifySig );
 
-    static ptr< BlockProposal > defragment( const ptr< BlockProposalFragmentList >& _fragmentList,
-        const ptr< CryptoManager >& _cryptoManager );
+    static ptr<BlockProposal> defragment(const ptr<BlockProposalFragmentList> &_fragmentList,
+                                         const ptr<CryptoManager> &_cryptoManager);
 
     uint64_t getCreationTime() const;
 
     static uint64_t getTotalObjects();
+
+#ifdef BITE
+    // For BITE protocol when a node receives a block proposal, it verifies and decrypts BITE shares for this proposal
+    // using the SGX server
+    // the resulting AESKeyDecryptionShareList is then saved together with the block proposal.
+
+private:
+    ptr<AESKeyDecryptionShareList> myDecryptionShares = nullptr;
+    ptr<EncryptedAESKeyMap> encryptedAESKeys = nullptr;
+
+    // this will normally be empty
+    map<transaction_index, ConnectionSubStatus> failedTransactions;
+    // the encrypted AES key batch to send to SGX server
+    ptr<vector<ptr<string>>> sgxAESKeyBatch;
+
+public:
+    [[nodiscard]] map<transaction_index, ConnectionSubStatus>& getFailedTransactionsRef() {
+        return failedTransactions;
+    }
+
+
+    [[nodiscard]] ptr<AESKeyDecryptionShareList> getMyDecryptionShares() const {
+        auto result = std::atomic_load(&myDecryptionShares);
+        return result;
+    }
+
+
+    [[nodiscard]] ptr<vector<ptr<string>>> getSGXAESKeyBatch() const {
+        auto result = std::atomic_load(&sgxAESKeyBatch);
+        return result;
+    }
+
+    void setSGXAESKeyBatch(
+            ptr<vector<ptr<string>>>  _sgxAESKeyBatch) {
+        CHECK_STATE(!sgxAESKeyBatch)
+        sgxAESKeyBatch = _sgxAESKeyBatch;
+    }
+
+
+    void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
+        CHECK_STATE(_myDecryptionShares);
+        // verify we are not setting it twice
+        CHECK_STATE(std::atomic_exchange(&myDecryptionShares, _myDecryptionShares) == nullptr);
+    }
+
+
+    void setAESKeyMap(ptr<EncryptedAESKeyMap> _EncryptedAESKeyMap) {
+        CHECK_STATE(_EncryptedAESKeyMap)
+        // verify we are not setting it twice
+        CHECK_STATE(std::atomic_exchange(&encryptedAESKeys, _EncryptedAESKeyMap) == nullptr);
+    }
+
+
+    [[nodiscard]] ptr<EncryptedAESKeyMap> getEncryptedAESKeys() const {
+        auto result = std::atomic_load(&encryptedAESKeys);
+        CHECK_STATE(encryptedAESKeys);
+        return result;
+    }
+#endif
 };

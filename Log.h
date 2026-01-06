@@ -46,19 +46,46 @@ class SkaleException;
 
 
 namespace spdlog {
-class logger;
+    class logger;
 }
 
 #define __CLASS_NAME__ className( __PRETTY_FUNCTION__ )
 
 
-#define LOG( __SEVERITY__, __MESSAGE__ )                                                  \
+#define CONS_LOG( __SEVERITY__, __MESSAGE__ )                                             \
     {                                                                                     \
         std::stringstream __TMP__LOG__STREAM__;                                           \
         __TMP__LOG__STREAM__ << __MESSAGE__;                                              \
         ConsensusEngine::log(                                                             \
             __SEVERITY__, __TMP__LOG__STREAM__.str(), className( __PRETTY_FUNCTION__ ) ); \
     }
+
+#ifdef BITE
+#define CATCH_AND_LOG_ANY_EXCEPTION(__LEVEL__, __MESSAGE__)                                      \
+    catch (const std::exception& e) {                                                            \
+        const std::string __log_msg = std::string(__MESSAGE__) +                                 \
+            ": in " + std::string(__FUNCTION__) + ": " + e.what();                               \
+        ConsensusEngine::log(__LEVEL__, __log_msg, __CLASS_NAME__);                              \
+    } catch (...) {                                                                              \
+        const std::string __log_msg = std::string(__MESSAGE__) +                                 \
+            ": in " + std::string(__FUNCTION__) + ": Unknown exception";                         \
+        ConsensusEngine::log(__LEVEL__, __log_msg, __CLASS_NAME__);                              \
+    }
+
+
+#define CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(__LEVEL__, __MESSAGE__)                          \
+    catch (const std::exception& e) {                                                        \
+        const std::string __catch_msg = std::string(__MESSAGE__) +                           \
+            ": in " + std::string(__FUNCTION__) + ": " + e.what();                           \
+        ConsensusEngine::log(__LEVEL__, __catch_msg, __CLASS_NAME__);                        \
+        throw_with_nested(InvalidStateException(__catch_msg, __CLASS_NAME__));               \
+    } catch (...) {                                                                          \
+        const std::string __catch_msg = std::string(__MESSAGE__) +                           \
+            ": in " + std::string(__FUNCTION__) + ": Unknown exception";                     \
+        ConsensusEngine::log(__LEVEL__, __catch_msg, __CLASS_NAME__);                        \
+        throw_with_nested(InvalidStateException(__catch_msg, __CLASS_NAME__));               \
+    }
+#endif
 
 
 class SkaleLog {

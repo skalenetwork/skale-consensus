@@ -94,6 +94,8 @@ ptr< CommittedBlock > Schain::getBlock( block_id _blockID ) {
     MONITOR( __CLASS_NAME__, __FUNCTION__ )
 
     try {
+        if (_blockID > getLastCommittedBlockID())
+            return nullptr;
         return getNode()->getBlockDB()->getBlock( _blockID, getCryptoManager() );
     } catch ( ExitRequestedException& ) {
         throw;
@@ -155,10 +157,12 @@ ptr< BlockConsensusAgent > Schain::getBlockConsensusInstance() {
     return blockConsensusInstance;
 }
 
+#ifndef FAIR
 ptr< OracleServerAgent > Schain::getOracleInstance() {
     CHECK_STATE( oracleServer != nullptr )
     return oracleServer;
 }
+#endif
 
 
 ptr< NodeInfo > Schain::getThisNodeInfo() const {
@@ -268,6 +272,13 @@ ptr< CryptoManager > Schain::getCryptoManager() const {
     return cryptoManager;
 }
 
+#ifdef BITE
+ptr< BiteManager > Schain::getBiteManager() const {
+    CHECK_STATE( biteManager );
+    return biteManager;
+}
+#endif
+
 
 ptr< OptimizerAgent > Schain::getOptimizerAgent() const {
     CHECK_STATE( optimizerAgent );
@@ -279,9 +290,11 @@ void Schain::createBlockConsensusInstance() {
     blockConsensusInstance = make_shared< BlockConsensusAgent >( *this );
 }
 
+#ifndef FAIR
 void Schain::createOracleInstance() {
     oracleServer = make_shared< OracleServerAgent >( *this );
 }
+#endif
 
 uint64_t Schain::getLastCommitTimeMs() {
     return lastCommitTimeMs;
@@ -306,7 +319,7 @@ void Schain::updateLastCommittedBlockInfo( uint64_t _lastCommittedBlockID,
     lock_guard< mutex > lock( lastCommittedBlockInfoMutex );
     CHECK_STATE( _lastCommittedBlockID == lastCommittedBlockID + 1 )
     if ( _lastCommittedBlockTimeStamp < lastCommittedBlockTimeStamp ) {
-        LOG( err, "TimeStamp in the past:" << lastCommittedBlockTimeStamp.toString() << ":"
+        CONS_LOG( err, "TimeStamp in the past:" << lastCommittedBlockTimeStamp.toString() << ":"
                                            << _lastCommittedBlockTimeStamp.toString() );
     }
     CHECK_STATE( lastCommittedBlockTimeStamp < _lastCommittedBlockTimeStamp );
@@ -334,9 +347,11 @@ void Schain::setLastCommittedBlockId( uint64_t _lastCommittedBlockId ) {
     lastCommittedBlockID = _lastCommittedBlockId;
 }
 
+#ifndef FAIR
 const ptr< OracleClient > Schain::getOracleClient() const {
     return oracleClient;
 }
+#endif
 
 bool Schain::isInCreateBlock() const {
     return inCreateBlock;

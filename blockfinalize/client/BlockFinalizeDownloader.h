@@ -36,10 +36,16 @@ class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
 class ThresholdSignature;
 
+#include <folly/synchronization/Baton.h>
+#include <folly/SharedMutex.h>
 #include "datastructures/BlockProposalFragmentList.h"
 
 class BlockFinalizeDownloader : public Agent {
     block_id blockId = 0;
+
+#ifdef  BITE
+    epoch_id epochId = 0;
+#endif
 
     schain_index proposerIndex = 0;
 
@@ -51,32 +57,58 @@ private:
 
     recursive_mutex m;
 
+    std::atomic<uint64_t> fragmentDownloadCounter = 0;
+
+#ifdef BITE
+    // we already have the proposal, all we need is threshold decryptions
+    bool needFragmentData;
+#endif
+
 public:
+
+    // this is used to signal to the outside world that
+    // downloader completed the download and consensus has everything
+    // to commit the block
+    atomic<bool> downloadCompleted = false;
+    folly::Baton<> downLoadCompletedBaton;
+
     ptr< ThresholdSignature > getDaSig( uint64_t _blockTimeStampS );
 
     ptr< BlockFinalizeDownloaderThreadPool > threadPool = nullptr;
 
-    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId, schain_index _proposerIndex );
-
+    BlockFinalizeDownloader( Schain* _sChain, block_id _blockId,
+#ifdef  BITE
+    epoch_id _epochId,
+#endif
+    schain_index _proposerIndex);
 
     ~BlockFinalizeDownloader() override;
 
-    uint64_t downloadFragment( schain_index _dstIndex, fragment_index _fragmentIndex );
+    void downloadFragment( schain_index _dstIndex, fragment_index _fragmentIndex );
 
 
     static void workerThreadFragmentDownloadLoop(
         BlockFinalizeDownloader* _agent, schain_index _dstIndex );
 
+    void joinAllThreads();
+
     nlohmann::json readBlockFinalizeResponseHeader( const ptr< ClientSocket >& _socket );
 
 
     ptr< BlockProposalFragment > readBlockFragment( const ptr< ClientSocket >& _socket,
-        nlohmann::json responseHeader, fragment_index _fragmentIndex, node_count _nodeCount );
+        nlohmann::json responseHeader, fragment_index _fragmentIndex, node_count _nodeCount
+#ifdef BITE
+        , schain_index _proposerIndex
+        , schain_index _destinationIndex
+#endif
+    );
 
     static uint64_t readFragmentSize( nlohmann::json _responseHeader );
 
-    ptr< BlockProposal > downloadProposal();
+    bool downloadProposalDAProofAndDecryptions();
 
+
+    bool completeAndNeedToExitAllThreads();
 
     string readBlockHash( nlohmann::json _responseHeader );
 
@@ -87,4 +119,22 @@ public:
     static uint64_t readBlockSize( nlohmann::json _responseHeader );
 
     string readDAProofSig( nlohmann::json _responseHeader );
+
+    void processDAProofSig(nlohmann::json _responseHeader, string h);
+
+
+    bool needDAProof();
+#ifdef BITE
+    bool needDecryptionShares(schain_index _decryptorIndex);
+#endif
+
+    bool exitDownloadLoop(uint64_t _nextFragmentToDownload);
+
+    void waitAfterNetworkError();
+
+    void waitAfterNoProposal();
+
+    uint64_t nextFragmentToDownload();
+
+    static uint64_t computeFirstFragmentToDowload(schain_index _dstIndex, schain_index _mySchainIndex);
 };

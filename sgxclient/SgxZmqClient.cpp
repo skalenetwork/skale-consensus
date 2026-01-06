@@ -32,6 +32,11 @@
 #include "BLSSignRspMessage.h"
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
+#ifdef BITE
+#include "DecryptAESKeyShareBatchReqMessage.h"
+#include "DecryptAESKeyShareBatchRspMessage.h"
+#endif
+
 #include "Log.h"
 #include "SgxZmqClient.h"
 #include "SkaleCommon.h"
@@ -43,7 +48,10 @@
 
 shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
     Json::Value& _req, string& _description, bool _throwExceptionOnTimeout ) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     Json::FastWriter fastWriter;
+#pragma GCC diagnostic pop
     fastWriter.omitEndingLineFeed();
 
     static uint64_t i = 0;
@@ -89,7 +97,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
         CHECK_STATE2( result->getStatus() == 0, "SGX server returned error:" + resultStr );
 
         if ( result->getWarning() ) {
-            LOG( warn, "SGX server reported warning:" << *result->getWarning() );
+            CONS_LOG( warn, "SGX server reported warning:" << *result->getWarning() );
         }
         return result;
 
@@ -134,7 +142,7 @@ string SgxZmqClient::doZmqRequestReply(
             CHECK_STATE( strlen( reply.c_str() ) == reply.length() )
 
             CHECK_STATE( reply.length() > 5 );
-            LOG( debug, "ZMQ client received reply:" << reply );
+            CONS_LOG( debug, "ZMQ client received reply:" << reply );
             CHECK_STATE( reply.front() == '{' );
             CHECK_STATE( reply.back() == '}' );
 
@@ -143,10 +151,10 @@ string SgxZmqClient::doZmqRequestReply(
         } else {
             serverDown = true;
             if ( _throwExceptionOnTimeout ) {
-                LOG( err, "No response from sgx server for:" << _description );
+                CONS_LOG( err, "No response from sgx server for:" << _description );
                 CHECK_STATE( false );
             }
-            LOG( err, "No response from SGX server for " << _description << ". Retrying..." );
+            CONS_LOG( err, "No response from SGX server for " << _description << ". Retrying..." );
             usleep( SGX_REQUEST_TIMEOUT_MS * 1000 );
             reconnect();
 
@@ -165,7 +173,7 @@ string SgxZmqClient::readFileIntoString( const string& _fileName ) {
     try {
         str = string( ( istreambuf_iterator< char >( t ) ), istreambuf_iterator< char >() );
     } catch ( ... ) {
-        LOG( err, "Could not read file:" << _fileName );
+        CONS_LOG( err, "Could not read file:" << _fileName );
         throw;
     }
 
@@ -173,59 +181,68 @@ string SgxZmqClient::readFileIntoString( const string& _fileName ) {
 }
 
 
-string SgxZmqClient::signString( EVP_PKEY* _pkey, const string& _str ) {
+string SgxZmqClient::signString( std::shared_ptr<EVP_PKEY> _pkey, const string& _str ) {
     CHECK_STATE( _pkey );
     CHECK_STATE( !_str.empty() );
 
     static std::regex r( "\\s+" );
     auto msgToSign = std::regex_replace( _str, r, "" );
 
-
-    EVP_MD_CTX* mdctx = NULL;
-    unsigned char* signature = NULL;
     size_t slen = 0;
 
-    CHECK_STATE( mdctx = EVP_MD_CTX_create() );
+    // Create EVP_MD_CTX with autocleanup
+    auto mdctx = std::unique_ptr<EVP_MD_CTX, decltype(&EVP_MD_CTX_free)>(
+        EVP_MD_CTX_new(),
+        EVP_MD_CTX_free
+    );
 
-    CHECK_STATE( ( EVP_DigestSignInit( mdctx, NULL, EVP_sha256(), NULL, _pkey ) == 1 ) );
+
+    CHECK_STATE( ( EVP_DigestSignInit( mdctx.get(), NULL, EVP_sha256(), NULL, _pkey.get() ) == 1 ) );
 
 
-    CHECK_STATE( EVP_DigestSignUpdate( mdctx, msgToSign.c_str(), msgToSign.size() ) == 1 );
+    CHECK_STATE( EVP_DigestSignUpdate( mdctx.get(), msgToSign.c_str(), msgToSign.size() ) == 1 );
 
     /* First call EVP_DigestSignFinal with a NULL sig parameter to obtain the length of the
      * signature. Length is returned in slen */
 
-    CHECK_STATE( EVP_DigestSignFinal( mdctx, NULL, &slen ) == 1 );
-    signature = ( unsigned char* ) OPENSSL_malloc( sizeof( unsigned char ) * slen );
-    CHECK_STATE( signature );
-    CHECK_STATE( EVP_DigestSignFinal( mdctx, signature, &slen ) == 1 );
+    CHECK_STATE( EVP_DigestSignFinal( mdctx.get(), NULL, &slen ) == 1 );
 
-    auto hexSig = Utils::carray2Hex( signature, slen );
+
+    //  openssl malloc with auto cleanup
+    auto signature = std::unique_ptr<unsigned char, std::function<void(unsigned char*)>>(
+     static_cast<unsigned char*>(OPENSSL_malloc(slen)),
+     [](unsigned char* p) { CRYPTO_free(p, __FILE__, __LINE__); }
+     );
+
+    CHECK_STATE( signature );
+    CHECK_STATE( EVP_DigestSignFinal( mdctx.get(), signature.get(), &slen ) == 1 );
+
+    auto hexSig = Utils::carray2Hex( signature.get(), slen );
 
     string hexStringSig( hexSig.begin(), hexSig.end() );
-
-    /* Clean up */
-    if ( signature )
-        OPENSSL_free( signature );
-    if ( mdctx )
-        EVP_MD_CTX_destroy( mdctx );
 
     return hexStringSig;
 }
 
-pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _certStr ) {
+
+pair< std::shared_ptr<EVP_PKEY>, std::shared_ptr<X509> > SgxZmqClient::readPublicKeyFromCertStr( const string& _certStr ) {
     CHECK_STATE( !_certStr.empty() )
 
-    LOG( info, "Reading server public key:\n" << _certStr );
+    CONS_LOG( info, "Reading server public key:\n" << _certStr );
 
-    BIO* bo = BIO_new( BIO_s_mem() );
+
+    // Create BIO and wrap in a smart pointer
+    auto bo = std::unique_ptr<BIO, decltype(&BIO_free)>(
+        BIO_new(BIO_s_mem()),
+        BIO_free
+    );
+
     CHECK_STATE( bo )
-    CHECK_STATE( BIO_write( bo, _certStr.c_str(), _certStr.size() ) > 0 )
+    CHECK_STATE( BIO_write( bo.get(), _certStr.c_str(), _certStr.size() ) > 0 )
 
-    X509* cert = PEM_read_bio_X509( bo, nullptr, 0, 0 );
+    std::shared_ptr<X509> cert(PEM_read_bio_X509( bo.get(), nullptr, 0, 0 ), X509_free);
     CHECK_STATE( cert );
-    auto key = X509_get_pubkey( cert );
-    BIO_free( bo );
+    std::shared_ptr<EVP_PKEY> key(X509_get_pubkey( cert.get() ), EVP_PKEY_free);
     CHECK_STATE( key );
     return { key, cert };
 };
@@ -236,14 +253,14 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
     CHECK_STATE( _sChain );
     this->schain = _sChain;
 
-    LOG( info, "Initing ZMQClient. Sign:" << to_string( sign ) );
+    CONS_LOG( info, "Initing ZMQClient. Sign:" << to_string( sign ) );
 
     if ( sign ) {
         CHECK_STATE( !_certFileName.empty() );
         try {
             cert = readFileIntoString( _certFileName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" << _certFileName << ":" << e.what() );
+            CONS_LOG( err, "Could not read file:" << _certFileName << ":" << e.what() );
             throw;
         }
         CHECK_STATE( !cert.empty() );
@@ -251,20 +268,26 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
         try {
             key = readFileIntoString( _certKeyName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" << _certKeyName << ":" << e.what() );
+            CONS_LOG( err, "Could not read file:" << _certKeyName << ":" << e.what() );
             throw;
         }
 
         CHECK_STATE( !key.empty() );
 
-        BIO* bo = BIO_new( BIO_s_mem() );
+        // Create BIO and wrap in a smart pointer
+        auto bo = std::unique_ptr<BIO, decltype(&BIO_free)>(
+            BIO_new(BIO_s_mem()),
+            BIO_free
+        );
         CHECK_STATE( bo );
-        CHECK_STATE( bo );
-        BIO_write( bo, key.c_str(), key.size() );
+        BIO_write( bo.get(), key.c_str(), key.size() );
 
-        PEM_read_bio_PrivateKey( bo, &pkey, 0, 0 );
-        BIO_free( bo );
-        CHECK_STATE( pkey );
+        EVP_PKEY* rawPrivateKey = nullptr;
+        PEM_read_bio_PrivateKey( bo.get(), &rawPrivateKey, 0, 0 );
+        CHECK_STATE( rawPrivateKey );
+        
+        // Wrap in shared_ptr
+        pkey = std::shared_ptr<EVP_PKEY>(rawPrivateKey, EVP_PKEY_free);
 
         tie( pubkey, x509Cert ) = readPublicKeyFromCertStr( cert );
 
@@ -341,6 +364,34 @@ string SgxZmqClient::blsSignMessageHash( const std::string& keyShareName,
     return result->getSigShare();
 }
 
+
+#ifdef BITE
+ptr<vector<ptr<string>>> SgxZmqClient::decryptAESKeySharesBatch( const std::string& keyShareName,
+     std::vector<std::shared_ptr<std::string> > & _aesKeySharesBatch, int t, int n, bool _throwExceptionOnTimeout ) {
+    Json::Value p;
+    p["type"] = SgxZmqMessage::DECRYPT_SHARE_REQ;
+    p["blsKeyName"] = keyShareName;
+
+    // Correctly create an array of strings
+    Json::Value _aesKeySharesBatchAsJson(Json::arrayValue);
+    for (const auto& share  : _aesKeySharesBatch) {
+        CHECK_STATE(share);
+        _aesKeySharesBatchAsJson.append(*share);
+    }
+
+    p["publicDecryptionValues"] = _aesKeySharesBatchAsJson;
+    p["n"] = n;
+    p["t"] = t;
+    static string description( "Decrypt AES key share batch" );
+    auto result = dynamic_pointer_cast< DecryptAESKeyShareBatchRspMessage >(
+        doRequestReply( p, description, _throwExceptionOnTimeout ) );
+    CHECK_STATE( result );
+
+    return result->getAEKeyDecryptShares();
+}
+#endif
+
+
 string SgxZmqClient::ecdsaSignMessageHash( int base, const std::string& keyName,
     const std::string& messageHash, bool _throwExceptionOnTimeout ) {
     Json::Value p;
@@ -364,19 +415,19 @@ uint64_t SgxZmqClient::getProcessID() {
 
 
 void SgxZmqClient::exit() {
-    LOG( info, "Exiting SgxZmqClient" );
+    CONS_LOG( info, "Exiting SgxZmqClient" );
     LOCK( socketMutex );
 
     if ( exited )
         return;
-    LOG( info, "Shutting down SgxZmq context" );
+    CONS_LOG( info, "Shutting down SgxZmq context" );
     this->ctx.shutdown();
-    LOG( info, "Shut down SgxZmq context" );
-    LOG( info, "Closing SgxZmq client sockets" );
+    CONS_LOG( info, "Shut down SgxZmq context" );
+    CONS_LOG( info, "Closing SgxZmq client sockets" );
     if ( clientSocket )
         clientSocket->close();
     exited = true;
-    LOG( info, "Exited SgxZmqClient" );
+    CONS_LOG( info, "Exited SgxZmqClient" );
 }
 
 
@@ -403,7 +454,7 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t ) {
 
     static recursive_mutex m;
 
-    EVP_PKEY* publicKey = nullptr;
+    std::shared_ptr<EVP_PKEY> publicKey;
 
     {
         LOCK( certMutex );
@@ -437,7 +488,7 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t ) {
     }
 }
 
-void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const string& _sig ) {
+void SgxZmqClient::verifySig( std::shared_ptr<EVP_PKEY> _pubkey, const string& _str, const string& _sig ) {
     CHECK_STATE( _pubkey );
     CHECK_STATE( !_str.empty() );
 
@@ -455,7 +506,7 @@ void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const strin
 
     CHECK_STATE( mdctx = EVP_MD_CTX_create() );
 
-    CHECK_STATE( ( EVP_DigestVerifyInit( mdctx, NULL, EVP_sha256(), NULL, _pubkey ) == 1 ) );
+    CHECK_STATE( ( EVP_DigestVerifyInit( mdctx, NULL, EVP_sha256(), NULL, _pubkey.get() ) == 1 ) );
 
     CHECK_STATE( EVP_DigestVerifyUpdate( mdctx, msgToSign.c_str(), msgToSign.size() ) == 1 );
 
@@ -470,7 +521,7 @@ void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const strin
         EVP_MD_CTX_destroy( mdctx );
 }
 
-cache::lru_cache< string, pair< EVP_PKEY*, X509* > > SgxZmqClient::verifiedCerts( 256 );
+cache::lru_cache< string, pair< std::shared_ptr<EVP_PKEY>, std::shared_ptr<X509> > > SgxZmqClient::verifiedCerts( 256 );
 Schain* SgxZmqClient::getSchain() const {
     CHECK_STATE( schain );
     return schain;

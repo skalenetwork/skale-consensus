@@ -40,13 +40,15 @@ class ProtocolKey;
 
 #include "thirdparty/lrucache.hpp"
 
-class BinConsensusInstance : public ProtocolInstance {
+class  BinConsensusInstance : public ProtocolInstance {
     friend class BlockConsensusAgent;
     friend class HistoryMessage;
 
     BlockConsensusAgent* const blockConsensusInstance = nullptr;
     const block_id blockID = 0;
-    ;
+#ifdef BITE
+    const epoch_id epochID = 0;
+#endif
     const schain_index blockProposerIndex = 0;
     const node_count nodeCount = 0;
     const ptr< ProtocolKey > protocolKey;
@@ -209,6 +211,10 @@ class BinConsensusInstance : public ProtocolInstance {
 
     const block_id getBlockID() const;
 
+#ifdef BITE
+    const epoch_id getEpochID() const;
+#endif
+
     const schain_index getBlockProposerIndex() const;
 
     ptr< ProtocolKey > getProtocolKey() {
@@ -228,7 +234,10 @@ class BinConsensusInstance : public ProtocolInstance {
 
 public:
     BinConsensusInstance( BlockConsensusAgent* _instance, block_id _blockId,
-        schain_index _blockProposerIndex, bool _initFromDB = false );
+#ifdef BITE
+    epoch_id _epochId,
+#endif
+        schain_index _blockProposerIndex, bool _initFromDB);
 
 
     static void initHistory( node_count _nodeCount );

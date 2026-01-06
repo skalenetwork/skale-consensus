@@ -1,0 +1,12 @@
+namespace skale_fb;
+
+table BlockTransactionsRequest {
+  schain_id: uint64;
+  epoch_id: uint64;
+  block_id: uint64;
+  node_id: uint64;
+  proposer_index: uint64;
+  transaction_indices :[uint32] ;
+}
+
+root_type BlockTransactionsRequest;

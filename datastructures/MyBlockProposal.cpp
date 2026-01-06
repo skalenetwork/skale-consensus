@@ -27,24 +27,56 @@
 
 
 #include "crypto/CryptoManager.h"
+#include "crypto/AESKeyDecryptionShareList.h"
 #include "chains/Schain.h"
-#include "utils/Time.h"
 #include "Transaction.h"
+#include "TransactionList.h"
+#include "bite/BiteManager.h"
+
+
 
 #include "MyBlockProposal.h"
 
 
 MyBlockProposal::MyBlockProposal( Schain& _sChain, const block_id& _blockID,
-    const schain_index& _proposerIndex, const ptr< TransactionList >& _transactions,
-    u256 _stateRoot, uint64_t _timeStamp, uint32_t _timeStampMs,
-    const ptr< CryptoManager >& _cryptoManager )
+#ifdef BITE
+    const epoch_id& _epochID,
+#endif
+                                  const schain_index& _proposerIndex, const ptr< TransactionList >& _transactions,
+                                  u256 _stateRoot, uint64_t _timeStamp, uint32_t _timeStampMs,
+                                  const ptr< CryptoManager >& _cryptoManager )
     : BlockProposal( _sChain.getSchainID(), _sChain.getNodeIDByIndex( _proposerIndex ), _blockID,
+#ifdef BITE
+    _epochID,
+#endif
           _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, "",
           _cryptoManager ) {
     CHECK_STATE( _transactions );
     CHECK_ARGUMENT( _cryptoManager );
     totalObjects++;
 };
+
+ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
+    Schain &_sChain, const block_id &_blockID,
+#ifdef BITE
+    const epoch_id& _epochID,
+#endif
+    const schain_index &_proposerIndex,
+    const ptr<TransactionList> &_transactions, u256 _stateRoot, uint64_t _timeStamp,
+    uint32_t _timeStampMs, const ptr<CryptoManager> &_cryptoManager) {
+    auto proposal = shared_ptr<MyBlockProposal>(new MyBlockProposal(
+        _sChain, _blockID,
+#ifdef BITE
+        _epochID,
+#endif
+        _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _cryptoManager));
+
+#ifdef BITE
+    BiteManager::parseBITETransactions(proposal);
+    CHECK_STATE(proposal->getFailedTransactionsRef().empty());
+#endif
+    return proposal;
+}
 
 
 atomic< int64_t > MyBlockProposal::totalObjects( 0 );

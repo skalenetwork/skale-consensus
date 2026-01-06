@@ -51,12 +51,12 @@ ConsensusSigShareSet::~ConsensusSigShareSet() {
 
 
 ptr< ThresholdSignature > ConsensusSigShareSet::mergeSignature() {
-    ptr< BLSSignature > blsSig = nullptr;
+    ptr< libBLS::BLSSignature > blsSig = nullptr;
 
     {
         LOCK( blsSetLock );
         CHECK_STATE( blsSet.isEnough() );
-        blsSig = blsSet.merge();
+        blsSig = std::make_shared<libBLS::BLSSignature>(blsSet.merge());
     }
     CHECK_STATE( blsSig );
 
@@ -80,6 +80,6 @@ bool ConsensusSigShareSet::addSigShare( const ptr< ThresholdSigShare >& _sigShar
 
     {
         LOCK( blsSetLock );
-        return blsSet.addSigShare( s->getBlsSigShare() );
+        return blsSet.addSigShare( *s->getBlsSigShare() );
     }
 }

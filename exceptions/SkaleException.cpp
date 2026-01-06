@@ -39,18 +39,18 @@ void SkaleException::logNested( const std::exception& e, int level ) {
     if ( ( dynamic_cast< const ExitRequestedException* >( &e ) != nullptr ) ) {
         prefix = "Consensus exiting: ";
 
-        LOG( info, string( level, ' ' ) << prefix << e.what() );
+        CONS_LOG( info, string( level, ' ' ) << prefix << e.what() );
     } else if ( dynamic_cast< const std::nested_exception* >( &e ) == nullptr ) {
-        LOG( err, string( level, ' ' ) << prefix << e.what() );
+        CONS_LOG( err, string( level, ' ' ) << prefix << e.what() );
         return;
     } else {
-        LOG( err, string( level, ' ' ) << prefix << e.what() );
+        CONS_LOG( err, string( level, ' ' ) << prefix << e.what() );
     }
     try {
         std::rethrow_if_nested( e );
     } catch ( const std::exception& e ) {
         logNested( e, level + 1 );
     } catch ( ... ) {
-        LOG( err, string( level, ' ' ) << prefix << "Unknown throwable" );
+        CONS_LOG( err, string( level, ' ' ) << prefix << "Unknown throwable" );
     }
 }

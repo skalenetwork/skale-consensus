@@ -40,7 +40,7 @@ void OracleReceivedResults::insertIfDoesntExist(
         LOCK( m )
 
         if ( signaturesBySchainIndex->count( _origin ) > 0 ) {
-            LOG( warn, "Duplicate OracleResponseMessage for result:" << unsignedResult << "} index:"
+            CONS_LOG( warn, "Duplicate OracleResponseMessage for result:" << unsignedResult << "} index:"
                                                                      << to_string( _origin ) );
             return;
         }
@@ -146,7 +146,7 @@ uint64_t OracleReceivedResults::tryGettingResult( string& _result ) {
                     //                    // JSON by default
                     //                    _result = compileCompleteResultAbi(unsignedResult);
                 } else {
-                    LOG( err, "Unknown encoding in tryGettingTesult" );
+                    CONS_LOG( err, "Unknown encoding in tryGettingTesult" );
                     return ORACLE_INTERNAL_SERVER_ERROR;
                 }
                 return ORACLE_SUCCESS;
@@ -159,7 +159,7 @@ uint64_t OracleReceivedResults::tryGettingResult( string& _result ) {
         SkaleException::logNested( e, err );
         return ORACLE_INTERNAL_SERVER_ERROR;
     } catch ( ... ) {
-        LOG( err, "Unknown exception in tryGettingResult" );
+        CONS_LOG( err, "Unknown exception in tryGettingResult" );
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
 }

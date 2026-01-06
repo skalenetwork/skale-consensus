@@ -39,7 +39,7 @@
 
 #include "chains/Schain.h"
 
-#include "BlockDB.h"
+#include "db/BlockDB.h"
 
 
 void test_committed_block_save() {
@@ -65,13 +65,13 @@ void test_committed_block_save() {
 
         auto bb = db->getBlock( t->getBlockID(), cryptoManager );
 
-        REQUIRE( bb != nullptr );
+        CATCH_REQUIRE( bb != nullptr );
     }
 
-    REQUIRE( db->findMaxMinDBIndex().first > 10 );
+    CATCH_REQUIRE( db->findMaxMinDBIndex().first > 10 );
 }
 
-TEST_CASE( "Save/read block", "[block-save-read-db]" ) {
-    SECTION( "Test successful save/read" )
+CATCH_TEST_CASE( "Save/read block", "[block-save-read-db][end-to-end][correctness]" ) {
+    CATCH_SECTION( "Test successful save/read" )
     test_committed_block_save();
 }

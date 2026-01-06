@@ -42,7 +42,11 @@ class ConsensusProposalMessage : public Message {
 
 public:
     ConsensusProposalMessage(
-        Schain& _sChain, const block_id& _blockID, const ptr< BooleanProposalVector > _proposals );
+        Schain& _sChain, const block_id& _blockID,
+#ifdef BITE
+        const epoch_id& _epochID,
+#endif
+        const ptr< BooleanProposalVector > _proposals );
 
     [[nodiscard]] const ptr< BooleanProposalVector > getProposals() const;
 

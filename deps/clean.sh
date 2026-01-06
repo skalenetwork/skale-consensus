@@ -114,31 +114,13 @@ rm -rf ./deps_inst
 rm -rf ./build
 echo "Cleaning archive files..."
 rm -f ./*.tar.gz
+rm -f ./*.tar.bz2
 rm -f ./*.zip
 echo "Cleaning upacked library folders..."
-rm -rf ./libiconv-1.15
-rm -rf ./zlib
-rm -rf ./BLAKE3
-rm -rf ./openssl
-rm -rf ./curl
-rm -rf ./libuv
-rm -rf ./libwebsockets
-rm -rf ./boost_1_68_0
-rm -rf ./argtable2
-rm -rf ./nettle-2.0
-rm -rf ./nettle-3.4.1
-rm -rf ./gnutls-3.6.5
-rm -rf ./libmicrohttpd
-rm -rf ./jsoncpp
-rm -rf ./libjson-rpc-cpp
-rm -rf ./libcryptopp
-rm -rf ./gmp-6.1.2
-rm -rf ./libff
-rm -rf ./pbc
-rm -rf ./libsodium
-rm -rf ./crc32c
-rm -rf ./snappy
-rm -rf ./leveldb
+# fined and remove all dirs excepts pre_downloaded
+find . -maxdepth 1 -type d ! -name 'pre_downloaded' ! -name '.' -exec rm -rf {} +
+
+
 echo "Done (all clean)."
 
 #finish

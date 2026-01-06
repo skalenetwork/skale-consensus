@@ -48,6 +48,9 @@ BlockProposalHeader::BlockProposalHeader( BlockProposal& _block ) : BasicHeader(
     this->proposerNodeID = _block.getProposerNodeID();
     this->schainID = _block.getSchainID();
     this->blockID = _block.getBlockID();
+#ifdef BITE
+    this->epochID = _block.getEpochID();
+#endif
     this->blockHash = _block.getHash().toHex();
     this->stateRoot = _block.getStateRoot();
     this->signature = _block.getSignature();
@@ -74,6 +77,12 @@ block_id BlockProposalHeader::getBlockID() {
     return blockID;
 }
 
+#ifdef BITE
+epoch_id BlockProposalHeader::getEpochID() {
+    return epochID;
+}
+#endif
+
 void BlockProposalHeader::addFields( nlohmann::json& j ) {
     j["schainID"] = ( uint64_t ) schainID;
 
@@ -82,6 +91,10 @@ void BlockProposalHeader::addFields( nlohmann::json& j ) {
     j["proposerNodeID"] = ( uint64_t ) proposerNodeID;
 
     j["blockID"] = ( uint64_t ) blockID;
+
+#ifdef BITE
+    j["epochID"] = ( uint64_t ) epochID;
+#endif
 
     j["hash"] = blockHash;
 
@@ -95,14 +108,21 @@ void BlockProposalHeader::addFields( nlohmann::json& j ) {
 
     j["sr"] = stateRoot.str();
 
-
+#ifdef BITE
+    CHECK_STATE( timeStamp > 0 || proposerIndex == 0)
+#else
     CHECK_STATE( timeStamp > 0 )
+#endif
 }
 
 BlockProposalHeader::BlockProposalHeader( nlohmann::json& _json ) : BasicHeader( Header::BLOCK ) {
     proposerIndex = schain_index( Header::getUint64( _json, "proposerIndex" ) );
     proposerNodeID = node_id( Header::getUint64( _json, "proposerNodeID" ) );
     blockID = block_id( Header::getUint64( _json, "blockID" ) );
+#ifdef BITE
+    epochID = epoch_id( Header::getUint64( _json, "epochID" ) );
+#endif
+
     schainID = schain_id( Header::getUint64( _json, "schainID" ) );
     timeStamp = Header::getUint64( _json, "timeStamp" );
     timeStampMs = Header::getUint32( _json, "timeStampMs" );

@@ -1,5 +1,18 @@
 cmake_minimum_required(VERSION 3.10)
 
+if (BITE)
+    set(BITE "1")
+    add_definitions(-DBITE)
+endif ()
+
+if (FAIR)
+    set(FAIR "1")
+    add_definitions(-DFAIR)
+    set(BITE "1")
+    add_definitions(-DBITE)
+endif ()
+
+
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
     message(STATUS "**********************")
@@ -20,34 +33,44 @@ if (NOT DEFINED DEPS_INSTALL_ROOT)
 endif ()
 message(INFO "---- DEPS_INSTALL_ROOT in consensus is: ${DEPS_INSTALL_ROOT}")
 
-option( CONSENSUS_PROFILING "Build for profiling" OFF )
-if( SKALED_PROFILING )
-    set( CONSENSUS_PROFILING ON )
-endif()
-if( CONSENSUS_PROFILING )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -pg" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg" )
-    set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg" )
-    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg" )
-endif()
+option(CONSENSUS_PROFILING "Build for profiling" OFF)
+if (SKALED_PROFILING)
+    set(CONSENSUS_PROFILING ON)
+endif ()
+if (CONSENSUS_PROFILING)
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
+endif ()
 
-if( CMAKE_BUILD_TYPE STREQUAL "Release" )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
-elseif( CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3" )
-elseif( CMAKE_BUILD_TYPE STREQUAL "MinSizeRel" )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Os" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os" )
-elseif( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    set( CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O0" )
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0" )
-else()
-	message( INFO "---- CMAKE_BUILD_TYPE = ${DEPS_INSTALL_ROOT} is not supported explicitly" )
-endif()
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+elseif (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+elseif (CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Os")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Os")
+elseif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+else ()
+    message(INFO "---- CMAKE_BUILD_TYPE = ${DEPS_INSTALL_ROOT} is not supported explicitly")
+endif ()
 
+
+###################################
+#            libBLS               #
+###################################
+# Disable libBLS components we don't need
+set(LIBBLS_BUILD_TESTS OFF CACHE BOOL "Don't build libBLS tests")
+set(LIBBLS_BUILD_BENCHMARKS OFF CACHE BOOL "Don't build libBLS benchmarks")
+set(LIBBLS_BUILD_UTILS OFF CACHE BOOL "Don't build libBLS utils")
+set(SKALE_SKIP_INSTALLING_DIRECTIVES ON CACHE BOOL "Skip libBLS install() calls")
 add_subdirectory(libBLS)
+
 
 project(consensus)
 
@@ -59,16 +82,16 @@ set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
 #leveldb
 find_package(leveldb CONFIG REQUIRED)
 
-find_package( Snappy CONFIG REQUIRED )
-find_package( Crc32c CONFIG REQUIRED )
+find_package(Snappy CONFIG REQUIRED)
+find_package(Crc32c CONFIG REQUIRED)
 
 set(CMAKE_CXX_STANDARD 17)
-execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION )
-message( STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}" )
-add_compile_options( -Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-sign-compare)
-if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
-    add_compile_options( -Wall -Wextra -Werror )
-endif()
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION)
+message(STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}")
+add_compile_options(-Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-sign-compare)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-Wall -Wextra -Werror)
+endif ()
 add_definitions("-DZMQ_BUILD_DRAFT_API")
 add_definitions("-DUSER_SPACE")
 add_definitions("-DZMQ_EXPERIMENTAL")
@@ -91,7 +114,6 @@ endif ()
 
 
 #Threads package
-
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
@@ -117,6 +139,13 @@ AUX_SOURCE_DIRECTORY(chains chains_src)
 AUX_SOURCE_DIRECTORY(crypto crypto_src)
 AUX_SOURCE_DIRECTORY(datastructures datastructures_src)
 AUX_SOURCE_DIRECTORY(db db_src)
+if (DEFINED BITE)
+    AUX_SOURCE_DIRECTORY(flatb flatb_src)
+    AUX_SOURCE_DIRECTORY(bite bite_src)
+    AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
+    AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
+    AUX_SOURCE_DIRECTORY(rlp rlp_src)
+endif ()
 AUX_SOURCE_DIRECTORY(log log_src)
 AUX_SOURCE_DIRECTORY(messages messages_src)
 AUX_SOURCE_DIRECTORY(network network_src)
@@ -135,8 +164,9 @@ AUX_SOURCE_DIRECTORY(monitoring monitoring_src)
 AUX_SOURCE_DIRECTORY(utils utils_src)
 AUX_SOURCE_DIRECTORY(statusserver statusserver_src)
 AUX_SOURCE_DIRECTORY(sgxclient sgxclient_src)
-AUX_SOURCE_DIRECTORY(oracle oracle_src)
-AUX_SOURCE_DIRECTORY(rlp rlp_src)
+if (NOT DEFINED FAIR)
+    AUX_SOURCE_DIRECTORY(oracle oracle_src)
+endif ()
 
 
 SET(SRC_FILES
@@ -156,6 +186,10 @@ SET(SRC_FILES
         ${crypto_src}
         ${datastructures_src}
         ${db_src}
+        ${flatb_src}
+        ${bite_src}
+        ${bite_server_src}
+        ${bite_client_src}
         ${headers_src}
         ${log_src}
         ${messages_src}
@@ -177,68 +211,109 @@ SET(SRC_FILES
         ${statusserver_src}
         ${sgxclient_src}
         Agent.h Agent.cpp SkaleCommon.cpp Log.cpp microprofile.cpp miniz.c
-        oracle/OracleClient.cpp oracle/OracleClient.h db/VersionUpdateHistory.cpp db/VersionUpdateHistory.h)
+)
 
 
 include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
+if (NOT CMAKE_PROJECT_NAME STREQUAL "consensus" AND NOT DEFINED BITE)
+    include_directories(${PARENT_BINARY_DIR}/deps/include)
+endif ()
 
-
-set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options)
+set(BOOST_LIBS_FOR_CONSENSUS boost_thread boost_system boost_filesystem boost_program_options boost_context )
 
 set(DASH_D_SUFFIX "")
 if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
     set(DASH_SUFFIX "-d")
 endif ()
 
-
 SET(LINK_LIBRARIES
-        backtrace
-        Threads::Threads
-        ${BOOST_LIBS_FOR_CONSENSUS}
-        ${LIB_NAME_cryptopp}
-        leveldb
-        snappy
-        crc32c
-        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
-        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-server.a"
-        "${DEPS_INSTALL_ROOT}/lib/libmicrohttpd.a"
-        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
-        "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
-        bls # "${CMAKE_CURRENT_SOURCE_DIR}/libBLS/build/libbls.a"
-        "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
-        "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
-        ff
-        "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
-        gmp
-        gcov
-        gnutls
-        gcrypt
-        "${DEPS_INSTALL_ROOT}/lib/libcurl${DASH_D_SUFFIX}.a"
-        "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
-        "${DEPS_INSTALL_ROOT}/lib/libssl.a"
-        "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
-        dl
-        z
-        pthread
-        idn2
-        blake3
-        )
+    backtrace
+    Threads::Threads
+    ${BOOST_LIBS_FOR_CONSENSUS}
+    ${LIB_NAME_cryptopp}
+    leveldb
+    snappy
+    crc32c
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-client.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-server.a"
+    "${DEPS_INSTALL_ROOT}/lib/libmicrohttpd.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-stub.a"
+    "${DEPS_INSTALL_ROOT}/lib/libjsonrpccpp-common.a"
+    "${DEPS_INSTALL_ROOT}/lib/libzmq.a"
+    "${DEPS_INSTALL_ROOT}/lib/libsodium.a"
+    "${DEPS_INSTALL_ROOT}/lib/libcryptopp.a"
+    gmp
+    gcov
+    gnutls
+    gcrypt
+    "${DEPS_INSTALL_ROOT}/lib/libjsoncpp.a"
+    "${DEPS_INSTALL_ROOT}/lib/libcurl.a"
+    dl
+    pthread
+    idn2
+    blake3
+    "${DEPS_INSTALL_ROOT}/lib/libquicwebtransport.a"
+    "${DEPS_INSTALL_ROOT}/lib/libproxygenhttpserver.a"
+    "${DEPS_INSTALL_ROOT}/lib/libproxygen.a"
+    "${DEPS_INSTALL_ROOT}/lib/libmvfst_exception.a"
+    "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
+    "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
+    "${DEPS_INSTALL_ROOT}/lib/libfizz.a"
+    "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
+    "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
+    "${DEPS_INSTALL_ROOT}/lib/libz.a"
+    "${DEPS_INSTALL_ROOT}/lib/libzstd.a"
+    "${DEPS_INSTALL_ROOT}/lib/libboost_context.a"
+    "${DEPS_INSTALL_ROOT}/lib/libevent.a"
+    "${DEPS_INSTALL_ROOT}/lib/libdouble-conversion.a"
+    "${DEPS_INSTALL_ROOT}/lib/libglog.a"
+    "${DEPS_INSTALL_ROOT}/lib/libgflags.a"
+    "${DEPS_INSTALL_ROOT}/lib/libfmt.a"
+    "${DEPS_INSTALL_ROOT}/lib/libssl.a"
+    "${DEPS_INSTALL_ROOT}/lib/libcrypto.a"
+    te
+)
+if (CMAKE_PROJECT_NAME STREQUAL "consensus")
+    SET(LINK_LIBRARIES ${LINK_LIBRARIES} "${DEPS_INSTALL_ROOT}/lib/libsecp256k1.a")
+else ()
+    SET(LINK_LIBRARIES ${LINK_LIBRARIES} Secp256k1)
+endif ()
 
+###################################
+#      consensus dependencies     #
+###################################
 
-# consensus library
+add_library(consensus_dependencies INTERFACE)
+target_link_libraries( consensus_dependencies INTERFACE ${LINK_LIBRARIES} )
+
+###################################
+#       consensus library         #
+###################################
 
 add_library(consensus STATIC ${SRC_FILES})
+target_compile_options(consensus PRIVATE -Wno-error=unused-variable)
+target_link_libraries(consensus PUBLIC consensus_dependencies PUBLIC bls)
 
-target_compile_options( consensus PRIVATE -Wno-error=unused-variable )
+###################################
+#      consensus executables      #
+###################################
 
-target_link_libraries(consensus ${LINK_LIBRARIES})
+# Build a consensus wrapper to have both consensus exposed code + all
+# consensus dependencies
+add_library(consensus_full INTERFACE)
+target_link_libraries(consensus_full INTERFACE 
+    "-Wl,--start-group"                         # makes ld/lld rescan archives until all cross-archive symbols resolve.
+    consensus consensus_dependencies
+    "-Wl,--end-group"
+)
 
-# consensus test agent
+# ---------------------------------
+# consensusd - the main consensus node executable
+# ---------------------------------
 
 add_executable(consensusd Consensusd.h Consensusd.cpp)
-
-target_compile_options( consensusd PRIVATE -Wno-error=unused-variable )
+target_compile_options(consensusd PRIVATE -Wno-error=unused-variable)
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")
@@ -246,17 +321,51 @@ target_compile_options( consensusd PRIVATE -Wno-error=unused-variable )
 #     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 #     target_link_libraries(consensusd  consensus tcmalloc)
 # else ()
-target_link_libraries(consensusd consensus)
+target_link_libraries(consensusd consensus_full)
 # endif ()
 
-add_executable(consensust Consensust.h Consensust.cpp datastructures/SerializationTests.cpp db/DBTests.cpp)
 
-target_compile_options( consensust PRIVATE -Wno-error=unused-variable )
+# ---------------------------------
+# consensust - the main consensus unit 
+# tests executable
+# ---------------------------------
+
+# Automatically discover all test source files in the unittests directory and its subdirectories.
+file(GLOB_RECURSE ALL_TEST_SOURCES "unittests/*.cpp")
+
+# Common test folders (non-rlp)
+file(GLOB_RECURSE COMMON_TEST_SOURCES
+        "unittests/datastructures/*.cpp"
+        "unittests/db/*.cpp"
+        "unittests/consensus_tests.cpp"
+        "unittests/sgx_tests.cpp"
+        # Add other folders as needed, excluding rlp/
+)
+
+set(TEST_SOURCES ${COMMON_TEST_SOURCES})
+
+# Conditionally add rlp test sources if BITE is enabled
+if (DEFINED BITE)
+    file(GLOB_RECURSE RLP_TEST_SOURCES "unittests/rlp/*.cpp")
+    list(APPEND TEST_SOURCES ${RLP_TEST_SOURCES})
+endif ()
+
+# Create the test executable from the main driver and all discovered test files.
+# Note: Consensust.h is not needed here as it's a header file.
+add_executable(consensust
+        Consensust.cpp
+        ${TEST_SOURCES}
+)
+
+target_link_libraries(consensust PRIVATE consensus_full)
+
+target_compile_options(consensust PRIVATE -Wno-error=unused-variable)
+# force catch2 macros to be prefixed with CATCH_ to avoid conflicts
+target_compile_definitions(consensust PRIVATE CATCH_CONFIG_PREFIX_ALL)
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")
 #     #  sudo apt-get install -qq -yy libgoogle-perftools-dev
 #     target_link_libraries(consensust consensus tcmalloc)
 # else ()
-target_link_libraries(consensust consensus)
 # endif ()
