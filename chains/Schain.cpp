@@ -905,7 +905,7 @@ void Schain::pushBlockToExtFace(const ptr<CommittedBlock> &_block) {
     checkForExit();
 
     try {
-#ifdef BITE
+#ifdef BITE2
         auto biteManager = getSchain()->getBiteManager();
         CHECK_STATE(biteManager);
 #endif
