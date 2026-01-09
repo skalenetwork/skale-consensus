@@ -738,11 +738,15 @@ void CacheLevelDB::destroy() {
     checkForDeadLock( __FUNCTION__ );
     lock_guard< shared_timed_mutex > lock( m );
 
+
+    for ( auto& dbase : db) {
+        CHECK_STATE( dbase );
+        dbase = nullptr;
+    }
+
     auto [maxIndex, minIndex] = findMaxMinDBIndex();
     
     for ( uint64_t i = minIndex; i <= maxIndex; i++ ) {
-        CHECK_STATE( db.at( i ) );
-        db.at( i ) = nullptr;
         DestroyDB( index2Path( i ), leveldb::Options() );
     }
 }
