@@ -64,7 +64,6 @@ protected:
 
     void verify();
 
-
     ptr< map< schain_index, string > > writeByteArrayToSetUnsafe(
         const char* _value, uint64_t _valueLen, block_id _blockId, schain_index _index );
     string index2Path( uint64_t index );

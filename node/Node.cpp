@@ -98,8 +98,9 @@ Node::Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool 
     ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< libBLS::BLSPublicKey > _blsPublicKey,
     string& _gethURL, ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > _previousBlsPublicKeys,
     ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
-    ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups, bool _isSyncNode )
-    : gethURL( _gethURL ), isSyncNode( _isSyncNode ) {
+    ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups, bool _isSyncNode,
+    bool _isArchiveModeEnabled )
+    : gethURL( _gethURL ), isSyncNode( _isSyncNode ), isArchiveModeEnabled( _isArchiveModeEnabled ) {
     if ( _consensusEngine ) {
         patchTimestamps = _consensusEngine->getPatchTimestamps();
     }
@@ -778,6 +779,10 @@ bool Node::isInited() const {
 
 bool Node::isSyncOnlyNode() const {
     return isSyncNode;
+}
+
+bool Node::isArchiveMode() const {
+    return isArchiveModeEnabled;
 }
 
 bool Node::verifyRealSignatures() const {
