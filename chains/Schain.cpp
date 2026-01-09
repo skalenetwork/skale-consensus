@@ -911,7 +911,7 @@ void Schain::pushBlockToExtFace(const ptr<CommittedBlock> &_block) {
 #endif
 
         auto tv = _block->getTransactionList()->createTransactionVector(
-#ifdef BITE
+#ifdef BITE2
             biteManager
 #endif
         );
