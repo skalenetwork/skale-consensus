@@ -224,13 +224,16 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
     // compute how many CATs / non-CATs to include
     const size_t numCATs = (CATsProportion * _limit);
     const size_t numRegularTxs = _limit - numCATs;
-
-    // place all CATs at the start
     size_t catIdx = txIdxInPrecomputedBatchCAT;
+
+#ifdef BITE2
+    // place all CATs at the start
     for ( size_t i = 0; i < numCATs; i++ ) {
         catIdx = (catIdx + 1) % numTotalCATTxs;
         selectedTxs.emplaceBackCAT( onlyCATs.at(catIdx) );
     }
+#endif
+    ( void ) numTotalCATTxs;
     txIdxInPrecomputedBatchCAT = catIdx;
 
     size_t regularIdx = txIdxInPrecomputedBatchRegular;
