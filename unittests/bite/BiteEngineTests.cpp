@@ -935,6 +935,243 @@ CATCH_TEST_CASE("BiteEngine mergeAESKeys handles mixed BITE1 and CAT ciphertexts
     CATCH_REQUIRE(aesKeys->getKeys(0));
     CATCH_REQUIRE(aesKeys->getKeys(1));
 }
+
+// ============ Empty ciphertext CAT tests ============ //
+
+CATCH_TEST_CASE("BiteEngine validateCiphertexts handles CAT with empty ciphertexts", "[bite][engine][validate][cat][empty]") {
+    BiteEngine engine = makeEngine(true);
+    TransactionCiphertextsMap map;
+
+    // tx 0 - CAT with valid ciphertexts
+    auto c1 = makeValidCiphertext(5);
+    auto c2 = makeValidCiphertext(5);
+    std::vector<ptr<BiteCiphertext>> tx0Ciphertexts{c1, c2};
+    map.emplace(0, std::make_shared<TransactionCiphertexts>(tx0Ciphertexts));
+
+    // tx 1 - CAT with empty ciphertexts (0 ciphertexts)
+    std::vector<ptr<BiteCiphertext>> emptyCiphertexts;
+    map.emplace(1, std::make_shared<TransactionCiphertexts>(emptyCiphertexts));
+
+    // tx 2 - another valid CAT
+    auto c3 = makeValidCiphertext(5);
+    map.emplace(2, std::make_shared<TransactionCiphertexts>(c3));
+
+    auto result = engine.validateCiphertexts(map);
+    CATCH_REQUIRE(result.allValid());
+    CATCH_REQUIRE(result.invalidCiphertextIndices.empty());
+    // public values only for non-empty ciphertexts (tx0 has 2, tx1 has 0, tx2 has 1 = 3 total)
+    CATCH_REQUIRE(result.publicDecryptionValues.size() == 3);
+}
+
+CATCH_TEST_CASE("BiteEngine decrypts CAT with empty ciphertexts at start of list", "[bite][engine][decrypt][cat][empty]") {
+    const uint64_t epoch = 15;
+    BiteCore core;
+    core.doRealCrypto = true;
+    BiteEngine engine(core, BiteConfig{});
+    auto keys = generateKeys(1, 1);
+
+    // CAT 0 - empty ciphertexts (nothing encrypted, just plain args)
+    auto emptyCat = buildBite2Transaction(
+        {},  // no encrypted args
+        { {0x10}, {0x20} },  // only plain args
+        epoch,
+        keys.commonPublic
+    );
+
+    // CAT 1 - valid CAT with 2 encrypted args
+    auto validCat = buildBite2Transaction(
+        { {0x01}, {0x02} },
+        { {0xAA} },
+        epoch,
+        keys.commonPublic
+    );
+
+    auto txVec = std::make_shared<std::vector<ptr<Transaction>>>();
+    txVec->push_back(emptyCat);  // idx 0
+    txVec->push_back(validCat);  // idx 1
+    TransactionList txList(txVec);
+
+    DecryptedAESKeyList aesKeys;
+    // No keys for tx 0 (empty ciphertexts)
+    aesKeys.addKeys(1, getDecryptedAESKeysForTransaction(validCat, keys, 1, 1, epoch));
+
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
+
+    CATCH_REQUIRE(decrypted.catTxsMap);
+    CATCH_REQUIRE(decrypted.catTxsMap->size() == 2);
+    // tx 0 should be present with empty args
+    auto it0 = decrypted.catTxsMap->find(0);
+    CATCH_REQUIRE(it0 != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(it0->second.has_value());
+    CATCH_REQUIRE(it0->second->args.empty());
+    // tx 1 should have decrypted args
+    auto it1 = decrypted.catTxsMap->find(1);
+    CATCH_REQUIRE(it1 != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(it1->second.has_value());
+    CATCH_REQUIRE(it1->second->args.size() == 2);
+}
+
+CATCH_TEST_CASE("BiteEngine decrypts CAT with empty ciphertexts in middle of list", "[bite][engine][decrypt][cat][empty]") {
+    const uint64_t epoch = 16;
+    BiteCore core;
+    core.doRealCrypto = true;
+    BiteEngine engine(core, BiteConfig{});
+    auto keys = generateKeys(1, 1);
+
+    // CAT 0 - valid CAT
+    auto cat0 = buildBite2Transaction(
+        { {0x01} },
+        { {0xAA} },
+        epoch,
+        keys.commonPublic
+    );
+
+    // CAT 1 - empty ciphertexts
+    auto emptyCat = buildBite2Transaction(
+        {},  // no encrypted args
+        { {0x10}, {0x20}, {0x30} },  // only plain args
+        epoch,
+        keys.commonPublic
+    );
+
+    // CAT 2 - valid CAT
+    auto cat2 = buildBite2Transaction(
+        { {0x02}, {0x03} },
+        { {0xBB} },
+        epoch,
+        keys.commonPublic
+    );
+
+    auto txVec = std::make_shared<std::vector<ptr<Transaction>>>();
+    txVec->push_back(cat0);     // idx 0
+    txVec->push_back(emptyCat); // idx 1
+    txVec->push_back(cat2);     // idx 2
+    TransactionList txList(txVec);
+
+    DecryptedAESKeyList aesKeys;
+    aesKeys.addKeys(0, getDecryptedAESKeysForTransaction(cat0, keys, 1, 1, epoch));
+    // No keys for tx 1 (empty ciphertexts)
+    aesKeys.addKeys(2, getDecryptedAESKeysForTransaction(cat2, keys, 1, 1, epoch));
+
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
+
+    CATCH_REQUIRE(decrypted.catTxsMap);
+    CATCH_REQUIRE(decrypted.catTxsMap->size() == 3);
+    // tx 0 should have 1 decrypted arg
+    auto it0 = decrypted.catTxsMap->find(0);
+    CATCH_REQUIRE(it0 != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(it0->second.has_value());
+    CATCH_REQUIRE(it0->second->args.size() == 1);
+    // tx 1 should be present with empty args
+    auto it1 = decrypted.catTxsMap->find(1);
+    CATCH_REQUIRE(it1 != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(it1->second.has_value());
+    CATCH_REQUIRE(it1->second->args.empty());
+    // tx 2 should have 2 decrypted args
+    auto it2 = decrypted.catTxsMap->find(2);
+    CATCH_REQUIRE(it2 != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(it2->second.has_value());
+    CATCH_REQUIRE(it2->second->args.size() == 2);
+}
+
+CATCH_TEST_CASE("BiteEngine decrypts CAT with empty ciphertexts at end of list", "[bite][engine][decrypt][cat][empty]") {
+    const uint64_t epoch = 17;
+    BiteCore core;
+    core.doRealCrypto = true;
+    BiteEngine engine(core, BiteConfig{});
+    auto keys = generateKeys(1, 1);
+
+    // CAT 0 - valid CAT
+    auto cat0 = buildBite2Transaction(
+        { {0x01}, {0x02} },
+        { {0xAA} },
+        epoch,
+        keys.commonPublic
+    );
+
+    // CAT 1 - valid CAT
+    auto cat1 = buildBite2Transaction(
+        { {0x03} },
+        { {0xBB}, {0xCC} },
+        epoch,
+        keys.commonPublic
+    );
+
+    // CAT 2 - empty ciphertexts at end
+    auto emptyCat = buildBite2Transaction(
+        {},  // no encrypted args
+        { {0x10} },  // only plain args
+        epoch,
+        keys.commonPublic
+    );
+
+    auto txVec = std::make_shared<std::vector<ptr<Transaction>>>();
+    txVec->push_back(cat0);     // idx 0
+    txVec->push_back(cat1);     // idx 1
+    txVec->push_back(emptyCat); // idx 2
+    TransactionList txList(txVec);
+
+    DecryptedAESKeyList aesKeys;
+    aesKeys.addKeys(0, getDecryptedAESKeysForTransaction(cat0, keys, 1, 1, epoch));
+    aesKeys.addKeys(1, getDecryptedAESKeysForTransaction(cat1, keys, 1, 1, epoch));
+    // No keys for tx 2 (empty ciphertexts)
+
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
+
+    CATCH_REQUIRE(decrypted.catTxsMap);
+    CATCH_REQUIRE(decrypted.catTxsMap->size() == 3);
+    // tx 0 should have 2 decrypted args
+    auto it0 = decrypted.catTxsMap->find(0);
+    CATCH_REQUIRE(it0 != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(it0->second.has_value());
+    CATCH_REQUIRE(it0->second->args.size() == 2);
+    // tx 1 should have 1 decrypted arg
+    auto it1 = decrypted.catTxsMap->find(1);
+    CATCH_REQUIRE(it1 != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(it1->second.has_value());
+    CATCH_REQUIRE(it1->second->args.size() == 1);
+    // tx 2 should be present with empty args
+    auto it2 = decrypted.catTxsMap->find(2);
+    CATCH_REQUIRE(it2 != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(it2->second.has_value());
+    CATCH_REQUIRE(it2->second->args.empty());
+}
+
+CATCH_TEST_CASE("BiteEngine decrypts only CAT with empty ciphertexts", "[bite][engine][decrypt][cat][empty]") {
+    const uint64_t epoch = 18;
+    BiteCore core;
+    core.doRealCrypto = true;
+    BiteEngine engine(core, BiteConfig{});
+    auto keys = generateKeys(1, 1);
+
+    // Single CAT with no encrypted args
+    auto emptyCat = buildBite2Transaction(
+        {},  // no encrypted args
+        { {0xAA}, {0xBB} },  // only plain args
+        epoch,
+        keys.commonPublic
+    );
+
+    auto txVec = std::make_shared<std::vector<ptr<Transaction>>>();
+    txVec->push_back(emptyCat);
+    TransactionList txList(txVec);
+
+    DecryptedAESKeyList aesKeys; // no keys needed
+
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
+
+    CATCH_REQUIRE(decrypted.catTxsMap);
+    CATCH_REQUIRE(decrypted.catTxsMap->size() == 1);
+    auto it = decrypted.catTxsMap->find(0);
+    CATCH_REQUIRE(it != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(it->second.has_value());
+    CATCH_REQUIRE(it->second->args.empty());
+}
+
 #endif // BITE2
 
 #endif // BITE

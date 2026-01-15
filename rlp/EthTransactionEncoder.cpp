@@ -130,6 +130,12 @@ void EthTransactionEncoder::encryptCATTransaction(std::unique_ptr<EthTransaction
     tx->data = *catData;
 }
 
+void EthTransactionEncoder::encryptEmptyCATTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
+    uint64_t epochId = 0;
+    auto catData = _biteManager->generateEmptyCATData(epochId);
+    tx->data = *catData;
+}
+
 std::shared_ptr< std::vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
     ParsedEthTransaction& _ethTransaction ) {
     auto fields = _ethTransaction.getFields();

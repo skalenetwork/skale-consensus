@@ -139,6 +139,11 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
  * @brief Helper function - appends ciphertexts from TransactionCiphertexts to vector of CipheredKey
  */
 void appendCiphertextsToVector(ptr<TransactionCiphertexts> _ciphertexts, std::vector< libBLS::CipheredKey >& _vec, size_t& _ciphertextIdx) {
+    // Allow transactions with no ciphertexts (e.g., CAT txs with empty ciphertext)
+    if (_ciphertexts->count() == 0) {
+        return;
+    }
+    
     if (_ciphertexts->count() > 1) {
         std::vector< libBLS::CipheredKey > cipheredKeysLocal;
         cipheredKeysLocal.reserve(_ciphertexts->count());
@@ -423,6 +428,12 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                     CONS_LOG(warn, fmt::format("Could not try to parse as CAT encrypted transaction during decryption: {}: {}", txIdx, e.what()));
                 }
                 if (encryptedArgs) {
+                    // CAT tx with no encrypted arguments — nothing to decrypt
+                    if (encryptedArgs->empty()) {
+                        std::lock_guard<std::mutex> lock(catTxsMapMutex);
+                        catTxsMap->emplace(txIdx, DecryptedCATArgs{});
+                        continue;
+                    }
                     auto decryptedAESKey = _aesKeys.getKeys(txIdx);
                     CHECK_STATE(decryptedAESKey);
                     CHECK_STATE(encryptedArgs->size() == decryptedAESKey->size());

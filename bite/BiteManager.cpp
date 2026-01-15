@@ -318,6 +318,20 @@ ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData(uint64_t epochId) {
 
     return std::make_shared<vector<uint8_t>>(BiteCodec::encodeCATData(encryptedSerializedArgs, plainArgs));
 }
+
+ptr<vector<uint8_t> > BiteManager::generateEmptyCATData(uint64_t epochId) {
+    (void)epochId;  // epochId not needed since there are no ciphertexts
+    
+    // No encrypted arguments (empty ciphertexts)
+    std::vector<std::vector<uint8_t>> encryptedSerializedArgs;
+    
+    // Some plain arguments to include in the CAT
+    std::vector<std::vector<uint8_t>> plainArgs;
+    plainArgs.emplace_back(std::vector<uint8_t>{0x01, 0x02, 0x03});
+    plainArgs.emplace_back(std::vector<uint8_t>{0x04, 0x05});
+    
+    return std::make_shared<vector<uint8_t>>(BiteCodec::encodeCATData(encryptedSerializedArgs, plainArgs));
+}
 #endif
 
 void BiteManager::stopAndDestroyThreadPoolExecutor() {

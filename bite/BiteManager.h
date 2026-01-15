@@ -141,6 +141,12 @@ public:
      * ]
      */
     ptr<vector<uint8_t> > generateEncryptedCATData(uint64_t epochId);
+
+    /**
+     * @brief Generates a CAT transaction with no encrypted arguments (empty ciphertexts).
+     * Only plain arguments are included.
+     */
+    ptr<vector<uint8_t> > generateEmptyCATData(uint64_t epochId);
 #endif
 
 private:
