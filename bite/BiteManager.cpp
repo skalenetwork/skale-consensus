@@ -322,6 +322,10 @@ ptr<vector<ptr<AESKeyDecryptionShares> > > BiteManager::getDecryptionSharesFromA
  * @brief Helper function - appends ciphertexts from TransactionCiphertexts to vector of CipheredKey
  */
 void appendCiphertextsToVector(ptr<TransactionCiphertexts> _ciphertexts, std::vector< libBLS::CipheredKey >& _vec, size_t& _ciphertextIdx) {
+    // Allow transactions with no ciphertexts (e.g., CAT txs with empty ciphertext)
+    if (_ciphertexts->count() == 0) {
+        return;
+    }
     if (_ciphertexts->count() > 1) {
         std::vector< libBLS::CipheredKey > cipheredKeysLocal;
         cipheredKeysLocal.reserve(_ciphertexts->count());
@@ -454,6 +458,12 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
             if (!allCATsParsed) {
                 auto encryptedArgs = tryGetEncryptedCATArgs(tx, currentEpoch);
                 if (encryptedArgs) {
+                    // CAT tx with no encrypted arguments — nothing to decrypt
+                    if (encryptedArgs->empty()) {
+                        std::lock_guard<std::mutex> lock(catTxsMapMutex);
+                        catTxsMap->emplace(txIdx, DecryptedCATArgs{});
+                        continue;
+                    }
                     auto decryptedAESKey = _aesKeys.getKeys(txIdx);
                     CHECK_STATE(decryptedAESKey);
                     CHECK_STATE(encryptedArgs->size() == decryptedAESKey->size());
@@ -663,6 +673,35 @@ ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData() {
         plainArgs << rndData;
     }
 
+    allArgs << encryptedArgs << plainArgs;
+    auto finalData = allArgs.encode();
+
+    std::vector<uint8_t> data;
+    data.reserve(BITE2_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
+
+    // prefix with function selector 
+    data.insert(
+        data.end(),
+        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
+        BITE_FUNCTION_SELECTOR_AS_BYTE_ARRAY + BITE2_FUNCTION_SELECTOR_SIZE_BYTES
+    );
+
+    // append RLP data
+    data.insert(data.end(), finalData.begin(), finalData.end());
+
+    return std::make_shared<std::vector<uint8_t>>(std::move(data));
+}
+
+ptr<vector<uint8_t> > BiteManager::generateEmptyCATData() {
+    // No encrypted arguments (empty ciphertexts)
+    RLPStream encryptedArgs;  // empty
+    
+    // Some plain arguments to include in the CAT
+    RLPStream plainArgs;
+    plainArgs << std::vector<uint8_t>{0x01, 0x02, 0x03};
+    plainArgs << std::vector<uint8_t>{0x04, 0x05};
+    
+    RLPStream allArgs;
     allArgs << encryptedArgs << plainArgs;
     auto finalData = allArgs.encode();
 
