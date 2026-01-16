@@ -381,6 +381,7 @@ bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t
     if (completeAndNeedToExitAllThreads()) {
         // the downloader has completed its
         if (!downloadCompleted.exchange(true)) {
+            LOG(trace, "Download completed: downLoadCompletedBaton.post() called");
             downLoadCompletedBaton.post();
         }
         return true;
@@ -473,10 +474,12 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
             // we successfully downloaded the fragment
             // find out the next fragment to download
             fragmentToDownload = _agent->nextFragmentToDownload();
+            LOG(trace, "Got next fragment to download: " + std::to_string(fragmentToDownload));
         } catch (DoNotHaveProposalYetException &) {
             // this is ok, we just do not have proposal yet on this destionation node
             // we keep trying to download the fragment until the node has the proposal
-            _agent->waitAfterNoProposal();;
+            _agent->waitAfterNoProposal();
+            LOG(err, "DoNotHaveProposalYetException");
         } catch (ExitRequestedException &) {
         } catch (ConnectionRefusedException &e) {
             // the node may be down. We will wait a little and try again
@@ -506,6 +509,7 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
         // wait until the download is complete
         downLoadCompletedBaton.wait();
     }
+    LOG(trace, "Exited downloadFragment loop: all pieces collected");
 
     try {
         // first check if we do not need to do anything because a block separately arrived in catchup
@@ -621,6 +625,10 @@ bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
     ) {
         return true;
     }
+    LOG(trace, "fragment.isComplete(): " + std::to_string(fragmentList.isComplete()));
+    LOG(trace, "fragment.isComplete(): " + std::to_string(fragmentList.isComplete()));
+    LOG(trace, "daSig: " + std::to_string(!!daSig));
+    LOG(trace, "getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId): " + std::to_string(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)));
 
     return false;
 }
