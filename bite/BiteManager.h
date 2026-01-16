@@ -142,6 +142,12 @@ public:
      * ]
      */
     [[nodiscard]] ptr<vector<uint8_t> > generateEncryptedCATData();
+    
+    /**
+     * @brief Generates a CAT transaction with no encrypted arguments (empty ciphertexts).
+     * Only plain arguments are included.
+     */
+    [[nodiscard]] ptr<vector<uint8_t> > generateEmptyCATData();
 #endif
 
 private:

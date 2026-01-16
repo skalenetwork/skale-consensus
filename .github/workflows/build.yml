@@ -68,10 +68,10 @@ jobs:
 
     - name: Cleanup
       run: |
-        sudo apt-get autoremove -y >/dev/null 2>&1
-        sudo apt-get autoclean -y >/dev/null 2>&1
-        sudo rm -rf /usr/local/lib/android >/dev/null 2>&1
-        sudo docker rmi $(docker image ls -aq) >/dev/null 2>&1
+        sudo apt-get autoremove -y >/dev/null 2>&1 || true
+        sudo apt-get autoclean  -y >/dev/null 2>&1 || true
+        sudo rm -rf /usr/local/lib/android >/dev/null 2>&1 || true
+        sudo docker system prune -af --volumes >/dev/null 2>&1 || true
 
     - name: Install docker compose
       run: |

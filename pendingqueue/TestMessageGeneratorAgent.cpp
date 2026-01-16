@@ -198,12 +198,28 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
         onlyRegularTxs = std::move(tmpOnlyRegularTxs);
 
 #ifdef BITE2
-        // setup cat txs
+        // setup cat txs - include some empty CATs for coverage
+        // Empty CATs will be at positions: 0 (start), numTotalCATTxs/2 (middle), numTotalCATTxs-1 (end)
+        // and every 10th transaction to ensure ~10% are empty CATs
         for ( uint64_t i = 0; i < numTotalCATTxs; i++ ) {
             auto tx = EthTransactionEncoder::generateSampleTx();
             
-            auto catData = sChain->getBiteManager()->generateEncryptedCATData();
+            // Make empty CAT at start, middle, end, and every 10th transaction
+            bool isEmptyCAT = (i == 0) || 
+                              (i == numTotalCATTxs / 2) || 
+                              (i == numTotalCATTxs - 1) ||
+                              (i % 10 == 0);
+            
+            ptr<vector<uint8_t>> catData;
+            if (isEmptyCAT) {
+                // CAT with no encrypted arguments (empty ciphertexts)
+                catData = sChain->getBiteManager()->generateEmptyCATData();
+            } else {
+                // Regular CAT with encrypted arguments
+                catData = sChain->getBiteManager()->generateEncryptedCATData();
+            }
             tx->data = *catData;
+            
             auto signedTx = EthTransactionEncoder::signAndEncodeTx( tx );
             tmpOnlyCATs.emplaceBackCAT( std::move(*signedTx) );
         }
