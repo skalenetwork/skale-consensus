@@ -188,7 +188,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         try {
 #ifdef BITE2
             if (transactions.isCat(i)) {
-                auto catArgs = biteManager->tryGetEncryptedCATArgs(pt, currentEpoch);
+                auto catArgs = biteManager->tryGetEncryptedCATArgs(pt, currentEpoch).first;
                 if (!catArgs) {
                     CONS_LOG(err, "Found regular transaction marked as CAT. Skipping it from my proposal.");
                     continue;

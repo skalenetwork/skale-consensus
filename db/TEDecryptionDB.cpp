@@ -160,7 +160,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
 
     WRITE_LOCK(decryptionSetsMutex);
 
-    // nodeId -> decryption shares (each may hold decryption shares for multiple ciphertexts)
+    // nodeId -> decryption shares
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareMap =
         decryptionsStore[_blockId];
 
@@ -171,6 +171,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
     CHECK_STATE( firstDecryptionShareList );
     auto size = firstDecryptionShareList->totalCiphertextSharesCount();
 
+    // must have received same amount of shares from each decryptor
     for (auto&& [_, list] : decryptionShareMap) {
         CHECK_STATE(list->totalCiphertextSharesCount() == size);
     }
@@ -179,23 +180,27 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
     map<transaction_index, ptr<AESKeyDecryptionShareSet>> decryptionShareSets;
     map<transaction_index, std::vector<libBLS::CipheredKey>> encryptions;
 
+    // initialization using decryptions shares from 1st decryptor
     bool toValidate = false;
-    for ( auto&& [idx, aesDecryptionShare] : firstDecryptionShareList->getDecryptionShares() ) {
-        decryptionShareSets[idx] =
+
+    for ( auto&& [transactionIdx, aesDecryptionShares] : firstDecryptionShareList->getDecryptionShares() ) {
+        // allocate resources for each tx
+        decryptionShareSets[transactionIdx] =
             sChain->getBiteManager()->createAESDecryptionShareSet(
-                _blockId, idx, aesDecryptionShare->size() );
+                _blockId, transactionIdx, aesDecryptionShares->size() );
         if (sChain->getNode()->isSgxEnabled()) {
             // fill the map to use in multiple threads later if real signatures are enabled
             // dont validate inputs - were already validated before
-            auto& ciphertextsForCurrTx = *_transactionCiphertextsMap->at(idx);
+            auto& ciphertextsForCurrTx = *_transactionCiphertextsMap->at(transactionIdx);
             for (auto& ciphertext : ciphertextsForCurrTx) {
-                encryptions[idx].push_back(
+                // populate ciphertexts using tx index from the decryption share list
+                encryptions[transactionIdx].push_back(
                     libBLS::CipheredKey::fromBytes(ciphertext.data(), toValidate));
             }
         }
     }
 
-    // 1 key for each signer (index = signerId)
+    // Keep all signers' public keys
     vector<libBLS::TEPublicKeyShare> tePublicKeys;
     if (sChain->getNode()->isSgxEnabled()) {
         ptr<vector<ptr<libBLS::BLSPublicKeyShare>>> keyShares =
@@ -282,11 +287,25 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
                     std::vector<bool> allSharesFromNodeAreValid;
                     allSharesFromNodeAreValid.resize(totalSigners, true);
 
+                    // Prepare AAD for CAT transactions
+                    const auto& txCiphertexts = _transactionCiphertextsMap->at(txId);
+                    const std::vector<std::vector<uint8_t>>* aadPtr = nullptr;
+                    std::vector<std::vector<uint8_t>> aadVec;
+                    
+                    if (txCiphertexts->isCAT()) {
+                        const auto& scAddr = txCiphertexts->getScAddressAadTE();
+                        CHECK_STATE(scAddr.has_value());
+                        // Single element - same AAD for the one ciphertext validated per call
+                        aadVec.push_back(std::vector<uint8_t>(scAddr->begin(), scAddr->end()));
+                        aadPtr = &aadVec;
+                    }
+
                     for (size_t ciphertextId = 0; ciphertextId < numberOfCiphertexts; ++ciphertextId) {
                         std::vector<libBLS::CipheredKey> cipheredKeys{ encryptions.at(txId).at(ciphertextId) };
 
                         auto result = libBLS::ThresholdEncryption::validateDecryptionSharesBatch(
-                                cipheredKeys, teShares.at(ciphertextId), publicKeys.at(ciphertextId));
+                                cipheredKeys, teShares.at(ciphertextId), publicKeys.at(ciphertextId),
+                                aadPtr);  // Pass AAD for CAT txs, nullptr for regular
 
                         for (size_t shareId = 0; shareId < result.size(); ++shareId) {
                             if (!result[shareId]) {
