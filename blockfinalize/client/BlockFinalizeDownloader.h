@@ -107,7 +107,6 @@ public:
 
     bool downloadProposalDAProofAndDecryptions();
 
-
     bool completeAndNeedToExitAllThreads();
 
     string readBlockHash( nlohmann::json _responseHeader );

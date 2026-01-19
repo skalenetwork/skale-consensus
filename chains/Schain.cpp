@@ -1477,7 +1477,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
 
             // at this point the destructor of the previous agent will be called
             // this will make all its threads to exit
-            downloaderAgent =  newDownloaderAgent;
+            downloaderAgent = newDownloaderAgent;
 
 
             const string msg = "Finalization download:" + to_string(_blockId) + ":" +

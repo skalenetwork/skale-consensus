@@ -375,6 +375,7 @@ bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t
 ) {
     if (downloadCompleted) {
         // we already completed the download and notified waiting threads
+        LOG(trace, "Download already completed");
         return true;
     }
 
@@ -383,6 +384,8 @@ bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t
         if (!downloadCompleted.exchange(true)) {
             LOG(trace, "Download completed: downLoadCompletedBaton.post() called");
             downLoadCompletedBaton.post();
+        } else {
+            LOG(trace, "Download completed: couldn't call downLoadCompletedBaton");
         }
         return true;
     };
@@ -392,6 +395,7 @@ bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t
     // it means that other threads are still downloading their decryption shares
     // exit this thread without signalling that the download is completed
     if (_nextFragmentToDownload == 0) {
+        LOG(trace, "nextFragmentToDownload is 0");
         return true;
     }
 #endif
@@ -458,7 +462,6 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     auto proposalDB = node->getBlockProposalDB();
     auto daProofDB = node->getDaProofDB();
     auto mySchainIndex = sChain->getSchainIndex();
-
 
     setThreadName("BlckFinLoop", node->getConsensusEngine());
 
@@ -605,15 +608,18 @@ ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig(uint64_t _timeStampS) 
 
 bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
     if (getSchain()->getNode()->isExitRequested()) {
+        LOG(trace, "Exit requested in BlockFinalizeDownloader");
         return true;
     }
 
     if (getSchain()->getLastCommittedBlockID() >= blockId) {
         // we received block concurrently through catchup
+        LOG(trace, "Received block concurrently through catchup in BlockFinalizeDownloader");
         return true;
     }
     if (getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex)) {
         // received needed things concurrently through block proposal
+        LOG(trace, "Received needed things concurrently through block proposal in BlockFinalizeDownloader");
         return true;
     }
 
@@ -623,9 +629,9 @@ bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
         && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)
 #endif
     ) {
+        LOG(trace, "Received everything in BlockFinalizeDownloader");
         return true;
     }
-    LOG(trace, "fragment.isComplete(): " + std::to_string(fragmentList.isComplete()));
     LOG(trace, "fragment.isComplete(): " + std::to_string(fragmentList.isComplete()));
     LOG(trace, "daSig: " + std::to_string(!!daSig));
     LOG(trace, "getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId): " + std::to_string(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)));
