@@ -97,7 +97,7 @@ void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
     CONS_LOG( info, "Monitoring agent started monitoring" );
 
     try {
-        auto intervalMs = _agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000;
+        auto intervalMs = _agent->getSchain()->getNode()->getMonitoringIntervalMs();
 
         while ( true ) {
             {

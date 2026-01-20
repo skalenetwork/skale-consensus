@@ -281,7 +281,7 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
 
     // 1 per transaction (but each tx may contain multiple ciphertexts)
     std::map<transaction_index, ptr<AESKeyDecryptionShareSet>> decryptionShareSets;
-    std::map<transaction_index, std::vector<libBLS::CipheredKey>> encryptions;
+    auto encryptions = std::make_shared<std::map<transaction_index, std::vector<libBLS::CipheredKey>>>();
 
     bool toValidate = false;
     for (auto&& [idx, shares] : firstDecryptionShareList->getDecryptionShares()) {
@@ -291,7 +291,7 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
         if (config.sgxEnabled) {
             auto& ciphertextsForCurrTx = *_txCiphertexts.at(idx);
             for (auto& ciphertext : ciphertextsForCurrTx) {
-                encryptions[idx].push_back(
+                (*encryptions)[idx].push_back(
                     libBLS::CipheredKey::fromBytes(ciphertext.data(), toValidate));
             }
         }
@@ -301,9 +301,9 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
     futures.reserve(decryptionShareSets.size());
 
     auto aesKeys = make_shared< DecryptedAESKeyList >();
-    std::mutex aesKeysMutex;
+    auto aesKeysMutex = std::make_shared<std::mutex>();
 
-    auto processTx = [&](transaction_index txId, ptr<AESKeyDecryptionShareSet> decryptionSet) -> folly::Unit {
+    auto processTx = [this, aesKeys, aesKeysMutex, &_txCiphertexts, &_decryptionShareMap, &_tePublicKeyShares, encryptions, config = this->config](transaction_index txId, ptr<AESKeyDecryptionShareSet> decryptionSet) -> folly::Unit {
         size_t numberOfCiphertexts = _txCiphertexts.at(txId)->count();
         // still not enough shares - validate & add more
         if (!decryptionSet->isEnough()) {
@@ -371,7 +371,8 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
                 }
 
                 for (size_t ciphertextId = 0; ciphertextId < numberOfCiphertexts; ++ciphertextId) {
-                    std::vector<libBLS::CipheredKey> cipheredKeys{ encryptions.at(txId).at(ciphertextId) };
+                    std::vector<libBLS::CipheredKey> cipheredKeys;
+                    cipheredKeys.push_back( encryptions->at(txId).at(ciphertextId) );
 
                     auto result = libBLS::ThresholdEncryption::validateDecryptionSharesBatch(
                             cipheredKeys, teShares.at(ciphertextId), publicKeys.at(ciphertextId),
@@ -407,25 +408,30 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
         if ( decryptionSet->isEnough() ) {
             auto keys = decryptionSet->verifyAndMergeAESKeys(_txCiphertexts.at(txId)->getCiphertexts());
             CHECK_STATE( keys );
-            std::lock_guard<std::mutex> lock(aesKeysMutex);
+            std::lock_guard<std::mutex> lock(*aesKeysMutex);
             aesKeys->addKeys( txId, *keys );
         }
         return folly::unit;
     };
 
-    if (_runtimeCtx.threadPoolExecutor) {
-        for ( auto&& [txId, decryptionSet]: decryptionShareSets ) {
-            auto txIdLocal = txId;
-            auto decryptionSetLocal = decryptionSet;
-            futures.emplace_back(folly::via(_runtimeCtx.threadPoolExecutor.get(), [&, txIdLocal, decryptionSetLocal]() {
-                return processTx(txIdLocal, decryptionSetLocal);
-            }));
+    try {
+        if (_runtimeCtx.threadPoolExecutor) {
+            for ( auto&& [txId, decryptionSet]: decryptionShareSets ) {
+                auto txIdLocal = txId;
+                auto decryptionSetLocal = decryptionSet;
+                futures.emplace_back(folly::via(_runtimeCtx.threadPoolExecutor.get(), [processTx, txIdLocal, decryptionSetLocal]() {
+                    return processTx(txIdLocal, decryptionSetLocal);
+                }));
+            }
+            folly::collectAll(futures).get();
+        } else {
+            for ( auto&& [txId, decryptionSet]: decryptionShareSets ) {
+                processTx(txId, decryptionSet);
+            }
         }
-        folly::collectAll(futures).get();
-    } else {
-        for ( auto&& [txId, decryptionSet]: decryptionShareSets ) {
-            processTx(txId, decryptionSet);
-        }
+    } catch ( ... ) {
+        folly::collectAll( futures ).get();
+        throw;
     }
 
     CHECK_STATE2(aesKeys->totalDecryptedCiphertextsCount() == _txCiphertexts.totalCiphertextCount(),
@@ -441,13 +447,12 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
         const DecryptedAESKeyList &_aesKeys,
         BiteRuntimeContext& runtimeCtx
 ) const {
- 
     auto decryptedFieldsMap = std::make_shared<DecryptedRegularTxsMap>();
-    std::mutex regularTxMapMutex;
+    auto regularTxMapMutex = std::make_shared<std::mutex>();
     
 #ifdef BITE2
     auto catTxsMap          = std::make_shared<DecryptedCATxsMap>();
-    std::mutex catTxsMapMutex;
+    auto catTxsMapMutex     = std::make_shared<std::mutex>();
 #endif
 
     auto txs = _transactionList.getItems();
@@ -487,7 +492,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                 if (encryptedArgs) {
                     // CAT tx with no encrypted arguments — nothing to decrypt
                     if (encryptedArgs->empty()) {
-                        std::lock_guard<std::mutex> lock(catTxsMapMutex);
+                        std::lock_guard<std::mutex> lock(*catTxsMapMutex);
                         catTxsMap->emplace(txIdx, DecryptedCATArgs{});
                         continue;
                     }
@@ -496,7 +501,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                     CHECK_STATE(encryptedArgs->size() == decryptedAESKey->size());
 
                     try {
-                        schedule([corePtr = &this->core, encryptedArgs, decryptedAESKey, catTxsMap, txIdx, &catTxsMapMutex]() 
+                        schedule([corePtr = &this->core, encryptedArgs, decryptedAESKey, catTxsMap, txIdx, catTxsMapMutex]() 
                         -> folly::Unit {
                             DecryptedCATArgs decryptedData;
                             decryptedData.args.reserve(encryptedArgs->size());
@@ -512,14 +517,14 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                                 );
                             }
 
-                            std::lock_guard<std::mutex> lock(catTxsMapMutex);
+                            std::lock_guard<std::mutex> lock(*catTxsMapMutex);
                             catTxsMap->emplace(txIdx, std::move(decryptedData));
 
                             return folly::unit;
                         });
                     } catch (const std::exception &e) {
                         CONS_LOG(err, fmt::format("Corrupt CAT tx:{} that doesn't decrypt: {}", txIdx, e.what()));
-                        std::lock_guard<std::mutex> lock(catTxsMapMutex);
+                        std::lock_guard<std::mutex> lock(*catTxsMapMutex);
                         catTxsMap->emplace(txIdx, std::nullopt);
                     }
 
@@ -548,7 +553,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                 CHECK_STATE(decryptedAESKey->size() == 1); // single AES key expected
 
                 try {
-                    schedule([corePtr = &this->core, bite, decryptedAESKey, decryptedFieldsMap, txIdx, &regularTxMapMutex]() 
+                    schedule([corePtr = &this->core, bite, decryptedAESKey, decryptedFieldsMap, txIdx, regularTxMapMutex]() 
                     -> folly::Unit {
                         auto decryptedTransactionFields = BiteCodec::decryptCiphertext(*bite, 
                                 decryptedAESKey->at(0).getAesKey(), 
@@ -558,14 +563,14 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                         auto parsedRegularTx =
                             BiteCodec::parseRegularTxDecryptedData(decryptedTransactionFields);
 
-                        std::lock_guard<std::mutex> lock(regularTxMapMutex);
+                        std::lock_guard<std::mutex> lock(*regularTxMapMutex);
                         decryptedFieldsMap->emplace(txIdx, std::move(parsedRegularTx));
 
                         return folly::unit;
                     });
                 } catch (const std::exception &e) {
                     CONS_LOG(err, fmt::format("Corrupt regular tx:{} that doesn't decrypt: {}", txIdx, e.what()));
-                    std::lock_guard<std::mutex> lock(regularTxMapMutex);
+                    std::lock_guard<std::mutex> lock(*regularTxMapMutex);
                     decryptedFieldsMap->emplace(txIdx, std::nullopt);
                 }
 
@@ -576,8 +581,13 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
             // If it's neither CAT nor regular encrypted, we must not have AES keys
             CHECK_STATE(!_aesKeys.getKeys(txIdx));
         }
+    } catch ( ... ) {
+        folly::collectAll( futures ).get();
+        try {
+            throw;
+        }
+        CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse BITE transaction");
     }
-    CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not parse BITE transaction");
 
     folly::collectAll(futures).get();
 
