@@ -123,4 +123,112 @@ CATCH_TEST_CASE("BiteCore validateCiphertexts flags invalid ciphertexts", "[bite
     CATCH_REQUIRE(result.publicDecryptionValues.empty());
 }
 
+
+CATCH_TEST_CASE("BiteCore validateCiphertexts with AAD validates correctly", "[bite][core][aad]") {
+    BiteCore core;
+    
+    // Create a ciphertext with AAD using core.encryptData
+    std::vector<uint8_t> message{0x01, 0x02, 0x03};
+    std::vector<uint8_t> aad{0xAA, 0xBB, 0xCC, 0xDD};  // SC address as AAD
+    
+    auto keys = generateKeys(1, 1);
+    auto ciphertextBytes = core.encryptData(keys.commonPublic, message, aad);
+    auto ciphertext = libBLS::Ciphertext::fromBytes(ciphertextBytes, false);
+    
+    // Validate with correct AAD
+    std::vector<std::vector<uint8_t>> aadVec{aad};
+    auto result = core.validateCiphertexts(ciphertext.keys, &aadVec);
+    CATCH_REQUIRE(result.allValid);
+    CATCH_REQUIRE(result.validationResults[0]);
+    CATCH_REQUIRE(result.publicDecryptionValues.size() == 1);
+    
+    // Validate with wrong AAD should fail
+    std::vector<uint8_t> wrongAad{0xFF, 0xFF, 0xFF, 0xFF};
+    std::vector<std::vector<uint8_t>> wrongAadVec{wrongAad};
+    result = core.validateCiphertexts(ciphertext.keys, &wrongAadVec);
+    CATCH_REQUIRE_FALSE(result.allValid);
+    CATCH_REQUIRE_FALSE(result.validationResults[0]);
+    
+    // Validate without AAD should also fail (encrypted with AAD, validated without)
+    result = core.validateCiphertexts(ciphertext.keys, nullptr);
+    CATCH_REQUIRE_FALSE(result.allValid);
+}
+
+
+CATCH_TEST_CASE("BiteCore validateCiphertexts with partial AAD", "[bite][core][aad][partial]") {
+    BiteCore core;
+    
+    // Create ciphertexts: first 2 with AAD, last 2 without
+    std::vector<uint8_t> message{0x01, 0x02};
+    std::vector<uint8_t> aad1{0x11, 0x11, 0x11};
+    std::vector<uint8_t> aad2{0x22, 0x22, 0x22};
+    
+    libBLS::EncryptMetaData meta1;
+    meta1.associatedDataTE = aad1;
+    auto cipher1 = libBLS::ThresholdEncryption::encrypt(
+        message, libBLS::TEPublicKey::random(), meta1).keys[0];
+    
+    libBLS::EncryptMetaData meta2;
+    meta2.associatedDataTE = aad2;
+    auto cipher2 = libBLS::ThresholdEncryption::encrypt(
+        message, libBLS::TEPublicKey::random(), meta2).keys[0];
+    
+    // Ciphertexts without AAD
+    auto cipher3 = libBLS::ThresholdEncryption::encrypt(
+        message, libBLS::TEPublicKey::random()).keys[0];
+    auto cipher4 = libBLS::ThresholdEncryption::encrypt(
+        message, libBLS::TEPublicKey::random()).keys[0];
+    
+    std::vector<libBLS::CipheredKey> allCiphers{cipher1, cipher2, cipher3, cipher4};
+    
+    // Partial AAD: only first 2 entries
+    std::vector<std::vector<uint8_t>> partialAad{aad1, aad2};
+    
+    auto result = core.validateCiphertexts(allCiphers, &partialAad);
+    CATCH_REQUIRE(result.allValid);
+    CATCH_REQUIRE(result.validationResults.size() == 4);
+    for (size_t i = 0; i < 4; i++) {
+        CATCH_REQUIRE(result.validationResults[i]);
+    }
+    CATCH_REQUIRE(result.publicDecryptionValues.size() == 4);
+}
+
+
+CATCH_TEST_CASE("BiteCore encryptData with AAD produces different ciphertext", "[bite][core][aad]") {
+    BiteCore core;
+    
+    std::vector<uint8_t> message{0x01, 0x02, 0x03, 0x04};
+    std::vector<uint8_t> aad{0xDE, 0xAD, 0xBE, 0xEF};
+    
+    auto keys = generateKeys(1, 1);
+    
+    // Encrypt without AAD
+    auto ciphertextNoAad = core.encryptData(keys.commonPublic, message);
+    
+    // Encrypt with AAD
+    auto ciphertextWithAad = core.encryptData(keys.commonPublic, message, aad);
+    
+    // Both should be non-empty and have same structure
+    CATCH_REQUIRE_FALSE(ciphertextNoAad.empty());
+    CATCH_REQUIRE_FALSE(ciphertextWithAad.empty());
+    
+    // Parse and validate - ciphertext with AAD should only validate with AAD
+    auto teNoAad = libBLS::Ciphertext::fromBytes(ciphertextNoAad, false);
+    auto teWithAad = libBLS::Ciphertext::fromBytes(ciphertextWithAad, false);
+    
+    // Validate without AAD - should pass for first, fail for second
+    std::vector<libBLS::CipheredKey> keysVec{teNoAad.keys[0]};
+    auto result = core.validateCiphertexts(keysVec, nullptr);
+    CATCH_REQUIRE(result.allValid);
+    
+    std::vector<libBLS::CipheredKey> keysVec2{teWithAad.keys[0]};
+    result = core.validateCiphertexts(keysVec2, nullptr);
+    CATCH_REQUIRE_FALSE(result.allValid);
+    
+    // Validate with AAD - should pass for second
+    std::vector<std::vector<uint8_t>> aadVec{aad};
+    result = core.validateCiphertexts(keysVec2, &aadVec);
+    CATCH_REQUIRE(result.allValid);
+}
+
 #endif

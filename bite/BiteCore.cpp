@@ -3,10 +3,14 @@
 #include "libBLS/threshold_encryption/threshold_encryption.h"
 
 std::vector<uint8_t> BiteCore::encryptData( const libBLS::TEPublicKey& _key, 
-    const std::vector<uint8_t>& _plainData ) const {
+    const std::vector<uint8_t>& _plainData, const std::optional<std::vector<uint8_t>>& _aadTE ) const {
 
     if (doRealCrypto) {
-        auto cipherText = libBLS::ThresholdEncryption::encrypt(_plainData, _key);
+        libBLS::EncryptMetaData metaData;
+        if (_aadTE) {
+            metaData.associatedDataTE = *_aadTE;
+        }
+        auto cipherText = libBLS::ThresholdEncryption::encrypt(_plainData, _key, metaData);
         return cipherText.toBytes();
     }
     else {
@@ -27,12 +31,13 @@ std::vector<uint8_t> BiteCore::decryptData( const libBLS::AES256Key& _aesKey,
 }
 
 BiteCore::CiphertextValidationResult BiteCore::validateCiphertexts(
-    const std::vector< libBLS::CipheredKey >& ciphertexts) const {
+    const std::vector< libBLS::CipheredKey >& ciphertexts,
+    const std::vector<std::vector<uint8_t>>* _aadTE) const {
 
     CiphertextValidationResult result;
 
-    // validate all in parallel
-    result.validationResults = libBLS::ThresholdEncryption::validateEncryptionBatchParallel( ciphertexts );
+    // validate all in parallel, passing AAD if provided
+    result.validationResults = libBLS::ThresholdEncryption::validateEncryptionBatchParallel(ciphertexts, _aadTE);
 
     // true only if all validations passed
     result.allValid = std::all_of(result.validationResults.begin(), result.validationResults.end(),

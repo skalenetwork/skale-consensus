@@ -140,7 +140,7 @@ public:
      *      ),
      * ]
      */
-    ptr<vector<uint8_t> > generateEncryptedCATData(uint64_t epochId);
+    ptr<vector<uint8_t> > generateEncryptedCATData(uint64_t epochId, const std::optional<AddressBytes>& scAddressAadTE = std::nullopt);
 
     /**
      * @brief Generates a CAT transaction with no encrypted arguments (empty ciphertexts).

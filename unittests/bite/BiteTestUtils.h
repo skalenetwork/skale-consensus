@@ -107,6 +107,44 @@ inline std::shared_ptr<Transaction> buildBite2Transaction(
     auto encoded = EthTransactionEncoder::signAndEncodeTx(tx);
     return std::make_shared<Transaction>(encoded, false);
 }
+
+// Variant with custom SC address for AAD testing
+inline std::shared_ptr<Transaction> buildBite2TransactionWithScAddress(
+    const std::vector<std::vector<uint8_t>>& encryptedArgsPlaintext,
+    const std::vector<std::vector<uint8_t>>& plainArgs,
+    uint64_t epoch,
+    const libBLS::TEPublicKey& tePublicKey,
+    const std::vector<uint8_t>& scAddress,
+    bool useRealCrypto = false) {
+    ensureLibBLSInitialized();
+
+    BiteCore core;
+    core.doRealCrypto = useRealCrypto;
+
+    // encrypt all args
+    std::vector<std::vector<uint8_t>> serializedEncryptedArgs;
+    serializedEncryptedArgs.reserve(encryptedArgsPlaintext.size());
+
+    for (const auto& arg : encryptedArgsPlaintext) {
+        auto ciphertext = libBLS::ThresholdEncryption::encrypt(arg, tePublicKey);
+        auto epochedData = BiteCodec::encodeEpochedBiteData(
+            ciphertext.toBytes(), epoch
+        );
+        serializedEncryptedArgs.emplace_back(epochedData);
+    }
+
+    // build CAT data field
+    auto dataField = BiteCodec::encodeCATData(serializedEncryptedArgs, plainArgs);
+
+    // generate sample tx with custom SC address
+    auto tx = EthTransactionEncoder::generateSampleTx();
+    tx->to = scAddress;
+    tx->data = dataField;
+
+    // encode and return transaction
+    auto encoded = EthTransactionEncoder::signAndEncodeTx(tx);
+    return std::make_shared<Transaction>(encoded, false);
+}
 #endif
 
 // Helper to create a valid CryptoManager with necessary dependencies for tests

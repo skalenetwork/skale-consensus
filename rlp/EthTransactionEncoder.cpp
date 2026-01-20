@@ -126,12 +126,24 @@ void EthTransactionEncoder::encryptRegularTransaction(std::unique_ptr<EthTransac
 
 void EthTransactionEncoder::encryptCATTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
     uint64_t epochId = 0;
-    auto catData = _biteManager->generateEncryptedCATData(epochId);
+    
+    std::optional<AddressBytes> scAddressAadTE = std::nullopt;
+    if (tx->to.size() == 20) {
+        AddressBytes addr;
+        std::copy(tx->to.begin(), tx->to.end(), addr.begin());
+        scAddressAadTE = addr;
+    }
+
+    auto catData = _biteManager->generateEncryptedCATData(epochId, scAddressAadTE);
     tx->data = *catData;
 }
 
 void EthTransactionEncoder::encryptEmptyCATTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
     uint64_t epochId = 0;
+    // Empty CAT also has SC address AAD if needed (though empty CATs usually don't have encrypted args needing AAD validation on decryption of args, 
+    // but BiteEngine::buildCATData might be used if we change logic. 
+    // Currently generateEmptyCATData doesn't call buildCATData with encryption, so maybe no change needed there?)
+    // Let's check generateEmptyCATData implementation.
     auto catData = _biteManager->generateEmptyCATData(epochId);
     tx->data = *catData;
 }

@@ -134,7 +134,8 @@ public:
     std::vector<uint8_t> buildCATData(
         const libBLS::TEPublicKey& key,
         size_t numberOfCiphertexts,
-        uint64_t epochId
+        uint64_t epochId,
+        const std::optional<AddressBytes>& scAddressAadTE = std::nullopt
     ) const;
 
 #endif

@@ -283,24 +283,19 @@ ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data
 }
 
 #ifdef BITE2
-ptr<vector<uint8_t> > BiteManager::generateEncryptedCATData(uint64_t epochId) {
-    static size_t numberOfCiphertexts = 2;
-
-    // Keep ciphertext count between 2 and 5 (inclusive)
-    numberOfCiphertexts++;
-    if (numberOfCiphertexts % 6 == 0) {
-        numberOfCiphertexts = 2;
-    }
+ptr<vector<uint8_t>> BiteManager::generateEncryptedCATData(uint64_t epochId, const std::optional<AddressBytes>& scAddressAadTE) {
+    constexpr size_t numberOfCiphertexts = 2;
 
     if (biteEngine.usingRealCrypto()) {
         auto [primaryKey, secondaryKey] = schain.getCryptoManager()->getSgxBlsPublicKey();
         CHECK_STATE(primaryKey);
         auto blsKey = primaryKey->getPublicKey();
         libBLS::TEPublicKey teKey(blsKey);
-        return std::make_shared<vector<uint8_t>>(biteEngine.buildCATData(teKey, numberOfCiphertexts, epochId));
+        return std::make_shared<vector<uint8_t>>(biteEngine.buildCATData(teKey, numberOfCiphertexts, epochId, scAddressAadTE));
     }
 
     // mock path: build ciphertexts using mockup encryption + epoch wrapping
+    // Note: mockup path does not use AAD since mockupEncrypt doesn't support it
     std::vector<std::vector<uint8_t>> encryptedSerializedArgs;
     encryptedSerializedArgs.reserve(numberOfCiphertexts);
     for (size_t i = 0; i < numberOfCiphertexts; ++i) {

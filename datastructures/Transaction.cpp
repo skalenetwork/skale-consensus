@@ -215,6 +215,16 @@ void Transaction::setCATEncryptedArgs( ptr<std::vector<ptr<BiteCiphertext>>> _bi
     // thread safe
     std::atomic_store(&parsedEncryptedCATArgs, _biteDataField);
 }
+
+void Transaction::setScAddressAadTE( const AddressBytes& _scAddressAadTE ) {
+    auto address = make_shared<AddressBytes>(_scAddressAadTE);
+    std::atomic_store(&scAddressAadTE, address);
+}
+
+ptr<AddressBytes> Transaction::getScAddressAadTE() {
+    return std::atomic_load(&scAddressAadTE);
+}
+
 #endif
 
 #endif

@@ -1172,6 +1172,32 @@ CATCH_TEST_CASE("BiteEngine decrypts only CAT with empty ciphertexts", "[bite][e
     CATCH_REQUIRE(it->second->args.empty());
 }
 
+CATCH_TEST_CASE("BiteEngine tryGetEncryptedCATArgs caches SC address as AAD", "[bite][engine][cat][aad]") {
+    const uint64_t epoch = 20;
+    auto keys = generateKeys(1, 1);
+    
+    // Build CAT transaction with specific SC address
+    std::vector<uint8_t> scAddress(ADDRESS_SIZE, 0x42);
+    
+    auto catTx = buildBite2TransactionWithScAddress(
+        { {0x01, 0x02} },
+        { {0xAA} },
+        epoch,
+        keys.commonPublic,
+        scAddress
+    );
+    
+    // First call should parse and cache
+    auto args = BiteEngine::tryGetEncryptedCATArgs(catTx, epoch);
+    CATCH_REQUIRE(args != nullptr);
+    CATCH_REQUIRE(!args->empty());
+    
+    // Verify SC address was cached in transaction
+    auto cachedScAddr = catTx->getScAddressAadTE();
+    CATCH_REQUIRE(cachedScAddr != nullptr);
+    CATCH_REQUIRE(std::vector<uint8_t>(cachedScAddr->begin(), cachedScAddr->end()) == scAddress);
+}
+
 #endif // BITE2
 
 #endif // BITE

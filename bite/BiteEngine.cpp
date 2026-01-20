@@ -52,9 +52,10 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCATArgs(
     CHECK_STATE(_transaction);
 
     auto encryptedCATArgs = _transaction->getCATEncryptedArgs();
+    auto scAddressAadTE = _transaction->getScAddressAadTE();
 
     // if not cached - try to parse it
-    if (!encryptedCATArgs) {
+    if (!encryptedCATArgs || !scAddressAadTE) {
 
         // if not set bite data already - try parse it
         auto ethTx = _transaction->getAsEthereumTransaction();
@@ -63,7 +64,25 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCATArgs(
         CHECK_STATE(dataField);
 
         encryptedCATArgs = BiteCodec::tryParseEncryptedCATArgs(*dataField, _currentEpochId);
-        _transaction->setCATEncryptedArgs(encryptedCATArgs); // cache it   
+        
+        if (encryptedCATArgs) {
+            // fetch & cache 'to' field - scAddress used as AAD for TE validation phases
+            auto toField = ethTx->getToField();
+            CHECK_STATE(toField);
+            CHECK_STATE2(toField->size() == sizeof(AddressBytes), 
+                "CAT transaction 'to' field must be exactly 20 bytes");
+            
+            AddressBytes toFieldBytes;
+            std::copy(toField->begin(), toField->end(), toFieldBytes.begin());
+
+            // only cache after both are successfully parsed
+            _transaction->setScAddressAadTE(toFieldBytes);
+            _transaction->setCATEncryptedArgs(encryptedCATArgs);
+            
+            // Fetch the cached values to return
+            encryptedCATArgs = _transaction->getCATEncryptedArgs();
+            scAddressAadTE = _transaction->getScAddressAadTE();
+        }
     }
     return encryptedCATArgs;
 }
@@ -89,7 +108,11 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
             auto catArgs = BiteEngine::tryGetEncryptedCATArgs(tx, runtimeCtx.currentEpoch);
 
             if (catArgs) {
-                auto txCiphertexts = make_shared<TransactionCiphertexts>(*catArgs);
+                // Fetch the cached SC address for AAD
+                auto scAddressAadTE = tx->getScAddressAadTE();
+                std::optional<AddressBytes> scAddrOpt = scAddressAadTE ? std::make_optional(*scAddressAadTE) : std::nullopt;
+                
+                auto txCiphertexts = make_shared<TransactionCiphertexts>(*catArgs, scAddrOpt);
                 result.txsCiphertexts.emplace(i, txCiphertexts);
             } else {
                 // the first non-CAT transaction indicates the start of regular transactions
@@ -167,6 +190,11 @@ BiteEngine::CiphertextValidationResult BiteEngine::validateCiphertexts(const Tra
     std::vector< libBLS::CipheredKey > cipheredKeys;
     cipheredKeys.reserve(txsCiphertexts.totalCiphertextCount());
 
+    // AAD vector aligned with cipheredKeys - empty vector means no AAD for that ciphertext
+    std::vector<std::vector<uint8_t>> aadTE;
+    aadTE.reserve(txsCiphertexts.totalCiphertextCount());
+    bool hasAnyAAD = false;
+
     // Track only transactions that successfully parsed, preserving order with cipheredKeys
     std::vector<std::pair<transaction_index, size_t>> parsedTxs;
     size_t expectedValidationResults = 0;
@@ -179,6 +207,19 @@ BiteEngine::CiphertextValidationResult BiteEngine::validateCiphertexts(const Tra
             appendCiphertextsToVector(ciphertexts, cipheredKeys, failingIdx);
             parsedTxs.emplace_back(idx, ciphertexts->count());
             expectedValidationResults += ciphertexts->count();
+
+            // Build AAD only for CAT transactions - regular txs don't need AAD entries
+            if (ciphertexts->isCAT()) {
+                const auto& scAddr = ciphertexts->getScAddressAadTE();
+                CHECK_STATE(scAddr.has_value());
+                std::vector<uint8_t> aadBytes(scAddr->begin(), scAddr->end());
+                // same AAD for all ciphertexts in this transaction
+                for (size_t i = 0; i < ciphertexts->count(); ++i) {
+                    aadTE.push_back(aadBytes);
+                }
+                hasAnyAAD = true;
+            }
+            // Regular transactions don't need AAD entries - libBLS handles partial AAD
         }
         catch (exception &_e) {
             engineResult.invalidCiphertextIndices.push_back(idx);
@@ -187,7 +228,9 @@ BiteEngine::CiphertextValidationResult BiteEngine::validateCiphertexts(const Tra
     }
 
     // From the successfully built CipheredKey vector, validate ciphertexts
-    BiteCore::CiphertextValidationResult coreResult = core.validateCiphertexts(cipheredKeys);
+    // Pass AAD only if we have at least one CAT transaction
+    BiteCore::CiphertextValidationResult coreResult = core.validateCiphertexts(
+        cipheredKeys, hasAnyAAD ? &aadTE : nullptr);
     CHECK_STATE(coreResult.validationResults.size() == expectedValidationResults);
 
     if (!coreResult.allValid) {
@@ -314,11 +357,25 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
                 std::vector<bool> allSharesFromNodeAreValid;
                 allSharesFromNodeAreValid.resize(config.totalSigners, true);
 
+                // Prepare AAD for CAT transactions
+                const auto& txCiphertexts = _txCiphertexts.at(txId);
+                const std::vector<std::vector<uint8_t>>* aadPtr = nullptr;
+                std::vector<std::vector<uint8_t>> aadVec;
+                
+                if (txCiphertexts->isCAT()) {
+                    const auto& scAddr = txCiphertexts->getScAddressAadTE();
+                    CHECK_STATE(scAddr.has_value());
+                    // Single element - same AAD for the one ciphertext validated per call
+                    aadVec.push_back(std::vector<uint8_t>(scAddr->begin(), scAddr->end()));
+                    aadPtr = &aadVec;
+                }
+
                 for (size_t ciphertextId = 0; ciphertextId < numberOfCiphertexts; ++ciphertextId) {
                     std::vector<libBLS::CipheredKey> cipheredKeys{ encryptions.at(txId).at(ciphertextId) };
 
                     auto result = libBLS::ThresholdEncryption::validateDecryptionSharesBatch(
-                            cipheredKeys, teShares.at(ciphertextId), publicKeys.at(ciphertextId));
+                            cipheredKeys, teShares.at(ciphertextId), publicKeys.at(ciphertextId),
+                            aadPtr);
 
                     for (size_t shareId = 0; shareId < result.size(); ++shareId) {
                         if (!result[shareId]) {
@@ -549,14 +606,21 @@ std::vector<uint8_t> BiteEngine::buildRegularTxData(
 std::vector<uint8_t> BiteEngine::buildCATData(
     const libBLS::TEPublicKey& key,
     size_t numberOfCiphertexts,
-    uint64_t epochId
+    uint64_t epochId,
+    const std::optional<AddressBytes>& scAddressAadTE
 ) const {
     std::vector<std::vector<uint8_t>> encryptedSerializedArgs;
     encryptedSerializedArgs.reserve(numberOfCiphertexts);
 
+    // Convert AddressBytes to vector<uint8_t> for AAD if present
+    std::optional<std::vector<uint8_t>> aadVec = std::nullopt;
+    if (scAddressAadTE) {
+        aadVec = std::vector<uint8_t>(scAddressAadTE->begin(), scAddressAadTE->end());
+    }
+
     for (size_t i = 0; i < numberOfCiphertexts; ++i) {
         std::vector<uint8_t> rndData(numberOfCiphertexts * 10);
-        auto encryptedData = core.encryptData(key, rndData);
+        auto encryptedData = core.encryptData(key, rndData, aadVec);
 
         encryptedSerializedArgs.push_back(
             BiteCodec::encodeEpochedBiteData(encryptedData, epochId)
