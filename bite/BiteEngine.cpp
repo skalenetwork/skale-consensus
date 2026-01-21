@@ -371,8 +371,7 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
                 }
 
                 for (size_t ciphertextId = 0; ciphertextId < numberOfCiphertexts; ++ciphertextId) {
-                    std::vector<libBLS::CipheredKey> cipheredKeys;
-                    cipheredKeys.push_back( encryptions->at(txId).at(ciphertextId) );
+                    std::vector<libBLS::CipheredKey> cipheredKeys{ encryptions.at(txId).at(ciphertextId) };
 
                     auto result = libBLS::ThresholdEncryption::validateDecryptionSharesBatch(
                             cipheredKeys, teShares.at(ciphertextId), publicKeys.at(ciphertextId),
@@ -447,6 +446,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
         const DecryptedAESKeyList &_aesKeys,
         BiteRuntimeContext& runtimeCtx
 ) const {
+ 
     auto decryptedFieldsMap = std::make_shared<DecryptedRegularTxsMap>();
     auto regularTxMapMutex = std::make_shared<std::mutex>();
     

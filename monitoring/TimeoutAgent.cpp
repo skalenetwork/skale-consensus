@@ -37,7 +37,7 @@
 
 #include "utils/Time.h"
 
-TimeoutAgent::TimeoutAgent( Schain& _sChain ) : Agent( _sChain, true, true ) {
+TimeoutAgent::TimeoutAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
         this->sChain = &_sChain;
         this->timeoutThreadPool = make_shared< TimeoutThreadPool >( 1, this );
