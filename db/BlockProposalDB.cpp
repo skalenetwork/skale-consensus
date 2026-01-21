@@ -121,6 +121,10 @@ void BlockProposalDB::addProposalToCacheIfDoesNotExist( const ptr< BlockProposal
         }
 
         proposalCaches->at( ( uint64_t ) proposerIndex - 1 ) = _proposal;
+        LOG(trace, "ADDED PROPOSAL FOR BLOCK " + std::to_string((uint64_t)_proposal->getBlockID()) + std::string(" AND PROPOSER ") + std::to_string((uint64_t)proposerIndex));
+        if (!_proposal) {
+            LOG(trace, "ADDED NULL PROPOSAL");
+        }
     }
 }
 void BlockProposalDB::serializeProposalAndSaveItToLevelDB( const ptr< BlockProposal > _proposal ) {
@@ -181,6 +185,8 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
             if ( cachedProposal->getBlockID() == ( uint64_t ) _blockID ) {
                 return cachedProposal;
             }
+        } else {
+            LOG(trace, "FOUND NULL PROPOSAL FOR BLOCK " + std::to_string((uint64_t)_blockID) + std::string(" AND PROPOSER ") + std::to_string((uint64_t)_proposerIndex));
         }
     }
 
@@ -241,7 +247,7 @@ void BlockProposalDB::cleanupUnneededMemoryBeforePushingToEvm(
     for ( uint64_t i = 0; i < proposalCaches->size(); i++ ) {
         auto cachedProposal = proposalCaches->at( i );
         if ( cachedProposal ) {
-            if ( ( cachedProposal->getProposerIndex() != proposerIndex ) ||
+            if ( ( cachedProposal->getProposerIndex() != proposerIndex ) &&
                  ( cachedProposal->getBlockID() <= blockId ) ) {
                 proposalCaches->at( i ) = nullptr;
             }

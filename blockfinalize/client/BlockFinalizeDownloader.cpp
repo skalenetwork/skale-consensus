@@ -76,6 +76,7 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
       fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
 #ifdef BITE
     needFragmentData = !getSchain()->haveProposal(_blockId, _proposerIndex);
+    LOG(trace, "NEED FRAGMENT DATA FOR BLOCK " + std::to_string((uint64_t)_blockId) + std::string(" AND PROPOSER ") + std::to_string((uint64_t)_proposerIndex) + std::string(": ") + std::to_string(needFragmentData));
 #endif
 
     CHECK_ARGUMENT(_sChain)
@@ -117,7 +118,10 @@ void BlockFinalizeDownloader::downloadFragment(
     }
 
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+    LOG(trace, "NEED DAPROOF FOR BLOCK " + std::to_string((uint64_t)blockId) + std::string(": ") + std::to_string(needDAProof()));
+    LOG(trace, "NEED DECRYPTION SHARES FOR BLOCK " + std::to_string((uint64_t)blockId) + std::string(" AND NODE ") + std::to_string((uint64_t)_dstIndex) + std::string(": ") + std::to_string(needDecryptionShares(_dstIndex)));
+
 
 
     auto header = make_shared<BlockFinalizeRequestHeader>(
