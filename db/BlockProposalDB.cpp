@@ -241,8 +241,8 @@ void BlockProposalDB::cleanupUnneededMemoryBeforePushingToEvm(
     for ( uint64_t i = 0; i < proposalCaches->size(); i++ ) {
         auto cachedProposal = proposalCaches->at( i );
         if ( cachedProposal ) {
-            if ( ( cachedProposal->getProposerIndex() != proposerIndex ) &&
-                 ( cachedProposal->getBlockID() <= blockId ) ) {
+            if ( ( cachedProposal->getProposerIndex() != proposerIndex ) ||
+                 ( cachedProposal->getBlockID() < blockId ) ) {
                 proposalCaches->at( i ) = nullptr;
             }
         }
