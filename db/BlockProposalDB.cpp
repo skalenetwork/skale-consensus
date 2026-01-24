@@ -242,7 +242,7 @@ void BlockProposalDB::cleanupUnneededMemoryBeforePushingToEvm(
         auto cachedProposal = proposalCaches->at( i );
         if ( cachedProposal ) {
             if ( ( cachedProposal->getProposerIndex() != proposerIndex ) ||
-                 ( cachedProposal->getBlockID() <= blockId ) ) {
+                 ( cachedProposal->getBlockID() < blockId ) ) {
                 proposalCaches->at( i ) = nullptr;
             }
         }
