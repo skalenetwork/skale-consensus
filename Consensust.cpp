@@ -59,6 +59,22 @@
 
 ConsensusEngine* engine;  // definition
 
+namespace {
+    
+// Ensure that ConsensusEngine logging is initialized before any tests are run
+class ConsensusLogFixture : public Catch::TestEventListenerBase {
+public:
+    using Catch::TestEventListenerBase::TestEventListenerBase;
+
+    void testCaseStarting( const Catch::TestCaseInfo& ) override {
+        ConsensusEngine::ensureConfigLogger();
+    }
+};
+
+CATCH_REGISTER_LISTENER( ConsensusLogFixture )
+
+}  // namespace
+
 uint64_t Consensust::getRunningTimeS() {
     if ( runningTimeS == 0 ) {
         auto env = getenv( "TEST_TIME_S" );

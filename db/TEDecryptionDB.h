@@ -34,6 +34,7 @@ class TEDecryptionDB : public CacheLevelDB {
 public:
     explicit TEDecryptionDB(
         Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
+    ~TEDecryptionDB();
 
     void addDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 

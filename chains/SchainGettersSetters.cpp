@@ -254,6 +254,8 @@ uint64_t Schain::getMaxExternalBlockProcessingTime() const {
 
 void Schain::joinMonitorAndTimeoutThreads() {
     CHECK_STATE( monitoringAgent );
+    // monitoring agent relies on condVar - needs to be stopped first
+    monitoringAgent->stop();
     monitoringAgent->join();
 
     if ( getNode()->isSyncOnlyNode() )

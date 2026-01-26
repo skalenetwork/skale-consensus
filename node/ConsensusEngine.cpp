@@ -216,6 +216,23 @@ void ConsensusEngine::setConfigLogLevel( string& _s ) {
     configLogger->set_level( configLogLevel );
 }
 
+void ConsensusEngine::ensureConfigLogger() {
+    LOCK( logMutex )
+
+    if ( configLogger ) {
+        return;
+    }
+
+    auto logger = spdlog::get( "config" );
+    if ( !logger ) {
+        logger = spdlog::stdout_color_mt( "config", spdlog::color_mode::never );
+        logger->flush_on( debug );
+    }
+
+    logger->set_pattern( "%+", spdlog::pattern_time_type::utc );
+    configLogger = logger;
+}
+
 void ConsensusEngine::logConfig(
     level_enum _severity, const string& _message, const string& _className ) {
     CHECK_STATE( configLogger != nullptr );

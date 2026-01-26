@@ -51,7 +51,6 @@
 
 StuckDetectionAgent::StuckDetectionAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
         // we only need one agent
         this->stuckDetectionThreadPool = make_shared< StuckDetectionThreadPool >( 1, this );
@@ -66,6 +65,7 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
     setThreadName( "StuckDetectionLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
 
     CONS_LOG( info, "StuckDetection agent: started monitoring." );
 

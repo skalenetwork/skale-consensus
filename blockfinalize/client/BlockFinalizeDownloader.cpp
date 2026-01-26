@@ -83,8 +83,6 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
     CHECK_STATE(_sChain->getNodeCount() > 1)
 
     try {
-        logThreadLocal_ = _sChain->getNode()->getLog();
-
         CHECK_STATE(sChain)
     } catch (ExitRequestedException &) {
         throw;
@@ -462,6 +460,8 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     setThreadName("BlckFinLoop", node->getConsensusEngine());
 
     node->waitOnGlobalClientStartBarrier();
+
+    logThreadLocal_ = node->getLog();
 
     auto fragmentToDownload = computeFirstFragmentToDowload(_dstIndex, mySchainIndex);
 
