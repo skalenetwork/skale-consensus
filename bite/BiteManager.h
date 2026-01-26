@@ -64,7 +64,7 @@ public:
      * If parsing is successful - returns vector of BiteCiphertext objects, else returns 'nullopt'
      * @throws if it matches the function selector but fails to parse the rest of the data
      */
-    static ptr<std::vector<ptr<BiteCiphertext>>> tryGetEncryptedCATArgs(
+    static std::pair< ptr<std::vector<ptr<BiteCiphertext>>>, ptr<AddressBytes> > tryGetEncryptedCATArgs(
             const ptr<Transaction> &_transaction, epoch_id _currentEpochId);
 #endif
 
@@ -132,6 +132,7 @@ public:
 #ifdef BITE2
     /**
      * @brief Encrypts CAT function arguments using BITE2 scheme.
+     * @param _scAddressAadTE - Smart contract address used as AAD for TE validation (real crypto only)
      * @param _data - Returned data follows the format:
      * [
      *      funcSelector,  // 4 bytes
@@ -141,7 +142,7 @@ public:
      *      ),
      * ]
      */
-    [[nodiscard]] ptr<vector<uint8_t> > generateEncryptedCATData();
+    [[nodiscard]] ptr<vector<uint8_t> > generateEncryptedCATData(const AddressBytes& _scAddressAadTE);
     
     /**
      * @brief Generates a CAT transaction with no encrypted arguments (empty ciphertexts).
@@ -160,7 +161,8 @@ private:
     // Parses decrypted data as a set of CAT function arguments
     DecryptedCATArgs parseDecryptedDataAsCATArgs(const vector<uint8_t> &_data) const;
 
-    ptr<vector<uint8_t>> encryptData(const vector<uint8_t>& data);
+    ptr<vector<uint8_t>> encryptData(const vector<uint8_t>& data,
+        const std::optional<std::vector<uint8_t>>& _aadTE = std::nullopt);
 
     void stopAndDestroyThreadPoolExecutor();
 
