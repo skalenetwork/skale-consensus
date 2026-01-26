@@ -127,8 +127,6 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
     setThreadName( name, getSchain()->getNode()->getConsensusEngine() );
 
     waitOnGlobalStartBarrier();
-
-    logThreadLocal_ = getSchain()->getNode()->getLog();
     logThreadLocal_ = getSchain()->getNode()->getLog();
 
     struct sockaddr_in clientAddress;
