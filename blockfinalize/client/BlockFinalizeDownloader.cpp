@@ -461,6 +461,8 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
 
     node->waitOnGlobalClientStartBarrier();
 
+    logThreadLocal_ = node->getLog();
+
     auto fragmentToDownload = computeFirstFragmentToDowload(_dstIndex, mySchainIndex);
 
     // we keep running the download loop until everything has been downloaded

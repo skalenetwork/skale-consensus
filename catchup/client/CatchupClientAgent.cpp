@@ -300,6 +300,7 @@ void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) 
     CHECK_ARGUMENT( _agent )
 
     _agent->waitOnGlobalStartBarrier();
+    logThreadLocal_ = _agent->getNode()->getLog();
 
     // wait until the schain state is fully initialized
     // otherwise the chain can not accept catchup blocks

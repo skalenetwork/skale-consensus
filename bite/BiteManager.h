@@ -131,6 +131,7 @@ public:
 #ifdef BITE2
     /**
      * @brief Encrypts CAT function arguments using BITE2 scheme.
+     * @param _scAddressAadTE - Smart contract address used as AAD for TE validation (real crypto only)
      * @param _data - Returned data follows the format:
      * [
      *      funcSelector,  // 4 bytes

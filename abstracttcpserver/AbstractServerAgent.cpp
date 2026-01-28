@@ -83,6 +83,8 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop( void* _params ) 
 
     server->waitOnGlobalStartBarrier();
 
+    logThreadLocal_ = server->getSchain()->getNode()->getLog();
+
     CONS_LOG( trace, "Started server loop" );
 
     while ( !server->getNode()->isExitRequested() ) {
@@ -125,6 +127,7 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
     setThreadName( name, getSchain()->getNode()->getConsensusEngine() );
 
     waitOnGlobalStartBarrier();
+    logThreadLocal_ = getSchain()->getNode()->getLog();
 
     struct sockaddr_in clientAddress;
     socklen_t sizeOfClientAddress = sizeof( clientAddress );

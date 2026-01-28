@@ -167,7 +167,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
 
     WRITE_LOCK(decryptionSetsMutex);
 
-    // nodeId -> decryption shares (each may hold decryption shares for multiple ciphertexts)
+    // nodeId -> decryption shares
     map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareMap =
         decryptionsStore[_blockId];
 

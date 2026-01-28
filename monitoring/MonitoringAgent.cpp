@@ -144,6 +144,13 @@ void MonitoringAgent::unregisterMonitor( uint64_t _id ) {
     activeMonitors.erase( _id );
 }
 
+void MonitoringAgent::stop() {
+    {
+        std::lock_guard< std::mutex > lock( stopMutex );
+        stopRequested = true;
+    }
+    stopCond.notify_all();
+}
 
 void MonitoringAgent::stop() {
     {
