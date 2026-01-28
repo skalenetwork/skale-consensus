@@ -346,37 +346,6 @@ Schain::~Schain() {
     }
 }
 
-Schain::~Schain() {
-
-    auto n = node.lock();
-    if ( n ) {
-        // Signal all agent threads to exit their loops
-        n->exitRequested = true;
-
-        // Release barriers so threads blocked on waitOnGlobalStartBarrier() can wake up.
-        // This is a no-op if barriers were already released by startServers().
-        n->releaseGlobalServerBarrier();
-        n->releaseGlobalClientBarrier();
-    }
-
-    // MonitoringAgent requires explicit stop() because it uses a condition_variable
-    // for sleeping, not the global start barrier. The stop() signals the condition
-    // variable to wake up immediately rather than waiting for the sleep interval.
-    if ( monitoringAgent ) {
-        monitoringAgent->stop();
-        monitoringAgent->join();
-    }
-
-    // TimeoutAgent and StuckDetectionAgent will exit their loops once they detect
-    // exitRequested is true (checked after barrier wait and in their main loops).
-    if ( timeoutAgent ) {
-        timeoutAgent->join();
-    }
-    if ( stuckDetectionAgent ) {
-        stuckDetectionAgent->join();
-    }
-}
-
 // called from constructor so no locks needed
 void Schain::constructChildAgents() {
     MONITOR(__CLASS_NAME__, __FUNCTION__)

@@ -63,7 +63,6 @@ StuckDetectionAgent::StuckDetectionAgent( Schain& _sChain ) : Agent( _sChain, fa
 
 void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
-    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
     setThreadName( "StuckDetectionLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
     logThreadLocal_ = _agent->getSchain()->getNode()->getLog();

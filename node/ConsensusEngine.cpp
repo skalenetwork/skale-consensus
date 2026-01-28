@@ -606,8 +606,7 @@ std::string ConsensusEngine::exec( const char* cmd ) {
 
     std::array< char, 128 > buffer;
     std::string result;
-    auto pcloseDeleter = []( FILE* f ) { return pclose( f ); };
-    std::unique_ptr< FILE, decltype( pcloseDeleter ) > pipe( popen( cmd, "r" ), pcloseDeleter );
+    std::unique_ptr< FILE, decltype( &pclose ) > pipe( popen( cmd, "r" ), pclose );
     if ( !pipe ) {
         BOOST_THROW_EXCEPTION( std::runtime_error( "popen() failed!" ) );
     }
@@ -1158,12 +1157,12 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     auto timeStampMs = committedBlock->getTimeStampMs();
     auto stateRoot = committedBlock->getStateRoot();
     auto currentPrice = schain->getPriceForBlockId( ( uint64_t ) committedBlock->getBlockID() - 1 );
-    auto tv = committedBlock->getTransactionList()->createTransactionVector(
+    auto tv = committedBlock->getTransactionList()->createTransactionVector( 
 #ifdef BITE2
         schain->getBiteManager()
-#endif
+#endif 
     );
-    return std::make_tuple(tv, timeStampS, timeStampMs, currentPrice, stateRoot);
+    return { tv, timeStampS, timeStampMs, currentPrice, stateRoot };
 }
 
 #ifdef BITE

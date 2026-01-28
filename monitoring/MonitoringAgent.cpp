@@ -79,8 +79,8 @@ void MonitoringAgent::monitor() {
 
             if ( currentTime > monitor->getExpiryTime() ) {
                 CONS_LOG( warn, monitor->toString()
-                                    << " has been stuck for "
-                                    << to_string( currentTime - monitor->getStartTime() ) + " ms" );
+                               << " has been stuck for "
+                               << to_string( currentTime - monitor->getStartTime() ) + " ms" );
             }
         }
     }
@@ -142,14 +142,6 @@ void MonitoringAgent::registerMonitor( const ptr< LivelinessMonitor >& _m ) {
 void MonitoringAgent::unregisterMonitor( uint64_t _id ) {
     LOCK( monitorsMutex )
     activeMonitors.erase( _id );
-}
-
-void MonitoringAgent::stop() {
-    {
-        std::lock_guard< std::mutex > lock( stopMutex );
-        stopRequested = true;
-    }
-    stopCond.notify_all();
 }
 
 void MonitoringAgent::stop() {

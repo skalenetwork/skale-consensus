@@ -75,7 +75,7 @@ enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 class Node {
     friend class Schain;  // Allow Schain to access private barrier methods for teardown
-
+    
     ConsensusEngine* consensusEngine;
 
     vector< Agent* > agents;

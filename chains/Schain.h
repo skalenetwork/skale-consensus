@@ -36,6 +36,7 @@
 #endif
 
 
+
 class ThresholdSignature;
 class CommittedBlockList;
 class NetworkMessageEnvelope;
@@ -306,7 +307,7 @@ public:
         ConsensusExtFace* _extFace, string& _schainName );
 
     ~Schain();
-
+    
     Schain();  // empty constructor is used for tests
 
     void startThreads();
