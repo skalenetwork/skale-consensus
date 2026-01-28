@@ -306,6 +306,8 @@ public:
     Schain( weak_ptr< Node > _node, schain_index _schainIndex, const schain_id& _schainID,
         ConsensusExtFace* _extFace, string& _schainName );
 
+    ~Schain();
+    
     Schain();  // empty constructor is used for tests
 
     void startThreads();

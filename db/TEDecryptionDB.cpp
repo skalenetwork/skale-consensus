@@ -68,6 +68,13 @@ TEDecryptionDB::TEDecryptionDB(
     threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
 }
 
+TEDecryptionDB::~TEDecryptionDB() {
+    if ( threadPoolExecutor ) {
+        threadPoolExecutor->stop();
+        threadPoolExecutor->join();
+    }
+}
+
 const string& TEDecryptionDB::getFormatVersion() {
     static const string version = "1.0";
     return version;

@@ -39,7 +39,6 @@
 
 MonitoringAgent::MonitoringAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
         this->monitoringThreadPool = make_shared< MonitoringThreadPool >( 1, this );
@@ -91,14 +90,33 @@ void MonitoringAgent::monitor() {
 void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
 
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
     setThreadName( "MonitoringLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
 
     CONS_LOG( info, "Monitoring agent started monitoring" );
 
     try {
-        while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
-            usleep( _agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000 );
+        auto intervalMs = _agent->getSchain()->getNode()->getMonitoringIntervalMs();
+
+        while ( true ) {
+            {
+                std::unique_lock< std::mutex > lock( _agent->stopMutex );
+                _agent->stopCond.wait_for( lock, std::chrono::milliseconds( intervalMs ),
+                    [_agent] { return _agent->stopRequested.load(); } );
+
+                // In test, we set the condition variable to exit,
+                // thus we exit the loop from this condition
+                if ( _agent->stopRequested.load() ) {
+                    return;
+                }
+            }
+
+            // In production, we do not set the condition variable to exit.
+            // So it will wake up after the interval, and will just check if the node is exiting.
+            if ( _agent->getSchain()->getNode()->isExitRequested() ) {
+                return;
+            }
 
             try {
                 _agent->monitor();
@@ -108,7 +126,7 @@ void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
             } catch ( exception& e ) {
                 SkaleException::logNested( e );
             }
-        };
+        }
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
         _agent->getSchain()->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
@@ -126,6 +144,13 @@ void MonitoringAgent::unregisterMonitor( uint64_t _id ) {
     activeMonitors.erase( _id );
 }
 
+void MonitoringAgent::stop() {
+    {
+        std::lock_guard< std::mutex > lock( stopMutex );
+        stopRequested = true;
+    }
+    stopCond.notify_all();
+}
 
 void MonitoringAgent::join() {
     CHECK_STATE( monitoringThreadPool );
