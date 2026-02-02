@@ -60,7 +60,6 @@ StuckDetectionAgent::StuckDetectionAgent( Schain& _sChain ) : Agent( _sChain, fa
     }
 }
 
-
 void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
     logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
@@ -119,7 +118,6 @@ void StuckDetectionAgent::join() {
     stuckDetectionThreadPool->joinAll();
 }
 
-
 bool StuckDetectionAgent::checkNodesAreOnline() {
     CONS_LOG( info, "StuckDetectionEngine:: stuck detected. Checking network connectivity ..." );
 
@@ -156,7 +154,6 @@ bool StuckDetectionAgent::checkNodesAreOnline() {
     return true;
 }
 
-
 bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _timeStamp ) {
     auto currentTimeMs = Time::getCurrentTimeMs();
 
@@ -165,11 +162,10 @@ bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _tim
                   ( Time::getCurrentTimeMs() - _timeStamp > _restartIntervalMs ) &&
                   checkNodesAreOnline();
 
-
     return result;
 }
 
-// this function returns 0 if now stuck is detected
+// this function returns 0 if no stuck is detected
 // othewise it returns Linux time in ms when to restart
 uint64_t StuckDetectionAgent::doStuckCheckAndReturnTimeWhenToRestart(uint64_t _restartIteration ) {
     CHECK_STATE( _restartIteration >= 1 );
@@ -197,26 +193,28 @@ uint64_t StuckDetectionAgent::doStuckCheckAndReturnTimeWhenToRestart(uint64_t _r
         usleep( 5 * 1000 * 1000 );
     }
 
-    CONS_LOG( info, "Need for restart detected. Cleaning and restarting " );
-    cleanupState();
-
-    CONS_LOG( info, "Cleaned up state" );
+    CONS_LOG( info, "Need for restart detected. Scheduling restart." );
 
     return lastBlockTimeStampMs + restartIntervalMs + 120000;
 }
+
 void StuckDetectionAgent::restart( uint64_t _restartTimeMs, uint64_t _iteration ) {
     CHECK_STATE( _restartTimeMs > 0 );
+    CONS_LOG( info, "Restart is set to " + std::to_string( _restartTimeMs ) );
 
     // wait until restart time is reached
     while ( Time::getCurrentTimeMs() < _restartTimeMs ) {
         try {
-            usleep( 100 );
+            usleep( 1000 );
         } catch ( ... ) {
         }
         getNode()->exitCheck();
     }
 
     createStuckRestartFile( _iteration );
+
+    cleanupState();
+    CONS_LOG( info, "Cleaned up state" );
 
     CONS_LOG( err,
         "Consensus engine stuck detected, because no blocks were mined for a long time and "
