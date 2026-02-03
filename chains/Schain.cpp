@@ -1412,6 +1412,17 @@ bool Schain::haveProposal(block_id _blockId, schain_index _proposerIndex) {
 bool Schain::haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex) {
     // to finalize a block and pass it to skaled we need
     // blockproposal, da proof, and decryption shares
+    if (!haveProposal(_blockId, _proposerIndex)) {
+        CONS_LOG(trace, "Missing proposal for block: " + std::to_string((uint64_t)_blockId) + " and proposerIndex: " + std::to_string((uint64_t)_proposerIndex));
+    }
+
+    if (!haveDAProof(_blockId, _proposerIndex)) {
+        CONS_LOG(trace, "Missing daProof for block: " + std::to_string((uint64_t)_blockId) + " and proposerIndex: " + std::to_string((uint64_t)_proposerIndex));
+    }
+
+    if (!getNode()->getTEDecryptionDB()->isEnoughForeignShares(_blockId)) {
+        CONS_LOG(trace, "Missing foreign shares for block: " + std::to_string((uint64_t)_blockId));
+    }
 
     return haveProposal(_blockId, _proposerIndex) && haveDAProof(_blockId, _proposerIndex)
 #ifdef BITE

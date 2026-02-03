@@ -75,6 +75,7 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
       proposerIndex(_proposerIndex),
       fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
 #ifdef BITE
+    CONS_LOG(trace, "NEED FRAGMENT DATA FOR BLOCK " + std::to_string((uint64_t)_blockId) + std::string(" AND PROPOSER ") + std::to_string((uint64_t)_proposerIndex) + std::string(": ") + std::to_string(needFragmentData));
     needFragmentData = !getSchain()->haveProposal(_blockId, _proposerIndex);
 #endif
 
@@ -115,7 +116,9 @@ void BlockFinalizeDownloader::downloadFragment(
     }
 
 
-    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
+    CONS_LOG(trace, "NEED DAPROOF FOR BLOCK " + std::to_string((uint64_t)blockId) + std::string(": ") + std::to_string(needDAProof()));
+    CONS_LOG(trace, "NEED DECRYPTION SHARES FOR BLOCK " + std::to_string((uint64_t)blockId) + std::string(" AND NODE ") + std::to_string((uint64_t)_dstIndex) + std::string(": ") + std::to_string(needDecryptionShares(_dstIndex)));
 
 
     auto header = make_shared<BlockFinalizeRequestHeader>(
@@ -373,13 +376,17 @@ bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t
 ) {
     if (downloadCompleted) {
         // we already completed the download and notified waiting threads
+        CONS_LOG(trace, "Download already completed");
         return true;
     }
 
     if (completeAndNeedToExitAllThreads()) {
         // the downloader has completed its
         if (!downloadCompleted.exchange(true)) {
+            CONS_LOG(trace, "Download completed: downLoadCompletedBaton.post() called");
             downLoadCompletedBaton.post();
+        } else {
+            CONS_LOG(trace, "Download completed: couldn't call downLoadCompletedBaton");
         }
         return true;
     };
@@ -389,6 +396,7 @@ bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t
     // it means that other threads are still downloading their decryption shares
     // exit this thread without signalling that the download is completed
     if (_nextFragmentToDownload == 0) {
+        CONS_LOG(trace, "nextFragmentToDownload is 0");
         return true;
     }
 #endif
@@ -471,10 +479,12 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
             // we successfully downloaded the fragment
             // find out the next fragment to download
             fragmentToDownload = _agent->nextFragmentToDownload();
+            CONS_LOG(trace, "Got next fragment to download: " + std::to_string(fragmentToDownload));
         } catch (DoNotHaveProposalYetException &) {
             // this is ok, we just do not have proposal yet on this destionation node
             // we keep trying to download the fragment until the node has the proposal
-            _agent->waitAfterNoProposal();;
+            _agent->waitAfterNoProposal();
+            CONS_LOG(err, "DoNotHaveProposalYetException");
         } catch (ExitRequestedException &) {
         } catch (ConnectionRefusedException &e) {
             // the node may be down. We will wait a little and try again
@@ -504,6 +514,7 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
         // wait until the download is complete
         downLoadCompletedBaton.wait();
     }
+    CONS_LOG(trace, "Exited downloadFragment loop: all pieces collected");
 
     try {
         // first check if we do not need to do anything because a block separately arrived in catchup
@@ -598,26 +609,33 @@ ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig(uint64_t _timeStampS) 
 
 bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
     if (getSchain()->getNode()->isExitRequested()) {
+        CONS_LOG(trace, "Exit requested in BlockFinalizeDownloader");
         return true;
     }
 
     if (getSchain()->getLastCommittedBlockID() >= blockId) {
         // we received block concurrently through catchup
+        CONS_LOG(trace, "Received block concurrently through catchup in BlockFinalizeDownloader");
         return true;
     }
     if (getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex)) {
         // received needed things concurrently through block proposal
+        CONS_LOG(trace, "Received needed things concurrently through block proposal in BlockFinalizeDownloader");
         return true;
     }
 
     // check if we downloaded everything needed
-    if (fragmentList.isComplete() && daSig
+    if (fragmentList.isComplete() && needDAProof()
 #ifdef BITE
         && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)
 #endif
     ) {
+        CONS_LOG(trace, "Received everything in BlockFinalizeDownloader");
         return true;
     }
+    CONS_LOG(trace, "fragment.isComplete(): " + std::to_string(fragmentList.isComplete()));
+    CONS_LOG(trace, "daSig: " + std::to_string(needDAProof()));
+    CONS_LOG(trace, "getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId): " + std::to_string(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)));
 
     return false;
 }
