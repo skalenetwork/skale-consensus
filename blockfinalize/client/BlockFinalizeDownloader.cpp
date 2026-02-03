@@ -625,7 +625,7 @@ bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
     }
 
     // check if we downloaded everything needed
-    if (fragmentList.isComplete() && needDAProof()
+    if (fragmentList.isComplete() && !needDAProof()
 #ifdef BITE
         && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)
 #endif
@@ -634,7 +634,7 @@ bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
         return true;
     }
     CONS_LOG(trace, "fragment.isComplete(): " + std::to_string(fragmentList.isComplete()));
-    CONS_LOG(trace, "daSig: " + std::to_string(needDAProof()));
+    CONS_LOG(trace, "daSig: " + std::to_string(!needDAProof()));
     CONS_LOG(trace, "getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId): " + std::to_string(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)));
 
     return false;
