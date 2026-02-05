@@ -107,7 +107,6 @@ public:
 
     bool downloadProposalDAProofAndDecryptions();
 
-
     bool completeAndNeedToExitAllThreads();
 
     string readBlockHash( nlohmann::json _responseHeader );
@@ -122,8 +121,8 @@ public:
 
     void processDAProofSig(nlohmann::json _responseHeader, string h);
 
-
     bool needDAProof();
+
 #ifdef BITE
     bool needDecryptionShares(schain_index _decryptorIndex);
 #endif
