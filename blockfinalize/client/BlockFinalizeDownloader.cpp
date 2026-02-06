@@ -611,7 +611,7 @@ bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
     }
 
     // check if we downloaded everything needed
-    if (fragmentList.isComplete() && daSig
+    if (fragmentList.isComplete() && !needDAProof()
 #ifdef BITE
         && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)
 #endif
