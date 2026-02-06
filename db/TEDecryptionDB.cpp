@@ -297,7 +297,7 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
                         CHECK_STATE(scAddr.has_value());
                         // Single element - same AAD for the one ciphertext validated per call
                         aadVec.push_back(std::vector<uint8_t>(scAddr->begin(), scAddr->end()));
-                        aadPtr = &aadVec;
+                        // aadPtr = &aadVec;
                     }
 
                     for (size_t ciphertextId = 0; ciphertextId < numberOfCiphertexts; ++ciphertextId) {
