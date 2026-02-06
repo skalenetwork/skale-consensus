@@ -421,7 +421,7 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
     std::vector< bool > catValidationResult;
     if (!catCipheredKeys.empty()) {
         catValidationResult = libBLS::ThresholdEncryption::validateEncryptionBatchParallel(
-            catCipheredKeys, &catAadTE); // pass AAD for CAT txs
+            catCipheredKeys, nullptr); // pass AAD for CAT txs
     }
     
     // Validate regular ciphertexts without AAD
