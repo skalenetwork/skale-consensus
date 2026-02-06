@@ -64,7 +64,7 @@ private:
     bool needFragmentData;
 #endif
 
-    bool isFragmentDownloadComplete();
+    bool isFragmentDownloadComplete() const;
 
 public:
 
