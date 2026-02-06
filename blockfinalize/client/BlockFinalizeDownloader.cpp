@@ -595,7 +595,7 @@ ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig(uint64_t _timeStampS) 
             getBlockId(), getSchain()->getTotalSigners(), getSchain()->getRequiredSigners());
 }
 
-bool BlockFinalizeDownloader::isFragmentDownloadComplete() const {
+bool BlockFinalizeDownloader::isFragmentDownloadComplete() {
 #ifdef BITE
     if (!needFragmentData) {
         return true;
