@@ -612,6 +612,7 @@ std::vector<uint8_t> BiteEngine::buildRegularTxData(
     return BiteCodec::encodeEpochedBiteData(cipher, epochId);
 }
 
+#ifdef BITE2
 
 std::vector<uint8_t> BiteEngine::buildCATData(
     const libBLS::TEPublicKey& key,
@@ -647,6 +648,8 @@ std::vector<uint8_t> BiteEngine::buildCATData(
 
     return BiteCodec::encodeCATData(encryptedSerializedArgs, plainArgs);
 }
+
+#endif
 
 
 std::shared_ptr<AESKeyDecryptionShares> BiteEngine::createDecryptionSharesObjects(
