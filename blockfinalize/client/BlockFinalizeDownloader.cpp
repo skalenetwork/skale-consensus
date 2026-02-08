@@ -595,6 +595,14 @@ ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig(uint64_t _timeStampS) 
             getBlockId(), getSchain()->getTotalSigners(), getSchain()->getRequiredSigners());
 }
 
+bool BlockFinalizeDownloader::isFragmentDownloadComplete() {
+#ifdef BITE
+    if (!needFragmentData) {
+        return true;
+    }
+#endif
+    return fragmentList.isComplete();
+}
 
 bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
     if (getSchain()->getNode()->isExitRequested()) {
@@ -611,7 +619,7 @@ bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
     }
 
     // check if we downloaded everything needed
-    if (fragmentList.isComplete() && daSig
+    if (isFragmentDownloadComplete() && !needDAProof()
 #ifdef BITE
         && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)
 #endif
