@@ -524,12 +524,10 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 #ifdef BITE
             CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId));
 #endif
+            // Already parses all BITE txs
             proposal = BlockProposal::makeFromNetworkSerialized(
                 fragmentList.serialize(), getSchain()->getCryptoManager());
-#ifdef BITE
-            auto biteManager = getSchain()->getBiteManager();
-            biteManager->parseBITETransactions(proposal);
-#endif
+
             CHECK_STATE(proposal)
             CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex);
             {
