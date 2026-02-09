@@ -544,6 +544,7 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 
             CHECK_STATE(proposal->getTransactionCiphertexts());
 
+            auto biteManager = getSchain()->getBiteManager();
             biteManager->computeAndValidateSGXAESKeyBatch(proposal);
 
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
