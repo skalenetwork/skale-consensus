@@ -47,9 +47,9 @@ struct DecryptedTransactions {
         regularTxsMap = _regularTxsMap;
     }
 
-    DecryptedTransactions()
+    DecryptedTransactions() :
 #ifdef BITE2
-        : catTxsMap(std::make_shared<DecryptedCATxsMap>()),
+        catTxsMap(std::make_shared<DecryptedCATxsMap>()),
 #endif
           regularTxsMap(std::make_shared<DecryptedRegularTxsMap>()) {}
 };
