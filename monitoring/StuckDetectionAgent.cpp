@@ -65,7 +65,6 @@ void StuckDetectionAgent::StuckDetectionLoop( StuckDetectionAgent* _agent ) {
     logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
     setThreadName( "StuckDetectionLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
-    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
 
     CONS_LOG( info, "StuckDetection agent: started monitoring." );
 

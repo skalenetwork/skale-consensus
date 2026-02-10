@@ -57,8 +57,6 @@ void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
 
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
     
-    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
-
     if ( _agent->getSchain()->getNode()->isExitRequested() )
         return;
 
