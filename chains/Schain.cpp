@@ -669,7 +669,7 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
                 CONS_LOG(err, "Critical error - invalid BITE transactions");
                 CONS_LOG(err, "Rejecting proposal and triggering fallback consensus for default block");
                 try {
-                    blockProposalReceiptTimeoutArrived(_proposedBlockID);
+                    timeoutAgent->forceEarlyTimeout();
                 } catch (ExitRequestedException &) {
                     throw;
                 } catch (...) {
@@ -683,7 +683,7 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
                 CONS_LOG(err, "Critical error - could not decrypt BITE transactions");
                 CONS_LOG(err, "Rejecting proposal and triggering fallback consensus for default block");
                 try {
-                    blockProposalReceiptTimeoutArrived(_proposedBlockID);
+                    timeoutAgent->forceEarlyTimeout();
                 } catch (ExitRequestedException &) {
                     throw;
                 } catch (...) {

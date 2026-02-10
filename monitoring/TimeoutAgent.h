@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include "atomic"
+
 
 class Schain;
 
@@ -32,10 +34,20 @@ class LivelinessMonitor;
 class TimeoutAgent : public Agent {
     ptr< TimeoutThreadPool > timeoutThreadPool = nullptr;
 
+    // Indicates whether the proposal receipt has timed out
+    // If true, the agent will trigger timeout event in Schain to start the next round
+    std::atomic_bool earlyTimeoutForced = false;
+
 public:
     explicit TimeoutAgent( Schain& _sChain );
 
-    static void timeoutLoop( TimeoutAgent* agent );
+    void timeoutLoop();
+
+    /**
+     * Sets prposalReceiptTimedOut immediately to true to trigger timeout event 
+     * in Schain to start the next round.
+     */
+    void forceEarlyTimeout();
 
     void join();
 };

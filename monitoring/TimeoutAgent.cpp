@@ -49,22 +49,21 @@ TimeoutAgent::TimeoutAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
 }
 
 
-void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
-    CHECK_ARGUMENT( _agent );
+void TimeoutAgent::timeoutLoop() {
 
-    setThreadName( "TimeoutLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
+    setThreadName( "TimeoutLoop", getSchain()->getNode()->getConsensusEngine() );
 
-    _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
+    getSchain()->getSchain()->waitOnGlobalStartBarrier();
     
-    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
+    logThreadLocal_ = getSchain()->getNode()->getLog();
 
-    if ( _agent->getSchain()->getNode()->isExitRequested() )
+    if ( getSchain()->getNode()->isExitRequested() )
         return;
 
     CONS_LOG( info, "Timeout agent started monitoring" );
 
     uint64_t blockProcessingStart =
-        max( _agent->getSchain()->getLastCommitTimeMs(), _agent->getSchain()->getStartTimeMs() );
+        max( getSchain()->getLastCommitTimeMs(), getSchain()->getStartTimeMs() );
 
     if ( blockProcessingStart == 0 )
         blockProcessingStart = Time::getCurrentTimeMs();
@@ -74,21 +73,31 @@ void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
     bool proposalReceiptTimedOut = false;
 
     try {
-        while ( !_agent->getSchain()->getNode()->isExitRequested() ) {
-            usleep( _agent->getSchain()->getNode()->getMonitoringIntervalMs() * 1000 );
+        while ( !getSchain()->getNode()->isExitRequested() ) {
+            usleep( getSchain()->getNode()->getMonitoringIntervalMs() * 1000 );
 
             try {
-                auto currentBlockId = _agent->getSchain()->getLastCommittedBlockID() + 1;
+                auto currentBlockId = getSchain()->getLastCommittedBlockID() + 1;
                 auto currentTime = Time::getCurrentTimeMs();
 
-                auto timeZero = max( _agent->getSchain()->getLastCommitTimeMs(),
-                    _agent->getSchain()->getStartTimeMs() );
-
+                auto timeZero = max( getSchain()->getLastCommitTimeMs(),
+                    getSchain()->getStartTimeMs() );
                 blockProcessingStart = timeZero;
 
                 lastRebroadCastTime = max( lastRebroadCastTime, timeZero );
 
-                if ( _agent->getSchain()->getNodeCount() > 2 ) {
+                // If early timeout is forced, trigger timeout event immediately without waiting 
+                // for the normal timeout.
+                if ( earlyTimeoutForced ) {
+                    try {
+                        getSchain()->blockProposalReceiptTimeoutArrived(
+                            currentBlockId );
+                        earlyTimeoutForced = false;
+                    } catch ( ... ) {
+                    }
+                }
+
+                if ( getSchain()->getNodeCount() > 2 ) {
                     if ( currentTime - blockProcessingStart <= BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS )
                         proposalReceiptTimedOut = false;
 
@@ -99,7 +108,7 @@ void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
 #endif
                          currentTime - blockProcessingStart > BLOCK_PROPOSAL_RECEIVE_TIMEOUT_MS ) {
                         try {
-                            _agent->getSchain()->blockProposalReceiptTimeoutArrived(
+                            getSchain()->blockProposalReceiptTimeoutArrived(
                                 currentBlockId );
                             proposalReceiptTimedOut = true;
                         } catch ( ... ) {
@@ -108,7 +117,7 @@ void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
 
                     if ( currentBlockId > 2 &&
                          currentTime - lastRebroadCastTime > REBROADCAST_TIMEOUT_MS ) {
-                        _agent->getSchain()->rebroadcastAllMessagesForCurrentBlock();
+                        getSchain()->rebroadcastAllMessagesForCurrentBlock();
                         lastRebroadCastTime = currentTime;
                     }
                 }
@@ -120,8 +129,12 @@ void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
         };
     } catch ( FatalError& e ) {
         SkaleException::logNested( e );
-        _agent->getSchain()->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
+        getSchain()->getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
     }
+}
+
+void TimeoutAgent::forceEarlyTimeout() {
+    earlyTimeoutForced = true;
 }
 
 void TimeoutAgent::join() {
