@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <optional>
 #include "SkaleCommon.h"
 
 // ====== Common Types ======

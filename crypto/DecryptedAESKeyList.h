@@ -3,9 +3,10 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #include <boost/container/flat_map.hpp>
-#include "datastructures/SmallVector.h"
 #pragma GCC diagnostic pop
+#include "SkaleCommon.h"
 #include "DecryptedAESKey.h"
+#include "datastructures/SmallVector.h"
 
 
 /**
@@ -18,6 +19,7 @@ public:
     const boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>>& getKeys() const;
 
     boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>>& getKeys();
+
 
     // Optional: Constructor
     DecryptedAESKeyList() : totalDecryptedCiphertexts(0) {}
@@ -50,4 +52,3 @@ private:
     boost::container::flat_map<transaction_index, ptr<DecryptedAESKeys>> decryptedAESKeys;
     size_t totalDecryptedCiphertexts;
 };
-

@@ -32,6 +32,7 @@
 #include "TransactionList.h"
 #ifdef BITE2
 #include "bite/BiteManager.h"
+#include "bite/BiteEngine.h"
 #include "chains/Schain.h"
 #endif
 
@@ -161,12 +162,12 @@ ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
     size_t startRegularTxsIdx = transactions->size();
 
 #ifdef BITE2
+    // TODO - refactor to simply call biteManager->parseBITETransactions
     if (biteManager) {
         auto epochId = biteManager->getSchain()->getNode()->getCurrentEpochId();
         for (size_t i = 0; i < transactions->size(); i++) {
             auto tx = transactions->at(i);
-            auto catArgs = biteManager->tryGetEncryptedCATArgs(tx, epochId).first;
-            if (catArgs) {
+            if (BiteEngine::tryGetEncryptedCATArgs(tx, epochId)) {
                 tv->pushBackCAT(*(tx->getData()));
             }
             else {

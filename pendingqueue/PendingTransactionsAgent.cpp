@@ -188,7 +188,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         try {
 #ifdef BITE2
             if (transactions.isCat(i)) {
-                auto catArgs = biteManager->tryGetEncryptedCATArgs(pt, currentEpoch).first;
+                auto catArgs = BiteEngine::tryGetEncryptedCATArgs(pt, currentEpoch);
                 if (!catArgs) {
                     CONS_LOG(err, "Found regular transaction marked as CAT. Skipping it from my proposal.");
                     continue;
@@ -199,7 +199,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
             {
                 // only used for validation purposes
                 // If BITE2, only do this validation for non-CATs
-                biteManager->tryGetEncryptedRegularTxFields(pt, currentEpoch);
+                BiteEngine::tryGetEncryptedRegularTxFields(pt, currentEpoch);
             }
 
             result->push_back(pt);

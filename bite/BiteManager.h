@@ -5,13 +5,13 @@
 #include <vector>
 #include <crypto/AESKeyDecryptionShare.h>
 #include <crypto/AESKeyDecryptionShareSet.h>
-#include "node/ConsensusInterface.h"
-#include "abstracttcpserver/ConnectionStatus.h"
 #include <folly/Unit.h>
+#include "bite/BiteEngine.h"
 
 class Schain;
 
 class BlockProposal;
+class BiteEngine;
 
 class CommittedBlock;
 
@@ -33,14 +33,14 @@ class CPUThreadPoolExecutor;
 
 class BiteManager {
     Schain &schain;
-    bool doRealCrypto = false;
     std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
+    BiteEngine biteEngine;
 
 public:
     explicit BiteManager(Schain &_schain);
     ~BiteManager();
 
-    // =============== Transaction Parsing Calls =============== //
+    // =============== Stage 1: Ciphertext Parsing =============== //
 
     // Runs through all transactions in the proposal and tries to parse all BITE transactions.
     // This includes both:
@@ -52,28 +52,31 @@ public:
     // to failedTransactions.
     static void parseBITETransactions(ptr<BlockProposal> _proposal);
 
-    // Tries to match the TO field to BITE1 magic number. If it matches - tries to parse the BITE1 data field.
-    // If parsing is successful - returns BiteCiphertext object, else returns 'nullopt'
-    static ptr<BiteCiphertext> tryGetEncryptedRegularTxFields(
-            const ptr<Transaction> &_transaction, epoch_id _currentEpochId);
+    // =============== Stage 2: Ciphertext Validation =============== //
 
-#ifdef BITE2
-    /**
-     * @brief Tries to match the beginning of DATA field to BITE2 function selector.
-     * If it matches - tries to parse the BITE2 data field(s) for encrypted call arguments.
-     * If parsing is successful - returns vector of BiteCiphertext objects, else returns 'nullopt'
-     * @throws if it matches the function selector but fails to parse the rest of the data
-     */
-    static std::pair< ptr<std::vector<ptr<BiteCiphertext>>>, ptr<AddressBytes> > tryGetEncryptedCATArgs(
-            const ptr<Transaction> &_transaction, epoch_id _currentEpochId);
-#endif
+    void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
 
-    // =============== Ciphertext Parsing =============== //
+    // =============== Stage 3: Compute Ciphertext shares =============== //
 
-    // this will return a map of failed transactions
-    // if none of the transactions fails, the  proposal is set with decryption shares
-    [[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesForProposal(
+    void callSGXToCreateMyDecryptionSharesForProposalTransactions(
             ptr<BlockProposal> _proposal);
+
+    // =============== Stage 4: Share merging =============== //
+
+    std::shared_ptr<DecryptedAESKeyList> mergeAESKeys(
+        block_id _blockId,
+        TransactionCiphertextsMap& _txCiphertexts,
+        const std::map<schain_index, std::shared_ptr<AESKeyDecryptionShareList>>& _decryptionShareMap,
+        const std::vector<libBLS::TEPublicKeyShare>& _tePublicKeyShares,
+        const BiteRuntimeContext& _runtimeCtx
+    ) const;
+
+    // =============== Stage 5: Transaction Decryption =============== //
+
+    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(const TransactionList &_transactionList, const DecryptedAESKeyList &_aesKeys);
+
+
+    // ============== Getters ============== //
 
     [[nodiscard]] Schain *getSchain() const {
         return &schain;
@@ -83,13 +86,21 @@ public:
         return threadPoolExecutor;
     }
 
+    // =============== Helpers =============== //
+
+    /**
+     * @brief Converts the vector of AESKeys (corresponding to decryption shares) into a mapping of txId -> decryption shares.
+     */
+    [[nodiscard]] ptr<AESKeyDecryptionShareList> getDecryptionSharesForProposal(
+            ptr<BlockProposal> _proposal);
+
+
+    /**
+     * @brief For a given proposal, computes the decrypt shares for all ciphertexts of all transactions.
+     */
     [[nodiscard]] ptr<vector<ptr<AESKeyDecryptionShares> > > getDecryptionSharesFromAESKeys(
             ptr<BlockProposal> _proposal,
             schain_index _decryptorIndex);
-
-    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(const TransactionList &_transactionList,
-                                                                                     const DecryptedAESKeyList &_aesKeys);
-
 
     /**
      * @brief Builds a vec of all decryptionShares for a given transaction from a serialized string format.
@@ -103,20 +114,9 @@ public:
                                                                       bool _decryptionFailed);
 
 
-
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
             block_id _blockId, transaction_index _transactionIndex, size_t numberOfCiphertexts);
 
-    void corruptFromTimeToTime(shared_ptr<vector<unsigned char> > result);
-
-
-    void callSGXToCreateMyDecryptionSharesForProposalTransactions(
-            ptr<BlockProposal> _proposal);
-
-
-    [[nodiscard]] bool isRealCryptoEnabled() const;
-
-    void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
 
     // =============== Test Encryption Calls =============== //
 
@@ -126,8 +126,7 @@ public:
      * @param _to - to address of the transaction
      */
     [[nodiscard]] ptr<vector<uint8_t> > encryptRegularTx(const vector<uint8_t> &_data,
-                                                                  const vector<uint8_t> &_to);
-
+                                                                  const vector<uint8_t> &_to, uint64_t epochId);
 
 #ifdef BITE2
     /**
@@ -142,28 +141,15 @@ public:
      *      ),
      * ]
      */
-    [[nodiscard]] ptr<vector<uint8_t> > generateEncryptedCATData(const AddressBytes& _scAddressAadTE);
-    
+    [[nodiscard]] ptr<vector<uint8_t> > generateEncryptedCATData(uint64_t epochId, const std::optional<AddressBytes>& scAddressAadTE = std::nullopt);
+
     /**
      * @brief Generates a CAT transaction with no encrypted arguments (empty ciphertexts).
      * Only plain arguments are included.
      */
-    [[nodiscard]] ptr<vector<uint8_t> > generateEmptyCATData();
+    [[nodiscard]] ptr<vector<uint8_t> > generateEmptyCATData(uint64_t epochId);
 #endif
 
 private:
-    // Decrypts a single ciphertext using the provided AES key 
-    vector<uint8_t> decryptCiphertext(const ptr<BiteCiphertext> &_bite, const DecryptedAESKey &_decryptedAESKey) const;
-
-    // Parses decrypted data as a regular transaction, extracting 'data' and 'to' fields
-    DecryptedRegularTxFields parseDecryptedDataAsRegularTx(const vector<uint8_t> &_data) const;
-
-    // Parses decrypted data as a set of CAT function arguments
-    DecryptedCATArgs parseDecryptedDataAsCATArgs(const vector<uint8_t> &_data) const;
-
-    ptr<vector<uint8_t>> encryptData(const vector<uint8_t>& data,
-        const std::optional<std::vector<uint8_t>>& _aadTE = std::nullopt);
-
     void stopAndDestroyThreadPoolExecutor();
-
 };
