@@ -302,6 +302,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
     uint64_t blockID;
 # ifdef BITE
     uint64_t epochID;
+    string offchainSigShare;
 #endif
     uint64_t blockProposerIndex;
     string type;
@@ -389,6 +390,11 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 bin_consensus_value( value ), timeMs, schain_id( sChainID ), msg_id( msgID ),
                 sigShare, srcSchainIndex, ecdsaSig, publicKey, pkSig, _sChain );
         } else if ( type == BasicHeader::BLOCK_SIG_BROADCAST ) {
+#ifdef BITE2
+            if ( d.HasMember( "ofss" ) ) {
+                offchainSigShare = getStringRapid( d, "ofss" );
+            }
+#endif
             nwkMsg = make_shared< BlockSignBroadcastMessage >( node_id( srcNodeID ),
                 block_id( blockID ),
 #ifdef BITE
@@ -396,7 +402,11 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
 #endif
                 schain_index( blockProposerIndex ), timeMs,
                 schain_id( sChainID ), msg_id( msgID ), sigShare, srcSchainIndex, ecdsaSig,
-                publicKey, pkSig, _sChain );
+                publicKey, pkSig, _sChain
+#ifdef BITE2
+                , offchainSigShare
+#endif
+                );
 #ifndef FAIR
         } else if ( type == BasicHeader::ORACLE_REQUEST_BROADCAST ) {
             string spec = getStringRapid( d, "spec" );

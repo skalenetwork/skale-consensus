@@ -1693,6 +1693,14 @@ u256 Schain::getRandomForBlockId(block_id _blockId) {
     return u256("0x" + hash.toHex());
 }
 
+u256 Schain::getOffchainRandomForBlockId(block_id _blockId) {
+    // Ensure the block has already been committed to the database
+    CHECK_STATE(_blockId <= readLastCommittedBlockIDFromDb());
+
+
+}
+
+
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
 
 #ifndef FAIR

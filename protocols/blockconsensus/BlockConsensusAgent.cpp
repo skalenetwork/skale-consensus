@@ -64,6 +64,10 @@
 #include "BlockConsensusAgent.h"
 #include "datastructures/CommittedBlock.h"
 
+#ifdef BITE
+#include "protocols/blockconsensus/ConsensusSignatureDomains.h"
+#endif
+
 
 BlockConsensusAgent::BlockConsensusAgent( Schain& _schain )
     : ProtocolInstance( BLOCK_SIGN, _schain ) {
@@ -217,6 +221,12 @@ void BlockConsensusAgent::decideBlock(
 #endif
             _sChainIndex, Time::getCurrentTimeMs(), *this );
 
+#ifdef BITE2
+        // Save offchain share to DB
+        auto offchainSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(
+            msg->getOffchainSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
+#endif
+
         auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(
             msg->getSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
 
@@ -224,7 +234,11 @@ void BlockConsensusAgent::decideBlock(
 
         decidedIndices->put( ( uint64_t ) _blockId, _sChainIndex );
 
-        if ( signature != nullptr ) {
+        if ( signature != nullptr
+#ifdef BITE2
+            && offchainSignature != nullptr
+#endif
+        ) {
             getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature );
         }
 
@@ -302,7 +316,19 @@ void BlockConsensusAgent::processBlockSignMessage(
         auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(
             _message->getSigShare(), getSchain()->getCryptoManager(),
             _message->getBlockProposerIndex() );
-        if ( signature == nullptr ) {
+
+#ifdef BITE2
+        // Process offchain signature share if present
+        auto offchainSigShare = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(
+                _message->getOffchainSigShare(), getSchain()->getCryptoManager(),
+                _message->getBlockProposerIndex() );
+#endif
+
+        if ( signature == nullptr
+#ifdef BITE2
+            || offchainSigShare == nullptr
+#endif
+        ) {
             return;
         }
 

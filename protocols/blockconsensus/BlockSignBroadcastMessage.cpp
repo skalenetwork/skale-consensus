@@ -37,6 +37,12 @@
 #include "protocols/binconsensus/BinConsensusInstance.h"
 #include "crypto/ThresholdSigShare.h"
 
+#ifdef BITE2
+#include "thirdparty/rapidjson/writer.h"
+#include "thirdparty/rapidjson/stringbuffer.h"
+#include "protocols/blockconsensus/ConsensusSignatureDomains.h"
+#endif
+
 
 bin_consensus_round BlockSignBroadcastMessage::getRound() const {
     CHECK_STATE( false );
@@ -49,7 +55,7 @@ bin_consensus_value BlockSignBroadcastMessage::getValue() const {
 
 BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
 #ifdef BITE
-    epoch_id _epochID   ,
+    epoch_id _epochID,
 #endif
     schain_index _blockProposerIndex, uint64_t _time, ProtocolInstance& _sourceProtocolInstance )
     : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _blockID,
@@ -66,6 +72,25 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
 
     this->sigShare = schain->getCryptoManager()->signBlockSigShare( hash, _blockID );
     this->sigShareString = sigShare->toString();
+
+#ifdef BITE2
+    // compute additional offchain signature using domain separation.
+    // This signature will be used to derive a random value seen only by validators.
+    auto& signatureDomain = blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN;
+
+    // Compute offchain block sig share as hash( blockHash || signatureDomain )
+    auto data = make_shared< vector< uint8_t > >();
+    const auto& baseHash = hash.getHash();
+    data->reserve( baseHash.size() + signatureDomain.size() );
+    data->insert( data->end(), baseHash.begin(), baseHash.end() );
+    data->insert( data->end(), signatureDomain.begin(), signatureDomain.end() );
+    auto offchainHash = BLAKE3Hash::calculateHash( data );
+
+    // Sign offchain digest and store in message
+    auto offchainSigShare = schain->getCryptoManager()->signBlockSigShare( offchainHash, _blockID );
+    this->offchainSigShareString = offchainSigShare->toString();
+    this->offchainSigShare = offchainSigShare;
+#endif
 }
 
 
@@ -75,7 +100,11 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( node_id _srcNodeID, block_
 #endif
     schain_index _blockProposerIndex, uint64_t _time, schain_id _schainId, msg_id _msgID,
     const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
-    const string& _pubKey, const string& _pkSig, Schain* _sChain )
+    const string& _pubKey, const string& _pkSig, Schain* _sChain
+#ifdef BITE2
+    , const string& _offchainSigShare
+#endif
+    )
     : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID,
 #ifdef BITE
           _epochID,
@@ -85,4 +114,36 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( node_id _srcNodeID, block_
           _sChain->getCryptoManager() ) {
     CHECK_ARGUMENT( !_sigShare.empty() );
     printPrefix = "F";
+
+#ifdef BITE2
+    this->offchainSigShareString = _offchainSigShare;
+    if ( !_offchainSigShare.empty() ) {
+        offchainSigShare = _sChain->getCryptoManager()->createSigShare(
+            _offchainSigShare, _schainId, _blockID, _srcSchainIndex, false );
+        CHECK_STATE( offchainSigShare );
+    }
+#endif
 };
+
+#ifdef BITE2
+ptr< ThresholdSigShare > BlockSignBroadcastMessage::getOffchainSigShare() const {
+    return offchainSigShare;
+}
+
+void BlockSignBroadcastMessage::serializeToStringChild(
+    rapidjson::Writer< rapidjson::StringBuffer >& _writer ) {
+    if ( !offchainSigShareString.empty() ) {
+        _writer.String( "ofss" );
+        _writer.String( offchainSigShareString.data(), offchainSigShareString.size() );
+    }
+}
+
+void BlockSignBroadcastMessage::updateWithChildHash( blake3_hasher& _hasher ) {
+    uint32_t offchainSigShareLen = offchainSigShareString.size();
+    HASH_UPDATE( _hasher, offchainSigShareLen );
+    if ( offchainSigShareLen > 0 ) {
+        blake3_hasher_update(
+            &_hasher, ( unsigned char* ) offchainSigShareString.data(), offchainSigShareLen );
+    }
+}
+#endif

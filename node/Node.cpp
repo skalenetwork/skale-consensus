@@ -82,6 +82,7 @@
 #include "utils/Time.h"
 #include "NodeInfo.h"
 #include "Node.h"
+#include "protocols/blockconsensus/ConsensusSignatureDomains.h"
 
 
 using namespace std;
@@ -185,7 +186,13 @@ void Node::initLevelDBs() {
     string internalInfoDBPrefix = "/internal_info_" + to_string( nodeID ) + ".db";
 #ifdef BITE
     string teDecryptionDBPrefix = "/te_decryptshares_" + to_string( nodeID ) + ".db";
-#endif
+
+#ifdef BITE2
+    string offchainBlockSigShareDBPrefix = "/block_sigshares_offchain_" + to_string( nodeID ) + ".db";
+    string offchainRandomForBlockIdDBPrefix = "/random_for_blockid_offchain_" + to_string( nodeID ) + ".db";
+#endif // BITE2
+
+#endif // BITE
 
 
     blockDB =
@@ -211,6 +218,7 @@ void Node::initLevelDBs() {
 
     blockSigShareDB = make_shared< BlockSigShareDB >(
         getSchain(), dbDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize() );
+
     daSigShareDB = make_shared< DASigShareDB >(
         getSchain(), dbDir, daSigShareDBPrefix, getNodeID(), getDaSigShareDBSize() );
     daProofDB = make_shared< DAProofDB >(
@@ -225,6 +233,13 @@ void Node::initLevelDBs() {
 #ifdef BITE
     teDecryptionDB = make_shared< TEDecryptionDB >(
         getSchain(), dbDir, teDecryptionDBPrefix, getNodeID(), getTEDecryptionDBSize() );
+#endif
+
+#ifdef BITE2
+    offchainBlockSigShareDB = make_shared< BlockSigShareDB >(
+        getSchain(), dbDir, offchainBlockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(), string( blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN ) );
+
+    
 #endif
 
 }

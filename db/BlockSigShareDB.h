@@ -33,8 +33,13 @@ class ThresholdSignature;
 
 class CryptoManager;
 class ThresholdSigShare;
+class BLAKE3Hash;
 
 class BlockSigShareDB : public CacheLevelDB {
+
+    // Optional domain tag for callers that reuse the default hash path.
+    string signatureDomain;
+
     cache::lru_cache< string, string > sigShares;
 
     recursive_mutex sigShareMutex;
@@ -44,13 +49,18 @@ class BlockSigShareDB : public CacheLevelDB {
 
 public:
     BlockSigShareDB(
-        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
+        Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId,
+        uint64_t _maxDBSize, string _signatureDomain = "" );
 
     ptr< ThresholdSignature > checkAndSaveShare1(
         const ptr< ThresholdSigShare >& _sigShare, const ptr< CryptoManager >& _cryptoManager );
 
     ptr< ThresholdSignature > checkAndSaveShareInMemory( const ptr< ThresholdSigShare >& _sigShare,
         const ptr< CryptoManager >& _cryptoManager, schain_index _proposer );
+
+    ptr< ThresholdSignature > checkAndSaveShareInMemory( const ptr< ThresholdSigShare >& _sigShare,
+        const ptr< CryptoManager >& _cryptoManager, schain_index _proposer,
+        const BLAKE3Hash& _hash );
 
     ptr< map< schain_index, string > > writeStringToSetInMemory(
         const string& _value, block_id _blockId, schain_index _index, schain_index _proposerIndex );

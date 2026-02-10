@@ -187,7 +187,19 @@ class Node {
 
 #ifdef BITE
     ptr <TEDecryptionDB> teDecryptionDB;
-#endif
+
+#ifdef BITE2
+
+    /**
+     * Stores block signature shares that are generated for each block, but not included in block proposal.
+     * They are used as source of deterministic randomness, and kept offchain to only allow participating nodes
+     * to have access to this random.
+     */
+    ptr< BlockSigShareDB> offchainBlockSigShareDB;
+
+    
+#endif // BITE2
+#endif // BITE
 
     ptr< DAProofDB > daProofDB;
 
@@ -336,6 +348,8 @@ public:
 
 #ifdef BITE
     ptr< TEDecryptionDB > getTEDecryptionDB() const;
+
+    ptr< BlockSigShareDB > getOffchainBlockSigShareDB() const;
 #endif
 
     ptr< DAProofDB > getDaProofDB() const;

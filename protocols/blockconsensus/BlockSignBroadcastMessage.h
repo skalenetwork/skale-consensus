@@ -23,7 +23,20 @@
 
 #pragma once
 
+#include "messages/NetworkMessage.h"
+
+#ifdef BITE2
+class BlockConsensusAgent;
+#endif
+
 class BlockSignBroadcastMessage : public NetworkMessage {
+#ifdef BITE2
+    friend class BlockConsensusAgent;
+protected:
+    string offchainSigShareString;
+    ptr< ThresholdSigShare > offchainSigShare;
+#endif
+
 public:
     BlockSignBroadcastMessage( block_id _blockID,
 #ifdef BITE
@@ -38,9 +51,21 @@ public:
 #endif
         schain_index _blockProposerIndex, uint64_t _time, schain_id _schainId, msg_id _msgID,
         const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
-        const string& _pubKey, const string& _pkSig, Schain* _sChain );
+        const string& _pubKey, const string& _pkSig, Schain* _sChain
+#ifdef BITE2
+        , const string& _offchainSigShare = ""
+#endif
+        );
 
     virtual bin_consensus_round getRound() const override;
 
     virtual bin_consensus_value getValue() const override;
+
+#ifdef BITE2
+    ptr< ThresholdSigShare > getOffchainSigShare() const;
+
+protected:
+    void serializeToStringChild( rapidjson::Writer< rapidjson::StringBuffer >& _writer ) override;
+    void updateWithChildHash( blake3_hasher& _hasher ) override;
+#endif
 };
