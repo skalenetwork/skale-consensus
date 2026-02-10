@@ -161,7 +161,7 @@ inline std::shared_ptr< CryptoManager > createTestCryptoManager(
     schain_id schainId = 1337;
 
     node_out = std::make_shared< Node >( cfg, &engine, false, "", "", "", "", nullptr, "", nullptr,
-        nullptr, gethUrl, nullptr, nullptr, nullptr, false );
+        nullptr, gethUrl, nullptr, nullptr, nullptr, false, false );
 
     auto nodeInfo = std::make_shared< NodeInfo >( 1, "127.0.0.1", 10000, 1337, 1 );
     node_out->setNodeInfo( nodeInfo );
