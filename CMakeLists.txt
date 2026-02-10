@@ -21,6 +21,7 @@ if (FAIR)
     add_definitions(-DBITE2)
 endif ()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
@@ -355,6 +356,9 @@ set(TEST_SOURCES ${COMMON_TEST_SOURCES})
 
 # Conditionally add rlp test sources if BITE is enabled
 if (DEFINED BITE)
+    file(GLOB_RECURSE BITE_TEST_SOURCES "unittests/bite/*.cpp")
+    list(APPEND TEST_SOURCES ${BITE_TEST_SOURCES} libBLS/test/utils.cpp)
+
     file(GLOB_RECURSE RLP_TEST_SOURCES "unittests/rlp/*.cpp")
     list(APPEND TEST_SOURCES ${RLP_TEST_SOURCES})
 endif ()

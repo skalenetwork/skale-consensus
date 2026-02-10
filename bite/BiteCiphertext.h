@@ -18,7 +18,6 @@ class BiteCiphertext {
 
 public:
     explicit BiteCiphertext( const std::shared_ptr< std::vector< std::uint8_t > >& data, epoch_id _currentEpochId);
-    explicit BiteCiphertext( const std::shared_ptr< EncryptedData >& _encryptedKeyPlusData, uint64_t _epoch);
 
     [[nodiscard]] EncryptedAESKey & getEncryptedAESKey();
     [[nodiscard]] const std::shared_ptr< EncryptedData >& getKeyPlusEncryptedData() const;

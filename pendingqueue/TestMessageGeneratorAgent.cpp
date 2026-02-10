@@ -210,19 +210,13 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
                               (i == numTotalCATTxs - 1) ||
                               (i % 10 == 0);
             
-            ptr<vector<uint8_t>> catData;
             if (isEmptyCAT) {
                 // CAT with no encrypted arguments (empty ciphertexts)
-                catData = sChain->getBiteManager()->generateEmptyCATData();
+                EthTransactionEncoder::encryptEmptyCATTransaction( tx, sChain->getBiteManager() );
             } else {
                 // Regular CAT with encrypted arguments
-                // Use tx->to as SC address for AAD (only used in real crypto)
-                AddressBytes scAddress;
-                CHECK_STATE(tx->to.size() == 20);
-                std::copy_n(tx->to.begin(), 20, scAddress.begin());
-                catData = sChain->getBiteManager()->generateEncryptedCATData(scAddress);
+                EthTransactionEncoder::encryptCATTransaction( tx, sChain->getBiteManager() );
             }
-            tx->data = *catData;
             
             auto signedTx = EthTransactionEncoder::signAndEncodeTx( tx );
             tmpOnlyCATs.emplaceBackCAT( std::move(*signedTx) );

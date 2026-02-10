@@ -7,6 +7,8 @@
 #include "datastructures/SmallVector.h"
 #pragma GCC diagnostic pop
 
+#include "SkaleCommon.h"
+
 class BLAKE3Hash;
 
 

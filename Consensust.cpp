@@ -21,7 +21,7 @@
     @date 2018
 */
 
-#define CATCH_CONFIG_MAIN
+#define CATCH_CONFIG_RUNNER
 
 #include <signal.h>
 #include <stdio.h>
@@ -39,25 +39,41 @@
 
 #include "SkaleCommon.h"
 #include "Log.h"
-#include "crypto/CryptoManager.h"
 #include "node/ConsensusEngine.h"
 
 #include "iostream"
-#include "time.h"
-#include "crypto/BLAKE3Hash.h"
 
 #include "json/JSONFactory.h"
 #include "utils/Time.h"
 
 #include "Consensust.h"
-#include "JsonStubClient.h"
 #include <network/Utils.h>
+
+#ifdef BITE
+#include "libBLS/tools/utils.h"
+#endif
 
 #ifdef GOOGLE_PROFILE
 #include <gperftools/heap-profiler.h>
 #endif
 
 ConsensusEngine* engine;  // definition
+
+namespace {
+
+// Ensure that ConsensusEngine logging is initialized before any tests are run
+class ConsensusLogFixture : public Catch::TestEventListenerBase {
+public:
+    using Catch::TestEventListenerBase::TestEventListenerBase;
+
+    void testCaseStarting( const Catch::TestCaseInfo& ) override {
+        ConsensusEngine::ensureConfigLogger();
+    }
+};
+
+CATCH_REGISTER_LISTENER( ConsensusLogFixture )
+
+}  // namespace
 
 uint64_t Consensust::getRunningTimeS() {
     if ( runningTimeS == 0 ) {
@@ -99,6 +115,19 @@ void testLog( const char* message ) {
 void abort_handler( int ) {
     printf( "cought SIGABRT, exiting.\n" );
     exit( 0 );
+}
+
+int main( int argc, char* argv[] ) {
+#ifdef BITE
+    try {
+        libBLS::init();
+    } catch ( const std::exception& e ) {
+        fprintf( stderr, "Failed to initialize libBLS: %s\n", e.what() );
+        return 1;
+    }
+#endif
+
+    return Catch::Session().run( argc, argv );
 }
 
 block_id basicRun( int64_t _lastId ) {

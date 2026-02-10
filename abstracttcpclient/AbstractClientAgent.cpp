@@ -53,9 +53,6 @@ AbstractClientAgent::AbstractClientAgent( Schain& _sChain, port_type _portType )
     : Agent( _sChain, false ) {
     portType = _portType;
 
-
-    logThreadLocal_ = _sChain.getNode()->getLog();
-
     for ( uint64_t i = 1; i <= _sChain.getNodeCount(); i++ ) {
         ( itemQueue ).emplace( schain_index( i ), make_shared< queue< ptr< SendableItem > > >() );
         ( queueCond ).emplace( schain_index( i ), make_shared< condition_variable >() );
@@ -148,6 +145,7 @@ void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent )
     setThreadName( "BlockPopClnt", agent->getSchain()->getNode()->getConsensusEngine() );
 
     agent->waitOnGlobalStartBarrier();
+    logThreadLocal_ = agent->getSchain()->getNode()->getLog();
 
     auto destinationSchainIndex = schain_index( agent->incrementAndReturnThreadCounter() + 1 );
 

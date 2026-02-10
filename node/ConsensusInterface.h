@@ -34,7 +34,7 @@
 #pragma GCC diagnostic pop
 
 #include "node/ConsensusTypes.h"
-#include "node/BiteConstants.h"
+#include "bite/Constants.h"
 
 enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0,
