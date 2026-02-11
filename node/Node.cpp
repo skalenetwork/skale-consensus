@@ -67,9 +67,14 @@
 #include "db/ProposalHashDB.h"
 #include "db/ProposalVectorDB.h"
 #include "db/RandomDB.h"
+
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
-#endif
+#ifdef BITE2
+#include "db/ReencryptionRandomDB.h"
+#endif // BITE2
+#endif // BITE
+
 #include "db/SigDB.h"
 #include "messages/Message.h"
 #include "messages/NetworkMessageEnvelope.h"
@@ -233,14 +238,16 @@ void Node::initLevelDBs() {
 #ifdef BITE
     teDecryptionDB = make_shared< TEDecryptionDB >(
         getSchain(), dbDir, teDecryptionDBPrefix, getNodeID(), getTEDecryptionDBSize() );
-#endif
 
 #ifdef BITE2
     offchainBlockSigShareDB = make_shared< BlockSigShareDB >(
         getSchain(), dbDir, offchainBlockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(), string( blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN ) );
 
+    reencryptionRandomDB = make_shared< ReencryptionRandomDB >(
+        getSchain(), dbDir, offchainRandomForBlockIdDBPrefix, getNodeID(), getRandomDBSize() );
     
-#endif
+#endif // BITE2
+#endif // BITE
 
 }
 

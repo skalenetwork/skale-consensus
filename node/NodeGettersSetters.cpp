@@ -70,6 +70,10 @@
 #include "db/RandomDB.h"
 #include "db/SigDB.h"
 
+#ifdef BITE2
+#include "db/ReencryptionRandomDB.h"
+#endif
+
 
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
@@ -364,11 +368,18 @@ ptr<TEDecryptionDB> Node::getTEDecryptionDB() const {
     return teDecryptionDB;
 }
 
+#ifdef BITE2
 ptr< BlockSigShareDB > Node::getOffchainBlockSigShareDB() const {
     CHECK_STATE( offchainBlockSigShareDB );
     return offchainBlockSigShareDB;
 }
-#endif
+
+ptr< ReencryptionRandomDB > Node::getReencryptionRandomDB() const {
+    CHECK_STATE( reencryptionRandomDB );
+    return reencryptionRandomDB;
+}
+#endif // BITE2
+#endif // BITE
 
 ptr<DAProofDB> Node::getDaProofDB() const {
     CHECK_STATE(daProofDB);
@@ -430,6 +441,9 @@ map<string, uint64_t> Node::getDBUsage() const {
     ret["random.db_disk_usage"] = getRandomDB()->getFullDBSize();
 #ifdef BITE
     ret["te_decryptshare.db_disk_usage"] = getTEDecryptionDB()->getFullDBSize();
+#ifdef BITE2
+    ret["reencryption_random.db_disk_usage"] = getReencryptionRandomDB()->getFullDBSize();
+#endif
 #endif
 
     return ret;

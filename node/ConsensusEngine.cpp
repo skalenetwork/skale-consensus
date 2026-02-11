@@ -928,6 +928,20 @@ u256 ConsensusEngine::getRandomForBlockId( uint64_t _blockId ) const {
     return 0;  // make compiler happy
 }
 
+#ifdef BITE2
+
+u256 ConsensusEngine::getReencryptionRandomForBlockId( uint64_t _blockId ) const {
+    CHECK_STATE( nodes.size() > 0 );
+
+    for ( auto&& item : nodes ) {
+        CHECK_STATE( item.second );
+        return item.second->getSchain()->getReencryptionRandomForBlockId( _blockId );
+    }
+    return 0;  // make compiler happy
+}
+
+#endif
+
 
 u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId ) const {
     CHECK_STATE( nodes.size() == 1 );

@@ -76,6 +76,7 @@
 #include "db/PriceDB.h"
 #include "db/ProposalVectorDB.h"
 #include "db/RandomDB.h"
+#include "db/ReencryptionRandomDB.h"
 #include "exceptions/EngineInitException.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
@@ -1681,25 +1682,29 @@ u256 Schain::getRandomForBlockId(block_id _blockId) {
     auto block = getNode()->getBlockDB()->getBlock( _blockId, getCryptoManager() );
     
     CHECK_STATE(block);
-    auto signature = block->getThresholdSig();
+    return calculateRandomFromSignatureString( block->getThresholdSig() );
+}
 
-    auto data = make_shared<vector<uint8_t> >();
+u256 Schain::calculateRandomFromSignatureString( const string& _signature ) {
+    CHECK_ARGUMENT( !_signature.empty() )
 
-    for (uint64_t i = 0; i < signature.size(); i++) {
-        data->push_back((uint8_t) signature.at(i));
+    auto data = make_shared< vector< uint8_t > >();
+    data->reserve( _signature.size() );
+    for ( uint64_t i = 0; i < _signature.size(); i++ ) {
+        data->push_back( ( uint8_t ) _signature.at( i ) );
     }
 
-    auto hash = BLAKE3Hash::calculateHash(data);
-    return u256("0x" + hash.toHex());
+    auto hash = BLAKE3Hash::calculateHash( data );
+    return u256( "0x" + hash.toHex() );
 }
 
-u256 Schain::getOffchainRandomForBlockId(block_id _blockId) {
+#ifdef BITE2
+u256 Schain::getReencryptionRandomForBlockId( block_id _blockId ) {
     // Ensure the block has already been committed to the database
     CHECK_STATE(_blockId <= readLastCommittedBlockIDFromDb());
-
-
+    return getNode()->getReencryptionRandomDB()->readRandom( _blockId );
 }
-
+#endif
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
 

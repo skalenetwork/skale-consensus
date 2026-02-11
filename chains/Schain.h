@@ -460,6 +460,11 @@ public:
     u256 getRandomForBlockId( block_id _blockid );
 
     /**
+     * Convert a merged signature string into deterministic random.
+     */
+    static u256 calculateRandomFromSignatureString( const string& _signature );
+
+    /**
      * @brief Computes a deterministic pseudo-random value for a given block id using off-chain data.
      *
      * Derived from an additional merged signature that is stored locally by nodes and never
@@ -469,7 +474,7 @@ public:
      * @param _blockid Block identifier.
      * @return Deterministic value derived from local merged signature data.
     */
-    u256 getOffchainRandomForBlockId(block_id _blockid);
+    u256 getReencryptionRandomForBlockId( block_id _blockid );
 
     const ptr< OracleClient > getOracleClient() const;
 

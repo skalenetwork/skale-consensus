@@ -64,8 +64,9 @@
 #include "BlockConsensusAgent.h"
 #include "datastructures/CommittedBlock.h"
 
-#ifdef BITE
+#ifdef BITE2
 #include "protocols/blockconsensus/ConsensusSignatureDomains.h"
+#include "db/ReencryptionRandomDB.h"
 #endif
 
 
@@ -225,6 +226,11 @@ void BlockConsensusAgent::decideBlock(
         // Save offchain share to DB
         auto offchainSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(
             msg->getOffchainSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
+
+        if ( offchainSignature != nullptr ) {
+            auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
+            getSchain()->getNode()->getReencryptionRandomDB()->writeRandom( _blockId, random );
+        }
 #endif
 
         auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(
@@ -234,11 +240,7 @@ void BlockConsensusAgent::decideBlock(
 
         decidedIndices->put( ( uint64_t ) _blockId, _sChainIndex );
 
-        if ( signature != nullptr
-#ifdef BITE2
-            && offchainSignature != nullptr
-#endif
-        ) {
+        if ( signature != nullptr ) {
             getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature );
         }
 
@@ -318,17 +320,21 @@ void BlockConsensusAgent::processBlockSignMessage(
             _message->getBlockProposerIndex() );
 
 #ifdef BITE2
-        // Process offchain signature share if present
-        auto offchainSigShare = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(
-                _message->getOffchainSigShare(), getSchain()->getCryptoManager(),
-                _message->getBlockProposerIndex() );
+        auto offchainSigShare = _message->getOffchainSigShare();
+        if ( offchainSigShare != nullptr ) {
+            auto offchainSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()
+                                         ->checkAndSaveShareInMemory( offchainSigShare,
+                                             getSchain()->getCryptoManager(),
+                                             _message->getBlockProposerIndex() );
+            if ( offchainSignature != nullptr ) {
+                auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
+                getSchain()->getNode()->getReencryptionRandomDB()->writeRandom(
+                    _message->getBlockId(), random );
+            }
+        }
 #endif
 
-        if ( signature == nullptr
-#ifdef BITE2
-            || offchainSigShare == nullptr
-#endif
-        ) {
+        if ( signature == nullptr ) {
             return;
         }
 

@@ -325,6 +325,11 @@ public:
 
 #ifdef BITE
     void setEpochId( uint64_t _epochId ) { epochId = _epochId; }
-#endif
+
+#ifdef BITE2
+    u256 getReencryptionRandomForBlockId( uint64_t _blockId ) const;
+
+#endif // BITE2
+#endif // BITE
 
 };
