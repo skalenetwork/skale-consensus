@@ -667,14 +667,28 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
 
             if (!myProposal->getFailedTransactionsRef().empty()) {
                 CONS_LOG(err, "Critical error - invalid BITE transactions");
-                CONS_LOG(err, "Proposing default block instead");
+                CONS_LOG(err, "Rejecting proposal and triggering fallback consensus for default block");
+                try {
+                    timeoutAgent->forceEarlyTimeout();
+                } catch (ExitRequestedException &) {
+                    throw;
+                } catch (...) {
+                    CONS_LOG(err, "Could not trigger fallback consensus for default block");
+                }
                 return;
             }
 
             getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
             if (!myProposal->getFailedTransactionsRef().empty()) {
                 CONS_LOG(err, "Critical error - could not decrypt BITE transactions");
-                CONS_LOG(err, "Proposing default block instead");
+                CONS_LOG(err, "Rejecting proposal and triggering fallback consensus for default block");
+                try {
+                    timeoutAgent->forceEarlyTimeout();
+                } catch (ExitRequestedException &) {
+                    throw;
+                } catch (...) {
+                    CONS_LOG(err, "Could not trigger fallback consensus for default block");
+                }
                 return;
             }
         }

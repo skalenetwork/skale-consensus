@@ -83,7 +83,7 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
     CHECK_STATE(_proposal);
 
     ptr<TransactionCiphertextsMap> txsCiphertexts = _proposal->getTransactionCiphertexts();
-    auto failedTransactionRef = _proposal->getFailedTransactionsRef();
+    auto& failedTransactionRef = _proposal->getFailedTransactionsRef();
 
     BiteEngine::CiphertextValidationResult validationResult = biteEngine.validateCiphertexts(*txsCiphertexts);
 
