@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <optional>
 #include "SkaleCommon.h"
 
 // ====== Common Types ======
@@ -47,7 +48,11 @@ struct DecryptedTransactions {
         regularTxsMap = _regularTxsMap;
     }
 
-    DecryptedTransactions() = default;
+    DecryptedTransactions() :
+#ifdef BITE2
+        catTxsMap(std::make_shared<DecryptedCATxsMap>()),
+#endif
+          regularTxsMap(std::make_shared<DecryptedRegularTxsMap>()) {}
 };
 
 

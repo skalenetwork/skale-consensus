@@ -35,5 +35,5 @@ TimeoutThreadPool::TimeoutThreadPool( num_threads _numThreads, Agent* _agent )
 void TimeoutThreadPool::createThread( uint64_t /*number*/ ) {
     auto a = ( TimeoutAgent* ) agent;
     LOCK( threadPoolLock );
-    this->threadpool.push_back( make_shared< thread >( TimeoutAgent::timeoutLoop, a ) );
+    this->threadpool.push_back( make_shared< thread >( [a] { a->timeoutLoop(); } ) );
 }

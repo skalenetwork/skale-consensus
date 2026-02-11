@@ -114,15 +114,44 @@ std::unique_ptr<EthTransaction> EthTransactionEncoder::generateSampleTx() {
 
 
 void EthTransactionEncoder::encryptRegularTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
-    auto encryptedKeyPlusData = _biteManager->encryptRegularTx(tx->data, tx->to);
-    BiteCiphertext biteDataField(encryptedKeyPlusData , 0);
+    uint64_t epochId = 0;
+    auto encryptedKeyPlusData = _biteManager->encryptRegularTx(tx->data, tx->to, epochId);
     // set data
-    tx->data = *biteDataField.getSerializedData();
+    tx->data = *encryptedKeyPlusData;
     // set to field with BITE magic number
     tx->to = { 0x42, 0x49, 0x54, 0x45, 0x20, 0x4D, 0x45, 0x20,
                 0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
                 0x59, 0x50, 0x54, 0x44 };
 }
+
+
+#ifdef BITE2
+
+void EthTransactionEncoder::encryptCATTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
+    uint64_t epochId = 0;
+    
+    std::optional<AddressBytes> scAddressAadTE = std::nullopt;
+    if (tx->to.size() == 20) {
+        AddressBytes addr;
+        std::copy(tx->to.begin(), tx->to.end(), addr.begin());
+        scAddressAadTE = addr;
+    }
+
+    auto catData = _biteManager->generateEncryptedCATData(epochId, scAddressAadTE);
+    tx->data = *catData;
+}
+
+void EthTransactionEncoder::encryptEmptyCATTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
+    uint64_t epochId = 0;
+    // Empty CAT also has SC address AAD if needed (though empty CATs usually don't have encrypted args needing AAD validation on decryption of args, 
+    // but BiteEngine::buildCATData might be used if we change logic. 
+    // Currently generateEmptyCATData doesn't call buildCATData with encryption, so maybe no change needed there?)
+    // Let's check generateEmptyCATData implementation.
+    auto catData = _biteManager->generateEmptyCATData(epochId);
+    tx->data = *catData;
+}
+
+#endif
 
 std::shared_ptr< std::vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
     ParsedEthTransaction& _ethTransaction ) {

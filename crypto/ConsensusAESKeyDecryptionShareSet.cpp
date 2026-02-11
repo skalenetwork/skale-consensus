@@ -74,7 +74,6 @@ bool ConsensusAESKeyDecryptionShareSet::isEnough() {
     }
 }
 
-// TODO - not used (?) - remove from this and from base interface class
 bool ConsensusAESKeyDecryptionShareSet::addDecryptionSharesFromSameDecryptor(
     const ptr< AESKeyDecryptionShares >& _decryptionShares ) {
     CHECK_ARGUMENT( _decryptionShares );

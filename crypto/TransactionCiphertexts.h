@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 #include <cstdint>
+#include <optional>
 #include "EncryptedAESKey.h"
 #include <SkaleCommon.h>
 #include <bite/BiteCiphertext.h>

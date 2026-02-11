@@ -64,6 +64,8 @@ private:
     bool needFragmentData;
 #endif
 
+    bool isFragmentDownloadComplete();
+
 public:
 
     // this is used to signal to the outside world that
