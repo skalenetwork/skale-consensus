@@ -30,7 +30,7 @@
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "json/JSONFactory.h"
-#include "thirdparty/json.hpp"
+#include "unittests/TestUtils.h"
 
 namespace DBTestUtils {
 
@@ -38,80 +38,51 @@ namespace fs = boost::filesystem;
 
 static const string TEST_DB_DIR = "/tmp";
 
-// Singleton session-lifetime test fixture
-// Engine/Node/Schain are created once and reused across all DB tests
-// This avoids heavyweight initialization and shutdown per-test
+// ============== Test Fixture ============== //
+
+/** 
+ * Singleton session-lifetime test fixture
+ * Engine/Node/Schain are created once and reused across all DB tests
+ * This avoids heavyweight initialization and shutdown per-test
+ */
 struct TestFixture {
     ptr< ConsensusEngine > engine;
     ptr< Node > node;
-    Schain* schain = nullptr;
+    ptr< Schain > schain;
     
     TestFixture() {
-        // Lazy initialization on first use
-        if ( !engine ) {
-            // Create minimal ConsensusEngine (no extFace needed for DB tests)
-            engine = make_shared< ConsensusEngine >( block_id( 0 ), 1000000000 );
-            
-            // Create minimal Node JSON config
-            nlohmann::json nodeConfig = {
-                { "nodeName", "TestNode" },
-                { "nodeID", 1 },
-                { "bindIP", "127.0.0.1" },
-                { "basePort", 1231 },
-                { "isTestNet", 1 }
-            };
-            
-            // Create the Node
-            set< node_id > nodeIDs;
-            string gethURL = "";
-            node = JSONFactory::createNodeFromJsonObject( nodeConfig, nodeIDs, engine.get(),
-                false, "", "", "", "", nullptr, "", nullptr, nullptr, gethURL, nullptr, nullptr, nullptr );
-            
-            // Create minimal Schain JSON config with single node
-            nlohmann::json schainConfig = {
-                { "schainName", "TestChain" },
-                { "schainID", 1 },
-                { "nodes", nlohmann::json::array( {
-                    { { "nodeID", 1 }, { "ip", "127.0.0.1" }, { "basePort", 1231 }, { "schainIndex", 1 } }
-                } ) },
-                { "blockProposalTest", "NONE" }
-            };
-            
-            // Initialize the Schain from the config
-            JSONFactory::createAndAddSChainFromJsonObject( node, schainConfig, engine.get() );
-            
-            schain = node->getSchain();
-        }
+        // Create minimal ConsensusEngine (no extFace needed for DB tests)
+        engine = make_shared< ConsensusEngine >( block_id( 0 ), 1000000000 );
+
+        // Create Node and Schain using centralized test helper.
+        // Use a non-empty geth URL to avoid noisy warning logs during DB tests.
+        TestUtils::createTestNodeAndSchain(
+            node, schain, *engine,
+            node_id( 1 ), "TestNode", "127.0.0.1", 1231,
+            schain_id( 1 ), "TestChain", schain_index( 1 ), "http://127.0.0.1:8545" );
     }
     
     Schain* getSchain() {
-        if ( !schain ) {
-            // Trigger lazy initialization if needed
-            TestFixture();
-        }
-        return schain;
+        CHECK_STATE( schain );
+        return schain.get();
     }
 };
 
-inline TestFixture& getTestFixture() {
-    // Intentionally leaked process-lifetime fixture:
-    // DB unit tests need a live Schain/Node/Engine context, and ConsensusEngine
-    // teardown can block during global/static destruction at process exit.
-    // Keeping this fixture alive until process termination avoids that shutdown path.
-    static TestFixture* fixture = new TestFixture();
-    return *fixture;
+/**
+ * @brief Keeps session-lifetime TestFixture instance.
+ * Avoids creating & destroying chains for each test.
+ */
+inline TestFixture& getSharedFixture() {
+    static TestFixture fixture;
+    return fixture;
 }
 
-template < typename DBType >
-ptr< DBType > createDB( const string& _dbName ) {
-    // Use shared session-lifetime Schain
-    auto sChain = getTestFixture().getSchain();
-    
-    string dirName = TEST_DB_DIR;
-    string fileName = _dbName;
+// ============== DB Creation/Cleanup Helpers ============== //
 
-    // Clean up DB files/directories before test
-    fs::path dbPath( dirName );
+/**
+ * @brief Helper function to remove all files starting with `fileName` values inside the `dbPath` directory. Used for cleaning up DB files before/after tests.
+ */
+inline void removeDBFiles( const fs::path& dbPath, const string& fileName ) {
     if ( fs::exists( dbPath ) ) {
         // Remove files and subdirectories matching the pattern
         for ( fs::directory_iterator it( dbPath ), end; it != end; ++it ) {
@@ -124,14 +95,25 @@ ptr< DBType > createDB( const string& _dbName ) {
             }
         }
     }
+}
+
+template < typename DBType >
+ptr< DBType > createDB( const string& _dbName ) {
+    auto sChain = getSharedFixture().getSchain();
+    
+    string dirName = TEST_DB_DIR;
+    string fileName = _dbName;
+
+    // Clean up DB files/directories before test
+    fs::path dbPath( dirName );
+    removeDBFiles( dbPath, fileName );
 
     return make_shared< DBType >( sChain, dirName, fileName, node_id( 1 ), 5000000 );
 }
 
 template < typename DBType >
 ptr< DBType > reopenDB( const string& _dbName ) {
-    // Use shared session-lifetime Schain
-    auto sChain = getTestFixture().getSchain();
+    auto sChain = getSharedFixture().getSchain();
     
     string dirName = TEST_DB_DIR;
     string fileName = _dbName;
@@ -147,18 +129,7 @@ inline void cleanupDB( const string& _dbName ) {
     string fileName = _dbName;
 
     fs::path dbPath( dirName );
-    if ( fs::exists( dbPath ) ) {
-        // Remove files and subdirectories matching the pattern
-        for ( fs::directory_iterator it( dbPath ), end; it != end; ++it ) {
-            if ( it->path().filename().string().find( fileName ) == 0 ) {
-                if ( fs::is_directory( it->path() ) ) {
-                    fs::remove_all( it->path() );
-                } else {
-                    fs::remove( it->path() );
-                }
-            }
-        }
-    }
+    removeDBFiles( dbPath, fileName );
 }
 
 }  // namespace DBTestUtils

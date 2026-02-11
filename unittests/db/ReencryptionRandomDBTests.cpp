@@ -40,14 +40,9 @@
 // Initializes the ConsensusEngine/Node/Schain once for all tests in this file
 class ReencryptionRandomDBFixture {
 protected:
-    DBTestUtils::TestFixture& fixture;
-    
-    ReencryptionRandomDBFixture() : fixture( DBTestUtils::getTestFixture() ) {
-        // Fixture is initialized lazily on first access
-    }
-    
-    ~ReencryptionRandomDBFixture() {
-        // DB objects are destroyed before this runs, so Schain* is still valid
+    ReencryptionRandomDBFixture() {
+        // Ensure shared DB fixture is initialized once per test process.
+        ( void ) DBTestUtils::getSharedFixture();
     }
 };
 
