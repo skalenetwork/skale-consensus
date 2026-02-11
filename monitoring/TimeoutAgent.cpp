@@ -51,8 +51,8 @@ TimeoutAgent::TimeoutAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
 
 void TimeoutAgent::timeoutLoop() {
 
-    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
-    setThreadName( "TimeoutLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
+    logThreadLocal_ = getSchain()->getNode()->getLog();
+    setThreadName( "TimeoutLoop", getSchain()->getNode()->getConsensusEngine() );
 
     getSchain()->getSchain()->waitOnGlobalStartBarrier();
 
