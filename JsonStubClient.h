@@ -52,7 +52,6 @@ public:
 
         Json::Value p;
         Json::Value batch(Json::arrayValue);
-        batch.resize(_publicDecryptionValues.size());
 
         for (const auto& v : _publicDecryptionValues) {
             batch.append(v);
