@@ -222,25 +222,29 @@ void BlockConsensusAgent::decideBlock(
 #endif
             _sChainIndex, Time::getCurrentTimeMs(), *this );
 
-#ifdef BITE2
-        // Save offchain share to DB
-        auto offchainSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(
-            msg->getOffchainSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
-
-        if ( offchainSignature != nullptr ) {
-            auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
-            getSchain()->getNode()->getReencryptionRandomDB()->writeRandom( _blockId, random );
-        }
-#endif
-
         auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(
             msg->getSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
+
+
+#ifdef BITE2
+        auto offchainSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory( 
+            msg->getOffchainSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
+#endif
 
         getSchain()->getNode()->getNetwork()->broadcastMessage( msg );
 
         decidedIndices->put( ( uint64_t ) _blockId, _sChainIndex );
 
         if ( signature != nullptr ) {
+#ifdef BITE2
+            CHECK_STATE2( offchainSignature, "Merged onchain sig shares, but not enough offchain shares to merge offchain sig" );
+
+            // save produced random from offchain signature to DB
+            auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
+            getSchain()->getNode()->getReencryptionRandomDB()->writeRandom(
+                msg->getBlockId(), random );
+#endif
+
             getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature );
         }
 
@@ -320,23 +324,23 @@ void BlockConsensusAgent::processBlockSignMessage(
             _message->getBlockProposerIndex() );
 
 #ifdef BITE2
-        auto offchainSigShare = _message->getOffchainSigShare();
-        if ( offchainSigShare != nullptr ) {
-            auto offchainSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()
-                                         ->checkAndSaveShareInMemory( offchainSigShare,
-                                             getSchain()->getCryptoManager(),
-                                             _message->getBlockProposerIndex() );
-            if ( offchainSignature != nullptr ) {
-                auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
-                getSchain()->getNode()->getReencryptionRandomDB()->writeRandom(
-                    _message->getBlockId(), random );
-            }
-        }
+        auto offchainSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory( 
+            _message->getOffchainSigShare(), getSchain()->getCryptoManager(),
+            _message->getBlockProposerIndex() );
 #endif
 
         if ( signature == nullptr ) {
             return;
         }
+
+#ifdef BITE2
+        CHECK_STATE2( offchainSignature, "Merged onchain sig shares, but not enough offchain shares to merge offchain sig" );
+
+        // save produced random from offchain signature to DB
+        auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
+        getSchain()->getNode()->getReencryptionRandomDB()->writeRandom(
+            _message->getBlockId(), random );
+#endif
 
 
         auto proposer = _message->getBlockProposerIndex();
