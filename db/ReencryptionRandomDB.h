@@ -21,6 +21,8 @@
     @date 2026
 */
 
+#ifdef BITE2
+
 #pragma once
 
 #include "CacheLevelDB.h"
@@ -36,3 +38,5 @@ public:
 
     const string& getFormatVersion() override;
 };
+
+#endif

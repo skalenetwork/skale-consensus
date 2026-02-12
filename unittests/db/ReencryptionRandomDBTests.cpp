@@ -21,6 +21,7 @@
     @date 2026
 */
 
+#ifdef BITE2
 
 #include "SkaleCommon.h"
 #include "exceptions/InvalidStateException.h"
@@ -168,3 +169,5 @@ CATCH_TEST_CASE_METHOD( ReencryptionRandomDBFixture,
 
     DBTestUtils::cleanupDB( dbName );
 }
+
+#endif

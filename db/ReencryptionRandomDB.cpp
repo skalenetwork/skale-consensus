@@ -21,6 +21,8 @@
     @date 2026
 */
 
+#ifdef BITE2
+
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "exceptions/ExitRequestedException.h"
@@ -65,3 +67,5 @@ void ReencryptionRandomDB::writeRandom( const block_id& _blockId, const u256& _r
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
     }
 }
+
+#endif
