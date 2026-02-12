@@ -457,11 +457,10 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     auto mySchainIndex = sChain->getSchainIndex();
 
 
+    logThreadLocal_ = node->getLog();
     setThreadName("BlckFinLoop", node->getConsensusEngine());
 
     node->waitOnGlobalClientStartBarrier();
-
-    logThreadLocal_ = node->getLog();
 
     auto fragmentToDownload = computeFirstFragmentToDowload(_dstIndex, mySchainIndex);
 

@@ -23,10 +23,10 @@ OracleResultAssemblyAgent::OracleResultAssemblyAgent( Schain& _sChain )
 void OracleResultAssemblyAgent::messageThreadProcessingLoop( OracleResultAssemblyAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
 
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
     setThreadName( "orclAssemblyLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
     _agent->getSchain()->waitOnGlobalStartBarrier();
-    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
 
     queue< ptr< MessageEnvelope > > newQueue;
 

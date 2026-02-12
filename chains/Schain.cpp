@@ -179,6 +179,7 @@ void Schain::postMessage(const ptr<MessageEnvelope> &_me) {
 
 void Schain::messageThreadProcessingLoop(Schain *_sChain) {
     CHECK_ARGUMENT(_sChain);
+    logThreadLocal_ = _sChain->getNode()->getLog();
 
     setThreadName("msgThreadProcLoop", _sChain->getNode()->getConsensusEngine());
 
@@ -186,8 +187,6 @@ void Schain::messageThreadProcessingLoop(Schain *_sChain) {
 
     try {
         _sChain->startTimeMs = Time::getCurrentTimeMs();
-
-        logThreadLocal_ = _sChain->getNode()->getLog();
 
         queue<ptr<MessageEnvelope> > newQueue;
 
