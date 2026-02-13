@@ -187,10 +187,10 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         auto currentEpoch = sChain->getNode()->getCurrentEpochId();
         try {
 #ifdef BITE2
-            if (transactions.isCat(i)) {
-                auto catArgs = BiteEngine::tryGetEncryptedCATArgs(pt, currentEpoch);
-                if (!catArgs) {
-                    CONS_LOG(err, "Found regular transaction marked as CAT. Skipping it from my proposal.");
+            if (transactions.isCTX(i)) {
+                auto ctxArgs = BiteEngine::tryGetEncryptedCTXArgs(pt, currentEpoch);
+                if (!ctxArgs) {
+                    CONS_LOG(err, "Found regular transaction marked as CTX. Skipping it from my proposal.");
                     continue;
                 }
             }
@@ -198,7 +198,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 #endif
             {
                 // only used for validation purposes
-                // If BITE2, only do this validation for non-CATs
+                // If BITE2, only do this validation for non-CTXs
                 BiteEngine::tryGetEncryptedRegularTxFields(pt, currentEpoch);
             }
 

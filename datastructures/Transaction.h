@@ -114,8 +114,8 @@ public:
 
 #ifdef BITE2
     // Allows caching parsed encrypted CAT transaction arguments
-    ptr<std::vector<ptr<BiteCiphertext>>> getCATEncryptedArgs();
-    void setCATEncryptedArgs( ptr<std::vector<ptr<BiteCiphertext>>> _biteDataField );
+    ptr<std::vector<ptr<BiteCiphertext>>> getCTXEncryptedArgs();
+    void setCTXEncryptedArgs( ptr<std::vector<ptr<BiteCiphertext>>> _biteDataField );
 
     void setScAddressAadTE( const AddressBytes& _scAddressAadTE );
     ptr<AddressBytes> getScAddressAadTE();

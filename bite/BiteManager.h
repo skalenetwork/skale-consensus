@@ -130,7 +130,7 @@ public:
 
 #ifdef BITE2
     /**
-     * @brief Encrypts CAT function arguments using BITE2 scheme.
+     * @brief Encrypts CTX function arguments using BITE2 scheme.
      * @param _scAddressAadTE - Smart contract address used as AAD for TE validation (real crypto only)
      * @param _data - Returned data follows the format:
      * [
@@ -141,13 +141,13 @@ public:
      *      ),
      * ]
      */
-    [[nodiscard]] ptr<vector<uint8_t> > generateEncryptedCATData(uint64_t epochId, const std::optional<AddressBytes>& scAddressAadTE = std::nullopt);
+    [[nodiscard]] ptr<vector<uint8_t> > generateEncryptedCTXData(uint64_t epochId, const std::optional<AddressBytes>& scAddressAadTE = std::nullopt);
 
     /**
-     * @brief Generates a CAT transaction with no encrypted arguments (empty ciphertexts).
+     * @brief Generates a CTX transaction with no encrypted arguments (empty ciphertexts).
      * Only plain arguments are included.
      */
-    [[nodiscard]] ptr<vector<uint8_t> > generateEmptyCATData(uint64_t epochId);
+    [[nodiscard]] ptr<vector<uint8_t> > generateEmptyCTXData(uint64_t epochId);
 #endif
 
 private:

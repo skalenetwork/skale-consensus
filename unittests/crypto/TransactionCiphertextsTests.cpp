@@ -48,7 +48,7 @@ CATCH_TEST_CASE("TransactionCiphertexts stores and returns CAT AAD", "[crypto][t
     
     TransactionCiphertexts txCiphertexts(ciphertexts, scAddress);
     
-    CATCH_REQUIRE(txCiphertexts.isCAT());
+    CATCH_REQUIRE(txCiphertexts.isCTX());
     CATCH_REQUIRE(txCiphertexts.count() == 2);
     
     auto aad = txCiphertexts.getScAddressAadTE();
@@ -65,7 +65,7 @@ CATCH_TEST_CASE("TransactionCiphertexts regular tx has no AAD", "[crypto][transa
     
     TransactionCiphertexts txCiphertexts(ciphertext);
     
-    CATCH_REQUIRE_FALSE(txCiphertexts.isCAT());
+    CATCH_REQUIRE_FALSE(txCiphertexts.isCTX());
     CATCH_REQUIRE(txCiphertexts.count() == 1);
     
     auto aad = txCiphertexts.getScAddressAadTE();
@@ -81,7 +81,7 @@ CATCH_TEST_CASE("TransactionCiphertexts CAT with empty ciphertexts still has AAD
     std::vector<ptr<BiteCiphertext>> emptyCiphertexts;
     TransactionCiphertexts txCiphertexts(emptyCiphertexts, scAddress);
     
-    CATCH_REQUIRE(txCiphertexts.isCAT());
+    CATCH_REQUIRE(txCiphertexts.isCTX());
     CATCH_REQUIRE(txCiphertexts.count() == 0);
     
     auto aad = txCiphertexts.getScAddressAadTE();

@@ -56,7 +56,7 @@ public:
     [[nodiscard]] ptr< DecryptedRegularTxsMap > getDecryptedRegularTxFields() const;
 
 #ifdef BITE2
-    [[nodiscard]] ptr< DecryptedCATxsMap > getDecryptedCATArgs() const;
+    [[nodiscard]] ptr< DecryptedCTXTxsMap > getDecryptedCATArgs() const;
 #endif
 
 #endif

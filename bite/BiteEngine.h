@@ -57,11 +57,11 @@ public:
      * @brief Stage 1: Parse BITE transactions from the transaction list.
      * Attempts to parse all BITE transactions in the given TransactionList.
      * Caches parsed BiteCiphertext objects in the Transaction objects.
-     * Assumes CATs are at the start of the list, followed by regular transactions.
+     * Assumes CTXs are at the start of the list, followed by regular transactions.
      */
     static ParseResult parseAndCacheBITETransactions(
         const TransactionList& txList,
-        BiteRuntimeContext& runtimeCtx
+        BiteRuntimeContext& runtimeContext
     );
 
     //=================== Stage 2: Ciphertext Validation  =================== //
@@ -84,7 +84,7 @@ public:
     /**
      * @brief Validates the ciphertexts extracted from BITE transactions.
      * Failures can either be from parsing from bytes or semantic validation.
-     * Each transaction can have multiple ciphertexts (e.g., CAT transactions).
+     * Each transaction can have multiple ciphertexts (e.g., CTX transactions).
      * Thus, if a single ciphertext in a transaction is invalid, the whole transaction is marked invalid.
      * Only if all ciphertexts are valid, public decryption values are returned.
      */
@@ -99,7 +99,7 @@ public:
         TransactionCiphertextsMap& _txCiphertexts,
         const std::map<schain_index, std::shared_ptr<AESKeyDecryptionShareList>>& _decryptionShareMap,
         const std::vector<libBLS::TEPublicKeyShare>& _tePublicKeyShares,
-        const BiteRuntimeContext& _runtimeCtx
+        const BiteRuntimeContext& _runtimeContext
     ) const;
 
     //=================== Stage 4: Decrypt transactions from decrypted keys  =================== //
@@ -107,7 +107,7 @@ public:
     DecryptedTransactions decryptTransactionsListInParallel(
             const TransactionList &_transactionList,
             const DecryptedAESKeyList &_aesKeys,
-            BiteRuntimeContext& runtimeCtx
+            BiteRuntimeContext& runtimeContext
     ) const;
 
     //=================== Helpers =================== //
@@ -128,10 +128,10 @@ public:
 
 
 #ifdef BITE2
-    static ptr<std::vector<ptr<BiteCiphertext>>> tryGetEncryptedCATArgs(
+    static ptr<std::vector<ptr<BiteCiphertext>>> tryGetEncryptedCTXArgs(
             const ptr<Transaction>& _transaction, epoch_id _currentEpochId );
 
-    std::vector<uint8_t> buildCATData(
+    std::vector<uint8_t> buildCTXData(
         const libBLS::TEPublicKey& key,
         size_t numberOfCiphertexts,
         uint64_t epochId,

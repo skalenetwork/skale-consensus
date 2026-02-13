@@ -47,15 +47,15 @@ ptr<BiteCiphertext> BiteEngine::tryGetEncryptedRegularTxFields(
 }
 
 #ifdef BITE2
-ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCATArgs(
+ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCTXArgs(
             const ptr<Transaction>& _transaction, epoch_id _currentEpochId ) {
     CHECK_STATE(_transaction);
 
-    auto encryptedCATArgs = _transaction->getCATEncryptedArgs();
+    auto encryptedCTXArgs = _transaction->getCTXEncryptedArgs();
     auto scAddressAadTE = _transaction->getScAddressAadTE();
 
     // if not cached - try to parse it
-    if (!encryptedCATArgs || !scAddressAadTE) {
+    if (!encryptedCTXArgs || !scAddressAadTE) {
 
         // if not set bite data already - try parse it
         auto ethTx = _transaction->getAsEthereumTransaction();
@@ -63,64 +63,64 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCATArgs(
         auto dataField = ethTx->getTransactionDataField();
         CHECK_STATE(dataField);
 
-        encryptedCATArgs = BiteCodec::tryParseEncryptedCATArgs(*dataField, _currentEpochId);
+        encryptedCTXArgs = BiteCodec::tryParseEncryptedCTXArgs(*dataField, _currentEpochId);
         
-        if (encryptedCATArgs) {
+        if (encryptedCTXArgs) {
             // fetch & cache 'to' field - scAddress used as AAD for TE validation phases
             auto toField = ethTx->getToField();
             CHECK_STATE(toField);
             CHECK_STATE2(toField->size() == sizeof(AddressBytes), 
-                "CAT transaction 'to' field must be exactly 20 bytes");
+                "CTX transaction 'to' field must be exactly 20 bytes");
             
             AddressBytes toFieldBytes;
             std::copy(toField->begin(), toField->end(), toFieldBytes.begin());
 
             // only cache after both are successfully parsed
             _transaction->setScAddressAadTE(toFieldBytes);
-            _transaction->setCATEncryptedArgs(encryptedCATArgs);
+            _transaction->setCTXEncryptedArgs(encryptedCTXArgs);
             
             // Fetch the cached values to return
-            encryptedCATArgs = _transaction->getCATEncryptedArgs();
+            encryptedCTXArgs = _transaction->getCTXEncryptedArgs();
             scAddressAadTE = _transaction->getScAddressAadTE();
         }
     }
-    return encryptedCATArgs;
+    return encryptedCTXArgs;
 }
 #endif
 
 BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
     const TransactionList& txList,
-    BiteRuntimeContext& runtimeCtx
+    BiteRuntimeContext& runtimeContext
 ) {
     ParseResult result;
 
     ptr<vector<ptr<Transaction> > > transactions = txList.getItems();
-    // Assume no regular txs by default; only process regular txs if a non-CAT is found
+    // Assume no regular txs by default; only process regular txs if a non-CTX is found
     size_t regularTxsStartIdx = transactions->size();
 
     std::set<size_t> failedTxIndices;
 
 #ifdef BITE2
-    // Try parsing CAT transactions first
+    // Try parsing CTX transactions first
     for (size_t i = 0 ; i < transactions->size(); i++) {
         try {
             auto tx = transactions->at(i);
-            auto catArgs = BiteEngine::tryGetEncryptedCATArgs(tx, runtimeCtx.currentEpoch);
+            auto ctxArgs = BiteEngine::tryGetEncryptedCTXArgs(tx, runtimeContext.currentEpoch);
 
-            if (catArgs) {
+            if (ctxArgs) {
                 // Fetch the cached SC address for AAD
                 auto scAddressAadTE = tx->getScAddressAadTE();
                 std::optional<AddressBytes> scAddrOpt = scAddressAadTE ? std::make_optional(*scAddressAadTE) : std::nullopt;
                 
-                auto txCiphertexts = make_shared<TransactionCiphertexts>(*catArgs, scAddrOpt);
+                auto txCiphertexts = make_shared<TransactionCiphertexts>(*ctxArgs, scAddrOpt);
                 result.txsCiphertexts.emplace(i, txCiphertexts);
             } else {
-                // the first non-CAT transaction indicates the start of regular transactions
+                // the first non-CTX transaction indicates the start of regular transactions
                 regularTxsStartIdx = i;
                 break;
             }
         } catch (exception &e) {
-            CONS_LOG(err, fmt::format("Could not try to parse as CAT transaction: {}: ", i) + e.what());
+            CONS_LOG(err, fmt::format("Could not try to parse as CTX transaction: {}: ", i) + e.what());
             failedTxIndices.insert(i);
         }
     }
@@ -133,12 +133,12 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
     for (size_t i = regularTxsStartIdx; i < transactions->size(); i++) {
         try {
             if (failedTxIndices.find(i) != failedTxIndices.end()) {
-                // already reported failure for this tx (e.g., CAT parsing failed)
+                // already reported failure for this tx (e.g., CTX parsing failed)
                 // no need to try parsing again
                 continue;
             }
             auto tx = transactions->at(i);
-            auto ciphertext = BiteEngine::tryGetEncryptedRegularTxFields(tx, runtimeCtx.currentEpoch);
+            auto ciphertext = BiteEngine::tryGetEncryptedRegularTxFields(tx, runtimeContext.currentEpoch);
             if (ciphertext) {
                 auto txCiphertexts = make_shared<TransactionCiphertexts>(ciphertext);
                 result.txsCiphertexts.emplace(i, txCiphertexts);
@@ -162,7 +162,7 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
  * @brief Helper function - appends ciphertexts from TransactionCiphertexts to vector of CipheredKey
  */
 void appendCiphertextsToVector(ptr<TransactionCiphertexts> _ciphertexts, std::vector< libBLS::CipheredKey >& _vec, size_t& _ciphertextIdx) {
-    // Allow transactions with no ciphertexts (e.g., CAT txs with empty ciphertext)
+    // Allow transactions with no ciphertexts (e.g., CTX txs with empty ciphertext)
     if (_ciphertexts->count() == 0) {
         return;
     }
@@ -208,8 +208,8 @@ BiteEngine::CiphertextValidationResult BiteEngine::validateCiphertexts(const Tra
             parsedTxs.emplace_back(idx, ciphertexts->count());
             expectedValidationResults += ciphertexts->count();
 
-            // Build AAD only for CAT transactions - regular txs don't need AAD entries
-            if (ciphertexts->isCAT()) {
+            // Build AAD only for CTX transactions - regular txs don't need AAD entries
+            if (ciphertexts->isCTX()) {
                 const auto& scAddr = ciphertexts->getScAddressAadTE();
                 CHECK_STATE(scAddr.has_value());
                 std::vector<uint8_t> aadBytes(scAddr->begin(), scAddr->end());
@@ -228,7 +228,7 @@ BiteEngine::CiphertextValidationResult BiteEngine::validateCiphertexts(const Tra
     }
 
     // From the successfully built CipheredKey vector, validate ciphertexts
-    // Pass AAD only if we have at least one CAT transaction
+    // Pass AAD only if we have at least one CTX transaction
     BiteCore::CiphertextValidationResult coreResult = core.validateCiphertexts(
         cipheredKeys, hasAnyAAD ? &aadTE : nullptr);
     CHECK_STATE(coreResult.validationResults.size() == expectedValidationResults);
@@ -265,7 +265,7 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
     TransactionCiphertextsMap& _txCiphertexts,
     const std::map<schain_index, std::shared_ptr<AESKeyDecryptionShareList>>& _decryptionShareMap,
     const std::vector<libBLS::TEPublicKeyShare>& _tePublicKeyShares,
-    const BiteRuntimeContext& _runtimeCtx
+    const BiteRuntimeContext& _runtimeContext
 ) const {
 
     CHECK_STATE(!_decryptionShareMap.empty());
@@ -357,12 +357,12 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
                 std::vector<bool> allSharesFromNodeAreValid;
                 allSharesFromNodeAreValid.resize(config.totalSigners, true);
 
-                // Prepare AAD for CAT transactions
+                // Prepare AAD for CTX transactions
                 const auto& txCiphertexts = _txCiphertexts.at(txId);
                 const std::vector<std::vector<uint8_t>>* aadPtr = nullptr;
                 std::vector<std::vector<uint8_t>> aadVec;
                 
-                if (txCiphertexts->isCAT()) {
+                if (txCiphertexts->isCTX()) {
                     const auto& scAddr = txCiphertexts->getScAddressAadTE();
                     CHECK_STATE(scAddr.has_value());
                     // Single element - same AAD for the one ciphertext validated per call
@@ -414,11 +414,11 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
     };
 
     try {
-        if (_runtimeCtx.threadPoolExecutor) {
+        if (_runtimeContext.threadPoolExecutor) {
             for ( auto&& [txId, decryptionSet]: decryptionShareSets ) {
                 auto txIdLocal = txId;
                 auto decryptionSetLocal = decryptionSet;
-                futures.emplace_back(folly::via(_runtimeCtx.threadPoolExecutor.get(), [processTx, txIdLocal, decryptionSetLocal]() {
+                futures.emplace_back(folly::via(_runtimeContext.threadPoolExecutor.get(), [processTx, txIdLocal, decryptionSetLocal]() {
                     return processTx(txIdLocal, decryptionSetLocal);
                 }));
             }
@@ -444,15 +444,15 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
 DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
         const TransactionList &_transactionList,
         const DecryptedAESKeyList &_aesKeys,
-        BiteRuntimeContext& runtimeCtx
+        BiteRuntimeContext& runtimeContext
 ) const {
  
     auto decryptedFieldsMap = std::make_shared<DecryptedRegularTxsMap>();
     auto regularTxMapMutex = std::make_shared<std::mutex>();
     
 #ifdef BITE2
-    auto catTxsMap          = std::make_shared<DecryptedCATxsMap>();
-    auto catTxsMapMutex     = std::make_shared<std::mutex>();
+    auto ctxTxsMap          = std::make_shared<DecryptedCTXTxsMap>();
+    auto ctxTxsMapMutex     = std::make_shared<std::mutex>();
 #endif
 
     auto txs = _transactionList.getItems();
@@ -466,7 +466,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
     // Helper to avoid repeating folly::via boilerplate
     auto schedule = [&](auto &&fn) {
         futures.emplace_back(
-            folly::via(runtimeCtx.threadPoolExecutor.get(), std::forward<decltype(fn)>(fn))
+            folly::via(runtimeContext.threadPoolExecutor.get(), std::forward<decltype(fn)>(fn))
         );
     };
 
@@ -474,26 +474,26 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
         const std::size_t txCount = _transactionList.size();
 
 #ifdef BITE2
-        bool allCATsParsed = false;
+        bool allCTXsParsed = false;
 #endif
 
         for (std::size_t txIdx = 0; txIdx < txCount; ++txIdx) {
             auto tx = txs->at(txIdx);
 
 #ifdef BITE2
-            // ---------- Try CAT path first ----------
-            if (!allCATsParsed) {
+            // ---------- Try CTX path first ----------
+            if (!allCTXsParsed) {
                 ptr< std::vector<ptr<BiteCiphertext> > > encryptedArgs;
                 try { 
-                    encryptedArgs = tryGetEncryptedCATArgs(tx, runtimeCtx.currentEpoch);
+                    encryptedArgs = tryGetEncryptedCTXArgs(tx, runtimeContext.currentEpoch);
                 } catch (const std::exception& e) {
-                    CONS_LOG(warn, fmt::format("Could not try to parse as CAT encrypted transaction during decryption: {}: {}", txIdx, e.what()));
+                    CONS_LOG(warn, fmt::format("Could not try to parse as CTX encrypted transaction during decryption: {}: {}", txIdx, e.what()));
                 }
                 if (encryptedArgs) {
-                    // CAT tx with no encrypted arguments — nothing to decrypt
+                    // CTX tx with no encrypted arguments — nothing to decrypt
                     if (encryptedArgs->empty()) {
-                        std::lock_guard<std::mutex> lock(*catTxsMapMutex);
-                        catTxsMap->emplace(txIdx, DecryptedCATArgs{});
+                        std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                        ctxTxsMap->emplace(txIdx, DecryptedCTXArgs{});
                         continue;
                     }
                     auto decryptedAESKey = _aesKeys.getKeys(txIdx);
@@ -501,9 +501,9 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                     CHECK_STATE(encryptedArgs->size() == decryptedAESKey->size());
 
                     try {
-                        schedule([corePtr = &this->core, encryptedArgs, decryptedAESKey, catTxsMap, txIdx, catTxsMapMutex]() 
+                        schedule([corePtr = &this->core, encryptedArgs, decryptedAESKey, ctxTxsMap, txIdx, ctxTxsMapMutex]() 
                         -> folly::Unit {
-                            DecryptedCATArgs decryptedData;
+                            DecryptedCTXArgs decryptedData;
                             decryptedData.args.reserve(encryptedArgs->size());
 
                             for (std::size_t argIdx = 0; argIdx < encryptedArgs->size(); ++argIdx) {
@@ -517,23 +517,23 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                                 );
                             }
 
-                            std::lock_guard<std::mutex> lock(*catTxsMapMutex);
-                            catTxsMap->emplace(txIdx, std::move(decryptedData));
+                            std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                            ctxTxsMap->emplace(txIdx, std::move(decryptedData));
 
                             return folly::unit;
                         });
                     } catch (const std::exception &e) {
-                        CONS_LOG(err, fmt::format("Corrupt CAT tx:{} that doesn't decrypt: {}", txIdx, e.what()));
-                        std::lock_guard<std::mutex> lock(*catTxsMapMutex);
-                        catTxsMap->emplace(txIdx, std::nullopt);
+                        CONS_LOG(err, fmt::format("Corrupt CTX tx:{} that doesn't decrypt: {}", txIdx, e.what()));
+                        std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                        ctxTxsMap->emplace(txIdx, std::nullopt);
                     }
 
-                    // This tx is CAT, do not treat it as regular
+                    // This tx is CTX, do not treat it as regular
                     continue;
                 }
                 else {
-                    // No more CAT transactions expected after the first non-CAT one
-                    allCATsParsed = true;
+                    // No more CTX transactions expected after the first non-CTX one
+                    allCTXsParsed = true;
                 }
             }
 
@@ -542,7 +542,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
             // ---------- Regular BITE1-style encryption ----------
             ptr<BiteCiphertext> bite;
             try {
-                bite = tryGetEncryptedRegularTxFields(tx, runtimeCtx.currentEpoch);
+                bite = tryGetEncryptedRegularTxFields(tx, runtimeContext.currentEpoch);
             } catch (const std::exception& e) {
                 CONS_LOG(warn, fmt::format("Could not try to parse as regular encrypted transaction during decryption: {}: {}", txIdx, e.what()));
             }
@@ -578,7 +578,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
             }
 
             // ---------- No BITE data at all ----------
-            // If it's neither CAT nor regular encrypted, we must not have AES keys
+            // If it's neither CTX nor regular encrypted, we must not have AES keys
             CHECK_STATE(!_aesKeys.getKeys(txIdx));
         }
     } catch ( ... ) {
@@ -593,7 +593,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
 
     return DecryptedTransactions(
 #ifdef BITE2 
-        catTxsMap,
+        ctxTxsMap,
 #endif 
         decryptedFieldsMap 
     );
@@ -614,7 +614,7 @@ std::vector<uint8_t> BiteEngine::buildRegularTxData(
 
 #ifdef BITE2
 
-std::vector<uint8_t> BiteEngine::buildCATData(
+std::vector<uint8_t> BiteEngine::buildCTXData(
     const libBLS::TEPublicKey& key,
     size_t numberOfCiphertexts,
     uint64_t epochId,
@@ -646,7 +646,7 @@ std::vector<uint8_t> BiteEngine::buildCATData(
         plainArgs.emplace_back(numberOfCiphertexts * 5);
     }
 
-    return BiteCodec::encodeCATData(encryptedSerializedArgs, plainArgs);
+    return BiteCodec::encodeCTXData(encryptedSerializedArgs, plainArgs);
 }
 
 #endif

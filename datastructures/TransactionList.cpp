@@ -167,8 +167,8 @@ ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
         auto epochId = biteManager->getSchain()->getNode()->getCurrentEpochId();
         for (size_t i = 0; i < transactions->size(); i++) {
             auto tx = transactions->at(i);
-            if (BiteEngine::tryGetEncryptedCATArgs(tx, epochId)) {
-                tv->pushBackCAT(*(tx->getData()));
+            if (BiteEngine::tryGetEncryptedCTXArgs(tx, epochId)) {
+                tv->pushBackCTX(*(tx->getData()));
             }
             else {
                 // first regular tx found
