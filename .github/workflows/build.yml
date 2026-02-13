@@ -75,38 +75,43 @@ jobs:
 
     - name: Install docker compose
       run: |
-        mkdir -p ~/.docker/cli-plugins/
-        curl -SL https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-        chmod +x ~/.docker/cli-plugins/docker-compose
+        rm -f ~/.docker/cli-plugins/docker-compose || true
+        sudo apt-get update
+        sudo apt-get install -y docker-compose-plugin
+        docker version
         docker compose version
 
     - name: try docker compose
       run: |
         cd sgxwallet/run_sgx_sim
-        echo " --------------------------- stopping sgx wallet ------------------------------------------------------------------------------------------------------ "
-        docker compose down
-        echo " --------------------------- fixing sgx wallets docker config ----------------------------------------------------------------------------------------- "
+        echo "stopping sgx wallet"
+        docker compose down || true
+
+        echo "writing docker-compose.yml"
         mv docker-compose.yml docker-compose.yml.old-previous || true
-        echo "version: '3'" > docker-compose.yml
-        echo "services:" >> docker-compose.yml
-        echo "  sgxwallet:" >> docker-compose.yml
-        echo "    image: skalenetwork/sgxwallet_sim:develop-latest" >> docker-compose.yml
-        echo "    ports:" >> docker-compose.yml
-        echo '      - "1026:1026"' >> docker-compose.yml
-        echo '      - "1027:1027"' >> docker-compose.yml
-        echo '      - "1028:1028"' >> docker-compose.yml
-        echo '      - "1029:1029"' >> docker-compose.yml
-        echo "    volumes:" >> docker-compose.yml
-        echo "      - ./sgx_data:/usr/src/sdk/sgx_data" >> docker-compose.yml
-        echo "      -  /dev/urandom:/dev/random" >> docker-compose.yml
-        echo "    logging:" >> docker-compose.yml
-        echo "      driver: json-file" >> docker-compose.yml
-        echo "      options:" >> docker-compose.yml
-        echo '        max-size: "10m"' >> docker-compose.yml
-        echo '        max-file: "4"' >> docker-compose.yml
-        echo "    restart: unless-stopped" >> docker-compose.yml
-        echo "    command: -s -y -V -d " >> docker-compose.yml
-        echo " --------------------------- pulling sgx wallet ------------------------------------------------------------------------------------------------------- "
+        cat > docker-compose.yml <<'YAML'
+        version: '3'
+        services:
+          sgxwallet:
+            image: skalenetwork/sgxwallet_sim:develop-latest
+            ports:
+              - "1026:1026"
+              - "1027:1027"
+              - "1028:1028"
+              - "1029:1029"
+            volumes:
+              - ./sgx_data:/usr/src/sdk/sgx_data
+              - /dev/urandom:/dev/random
+            logging:
+              driver: json-file
+              options:
+                max-size: "10m"
+                max-file: "4"
+            restart: unless-stopped
+            command: -s -y -V -d
+        YAML
+
+        echo "pulling sgx wallet"
         docker compose pull
 
     - name: install cmake
