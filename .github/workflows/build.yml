@@ -73,25 +73,9 @@ jobs:
         sudo rm -rf /usr/local/lib/android >/dev/null 2>&1 || true
         sudo docker system prune -af --volumes >/dev/null 2>&1 || true
 
-    - name: Install modern docker compose plugin
+    - name: Docker diagnostics
       run: |
-        # Remove any old manually installed compose binary just in case
-        rm -f ~/.docker/cli-plugins/docker-compose || true
-
-        # Add Docker official repo (required for docker-compose-plugin)
-        sudo install -m 0755 -d /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
-          sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-        sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-        echo \
-          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-          https://download.docker.com/linux/ubuntu jammy stable" | \
-          sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-        sudo apt-get update
-        sudo apt-get install -y docker-compose-plugin
-
+        docker --version
         docker version
         docker compose version
 
