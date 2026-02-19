@@ -84,8 +84,7 @@ std::vector<uint8_t> BiteCodec::encodeCTXData(
 
     auto finalData = allArgs.encode();
 
-    std::vector<uint8_t> data;
-    data.reserve(BITE2_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
+    std::vector<uint8_t> data(BITE2_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
 
     // prefix with function selector
     data.insert(
