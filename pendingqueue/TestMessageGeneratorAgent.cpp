@@ -165,21 +165,21 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
 ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBITE(
     size_t _limit ) {
     static size_t txIdxInPrecomputedBatchRegular = 0;
-    static size_t txIdxInPrecomputedBatchCAT = 0;
+    static size_t txIdxInPrecomputedBatchCTX = 0;
     // contains 3/4 BITE encrypted & 1/4 unencrypted regular transactions
     static ConsensusExtFace::Transactions onlyRegularTxs;
-    // contains only BITE2 CAT transactions (with encrypted args)
-    static ConsensusExtFace::Transactions onlyCATs;
+    // contains only BITE2 CTX transactions (with encrypted args)
+    static ConsensusExtFace::Transactions onlyCTXs;
     static std::once_flag initFlag;
     static size_t numTotalRegularTxs = 1000;
-    static size_t numTotalCATTxs = 200;
-    static double CATsProportion = 0;
+    static size_t numTotalCTXTxs = 200;
+    static double CTXsProportion = 0;
 
     // build test transactions only once at start (includes encrypting them)
     std::call_once(initFlag, [&] () {
 #ifdef BITE2
-        CATsProportion = (double) numTotalCATTxs / (numTotalRegularTxs + numTotalCATTxs);
-        ConsensusExtFace::Transactions tmpOnlyCATs;
+        CTXsProportion = (double) numTotalCTXTxs / (numTotalRegularTxs + numTotalCTXTxs);
+        ConsensusExtFace::Transactions tmponlyCTXs;
 #endif
 
         ConsensusExtFace::Transactions tmpOnlyRegularTxs;
@@ -198,30 +198,30 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
         onlyRegularTxs = std::move(tmpOnlyRegularTxs);
 
 #ifdef BITE2
-        // setup cat txs - include some empty CATs for coverage
-        // Empty CATs will be at positions: 0 (start), numTotalCATTxs/2 (middle), numTotalCATTxs-1 (end)
-        // and every 10th transaction to ensure ~10% are empty CATs
-        for ( uint64_t i = 0; i < numTotalCATTxs; i++ ) {
+        // setup ctx txs - include some empty CTXs for coverage
+        // Empty CTXs will be at positions: 0 (start), numTotalCTXTxs/2 (middle), numTotalCTXTxs-1 (end)
+        // and every 10th transaction to ensure ~10% are empty CTXs
+        for ( uint64_t i = 0; i < numTotalCTXTxs; i++ ) {
             auto tx = EthTransactionEncoder::generateSampleTx();
             
-            // Make empty CAT at start, middle, end, and every 10th transaction
-            bool isEmptyCAT = (i == 0) || 
-                              (i == numTotalCATTxs / 2) || 
-                              (i == numTotalCATTxs - 1) ||
+            // Make empty CTX at start, middle, end, and every 10th transaction
+            bool isEmptyCTX = (i == 0) || 
+                              (i == numTotalCTXTxs / 2) || 
+                              (i == numTotalCTXTxs - 1) ||
                               (i % 10 == 0);
             
-            if (isEmptyCAT) {
-                // CAT with no encrypted arguments (empty ciphertexts)
-                EthTransactionEncoder::encryptEmptyCATTransaction( tx, sChain->getBiteManager() );
+            if (isEmptyCTX) {
+                // CTX with no encrypted arguments (empty ciphertexts)
+                EthTransactionEncoder::encryptEmptyCTXTransaction( tx, sChain->getBiteManager() );
             } else {
-                // Regular CAT with encrypted arguments
-                EthTransactionEncoder::encryptCATTransaction( tx, sChain->getBiteManager() );
+                // Regular CTX with encrypted arguments
+                EthTransactionEncoder::encryptCTXTransaction( tx, sChain->getBiteManager() );
             }
             
             auto signedTx = EthTransactionEncoder::signAndEncodeTx( tx );
-            tmpOnlyCATs.emplaceBackCAT( std::move(*signedTx) );
+            tmponlyCTXs.emplaceBackCTX( std::move(*signedTx) );
         }
-        onlyCATs = std::move(tmpOnlyCATs);
+        onlyCTXs = std::move(tmponlyCTXs);
 #endif
     });
 
@@ -234,20 +234,20 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
     if ( test == SchainTest::NONE )
         return selectedTxs;
 
-    // compute how many CATs / non-CATs to include
-    const size_t numCATs = (CATsProportion * _limit);
-    const size_t numRegularTxs = _limit - numCATs;
-    size_t catIdx = txIdxInPrecomputedBatchCAT;
+    // compute how many CTXs / non-CTXs to include
+    const size_t numCTXs = (CTXsProportion * _limit);
+    const size_t numRegularTxs = _limit - numCTXs;
+    size_t ctxIdx = txIdxInPrecomputedBatchCTX;
 
 #ifdef BITE2
-    // place all CATs at the start
-    for ( size_t i = 0; i < numCATs; i++ ) {
-        catIdx = (catIdx + 1) % numTotalCATTxs;
-        selectedTxs.emplaceBackCAT( onlyCATs.at(catIdx) );
+    // place all CTXs at the start
+    for ( size_t i = 0; i < numCTXs; i++ ) {
+        ctxIdx = (ctxIdx + 1) % numTotalCTXTxs;
+        selectedTxs.emplaceBackCTX( onlyCTXs.at(ctxIdx) );
     }
 #endif
-    ( void ) numTotalCATTxs;
-    txIdxInPrecomputedBatchCAT = catIdx;
+    ( void ) numTotalCTXTxs;
+    txIdxInPrecomputedBatchCTX = ctxIdx;
 
     size_t regularIdx = txIdxInPrecomputedBatchRegular;
     for ( uint64_t i = 0; i < numRegularTxs; i++ ) {

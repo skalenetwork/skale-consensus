@@ -404,8 +404,8 @@ ptr< DecryptedRegularTxsMap > CommittedBlock::getDecryptedRegularTxFields() cons
 }
 
 #ifdef BITE2
-ptr< DecryptedCATxsMap > CommittedBlock::getDecryptedCATArgs() const {
-    return decryptedTransactions.catTxsMap;
+ptr< DecryptedCTXTxsMap > CommittedBlock::getDecryptedCATArgs() const {
+    return decryptedTransactions.ctxTxsMap;
 }
 #endif
 #endif

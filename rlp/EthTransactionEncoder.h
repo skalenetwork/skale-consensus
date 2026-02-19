@@ -33,9 +33,9 @@ public:
 
 #ifdef BITE2
 
-    static void encryptCATTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager);
+    static void encryptCTXTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager);
 
-    static void encryptEmptyCATTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager);
+    static void encryptEmptyCTXTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager);
 
 #endif
 

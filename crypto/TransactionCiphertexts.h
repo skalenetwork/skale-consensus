@@ -63,5 +63,5 @@ public:
     [[nodiscard]] const std::optional<AddressBytes>& getScAddressAadTE() const { return scAddressAadTE; }
     
     // Returns true if this is a CAT transaction (has SC address AAD)
-    [[nodiscard]] bool isCAT() const { return scAddressAadTE.has_value(); }
+    [[nodiscard]] bool isCTX() const { return scAddressAadTE.has_value(); }
 };
