@@ -97,7 +97,7 @@ inline std::shared_ptr<Transaction> buildBite2Transaction(
     }
 
     // build CAT data field
-    auto dataField = BiteCodec::encodeCATData(serializedEncryptedArgs, plainArgs);
+    auto dataField = BiteCodec::encodeCTXData(serializedEncryptedArgs, plainArgs);
 
     // generate sample tx, and set BITE2 data field
     auto tx = EthTransactionEncoder::generateSampleTx();
@@ -135,7 +135,7 @@ inline std::shared_ptr<Transaction> buildBite2TransactionWithScAddress(
     }
 
     // build CAT data field
-    auto dataField = BiteCodec::encodeCATData(serializedEncryptedArgs, plainArgs);
+    auto dataField = BiteCodec::encodeCTXData(serializedEncryptedArgs, plainArgs);
 
     // generate sample tx with custom SC address
     auto tx = EthTransactionEncoder::generateSampleTx();

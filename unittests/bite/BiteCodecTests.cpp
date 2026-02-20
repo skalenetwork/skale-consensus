@@ -100,8 +100,8 @@ CATCH_TEST_CASE("BiteCodec parses CAT args with selector and ignores others", "[
     std::vector<std::vector<uint8_t>> plainArgs = { {0xAA}, {0xBB} };
 
     // correct selector - should parse
-    auto encoded = BiteCodec::encodeCATData(encryptedArgs, plainArgs);
-    auto parsed = BiteCodec::tryParseEncryptedCATArgs(encoded, epoch);
+    auto encoded = BiteCodec::encodeCTXData(encryptedArgs, plainArgs);
+    auto parsed = BiteCodec::tryParseEncryptedCTXArgs(encoded, epoch);
     CATCH_REQUIRE(parsed);
     CATCH_REQUIRE(parsed->size() == encryptedArgs.size());
     for (size_t i = 0; i < parsed->size(); i++) {
@@ -112,7 +112,7 @@ CATCH_TEST_CASE("BiteCodec parses CAT args with selector and ignores others", "[
 
     // missing selector - should not parse
     std::vector<uint8_t> withoutSelector{0x00, 0x01, 0x02, 0x03};
-    CATCH_REQUIRE(BiteCodec::tryParseEncryptedCATArgs(withoutSelector, epoch) == nullptr);
+    CATCH_REQUIRE(BiteCodec::tryParseEncryptedCTXArgs(withoutSelector, epoch) == nullptr);
 }
 
 CATCH_TEST_CASE("BiteCodec enforces epoch for CAT args", "[bite][codec][cat][epoch]") {
@@ -133,16 +133,16 @@ CATCH_TEST_CASE("BiteCodec enforces epoch for CAT args", "[bite][codec][cat][epo
     };
     std::vector<std::vector<uint8_t>> plainArgs = { {0xAA}, {0xBB} };
 
-    auto encoded = BiteCodec::encodeCATData(encryptedArgs, plainArgs);
+    auto encoded = BiteCodec::encodeCTXData(encryptedArgs, plainArgs);
 
     // matching epoch works
-    auto parsed = BiteCodec::tryParseEncryptedCATArgs(encoded, epoch);
+    auto parsed = BiteCodec::tryParseEncryptedCTXArgs(encoded, epoch);
     CATCH_REQUIRE(parsed);
     CATCH_REQUIRE(parsed->size() == encryptedArgs.size());
 
     // mismatching epoch throws when constructing BiteCiphertext for args
     CATCH_REQUIRE_THROWS_AS(
-        BiteCodec::tryParseEncryptedCATArgs(encoded, epoch + 1),
+        BiteCodec::tryParseEncryptedCTXArgs(encoded, epoch + 1),
         InvalidStateException);
 }
 #endif

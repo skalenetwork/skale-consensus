@@ -228,7 +228,7 @@ public:
         
 #ifdef BITE2
         // number of CAT txs in 'all' vector
-        std::size_t catsSize = 0;
+        std::size_t ctxsSize = 0;
 #endif
 
         using iterator = typename transactions_vector::iterator;
@@ -237,24 +237,24 @@ public:
     public:
 
 #ifdef BITE2
-        std::size_t sizeCAT() const noexcept {
-            return catsSize;
+        std::size_t sizeCTX() const noexcept {
+            return ctxsSize;
         }
 
-        bool isCat(size_t index) const {
-            return index < catsSize;
+        bool isCTX(size_t index) const {
+            return index < ctxsSize;
         }
 
-        void emplaceBackCAT(Bytes&& b) {
-            CHECK_STATE(catsSize == all.size()); // ensure all cats are contiguous at the start
+        void emplaceBackCTX(Bytes&& b) {
+            CHECK_STATE(ctxsSize == all.size()); // ensure all cats are contiguous at the start
             all.emplace_back(std::move(b));
-            catsSize++;
+            ctxsSize++;
         }
 
-        void pushBackCAT(const Bytes &b) {
-            CHECK_STATE(catsSize == all.size());
+        void pushBackCTX(const Bytes &b) {
+            CHECK_STATE(ctxsSize == all.size());
             all.push_back(b);
-            catsSize++;
+            ctxsSize++;
         }
 #endif
 

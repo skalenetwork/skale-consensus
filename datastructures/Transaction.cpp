@@ -207,11 +207,11 @@ void Transaction::setRegularTxEncryptedData( ptr<BiteCiphertext> _biteDataField 
 }
 
 #ifdef BITE2
-ptr<std::vector<ptr<BiteCiphertext>>> Transaction::getCATEncryptedArgs() {
+ptr<std::vector<ptr<BiteCiphertext>>> Transaction::getCTXEncryptedArgs() {
     // thread safe
     return std::atomic_load(&parsedEncryptedCATArgs );
 }
-void Transaction::setCATEncryptedArgs( ptr<std::vector<ptr<BiteCiphertext>>> _biteDataField ) {
+void Transaction::setCTXEncryptedArgs( ptr<std::vector<ptr<BiteCiphertext>>> _biteDataField ) {
     // thread safe
     std::atomic_store(&parsedEncryptedCATArgs, _biteDataField);
 }

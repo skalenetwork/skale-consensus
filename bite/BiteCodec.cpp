@@ -21,7 +21,7 @@ ptr<BiteCiphertext> BiteCodec::tryParseEncryptedRegularTxFields(
 }
 
 #ifdef BITE2
-std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryParseEncryptedCATArgs(
+std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryParseEncryptedCTXArgs(
         const std::vector<uint8_t>& _dataField, epoch_id _currentEpochId) {
     // compare first 4 bytes to BITE2 expected function selector
     if (_dataField.size() < BITE2_FUNCTION_SELECTOR_SIZE_BYTES ||
@@ -45,14 +45,14 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
     RLPItem encryptedArgsRLP = rlpItem[0];
     CHECK_STATE(encryptedArgsRLP.isList());
 
-    auto encryptedCATArgs = std::make_shared<std::vector<std::shared_ptr<BiteCiphertext>>>();
+    auto encryptedCTXArgs = std::make_shared<std::vector<std::shared_ptr<BiteCiphertext>>>();
 
-    encryptedCATArgs->reserve(encryptedArgsRLP.size());
+    encryptedCTXArgs->reserve(encryptedArgsRLP.size());
     for (size_t i = 0; i < encryptedArgsRLP.size(); i++) {
         auto argData = std::make_shared<std::vector<uint8_t>>(encryptedArgsRLP[i].asBytes());
-        encryptedCATArgs->emplace_back( std::make_shared<BiteCiphertext>(argData, _currentEpochId) );
+        encryptedCTXArgs->emplace_back( std::make_shared<BiteCiphertext>(argData, _currentEpochId) );
     }
-    return encryptedCATArgs;
+    return encryptedCTXArgs;
 }
 #endif
 
@@ -63,9 +63,9 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
 // ==================== BiteCiphertext building for Transaction fields ==================== //
 
 
-// Encode CAT arguments given serialized encrypted args + plaintext args
+// Encode CTX arguments given serialized encrypted args + plaintext args
 #ifdef BITE2
-std::vector<uint8_t> BiteCodec::encodeCATData(
+std::vector<uint8_t> BiteCodec::encodeCTXData(
     const std::vector<std::vector<uint8_t>>& encryptedSerializedArgs,
     const std::vector<std::vector<uint8_t>>& plainArgs
 ) {
@@ -84,18 +84,13 @@ std::vector<uint8_t> BiteCodec::encodeCATData(
 
     auto finalData = allArgs.encode();
 
-    std::vector<uint8_t> data;
-    data.reserve(BITE2_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
+    std::vector<uint8_t> data(BITE2_FUNCTION_SELECTOR_SIZE_BYTES + finalData.size());
 
     // prefix with function selector
-    data.insert(
-        data.end(),
-        BITE2_FUNCTION_SELECTOR_AS_BYTE_ARRAY,
-        BITE2_FUNCTION_SELECTOR_AS_BYTE_ARRAY + BITE2_FUNCTION_SELECTOR_SIZE_BYTES
-    );
+    std::memcpy(data.data(), BITE2_FUNCTION_SELECTOR_AS_BYTE_ARRAY, BITE2_FUNCTION_SELECTOR_SIZE_BYTES);
 
     // append RLP data
-    data.insert(data.end(), finalData.begin(), finalData.end());
+    std::memcpy(data.data() + BITE2_FUNCTION_SELECTOR_SIZE_BYTES, finalData.data(), finalData.size());
 
     return data;
 }

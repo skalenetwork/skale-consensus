@@ -84,7 +84,7 @@ add_subdirectory(libBLS)
 
 project(consensus)
 
-include_directories("${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp"
+include_directories(SYSTEM "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp"
         "cppzmq")
 link_directories("${DEPS_INSTALL_ROOT}/lib")
 set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
@@ -95,7 +95,7 @@ find_package(leveldb CONFIG REQUIRED)
 find_package(Snappy CONFIG REQUIRED)
 find_package(Crc32c CONFIG REQUIRED)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION)
 message(STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}")
 add_compile_options(-Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-sign-compare)
@@ -224,7 +224,8 @@ SET(SRC_FILES
 )
 
 
-include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
+include_directories(. libBLS/bls libBLS)
+include_directories(SYSTEM spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 if (NOT CMAKE_PROJECT_NAME STREQUAL "consensus" AND NOT DEFINED BITE)
     include_directories(${PARENT_BINARY_DIR}/deps/include)

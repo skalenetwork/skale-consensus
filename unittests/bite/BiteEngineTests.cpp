@@ -131,8 +131,8 @@ DecryptedAESKeys getDecryptedAESKeysForTransaction(
 
     // mimic engine: CAT first (if enabled), otherwise regular BITE1
 #ifdef BITE2
-    if (auto catArgs = BiteEngine::tryGetEncryptedCATArgs(tx, epoch)) {
-        ciphertexts.insert(ciphertexts.end(), catArgs->begin(), catArgs->end());
+    if (auto ctxArgs = BiteEngine::tryGetEncryptedCTXArgs(tx, epoch)) {
+        ciphertexts.insert(ciphertexts.end(), ctxArgs->begin(), ctxArgs->end());
     } else
 #endif
     if (auto regular = BiteEngine::tryGetEncryptedRegularTxFields(tx, epoch)) {
@@ -665,10 +665,10 @@ CATCH_TEST_CASE("BiteEngine decrypts only CAT transactions", "[bite][engine][dec
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
-    CATCH_REQUIRE(decrypted.catTxsMap);
-    CATCH_REQUIRE(decrypted.catTxsMap->size() == 2);
-    CATCH_REQUIRE(decrypted.catTxsMap->count(0) == 1);
-    CATCH_REQUIRE(decrypted.catTxsMap->count(1) == 1);
+    CATCH_REQUIRE(decrypted.ctxTxsMap);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->size() == 2);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->count(0) == 1);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->count(1) == 1);
     CATCH_REQUIRE(decrypted.regularTxsMap->empty());
 }
 #endif
@@ -709,8 +709,8 @@ CATCH_TEST_CASE("BiteEngine decrypts mixed CAT and BITE transactions", "[bite][e
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     // 1 cat decrypted
-    CATCH_REQUIRE(decrypted.catTxsMap);
-    CATCH_REQUIRE(decrypted.catTxsMap->size() == 1);
+    CATCH_REQUIRE(decrypted.ctxTxsMap);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->size() == 1);
     // 1 regular decrypted
     CATCH_REQUIRE(decrypted.regularTxsMap);
     CATCH_REQUIRE(decrypted.regularTxsMap->size() == 1);
@@ -752,8 +752,8 @@ CATCH_TEST_CASE("BiteEngine decrypts treats out of place CAT as regular tx", "[b
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     // no cat decrypted
-    CATCH_REQUIRE(decrypted.catTxsMap);
-    CATCH_REQUIRE(decrypted.catTxsMap->empty());
+    CATCH_REQUIRE(decrypted.ctxTxsMap);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->empty());
     // 1 regular decrypted
     CATCH_REQUIRE(decrypted.regularTxsMap);
     CATCH_REQUIRE(decrypted.regularTxsMap->size() == 1);
@@ -998,16 +998,16 @@ CATCH_TEST_CASE("BiteEngine decrypts CAT with empty ciphertexts at start of list
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
-    CATCH_REQUIRE(decrypted.catTxsMap);
-    CATCH_REQUIRE(decrypted.catTxsMap->size() == 2);
+    CATCH_REQUIRE(decrypted.ctxTxsMap);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->size() == 2);
     // tx 0 should be present with empty args
-    auto it0 = decrypted.catTxsMap->find(0);
-    CATCH_REQUIRE(it0 != decrypted.catTxsMap->end());
+    auto it0 = decrypted.ctxTxsMap->find(0);
+    CATCH_REQUIRE(it0 != decrypted.ctxTxsMap->end());
     CATCH_REQUIRE(it0->second.has_value());
     CATCH_REQUIRE(it0->second->args.empty());
     // tx 1 should have decrypted args
-    auto it1 = decrypted.catTxsMap->find(1);
-    CATCH_REQUIRE(it1 != decrypted.catTxsMap->end());
+    auto it1 = decrypted.ctxTxsMap->find(1);
+    CATCH_REQUIRE(it1 != decrypted.ctxTxsMap->end());
     CATCH_REQUIRE(it1->second.has_value());
     CATCH_REQUIRE(it1->second->args.size() == 2);
 }
@@ -1057,21 +1057,21 @@ CATCH_TEST_CASE("BiteEngine decrypts CAT with empty ciphertexts in middle of lis
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
-    CATCH_REQUIRE(decrypted.catTxsMap);
-    CATCH_REQUIRE(decrypted.catTxsMap->size() == 3);
+    CATCH_REQUIRE(decrypted.ctxTxsMap);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->size() == 3);
     // tx 0 should have 1 decrypted arg
-    auto it0 = decrypted.catTxsMap->find(0);
-    CATCH_REQUIRE(it0 != decrypted.catTxsMap->end());
+    auto it0 = decrypted.ctxTxsMap->find(0);
+    CATCH_REQUIRE(it0 != decrypted.ctxTxsMap->end());
     CATCH_REQUIRE(it0->second.has_value());
     CATCH_REQUIRE(it0->second->args.size() == 1);
     // tx 1 should be present with empty args
-    auto it1 = decrypted.catTxsMap->find(1);
-    CATCH_REQUIRE(it1 != decrypted.catTxsMap->end());
+    auto it1 = decrypted.ctxTxsMap->find(1);
+    CATCH_REQUIRE(it1 != decrypted.ctxTxsMap->end());
     CATCH_REQUIRE(it1->second.has_value());
     CATCH_REQUIRE(it1->second->args.empty());
     // tx 2 should have 2 decrypted args
-    auto it2 = decrypted.catTxsMap->find(2);
-    CATCH_REQUIRE(it2 != decrypted.catTxsMap->end());
+    auto it2 = decrypted.ctxTxsMap->find(2);
+    CATCH_REQUIRE(it2 != decrypted.ctxTxsMap->end());
     CATCH_REQUIRE(it2->second.has_value());
     CATCH_REQUIRE(it2->second->args.size() == 2);
 }
@@ -1121,21 +1121,21 @@ CATCH_TEST_CASE("BiteEngine decrypts CAT with empty ciphertexts at end of list",
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
-    CATCH_REQUIRE(decrypted.catTxsMap);
-    CATCH_REQUIRE(decrypted.catTxsMap->size() == 3);
+    CATCH_REQUIRE(decrypted.ctxTxsMap);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->size() == 3);
     // tx 0 should have 2 decrypted args
-    auto it0 = decrypted.catTxsMap->find(0);
-    CATCH_REQUIRE(it0 != decrypted.catTxsMap->end());
+    auto it0 = decrypted.ctxTxsMap->find(0);
+    CATCH_REQUIRE(it0 != decrypted.ctxTxsMap->end());
     CATCH_REQUIRE(it0->second.has_value());
     CATCH_REQUIRE(it0->second->args.size() == 2);
     // tx 1 should have 1 decrypted arg
-    auto it1 = decrypted.catTxsMap->find(1);
-    CATCH_REQUIRE(it1 != decrypted.catTxsMap->end());
+    auto it1 = decrypted.ctxTxsMap->find(1);
+    CATCH_REQUIRE(it1 != decrypted.ctxTxsMap->end());
     CATCH_REQUIRE(it1->second.has_value());
     CATCH_REQUIRE(it1->second->args.size() == 1);
     // tx 2 should be present with empty args
-    auto it2 = decrypted.catTxsMap->find(2);
-    CATCH_REQUIRE(it2 != decrypted.catTxsMap->end());
+    auto it2 = decrypted.ctxTxsMap->find(2);
+    CATCH_REQUIRE(it2 != decrypted.ctxTxsMap->end());
     CATCH_REQUIRE(it2->second.has_value());
     CATCH_REQUIRE(it2->second->args.empty());
 }
@@ -1164,15 +1164,15 @@ CATCH_TEST_CASE("BiteEngine decrypts only CAT with empty ciphertexts", "[bite][e
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
-    CATCH_REQUIRE(decrypted.catTxsMap);
-    CATCH_REQUIRE(decrypted.catTxsMap->size() == 1);
-    auto it = decrypted.catTxsMap->find(0);
-    CATCH_REQUIRE(it != decrypted.catTxsMap->end());
+    CATCH_REQUIRE(decrypted.ctxTxsMap);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->size() == 1);
+    auto it = decrypted.ctxTxsMap->find(0);
+    CATCH_REQUIRE(it != decrypted.ctxTxsMap->end());
     CATCH_REQUIRE(it->second.has_value());
     CATCH_REQUIRE(it->second->args.empty());
 }
 
-CATCH_TEST_CASE("BiteEngine tryGetEncryptedCATArgs caches SC address as AAD", "[bite][engine][cat][aad]") {
+CATCH_TEST_CASE("BiteEngine tryGetEncryptedCTXArgs caches SC address as AAD", "[bite][engine][cat][aad]") {
     const uint64_t epoch = 20;
     auto keys = generateKeys(1, 1);
     
@@ -1188,7 +1188,7 @@ CATCH_TEST_CASE("BiteEngine tryGetEncryptedCATArgs caches SC address as AAD", "[
     );
     
     // First call should parse and cache
-    auto args = BiteEngine::tryGetEncryptedCATArgs(catTx, epoch);
+    auto args = BiteEngine::tryGetEncryptedCTXArgs(catTx, epoch);
     CATCH_REQUIRE(args != nullptr);
     CATCH_REQUIRE(!args->empty());
     

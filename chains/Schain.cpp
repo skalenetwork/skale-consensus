@@ -870,7 +870,7 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
             auto decryptedTxs = _block->getDecryptedTransactions();
             CHECK_STATE(decryptedTxs.regularTxsMap)
 #ifdef BITE2
-            CHECK_STATE(decryptedTxs.catTxsMap)
+            CHECK_STATE(decryptedTxs.ctxTxsMap)
 #endif
 #endif
 
@@ -882,7 +882,7 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
 #ifdef BITE
                     + ":BITE_DECRYPTED_TXS:" + to_string(decryptedTxs.regularTxsMap->size())
 #ifdef BITE2
-                    + ":CAT_DECRYPTED_TXS:" + to_string(decryptedTxs.catTxsMap->size())
+                    + ":CAT_DECRYPTED_TXS:" + to_string(decryptedTxs.ctxTxsMap->size())
 #endif
 #endif
 
@@ -1445,7 +1445,7 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
 
     checkForExit();
 #ifdef BITE
-    getFinalizationExecutor()->add([=]() {
+    getFinalizationExecutor()->add([_blockId, _proposerIndex, _thresholdSig, this]() {
 #endif
         finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
 #ifdef BITE

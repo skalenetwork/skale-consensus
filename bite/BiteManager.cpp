@@ -283,7 +283,7 @@ ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data
 }
 
 #ifdef BITE2
-ptr<vector<uint8_t>> BiteManager::generateEncryptedCATData(uint64_t epochId, const std::optional<AddressBytes>& scAddressAadTE) {
+ptr<vector<uint8_t>> BiteManager::generateEncryptedCTXData(uint64_t epochId, const std::optional<AddressBytes>& scAddressAadTE) {
     constexpr size_t numberOfCiphertexts = 2;
 
     if (biteEngine.usingRealCrypto()) {
@@ -291,7 +291,7 @@ ptr<vector<uint8_t>> BiteManager::generateEncryptedCATData(uint64_t epochId, con
         CHECK_STATE(primaryKey);
         auto blsKey = primaryKey->getPublicKey();
         libBLS::TEPublicKey teKey(blsKey);
-        return std::make_shared<vector<uint8_t>>(biteEngine.buildCATData(teKey, numberOfCiphertexts, epochId, scAddressAadTE));
+        return std::make_shared<vector<uint8_t>>(biteEngine.buildCTXData(teKey, numberOfCiphertexts, epochId, scAddressAadTE));
     }
 
     // mock path: build ciphertexts using mockup encryption + epoch wrapping
@@ -311,21 +311,21 @@ ptr<vector<uint8_t>> BiteManager::generateEncryptedCATData(uint64_t epochId, con
         plainArgs.emplace_back(numberOfCiphertexts * 5);
     }
 
-    return std::make_shared<vector<uint8_t>>(BiteCodec::encodeCATData(encryptedSerializedArgs, plainArgs));
+    return std::make_shared<vector<uint8_t>>(BiteCodec::encodeCTXData(encryptedSerializedArgs, plainArgs));
 }
 
-ptr<vector<uint8_t> > BiteManager::generateEmptyCATData(uint64_t epochId) {
+ptr<vector<uint8_t> > BiteManager::generateEmptyCTXData(uint64_t epochId) {
     (void)epochId;  // epochId not needed since there are no ciphertexts
     
     // No encrypted arguments (empty ciphertexts)
     std::vector<std::vector<uint8_t>> encryptedSerializedArgs;
     
-    // Some plain arguments to include in the CAT
+    // Some plain arguments to include in the CTX
     std::vector<std::vector<uint8_t>> plainArgs;
     plainArgs.emplace_back(std::vector<uint8_t>{0x01, 0x02, 0x03});
     plainArgs.emplace_back(std::vector<uint8_t>{0x04, 0x05});
     
-    return std::make_shared<vector<uint8_t>>(BiteCodec::encodeCATData(encryptedSerializedArgs, plainArgs));
+    return std::make_shared<vector<uint8_t>>(BiteCodec::encodeCTXData(encryptedSerializedArgs, plainArgs));
 }
 #endif
 
