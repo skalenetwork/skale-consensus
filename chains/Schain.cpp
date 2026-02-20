@@ -1445,7 +1445,7 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
 
     checkForExit();
 #ifdef BITE
-    getFinalizationExecutor()->add([=]() {
+    getFinalizationExecutor()->add([_blockId, _proposerIndex, _thresholdSig, this]() {
 #endif
         finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
 #ifdef BITE
