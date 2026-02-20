@@ -58,12 +58,13 @@ public:
     ptr< ThresholdSignature > checkAndSaveShareInMemory( const ptr< ThresholdSigShare >& _sigShare,
         const ptr< CryptoManager >& _cryptoManager, schain_index _proposer );
 
+    ptr< map< schain_index, string > > writeStringToSetInMemory(
+        const string& _value, block_id _blockId, schain_index _index, schain_index _proposerIndex );
+
+private:
     ptr< ThresholdSignature > checkAndSaveShareInMemory( const ptr< ThresholdSigShare >& _sigShare,
         const ptr< CryptoManager >& _cryptoManager, schain_index _proposer,
         const BLAKE3Hash& _hash );
-
-    ptr< map< schain_index, string > > writeStringToSetInMemory(
-        const string& _value, block_id _blockId, schain_index _index, schain_index _proposerIndex );
 };
 
 

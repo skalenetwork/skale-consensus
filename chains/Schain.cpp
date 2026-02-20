@@ -76,7 +76,6 @@
 #include "db/PriceDB.h"
 #include "db/ProposalVectorDB.h"
 #include "db/RandomDB.h"
-#include "db/ReencryptionRandomDB.h"
 #include "exceptions/EngineInitException.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/FatalError.h"
@@ -120,15 +119,16 @@
 #ifdef BITE
 #include "bite/BiteManager.h"
 #include "crypto/DecryptedAESKeyList.h"
-#endif
+#include "db/TEDecryptionDB.h"
+
+#ifdef BITE2
+#include "protocols/blockconsensus/ConsensusSignatureDomains.h"
+#endif // BITE2
+#endif // BITE
 
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"
-
-#ifdef BITE
-#include "db/TEDecryptionDB.h"
-#endif
 
 #include "libBLS/bls/BLSPrivateKeyShare.h"
 #include "monitoring/LivelinessMonitor.h"
@@ -1715,7 +1715,8 @@ u256 Schain::calculateRandomFromSignatureString( const string& _signature ) {
 u256 Schain::getReencryptionRandomForBlockId( block_id _blockId ) {
     // Ensure the block has already been committed to the database
     CHECK_STATE(_blockId <= readLastCommittedBlockIDFromDb());
-    return getNode()->getReencryptionRandomDB()->readRandom( _blockId );
+    return getNode()->getRandomDB()->readDomainRandom(
+        blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN, _blockId );
 }
 #endif
 

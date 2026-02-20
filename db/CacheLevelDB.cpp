@@ -68,6 +68,9 @@ string CacheLevelDB::createKey( const block_id _blockId ) {
     return getFormatVersion() + ":" + to_string( _blockId );
 }
 
+string CacheLevelDB::createKey( const block_id _blockId, const string_view& _domain ) {
+    return getFormatVersion() + ":" + to_string( _blockId ) + ":" + string( _domain );
+}
 
 string CacheLevelDB::createKey( block_id _blockId, schain_index _proposerIndex ) {
     return getFormatVersion() + ":" + to_string( _blockId ) + ":" + to_string( _proposerIndex );

@@ -66,7 +66,7 @@
 
 #ifdef BITE2
 #include "protocols/blockconsensus/ConsensusSignatureDomains.h"
-#include "db/ReencryptionRandomDB.h"
+#include "db/RandomDB.h"
 #endif
 
 
@@ -241,8 +241,8 @@ void BlockConsensusAgent::decideBlock(
 
             // save produced random from offchain signature to DB
             auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
-            getSchain()->getNode()->getReencryptionRandomDB()->writeRandom(
-                msg->getBlockId(), random );
+            getSchain()->getNode()->getRandomDB()->writeDomainRandom(
+                blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN, msg->getBlockId(), random );
 #endif
 
             getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature );
@@ -338,8 +338,8 @@ void BlockConsensusAgent::processBlockSignMessage(
 
         // save produced random from offchain signature to DB
         auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
-        getSchain()->getNode()->getReencryptionRandomDB()->writeRandom(
-            _message->getBlockId(), random );
+        getSchain()->getNode()->getRandomDB()->writeDomainRandom(
+            blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN, _message->getBlockId(), random );
 #endif
 
 

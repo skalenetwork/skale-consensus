@@ -16,7 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ReencryptionRandomConsensusTests.cpp
+    @file RandomConsensusTests.cpp
     @author SKALE Labs
     @date 2026
 */
@@ -34,7 +34,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace ReencryptionRandomTests {
+namespace RandomTests {
 
 static const string TEST_DATA_DIR = "/tmp/consensus_reencryption_random_tests";
 static const string RESTART_SNAPSHOT_FILE = "/tmp/reencryption_randoms_pre_restart.txt";
@@ -86,7 +86,7 @@ void configureTestEnvironment( bool _cleanDataDir, const string& _configDir ) {
  * @param engine Pointer to engine (will be allocated)
  * @param lastId Starting block ID (0 for fresh start, -1 for continue)
  * @param runTimeS How long to run in seconds
- * @return block_id The largest committed block ID
+ * @return block_id The largest committed block ID that is persisted in DB
  */
 block_id startEngineAndWait( ConsensusEngine*& engine, int64_t lastId, uint64_t runTimeS ) {
     engine = new ConsensusEngine( lastId, 1000000000 );
@@ -98,8 +98,15 @@ block_id startEngineAndWait( ConsensusEngine*& engine, int64_t lastId, uint64_t 
     
     CATCH_REQUIRE( engine->nodesCount() > 0 );
     auto committedBlockId = engine->getLargestCommittedBlockID();
+    auto committedBlockIdInDb = engine->getLargestCommittedBlockIDInDb();
+
+    // Reencryption random reads are guarded by DB committed height; allow short catch-up window.
+    for ( int i = 0; i < 20 && committedBlockId > 0 && committedBlockIdInDb == 0; i++ ) {
+        usleep( 250 * 1000 );
+        committedBlockIdInDb = engine->getLargestCommittedBlockIDInDb();
+    }
     
-    return committedBlockId;
+    return committedBlockIdInDb;
 }
 
 /**
@@ -137,9 +144,9 @@ std::map< uint64_t, u256 > readReencryptionRandoms(
     return randoms;
 }
 
-}  // namespace ReencryptionRandomTests
+}  // namespace RandomTests
 
-using namespace ReencryptionRandomTests;
+using namespace RandomTests;
 
 CATCH_TEST_CASE(
     "getReencryptionRandomForBlockId returns for committed blocks",
@@ -394,17 +401,21 @@ CATCH_TEST_CASE(
     ConsensusEngine* testEngine = nullptr;
 
     try {
-        configureTestEnvironment( true, "test/twonodes" );
-        auto runTimeS = std::max< uint64_t >( Consensust::getRunningTimeS(), 15 );
+        configureTestEnvironment( true, "test/twonodes_sameip" );
+        auto runTimeS = std::max< uint64_t >( Consensust::getRunningTimeS(), 10 );
         auto lastId =
             ( uint64_t ) startEngineAndWait( testEngine, 0, runTimeS );
+        auto lastIdInMemory = ( uint64_t ) testEngine->getLargestCommittedBlockID();
 
-        // Two-node setup can need extra time before first commit; poll briefly before failing.
-        for ( int i = 0; i < 40 && lastId == 0; i++ ) {
+        // Two-node setup can need extra time before first DB commit; poll briefly before failing.
+        for ( int i = 0; i < 70 && lastId == 0; i++ ) {
             usleep( 500 * 1000 );
-            lastId = ( uint64_t ) testEngine->getLargestCommittedBlockID();
+            lastId = ( uint64_t ) testEngine->getLargestCommittedBlockIDInDb();
+            lastIdInMemory = ( uint64_t ) testEngine->getLargestCommittedBlockID();
         }
 
+        CATCH_INFO(
+            "lastIdInDb=" << lastId << ", lastIdInMemory=" << lastIdInMemory << ", runTimeS=" << runTimeS );
         CATCH_REQUIRE( lastId > 0 );
         CATCH_REQUIRE( ( uint64_t ) testEngine->nodesCount() == 2 );
 

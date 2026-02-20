@@ -26,30 +26,41 @@
 
 StorageLimits::StorageLimits( uint64_t _totalStorageLimitBytes )
     : storageUnitBytes( _totalStorageLimitBytes ) {
+
+    // Calculate the total denominator based on the enabled features
+    uint32_t totalFractions = (StorageConfig::FRACTION_LARGE) 
+                            + (9 * StorageConfig::FRACTION_SMALL) 
+                            + (StorageConfig::FRACTION_MEDIUM)
+                            + (StorageConfig::FRACTION_TINY);
+
 #ifdef BITE
-    auto unit = _totalStorageLimitBytes / ( LEVELDB_SHARDS * ( 1000 + 9 * 10 + 2 * 100  + 2) );
+    totalFractions += (StorageConfig::FRACTION_TINY + StorageConfig::FRACTION_MEDIUM);
 #else
-    auto unit = _totalStorageLimitBytes / ( LEVELDB_SHARDS * ( 1000 + 10 * 10 + 100 ) );
+    totalFractions += StorageConfig::FRACTION_CUSTOM_INCOMING_MSG_DB_SIZE;
 #endif
 
-    BLOCK_DB_SIZE = 1000 * unit;
-    RANDOM_DB_SIZE = 10 * unit;
-    PRICE_DB_SIZE = 10 * unit;
-    PROPOSAL_HASH_DB_SIZE = 10 * unit;
-    PROPOSAL_VECTOR_DB_SIZE = 10 * unit;
-    OUTGOING_MSG_DB_SIZE = 10 * unit;
-    CONSENSUS_STATE_DB_SIZE = 10 * unit;
-    BLOCK_SIG_SHARE_DB_SIZE = 10 * unit;
-    DA_SIG_SHARE_DB_SIZE = 10 * unit;
-    DA_PROOF_DB_SIZE = 10 * unit;
-    BLOCK_PROPOSAL_DB_SIZE = 100 * unit;
-    INTERNAL_INFO_DB_SIZE = 1 * unit;
+
+    // The "unit" is now literally the size of one "fraction" or "share"
+    const auto fractionSize = _totalStorageLimitBytes / (LEVELDB_SHARDS * totalFractions);
+
+    BLOCK_DB_SIZE = StorageConfig::FRACTION_LARGE * fractionSize;
+    RANDOM_DB_SIZE = StorageConfig::FRACTION_SMALL * fractionSize;
+    PRICE_DB_SIZE = StorageConfig::FRACTION_SMALL * fractionSize;
+    PROPOSAL_HASH_DB_SIZE = StorageConfig::FRACTION_SMALL * fractionSize;
+    PROPOSAL_VECTOR_DB_SIZE = StorageConfig::FRACTION_SMALL * fractionSize;
+    OUTGOING_MSG_DB_SIZE = StorageConfig::FRACTION_SMALL * fractionSize;
+    CONSENSUS_STATE_DB_SIZE = StorageConfig::FRACTION_SMALL * fractionSize;
+    BLOCK_SIG_SHARE_DB_SIZE = StorageConfig::FRACTION_SMALL * fractionSize;
+    DA_SIG_SHARE_DB_SIZE = StorageConfig::FRACTION_SMALL * fractionSize;
+    DA_PROOF_DB_SIZE = StorageConfig::FRACTION_SMALL * fractionSize;
+    BLOCK_PROPOSAL_DB_SIZE = StorageConfig::FRACTION_MEDIUM * fractionSize;
+    INTERNAL_INFO_DB_SIZE = StorageConfig::FRACTION_TINY * fractionSize;
 #ifdef BITE
     // incoming message db is not used anymore
-    INCOMING_MSG_DB_SIZE = 1 * unit;
-    TE_DECRYPTION_DB_SIZE = 100 * unit;
+    INCOMING_MSG_DB_SIZE = StorageConfig::FRACTION_TINY * fractionSize;
+    TE_DECRYPTION_DB_SIZE = StorageConfig::FRACTION_MEDIUM * fractionSize;
 #else
-    INCOMING_MSG_DB_SIZE = 9 * unit;
+    INCOMING_MSG_DB_SIZE = StorageConfig::FRACTION_CUSTOM_INCOMING_MSG_DB_SIZE * fractionSize;
 #endif
 }
 uint64_t StorageLimits::getStorageUnitBytes() const {

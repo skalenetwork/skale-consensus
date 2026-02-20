@@ -105,10 +105,6 @@ public:
 
 #ifdef BITE
     static leveldb::Options getTEDecryptionDBOptions() { return getSmallDBOptions(); }
-
-#ifdef BITE2
-    static leveldb::Options getReencryptionRandomDBOptions() { return getSmallDBOptions(); }
-#endif // BITE2
 #endif // BITE
 
     static leveldb::Options getConsensusStateDBOptions() { return getSmallDBOptions(); }

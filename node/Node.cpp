@@ -70,10 +70,7 @@
 
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
-#ifdef BITE2
-#include "db/ReencryptionRandomDB.h"
-#endif // BITE2
-#endif // BITE
+#endif
 
 #include "db/SigDB.h"
 #include "messages/Message.h"
@@ -195,7 +192,6 @@ void Node::initLevelDBs() {
 
 #ifdef BITE2
     string offchainBlockSigShareDBPrefix = "/block_sigshares_offchain_" + to_string( nodeID ) + ".db";
-    string offchainRandomForBlockIdDBPrefix = "/random_for_blockid_offchain_" + to_string( nodeID ) + ".db";
 #endif // BITE2
 
 #endif // BITE
@@ -243,9 +239,6 @@ void Node::initLevelDBs() {
 #ifdef BITE2
     offchainBlockSigShareDB = make_shared< BlockSigShareDB >(
         getSchain(), dbDir, offchainBlockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(), string( blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN ) );
-
-    reencryptionRandomDB = make_shared< ReencryptionRandomDB >(
-        getSchain(), dbDir, offchainRandomForBlockIdDBPrefix, getNodeID(), getRandomDBSize() );
     
 #endif // BITE2
 #endif // BITE

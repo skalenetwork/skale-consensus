@@ -300,10 +300,12 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
     const string& _header, Schain* _sChain, bool _lite ) {
     uint64_t sChainID;
     uint64_t blockID;
-# ifdef BITE
+#ifdef BITE
     uint64_t epochID;
+#ifdef BITE2
     string offchainSigShare;
-#endif
+#endif // BITE2
+#endif // BITE
     uint64_t blockProposerIndex;
     string type;
     uint64_t msgID;
