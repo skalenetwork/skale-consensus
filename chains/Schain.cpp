@@ -496,6 +496,10 @@ const atomic<bool> &Schain::getIsStateInitialized() const {
     return isStateInitialized;
 }
 
+uint64_t Schain::getVerifyDaSigsPatchTimeStamp() const {
+    return verifyDaSigsPatchTimestamp;
+}
+
 bool Schain::verifyDASigsPatch(uint64_t
 #ifndef BITE
         _blockTimeStampS
@@ -506,6 +510,10 @@ bool Schain::verifyDASigsPatch(uint64_t
 #else
     return verifyDaSigsPatchTimestamp != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestamp;
 #endif
+}
+
+uint64_t Schain::getVerifyBlsSyncPatchTimestampS() const {
+    return verifyBlsSyncPatchTimestamp;
 }
 
 bool Schain::verifyBlsSyncPatch(uint64_t
@@ -519,6 +527,16 @@ bool Schain::verifyBlsSyncPatch(uint64_t
     return verifyBlsSyncPatchTimestamp != 0 && _blockTimeStampS >= verifyBlsSyncPatchTimestamp;
 #endif
 }
+
+#ifdef BITE2
+bool Schain::bite2Patch(uint64_t _blockTimeStampSec) {
+    return bite2PatchTimestamp != 0 && _blockTimeStampSec >= bite2PatchTimestamp;
+}
+
+uint64_t Schain::getBITE2PatchTimestampS() const {
+    return bite2PatchTimestamp;
+}
+#endif
 
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex,
                                 const ptr<ThresholdSignature> &_thresholdSig, ptr<ThresholdSignature> _daSig
@@ -1748,14 +1766,6 @@ void Schain::analyzeErrors(ptr<CommittedBlock> _block) {
     }
 }
 
-uint64_t Schain::getVerifyDaSigsPatchTimeStamp() const {
-    return verifyDaSigsPatchTimestamp;
-}
-
-uint64_t Schain::getVerifyBlsSyncPatchTimestampS() const {
-    return verifyBlsSyncPatchTimestamp;
-}
-
 
 mutex Schain::vdsMutex;
 
@@ -1814,6 +1824,7 @@ void Schain::setTimeStampValuesFromConfig() {
     SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(verifyBlsSyncPatchTimestamp)
+    SET_TIMESTAMP_FROM_CONFIG(bite2PatchTimestamp)
 }
 
 uint64_t Schain::getProposalStageTimeMs() {

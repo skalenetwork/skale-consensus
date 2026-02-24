@@ -214,6 +214,9 @@ class Schain : public Agent {
     uint64_t verifyDaSigsPatchTimestamp = 0;
     uint64_t fastConsensusPatchTimestamp = 0;
     uint64_t verifyBlsSyncPatchTimestamp = 0;
+#ifdef BITE2
+    uint64_t bite2PatchTimestamp = 0;
+#endif
 
     // If a BlockError analyzer is added to the queue
     // its analyze(CommittedBlock _block) function will be run on commit
@@ -411,6 +414,8 @@ public:
 
     uint64_t getVerifyBlsSyncPatchTimestampS() const;
 
+    uint64_t getBITE2PatchTimestampS() const;
+
     bool isInCreateBlock() const;
 
 
@@ -485,6 +490,10 @@ public:
     bool verifyDASigsPatch( uint64_t _blockTimeStampSec );
 
     bool verifyBlsSyncPatch( uint64_t _blockTimeStampSec );
+
+#ifdef BITE2
+    bool bite2Patch( uint64_t _blockTimeStampSec );
+#endif
 
     void updateInternalChainInfo( block_id _lastCommittedBlockID );
 
