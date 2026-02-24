@@ -124,10 +124,10 @@ AbstractServerAgent::~AbstractServerAgent() {
 }
 
 void AbstractServerAgent::acceptTCPConnectionsLoop() {
+    logThreadLocal_ = getSchain()->getNode()->getLog();
     setThreadName( name, getSchain()->getNode()->getConsensusEngine() );
 
     waitOnGlobalStartBarrier();
-    logThreadLocal_ = getSchain()->getNode()->getLog();
 
     struct sockaddr_in clientAddress;
     socklen_t sizeOfClientAddress = sizeof( clientAddress );

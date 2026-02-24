@@ -42,22 +42,45 @@
 
 
 BlockSigShareDB::BlockSigShareDB(
-    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
+    Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize,
+    string _signatureDomain )
     : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
           LevelDBOptions::getBlockSigShareDBOptions(), false ),
+      signatureDomain( _signatureDomain ),
       sigShares( 256 ) {}
 
 
 ptr< ThresholdSignature > BlockSigShareDB::checkAndSaveShareInMemory(
     const ptr< ThresholdSigShare >& _sigShare, const ptr< CryptoManager >& _cryptoManager,
     schain_index _proposer ) {
+    CHECK_ARGUMENT( _sigShare )
+    CHECK_ARGUMENT( _cryptoManager )
+
+    auto hash = BLAKE3Hash::getConsensusHash( ( uint64_t ) _proposer,
+        ( uint64_t ) _sigShare->getBlockId(), ( uint64_t ) getSchain()->getSchainID() );
+
+    if ( !signatureDomain.empty() ) {
+        auto data = make_shared< vector< uint8_t > >();
+        const auto& baseHash = hash.getHash();
+        data->reserve( baseHash.size() + signatureDomain.size() );
+        data->insert( data->end(), baseHash.begin(), baseHash.end() );
+        data->insert( data->end(), signatureDomain.begin(), signatureDomain.end() );
+        hash = BLAKE3Hash::calculateHash( data );
+    }
+
+    return checkAndSaveShareInMemory( _sigShare, _cryptoManager, _proposer, hash );
+}
+
+
+ptr< ThresholdSignature > BlockSigShareDB::checkAndSaveShareInMemory(
+    const ptr< ThresholdSigShare >& _sigShare, const ptr< CryptoManager >& _cryptoManager,
+    schain_index _proposer, const BLAKE3Hash& _hash ) {
     try {
         CHECK_ARGUMENT( _sigShare )
         CHECK_ARGUMENT( _cryptoManager )
 
 
-        auto hash = BLAKE3Hash::getConsensusHash( ( uint64_t ) _proposer,
-            ( uint64_t ) _sigShare->getBlockId(), ( uint64_t ) getSchain()->getSchainID() );
+        auto hash = _hash;
 
         _cryptoManager->verifyThresholdSigShare( _sigShare, hash );
 

@@ -325,6 +325,20 @@ public:
 
 #ifdef BITE
     void setEpochId( uint64_t _epochId ) { epochId = _epochId; }
-#endif
+
+#ifdef BITE2
+    /**
+     * @brief Gets the reencryption random for a given block ID, if available.
+     * Uses the first node available.
+     */
+    u256 getReencryptionRandomForBlockId( uint64_t _blockId ) const;
+
+    /**
+     * @brief Gets the reencryption random for a given block ID and node ID.
+     */
+    u256 getReencryptionRandomForBlockIdForNode( uint64_t _blockId, node_id _nodeId ) const;
+
+#endif // BITE2
+#endif // BITE
 
 };

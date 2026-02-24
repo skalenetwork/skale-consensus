@@ -119,15 +119,16 @@
 #ifdef BITE
 #include "bite/BiteManager.h"
 #include "crypto/DecryptedAESKeyList.h"
-#endif
+#include "db/TEDecryptionDB.h"
+
+#ifdef BITE2
+#include "protocols/blockconsensus/ConsensusSignatureDomains.h"
+#endif // BITE2
+#endif // BITE
 
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"
-
-#ifdef BITE
-#include "db/TEDecryptionDB.h"
-#endif
 
 #include "libBLS/bls/BLSPrivateKeyShare.h"
 #include "monitoring/LivelinessMonitor.h"
@@ -178,6 +179,7 @@ void Schain::postMessage(const ptr<MessageEnvelope> &_me) {
 
 void Schain::messageThreadProcessingLoop(Schain *_sChain) {
     CHECK_ARGUMENT(_sChain);
+    logThreadLocal_ = _sChain->getNode()->getLog();
 
     setThreadName("msgThreadProcLoop", _sChain->getNode()->getConsensusEngine());
 
@@ -185,8 +187,6 @@ void Schain::messageThreadProcessingLoop(Schain *_sChain) {
 
     try {
         _sChain->startTimeMs = Time::getCurrentTimeMs();
-
-        logThreadLocal_ = _sChain->getNode()->getLog();
 
         queue<ptr<MessageEnvelope> > newQueue;
 
@@ -1695,17 +1695,30 @@ u256 Schain::getRandomForBlockId(block_id _blockId) {
     auto block = getNode()->getBlockDB()->getBlock( _blockId, getCryptoManager() );
     
     CHECK_STATE(block);
-    auto signature = block->getThresholdSig();
+    return calculateRandomFromSignatureString( block->getThresholdSig() );
+}
 
-    auto data = make_shared<vector<uint8_t> >();
+u256 Schain::calculateRandomFromSignatureString( const string& _signature ) {
+    CHECK_ARGUMENT( !_signature.empty() )
 
-    for (uint64_t i = 0; i < signature.size(); i++) {
-        data->push_back((uint8_t) signature.at(i));
+    auto data = make_shared< vector< uint8_t > >();
+    data->reserve( _signature.size() );
+    for ( uint64_t i = 0; i < _signature.size(); i++ ) {
+        data->push_back( ( uint8_t ) _signature.at( i ) );
     }
 
-    auto hash = BLAKE3Hash::calculateHash(data);
-    return u256("0x" + hash.toHex());
+    auto hash = BLAKE3Hash::calculateHash( data );
+    return u256( "0x" + hash.toHex() );
 }
+
+#ifdef BITE2
+u256 Schain::getReencryptionRandomForBlockId( block_id _blockId ) {
+    // Ensure the block has already been committed to the database
+    CHECK_STATE(_blockId <= readLastCommittedBlockIDFromDb());
+    return getNode()->getRandomDB()->readDomainRandom(
+        blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN, _blockId );
+}
+#endif
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
 

@@ -68,6 +68,7 @@ consensustExecutive = getConsensustExecutive()
 
 # Run all non-end-to-end and non-performance unit tests
 unitTest(consensustExecutive, "~[end-to-end]~[performance]")
+unitTest(consensustExecutive, "[end-to-end][db]")
 
 
 # fullConsensusTest("sixteennodes", consensustExecutive, "[consensus-finalization-download]")

@@ -295,12 +295,12 @@ ptr< CommittedBlockList > CatchupClientAgent::readMissingBlocks( ptr< ClientSock
 
 
 void CatchupClientAgent::workerThreadItemSendLoop( CatchupClientAgent* _agent ) {
-    setThreadName( "CatchupClient", _agent->getNode()->getConsensusEngine() );
-
     CHECK_ARGUMENT( _agent )
 
-    _agent->waitOnGlobalStartBarrier();
     logThreadLocal_ = _agent->getNode()->getLog();
+    setThreadName( "CatchupClient", _agent->getNode()->getConsensusEngine() );
+
+    _agent->waitOnGlobalStartBarrier();
 
     // wait until the schain state is fully initialized
     // otherwise the chain can not accept catchup blocks

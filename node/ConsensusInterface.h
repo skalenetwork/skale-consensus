@@ -81,6 +81,17 @@ public:
 
     virtual u256 getRandomForBlockId(uint64_t _blockId) const = 0;
 
+#ifdef BITE2
+    /**
+     * Returns a random for a block id that is derived from the threshold signature of the block 
+     * with a custom domain. The merged signature is never stored on chain and is only used 
+     * locally by nodes, so the resulting random is not publicly reproducible.
+     * The generated random is deterministic - all nodes will generate the same random for a 
+     * given block id, but it cannot be reproduced by external observers.
+     */
+    virtual u256 getReencryptionRandomForBlockId(uint64_t _blockId) const = 0;
+#endif
+
     virtual std::map<std::string, uint64_t> getConsensusDbUsage() const = 0;
 
     virtual uint64_t getEmptyBlockIntervalMs() const { return -1; }

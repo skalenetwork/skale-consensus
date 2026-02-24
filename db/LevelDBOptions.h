@@ -102,9 +102,10 @@ public:
 
 
     static leveldb::Options getDAProofDBOptions() { return getSmallDBOptions(); }
+
 #ifdef BITE
     static leveldb::Options getTEDecryptionDBOptions() { return getSmallDBOptions(); }
-#endif
+#endif // BITE
 
     static leveldb::Options getConsensusStateDBOptions() { return getSmallDBOptions(); }
 

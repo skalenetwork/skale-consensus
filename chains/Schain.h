@@ -448,7 +448,33 @@ public:
 
     void createOracleInstance();
 
+    /**
+     * @brief Computes a deterministic pseudo-random value for a given block id.
+     * Derived from the merged signature stored inside the corresponding block, so anyone
+     * with access to the block can reproduce it.
+     *
+     * @warning Publicly reproducible; do not use for security-sensitive purposes.
+     * @param _blockid Block identifier.
+     * @return Deterministic value derived from on-chain data.
+    */
     u256 getRandomForBlockId( block_id _blockid );
+
+    /**
+     * Convert a merged signature string into deterministic random.
+     */
+    static u256 calculateRandomFromSignatureString( const string& _signature );
+
+    /**
+     * @brief Computes a deterministic pseudo-random value for a given block id using off-chain data.
+     *
+     * Derived from an additional merged signature that is stored locally by nodes and never
+     * included in the block or otherwise published. Deterministic across nodes that have this
+     * signature, but not reproducible by observers with only chain data.
+     *
+     * @param _blockid Block identifier.
+     * @return Deterministic value derived from local merged signature data.
+    */
+    u256 getReencryptionRandomForBlockId( block_id _blockid );
 
     const ptr< OracleClient > getOracleClient() const;
 
