@@ -1824,7 +1824,9 @@ void Schain::setTimeStampValuesFromConfig() {
     SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(verifyBlsSyncPatchTimestamp)
+#ifdef BITE2
     SET_TIMESTAMP_FROM_CONFIG(bite2PatchTimestamp)
+#endif
 }
 
 uint64_t Schain::getProposalStageTimeMs() {
