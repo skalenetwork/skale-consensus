@@ -320,7 +320,7 @@ ptr<BlockProposal> BlockProposal::makeFromNetworkSerialized(
     // we verify sigs when receiving from network
     auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
 #ifdef BITE
-    BiteManager::parseBITETransactions(proposal);
+    _manager->getSchain()->getBiteManager()->parseBITETransactions(proposal);
 #endif
     return proposal;
 }
@@ -331,7 +331,7 @@ ptr<BlockProposal>  BlockProposal::makeFromDBSerialized(
     auto proposal = BlockProposal::deserialize(_serializedProposal, _manager, true);
 
 #ifdef BITE
-    BiteManager::parseBITETransactions(proposal);
+    _manager->getSchain()->getBiteManager()->parseBITETransactions(proposal);
     CHECK_STATE2(proposal->getFailedTransactionsRef().empty(), "Invalid BITE proposal received");
     CHECK_STATE2(proposal->getTransactionCiphertexts(), "Missing encrypted AES keys");
 #endif

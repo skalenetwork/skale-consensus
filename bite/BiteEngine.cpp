@@ -90,7 +90,8 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCTXArgs(
 
 BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
     const TransactionList& txList,
-    BiteRuntimeContext& runtimeContext
+    BiteRuntimeContext& runtimeContext,
+    bool isBite2PatchEnabled
 ) {
     ParseResult result;
 
@@ -101,28 +102,33 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
     std::set<size_t> failedTxIndices;
 
 #ifdef BITE2
-    // Try parsing CTX transactions first
-    for (size_t i = 0 ; i < transactions->size(); i++) {
-        try {
-            auto tx = transactions->at(i);
-            auto ctxArgs = BiteEngine::tryGetEncryptedCTXArgs(tx, runtimeContext.currentEpoch);
+    if ( isBite2PatchEnabled ) {
+        // Try parsing CTX transactions first
+        for (size_t i = 0 ; i < transactions->size(); i++) {
+            try {
+                auto tx = transactions->at(i);
+                auto ctxArgs = BiteEngine::tryGetEncryptedCTXArgs(tx, runtimeContext.currentEpoch);
 
-            if (ctxArgs) {
-                // Fetch the cached SC address for AAD
-                auto scAddressAadTE = tx->getScAddressAadTE();
-                std::optional<AddressBytes> scAddrOpt = scAddressAadTE ? std::make_optional(*scAddressAadTE) : std::nullopt;
-                
-                auto txCiphertexts = make_shared<TransactionCiphertexts>(*ctxArgs, scAddrOpt);
-                result.txsCiphertexts.emplace(i, txCiphertexts);
-            } else {
-                // the first non-CTX transaction indicates the start of regular transactions
-                regularTxsStartIdx = i;
-                break;
+                if (ctxArgs) {
+                    // Fetch the cached SC address for AAD
+                    auto scAddressAadTE = tx->getScAddressAadTE();
+                    std::optional<AddressBytes> scAddrOpt = scAddressAadTE ? std::make_optional(*scAddressAadTE) : std::nullopt;
+
+                    auto txCiphertexts = make_shared<TransactionCiphertexts>(*ctxArgs, scAddrOpt);
+                    result.txsCiphertexts.emplace(i, txCiphertexts);
+                } else {
+                    // the first non-CTX transaction indicates the start of regular transactions
+                    regularTxsStartIdx = i;
+                    break;
+                }
+            } catch (exception &e) {
+                CONS_LOG(err, fmt::format("Could not try to parse as CTX transaction: {}: ", i) + e.what());
+                failedTxIndices.insert(i);
             }
-        } catch (exception &e) {
-            CONS_LOG(err, fmt::format("Could not try to parse as CTX transaction: {}: ", i) + e.what());
-            failedTxIndices.insert(i);
         }
+    } else {
+        // No BITE2 means all txs are regular
+        regularTxsStartIdx = 0;
     }
 #else
     // No BITE2 means all txs are regular

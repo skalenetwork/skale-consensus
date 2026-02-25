@@ -57,8 +57,9 @@ void BiteManager::parseBITETransactions(
         .currentEpoch = _proposal->getEpochID()
     };
 
+    bool isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() );
     auto result = BiteEngine::parseAndCacheBITETransactions(*_proposal->getTransactionList(), 
-                                                runtimeCtx);
+                                                runtimeCtx, isBite2PatchEnabled);
 
     for (auto failedTxIdx : result.failedTransactions) {
         _proposal->getFailedTransactionsRef().emplace(failedTxIdx, 
