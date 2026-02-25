@@ -62,7 +62,7 @@ public:
     static ParseResult parseAndCacheBITETransactions(
         const TransactionList& txList,
         BiteRuntimeContext& runtimeContext,
-        bool isBite2PatchEnabled = false
+        bool isBite2PatchEnabled
     );
 
     //=================== Stage 2: Ciphertext Validation  =================== //
@@ -108,7 +108,8 @@ public:
     DecryptedTransactions decryptTransactionsListInParallel(
             const TransactionList &_transactionList,
             const DecryptedAESKeyList &_aesKeys,
-            BiteRuntimeContext& runtimeContext
+            BiteRuntimeContext& runtimeContext,
+            bool isBite2PatchEnabled
     ) const;
 
     //=================== Helpers =================== //

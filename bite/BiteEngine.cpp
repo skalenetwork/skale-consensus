@@ -450,7 +450,8 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
 DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
         const TransactionList &_transactionList,
         const DecryptedAESKeyList &_aesKeys,
-        BiteRuntimeContext& runtimeContext
+        BiteRuntimeContext& runtimeContext,
+        bool isBite2PatchEnabled
 ) const {
  
     auto decryptedFieldsMap = std::make_shared<DecryptedRegularTxsMap>();
@@ -487,59 +488,61 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
             auto tx = txs->at(txIdx);
 
 #ifdef BITE2
-            // ---------- Try CTX path first ----------
-            if (!allCTXsParsed) {
-                ptr< std::vector<ptr<BiteCiphertext> > > encryptedArgs;
-                try { 
-                    encryptedArgs = tryGetEncryptedCTXArgs(tx, runtimeContext.currentEpoch);
-                } catch (const std::exception& e) {
-                    CONS_LOG(warn, fmt::format("Could not try to parse as CTX encrypted transaction during decryption: {}: {}", txIdx, e.what()));
-                }
-                if (encryptedArgs) {
-                    // CTX tx with no encrypted arguments — nothing to decrypt
-                    if (encryptedArgs->empty()) {
-                        std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
-                        ctxTxsMap->emplace(txIdx, DecryptedCTXArgs{});
+            if ( isBite2PatchEnabled ) {
+                // ---------- Try CTX path first ----------
+                if (!allCTXsParsed) {
+                    ptr< std::vector<ptr<BiteCiphertext> > > encryptedArgs;
+                    try {
+                        encryptedArgs = tryGetEncryptedCTXArgs(tx, runtimeContext.currentEpoch);
+                    } catch (const std::exception& e) {
+                        CONS_LOG(warn, fmt::format("Could not try to parse as CTX encrypted transaction during decryption: {}: {}", txIdx, e.what()));
+                    }
+                    if (encryptedArgs) {
+                        // CTX tx with no encrypted arguments — nothing to decrypt
+                        if (encryptedArgs->empty()) {
+                            std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                            ctxTxsMap->emplace(txIdx, DecryptedCTXArgs{});
+                            continue;
+                        }
+                        auto decryptedAESKey = _aesKeys.getKeys(txIdx);
+                        CHECK_STATE(decryptedAESKey);
+                        CHECK_STATE(encryptedArgs->size() == decryptedAESKey->size());
+
+                        try {
+                            schedule([corePtr = &this->core, encryptedArgs, decryptedAESKey, ctxTxsMap, txIdx, ctxTxsMapMutex]()
+                            -> folly::Unit {
+                                DecryptedCTXArgs decryptedData;
+                                decryptedData.args.reserve(encryptedArgs->size());
+
+                                for (std::size_t argIdx = 0; argIdx < encryptedArgs->size(); ++argIdx) {
+                                    const auto argCiphertext = encryptedArgs->at(argIdx);
+                                    CHECK_STATE(argCiphertext);
+                                    decryptedData.args.push_back(
+                                        BiteCodec::decryptCiphertext(*argCiphertext,
+                                            decryptedAESKey->at(argIdx).getAesKey(),
+                                            *corePtr
+                                        )
+                                    );
+                                }
+
+                                std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                                ctxTxsMap->emplace(txIdx, std::move(decryptedData));
+
+                                return folly::unit;
+                            });
+                        } catch (const std::exception &e) {
+                            CONS_LOG(err, fmt::format("Corrupt CTX tx:{} that doesn't decrypt: {}", txIdx, e.what()));
+                            std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                            ctxTxsMap->emplace(txIdx, std::nullopt);
+                        }
+
+                        // This tx is CTX, do not treat it as regular
                         continue;
                     }
-                    auto decryptedAESKey = _aesKeys.getKeys(txIdx);
-                    CHECK_STATE(decryptedAESKey);
-                    CHECK_STATE(encryptedArgs->size() == decryptedAESKey->size());
-
-                    try {
-                        schedule([corePtr = &this->core, encryptedArgs, decryptedAESKey, ctxTxsMap, txIdx, ctxTxsMapMutex]() 
-                        -> folly::Unit {
-                            DecryptedCTXArgs decryptedData;
-                            decryptedData.args.reserve(encryptedArgs->size());
-
-                            for (std::size_t argIdx = 0; argIdx < encryptedArgs->size(); ++argIdx) {
-                                const auto argCiphertext = encryptedArgs->at(argIdx);
-                                CHECK_STATE(argCiphertext);
-                                decryptedData.args.push_back(
-                                    BiteCodec::decryptCiphertext(*argCiphertext,
-                                        decryptedAESKey->at(argIdx).getAesKey(),
-                                        *corePtr
-                                    )
-                                );
-                            }
-
-                            std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
-                            ctxTxsMap->emplace(txIdx, std::move(decryptedData));
-
-                            return folly::unit;
-                        });
-                    } catch (const std::exception &e) {
-                        CONS_LOG(err, fmt::format("Corrupt CTX tx:{} that doesn't decrypt: {}", txIdx, e.what()));
-                        std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
-                        ctxTxsMap->emplace(txIdx, std::nullopt);
+                    else {
+                        // No more CTX transactions expected after the first non-CTX one
+                        allCTXsParsed = true;
                     }
-
-                    // This tx is CTX, do not treat it as regular
-                    continue;
-                }
-                else {
-                    // No more CTX transactions expected after the first non-CTX one
-                    allCTXsParsed = true;
                 }
             }
 

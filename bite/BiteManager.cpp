@@ -183,7 +183,8 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
     return biteEngine.decryptTransactionsListInParallel(
             _transactionList,
             _aesKeys,
-            runtimeCtx
+            runtimeCtx,
+            schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
     );
 }
 
