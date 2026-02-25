@@ -49,7 +49,7 @@ protected:
 
 
 CATCH_TEST_CASE_METHOD( RandomDBFixture, "RandomDB: Write/Read Roundtrip",
-    "[db][random-db][write-read][correctness][unit]" ) {
+    "[db][random-db][correctness][unit]" ) {
     static string dbName = "test_random_roundtrip";
     auto db = DBTestUtils::createDB< RandomDB >( dbName );
 
@@ -67,7 +67,7 @@ CATCH_TEST_CASE_METHOD( RandomDBFixture, "RandomDB: Write/Read Roundtrip",
 }
 
 CATCH_TEST_CASE_METHOD( RandomDBFixture, "RandomDB: U256 Write/Read Roundtrip",
-    "[db][random-db][write-read][u256][correctness][unit]" ) {
+    "[db][random-db][correctness][unit]" ) {
     static string dbName = "test_random_roundtrip_u256";
     auto db = DBTestUtils::createDB< RandomDB >( dbName );
 
@@ -106,7 +106,7 @@ CATCH_TEST_CASE_METHOD( RandomDBFixture, "RandomDB: Domain U256 Ranges",
 
 
 CATCH_TEST_CASE_METHOD( RandomDBFixture,
-    "RandomDB: No Overwrite Behavior", "[db][random-db][overwrite][correctness][unit]" ) {
+    "RandomDB: No Overwrite Behavior", "[db][random-db][correctness][unit]" ) {
     static string dbName = "test_random_overwrite";
     auto db = DBTestUtils::createDB< RandomDB >( dbName );
 
@@ -132,7 +132,7 @@ CATCH_TEST_CASE_METHOD( RandomDBFixture,
 
 
 CATCH_TEST_CASE_METHOD( RandomDBFixture, "RandomDB: Independent Values",
-    "[db][random-db][independent][correctness][unit]" ) {
+    "[db][random-db][correctness][unit]" ) {
     static string dbName = "test_random_independent";
     auto db = DBTestUtils::createDB< RandomDB >( dbName );
 
@@ -167,7 +167,7 @@ CATCH_TEST_CASE_METHOD( RandomDBFixture, "RandomDB: Independent Values",
 
 
 CATCH_TEST_CASE_METHOD( RandomDBFixture,
-    "RandomDB: Persistence", "[db][random-db][persistence][correctness][unit]" ) {
+    "RandomDB: Persistence", "[db][random-db][correctness][unit]" ) {
     static string dbName = "test_random_persistence";
     block_id testBlockId = 500;
     string_view testDomain = "reencryption";
@@ -191,7 +191,7 @@ CATCH_TEST_CASE_METHOD( RandomDBFixture,
 
 
 CATCH_TEST_CASE_METHOD( RandomDBFixture,
-    "RandomDB: Missing Key", "[db][random-db][missing-key][error-path][unit]" ) {
+    "RandomDB: Missing Key", "[db][random-db][correctness][unit]" ) {
     static string dbName = "test_random_missing_key";
     auto db = DBTestUtils::createDB< RandomDB >( dbName );
 
