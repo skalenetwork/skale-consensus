@@ -33,7 +33,7 @@ ptr<BiteCiphertext> makeValidCiphertextWithKey(uint64_t epoch, const libBLS::TEP
 }  // namespace
 
 
-CATCH_TEST_CASE("TransactionCiphertexts stores and returns CAT AAD", "[crypto][transactionciphertexts][cat][aad]") {
+CATCH_TEST_CASE("TransactionCiphertexts stores and returns CAT AAD", "[crypto][transactionciphertexts][cat][aad][bite]") {
     const uint64_t epoch = 21;
     auto keys = generateKeys(1, 1);
     
@@ -57,7 +57,7 @@ CATCH_TEST_CASE("TransactionCiphertexts stores and returns CAT AAD", "[crypto][t
 }
 
 
-CATCH_TEST_CASE("TransactionCiphertexts regular tx has no AAD", "[crypto][transactionciphertexts][aad]") {
+CATCH_TEST_CASE("TransactionCiphertexts regular tx has no AAD", "[crypto][transactionciphertexts][aad][bite]") {
     const uint64_t epoch = 22;
     
     // Create single ciphertext for regular BITE1 transaction
@@ -73,7 +73,7 @@ CATCH_TEST_CASE("TransactionCiphertexts regular tx has no AAD", "[crypto][transa
 }
 
 
-CATCH_TEST_CASE("TransactionCiphertexts CAT with empty ciphertexts still has AAD", "[crypto][transactionciphertexts][cat][aad]") {
+CATCH_TEST_CASE("TransactionCiphertexts CAT with empty ciphertexts still has AAD", "[crypto][transactionciphertexts][cat][aad][bite]") {
     // Create CAT with SC address but no ciphertexts (plain args only)
     AddressBytes scAddress{};
     std::fill(scAddress.begin(), scAddress.end(), 0xAB);
