@@ -28,6 +28,7 @@ struct BiteConfig {
 struct BiteRuntimeContext {
     epoch_id currentEpoch{0};
     std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor{nullptr};
+    bool isBite2PatchEnabled{false};
 };
 
 class BiteEngine {
@@ -61,8 +62,7 @@ public:
      */
     static ParseResult parseAndCacheBITETransactions(
         const TransactionList& txList,
-        BiteRuntimeContext& runtimeContext,
-        bool isBite2PatchEnabled
+        BiteRuntimeContext& runtimeContext
     );
 
     //=================== Stage 2: Ciphertext Validation  =================== //
@@ -108,8 +108,7 @@ public:
     DecryptedTransactions decryptTransactionsListInParallel(
             const TransactionList &_transactionList,
             const DecryptedAESKeyList &_aesKeys,
-            BiteRuntimeContext& runtimeContext,
-            bool isBite2PatchEnabled
+            BiteRuntimeContext& runtimeContext
     ) const;
 
     //=================== Helpers =================== //

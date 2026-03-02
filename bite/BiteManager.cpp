@@ -54,12 +54,12 @@ void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {
 
     BiteRuntimeContext runtimeCtx {
-        .currentEpoch = _proposal->getEpochID()
+        .currentEpoch = _proposal->getEpochID(),
+        .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
     };
 
-    bool isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() );
     auto result = BiteEngine::parseAndCacheBITETransactions(*_proposal->getTransactionList(), 
-                                                runtimeCtx, isBite2PatchEnabled);
+                                                runtimeCtx);
 
     for (auto failedTxIdx : result.failedTransactions) {
         _proposal->getFailedTransactionsRef().emplace(failedTxIdx, 
@@ -177,14 +177,14 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
 
     BiteRuntimeContext runtimeCtx {
         .currentEpoch = schain.getNode()->getCurrentEpochId(),
-        .threadPoolExecutor = threadPoolExecutor
+        .threadPoolExecutor = threadPoolExecutor,
+        .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
     };
 
     return biteEngine.decryptTransactionsListInParallel(
             _transactionList,
             _aesKeys,
-            runtimeCtx,
-            schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
+            runtimeCtx
     );
 }
 

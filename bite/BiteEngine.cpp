@@ -90,8 +90,7 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCTXArgs(
 
 BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
     const TransactionList& txList,
-    BiteRuntimeContext& runtimeContext,
-    bool isBite2PatchEnabled
+    BiteRuntimeContext& runtimeContext
 ) {
     ParseResult result;
 
@@ -102,7 +101,7 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
     std::set<size_t> failedTxIndices;
 
 #ifdef BITE2
-    if ( isBite2PatchEnabled ) {
+    if ( runtimeContext.isBite2PatchEnabled ) {
         // Try parsing CTX transactions first
         for (size_t i = 0 ; i < transactions->size(); i++) {
             try {
@@ -450,8 +449,7 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
 DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
         const TransactionList &_transactionList,
         const DecryptedAESKeyList &_aesKeys,
-        BiteRuntimeContext& runtimeContext,
-        bool isBite2PatchEnabled
+        BiteRuntimeContext& runtimeContext
 ) const {
  
     auto decryptedFieldsMap = std::make_shared<DecryptedRegularTxsMap>();
@@ -488,7 +486,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
             auto tx = txs->at(txIdx);
 
 #ifdef BITE2
-            if ( isBite2PatchEnabled ) {
+            if ( runtimeContext.isBite2PatchEnabled ) {
                 // ---------- Try CTX path first ----------
                 if (!allCTXsParsed) {
                     ptr< std::vector<ptr<BiteCiphertext> > > encryptedArgs;
