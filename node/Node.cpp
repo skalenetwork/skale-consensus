@@ -328,6 +328,10 @@ void Node::initParamsFromConfig() {
             getParamUint64( "verifyDaSigsPatchTimestamp", 0 );
         patchTimestamps["verifyBlsSyncPatchTimestamp"] =
                 getParamUint64( "verifyBlsSyncPatchTimestamp", 0 );
+#ifdef BITE2
+        patchTimestamps["BITE2PatchTimestamp"] =
+                getParamUint64( "BITE2PatchTimestamp", 0 );
+#endif
     }
 }
 

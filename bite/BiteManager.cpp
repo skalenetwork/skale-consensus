@@ -54,7 +54,8 @@ void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {
 
     BiteRuntimeContext runtimeCtx {
-        .currentEpoch = _proposal->getEpochID()
+        .currentEpoch = _proposal->getEpochID(),
+        .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
     };
 
     auto result = BiteEngine::parseAndCacheBITETransactions(*_proposal->getTransactionList(), 
@@ -176,7 +177,8 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
 
     BiteRuntimeContext runtimeCtx {
         .currentEpoch = schain.getNode()->getCurrentEpochId(),
-        .threadPoolExecutor = threadPoolExecutor
+        .threadPoolExecutor = threadPoolExecutor,
+        .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
     };
 
     return biteEngine.decryptTransactionsListInParallel(

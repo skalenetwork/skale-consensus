@@ -74,22 +74,24 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
     this->sigShareString = sigShare->toString();
 
 #ifdef BITE2
-    // compute additional offchain signature using domain separation.
-    // This signature will be used to derive a random value seen only by validators.
-    auto& signatureDomain = blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN;
+    if ( schain->bite2Patch( schain->getLastCommittedBlockTimeStamp().getS() ) ) {
+        // compute additional offchain signature using domain separation.
+        // This signature will be used to derive a random value seen only by validators.
+        auto& signatureDomain = blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN;
 
-    // Compute offchain block sig share as hash( blockHash || signatureDomain )
-    auto data = make_shared< vector< uint8_t > >();
-    const auto& baseHash = hash.getHash();
-    data->reserve( baseHash.size() + signatureDomain.size() );
-    data->insert( data->end(), baseHash.begin(), baseHash.end() );
-    data->insert( data->end(), signatureDomain.begin(), signatureDomain.end() );
-    auto offchainHash = BLAKE3Hash::calculateHash( data );
+        // Compute offchain block sig share as hash( blockHash || signatureDomain )
+        auto data = make_shared< vector< uint8_t > >();
+        const auto& baseHash = hash.getHash();
+        data->reserve( baseHash.size() + signatureDomain.size() );
+        data->insert( data->end(), baseHash.begin(), baseHash.end() );
+        data->insert( data->end(), signatureDomain.begin(), signatureDomain.end() );
+        auto offchainHash = BLAKE3Hash::calculateHash( data );
 
-    // Sign offchain digest and store in message
-    auto offchainSigShare = schain->getCryptoManager()->signBlockSigShare( offchainHash, _blockID );
-    this->offchainSigShareString = offchainSigShare->toString();
-    this->offchainSigShare = offchainSigShare;
+        // Sign offchain digest and store in message
+        auto offchainSigShare = schain->getCryptoManager()->signBlockSigShare( offchainHash, _blockID );
+        this->offchainSigShareString = offchainSigShare->toString();
+        this->offchainSigShare = offchainSigShare;
+    }
 #endif
 }
 

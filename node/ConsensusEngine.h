@@ -287,6 +287,8 @@ public:
 
     [[nodiscard]] ptr< GlobalThreadRegistry > getThreadRegistry() const;
 
+    void setTestPatchTimestamps( const std::map< string, uint64_t >& _patchTimestamps );
+
     void setTestKeys(
         string _serverURL, string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
 

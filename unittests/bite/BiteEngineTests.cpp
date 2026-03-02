@@ -325,7 +325,8 @@ CATCH_TEST_CASE("BiteEngine parses BITE txs and reports failures", "[bite][engin
 
     BiteRuntimeContext ctx{
         epoch, 
-        nullptr
+        nullptr,
+        true
     };
 
     auto result = BiteEngine::parseAndCacheBITETransactions(txList, ctx);
@@ -349,7 +350,7 @@ CATCH_TEST_CASE("BiteEngine parse fails on epoch mismatch, when tx uses single c
     txVec->push_back(tx);
     TransactionList txList(txVec);
 
-    BiteRuntimeContext ctx{epochTx + 1, nullptr};
+    BiteRuntimeContext ctx{epochTx + 1, nullptr, true};
     auto result = BiteEngine::parseAndCacheBITETransactions(txList, ctx);
 
     CATCH_REQUIRE(result.txsCiphertexts.size() == 0);
@@ -371,7 +372,7 @@ CATCH_TEST_CASE("BiteEngine ignores non-BITE transactions", "[bite][engine][pars
     txVec->push_back(std::make_shared<Transaction>(encoded, false));
     TransactionList txList(txVec);
 
-    BiteRuntimeContext ctx{0, nullptr};
+    BiteRuntimeContext ctx{0, nullptr, true};
     auto result = BiteEngine::parseAndCacheBITETransactions(txList, ctx);
 
     CATCH_REQUIRE(result.txsCiphertexts.size() == 0);
@@ -529,7 +530,7 @@ CATCH_TEST_CASE("BiteEngine decrypts regular BITE transactions in parallel - sin
     DecryptedAESKeyList aesKeys;
     aesKeys.addKeys(0, decryptedKeys);
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     CATCH_REQUIRE(decrypted.regularTxsMap);
@@ -578,7 +579,7 @@ CATCH_TEST_CASE("BiteEngine decrypts regular BITE transactions in parallel - mul
     }
 
     TransactionList txList(txsVec);
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, decryptedKeysList, ctx);
 
     CATCH_REQUIRE(decrypted.regularTxsMap);
@@ -623,7 +624,7 @@ CATCH_TEST_CASE("BiteEngine decrypts mixed BITE and plaintext transactions", "[b
     DecryptedAESKeyList aesKeys;
     aesKeys.addKeys(0, getDecryptedAESKeysForTransaction(biteTx, keys, 1, 1, epoch));
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     CATCH_REQUIRE(decrypted.regularTxsMap);
@@ -662,7 +663,7 @@ CATCH_TEST_CASE("BiteEngine decrypts only CAT transactions", "[bite][engine][dec
     aesKeys.addKeys(0, getDecryptedAESKeysForTransaction(catTx1, keys, 1, 1, epoch));
     aesKeys.addKeys(1, getDecryptedAESKeysForTransaction(catTx2, keys, 1, 1, epoch));
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     CATCH_REQUIRE(decrypted.ctxTxsMap);
@@ -705,7 +706,7 @@ CATCH_TEST_CASE("BiteEngine decrypts mixed CAT and BITE transactions", "[bite][e
     aesKeys.addKeys(0, getDecryptedAESKeysForTransaction(catTx, keys, 1, 1, epoch));
     aesKeys.addKeys(1, getDecryptedAESKeysForTransaction(biteTx, keys, 1, 1, epoch));
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     // 1 cat decrypted
@@ -748,7 +749,7 @@ CATCH_TEST_CASE("BiteEngine decrypts treats out of place CAT as regular tx", "[b
     DecryptedAESKeyList aesKeys;
     aesKeys.addKeys(0, getDecryptedAESKeysForTransaction(biteTx, keys, 1, 1, epoch));
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     // no cat decrypted
@@ -781,7 +782,7 @@ CATCH_TEST_CASE("BiteEngine decrypt regular tx missing AES keys throws", "[bite]
 
     DecryptedAESKeyList aesKeys; // no keys
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     CATCH_REQUIRE_THROWS(engine.decryptTransactionsListInParallel(txList, aesKeys, ctx));
 }
 
@@ -808,7 +809,7 @@ CATCH_TEST_CASE("BiteEngine decrypt throws on CAT AES key count mismatch", "[bit
     // CAT tx has 2 ciphertexts; provide only 1 key to force count mismatch
     aesKeys.addKeys(0, makeDecryptedKeys(1, 0x01));
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     CATCH_REQUIRE_THROWS(engine.decryptTransactionsListInParallel(txList, aesKeys, ctx));
 }
 #endif
@@ -995,7 +996,7 @@ CATCH_TEST_CASE("BiteEngine decrypts CAT with empty ciphertexts at start of list
     // No keys for tx 0 (empty ciphertexts)
     aesKeys.addKeys(1, getDecryptedAESKeysForTransaction(validCat, keys, 1, 1, epoch));
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     CATCH_REQUIRE(decrypted.ctxTxsMap);
@@ -1054,7 +1055,7 @@ CATCH_TEST_CASE("BiteEngine decrypts CAT with empty ciphertexts in middle of lis
     // No keys for tx 1 (empty ciphertexts)
     aesKeys.addKeys(2, getDecryptedAESKeysForTransaction(cat2, keys, 1, 1, epoch));
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     CATCH_REQUIRE(decrypted.ctxTxsMap);
@@ -1118,7 +1119,7 @@ CATCH_TEST_CASE("BiteEngine decrypts CAT with empty ciphertexts at end of list",
     aesKeys.addKeys(1, getDecryptedAESKeysForTransaction(cat1, keys, 1, 1, epoch));
     // No keys for tx 2 (empty ciphertexts)
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     CATCH_REQUIRE(decrypted.ctxTxsMap);
@@ -1161,7 +1162,7 @@ CATCH_TEST_CASE("BiteEngine decrypts only CAT with empty ciphertexts", "[bite][e
 
     DecryptedAESKeyList aesKeys; // no keys needed
 
-    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)};
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
     CATCH_REQUIRE(decrypted.ctxTxsMap);
