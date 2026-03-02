@@ -66,7 +66,25 @@
 
 #ifdef BITE2
 #include "protocols/blockconsensus/ConsensusSignatureDomains.h"
-#include "db/RandomDB.h"
+#endif
+
+#ifdef BITE2
+bool BlockConsensusAgent::isBite2PatchEnabledForBlock(
+    block_id _blockId, schain_index _proposerIndex ) {
+    if ( _proposerIndex == 0 ) {
+        auto nextStamp = getSchain()->getLastCommittedBlockTimeStamp().incrementByMs();
+        return getSchain()->bite2Patch( nextStamp.getS() );
+    }
+
+    auto proposal = getSchain()->getNode()->getBlockProposalDB()->getBlockProposal(
+        _blockId, _proposerIndex );
+    if ( proposal ) {
+        return getSchain()->bite2Patch( proposal->getTimeStampS() );
+    }
+
+    // Proposal may not be available yet on this node; fall back to last committed timestamp.
+    return getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() );
+}
 #endif
 
 
@@ -215,22 +233,30 @@ void BlockConsensusAgent::decideBlock(
                        << _stats << "| Now signing block ..." );
 
 
+#ifdef BITE2
+        bool isBite2PatchEnabled = isBite2PatchEnabledForBlock( _blockId, _sChainIndex );
+#endif
+
         auto msg = make_shared< BlockSignBroadcastMessage >(
             _blockId,
 #ifdef BITE
                 getSchain()->getNode()->getCurrentEpochId(),
 #endif
-            _sChainIndex, Time::getCurrentTimeMs(), *this );
+            _sChainIndex, Time::getCurrentTimeMs(), *this
+#ifdef BITE2
+            , isBite2PatchEnabled
+#endif
+        );
 
         auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(
             msg->getSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
 
 
 #ifdef BITE2
-        ptr<ThresholdSignature> offchainSignature;
-        if ( getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
-            offchainSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(
-                        msg->getOffchainSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
+        ptr<ThresholdSignature> reencryptionSignature;
+        if ( isBite2PatchEnabled ) {
+            reencryptionSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(
+                        msg->getreencryptionSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
         }
 #endif
 
@@ -240,16 +266,17 @@ void BlockConsensusAgent::decideBlock(
 
         if ( signature != nullptr ) {
 #ifdef BITE2
-            // save produced random from offchain signature to DB
-            if ( getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
-                CHECK_STATE2( offchainSignature, "Merged onchain sig shares, but not enough offchain shares to merge offchain sig" );
-                auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
-                getSchain()->getNode()->getRandomDB()->writeDomainRandom(
-                    blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN, msg->getBlockId(), random );
+            // force reencryptionSignature to be present & merged as well
+            if ( isBite2PatchEnabled ) {
+                CHECK_STATE2( reencryptionSignature, "Merged onchain sig shares, but not enough offchain shares to merge offchain sig" );
             }
 #endif
 
-            getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature );
+            getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature
+#ifdef BITE2
+                , reencryptionSignature
+#endif
+            );
         }
 
     } catch ( ExitRequestedException& ) {
@@ -329,9 +356,12 @@ void BlockConsensusAgent::processBlockSignMessage(
 
 #ifdef BITE2
         ptr<ThresholdSignature> offchainSignature;
-        if ( getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
+        bool isBite2PatchEnabled =
+            isBite2PatchEnabledForBlock( _message->getBlockId(), _message->getBlockProposerIndex() );
+        auto reencryptionSigShare = _message->getReencryptionSigShare();
+        if ( reencryptionSigShare ) {
             offchainSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(
-                _message->getOffchainSigShare(), getSchain()->getCryptoManager(),
+                reencryptionSigShare, getSchain()->getCryptoManager(),
                 _message->getBlockProposerIndex() );
         }
 #endif
@@ -341,13 +371,8 @@ void BlockConsensusAgent::processBlockSignMessage(
         }
 
 #ifdef BITE2
-        if ( getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
+        if ( isBite2PatchEnabled ) {
             CHECK_STATE2( offchainSignature, "Merged onchain sig shares, but not enough offchain shares to merge offchain sig" );
-
-            // save produced random from offchain signature to DB
-            auto random = Schain::calculateRandomFromSignatureString( offchainSignature->toString() );
-            getSchain()->getNode()->getRandomDB()->writeDomainRandom(
-                blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN, _message->getBlockId(), random );
         }
 #endif
 
@@ -360,7 +385,11 @@ void BlockConsensusAgent::processBlockSignMessage(
                        << ":SIG:" << signature->toString() );
 
 
-        getSchain()->finalizeDecidedAndSignedBlock( blockId, proposer, signature );
+        getSchain()->finalizeDecidedAndSignedBlock( blockId, proposer, signature
+#ifdef BITE2
+            , offchainSignature
+#endif
+        );
 
 
     } catch ( ExitRequestedException& e ) {

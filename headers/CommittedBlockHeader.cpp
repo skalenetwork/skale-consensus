@@ -32,6 +32,9 @@
 
 CommittedBlockHeader::CommittedBlockHeader( CommittedBlock& _block )
     : BlockProposalHeader( _block ),
+#ifdef BITE2
+      reencryptionThresholdSig( _block.getReencryptionThresholdSig() ),
+#endif
       thresholdSig( _block.getThresholdSig() ),
       daSig( _block.getDaSig() ){ CHECK_ARGUMENT( !thresholdSig.empty() ) }
 
@@ -68,6 +71,15 @@ void CommittedBlockHeader::addFields( nlohmann::basic_json<>& _j ) {
     BlockProposalHeader::addFields( _j );
 
     _j["thrSig"] = thresholdSig;
+
+#ifdef BITE2
+    // at this point, the reencryption threshold signature should
+    // have been already validated against bite2patch timestamp.
+    // So its safe to simply get it in case it exists & is non-empty
+    if (reencryptionThresholdSig.has_value() && !reencryptionThresholdSig->empty()) {
+        _j["reencryptionThrSig"] = reencryptionThresholdSig.value();
+    }
+#endif
 
     if ( !daSig.empty() ) {
         _j["daSig"] = daSig;

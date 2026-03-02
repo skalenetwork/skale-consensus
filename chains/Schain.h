@@ -330,7 +330,11 @@ public:
     void blockProposalReceiptTimeoutArrived( block_id _blockID );
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+        const ptr< ThresholdSignature >& _thresholdSig, 
+#ifdef BITE2
+        const ptr< ThresholdSignature >& _reencryptionThresholdSig,
+#endif
+        ptr< ThresholdSignature > _daSig
 #ifdef BITE
         , ptr< DecryptedAESKeyList > _aesKeyList, DecryptedTransactions _decryptedTransactions
 #endif
@@ -420,7 +424,11 @@ public:
 
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig );
+        const ptr< ThresholdSignature >& _thresholdSig
+#ifdef BITE2        
+        , const ptr< ThresholdSignature >& _reencryptionThresholdSig
+#endif
+    );
 
 
     bool haveProposal(block_id _blockId, schain_index _proposerIndex);
@@ -429,7 +437,11 @@ public:
     bool haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex);
 
     void finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig );
+        const ptr< ThresholdSignature >& _thresholdSig
+#ifdef BITE2
+        , const ptr< ThresholdSignature >& _reencryptionThresholdSig
+#endif
+    );
 
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 

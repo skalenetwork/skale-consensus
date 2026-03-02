@@ -57,7 +57,11 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
 #ifdef BITE
     epoch_id _epochID,
 #endif
-    schain_index _blockProposerIndex, uint64_t _time, ProtocolInstance& _sourceProtocolInstance )
+    schain_index _blockProposerIndex, uint64_t _time, ProtocolInstance& _sourceProtocolInstance
+#ifdef BITE2
+    , bool _includeOffchainSigShare
+#endif
+)
     : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _blockID,
 #ifdef BITE
     _epochID,
@@ -74,10 +78,10 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
     this->sigShareString = sigShare->toString();
 
 #ifdef BITE2
-    if ( schain->bite2Patch( schain->getLastCommittedBlockTimeStamp().getS() ) ) {
+    if ( _includeOffchainSigShare ) {
         // compute additional offchain signature using domain separation.
         // This signature will be used to derive a random value seen only by validators.
-        auto& signatureDomain = blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN;
+        auto& signatureDomain = blockconsensus::REENCRYPTION_RANDOM_DOMAIN;
 
         // Compute offchain block sig share as hash( blockHash || signatureDomain )
         auto data = make_shared< vector< uint8_t > >();

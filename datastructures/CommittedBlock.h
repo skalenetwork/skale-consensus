@@ -61,6 +61,8 @@ public:
 
 #ifdef BITE2
     [[nodiscard]] ptr< DecryptedCTXTxsMap > getDecryptedCTXArgs() const;
+
+    std::optional<string> getReencryptionThresholdSig() const;
 #endif
 
 #endif
@@ -107,7 +109,11 @@ public:
 
 
     static ptr< CommittedBlock > makeFromProposal( const ptr< BlockProposal >& _proposal,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+        const ptr< ThresholdSignature >& _thresholdSig, 
+#ifdef BITE2
+        const ptr< ThresholdSignature >& _reencryptionThresholdSig,
+#endif
+        ptr< ThresholdSignature > _daSig
 #ifdef  BITE
     , ptr< DecryptedAESKeyList > _aesKeyList, DecryptedTransactions _decryptedTransactions
 #endif

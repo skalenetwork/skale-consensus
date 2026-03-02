@@ -238,7 +238,7 @@ void Node::initLevelDBs() {
 
 #ifdef BITE2
     offchainBlockSigShareDB = make_shared< BlockSigShareDB >(
-        getSchain(), dbDir, offchainBlockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(), string( blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN ) );
+        getSchain(), dbDir, offchainBlockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(), string( blockconsensus::REENCRYPTION_RANDOM_DOMAIN ) );
     
 #endif // BITE2
 #endif // BITE
@@ -329,8 +329,9 @@ void Node::initParamsFromConfig() {
         patchTimestamps["verifyBlsSyncPatchTimestamp"] =
                 getParamUint64( "verifyBlsSyncPatchTimestamp", 0 );
 #ifdef BITE2
-        patchTimestamps["BITE2PatchTimestamp"] =
-                getParamUint64( "BITE2PatchTimestamp", 0 );
+        auto bite2PatchTs =
+            getParamUint64( "bite2PatchTimestamp", 0 );
+        patchTimestamps["bite2PatchTimestamp"] = bite2PatchTs;
 #endif
     }
 }
@@ -370,6 +371,21 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
             true );
         // now save the block into the blocks dd
         getBlockDB()->saveBlock( block );
+#ifdef BITE2
+        if ( getSchain()->bite2Patch( block->getTimeStampS() ) ) {
+            auto reencryptionSignature = block->getReencryptionThresholdSig();
+            CHECK_STATE2( reencryptionSignature.has_value(),
+                "BITE2 patch is enabled but reencryption signature is missing for imported snapshot block " +
+                    to_string( (uint64_t) block->getBlockID() ) );
+            CHECK_STATE2( !reencryptionSignature->empty(),
+                "BITE2 patch is enabled but reencryption signature is empty for imported snapshot block " +
+                    to_string( (uint64_t) block->getBlockID() ) );
+
+            auto random = Schain::calculateRandomFromSignatureString( *reencryptionSignature );
+            getRandomDB()->writeDomainRandom(
+                blockconsensus::REENCRYPTION_RANDOM_DOMAIN, block->getBlockID(), random );
+        }
+#endif
         // now do a sanitity check, that the block was imported OK
         CHECK_STATE2( block->getBlockID() == getBlockDB()->readLastCommittedBlockID(),
             "Imported a block from a snapshot, but last committed block id in db did not update" );

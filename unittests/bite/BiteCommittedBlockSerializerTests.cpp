@@ -56,7 +56,11 @@ CATCH_TEST_CASE( "BiteCommittedBlockSerializer serialize and deserialize", "[bit
     auto aesKeys = make_shared< DecryptedAESKeyList >();
 
     auto block = CommittedBlock::make( schainID, proposerNodeID, blockID, epochID, proposerIndex,
-        txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig, daSig, aesKeys,
+        txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig,
+#ifdef BITE2
+        std::nullopt,
+#endif
+        daSig, aesKeys,
         DecryptedTransactions()
     );
 
@@ -170,7 +174,11 @@ CATCH_TEST_CASE(
     auto aesKeys = make_shared< DecryptedAESKeyList >();
 
     auto block = CommittedBlock::make( schainID, proposerNodeID, blockID, epochID, proposerIndex,
-        txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig, daSig, aesKeys,
+        txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig,
+#ifdef BITE2
+        std::nullopt,
+#endif
+        daSig, aesKeys,
         DecryptedTransactions()
     );
 
@@ -203,4 +211,3 @@ CATCH_TEST_CASE(
 }
 
 #endif
-
