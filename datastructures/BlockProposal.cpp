@@ -116,6 +116,9 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
 #endif
                              schain_index _proposerIndex, const ptr<TransactionList> &_transactions, u256 _stateRoot,
                              uint64_t _timeStamp, __uint32_t _timeStampMs, const string &_signature,
+#ifdef BITE2
+    const string &_reencryptionSignature,
+#endif
                              const ptr<CryptoManager> &_cryptoManager)
     : schainID(_sChainId),
       proposerNodeID(_proposerNodeId),
@@ -128,7 +131,11 @@ BlockProposal::BlockProposal(schain_id _sChainId, node_id _proposerNodeId, block
       timeStampMs(_timeStampMs),
       stateRoot(_stateRoot),
       transactionList(_transactions),
-      signature(_signature) {
+      signature(_signature) 
+#ifdef BITE2
+      , reencryptionSignature(_reencryptionSignature)
+#endif
+      {
     creationTime = Time::getCurrentTimeMs();
     CHECK_ARGUMENT(_transactions);
 
@@ -236,6 +243,13 @@ string BlockProposal::getSignature() {
     CHECK_STATE(!signature.empty())
     return signature;
 }
+
+#ifdef BITE2
+string BlockProposal::getReencryptionSignature() {
+    CHECK_STATE(!reencryptionSignature.empty())
+    return reencryptionSignature;
+}
+#endif
 
 ptr<BlockProposalRequestHeader> BlockProposal::createProposalRequestHeader(Schain *_sChain) {
     CHECK_ARGUMENT(_sChain);

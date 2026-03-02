@@ -40,6 +40,12 @@ class BlockProposalHeader : public BasicHeader {
 #endif
     string blockHash;
     string signature;
+#ifdef BITE2
+    // holds a second threshold signature, never made public to end users.
+    // Used to derive encryption random for any precompiled SC encryption functions.
+    // Should only be present in the block after bite2 patch timestamp
+    string reencryptionSignature;
+#endif
     ptr< vector< uint64_t > > transactionSizes;
     uint64_t timeStamp = 0;
     uint32_t timeStampMs = 0;
@@ -49,6 +55,10 @@ public:
     u256 getStateRoot();
 
     string getSignature();
+
+#ifdef BITE2
+    string getReencryptionSignature();
+#endif
 
     schain_id getSchainID();
 

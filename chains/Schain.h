@@ -465,11 +465,11 @@ public:
     static u256 calculateRandomFromSignatureString( const string& _signature );
 
     /**
-     * @brief Computes a deterministic pseudo-random value for a given block id using off-chain data.
+     * @brief Computes a deterministic pseudo-random value for a given block id.
      *
-     * Derived from an additional merged signature that is stored locally by nodes and never
-     * included in the block or otherwise published. Deterministic across nodes that have this
-     * signature, but not reproducible by observers with only chain data.
+     * Derived from an additional merged signature that is stored in the block additionally
+     * to the previous block signature. This new signature is never made public to end users.
+     * Deterministic across nodes that have access to it.
      *
      * @param _blockid Block identifier.
      * @return Deterministic value derived from local merged signature data.

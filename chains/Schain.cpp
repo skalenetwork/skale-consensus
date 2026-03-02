@@ -1447,6 +1447,7 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
 #ifdef BITE
     getFinalizationExecutor()->add([_blockId, _proposerIndex, _thresholdSig, this]() {
 #endif
+        logThreadLocal_ = getNode()->getLog();
         finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
 #ifdef BITE
     });

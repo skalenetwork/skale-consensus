@@ -39,6 +39,12 @@ CommittedBlockHeader::CommittedBlockHeader( CommittedBlock& _block )
     : BlockProposalHeader( _json ) {
     thresholdSig = Header::getString( _json, "thrSig" );
     CHECK_STATE( !thresholdSig.empty() )
+    
+#ifdef BITE2
+    // should only be present in the block after bite2 patch timestamp
+    reencryptionThresholdSig = Header::maybeGetString( _json, "reencryptionThrSig" );
+#endif
+
     daSig = Header::maybeGetString( _json, "daSig" );
 }
 
@@ -46,6 +52,12 @@ const string& CommittedBlockHeader::getThresholdSig() const {
     CHECK_STATE( !thresholdSig.empty() )
     return thresholdSig;
 }
+
+#ifdef BITE2
+const std::optional<string>& CommittedBlockHeader::getReencryptionThresholdSig() const {
+    return reencryptionThresholdSig;
+}
+#endif
 
 const string& CommittedBlockHeader::getDaSig() const {
     return daSig;

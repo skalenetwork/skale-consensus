@@ -54,6 +54,9 @@ BlockProposalHeader::BlockProposalHeader( BlockProposal& _block ) : BasicHeader(
     this->blockHash = _block.getHash().toHex();
     this->stateRoot = _block.getStateRoot();
     this->signature = _block.getSignature();
+#ifdef BITE2
+    this->reencryptionSignature = _block.getReencryptionSignature();
+#endif
     this->timeStamp = _block.getTimeStampS();
     this->timeStampMs = _block.getTimeStampMs();
     this->transactionSizes = make_shared< vector< uint64_t > >();
@@ -99,6 +102,12 @@ void BlockProposalHeader::addFields( nlohmann::json& j ) {
     j["hash"] = blockHash;
 
     j["sig"] = signature;
+
+#ifdef BITE2
+    if ( !reencryptionSignature.empty() ) {
+        j["reencryptionSignature"] = reencryptionSignature;
+    }
+#endif
 
     j["sizes"] = *transactionSizes;
 
