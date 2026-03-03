@@ -364,6 +364,9 @@ if (DEFINED BITE)
 
     file(GLOB_RECURSE RLP_TEST_SOURCES "tests/unit/rlp/*.cpp")
     list(APPEND TEST_SOURCES ${RLP_TEST_SOURCES})
+
+    file(GLOB_RECURSE CRYPTO_TEST_SOURCES "unittests/crypto/*.cpp")
+    list(APPEND TEST_SOURCES ${CRYPTO_TEST_SOURCES})
 endif ()
 
 # Create the test executable from the main driver and all discovered test files.

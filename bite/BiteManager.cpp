@@ -54,8 +54,11 @@ void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {
 
     BiteRuntimeContext runtimeCtx {
-        .currentEpoch = _proposal->getEpochID(),
+        .currentEpoch = _proposal->getEpochID()
+#ifdef BITE2
+        ,
         .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
+#endif
     };
 
     auto result = BiteEngine::parseAndCacheBITETransactions(*_proposal->getTransactionList(), 

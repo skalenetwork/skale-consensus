@@ -40,8 +40,14 @@
 
 namespace RandomTests {
 
-static const string TEST_DATA_DIR = "/tmp/consensus_reencryption_random_tests";
+static const string TEST_DATA_ROOT_DIR = "/tmp/consensus_reencryption_random_tests";
+static const string ONE_NODE_TEST_DATA_DIR = TEST_DATA_ROOT_DIR + "/onenode";
+static const string TWO_NODE_TEST_DATA_DIR = TEST_DATA_ROOT_DIR + "/twonodes_sameip";
 static const string RESTART_SNAPSHOT_FILE = "/tmp/reencryption_randoms_pre_restart.txt";
+static constexpr uint64_t DEFAULT_RUN_TIME_S = 4;
+static constexpr uint64_t CROSS_NODE_RUN_TIME_S = 20;
+
+void configureTestEnvironment( bool _cleanDataDir, const string& _configDir );
 
 void configureTestEnvironment( bool _cleanDataDir, const string& _configDir = "" ) {
     auto cfgDir = boost::filesystem::system_complete( _configDir.empty() ? "test/onenode" : _configDir );
@@ -84,11 +90,10 @@ block_id startEngineAndWait( ConsensusEngine*& engine, int64_t lastId, uint64_t 
     usleep( 1000 * 1000 * runTimeS );
     
     CATCH_REQUIRE( engine->nodesCount() > 0 );
-    auto committedBlockId = engine->getLargestCommittedBlockID();
     auto committedBlockIdInDb = engine->getLargestCommittedBlockIDInDb();
 
     // Reencryption random reads are guarded by DB committed height; allow short catch-up window.
-    for ( int i = 0; i < 20 && committedBlockId > 0 && committedBlockIdInDb == 0; i++ ) {
+    for ( int i = 0; i < 20 && committedBlockIdInDb == 0; i++ ) {
         usleep( 250 * 1000 );
         committedBlockIdInDb = engine->getLargestCommittedBlockIDInDb();
     }
@@ -136,6 +141,78 @@ std::map< uint64_t, u256 > readReencryptionRandoms(
 using namespace RandomTests;
 
 CATCH_TEST_CASE(
+    "reencryption random is equal across nodes for same block ids",
+    "[reencryption-random-cross-node][end-to-end][db][bite]" ) {
+
+    ConsensusEngine* testEngine = nullptr;
+
+    try {
+        configureTestEnvironment( true, "test/twonodes_sameip" );
+        auto runTimeS = CROSS_NODE_RUN_TIME_S;
+        auto lastId =
+            ( uint64_t ) startEngineAndWait( testEngine, 0, runTimeS );
+        auto lastIdInMemory = ( uint64_t ) testEngine->getLargestCommittedBlockID();
+
+        // Two-node setup can need extra time before first DB commit; poll briefly before failing.
+        for ( int i = 0; i < 70 && lastId == 0; i++ ) {
+            usleep( 500 * 1000 );
+            lastId = ( uint64_t ) testEngine->getLargestCommittedBlockIDInDb();
+            lastIdInMemory = ( uint64_t ) testEngine->getLargestCommittedBlockID();
+        }
+
+        CATCH_INFO(
+            "lastIdInDb=" << lastId << ", lastIdInMemory=" << lastIdInMemory << ", runTimeS=" << runTimeS );
+        CATCH_REQUIRE( lastId > 0 );
+        CATCH_REQUIRE( ( uint64_t ) testEngine->nodesCount() == 2 );
+
+        auto nodeIds = testEngine->getNodeIDs();
+        CATCH_REQUIRE( nodeIds.size() == 2 );
+
+        auto nodeIt = nodeIds.begin();
+        auto firstNodeId = *nodeIt;
+        ++nodeIt;
+        auto secondNodeId = *nodeIt;
+
+        std::map< uint64_t, u256 > firstNodeRandoms;
+        std::map< uint64_t, u256 > secondNodeRandoms;
+
+        for ( uint64_t blockId = 1; blockId <= lastId; blockId++ ) {
+            try {
+                firstNodeRandoms[blockId] =
+                    testEngine->getReencryptionRandomForBlockIdForNode( blockId, firstNodeId );
+            } catch ( ... ) {}
+
+            try {
+                secondNodeRandoms[blockId] =
+                    testEngine->getReencryptionRandomForBlockIdForNode( blockId, secondNodeId );
+            } catch ( ... ) {}
+        }
+
+        uint64_t comparedBlocks = 0;
+        for ( const auto& [blockId, firstRandom] : firstNodeRandoms ) {
+            if ( secondNodeRandoms.count( blockId ) == 0 ) {
+                continue;
+            }
+
+            CATCH_REQUIRE( firstRandom == secondNodeRandoms.at( blockId ) );
+            comparedBlocks++;
+        }
+
+        CATCH_REQUIRE( comparedBlocks > 0 );
+
+        stopEngineGracefully( testEngine );
+    } catch ( SkaleException& e ) {
+        if ( testEngine ) {
+            stopEngineGracefully( testEngine );
+        }
+        SkaleException::logNested( e );
+        throw;
+    }
+
+    CATCH_SUCCEED();
+}
+
+CATCH_TEST_CASE(
     "getReencryptionRandomForBlockId returns for committed blocks",
     "[reencryption-random-committed][end-to-end][db][bite2]" ) {
     
@@ -144,7 +221,7 @@ CATCH_TEST_CASE(
     try {
         configureTestEnvironment( true );
         // Start consensus and wait for blocks to be committed
-        auto lastId = startEngineAndWait( testEngine, 0, Consensust::getRunningTimeS() );
+        auto lastId = startEngineAndWait( testEngine, 0, DEFAULT_RUN_TIME_S );
         
         CATCH_REQUIRE( lastId > 0 );
         
@@ -189,7 +266,7 @@ CATCH_TEST_CASE(
     try {
         configureTestEnvironment( true );
         // Start consensus and wait for blocks to be committed
-        auto lastId = startEngineAndWait( testEngine, 0, Consensust::getRunningTimeS() );
+        auto lastId = startEngineAndWait( testEngine, 0, DEFAULT_RUN_TIME_S );
         
         CATCH_REQUIRE( lastId > 0 );
         
@@ -231,7 +308,7 @@ CATCH_TEST_CASE(
     try {
         configureTestEnvironment( true );
         // Start consensus and wait for blocks to be committed
-        auto lastId = (uint64_t) startEngineAndWait( testEngine, 0, Consensust::getRunningTimeS() );
+        auto lastId = (uint64_t) startEngineAndWait( testEngine, 0, DEFAULT_RUN_TIME_S );
         
         CATCH_REQUIRE( lastId > 0 );
         
@@ -285,7 +362,7 @@ CATCH_TEST_CASE(
     try {
         configureTestEnvironment( true );
         // First run: start from scratch and collect reencryption randoms
-        auto lastId = (uint64_t) startEngineAndWait( testEngine, 0, Consensust::getRunningTimeS() );
+        auto lastId = (uint64_t) startEngineAndWait( testEngine, 0, DEFAULT_RUN_TIME_S );
         
         CATCH_REQUIRE( lastId > 0 );
         
