@@ -81,6 +81,9 @@ void configureTestEnvironment( bool _cleanDataDir, const string& _configDir ) {
  */
 block_id startEngineAndWait( ConsensusEngine*& engine, int64_t lastId, uint64_t runTimeS ) {
     engine = new ConsensusEngine( lastId, 1000000000 );
+#ifdef BITE2
+    engine->setTestPatchTimestamps( { { "bite2PatchTimestamp", 1 } } );
+#endif
     engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath(), lastId == -1 );
     engine->slowStartBootStrapTest();
     
@@ -311,8 +314,12 @@ CATCH_TEST_CASE(
         CATCH_REQUIRE( lastId > 0 );
         
         uint64_t checkedBlocks = 0;
+        uint64_t startBlock = 1;
+#ifdef BITE2
+        startBlock = 2;
+#endif
         
-        for ( uint64_t blockId = 1; blockId <= lastId; blockId++ ) {
+        for ( uint64_t blockId = startBlock; blockId <= lastId; blockId++ ) {
             try {
                 // For same committed block id, compare:
                 // getReencryptionRandomForBlockId(id) vs getRandomForBlockId(id)

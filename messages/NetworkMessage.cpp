@@ -393,8 +393,10 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 sigShare, srcSchainIndex, ecdsaSig, publicKey, pkSig, _sChain );
         } else if ( type == BasicHeader::BLOCK_SIG_BROADCAST ) {
 #ifdef BITE2
-            if ( d.HasMember( "ofss" ) ) {
-                offchainSigShare = getStringRapid( d, "ofss" );
+            if ( _sChain->bite2Patch( _sChain->getLastCommittedBlockTimeStamp().getS() ) ) {
+                if ( d.HasMember( "ofss" ) ) {
+                    offchainSigShare = getStringRapid( d, "ofss" );
+                }
             }
 #endif
             nwkMsg = make_shared< BlockSignBroadcastMessage >( node_id( srcNodeID ),

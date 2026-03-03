@@ -1052,6 +1052,10 @@ string ConsensusEngine::getDbDir() const {
     return dbDir;
 }
 
+void ConsensusEngine::setTestPatchTimestamps( const std::map< string, uint64_t >& _patchTimestamps ) {
+    patchTimestamps = _patchTimestamps;
+}
+
 void ConsensusEngine::setTestKeys(
     string _serverURL, string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes ) {
     CHECK_STATE( !useTestSGXKeys )

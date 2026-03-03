@@ -50,7 +50,7 @@ public:
     // Unparsable transactions will be added to failedTransactions.
     // Transactions starting from the magic number but with incorrect format will be added
     // to failedTransactions.
-    static void parseBITETransactions(ptr<BlockProposal> _proposal);
+    void parseBITETransactions(ptr<BlockProposal> _proposal);
 
     // =============== Stage 2: Ciphertext Validation =============== //
 
