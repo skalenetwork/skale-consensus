@@ -940,6 +940,38 @@ u256 ConsensusEngine::getRandomForBlockId( uint64_t _blockId ) const {
     return 0;  // make compiler happy
 }
 
+ptr< CommittedBlock > ConsensusEngine::getCommittedBlockForBlockId( uint64_t _blockId ) const {
+    CHECK_STATE( nodes.size() > 0 );
+
+    for ( auto&& item : nodes ) {
+        CHECK_STATE( item.second );
+        auto schain = item.second->getSchain();
+        CHECK_STATE( schain );
+        CHECK_STATE( _blockId <= schain->readLastCommittedBlockIDFromDb() );
+
+        auto block = item.second->getBlockDB()->getBlock( _blockId, schain->getCryptoManager() );
+        CHECK_STATE( block );
+        return block;
+    }
+    return nullptr;  // make compiler happy
+}
+
+ptr< CommittedBlock > ConsensusEngine::getCommittedBlockForBlockIdForNode( uint64_t _blockId, node_id _nodeId ) const {
+    CHECK_STATE( nodes.size() >= 1 );
+
+    auto it = nodes.find( _nodeId );
+    CHECK_STATE2( it != nodes.end(), "Node with id " + to_string( _nodeId ) + " not found" );
+
+    CHECK_STATE( it->second );
+    auto schain = it->second->getSchain();
+    CHECK_STATE( schain );
+    CHECK_STATE( _blockId <= schain->readLastCommittedBlockIDFromDb() );
+
+    auto block = it->second->getBlockDB()->getBlock( _blockId, schain->getCryptoManager() );
+    CHECK_STATE( block );
+    return block;
+}
+
 #ifdef BITE2
 
 u256 ConsensusEngine::getReencryptionRandomForBlockId( uint64_t _blockId ) const {

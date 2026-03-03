@@ -539,7 +539,7 @@ uint64_t Schain::getBITE2PatchTimestampS() const {
 #endif
 
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex,
-                                const ptr<ThresholdSignature> &_thresholdSig,
+                                const ptr<ThresholdSignature> &_thresholdSig, 
 #ifdef BITE2
                                 const ptr<ThresholdSignature> &_reencryptionThresholdSig,
 #endif
@@ -555,6 +555,12 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
 
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList)
+#ifdef BITE2
+    bool isBite2PatchEnabled = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
+    if ( isBite2PatchEnabled ) {
+        CHECK_ARGUMENT(_reencryptionThresholdSig)
+    }
+#endif
 #endif
 
     // wait until the schain state is fully initialized and startup
@@ -605,15 +611,8 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
 
         CHECK_STATE(committedProposal);
 
-#ifdef BITE2
-        bool isBite2PatchEnabled = bite2Patch( committedProposal->getTimeStampS() );
-        if ( isBite2PatchEnabled ) {
-            CHECK_ARGUMENT(_reencryptionThresholdSig)
-        }
-#endif
-
         auto newCommittedBlock =
-                CommittedBlock::makeFromProposal(committedProposal, _thresholdSig,
+                CommittedBlock::makeFromProposal(committedProposal, _thresholdSig, 
 #ifdef BITE2
                     _reencryptionThresholdSig,
 #endif
@@ -959,9 +958,9 @@ void Schain::saveBlock(const ptr<CommittedBlock> &_block) {
         std::optional<string> reencryptionSignature = _block->getReencryptionThresholdSig();
         bool isBite2PatchEnabled = bite2Patch(_block->getTimeStampS());
         if (isBite2PatchEnabled) {
-            CHECK_STATE2(reencryptionSignature.has_value(),
+            CHECK_STATE2(reencryptionSignature.has_value(), 
                 "BITE2 patch is enabled but reencryption signature is missing for block " + to_string( _block->getBlockID() ));
-            CHECK_STATE2(!reencryptionSignature->empty(),
+            CHECK_STATE2(!reencryptionSignature->empty(), 
                 "BITE2 patch is enabled but reencryption signature is empty string for block " + to_string( _block->getBlockID() ));
 
             auto random = Schain::calculateRandomFromSignatureString( reencryptionSignature.value() );
@@ -1514,14 +1513,14 @@ void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _prop
 
     checkForExit();
 #ifdef BITE
-    getFinalizationExecutor()->add([_blockId, _proposerIndex, _thresholdSig,
+    getFinalizationExecutor()->add([_blockId, _proposerIndex, _thresholdSig, 
 #ifdef BITE2
-        _reencryptionThresholdSig,
+        _reencryptionThresholdSig, 
 #endif
         this]() {
 #endif
         logThreadLocal_ = getNode()->getLog();
-        finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig
+        finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig 
 #ifdef BITE2
             , _reencryptionThresholdSig
 #endif
@@ -1585,9 +1584,9 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
     try {
         if (_proposerIndex == 0) {
             // default empty block
-            blockCommitArrived(_blockId, _proposerIndex, _thresholdSig,
+            blockCommitArrived(_blockId, _proposerIndex, _thresholdSig, 
 #ifdef BITE2
-                _reencryptionThresholdSig,
+                _reencryptionThresholdSig, 
 #endif
                 nullptr
 #ifdef BITE
@@ -1651,7 +1650,8 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         CHECK_STATE(keys);
 
         auto transactions = proposal->getTransactionList();
-        auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
+        auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(
+            *transactions, (*keys), proposal->getEpochID(), proposal->getTimeStampS() );
 #endif
 
         auto daProofSig = getNode()->getDaProofDB()->getDASig( _blockId, _proposerIndex );
@@ -1659,7 +1659,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         auto daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
             hash, daProofSig, _blockId, proposal->getTimeStampS() );
 
-        blockCommitArrived(_blockId, _proposerIndex, _thresholdSig,
+        blockCommitArrived(_blockId, _proposerIndex, _thresholdSig, 
 #ifdef BITE2
             _reencryptionThresholdSig,
 #endif
@@ -1898,6 +1898,13 @@ void Schain::setTimeStampValuesFromConfig() {
     SET_TIMESTAMP_FROM_CONFIG(verifyBlsSyncPatchTimestamp)
 #ifdef BITE2
     SET_TIMESTAMP_FROM_CONFIG(bite2PatchTimestamp)
+    // Backward compatibility for configs using legacy key casing.
+    if ( bite2PatchTimestamp == 0 ) {
+        auto& timestamps = getNode()->getPatchTimestamps();
+        if ( timestamps.count( "bite2PatchTimestamp" ) > 0 ) {
+            bite2PatchTimestamp = timestamps.at( "bite2PatchTimestamp" );
+        }
+    }
 #endif
 }
 

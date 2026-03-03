@@ -171,14 +171,16 @@ std::shared_ptr<DecryptedAESKeyList> BiteManager::mergeAESKeys(
 
 DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
         const TransactionList &_transactionList,
-        const DecryptedAESKeyList &_aesKeys) {
+        const DecryptedAESKeyList &_aesKeys,
+        epoch_id _epochId,
+        uint64_t _blockTimestampS ) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     BiteRuntimeContext runtimeCtx {
-        .currentEpoch = schain.getNode()->getCurrentEpochId(),
+        .currentEpoch = _epochId,
         .threadPoolExecutor = threadPoolExecutor,
-        .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
+        .isBite2PatchEnabled = schain.bite2Patch( _blockTimestampS )
     };
 
     return biteEngine.decryptTransactionsListInParallel(

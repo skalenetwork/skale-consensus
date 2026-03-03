@@ -149,8 +149,8 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
     }
 
 
-    auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(*transactionList,
-        *decryptedAesKeyList);
+    auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(
+        *transactionList, *decryptedAesKeyList, blockHeader->getEpochID(), blockHeader->getTimeStamp() );
     ptr<CommittedBlock> block = nullptr;
 
     try {
@@ -164,6 +164,9 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
+#ifdef BITE2
+                                     blockHeader->getReencryptionThresholdSig(),
+#endif
                                      blockHeader->getDaSig()
 #ifdef BITE
                                      , decryptedAesKeyList, decryptedTransactionDataFields

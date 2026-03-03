@@ -320,17 +320,27 @@ void Node::initParamsFromConfig() {
 
     testConfig = make_shared< TestConfig >( cfg );
 
-    // for tests we add an option to read patchtimestamps from config
+    // For tests, allow env/config overrides while preserving any values already
+    // injected by ConsensusEngine::setTestPatchTimestamps().
     if ( !consensusEngine->getExtFace() ) {
+        auto getExistingPatchTs = [this]( const char* _name ) -> uint64_t {
+            auto it = patchTimestamps.find( _name );
+            return it == patchTimestamps.end() ? 0 : it->second;
+        };
+
         patchTimestamps["fastConsensusPatchTimestamp"] =
-            getParamUint64( "fastConsensusPatchTimestamp", 0 );
+            getParamUint64( "fastConsensusPatchTimestamp",
+                getExistingPatchTs( "fastConsensusPatchTimestamp" ) );
         patchTimestamps["verifyDaSigsPatchTimestamp"] =
-            getParamUint64( "verifyDaSigsPatchTimestamp", 0 );
+            getParamUint64( "verifyDaSigsPatchTimestamp",
+                getExistingPatchTs( "verifyDaSigsPatchTimestamp" ) );
         patchTimestamps["verifyBlsSyncPatchTimestamp"] =
-                getParamUint64( "verifyBlsSyncPatchTimestamp", 0 );
+            getParamUint64( "verifyBlsSyncPatchTimestamp",
+                getExistingPatchTs( "verifyBlsSyncPatchTimestamp" ) );
 #ifdef BITE2
         auto bite2PatchTs =
-            getParamUint64( "bite2PatchTimestamp", 0 );
+            getParamUint64( "bite2PatchTimestamp",
+                getExistingPatchTs( "bite2PatchTimestamp" ) );
         patchTimestamps["bite2PatchTimestamp"] = bite2PatchTs;
 #endif
     }

@@ -256,7 +256,7 @@ void BlockConsensusAgent::decideBlock(
         ptr<ThresholdSignature> reencryptionSignature;
         if ( isBite2PatchEnabled ) {
             reencryptionSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(
-                        msg->getreencryptionSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
+                        msg->getReencryptionSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
         }
 #endif
 

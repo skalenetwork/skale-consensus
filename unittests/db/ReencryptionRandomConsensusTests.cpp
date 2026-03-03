@@ -26,9 +26,13 @@
 #include "thirdparty/catch.hpp"
 #include "Consensust.h"
 #include "SkaleCommon.h"
+#include "datastructures/CommittedBlock.h"
 #include "node/ConsensusEngine.h"
+#include "utils/Time.h"
+#include "unittests/TestUtils.h"
 
 #include <boost/filesystem.hpp>
+#include <cstdlib>
 #include <fstream>
 #include <map>
 #include <unordered_set>
@@ -39,8 +43,8 @@ namespace RandomTests {
 static const string TEST_DATA_DIR = "/tmp/consensus_reencryption_random_tests";
 static const string RESTART_SNAPSHOT_FILE = "/tmp/reencryption_randoms_pre_restart.txt";
 
-void configureTestEnvironment( bool _cleanDataDir ) {
-    auto cfgDir = boost::filesystem::system_complete( "test/onenode" );
+void configureTestEnvironment( bool _cleanDataDir, const string& _configDir = "" ) {
+    auto cfgDir = boost::filesystem::system_complete( _configDir.empty() ? "test/onenode" : _configDir );
     CATCH_REQUIRE( boost::filesystem::exists( cfgDir ) );
     CATCH_REQUIRE( boost::filesystem::is_directory( cfgDir ) );
     Consensust::setConfigDirPath( cfgDir );
@@ -52,32 +56,12 @@ void configureTestEnvironment( bool _cleanDataDir ) {
 
     boost::filesystem::create_directories( TEST_DATA_DIR );
 
-    setenv( "DATA_DIR", TEST_DATA_DIR.c_str(), 1 );
-    setenv( "LOG_DIR", TEST_DATA_DIR.c_str(), 1 );
+    TestUtils::setTestEnvVar( "DATA_DIR", TEST_DATA_DIR.c_str() );
+    TestUtils::setTestEnvVar( "LOG_DIR", TEST_DATA_DIR.c_str() );
 
     // consensus running time to 4s - dont replace if already set (0)
     // to produce some blocks
-    setenv( "TEST_TIME_S", "4", 0 );
-}
-
-void configureTestEnvironment( bool _cleanDataDir, const string& _configDir ) {
-    auto cfgDir = boost::filesystem::system_complete( _configDir );
-    CATCH_REQUIRE( boost::filesystem::exists( cfgDir ) );
-    CATCH_REQUIRE( boost::filesystem::is_directory( cfgDir ) );
-    Consensust::setConfigDirPath( cfgDir );
-
-    if ( _cleanDataDir ) {
-        boost::filesystem::remove_all( TEST_DATA_DIR );
-        std::remove( RESTART_SNAPSHOT_FILE.c_str() );
-    }
-
-    boost::filesystem::create_directories( TEST_DATA_DIR );
-
-    setenv( "DATA_DIR", TEST_DATA_DIR.c_str(), 1 );
-    setenv( "LOG_DIR", TEST_DATA_DIR.c_str(), 1 );
-
-    // consensus running time to 4s - dont replace if already set (0)
-    setenv( "TEST_TIME_S", "4", 0 );
+    TestUtils::setTestEnvVar( "TEST_TIME_S", "4", 0 );
 }
 
 /**
@@ -153,7 +137,7 @@ using namespace RandomTests;
 
 CATCH_TEST_CASE(
     "getReencryptionRandomForBlockId returns for committed blocks",
-    "[reencryption-random-committed][end-to-end][db]" ) {
+    "[reencryption-random-committed][end-to-end][db][bite2]" ) {
     
     ConsensusEngine* testEngine = nullptr;
     
@@ -198,7 +182,7 @@ CATCH_TEST_CASE(
 
 CATCH_TEST_CASE(
     "repeated reads for same block are equal",
-    "[reencryption-random-deterministic][end-to-end][db]" ) {
+    "[reencryption-random-deterministic][end-to-end][db][bite2]" ) {
     
     ConsensusEngine* testEngine = nullptr;
     
@@ -240,7 +224,7 @@ CATCH_TEST_CASE(
 
 CATCH_TEST_CASE(
     "reencryption random differs from public random",
-    "[reencryption-random-vs-public][end-to-end][db]" ) {
+    "[reencryption-random-vs-public][end-to-end][db][bite2]" ) {
     
     ConsensusEngine* testEngine = nullptr;
     
@@ -294,7 +278,7 @@ CATCH_TEST_CASE(
 
 CATCH_TEST_CASE(
     "reencryption random survives restart - first run",
-    "[reencryption-random-restart-1][end-to-end][db]" ) {
+    "[reencryption-random-restart-1][end-to-end][db][bite2]" ) {
     
     ConsensusEngine* testEngine = nullptr;
     
@@ -335,7 +319,7 @@ CATCH_TEST_CASE(
 
 CATCH_TEST_CASE(
     "reencryption random survives restart - continue after restart",
-    "[reencryption-random-restart-2][end-to-end]" ) {
+    "[reencryption-random-restart-2][end-to-end][bite2]" ) {
     
     ConsensusEngine* testEngine = nullptr;
     
@@ -470,6 +454,124 @@ CATCH_TEST_CASE(
         throw;
     }
 
+    CATCH_SUCCEED();
+}
+
+CATCH_TEST_CASE(
+    "reencryption random/signature transition across bite2 patch timestamp",
+    "[reencryption-signature-transition][bite2][end-to-end][db]" ) {
+    
+    ConsensusEngine* testEngine = nullptr;
+    
+    try {
+        configureTestEnvironment( true );
+
+        auto snap = TestUtils::setTestEnvVar("TEST_TRANSACTIONS_PER_BLOCK", "1");
+
+        uint64_t runTimeS = Consensust::getRunningTimeS();
+        if ( runTimeS < 8 ) {
+            runTimeS = 8;
+        }
+        static constexpr uint64_t PATCH_DELAY_MS = 2000;
+        auto bite2PatchTimestamp = ( Time::getCurrentTimeMs() + PATCH_DELAY_MS + 999 ) / 1000;
+        
+        testEngine = new ConsensusEngine( 0, 1000000000 );
+        testEngine->setTestPatchTimestamps( { { "bite2PatchTimestamp", bite2PatchTimestamp } } );
+        testEngine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath(), false );
+        testEngine->slowStartBootStrapTest();
+        
+        // Wait for blocks to be committed
+        usleep( 1000 * 1000 * runTimeS );
+        
+        auto lastId = testEngine->getLargestCommittedBlockIDInDb();
+        
+        // Poll briefly if DB commit is still pending
+        for ( int i = 0; i < 20 && lastId == 0; i++ ) {
+            usleep( 250 * 1000 );
+            lastId = testEngine->getLargestCommittedBlockIDInDb();
+        }
+        
+        CATCH_REQUIRE( lastId > 0 );
+        
+        uint64_t checkedBlocks = 0;
+        
+        // Access schain directly to get blocks
+        auto nodeIds = testEngine->getNodeIDs();
+        CATCH_REQUIRE( nodeIds.size() > 0 );
+        
+        uint64_t checkedBeforePatch = 0;
+        uint64_t checkedAfterPatch = 0;
+
+        // Validate transition by block timestamp: 
+        // before patch -> absent, 
+        // after patch -> present.
+        for ( uint64_t blockId = 1; blockId <= (uint64_t)lastId; blockId++ ) {
+            try {
+                auto block = testEngine->getCommittedBlockForBlockId( blockId );
+                CATCH_REQUIRE( block != nullptr );
+                auto blockTimestamp = block->getTimeStampS();
+                auto reencryptionSignature = block->getReencryptionThresholdSig();
+
+                CATCH_INFO( "blockId=" << blockId << ", blockTimestamp=" << blockTimestamp <<
+                    ", bite2PatchTimestamp=" << bite2PatchTimestamp );
+
+                // Before patch timestamp
+                if ( blockTimestamp < bite2PatchTimestamp ) {
+                    // committed block has no reencryption signature
+                    bool noReencryptionSignature =
+                        !reencryptionSignature.has_value() || reencryptionSignature->empty();
+                    CATCH_REQUIRE( noReencryptionSignature );
+
+                    // db read for reencryption random should fail (not available before patch)
+                    bool randomReadFailed = false;
+                    try {
+                        auto random = testEngine->getReencryptionRandomForBlockId( blockId );
+                        (void) random;
+                    } catch ( ... ) {
+                        randomReadFailed = true;
+                    }
+                    CATCH_REQUIRE( randomReadFailed );
+                    checkedBeforePatch++;
+                } else {
+                    // After patch timestamp
+                    CATCH_REQUIRE( reencryptionSignature.has_value() );
+                    CATCH_REQUIRE( !reencryptionSignature->empty() );
+                    // reencryption random should be saved in DB, readable, and non-zero
+                    auto reencryptionRandom = testEngine->getReencryptionRandomForBlockId( blockId );
+                    CATCH_REQUIRE( reencryptionRandom != u256( 0 ) );
+                    checkedAfterPatch++;
+                }
+                checkedBlocks++;
+            } catch ( const SkaleException& e ) {
+                CATCH_FAIL( "Exception thrown while checking block ID " + std::to_string( blockId ) +
+                    " for reencryption random/signature transition: " + e.what() );
+            } catch ( ... ) {
+                CATCH_FAIL( "Unknown exception thrown while checking block ID " +
+                    std::to_string( blockId ) + " for reencryption random/signature transition." );
+            }
+        }
+        
+        CATCH_REQUIRE( checkedBlocks == lastId );
+        CATCH_REQUIRE( checkedBeforePatch > 0 );
+        CATCH_REQUIRE( checkedAfterPatch > 0 );
+        
+        stopEngineGracefully( testEngine );
+
+        TestUtils::restoreTestEnvVar( "TEST_TRANSACTIONS_PER_BLOCK", snap );
+        
+    } catch ( SkaleException& e ) {
+        if ( testEngine ) {
+            stopEngineGracefully( testEngine );
+        }
+        SkaleException::logNested( e );
+        throw;
+    } catch ( ... ) {
+        if ( testEngine ) {
+            stopEngineGracefully( testEngine );
+        }
+        throw;
+    }
+    
     CATCH_SUCCEED();
 }
 

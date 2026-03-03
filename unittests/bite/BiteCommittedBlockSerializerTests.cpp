@@ -210,4 +210,142 @@ CATCH_TEST_CASE(
     CATCH_REQUIRE( *reserialized == *serialized );
 }
 
+#ifdef BITE2
+CATCH_TEST_CASE(
+    "BiteCommittedBlockSerializer with reencryption threshold signature", "[bite][serializer][committed][bite2]" ) {
+    ConsensusEngine engine( 0, 100000000 );
+    std::shared_ptr< Schain > chain;
+    std::shared_ptr< Node > node;
+    auto cryptoManager = createTestCryptoManager( chain, node, engine );
+    auto biteManager = createTestBiteManager( chain );
+
+    // Setup Block Data
+    schain_id schainID = 1;
+    node_id proposerNodeID = 1;
+    block_id blockID = 300;
+    epoch_id epochID = 30;
+    schain_index proposerIndex = 1;
+    u256 stateRoot = 0x789abc;
+    uint64_t timeStamp = std::time( nullptr );
+    uint32_t timeStampMs = 789;
+    string signature = "mock_sig_bite2";
+    string thresholdSig = "mock_threshold_sig_bite2";
+    string reencryptionThresholdSig = "mock_reencryption_threshold_sig_bite2";
+    string daSig = "mock_da_sig_bite2";
+
+    // Create plain transactions
+    auto plainTx1 = EthTransactionEncoder::generateSampleTx();
+    plainTx1->to = std::vector< uint8_t >( ADDRESS_SIZE, 0x77 );
+    plainTx1->data = { 0xAA, 0xBB };
+    auto tx1 = std::make_shared< Transaction >(
+        EthTransactionEncoder::signAndEncodeTx( plainTx1 ), false );
+
+    auto txVec = make_shared< vector< ptr< Transaction > > >();
+    txVec->push_back( tx1 );
+    auto txList = make_shared< TransactionList >( txVec );
+
+    auto aesKeys = make_shared< DecryptedAESKeyList >();
+
+    auto block = CommittedBlock::make( schainID, proposerNodeID, blockID, epochID, proposerIndex,
+        txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig,
+        std::optional<string>(reencryptionThresholdSig),
+        daSig, aesKeys,
+        DecryptedTransactions()
+    );
+
+    auto header = make_shared< CommittedBlockHeader >( *block );
+
+    // 1. Test Serialization
+    auto serialized = BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
+        *header, *txList, *aesKeys );
+    CATCH_REQUIRE( serialized != nullptr );
+    CATCH_REQUIRE( serialized->size() > 0 );
+
+    // 2. Test Sanity Check
+    CATCH_REQUIRE_NOTHROW( BiteCommittedBlockSerializer::serializedSanityCheck( serialized ) );
+
+    // 3. Test Deserialization
+    auto deserialized = BiteCommittedBlockSerializer::deserialize(
+        serialized, cryptoManager, biteManager, false );
+    CATCH_REQUIRE( deserialized != nullptr );
+    CATCH_REQUIRE( deserialized->getBlockID() == blockID );
+
+    // 4. Verify reencryption threshold signature is preserved
+    auto deserializedReencryptionSig = deserialized->getReencryptionThresholdSig();
+    CATCH_REQUIRE( deserializedReencryptionSig.has_value() );
+    CATCH_REQUIRE( deserializedReencryptionSig.value() == reencryptionThresholdSig );
+
+    // 5. Verify roundtrip
+    auto reserialized = deserialized->serialize();
+    CATCH_REQUIRE( *reserialized == *serialized );
+}
+
+CATCH_TEST_CASE(
+    "BiteCommittedBlockSerializer without reencryption threshold signature", "[bite][serializer][committed][bite2]" ) {
+    ConsensusEngine engine( 0, 100000000 );
+    std::shared_ptr< Schain > chain;
+    std::shared_ptr< Node > node;
+    auto cryptoManager = createTestCryptoManager( chain, node, engine );
+    auto biteManager = createTestBiteManager( chain );
+
+    // Setup Block Data
+    schain_id schainID = 1;
+    node_id proposerNodeID = 1;
+    block_id blockID = 400;
+    epoch_id epochID = 40;
+    schain_index proposerIndex = 1;
+    u256 stateRoot = 0xdef123;
+    uint64_t timeStamp = std::time( nullptr );
+    uint32_t timeStampMs = 999;
+    string signature = "mock_sig_no_reencryption";
+    string thresholdSig = "mock_threshold_sig_no_reencryption";
+    string daSig = "mock_da_sig_no_reencryption";
+
+    // Create plain transactions
+    auto plainTx1 = EthTransactionEncoder::generateSampleTx();
+    plainTx1->to = std::vector< uint8_t >( ADDRESS_SIZE, 0x88 );
+    plainTx1->data = { 0xCC, 0xDD };
+    auto tx1 = std::make_shared< Transaction >(
+        EthTransactionEncoder::signAndEncodeTx( plainTx1 ), false );
+
+    auto txVec = make_shared< vector< ptr< Transaction > > >();
+    txVec->push_back( tx1 );
+    auto txList = make_shared< TransactionList >( txVec );
+
+    auto aesKeys = make_shared< DecryptedAESKeyList >();
+
+    auto block = CommittedBlock::make( schainID, proposerNodeID, blockID, epochID, proposerIndex,
+        txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig,
+        std::nullopt,  // No reencryption threshold signature
+        daSig, aesKeys,
+        DecryptedTransactions()
+    );
+
+    auto header = make_shared< CommittedBlockHeader >( *block );
+
+    // 1. Test Serialization
+    auto serialized = BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
+        *header, *txList, *aesKeys );
+    CATCH_REQUIRE( serialized != nullptr );
+    CATCH_REQUIRE( serialized->size() > 0 );
+
+    // 2. Test Sanity Check
+    CATCH_REQUIRE_NOTHROW( BiteCommittedBlockSerializer::serializedSanityCheck( serialized ) );
+
+    // 3. Test Deserialization
+    auto deserialized = BiteCommittedBlockSerializer::deserialize(
+        serialized, cryptoManager, biteManager, false );
+    CATCH_REQUIRE( deserialized != nullptr );
+    CATCH_REQUIRE( deserialized->getBlockID() == blockID );
+
+    // 4. Verify reencryption threshold signature is absent
+    auto deserializedReencryptionSig = deserialized->getReencryptionThresholdSig();
+    CATCH_REQUIRE( !deserializedReencryptionSig.has_value() );
+
+    // 5. Verify roundtrip
+    auto reserialized = deserialized->serialize();
+    CATCH_REQUIRE( *reserialized == *serialized );
+}
+#endif
+
 #endif
