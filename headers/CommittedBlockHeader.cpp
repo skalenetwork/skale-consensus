@@ -45,7 +45,10 @@ CommittedBlockHeader::CommittedBlockHeader( CommittedBlock& _block )
     
 #ifdef BITE2
     // should only be present in the block after bite2 patch timestamp
-    reencryptionThresholdSig = Header::maybeGetString( _json, "reencryptionThrSig" );
+    auto maybeReencryptionThresholdSig = Header::maybeGetString( _json, "reencryptionThrSig" );
+    reencryptionThresholdSig = maybeReencryptionThresholdSig.empty()
+        ? std::nullopt
+        : std::optional<string>( maybeReencryptionThresholdSig );
 #endif
 
     daSig = Header::maybeGetString( _json, "daSig" );

@@ -57,7 +57,7 @@ void BiteManager::parseBITETransactions(
         .currentEpoch = _proposal->getEpochID()
 #ifdef BITE2
         ,
-        .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
+        .isBite2PatchEnabled = schain.bite2Patch( _proposal->getTimeStampS() )
 #endif
     };
 

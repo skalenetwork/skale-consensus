@@ -70,7 +70,7 @@ public:
         uint64_t _runTimeS,
         const std::map< string, uint64_t >& _patchTimestamps = { // default patch timestamps
 #ifdef BITE2
-            { "bite2PatchTimestamp", 1 }
+            { "bite2PatchTimestamp", 0 }
 #endif 
         } ) {
         _engine = new ConsensusEngine( _lastId, 1000000000 );

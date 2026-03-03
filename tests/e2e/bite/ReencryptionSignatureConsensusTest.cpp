@@ -47,11 +47,9 @@ CATCH_TEST_CASE(
     "[reencryption-signature-transition][bite2][end-to-end][db]" ) {
     
     ConsensusEngine* testEngine = nullptr;
-    
+
     try {
         E2EHelper::configureTestEnvironment( true, "test/twonodes_sameip" );
-
-        auto snap = E2EHelper::setTestEnvVar("TEST_TRANSACTIONS_PER_BLOCK", "1");
 
         uint64_t runTimeS = Consensust::getRunningTimeS();
         if ( runTimeS < 8 ) {
@@ -114,10 +112,6 @@ CATCH_TEST_CASE(
                     auto blockTimestamp = _block->getTimeStampS();
                     auto reencryptionSignature = _block->getReencryptionThresholdSig();
 
-                    CATCH_INFO( "blockId=" << blockId << ", nodeId=" << _nodeId <<
-                        ", blockTimestamp=" << blockTimestamp <<
-                        ", bite2PatchTimestamp=" << bite2PatchTimestamp );
-
                     if ( blockTimestamp < bite2PatchTimestamp ) {
                         bool noReencryptionSignature =
                             !reencryptionSignature.has_value() || reencryptionSignature->empty();
@@ -165,8 +159,6 @@ CATCH_TEST_CASE(
         
         E2EHelper::stopEngineGracefully( testEngine );
 
-        E2EHelper::restoreTestEnvVar( "TEST_TRANSACTIONS_PER_BLOCK", snap );
-        
     } catch ( SkaleException& e ) {
         if ( testEngine ) {
             E2EHelper::stopEngineGracefully( testEngine );

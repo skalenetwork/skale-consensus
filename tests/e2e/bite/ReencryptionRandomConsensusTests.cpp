@@ -20,6 +20,7 @@
     @date 2026
 */
 
+#include <cstdint>
 #ifdef BITE2
 
 #include "thirdparty/catch.hpp"
@@ -72,6 +73,77 @@ std::map< uint64_t, u256 > readReencryptionRandoms(
 
 using namespace RandomTests;
 
+
+CATCH_TEST_CASE(
+    "normal consensus prior to bite2 patch timestamp with default blocks",
+    "[pre-patch][end-to-end][db][bite2]" ) {
+
+    ConsensusEngine* testEngine = nullptr;
+
+    try {
+        E2EHelper::configureTestEnvironment( true, "test/twonodes_sameip" );
+        auto runTimeS = E2EHelper::CROSS_NODE_RUN_TIME_S;
+        auto lastId =
+            ( uint64_t ) E2EHelper::startEngineAndWait( testEngine, 0, runTimeS );
+
+        // Two-node setup can need extra time before first DB commit; poll briefly before failing.
+        for ( int i = 0; i < 70 && lastId == 0; i++ ) {
+            usleep( 500 * 1000 );
+            lastId = ( uint64_t ) testEngine->getLargestCommittedBlockIDInDb();
+        }
+
+        CATCH_REQUIRE( lastId > 0 );
+        CATCH_REQUIRE( ( uint64_t ) testEngine->nodesCount() == 2 );
+
+        auto nodeIds = testEngine->getNodeIDs();
+        CATCH_REQUIRE( nodeIds.size() == 2 );
+
+        auto nodeIt = nodeIds.begin();
+        auto firstNodeId = *nodeIt;
+        ++nodeIt;
+        auto secondNodeId = *nodeIt;
+
+        uint32_t exceptionsNode1 = 0;
+        uint32_t exceptionsNode2 = 0;
+
+        // no reencryption random should be present for any block 
+        // Calls SHOULD throw until patch timestamp (meaning they are not usable)
+        for ( uint64_t blockId = 1; blockId <= lastId; blockId++ ) {
+            try {
+                testEngine->getReencryptionRandomForBlockIdForNode( blockId, firstNodeId );
+            } catch ( ... ) {
+                exceptionsNode1++;
+            }
+
+            try {
+                testEngine->getReencryptionRandomForBlockIdForNode( blockId, secondNodeId );
+            } catch ( ... ) {
+                exceptionsNode2++;
+            }
+        }
+
+        CATCH_REQUIRE( exceptionsNode1 > 0 );
+        CATCH_REQUIRE( exceptionsNode2 > 0 );
+        CATCH_REQUIRE( exceptionsNode1 == exceptionsNode2 );
+
+        E2EHelper::stopEngineGracefully( testEngine );
+    } catch ( SkaleException& e ) {
+        if ( testEngine ) {
+            E2EHelper::stopEngineGracefully( testEngine );
+        }
+        SkaleException::logNested( e );
+        throw;
+    } catch ( ... ) {
+        if ( testEngine ) {
+            E2EHelper::stopEngineGracefully( testEngine );
+        }
+        throw;
+    }
+
+    CATCH_SUCCEED();
+}
+
+
 CATCH_TEST_CASE(
     "reencryption random is equal across nodes for same block ids",
     "[reencryption-random-cross-node][end-to-end][db][bite2]" ) {
@@ -82,18 +154,15 @@ CATCH_TEST_CASE(
         E2EHelper::configureTestEnvironment( true, "test/twonodes_sameip" );
         auto runTimeS = E2EHelper::CROSS_NODE_RUN_TIME_S;
         auto lastId =
-            ( uint64_t ) E2EHelper::startEngineAndWait( testEngine, 0, runTimeS );
-        auto lastIdInMemory = ( uint64_t ) testEngine->getLargestCommittedBlockID();
+            ( uint64_t ) E2EHelper::startEngineAndWait( testEngine, 0, runTimeS, 
+            { { "bite2PatchTimestamp", 1 } } );
 
         // Two-node setup can need extra time before first DB commit; poll briefly before failing.
         for ( int i = 0; i < 70 && lastId == 0; i++ ) {
             usleep( 500 * 1000 );
             lastId = ( uint64_t ) testEngine->getLargestCommittedBlockIDInDb();
-            lastIdInMemory = ( uint64_t ) testEngine->getLargestCommittedBlockID();
         }
 
-        CATCH_INFO(
-            "lastIdInDb=" << lastId << ", lastIdInMemory=" << lastIdInMemory << ", runTimeS=" << runTimeS );
         CATCH_REQUIRE( lastId > 0 );
         CATCH_REQUIRE( ( uint64_t ) testEngine->nodesCount() == 2 );
 
@@ -154,11 +223,12 @@ CATCH_TEST_CASE(
     "[reencryption-random-committed][end-to-end][db][bite2]" ) {
     
     ConsensusEngine* testEngine = nullptr;
-    
+
     try {
         E2EHelper::configureTestEnvironment( true );
         // Start consensus and wait for blocks to be committed
-        auto lastId = E2EHelper::startEngineAndWait( testEngine, 0, E2EHelper::DEFAULT_RUN_TIME_S );
+        auto lastId = E2EHelper::startEngineAndWait( testEngine, 0, E2EHelper::DEFAULT_RUN_TIME_S,
+        { { "bite2PatchTimestamp", 1 } } );
         
         CATCH_REQUIRE( lastId > 0 );
         
@@ -199,11 +269,12 @@ CATCH_TEST_CASE(
     "[reencryption-random-deterministic][end-to-end][db][bite2]" ) {
     
     ConsensusEngine* testEngine = nullptr;
-    
+
     try {
         E2EHelper::configureTestEnvironment( true );
         // Start consensus and wait for blocks to be committed
-        auto lastId = E2EHelper::startEngineAndWait( testEngine, 0, E2EHelper::DEFAULT_RUN_TIME_S );
+        auto lastId = E2EHelper::startEngineAndWait( testEngine, 0, E2EHelper::DEFAULT_RUN_TIME_S,
+        { { "bite2PatchTimestamp", 1 } } );
         
         CATCH_REQUIRE( lastId > 0 );
         
@@ -245,17 +316,14 @@ CATCH_TEST_CASE(
     try {
         E2EHelper::configureTestEnvironment( true );
         // Start consensus and wait for blocks to be committed
-        auto lastId = (uint64_t) E2EHelper::startEngineAndWait( testEngine, 0, E2EHelper::DEFAULT_RUN_TIME_S );
+        auto lastId = (uint64_t) E2EHelper::startEngineAndWait( testEngine, 0, E2EHelper::DEFAULT_RUN_TIME_S,
+        { { "bite2PatchTimestamp", 1 } } );
         
         CATCH_REQUIRE( lastId > 0 );
         
         uint64_t checkedBlocks = 0;
-        uint64_t startBlock = 1;
-#ifdef BITE2
-        startBlock = 2;
-#endif
         
-        for ( uint64_t blockId = startBlock; blockId <= lastId; blockId++ ) {
+        for ( uint64_t blockId = 1; blockId <= lastId; blockId++ ) {
             try {
                 // For same committed block id, compare:
                 // getReencryptionRandomForBlockId(id) vs getRandomForBlockId(id)
@@ -295,11 +363,12 @@ CATCH_TEST_CASE(
     "[reencryption-random-restart-1][end-to-end][db][bite2]" ) {
     
     ConsensusEngine* testEngine = nullptr;
-    
+
     try {
         E2EHelper::configureTestEnvironment( true );
         // First run: start from scratch and collect reencryption randoms
-        auto lastId = (uint64_t) E2EHelper::startEngineAndWait( testEngine, 0, E2EHelper::DEFAULT_RUN_TIME_S );
+        auto lastId = (uint64_t) E2EHelper::startEngineAndWait( testEngine, 0, E2EHelper::DEFAULT_RUN_TIME_S,
+        { { "bite2PatchTimestamp", 1 } } );
         
         CATCH_REQUIRE( lastId > 0 );
         
@@ -333,10 +402,10 @@ CATCH_TEST_CASE(
 
 CATCH_TEST_CASE(
     "reencryption random survives restart - continue after restart",
-    "[reencryption-random-restart-2][end-to-end][bite2]" ) {
+    "[reencryption-random-restart-2][end-to-end][db][bite2]" ) {
     
     ConsensusEngine* testEngine = nullptr;
-    
+
     try {
         E2EHelper::configureTestEnvironment( false );
         // Load the randoms from before restart
@@ -359,6 +428,7 @@ CATCH_TEST_CASE(
         
         // Restart with continue mode (_lastId == -1 path)
         testEngine = new ConsensusEngine( -1, 1000000000 );
+        testEngine->setTestPatchTimestamps({ { "bite2PatchTimestamp", 1 } } );
         testEngine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath(), true );
         testEngine->slowStartBootStrapTest();
         
