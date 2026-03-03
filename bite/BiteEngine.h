@@ -28,7 +28,9 @@ struct BiteConfig {
 struct BiteRuntimeContext {
     epoch_id currentEpoch{0};
     std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor{nullptr};
+#ifdef BITE2
     bool isBite2PatchEnabled{false};
+#endif
 };
 
 class BiteEngine {
