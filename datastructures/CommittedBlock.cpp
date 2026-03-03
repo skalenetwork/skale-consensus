@@ -69,8 +69,10 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
         daSig = _daSig->toString();
     }
 
+#ifdef BITE2
     std::optional<string> reencryptionThresholdSigOpt = _reencryptionThresholdSig ? 
         std::optional<string>(_reencryptionThresholdSig->toString()) : std::nullopt;
+#endif
 
     return CommittedBlock::make(_proposal->getSchainID(), _proposal->getProposerNodeID(),
                                 _proposal->getBlockID(),
