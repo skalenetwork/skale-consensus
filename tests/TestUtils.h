@@ -123,35 +123,4 @@ inline void createTestNodeAndSchain(
     chain_out = createTestSchain(node_out, schainIndex, schainId, schainName);
 }
 
-// ========= Environment variable helpers for tests ========= 
-struct TestEnvVarSnapshot {
-    bool hadPreviousValue = false;
-    string previousValue;
-};
-
-inline TestEnvVarSnapshot setTestEnvVar(
-    const string& _envName, const string& _envValue, int _overwrite = 1 ) {
-    TestEnvVarSnapshot snapshot;
-    const char* previousValue = std::getenv( _envName.c_str() );
-    if ( previousValue != nullptr ) {
-        snapshot.hadPreviousValue = true;
-        snapshot.previousValue = previousValue;
-    }
-
-    CATCH_REQUIRE( setenv( _envName.c_str(), _envValue.c_str(), _overwrite ) == 0 );
-    return snapshot;
-}
-
-inline void unsetTestEnvVar( const string& _envName ) {
-    CATCH_REQUIRE( unsetenv( _envName.c_str() ) == 0 );
-}
-
-inline void restoreTestEnvVar( const string& _envName, const TestEnvVarSnapshot& _snapshot ) {
-    if ( _snapshot.hadPreviousValue ) {
-        CATCH_REQUIRE( setenv( _envName.c_str(), _snapshot.previousValue.c_str(), 1 ) == 0 );
-    } else {
-        unsetTestEnvVar( _envName );
-    }
-}
-
 }  // namespace TestUtils
