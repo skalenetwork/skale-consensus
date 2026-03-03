@@ -29,7 +29,7 @@
 #include "datastructures/CommittedBlock.h"
 #include "node/ConsensusEngine.h"
 #include "utils/Time.h"
-#include "unittests/TestUtils.h"
+#include "tests/TestUtils.h"
 
 #include <boost/filesystem.hpp>
 #include <cstdlib>
@@ -464,7 +464,7 @@ CATCH_TEST_CASE(
     ConsensusEngine* testEngine = nullptr;
     
     try {
-        configureTestEnvironment( true );
+        configureTestEnvironment( true, "test/twonodes_sameip" );
 
         auto snap = TestUtils::setTestEnvVar("TEST_TRANSACTIONS_PER_BLOCK", "1");
 
@@ -472,7 +472,9 @@ CATCH_TEST_CASE(
         if ( runTimeS < 8 ) {
             runTimeS = 8;
         }
-        static constexpr uint64_t PATCH_DELAY_MS = 2000;
+
+        // 4s before moving into patch to give enough time to have blocks prior the patch as well as after
+        static constexpr uint64_t PATCH_DELAY_MS = 4000;
         auto bite2PatchTimestamp = ( Time::getCurrentTimeMs() + PATCH_DELAY_MS + 999 ) / 1000;
         
         testEngine = new ConsensusEngine( 0, 1000000000 );
@@ -492,12 +494,17 @@ CATCH_TEST_CASE(
         }
         
         CATCH_REQUIRE( lastId > 0 );
+        CATCH_REQUIRE( ( uint64_t ) testEngine->nodesCount() == 2 );
         
         uint64_t checkedBlocks = 0;
         
-        // Access schain directly to get blocks
+        // Access node IDs to validate both node views for each committed block.
         auto nodeIds = testEngine->getNodeIDs();
-        CATCH_REQUIRE( nodeIds.size() > 0 );
+        CATCH_REQUIRE( nodeIds.size() == 2 );
+        auto nodeIt = nodeIds.begin();
+        auto firstNodeId = *nodeIt;
+        ++nodeIt;
+        auto secondNodeId = *nodeIt;
         
         uint64_t checkedBeforePatch = 0;
         uint64_t checkedAfterPatch = 0;
@@ -507,38 +514,54 @@ CATCH_TEST_CASE(
         // after patch -> present.
         for ( uint64_t blockId = 1; blockId <= (uint64_t)lastId; blockId++ ) {
             try {
-                auto block = testEngine->getCommittedBlockForBlockId( blockId );
-                CATCH_REQUIRE( block != nullptr );
-                auto blockTimestamp = block->getTimeStampS();
-                auto reencryptionSignature = block->getReencryptionThresholdSig();
+                auto firstBlock =
+                    testEngine->getCommittedBlockForBlockIdForNode( blockId, firstNodeId );
+                auto secondBlock =
+                    testEngine->getCommittedBlockForBlockIdForNode( blockId, secondNodeId );
+                CATCH_REQUIRE( firstBlock != nullptr );
+                CATCH_REQUIRE( secondBlock != nullptr );
 
-                CATCH_INFO( "blockId=" << blockId << ", blockTimestamp=" << blockTimestamp <<
-                    ", bite2PatchTimestamp=" << bite2PatchTimestamp );
+                auto firstTimestamp = firstBlock->getTimeStampS();
+                auto secondTimestamp = secondBlock->getTimeStampS();
+                CATCH_REQUIRE( firstTimestamp == secondTimestamp );
 
-                // Before patch timestamp
-                if ( blockTimestamp < bite2PatchTimestamp ) {
-                    // committed block has no reencryption signature
-                    bool noReencryptionSignature =
-                        !reencryptionSignature.has_value() || reencryptionSignature->empty();
-                    CATCH_REQUIRE( noReencryptionSignature );
+                auto checkNodeForBlock = [&]( node_id _nodeId, const ptr< CommittedBlock >& _block ) {
+                    auto blockTimestamp = _block->getTimeStampS();
+                    auto reencryptionSignature = _block->getReencryptionThresholdSig();
 
-                    // db read for reencryption random should fail (not available before patch)
-                    bool randomReadFailed = false;
-                    try {
-                        auto random = testEngine->getReencryptionRandomForBlockId( blockId );
-                        (void) random;
-                    } catch ( ... ) {
-                        randomReadFailed = true;
+                    CATCH_INFO( "blockId=" << blockId << ", nodeId=" << _nodeId <<
+                        ", blockTimestamp=" << blockTimestamp <<
+                        ", bite2PatchTimestamp=" << bite2PatchTimestamp );
+
+                    if ( blockTimestamp < bite2PatchTimestamp ) {
+                        bool noReencryptionSignature =
+                            !reencryptionSignature.has_value() || reencryptionSignature->empty();
+                        CATCH_REQUIRE( noReencryptionSignature );
+
+                        bool randomReadFailed = false;
+                        try {
+                            auto random =
+                                testEngine->getReencryptionRandomForBlockIdForNode( blockId, _nodeId );
+                            ( void ) random;
+                        } catch ( ... ) {
+                            randomReadFailed = true;
+                        }
+                        CATCH_REQUIRE( randomReadFailed );
+                    } else {
+                        CATCH_REQUIRE( reencryptionSignature.has_value() );
+                        CATCH_REQUIRE( !reencryptionSignature->empty() );
+                        auto reencryptionRandom =
+                            testEngine->getReencryptionRandomForBlockIdForNode( blockId, _nodeId );
+                        CATCH_REQUIRE( reencryptionRandom != u256( 0 ) );
                     }
-                    CATCH_REQUIRE( randomReadFailed );
+                };
+
+                checkNodeForBlock( firstNodeId, firstBlock );
+                checkNodeForBlock( secondNodeId, secondBlock );
+
+                if ( firstTimestamp < bite2PatchTimestamp ) {
                     checkedBeforePatch++;
                 } else {
-                    // After patch timestamp
-                    CATCH_REQUIRE( reencryptionSignature.has_value() );
-                    CATCH_REQUIRE( !reencryptionSignature->empty() );
-                    // reencryption random should be saved in DB, readable, and non-zero
-                    auto reencryptionRandom = testEngine->getReencryptionRandomForBlockId( blockId );
-                    CATCH_REQUIRE( reencryptionRandom != u256( 0 ) );
                     checkedAfterPatch++;
                 }
                 checkedBlocks++;

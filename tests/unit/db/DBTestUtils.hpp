@@ -30,7 +30,7 @@
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "json/JSONFactory.h"
-#include "unittests/TestUtils.h"
+#include "tests/TestUtils.h"
 
 namespace DBTestUtils {
 

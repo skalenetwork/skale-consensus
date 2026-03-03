@@ -341,26 +341,28 @@ target_link_libraries(consensusd consensus_full)
 # tests executable
 # ---------------------------------
 
-# Automatically discover all test source files in the unittests directory and its subdirectories.
-file(GLOB_RECURSE ALL_TEST_SOURCES "unittests/*.cpp")
-
-# Common test folders (non-rlp)
+# Common test folders
 file(GLOB_RECURSE COMMON_TEST_SOURCES
-        "unittests/datastructures/*.cpp"
-        "unittests/db/*.cpp"
-        "unittests/consensus_tests.cpp"
-        "unittests/sgx_tests.cpp"
-        # Add other folders as needed, excluding rlp/
+        "tests/unit/datastructures/*.cpp"
+        "tests/unit/db/*.cpp"
+        "tests/consensus_tests.cpp"
+        "tests/sgx_tests.cpp"
 )
 
 set(TEST_SOURCES ${COMMON_TEST_SOURCES})
 
 # Conditionally add rlp test sources if BITE is enabled
 if (DEFINED BITE)
-    file(GLOB_RECURSE BITE_TEST_SOURCES "unittests/bite/*.cpp")
+    file(GLOB_RECURSE BITE_TEST_SOURCES 
+        "tests/unit/bite/*.cpp"
+        "tests/e2e/ReencryptionRandomConsensusTests.cpp"
+    )
     list(APPEND TEST_SOURCES ${BITE_TEST_SOURCES} libBLS/test/utils.cpp)
 
-    file(GLOB_RECURSE RLP_TEST_SOURCES "unittests/rlp/*.cpp")
+    file(GLOB_RECURSE CRYPTO_TEST_SOURCES "tests/unit/crypto/*.cpp")
+    list(APPEND TEST_SOURCES ${CRYPTO_TEST_SOURCES})
+
+    file(GLOB_RECURSE RLP_TEST_SOURCES "tests/unit/rlp/*.cpp")
     list(APPEND TEST_SOURCES ${RLP_TEST_SOURCES})
 endif ()
 

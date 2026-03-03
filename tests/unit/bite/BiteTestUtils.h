@@ -23,7 +23,7 @@
 #include "node/NodeInfo.h"
 #include "rlp/EthTransactionEncoder.h"
 #include "thirdparty/json.hpp"
-#include "unittests/TestUtils.h"
+#include "tests/TestUtils.h"
 
 namespace BiteTestUtils {
 
