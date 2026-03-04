@@ -56,6 +56,12 @@ PricingAgent::PricingAgent( Schain& _sChain ) : Agent( _sChain, false ) {
             string( "dynamicPricingMinPrice" ), DEFAULT_MIN_PRICE );
         u256 maxPrice =
             sChain->getNode()->getParamUint64( "dynamicPricingMaxPrice", 1000000000 );
+
+        if ( minPrice > maxPrice ) {
+            BOOST_THROW_EXCEPTION( ParsingException(
+                "dynamicPricingMinPrice > dynamicPricingMaxPrice", __CLASS_NAME__ ) );
+        }
+
         uint64_t optimalLoadPercentage =
             sChain->getNode()->getParamUint64( "dynamicPricingOptimalLoadPercentage", 70 );
         uint64_t adjustmentSpeed =
