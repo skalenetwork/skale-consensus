@@ -213,27 +213,19 @@ void BlockConsensusAgent::decideBlock(
                        << to_string( _sChainIndex ) << ":BID:" + to_string( _blockId ) << ":STATS:|"
                        << _stats << "| Now signing block ..." );
 
-
-#ifdef BITE2
-        bool isBite2PatchEnabled = getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() );
-#endif
-
         auto msg = make_shared< BlockSignBroadcastMessage >(
             _blockId,
 #ifdef BITE
                 getSchain()->getNode()->getCurrentEpochId(),
 #endif
-            _sChainIndex, Time::getCurrentTimeMs(), *this
-#ifdef BITE2
-            , isBite2PatchEnabled
-#endif
-        );
+            _sChainIndex, Time::getCurrentTimeMs(), *this );
 
         auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(
             msg->getSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
 
 
 #ifdef BITE2
+        bool isBite2PatchEnabled = getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() );
         ptr<ThresholdSignature> reencryptionSignature;
         if ( isBite2PatchEnabled ) {
             reencryptionSignature = getSchain()->getNode()->getOffchainBlockSigShareDB()->checkAndSaveShareInMemory(

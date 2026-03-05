@@ -43,11 +43,7 @@ public:
     epoch_id _epochID,
 #endif
     schain_index _blockProposerIndex, uint64_t _time,
-        ProtocolInstance& _sourceProtocolInstance
-#ifdef BITE2
-        , bool _includeReencryptionSigShare = false
-#endif
-    );
+        ProtocolInstance& _sourceProtocolInstance );
 
     BlockSignBroadcastMessage( node_id _srcNodeID, block_id _blockID,
 #ifdef BITE

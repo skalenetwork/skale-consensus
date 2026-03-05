@@ -58,9 +58,6 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
     epoch_id _epochID,
 #endif
     schain_index _blockProposerIndex, uint64_t _time, ProtocolInstance& _sourceProtocolInstance
-#ifdef BITE2
-    , bool _includeReencryptionSigShare
-#endif
 )
     : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _blockID,
 #ifdef BITE
@@ -78,7 +75,8 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
     this->sigShareString = sigShare->toString();
 
 #ifdef BITE2
-    if ( _includeReencryptionSigShare ) {
+    bool isBite2PatchEnabled = schain->bite2Patch( schain->getLastCommittedBlockTimeStamp().getS() );
+    if ( isBite2PatchEnabled ) {
         // compute additional offchain signature using domain separation.
         // This signature will be used to derive a random value seen only by validators.
         auto& signatureDomain = blockconsensus::REENCRYPTION_RANDOM_DOMAIN;
