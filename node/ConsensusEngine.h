@@ -46,11 +46,15 @@ using namespace spdlog::level;
 class GlobalThreadRegistry;
 class StorageLimits;
 class CommittedBlock;
+class ConsensusEngineTestAccess;
 
 
 #include "thirdparty/lrucache.hpp"
 
 class ConsensusEngine : public ConsensusInterface {
+    // allow access to private members for testing purposes
+    friend class ConsensusEngineTestAccess;
+
     map< node_id, ptr< Node > > nodes;  // tsafe
 
     mutable cache::lru_cache< uint64_t, u256 > prices;  // tsafe
@@ -320,17 +324,6 @@ public:
 
 
     std::shared_ptr< std::vector< std::uint8_t > > getSerializedBlock( std::uint64_t _blockNumber );
-
-    /**
-     * @brief Gets the committed block for a given block ID, if available.
-     * Uses the first node available.
-     */
-    ptr< CommittedBlock > getCommittedBlockForBlockId( uint64_t _blockId ) const;
-
-    /**
-     * @brief Gets the committed block for a given block ID and node ID, if available.
-     */
-    ptr< CommittedBlock > getCommittedBlockForBlockIdForNode( uint64_t _blockId, node_id _nodeId ) const;
 
     // return sync information as requested by eth_syncing API of geth
     // if isSyncing is false, all fields will be set to zero.

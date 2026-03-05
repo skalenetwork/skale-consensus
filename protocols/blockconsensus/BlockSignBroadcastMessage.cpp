@@ -139,7 +139,7 @@ ptr< ThresholdSigShare > BlockSignBroadcastMessage::getReencryptionSigShare() co
 void BlockSignBroadcastMessage::serializeToStringChild(
     rapidjson::Writer< rapidjson::StringBuffer >& _writer ) {
     if ( !reencryptionSigShareString.empty() ) {
-        _writer.String( "ofss" );
+        _writer.String( "rsig" );
         _writer.String( reencryptionSigShareString.data(), reencryptionSigShareString.size() );
     }
 }

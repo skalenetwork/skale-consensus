@@ -213,9 +213,10 @@ ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_se
 #ifdef BITE
                                                 const ptr<BiteManager> &_biteManager,
 #endif
-                                                bool _verifySig) {
+                                                bool _verifySig ) {
 #ifdef BITE
-    return BiteCommittedBlockSerializer::deserialize(_serializedBlock, _manager, _biteManager, _verifySig);
+    return BiteCommittedBlockSerializer::deserialize(
+        _serializedBlock, _manager, _biteManager, _verifySig );
 #endif
 
     CHECK_ARGUMENT(_serializedBlock);

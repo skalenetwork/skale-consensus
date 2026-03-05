@@ -29,6 +29,7 @@
 #include "node/ConsensusEngine.h"
 #include "utils/Time.h"
 #include "tests/TestUtils.h"
+#include "tests/e2e/ConsensusEngineTestAccess.h"
 
 #include <boost/filesystem.hpp>
 #include <cstdlib>
@@ -92,15 +93,15 @@ CATCH_TEST_CASE(
         uint64_t checkedBeforePatch = 0;
         uint64_t checkedAfterPatch = 0;
 
-        // Validate transition by block timestamp: 
-        // before patch -> absent, 
-        // after patch -> present.
+        // Validate transition by previous committed block timestamp:
+        // if previous committed block timestamp < patch -> absent for current block,
+        // otherwise -> present for current block.
         for ( uint64_t blockId = 1; blockId <= (uint64_t)lastId; blockId++ ) {
             try {
-                auto firstBlock =
-                    testEngine->getCommittedBlockForBlockIdForNode( blockId, firstNodeId );
-                auto secondBlock =
-                    testEngine->getCommittedBlockForBlockIdForNode( blockId, secondNodeId );
+                auto firstBlock = ConsensusEngineTestAccess::getCommittedBlockForBlockIdForNode( 
+                    *testEngine, blockId, firstNodeId );
+                auto secondBlock = ConsensusEngineTestAccess::getCommittedBlockForBlockIdForNode( 
+                    *testEngine, blockId, secondNodeId );
                 CATCH_REQUIRE( firstBlock != nullptr );
                 CATCH_REQUIRE( secondBlock != nullptr );
 
@@ -108,11 +109,28 @@ CATCH_TEST_CASE(
                 auto secondTimestamp = secondBlock->getTimeStampS();
                 CATCH_REQUIRE( firstTimestamp == secondTimestamp );
 
-                auto checkNodeForBlock = [&]( node_id _nodeId, const ptr< CommittedBlock >& _block ) {
-                    auto blockTimestamp = _block->getTimeStampS();
+                uint64_t previousCommittedTimestamp = 0;
+                if ( blockId > 1 ) {
+                    auto previousFirstBlock = ConsensusEngineTestAccess::getCommittedBlockForBlockIdForNode(
+                        *testEngine, blockId - 1, firstNodeId );
+                    auto previousSecondBlock = ConsensusEngineTestAccess::getCommittedBlockForBlockIdForNode(
+                        *testEngine, blockId - 1, secondNodeId );
+                    CATCH_REQUIRE( previousFirstBlock != nullptr );
+                    CATCH_REQUIRE( previousSecondBlock != nullptr );
+
+                    auto previousFirstTimestamp = previousFirstBlock->getTimeStampS();
+                    auto previousSecondTimestamp = previousSecondBlock->getTimeStampS();
+                    CATCH_REQUIRE( previousFirstTimestamp == previousSecondTimestamp );
+                    previousCommittedTimestamp = previousFirstTimestamp;
+                }
+
+                bool isBite2PatchEnabledForBlock = previousCommittedTimestamp >= bite2PatchTimestamp;
+
+                auto checkNodeForBlock = [&]( node_id _nodeId, const ptr< CommittedBlock >& _block,
+                                              bool _isBite2PatchEnabledForBlock ) {
                     auto reencryptionSignature = _block->getReencryptionThresholdSig();
 
-                    if ( blockTimestamp < bite2PatchTimestamp ) {
+                    if ( !_isBite2PatchEnabledForBlock ) {
                         bool noReencryptionSignature =
                             !reencryptionSignature.has_value() || reencryptionSignature->empty();
                         CATCH_REQUIRE( noReencryptionSignature );
@@ -135,10 +153,10 @@ CATCH_TEST_CASE(
                     }
                 };
 
-                checkNodeForBlock( firstNodeId, firstBlock );
-                checkNodeForBlock( secondNodeId, secondBlock );
+                checkNodeForBlock( firstNodeId, firstBlock, isBite2PatchEnabledForBlock );
+                checkNodeForBlock( secondNodeId, secondBlock, isBite2PatchEnabledForBlock );
 
-                if ( firstTimestamp < bite2PatchTimestamp ) {
+                if ( !isBite2PatchEnabledForBlock ) {
                     checkedBeforePatch++;
                 } else {
                     checkedAfterPatch++;

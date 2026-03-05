@@ -45,7 +45,7 @@ public:
     schain_index _blockProposerIndex, uint64_t _time,
         ProtocolInstance& _sourceProtocolInstance
 #ifdef BITE2
-        , bool _includereencryptionSigShare = false
+        , bool _includeReencryptionSigShare = false
 #endif
     );
 

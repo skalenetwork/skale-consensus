@@ -382,8 +382,8 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
         // now save the block into the blocks dd
         getBlockDB()->saveBlock( block );
 #ifdef BITE2
-        if ( getSchain()->bite2Patch( block->getTimeStampS() ) ) {
-            auto reencryptionSignature = block->getReencryptionThresholdSig();
+        auto reencryptionSignature = block->getReencryptionThresholdSig();
+        if ( getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
             CHECK_STATE2( reencryptionSignature.has_value(),
                 "BITE2 patch is enabled but reencryption signature is missing for imported snapshot block " +
                     to_string( (uint64_t) block->getBlockID() ) );
@@ -394,6 +394,10 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
             auto random = Schain::calculateRandomFromSignatureString( *reencryptionSignature );
             getRandomDB()->writeDomainRandom(
                 blockconsensus::REENCRYPTION_RANDOM_DOMAIN, block->getBlockID(), random );
+        }
+        else {
+            CHECK_STATE2( !reencryptionSignature.has_value(),
+                "BITE2 patch is not enabled but reencryption signature is present for imported snapshot block " + to_string( (uint64_t) block->getBlockID() ) );
         }
 #endif
         // now do a sanitity check, that the block was imported OK

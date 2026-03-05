@@ -44,6 +44,7 @@ namespace RandomTests {
 using E2EHelper = E2ETestUtils::E2ETestHelper;
 
 static string RESTART_SNAPSHOT_FILE = "/tmp/consensus_pre_restart.txt";
+static constexpr uint64_t FIRST_BITE2_RANDOM_BLOCK_ID = 2;
 
 /**
  * @brief Read reencryption randoms for a range of block IDs
@@ -232,7 +233,9 @@ CATCH_TEST_CASE(
         
         CATCH_REQUIRE( lastId > 0 );
         
-        auto randoms = readReencryptionRandoms( testEngine, 1, (uint64_t) lastId );
+        CATCH_REQUIRE( (uint64_t) lastId >= FIRST_BITE2_RANDOM_BLOCK_ID );
+        auto randoms = readReencryptionRandoms(
+            testEngine, FIRST_BITE2_RANDOM_BLOCK_ID, (uint64_t) lastId );
         
         // Assert at least one successful read
         CATCH_REQUIRE( randoms.size() > 0 );
@@ -277,6 +280,7 @@ CATCH_TEST_CASE(
         { { "bite2PatchTimestamp", 1 } } );
         
         CATCH_REQUIRE( lastId > 0 );
+        CATCH_REQUIRE( (uint64_t) lastId >= FIRST_BITE2_RANDOM_BLOCK_ID );
         
         // Read getReencryptionRandomForBlockId(id) twice
         u256 random1;
@@ -323,7 +327,9 @@ CATCH_TEST_CASE(
         
         uint64_t checkedBlocks = 0;
         
-        for ( uint64_t blockId = 1; blockId <= lastId; blockId++ ) {
+        // bite2 patch checks previous committed block timestamp, so block 1 is pre-patch.
+        uint64_t startBlock = FIRST_BITE2_RANDOM_BLOCK_ID;
+        for ( uint64_t blockId = startBlock; blockId <= lastId; blockId++ ) {
             try {
                 // For same committed block id, compare:
                 // getReencryptionRandomForBlockId(id) vs getRandomForBlockId(id)
@@ -372,7 +378,9 @@ CATCH_TEST_CASE(
         
         CATCH_REQUIRE( lastId > 0 );
         
-        auto randomsBeforeRestart = readReencryptionRandoms( testEngine, 1, lastId );
+        CATCH_REQUIRE( lastId >= FIRST_BITE2_RANDOM_BLOCK_ID );
+        auto randomsBeforeRestart = readReencryptionRandoms(
+            testEngine, FIRST_BITE2_RANDOM_BLOCK_ID, lastId );
         
         CATCH_REQUIRE( randomsBeforeRestart.size() > 0 );
         

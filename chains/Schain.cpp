@@ -560,6 +560,10 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
     if ( isBite2PatchEnabled ) {
         CHECK_ARGUMENT(_reencryptionThresholdSig)
     }
+    else {
+        // enforce bite2 blocks are rejected if we are not yet in bite2 patch
+        CHECK_ARGUMENT(!_reencryptionThresholdSig)
+    }
 #endif
 #endif
 
@@ -950,13 +954,12 @@ void Schain::saveBlock(const ptr<CommittedBlock> &_block) {
 
     try {
         checkForExit();
-        // save in block db
-        getNode()->getBlockDB()->saveBlock(_block);
 
 #ifdef BITE2
+        // save random before saving block. If block is ever available in db, random should also be
         // compute reencryption random from block signature & save in random db
         std::optional<string> reencryptionSignature = _block->getReencryptionThresholdSig();
-        bool isBite2PatchEnabled = bite2Patch(_block->getTimeStampS());
+        bool isBite2PatchEnabled = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
         if (isBite2PatchEnabled) {
             CHECK_STATE2(reencryptionSignature.has_value(), 
                 "BITE2 patch is enabled but reencryption signature is missing for block " + to_string( _block->getBlockID() ));
@@ -967,7 +970,15 @@ void Schain::saveBlock(const ptr<CommittedBlock> &_block) {
             getSchain()->getNode()->getRandomDB()->writeDomainRandom(
                 blockconsensus::REENCRYPTION_RANDOM_DOMAIN, _block->getBlockID(), random );
         }
+        else {
+            CHECK_STATE2(!reencryptionSignature.has_value(), 
+                "BITE2 patch is not enabled but reencryption signature is present for block " + to_string( _block->getBlockID() ));
+        }
 #endif
+
+        // save in block db
+        getNode()->getBlockDB()->saveBlock(_block);
+
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -1233,12 +1244,18 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
     }
 
 
-    // Step 0 Workaround for the fact that skaled does not yet save timestampMs
-
-    if (_lastCommittedBlockTimeStampMs == 0 && _lastCommittedBlockID > 0) {
+    // Step 0: recover missing timestamp fields from consensus DB block if needed.
+    // For test/continue startup we may only know the last committed block id.
+    if ( _lastCommittedBlockID > 0 &&
+         ( _lastCommittedBlockTimeStamp == 0 || _lastCommittedBlockTimeStampMs == 0 ) ) {
         auto block = getNode()->getBlockDB()->getBlock(_lastCommittedBlockID, getCryptoManager());
         if (block) {
-            _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
+            if ( _lastCommittedBlockTimeStamp == 0 ) {
+                _lastCommittedBlockTimeStamp = block->getTimeStampS();
+            }
+            if ( _lastCommittedBlockTimeStampMs == 0 ) {
+                _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
+            }
         };
     }
 
@@ -1262,12 +1279,16 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         while (lastCommittedBlockIDInConsensus > _lastCommittedBlockID)
 
             try {
+                bool isBite2PatchEnabledForBlock = false;
+#ifdef BITE2
+                isBite2PatchEnabledForBlock = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
+#endif
                 auto block = getNode()->getBlockDB()->getBlock(
-                    _lastCommittedBlockID + 1, getCryptoManager());
+                    _lastCommittedBlockID + 1, getCryptoManager() );
                 CHECK_STATE2(block, "No block in consensus, repair needed");
 #ifdef BITE2
-                if ( bite2Patch( block->getTimeStampS() ) ) {
-                    auto reencryptionSignature = block->getReencryptionThresholdSig();
+                auto reencryptionSignature = block->getReencryptionThresholdSig();
+                if ( isBite2PatchEnabledForBlock ) {
                     CHECK_STATE2( reencryptionSignature.has_value(),
                         "BITE2 patch is enabled but reencryption signature is missing for replayed block " +
                             to_string( (uint64_t) block->getBlockID() ) );
@@ -1278,6 +1299,11 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
                     auto random = Schain::calculateRandomFromSignatureString( *reencryptionSignature );
                     getNode()->getRandomDB()->writeDomainRandom(
                         blockconsensus::REENCRYPTION_RANDOM_DOMAIN, block->getBlockID(), random );
+                }
+                else {
+                    CHECK_STATE2( !reencryptionSignature.has_value(),
+                        "BITE2 patch is not enabled but reencryption signature is present for replayed block " +
+                            to_string( (uint64_t) block->getBlockID() ) );
                 }
 #endif
                 pushBlockToExtFace(block);
@@ -1650,8 +1676,12 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         CHECK_STATE(keys);
 
         auto transactions = proposal->getTransactionList();
+        bool isBite2PatchEnabledForBlock = false;
+#ifdef BITE2
+        isBite2PatchEnabledForBlock = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
+#endif
         auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(
-            *transactions, (*keys), proposal->getEpochID(), proposal->getTimeStampS() );
+            *transactions, (*keys), (uint64_t)proposal->getEpochID(), isBite2PatchEnabledForBlock );
 #endif
 
         auto daProofSig = getNode()->getDaProofDB()->getDASig( _blockId, _proposerIndex );

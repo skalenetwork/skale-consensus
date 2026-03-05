@@ -71,10 +71,6 @@ class BlockConsensusAgent : public ProtocolInstance {
 
     void processBlockSignMessage( const ptr< BlockSignBroadcastMessage >& _message );
 
-#ifdef BITE2
-    bool isBite2PatchEnabledForBlock( block_id _blockId, schain_index _proposerIndex );
-#endif
-
 
     bin_consensus_round getRound( const ptr< ProtocolKey >& _key );
 

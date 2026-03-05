@@ -75,7 +75,7 @@ public:
 
     [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(
         const TransactionList &_transactionList, const DecryptedAESKeyList &_aesKeys,
-        epoch_id _epochId, uint64_t _blockTimestampS );
+        uint64_t _epochId, bool _isBite2PatchEnabledForBlock );
 
 
     // ============== Getters ============== //

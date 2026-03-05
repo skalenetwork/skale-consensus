@@ -90,7 +90,7 @@ void BiteCommittedBlockSerializer::serializedSanityCheck(const ptr<vector<uint8_
 
 ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<uint8_t> > &_serializedBlock,
                                                               const ptr<CryptoManager> &_cryptoManager,
-                                                              const ptr<BiteManager> _biteManager, bool _verifySig) {
+                                                              const ptr<BiteManager> _biteManager, bool _verifySig ) {
     CHECK_ARGUMENT(_serializedBlock);
     CHECK_ARGUMENT(_cryptoManager);
     CHECK_ARGUMENT(_biteManager);
@@ -148,9 +148,20 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
         BiteAESKeySerializer::deserialize(fbAesKeys, *decryptedAesKeyList);
     }
 
+#ifdef BITE2
+    // Committed block format is self-describing for BITE2:
+    // reencryption signature is present only for BITE2-format committed blocks.
+    // FOr such block to have been comitted, it must have been after bite2PatchTimestamp condition
+    bool isBite2PatchEnabledForBlock = blockHeader->getReencryptionThresholdSig().has_value();
+#endif
 
     auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(
-        *transactionList, *decryptedAesKeyList, blockHeader->getEpochID(), blockHeader->getTimeStamp() );
+        *transactionList, *decryptedAesKeyList, (uint64_t)blockHeader->getEpochID()
+#ifdef BITE2
+        , isBite2PatchEnabledForBlock 
+#endif
+    );
+    
     ptr<CommittedBlock> block = nullptr;
 
     try {
