@@ -1676,13 +1676,16 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         CHECK_STATE(keys);
 
         auto transactions = proposal->getTransactionList();
-        bool isBite2PatchEnabledForBlock = false;
 #ifdef BITE2
-        isBite2PatchEnabledForBlock = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
+        bool isBite2PatchEnabledForBlock = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
 #endif
         auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(
-            *transactions, (*keys), (uint64_t)proposal->getEpochID(), isBite2PatchEnabledForBlock );
-#endif
+            *transactions, (*keys), (uint64_t)proposal->getEpochID()
+#ifdef BITE2
+            , isBite2PatchEnabledForBlock 
+#endif // BITE2
+        );
+#endif // BITE
 
         auto daProofSig = getNode()->getDaProofDB()->getDASig( _blockId, _proposerIndex );
         auto hash = proposal->getHash();
