@@ -1680,7 +1680,7 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         bool isBite2PatchEnabledForBlock = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
 #endif
         auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(
-            *transactions, (*keys), (uint64_t)proposal->getEpochID()
+            *transactions, (*keys), proposal->getEpochID()
 #ifdef BITE2
             , isBite2PatchEnabledForBlock 
 #endif // BITE2

@@ -156,7 +156,7 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
 #endif
 
     auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(
-        *transactionList, *decryptedAesKeyList, (uint64_t)blockHeader->getEpochID()
+        *transactionList, *decryptedAesKeyList, blockHeader->getEpochID()
 #ifdef BITE2
         , isBite2PatchEnabledForBlock 
 #endif

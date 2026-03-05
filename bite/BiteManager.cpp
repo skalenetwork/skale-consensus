@@ -174,7 +174,7 @@ std::shared_ptr<DecryptedAESKeyList> BiteManager::mergeAESKeys(
 DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
         const TransactionList &_transactionList,
         const DecryptedAESKeyList &_aesKeys,
-        uint64_t _epochId
+        epoch_id _epochId
 #ifdef BITE2
         , bool _isBite2PatchEnabledForBlock
 #endif
