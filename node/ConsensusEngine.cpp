@@ -828,21 +828,14 @@ void ConsensusEngine::exitGracefullyAsync() {
         // thread for tests, we have many node objects and
         // need many threads
 
-        uint64_t counter = 0;
+        vector< thread > nodeExitThreads;
+        nodeExitThreads.reserve( nodes.size() );
 
         for ( auto&& it : nodes ) {
-            // run and forget
-
             auto node = it.second;
+            CHECK_STATE( node );
 
-            CHECK_STATE( it.second );
-
-            // run and forget
-
-            counter++;
-
-            if ( counter == nodes.size() ) {
-                // run exit for the last node in the same thread
+            nodeExitThreads.emplace_back( [node]() {
                 try {
                     CONS_LOG( info, "Node exit called" );
                     node->doSoftAndThenHardExit();
@@ -850,18 +843,13 @@ void ConsensusEngine::exitGracefullyAsync() {
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );
                 } catch ( ... ) {
-                };
-            } else {
-                thread( [node]() {
-                    try {
-                        CONS_LOG( info, "Node exit called" );
-                        node->doSoftAndThenHardExit();
-                        CONS_LOG( info, "Node exit completed" );
-                    } catch ( exception& e ) {
-                        SkaleException::logNested( e );
-                    } catch ( ... ) {
-                    };
-                } ).detach();
+                }
+            } );
+        }
+
+        for ( auto& t : nodeExitThreads ) {
+            if ( t.joinable() ) {
+                t.join();
             }
         }
 
