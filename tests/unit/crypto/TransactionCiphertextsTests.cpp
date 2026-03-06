@@ -3,7 +3,7 @@
 #ifdef BITE
 
 #include "crypto/TransactionCiphertexts.h"
-#include "unittests/bite/BiteTestUtils.h"
+#include "tests/unit/bite/BiteTestUtils.h"
 #include "libBLS/test/utils.h"
 
 using namespace BiteTestUtils;

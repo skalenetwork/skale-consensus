@@ -33,8 +33,8 @@ class BlockSignBroadcastMessage : public NetworkMessage {
 #ifdef BITE2
     friend class BlockConsensusAgent;
 protected:
-    string offchainSigShareString;
-    ptr< ThresholdSigShare > offchainSigShare;
+    string reencryptionSigShareString;
+    ptr< ThresholdSigShare > reencryptionSigShare;
 #endif
 
 public:
@@ -53,7 +53,7 @@ public:
         const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
         const string& _pubKey, const string& _pkSig, Schain* _sChain
 #ifdef BITE2
-        , const string& _offchainSigShare = ""
+        , const string& _reencryptionSigShare = ""
 #endif
         );
 
@@ -62,7 +62,7 @@ public:
     virtual bin_consensus_value getValue() const override;
 
 #ifdef BITE2
-    ptr< ThresholdSigShare > getOffchainSigShare() const;
+    ptr< ThresholdSigShare > getReencryptionSigShare() const;
 
 protected:
     void serializeToStringChild( rapidjson::Writer< rapidjson::StringBuffer >& _writer ) override;

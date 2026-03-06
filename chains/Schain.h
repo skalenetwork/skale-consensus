@@ -330,7 +330,11 @@ public:
     void blockProposalReceiptTimeoutArrived( block_id _blockID );
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+        const ptr< ThresholdSignature >& _thresholdSig, 
+#ifdef BITE2
+        const ptr< ThresholdSignature >& _reencryptionThresholdSig,
+#endif
+        ptr< ThresholdSignature > _daSig
 #ifdef BITE
         , ptr< DecryptedAESKeyList > _aesKeyList, DecryptedTransactions _decryptedTransactions
 #endif
@@ -420,7 +424,11 @@ public:
 
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig );
+        const ptr< ThresholdSignature >& _thresholdSig
+#ifdef BITE2        
+        , const ptr< ThresholdSignature >& _reencryptionThresholdSig
+#endif
+    );
 
 
     bool haveProposal(block_id _blockId, schain_index _proposerIndex);
@@ -429,7 +437,11 @@ public:
     bool haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex);
 
     void finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig );
+        const ptr< ThresholdSignature >& _thresholdSig
+#ifdef BITE2
+        , const ptr< ThresholdSignature >& _reencryptionThresholdSig
+#endif
+    );
 
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 
@@ -470,11 +482,11 @@ public:
     static u256 calculateRandomFromSignatureString( const string& _signature );
 
     /**
-     * @brief Computes a deterministic pseudo-random value for a given block id using off-chain data.
+     * @brief Computes a deterministic pseudo-random value for a given block id.
      *
-     * Derived from an additional merged signature that is stored locally by nodes and never
-     * included in the block or otherwise published. Deterministic across nodes that have this
-     * signature, but not reproducible by observers with only chain data.
+     * Derived from an additional merged signature that is stored in the block additionally
+     * to the previous block signature. This new signature is never made public to end users.
+     * Deterministic across nodes that have access to it.
      *
      * @param _blockid Block identifier.
      * @return Deterministic value derived from local merged signature data.

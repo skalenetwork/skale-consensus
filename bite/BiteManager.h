@@ -73,7 +73,13 @@ public:
 
     // =============== Stage 5: Transaction Decryption =============== //
 
-    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(const TransactionList &_transactionList, const DecryptedAESKeyList &_aesKeys);
+    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(
+        const TransactionList &_transactionList, const DecryptedAESKeyList &_aesKeys,
+        epoch_id _epochId
+#ifdef BITE2
+        , bool _isBite2PatchEnabledForBlock
+#endif
+    );
 
 
     // ============== Getters ============== //

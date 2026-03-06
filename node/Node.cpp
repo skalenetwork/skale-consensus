@@ -238,7 +238,7 @@ void Node::initLevelDBs() {
 
 #ifdef BITE2
     offchainBlockSigShareDB = make_shared< BlockSigShareDB >(
-        getSchain(), dbDir, offchainBlockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(), string( blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN ) );
+        getSchain(), dbDir, offchainBlockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(), string( blockconsensus::REENCRYPTION_RANDOM_DOMAIN ) );
     
 #endif // BITE2
 #endif // BITE
@@ -320,17 +320,28 @@ void Node::initParamsFromConfig() {
 
     testConfig = make_shared< TestConfig >( cfg );
 
-    // for tests we add an option to read patchtimestamps from config
+    // For tests, allow env/config overrides while preserving any values already
+    // injected by ConsensusEngine::setTestPatchTimestamps().
     if ( !consensusEngine->getExtFace() ) {
+        auto getExistingPatchTs = [this]( const char* _name ) -> uint64_t {
+            auto it = patchTimestamps.find( _name );
+            return it == patchTimestamps.end() ? 0 : it->second;
+        };
+
         patchTimestamps["fastConsensusPatchTimestamp"] =
-            getParamUint64( "fastConsensusPatchTimestamp", 0 );
+            getParamUint64( "fastConsensusPatchTimestamp",
+                getExistingPatchTs( "fastConsensusPatchTimestamp" ) );
         patchTimestamps["verifyDaSigsPatchTimestamp"] =
-            getParamUint64( "verifyDaSigsPatchTimestamp", 0 );
+            getParamUint64( "verifyDaSigsPatchTimestamp",
+                getExistingPatchTs( "verifyDaSigsPatchTimestamp" ) );
         patchTimestamps["verifyBlsSyncPatchTimestamp"] =
-                getParamUint64( "verifyBlsSyncPatchTimestamp", 0 );
+            getParamUint64( "verifyBlsSyncPatchTimestamp",
+                getExistingPatchTs( "verifyBlsSyncPatchTimestamp" ) );
 #ifdef BITE2
-        patchTimestamps["BITE2PatchTimestamp"] =
-                getParamUint64( "BITE2PatchTimestamp", 0 );
+        auto bite2PatchTs =
+            getParamUint64( "bite2PatchTimestamp",
+                getExistingPatchTs( "bite2PatchTimestamp" ) );
+        patchTimestamps["bite2PatchTimestamp"] = bite2PatchTs;
 #endif
     }
 }
@@ -370,6 +381,25 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
             true );
         // now save the block into the blocks dd
         getBlockDB()->saveBlock( block );
+#ifdef BITE2
+        auto reencryptionSignature = block->getReencryptionThresholdSig();
+        if ( getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
+            CHECK_STATE2( reencryptionSignature.has_value(),
+                "BITE2 patch is enabled but reencryption signature is missing for imported snapshot block " +
+                    to_string( (uint64_t) block->getBlockID() ) );
+            CHECK_STATE2( !reencryptionSignature->empty(),
+                "BITE2 patch is enabled but reencryption signature is empty for imported snapshot block " +
+                    to_string( (uint64_t) block->getBlockID() ) );
+
+            auto random = Schain::calculateRandomFromSignatureString( *reencryptionSignature );
+            getRandomDB()->writeDomainRandom(
+                blockconsensus::REENCRYPTION_RANDOM_DOMAIN, block->getBlockID(), random );
+        }
+        else {
+            CHECK_STATE2( !reencryptionSignature.has_value(),
+                "BITE2 patch is not enabled but reencryption signature is present for imported snapshot block " + to_string( (uint64_t) block->getBlockID() ) );
+        }
+#endif
         // now do a sanitity check, that the block was imported OK
         CHECK_STATE2( block->getBlockID() == getBlockDB()->readLastCommittedBlockID(),
             "Imported a block from a snapshot, but last committed block id in db did not update" );

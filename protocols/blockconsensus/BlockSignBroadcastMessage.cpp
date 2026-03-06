@@ -57,7 +57,8 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
 #ifdef BITE
     epoch_id _epochID,
 #endif
-    schain_index _blockProposerIndex, uint64_t _time, ProtocolInstance& _sourceProtocolInstance )
+    schain_index _blockProposerIndex, uint64_t _time, ProtocolInstance& _sourceProtocolInstance
+)
     : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _blockID,
 #ifdef BITE
     _epochID,
@@ -74,10 +75,11 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
     this->sigShareString = sigShare->toString();
 
 #ifdef BITE2
-    if ( schain->bite2Patch( schain->getLastCommittedBlockTimeStamp().getS() ) ) {
+    bool isBite2PatchEnabled = schain->bite2Patch( schain->getLastCommittedBlockTimeStamp().getS() );
+    if ( isBite2PatchEnabled ) {
         // compute additional offchain signature using domain separation.
         // This signature will be used to derive a random value seen only by validators.
-        auto& signatureDomain = blockconsensus::OFFCHAIN_REENCRYPTION_DOMAIN;
+        auto& signatureDomain = blockconsensus::REENCRYPTION_RANDOM_DOMAIN;
 
         // Compute offchain block sig share as hash( blockHash || signatureDomain )
         auto data = make_shared< vector< uint8_t > >();
@@ -88,9 +90,9 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
         auto offchainHash = BLAKE3Hash::calculateHash( data );
 
         // Sign offchain digest and store in message
-        auto offchainSigShare = schain->getCryptoManager()->signBlockSigShare( offchainHash, _blockID );
-        this->offchainSigShareString = offchainSigShare->toString();
-        this->offchainSigShare = offchainSigShare;
+        auto reencryptionSigShare = schain->getCryptoManager()->signBlockSigShare( offchainHash, _blockID );
+        this->reencryptionSigShareString = reencryptionSigShare->toString();
+        this->reencryptionSigShare = reencryptionSigShare;
     }
 #endif
 }
@@ -104,7 +106,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( node_id _srcNodeID, block_
     const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
     const string& _pubKey, const string& _pkSig, Schain* _sChain
 #ifdef BITE2
-    , const string& _offchainSigShare
+    , const string& _reencryptionSigShare
 #endif
     )
     : NetworkMessage( MSG_BLOCK_SIGN_BROADCAST, _srcNodeID, _blockID,
@@ -118,34 +120,34 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( node_id _srcNodeID, block_
     printPrefix = "F";
 
 #ifdef BITE2
-    this->offchainSigShareString = _offchainSigShare;
-    if ( !_offchainSigShare.empty() ) {
-        offchainSigShare = _sChain->getCryptoManager()->createSigShare(
-            _offchainSigShare, _schainId, _blockID, _srcSchainIndex, false );
-        CHECK_STATE( offchainSigShare );
+    this->reencryptionSigShareString = _reencryptionSigShare;
+    if ( !_reencryptionSigShare.empty() ) {
+        reencryptionSigShare = _sChain->getCryptoManager()->createSigShare(
+            _reencryptionSigShare, _schainId, _blockID, _srcSchainIndex, false );
+        CHECK_STATE( reencryptionSigShare );
     }
 #endif
 };
 
 #ifdef BITE2
-ptr< ThresholdSigShare > BlockSignBroadcastMessage::getOffchainSigShare() const {
-    return offchainSigShare;
+ptr< ThresholdSigShare > BlockSignBroadcastMessage::getReencryptionSigShare() const {
+    return reencryptionSigShare;
 }
 
 void BlockSignBroadcastMessage::serializeToStringChild(
     rapidjson::Writer< rapidjson::StringBuffer >& _writer ) {
-    if ( !offchainSigShareString.empty() ) {
-        _writer.String( "ofss" );
-        _writer.String( offchainSigShareString.data(), offchainSigShareString.size() );
+    if ( !reencryptionSigShareString.empty() ) {
+        _writer.String( "rsig" );
+        _writer.String( reencryptionSigShareString.data(), reencryptionSigShareString.size() );
     }
 }
 
 void BlockSignBroadcastMessage::updateWithChildHash( blake3_hasher& _hasher ) {
-    uint32_t offchainSigShareLen = offchainSigShareString.size();
-    HASH_UPDATE( _hasher, offchainSigShareLen );
-    if ( offchainSigShareLen > 0 ) {
+    uint32_t reencryptionSigShareLen = reencryptionSigShareString.size();
+    HASH_UPDATE( _hasher, reencryptionSigShareLen );
+    if ( reencryptionSigShareLen > 0 ) {
         blake3_hasher_update(
-            &_hasher, ( unsigned char* ) offchainSigShareString.data(), offchainSigShareLen );
+            &_hasher, ( unsigned char* ) reencryptionSigShareString.data(), reencryptionSigShareLen );
     }
 }
 #endif

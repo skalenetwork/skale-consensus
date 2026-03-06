@@ -303,7 +303,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
 #ifdef BITE
     uint64_t epochID;
 #ifdef BITE2
-    string offchainSigShare;
+    string reencryptionSignature;
 #endif // BITE2
 #endif // BITE
     uint64_t blockProposerIndex;
@@ -393,10 +393,18 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 sigShare, srcSchainIndex, ecdsaSig, publicKey, pkSig, _sChain );
         } else if ( type == BasicHeader::BLOCK_SIG_BROADCAST ) {
 #ifdef BITE2
+            // Only try parsing member if the message is past bite2 patch time
             if ( _sChain->bite2Patch( _sChain->getLastCommittedBlockTimeStamp().getS() ) ) {
-                if ( d.HasMember( "ofss" ) ) {
-                    offchainSigShare = getStringRapid( d, "ofss" );
+                if ( d.HasMember( "rsig" ) ) {
+                    reencryptionSignature = getStringRapid( d, "rsig" );
                 }
+                else {
+                    CONS_LOG( warn, "BITE2 patch is enabled but reencryption signature is missing in message for block " + to_string( blockID ) );
+                    CHECK_STATE( false )
+                }
+            }
+            else {
+                CHECK_STATE2( !d.HasMember( "rsig" ), "BITE2 patch is not enabled but reencryption signature is present in message for block " + to_string( blockID ) );
             }
 #endif
             nwkMsg = make_shared< BlockSignBroadcastMessage >( node_id( srcNodeID ),
@@ -408,7 +416,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 schain_id( sChainID ), msg_id( msgID ), sigShare, srcSchainIndex, ecdsaSig,
                 publicKey, pkSig, _sChain
 #ifdef BITE2
-                , offchainSigShare
+                , reencryptionSignature
 #endif
                 );
 #ifndef FAIR

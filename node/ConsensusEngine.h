@@ -45,11 +45,16 @@ using namespace spdlog::level;
 
 class GlobalThreadRegistry;
 class StorageLimits;
+class CommittedBlock;
+class ConsensusEngineTestAccess;
 
 
 #include "thirdparty/lrucache.hpp"
 
 class ConsensusEngine : public ConsensusInterface {
+    // allow access to private members for testing purposes
+    friend class ConsensusEngineTestAccess;
+
     map< node_id, ptr< Node > > nodes;  // tsafe
 
     mutable cache::lru_cache< uint64_t, u256 > prices;  // tsafe

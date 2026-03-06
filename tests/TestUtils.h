@@ -32,6 +32,7 @@
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "thirdparty/json.hpp"
+#include "thirdparty/catch.hpp"
 
 namespace TestUtils {
 
