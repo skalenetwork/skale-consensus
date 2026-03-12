@@ -55,7 +55,7 @@ void BiteManager::parseBITETransactions(
 
     BiteRuntimeContext runtimeCtx {
         .currentEpoch = schain.getNode()->getCurrentEpochId()
-#ifdef BITE2
+#ifdef BITE
         , .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
 #endif
     };
@@ -175,7 +175,7 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
         const TransactionList &_transactionList,
         const DecryptedAESKeyList &_aesKeys,
         epoch_id _epochId
-#ifdef BITE2
+#ifdef BITE
         , bool _isBite2PatchEnabledForBlock
 #endif
     ) {
@@ -185,7 +185,7 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
     BiteRuntimeContext runtimeCtx {
         .currentEpoch = _epochId,
         .threadPoolExecutor = threadPoolExecutor
-#ifdef BITE2
+#ifdef BITE
         , .isBite2PatchEnabled = _isBite2PatchEnabledForBlock
 #endif
     };
@@ -293,7 +293,7 @@ ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data
 
 }
 
-#ifdef BITE2
+#ifdef BITE
 ptr<vector<uint8_t>> BiteManager::generateEncryptedCTXData(uint64_t epochId, const std::optional<AddressBytes>& scAddressAadTE) {
     constexpr size_t numberOfCiphertexts = 2;
 

@@ -30,7 +30,7 @@
 
 #include "Transaction.h"
 #include "TransactionList.h"
-#ifdef BITE2
+#ifdef BITE
 #include "bite/BiteManager.h"
 #include "bite/BiteEngine.h"
 #include "chains/Schain.h"
@@ -148,7 +148,7 @@ size_t TransactionList::size() const {
 
 
 ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
-#ifdef BITE2
+#ifdef BITE
     ptr< BiteManager> biteManager
 #endif
 ) {
@@ -161,7 +161,7 @@ ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
     // Assume no regular txs by default; only process regular txs if a non-CAT is found
     size_t startRegularTxsIdx = transactions->size();
 
-#ifdef BITE2
+#ifdef BITE
     // TODO - refactor to simply call biteManager->parseBITETransactions
     if (biteManager) {
         auto epochId = biteManager->getSchain()->getNode()->getCurrentEpochId();

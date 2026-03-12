@@ -79,7 +79,6 @@ CATCH_TEST_CASE("BiteCodec enforces epoch when parsing BITE1 data", "[bite][code
         InvalidStateException);
 }
 
-#ifdef BITE2
 CATCH_TEST_CASE("BiteCodec parses CAT args with selector and ignores others", "[bite][codec][cat]") {
     const uint64_t epoch = 3;
 
@@ -145,7 +144,6 @@ CATCH_TEST_CASE("BiteCodec enforces epoch for CAT args", "[bite][codec][cat][epo
         BiteCodec::tryParseEncryptedCTXArgs(encoded, epoch + 1),
         InvalidStateException);
 }
-#endif
 
 CATCH_TEST_CASE("BiteCodec round trips regular payload encoding", "[bite][codec]") {
     std::vector<uint8_t> plainData{0xDE, 0xAD};

@@ -27,7 +27,7 @@
 #include "BlockProposalHeader.h"
 
 class CommittedBlockHeader : public BlockProposalHeader {
-#ifdef BITE2
+#ifdef BITE
     // only required to be present after bite2 patch timestamp
     std::optional<string> reencryptionThresholdSig;
 #endif
@@ -41,7 +41,7 @@ public:
 
     [[nodiscard]] const string& getThresholdSig() const;
 
-#ifdef BITE2
+#ifdef BITE
     [[nodiscard]] const std::optional<string>& getReencryptionThresholdSig() const;
 #endif
 

@@ -72,7 +72,6 @@ inline std::shared_ptr<Transaction> buildBite1Transaction(
     return std::make_shared<Transaction>(encoded, false);
 }
 
-#ifdef BITE2
 inline std::shared_ptr<Transaction> buildBite2Transaction(
     const std::vector<std::vector<uint8_t>>& encryptedArgsPlaintext,
     const std::vector<std::vector<uint8_t>>& plainArgs,
@@ -146,7 +145,6 @@ inline std::shared_ptr<Transaction> buildBite2TransactionWithScAddress(
     auto encoded = EthTransactionEncoder::signAndEncodeTx(tx);
     return std::make_shared<Transaction>(encoded, false);
 }
-#endif
 
 // Helper to create a valid CryptoManager with necessary dependencies for tests
 inline std::shared_ptr< CryptoManager > createTestCryptoManager(

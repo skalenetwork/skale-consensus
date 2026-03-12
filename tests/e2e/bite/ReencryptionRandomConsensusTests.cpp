@@ -21,7 +21,7 @@
 */
 
 #include <cstdint>
-#ifdef BITE2
+#ifdef BITE
 
 #include "thirdparty/catch.hpp"
 #include "Consensust.h"
@@ -477,4 +477,4 @@ CATCH_TEST_CASE(
     CATCH_SUCCEED();
 }
 
-#endif  // BITE2
+#endif  // BITE

@@ -214,7 +214,7 @@ class Schain : public Agent {
     uint64_t verifyDaSigsPatchTimestamp = 0;
     uint64_t fastConsensusPatchTimestamp = 0;
     uint64_t verifyBlsSyncPatchTimestamp = 0;
-#ifdef BITE2
+#ifdef BITE
     uint64_t bite2PatchTimestamp = 0;
 #endif
 
@@ -331,7 +331,7 @@ public:
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig, 
-#ifdef BITE2
+#ifdef BITE
         const ptr< ThresholdSignature >& _reencryptionThresholdSig,
 #endif
         ptr< ThresholdSignature > _daSig
@@ -425,7 +425,7 @@ public:
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig
-#ifdef BITE2        
+#ifdef BITE        
         , const ptr< ThresholdSignature >& _reencryptionThresholdSig
 #endif
     );
@@ -438,7 +438,7 @@ public:
 
     void finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig
-#ifdef BITE2
+#ifdef BITE
         , const ptr< ThresholdSignature >& _reencryptionThresholdSig
 #endif
     );
@@ -503,7 +503,7 @@ public:
 
     bool verifyBlsSyncPatch( uint64_t _blockTimeStampSec );
 
-#ifdef BITE2
+#ifdef BITE
     bool bite2Patch( uint64_t _blockTimeStampSec );
 #endif
 

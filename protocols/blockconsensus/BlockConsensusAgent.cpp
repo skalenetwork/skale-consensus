@@ -64,7 +64,7 @@
 #include "BlockConsensusAgent.h"
 #include "datastructures/CommittedBlock.h"
 
-#ifdef BITE2
+#ifdef BITE
 #include "protocols/blockconsensus/ConsensusSignatureDomains.h"
 #endif
 
@@ -224,7 +224,7 @@ void BlockConsensusAgent::decideBlock(
             msg->getSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
 
 
-#ifdef BITE2
+#ifdef BITE
         bool isBite2PatchEnabled = getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() );
         ptr<ThresholdSignature> reencryptionSignature;
         if ( isBite2PatchEnabled ) {
@@ -238,7 +238,7 @@ void BlockConsensusAgent::decideBlock(
         decidedIndices->put( ( uint64_t ) _blockId, _sChainIndex );
 
         if ( signature != nullptr ) {
-#ifdef BITE2
+#ifdef BITE
             // force reencryptionSignature to be present & merged as well
             if ( isBite2PatchEnabled ) {
                 CHECK_STATE2( reencryptionSignature, "Merged onchain sig shares, but not enough offchain shares to merge offchain sig" );
@@ -246,7 +246,7 @@ void BlockConsensusAgent::decideBlock(
 #endif
 
             getSchain()->finalizeDecidedAndSignedBlock( _blockId, _sChainIndex, signature
-#ifdef BITE2
+#ifdef BITE
                 , reencryptionSignature
 #endif
             );
@@ -327,7 +327,7 @@ void BlockConsensusAgent::processBlockSignMessage(
             _message->getSigShare(), getSchain()->getCryptoManager(),
             _message->getBlockProposerIndex() );
 
-#ifdef BITE2
+#ifdef BITE
         ptr<ThresholdSignature> reencryptionSignature;
         bool isBite2PatchEnabled = getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() );
         auto reencryptionSigShare = _message->getReencryptionSigShare();
@@ -342,7 +342,7 @@ void BlockConsensusAgent::processBlockSignMessage(
             return;
         }
 
-#ifdef BITE2
+#ifdef BITE
         if ( isBite2PatchEnabled ) {
             CHECK_STATE2( reencryptionSignature, "Merged onchain sig shares, but not enough offchain shares to merge offchain sig" );
         }
@@ -358,7 +358,7 @@ void BlockConsensusAgent::processBlockSignMessage(
 
 
         getSchain()->finalizeDecidedAndSignedBlock( blockId, proposer, signature
-#ifdef BITE2
+#ifdef BITE
             , reencryptionSignature
 #endif
         );

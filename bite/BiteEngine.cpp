@@ -46,7 +46,7 @@ ptr<BiteCiphertext> BiteEngine::tryGetEncryptedRegularTxFields(
     return biteCiphertext;
 }
 
-#ifdef BITE2
+#ifdef BITE
 ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCTXArgs(
             const ptr<Transaction>& _transaction, epoch_id _currentEpochId ) {
     CHECK_STATE(_transaction);
@@ -100,7 +100,7 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
 
     std::set<size_t> failedTxIndices;
 
-#ifdef BITE2
+#ifdef BITE
     if ( runtimeContext.isBite2PatchEnabled ) {
         // Try parsing CTX transactions first
         for (size_t i = 0 ; i < transactions->size(); i++) {
@@ -455,7 +455,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
     auto decryptedFieldsMap = std::make_shared<DecryptedRegularTxsMap>();
     auto regularTxMapMutex = std::make_shared<std::mutex>();
     
-#ifdef BITE2
+#ifdef BITE
     auto ctxTxsMap          = std::make_shared<DecryptedCTXTxsMap>();
     auto ctxTxsMapMutex     = std::make_shared<std::mutex>();
 #endif
@@ -478,14 +478,14 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
     try {
         const std::size_t txCount = _transactionList.size();
 
-#ifdef BITE2
+#ifdef BITE
         bool allCTXsParsed = false;
 #endif
 
         for (std::size_t txIdx = 0; txIdx < txCount; ++txIdx) {
             auto tx = txs->at(txIdx);
 
-#ifdef BITE2
+#ifdef BITE
             if ( runtimeContext.isBite2PatchEnabled ) {
                 // ---------- Try CTX path first ----------
                 if (!allCTXsParsed) {
@@ -544,7 +544,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                 }
             }
 
-#endif // BITE2
+#endif // BITE
 
             // ---------- Regular BITE1-style encryption ----------
             ptr<BiteCiphertext> bite;
@@ -599,7 +599,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
     folly::collectAll(futures).get();
 
     return DecryptedTransactions(
-#ifdef BITE2 
+#ifdef BITE 
         ctxTxsMap,
 #endif 
         decryptedFieldsMap 
@@ -619,7 +619,7 @@ std::vector<uint8_t> BiteEngine::buildRegularTxData(
     return BiteCodec::encodeEpochedBiteData(cipher, epochId);
 }
 
-#ifdef BITE2
+#ifdef BITE
 
 std::vector<uint8_t> BiteEngine::buildCTXData(
     const libBLS::TEPublicKey& key,

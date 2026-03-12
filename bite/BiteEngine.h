@@ -28,7 +28,7 @@ struct BiteConfig {
 struct BiteRuntimeContext {
     epoch_id currentEpoch{0};
     std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor{nullptr};
-#ifdef BITE2
+#ifdef BITE
     bool isBite2PatchEnabled{false};
 #endif
 };
@@ -130,7 +130,7 @@ public:
     ) const;
 
 
-#ifdef BITE2
+#ifdef BITE
     static ptr<std::vector<ptr<BiteCiphertext>>> tryGetEncryptedCTXArgs(
             const ptr<Transaction>& _transaction, epoch_id _currentEpochId );
 

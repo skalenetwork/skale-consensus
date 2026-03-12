@@ -45,7 +45,7 @@
 
 ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_proposal,
                                                      const ptr<ThresholdSignature> &_thresholdSig,
-#ifdef BITE2
+#ifdef BITE
                                                      const ptr<ThresholdSignature> &_reencryptionThresholdSig,
 #endif
                                                      ptr<ThresholdSignature> _daSig
@@ -69,7 +69,7 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
         daSig = _daSig->toString();
     }
 
-#ifdef BITE2
+#ifdef BITE
     std::optional<string> reencryptionThresholdSigOpt = _reencryptionThresholdSig ? 
         std::optional<string>(_reencryptionThresholdSig->toString()) : std::nullopt;
 #endif
@@ -83,7 +83,7 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
                                 _proposal->getProposerIndex(), _proposal->getTransactionList(),
                                 _proposal->getStateRoot(), _proposal->getTimeStampS(), _proposal->getTimeStampMs(),
                                 _proposal->getSignature(), _thresholdSig->toString(), 
-#ifdef BITE2
+#ifdef BITE
                                 reencryptionThresholdSigOpt,
 #endif
                                 daSig
@@ -102,7 +102,7 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
                                          const ptr<TransactionList> &_transactions, const u256 &_stateRoot,
                                          uint64_t _timeStamp,
                                          uint64_t _timeStampMs, const string &_signature, const string &_thresholdSig,
-#ifdef BITE2
+#ifdef BITE
                                          std::optional<string> _reencryptionThresholdSig,
 #endif
                                          const string &_daSig
@@ -127,7 +127,7 @@ ptr<CommittedBlock> CommittedBlock::make(const schain_id _sChainId,
     _proposerIndex,
     _transactions, _stateRoot, _timeStamp, _timeStampMs, _signature,
     _thresholdSig, 
-#ifdef BITE2
+#ifdef BITE
     _reencryptionThresholdSig,
 #endif
     _daSig
@@ -179,7 +179,7 @@ ptr<CommittedBlock> CommittedBlock::createRandomSample(const ptr<CryptoManager> 
 
                                 p->getProposerIndex(), p->getTransactionList(), p->getStateRoot(), p->getTimeStampS(),
                                 p->getTimeStampMs(), p->getSignature(), "EMPTY",
-#ifdef BITE2
+#ifdef BITE
                                 std::nullopt,
 #endif
                                 "EMPTY"
@@ -264,7 +264,7 @@ ptr<CommittedBlock> CommittedBlock::deserialize(const ptr<vector<uint8_t> > &_se
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
-#ifdef BITE2
+#ifdef BITE
                                      blockHeader->getReencryptionThresholdSig(),
 #endif
                                      blockHeader->getDaSig()
@@ -336,7 +336,7 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
                                const schain_index &_proposerIndex,
                                const ptr<TransactionList> &_transactions, const u256 &stateRoot, uint64_t timeStamp,
                                __uint32_t timeStampMs, const string &_signature, const string &_thresholdSig,
-#ifdef BITE2
+#ifdef BITE
                                 std::optional<string> _reencryptionThresholdSig,
 #endif
                                const string &_daSig
@@ -362,9 +362,7 @@ CommittedBlock::CommittedBlock(const schain_id &_schainId, const node_id &_propo
 #ifdef BITE
     this->decryptedAesKeyList = _aesKeyList;
     this->decryptedTransactions = _decryptedTransactions;
-#ifdef BITE2
     this->reencryptionThresholdSig = _reencryptionThresholdSig;
-#endif // BITE2
 #endif // BITE
 }
 
@@ -436,7 +434,6 @@ ptr< DecryptedRegularTxsMap > CommittedBlock::getDecryptedRegularTxFields() cons
     return decryptedTransactions.regularTxsMap;
 }
 
-#ifdef BITE2
 ptr< DecryptedCTXTxsMap > CommittedBlock::getDecryptedCTXArgs() const {
     return decryptedTransactions.ctxTxsMap;
 }
@@ -444,7 +441,6 @@ ptr< DecryptedCTXTxsMap > CommittedBlock::getDecryptedCTXArgs() const {
 std::optional<string> CommittedBlock::getReencryptionThresholdSig() const {
     return reencryptionThresholdSig;
 }
-#endif // BITE2
 #endif // BITE
 
 void CommittedBlock::setCachedSerializedBlock(

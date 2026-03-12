@@ -81,7 +81,7 @@ public:
 
     virtual u256 getRandomForBlockId(uint64_t _blockId) const = 0;
 
-#ifdef BITE2
+#ifdef BITE
     /**
      * Returns a random for a block id that is derived from the threshold signature of the block 
      * with a custom domain. The merged signature is never stored on chain and is only used 
@@ -226,7 +226,7 @@ public:
     private:
         transactions_vector all;
         
-#ifdef BITE2
+#ifdef BITE
         // number of CAT txs in 'all' vector
         std::size_t ctxsSize = 0;
 #endif
@@ -236,7 +236,7 @@ public:
 
     public:
 
-#ifdef BITE2
+#ifdef BITE
         std::size_t sizeCTX() const noexcept {
             return ctxsSize;
         }

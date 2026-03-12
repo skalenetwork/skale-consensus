@@ -125,7 +125,7 @@ void EthTransactionEncoder::encryptRegularTransaction(std::unique_ptr<EthTransac
 }
 
 
-#ifdef BITE2
+#ifdef BITE
 
 void EthTransactionEncoder::encryptCTXTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
     uint64_t epochId = 0;

@@ -37,7 +37,7 @@
 #include "protocols/binconsensus/BinConsensusInstance.h"
 #include "crypto/ThresholdSigShare.h"
 
-#ifdef BITE2
+#ifdef BITE
 #include "thirdparty/rapidjson/writer.h"
 #include "thirdparty/rapidjson/stringbuffer.h"
 #include "protocols/blockconsensus/ConsensusSignatureDomains.h"
@@ -74,7 +74,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
     this->sigShare = schain->getCryptoManager()->signBlockSigShare( hash, _blockID );
     this->sigShareString = sigShare->toString();
 
-#ifdef BITE2
+#ifdef BITE
     bool isBite2PatchEnabled = schain->bite2Patch( schain->getLastCommittedBlockTimeStamp().getS() );
     if ( isBite2PatchEnabled ) {
         // compute additional offchain signature using domain separation.
@@ -105,7 +105,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( node_id _srcNodeID, block_
     schain_index _blockProposerIndex, uint64_t _time, schain_id _schainId, msg_id _msgID,
     const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
     const string& _pubKey, const string& _pkSig, Schain* _sChain
-#ifdef BITE2
+#ifdef BITE
     , const string& _reencryptionSigShare
 #endif
     )
@@ -119,7 +119,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( node_id _srcNodeID, block_
     CHECK_ARGUMENT( !_sigShare.empty() );
     printPrefix = "F";
 
-#ifdef BITE2
+#ifdef BITE
     this->reencryptionSigShareString = _reencryptionSigShare;
     if ( !_reencryptionSigShare.empty() ) {
         reencryptionSigShare = _sChain->getCryptoManager()->createSigShare(
@@ -129,7 +129,7 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( node_id _srcNodeID, block_
 #endif
 };
 
-#ifdef BITE2
+#ifdef BITE
 ptr< ThresholdSigShare > BlockSignBroadcastMessage::getReencryptionSigShare() const {
     return reencryptionSigShare;
 }

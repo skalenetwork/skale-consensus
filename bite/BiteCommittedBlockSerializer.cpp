@@ -148,7 +148,7 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
         BiteAESKeySerializer::deserialize(fbAesKeys, *decryptedAesKeyList);
     }
 
-#ifdef BITE2
+#ifdef BITE
     // Committed block format is self-describing for BITE2:
     // reencryption signature is present only for BITE2-format committed blocks.
     // FOr such block to have been comitted, it must have been after bite2PatchTimestamp condition
@@ -157,7 +157,7 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
 
     auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(
         *transactionList, *decryptedAesKeyList, blockHeader->getEpochID()
-#ifdef BITE2
+#ifdef BITE
         , isBite2PatchEnabledForBlock 
 #endif
     );
@@ -175,7 +175,7 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
-#ifdef BITE2
+#ifdef BITE
                                      blockHeader->getReencryptionThresholdSig(),
 #endif
                                      blockHeader->getDaSig()

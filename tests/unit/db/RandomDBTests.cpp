@@ -21,7 +21,7 @@
     @date 2026
 */
 
-#ifdef BITE2
+#ifdef BITE
 
 #include "SkaleCommon.h"
 #include "exceptions/InvalidStateException.h"

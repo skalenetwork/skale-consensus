@@ -302,9 +302,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
     uint64_t blockID;
 #ifdef BITE
     uint64_t epochID;
-#ifdef BITE2
     string reencryptionSignature;
-#endif // BITE2
 #endif // BITE
     uint64_t blockProposerIndex;
     string type;
@@ -392,7 +390,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 bin_consensus_value( value ), timeMs, schain_id( sChainID ), msg_id( msgID ),
                 sigShare, srcSchainIndex, ecdsaSig, publicKey, pkSig, _sChain );
         } else if ( type == BasicHeader::BLOCK_SIG_BROADCAST ) {
-#ifdef BITE2
+#ifdef BITE
             // Only try parsing member if the message is past bite2 patch time
             if ( _sChain->bite2Patch( _sChain->getLastCommittedBlockTimeStamp().getS() ) ) {
                 if ( d.HasMember( "rsig" ) ) {
@@ -415,7 +413,7 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 schain_index( blockProposerIndex ), timeMs,
                 schain_id( sChainID ), msg_id( msgID ), sigShare, srcSchainIndex, ecdsaSig,
                 publicKey, pkSig, _sChain
-#ifdef BITE2
+#ifdef BITE
                 , reencryptionSignature
 #endif
                 );

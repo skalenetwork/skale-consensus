@@ -20,7 +20,7 @@ ptr<BiteCiphertext> BiteCodec::tryParseEncryptedRegularTxFields(
     return std::make_shared<BiteCiphertext>(_data,  _currentEpochId);
 }
 
-#ifdef BITE2
+#ifdef BITE
 std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryParseEncryptedCTXArgs(
         const std::vector<uint8_t>& _dataField, epoch_id _currentEpochId) {
     // compare first 4 bytes to BITE2 expected function selector
@@ -64,7 +64,7 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
 
 
 // Encode CTX arguments given serialized encrypted args + plaintext args
-#ifdef BITE2
+#ifdef BITE
 std::vector<uint8_t> BiteCodec::encodeCTXData(
     const std::vector<std::vector<uint8_t>>& encryptedSerializedArgs,
     const std::vector<std::vector<uint8_t>>& plainArgs

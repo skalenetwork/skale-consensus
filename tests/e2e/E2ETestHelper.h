@@ -69,7 +69,7 @@ public:
         int64_t _lastId,
         uint64_t _runTimeS,
         const std::map< string, uint64_t >& _patchTimestamps = { // default patch timestamps
-#ifdef BITE2
+#ifdef BITE
             { "bite2PatchTimestamp", 0 }
 #endif 
         } ) {

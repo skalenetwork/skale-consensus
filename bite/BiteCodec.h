@@ -19,7 +19,7 @@ struct BiteCodec {
     static std::shared_ptr<BiteCiphertext> tryParseEncryptedRegularTxFields(
         std::vector<uint8_t>& _to, ptr<std::vector<uint8_t>> _data, epoch_id _currentEpochId);
 
-#ifdef BITE2
+#ifdef BITE
     static std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> tryParseEncryptedCTXArgs(
         const std::vector<uint8_t>& _dataField, epoch_id _currentEpochId);
 #endif
@@ -35,7 +35,7 @@ struct BiteCodec {
 
     // ==================== BiteCiphertext building for Transaction fields ==================== //
     
-#ifdef BITE2
+#ifdef BITE
     static std::vector<uint8_t> encodeCTXData(
         const std::vector<std::vector<uint8_t>>& encryptedSerializedArgs,
         const std::vector<std::vector<uint8_t>>& plainArgs);

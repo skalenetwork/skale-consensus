@@ -76,7 +76,7 @@ public:
     [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(
         const TransactionList &_transactionList, const DecryptedAESKeyList &_aesKeys,
         epoch_id _epochId
-#ifdef BITE2
+#ifdef BITE
         , bool _isBite2PatchEnabledForBlock
 #endif
     );
@@ -134,7 +134,7 @@ public:
     [[nodiscard]] ptr<vector<uint8_t> > encryptRegularTx(const vector<uint8_t> &_data,
                                                                   const vector<uint8_t> &_to, uint64_t epochId);
 
-#ifdef BITE2
+#ifdef BITE
     /**
      * @brief Encrypts CTX function arguments using BITE2 scheme.
      * @param _scAddressAadTE - Smart contract address used as AAD for TE validation (real crypto only)
