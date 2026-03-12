@@ -39,7 +39,6 @@
 
 TimeoutAgent::TimeoutAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
         this->timeoutThreadPool = make_shared< TimeoutThreadPool >( 1, this );
         timeoutThreadPool->startService();
@@ -53,13 +52,14 @@ TimeoutAgent::TimeoutAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
 void TimeoutAgent::timeoutLoop( TimeoutAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
 
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
     setThreadName( "TimeoutLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
     _agent->getSchain()->getSchain()->waitOnGlobalStartBarrier();
     if ( _agent->getSchain()->getNode()->isExitRequested() )
         return;
 
-    LOG( info, "Timeout agent started monitoring" );
+    CONS_LOG( info, "Timeout agent started monitoring" );
 
     uint64_t blockProcessingStart =
         max( _agent->getSchain()->getLastCommitTimeMs(), _agent->getSchain()->getStartTimeMs() );

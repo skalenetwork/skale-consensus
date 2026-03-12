@@ -1,11 +1,6 @@
-// avoid macro definition conflicts
-#pragma push_macro("CHECK")
-#pragma push_macro("LOG")
 #include <folly/executors/CPUThreadPoolExecutor.h>
 #include <folly/futures/Future.h>
 #include <folly/Unit.h>
-#pragma pop_macro("LOG")
-#pragma pop_macro("CHECK")
 
 #include <flatbuffers/flatbuffers.h>
 #include "Log.h"

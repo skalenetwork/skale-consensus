@@ -158,11 +158,11 @@ void CatchupServerAgent::processNextAvailableConnection(
     }
 
 
-    LOG(debug, "Server step 2: sent catchup response header");
+    CONS_LOG(debug, "Server step 2: sent catchup response header");
 
 
     if (serializedBinary == nullptr) {
-        LOG(debug, "Server step 3: response completed: no blocks sent");
+        CONS_LOG(debug, "Server step 3: response completed: no blocks sent");
         return;
     }
 
@@ -175,7 +175,7 @@ void CatchupServerAgent::processNextAvailableConnection(
             CouldNotSendMessageException("Could not send serialized binary", __CLASS_NAME__));
     }
 
-    LOG(debug, "Server step 3: response completed: blocks sent");
+    CONS_LOG(debug, "Server step 3: response completed: blocks sent");
 
     return;
 }
@@ -246,7 +246,7 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockCatchupResponse(
 
     try {
         if (sChain->getLastCommittedBlockID() <= block_id(_blockID)) {
-            LOG(debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)");
+            CONS_LOG(debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)");
             _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_NO_NEW_BLOCKS);
             _responseHeader->setComplete();
             return nullptr;
@@ -259,7 +259,7 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockCatchupResponse(
         auto lastCommittedBlockTimestampS = sChain->getLastCommittedBlockTimeStamp().getS();
 
         if (_blockID >= lastCommittedBlockID) {
-            LOG(debug, "Catchups: blockID >= lastCommittedBlockID");
+            CONS_LOG(debug, "Catchups: blockID >= lastCommittedBlockID");
             _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_OK);
             _responseHeader->setComplete();
             return nullptr;
@@ -288,7 +288,7 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockCatchupResponse(
 
         auto responseTimeMs = Time::getCurrentTimeMs() - responseStartTimeMs;
 
-        LOG(info, "RETURNED_CATCHUP_BLOCKS:" << blockSizes->size() << ":CRT:" << responseTimeMs
+        CONS_LOG(info, "RETURNED_CATCHUP_BLOCKS:" << blockSizes->size() << ":CRT:" << responseTimeMs
             << ":TO_NODE:" << _connectionEnvelope->getIP());
 
         return serializedBlocks;
@@ -311,7 +311,7 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
         fragment_index fragmentIndex = Header::getUint64(_jsonRequest, "fragmentIndex");
 
         if (fragmentIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount() - 1) {
-            LOG(debug, "Incorrect fragment index:" << to_string( fragmentIndex ));
+            CONS_LOG(debug, "Incorrect fragment index:" << to_string( fragmentIndex ));
             _responseHeader->setStatusSubStatus(
                 CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_FRAGMENT_INDEX);
             _responseHeader->setComplete();
@@ -323,7 +323,7 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
 
 
         if (proposerIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount()) {
-            LOG(debug, "Incorrect proposer index:" << to_string( proposerIndex ));
+            CONS_LOG(debug, "Incorrect proposer index:" << to_string( proposerIndex ));
             _responseHeader->setStatusSubStatus(
                 CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX);
             _responseHeader->setComplete();
@@ -358,7 +358,7 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
                 if (committedBlock->getProposerIndex() != (uint64_t) proposerIndex) {
                     _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
                                                         CONNECTION_FINALIZER_CLIENT_ASKING_FOR_INCORRECT_PROPOSER_INDEX);
-                    LOG(err, "Client asked for proposal with incorrect proposer index:" +
+                    CONS_LOG(err, "Client asked for proposal with incorrect proposer index:" +
                         to_string( proposerIndex ) + ":committed block proposer index:" +
                         to_string( committedBlock->getProposerIndex() ));
                     _responseHeader->setComplete();

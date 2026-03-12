@@ -37,7 +37,7 @@ using namespace std;
 void Sockets::initSockets( const string& _bindIP, uint16_t _basePort ) {
     CHECK_ARGUMENT( !_bindIP.empty() );
 
-    LOG( debug, "Initing network processing\n" );
+    CONS_LOG( debug, "Initing network processing\n" );
 
     consensusZMQSockets = make_shared< ZMQSockets >( _bindIP, _basePort, BINARY_CONSENSUS );
     blockProposalSocket = make_shared< TCPServerSocket >( _bindIP, _basePort, PROPOSAL );

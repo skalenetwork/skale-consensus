@@ -56,9 +56,10 @@ class BiteDataField;
 #ifdef BITE
 #include "abstracttcpserver/ConnectionStatus.h"
 class AESKeyDecryptionShareList;
-class EncryptedAESKey;
-using EncryptedAESKeyList = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
 #endif
+
+class EncryptedAESKey;
+using EncryptedAESKeyMap = boost::container::flat_map<transaction_index, ptr<EncryptedAESKey> >;
 
 
 class BlockProposal : public SendableItem {
@@ -206,7 +207,7 @@ public:
 
 private:
     ptr<AESKeyDecryptionShareList> myDecryptionShares = nullptr;
-    ptr<EncryptedAESKeyList> encryptedAESKeys = nullptr;
+    ptr<EncryptedAESKeyMap> encryptedAESKeys = nullptr;
 
     // this will normally be empty
     map<transaction_index, ConnectionSubStatus> failedTransactions;
@@ -244,14 +245,14 @@ public:
     }
 
 
-    void seAESKeyList(ptr<EncryptedAESKeyList> _encryptedAESKeyList) {
-        CHECK_STATE(_encryptedAESKeyList)
+    void setAESKeyMap(ptr<EncryptedAESKeyMap> _EncryptedAESKeyMap) {
+        CHECK_STATE(_EncryptedAESKeyMap)
         // verify we are not setting it twice
-        CHECK_STATE(std::atomic_exchange(&encryptedAESKeys, _encryptedAESKeyList) == nullptr);
+        CHECK_STATE(std::atomic_exchange(&encryptedAESKeys, _EncryptedAESKeyMap) == nullptr);
     }
 
 
-    [[nodiscard]] ptr<EncryptedAESKeyList> getEncryptedAESKeys() const {
+    [[nodiscard]] ptr<EncryptedAESKeyMap> getEncryptedAESKeys() const {
         auto result = std::atomic_load(&encryptedAESKeys);
         CHECK_STATE(encryptedAESKeys);
         return result;

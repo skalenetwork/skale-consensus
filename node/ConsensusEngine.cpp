@@ -341,7 +341,7 @@ void ConsensusEngine::readSchainConfigFiles( const ptr< Node >& _node, const fs_
 
         for ( ; itr != end; ++itr ) {
             fs_path jsonFile = itr->path();
-            LOG( debug, "Parsing file:" << jsonFile.string() );
+            CONS_LOG( debug, "Parsing file:" << jsonFile.string() );
             JSONFactory::createAndAddSChainFromJson( _node, jsonFile, this );
             break;
         }
@@ -483,7 +483,7 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(
 
         BinConsensusInstance::initHistory( nodes.begin()->second->getSchain()->getNodeCount() );
 
-        LOG( trace, "Parsed configs and created " << to_string( ConsensusEngine::nodesCount() )
+        CONS_LOG( trace, "Parsed configs and created " << to_string( ConsensusEngine::nodesCount() )
                                                   << " nodes" );
     } catch ( exception& e ) {
         SkaleException::logNested( e );
@@ -509,7 +509,7 @@ void ConsensusEngine::startAll() {
 
 
             it.second->startServers( nullptr );
-            LOG( info, "Started servers" << to_string( it.second->getNodeID() ) );
+            CONS_LOG( info, "Started servers" << to_string( it.second->getNodeID() ) );
         }
 
 
@@ -519,10 +519,10 @@ void ConsensusEngine::startAll() {
             }
             CHECK_STATE( it.second );
             it.second->startClients();
-            LOG( info, "Started clients" << to_string( it.second->getNodeID() ) );
+            CONS_LOG( info, "Started clients" << to_string( it.second->getNodeID() ) );
         }
 
-        LOG( info, "Started node" );
+        CONS_LOG( info, "Started node" );
     }
 
     catch ( SkaleException& e ) {
@@ -551,17 +551,17 @@ void ConsensusEngine::slowStartBootStrapTest() {
             lastCommittedBlockTimeStamp->getS(), lastCommittedBlockTimeStamp->getMs() );
     }
 
-    LOG( info, "Started all nodes" );
+    CONS_LOG( info, "Started all nodes" );
 }
 
 void ConsensusEngine::bootStrapAll() {
     try {
         for ( auto&& it : nodes ) {
-            LOG( info, "ConsensusEngine: bootstrapping node" );
+            CONS_LOG( info, "ConsensusEngine: bootstrapping node" );
             CHECK_STATE( it.second );
             it.second->getSchain()->bootstrap( lastCommittedBlockID,
                 lastCommittedBlockTimeStamp->getS(), lastCommittedBlockTimeStamp->getMs() );
-            LOG( info, "ConsensusEngine: bootstrapped node" );
+            CONS_LOG( info, "ConsensusEngine: bootstrapped node" );
         }
     } catch ( exception& e ) {
         for ( auto&& it : nodes ) {
@@ -740,17 +740,17 @@ ConsensusExtFace* ConsensusEngine::getExtFace() const {
 void ConsensusEngine::exitGracefully() {
     // guaranteed to be called only once
 
-    LOG( info, "Running exitGracefully method" );
+    CONS_LOG( info, "Running exitGracefully method" );
 
     RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyCalled )
 
-    LOG( info, "Iterating over nodes" );
+    CONS_LOG( info, "Iterating over nodes" );
 
     // first make sure that exitOnBlockBoundaryRequested flag set
     for ( auto&& it : nodes ) {
         // run and forget
 
-        LOG( info, "Processing a node exit" );
+        CONS_LOG( info, "Processing a node exit" );
 
         auto node = it.second;
 
@@ -760,7 +760,7 @@ void ConsensusEngine::exitGracefully() {
     }
 
 
-    LOG( info, "Consensus exiting: exitGracefully called by skaled" );
+    CONS_LOG( info, "Consensus exiting: exitGracefully called by skaled" );
     cerr << "Here is stack trace for your info:" << endl;
     cerr << boost::stacktrace::stacktrace() << endl;
 
@@ -789,10 +789,10 @@ void ConsensusEngine::exitGracefullyAsync() {
     // guaranteed to be executed once
     RETURN_IF_PREVIOUSLY_CALLED( exitGracefullyAsyncCalled )
 
-    LOG( info, "Consensus engine exiting: exitGracefullyAsync called by skaled" );
+    CONS_LOG( info, "Consensus engine exiting: exitGracefullyAsync called by skaled" );
 
     try {
-        LOG( info, "exitGracefullyAsync running" );
+        CONS_LOG( info, "exitGracefullyAsync running" );
 
         // if there is onlu one node we can all
         // doSoftAndHardExit in the same
@@ -815,9 +815,9 @@ void ConsensusEngine::exitGracefullyAsync() {
             if ( counter == nodes.size() ) {
                 // run exit for the last node in the same thread
                 try {
-                    LOG( info, "Node exit called" );
+                    CONS_LOG( info, "Node exit called" );
                     node->doSoftAndThenHardExit();
-                    LOG( info, "Node exit completed" );
+                    CONS_LOG( info, "Node exit completed" );
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );
                 } catch ( ... ) {
@@ -825,9 +825,9 @@ void ConsensusEngine::exitGracefullyAsync() {
             } else {
                 thread( [node]() {
                     try {
-                        LOG( info, "Node exit called" );
+                        CONS_LOG( info, "Node exit called" );
                         node->doSoftAndThenHardExit();
-                        LOG( info, "Node exit completed" );
+                        CONS_LOG( info, "Node exit completed" );
                     } catch ( exception& e ) {
                         SkaleException::logNested( e );
                     } catch ( ... ) {
@@ -842,6 +842,9 @@ void ConsensusEngine::exitGracefullyAsync() {
 
         for ( auto&& it : nodes ) {
             it.second->getSchain()->joinMonitorAndTimeoutThreads();
+#ifdef BITE
+            it.second->getSchain()->stopAndDestroyFinalizationExecutor();
+#endif
         }
     } catch ( exception& e ) {
         SkaleException::logNested( e );
@@ -1052,7 +1055,7 @@ void ConsensusEngine::setPublicKeyInfo( ptr< vector< string > >& _ecdsaPublicKey
     if ( !_isSyncNode ) {
         map< size_t, libBLS::BLSPublicKeyShare > blsPubKeyShares;
         for ( uint64_t i = 0; i < _requiredSigners; i++ ) {
-            LOG( info, "Parsing BLS key share:" << blsPublicKeys->at( i )->at( 0 ) );
+            CONS_LOG( info, "Parsing BLS key share:" << blsPublicKeys->at( i )->at( 0 ) );
 
             auto& blsPubKeys = blsPublicKeys->at( i );
             CHECK_STATE( blsPubKeys );
@@ -1161,20 +1164,20 @@ uint64_t ConsensusEngine::submitOracleRequest(
     const string& _spec, string& _receipt, string& _errorMessage ) {
     return 0;
     if ( nodes.size() == 0 ) {
-        LOG( err, string( "Empty nodes in " ) << __FUNCTION__ );
+        CONS_LOG( err, string( "Empty nodes in " ) << __FUNCTION__ );
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
     auto node = nodes.begin()->second;
 
     if ( !node ) {
-        LOG( err, string( "Null node in " ) << __FUNCTION__ );
+        CONS_LOG( err, string( "Null node in " ) << __FUNCTION__ );
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
 
     try {
         auto oracleClient = node->getSchain()->getOracleClient();
         if ( !oracleClient ) {
-            LOG( err, string( "Null oracle client in " ) << __FUNCTION__ );
+            CONS_LOG( err, string( "Null oracle client in " ) << __FUNCTION__ );
             return ORACLE_INTERNAL_SERVER_ERROR;
         }
 
@@ -1184,11 +1187,11 @@ uint64_t ConsensusEngine::submitOracleRequest(
 
     } catch ( exception& e ) {
         _errorMessage = e.what() + string( " in " ) + __FUNCTION__;
-        LOG( err, _errorMessage );
+        CONS_LOG( err, _errorMessage );
         return ORACLE_INTERNAL_SERVER_ERROR;
     } catch ( ... ) {
         _errorMessage = string( "Unknown exception in" ) + __FUNCTION__;
-        LOG( err, _errorMessage );
+        CONS_LOG( err, _errorMessage );
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
 }
@@ -1206,17 +1209,17 @@ uint64_t ConsensusEngine::submitOracleRequest(
 uint64_t ConsensusEngine::checkOracleResult( const string& _receipt, string& _result ) {
     try {
         if ( nodes.size() == 0 ) {
-            LOG( err, string( "Empty nodes in " ) << __FUNCTION__ );
+            CONS_LOG( err, string( "Empty nodes in " ) << __FUNCTION__ );
             return ORACLE_INTERNAL_SERVER_ERROR;
         }
         auto node = nodes.begin()->second;
         if ( !node ) {
-            LOG( err, string( "Null node in " ) << __FUNCTION__ );
+            CONS_LOG( err, string( "Null node in " ) << __FUNCTION__ );
             return ORACLE_INTERNAL_SERVER_ERROR;
         }
         auto oracleClient = node->getSchain()->getOracleClient();
         if ( !oracleClient ) {
-            LOG( err, string( "Null oracleClient in " ) << __FUNCTION__ );
+            CONS_LOG( err, string( "Null oracleClient in " ) << __FUNCTION__ );
             return ORACLE_INTERNAL_SERVER_ERROR;
         }
         return oracleClient->checkOracleResult( _receipt, _result );
@@ -1224,7 +1227,7 @@ uint64_t ConsensusEngine::checkOracleResult( const string& _receipt, string& _re
         SkaleException::logNested( e, err );
         return ORACLE_INTERNAL_SERVER_ERROR;
     } catch ( ... ) {
-        LOG( err, string( "Unknown exception in " ) << __FUNCTION__ );
+        CONS_LOG( err, string( "Unknown exception in " ) << __FUNCTION__ );
         return ORACLE_INTERNAL_SERVER_ERROR;
     }
 }

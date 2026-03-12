@@ -18,4 +18,4 @@ services:
         max-size: "10m"
         max-file: "4"
     restart: unless-stopped
-    command: -s -y -Tn  
+    command: -s -y -Tn

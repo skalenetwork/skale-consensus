@@ -28,6 +28,3 @@ public:
 
     virtual bool addDecryptionShare( const ptr< AESKeyDecryptionShare >& _decryptionShare ) = 0;
 };
-
-
-

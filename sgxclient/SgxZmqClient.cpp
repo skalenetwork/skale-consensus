@@ -97,7 +97,7 @@ shared_ptr< SgxZmqMessage > SgxZmqClient::doRequestReply(
         CHECK_STATE2( result->getStatus() == 0, "SGX server returned error:" + resultStr );
 
         if ( result->getWarning() ) {
-            LOG( warn, "SGX server reported warning:" << *result->getWarning() );
+            CONS_LOG( warn, "SGX server reported warning:" << *result->getWarning() );
         }
         return result;
 
@@ -142,7 +142,7 @@ string SgxZmqClient::doZmqRequestReply(
             CHECK_STATE( strlen( reply.c_str() ) == reply.length() )
 
             CHECK_STATE( reply.length() > 5 );
-            LOG( debug, "ZMQ client received reply:" << reply );
+            CONS_LOG( debug, "ZMQ client received reply:" << reply );
             CHECK_STATE( reply.front() == '{' );
             CHECK_STATE( reply.back() == '}' );
 
@@ -151,10 +151,10 @@ string SgxZmqClient::doZmqRequestReply(
         } else {
             serverDown = true;
             if ( _throwExceptionOnTimeout ) {
-                LOG( err, "No response from sgx server for:" << _description );
+                CONS_LOG( err, "No response from sgx server for:" << _description );
                 CHECK_STATE( false );
             }
-            LOG( err, "No response from SGX server for " << _description << ". Retrying..." );
+            CONS_LOG( err, "No response from SGX server for " << _description << ". Retrying..." );
             usleep( SGX_REQUEST_TIMEOUT_MS * 1000 );
             reconnect();
 
@@ -173,7 +173,7 @@ string SgxZmqClient::readFileIntoString( const string& _fileName ) {
     try {
         str = string( ( istreambuf_iterator< char >( t ) ), istreambuf_iterator< char >() );
     } catch ( ... ) {
-        LOG( err, "Could not read file:" << _fileName );
+        CONS_LOG( err, "Could not read file:" << _fileName );
         throw;
     }
 
@@ -181,7 +181,7 @@ string SgxZmqClient::readFileIntoString( const string& _fileName ) {
 }
 
 
-string SgxZmqClient::signString( EVP_PKEY* _pkey, const string& _str ) {
+string SgxZmqClient::signString( std::shared_ptr<EVP_PKEY> _pkey, const string& _str ) {
     CHECK_STATE( _pkey );
     CHECK_STATE( !_str.empty() );
 
@@ -197,7 +197,7 @@ string SgxZmqClient::signString( EVP_PKEY* _pkey, const string& _str ) {
     );
 
 
-    CHECK_STATE( ( EVP_DigestSignInit( mdctx.get(), NULL, EVP_sha256(), NULL, _pkey ) == 1 ) );
+    CHECK_STATE( ( EVP_DigestSignInit( mdctx.get(), NULL, EVP_sha256(), NULL, _pkey.get() ) == 1 ) );
 
 
     CHECK_STATE( EVP_DigestSignUpdate( mdctx.get(), msgToSign.c_str(), msgToSign.size() ) == 1 );
@@ -225,10 +225,10 @@ string SgxZmqClient::signString( EVP_PKEY* _pkey, const string& _str ) {
 }
 
 
-pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _certStr ) {
+pair< std::shared_ptr<EVP_PKEY>, std::shared_ptr<X509> > SgxZmqClient::readPublicKeyFromCertStr( const string& _certStr ) {
     CHECK_STATE( !_certStr.empty() )
 
-    LOG( info, "Reading server public key:\n" << _certStr );
+    CONS_LOG( info, "Reading server public key:\n" << _certStr );
 
 
     // Create BIO and wrap in a smart pointer
@@ -240,9 +240,9 @@ pair< EVP_PKEY*, X509* > SgxZmqClient::readPublicKeyFromCertStr( const string& _
     CHECK_STATE( bo )
     CHECK_STATE( BIO_write( bo.get(), _certStr.c_str(), _certStr.size() ) > 0 )
 
-    X509* cert = PEM_read_bio_X509( bo.get(), nullptr, 0, 0 );
+    std::shared_ptr<X509> cert(PEM_read_bio_X509( bo.get(), nullptr, 0, 0 ), X509_free);
     CHECK_STATE( cert );
-    auto key = X509_get_pubkey( cert );
+    std::shared_ptr<EVP_PKEY> key(X509_get_pubkey( cert.get() ), EVP_PKEY_free);
     CHECK_STATE( key );
     return { key, cert };
 };
@@ -253,14 +253,14 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
     CHECK_STATE( _sChain );
     this->schain = _sChain;
 
-    LOG( info, "Initing ZMQClient. Sign:" << to_string( sign ) );
+    CONS_LOG( info, "Initing ZMQClient. Sign:" << to_string( sign ) );
 
     if ( sign ) {
         CHECK_STATE( !_certFileName.empty() );
         try {
             cert = readFileIntoString( _certFileName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" << _certFileName << ":" << e.what() );
+            CONS_LOG( err, "Could not read file:" << _certFileName << ":" << e.what() );
             throw;
         }
         CHECK_STATE( !cert.empty() );
@@ -268,7 +268,7 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
         try {
             key = readFileIntoString( _certKeyName );
         } catch ( exception& e ) {
-            LOG( err, "Could not read file:" << _certKeyName << ":" << e.what() );
+            CONS_LOG( err, "Could not read file:" << _certKeyName << ":" << e.what() );
             throw;
         }
 
@@ -282,8 +282,12 @@ SgxZmqClient::SgxZmqClient( Schain* _sChain, const string& ip, uint16_t port, bo
         CHECK_STATE( bo );
         BIO_write( bo.get(), key.c_str(), key.size() );
 
-        PEM_read_bio_PrivateKey( bo.get(), &pkey, 0, 0 );
-        CHECK_STATE( pkey );
+        EVP_PKEY* rawPrivateKey = nullptr;
+        PEM_read_bio_PrivateKey( bo.get(), &rawPrivateKey, 0, 0 );
+        CHECK_STATE( rawPrivateKey );
+        
+        // Wrap in shared_ptr
+        pkey = std::shared_ptr<EVP_PKEY>(rawPrivateKey, EVP_PKEY_free);
 
         tie( pubkey, x509Cert ) = readPublicKeyFromCertStr( cert );
 
@@ -411,19 +415,19 @@ uint64_t SgxZmqClient::getProcessID() {
 
 
 void SgxZmqClient::exit() {
-    LOG( info, "Exiting SgxZmqClient" );
+    CONS_LOG( info, "Exiting SgxZmqClient" );
     LOCK( socketMutex );
 
     if ( exited )
         return;
-    LOG( info, "Shutting down SgxZmq context" );
+    CONS_LOG( info, "Shutting down SgxZmq context" );
     this->ctx.shutdown();
-    LOG( info, "Shut down SgxZmq context" );
-    LOG( info, "Closing SgxZmq client sockets" );
+    CONS_LOG( info, "Shut down SgxZmq context" );
+    CONS_LOG( info, "Closing SgxZmq client sockets" );
     if ( clientSocket )
         clientSocket->close();
     exited = true;
-    LOG( info, "Exited SgxZmqClient" );
+    CONS_LOG( info, "Exited SgxZmqClient" );
 }
 
 
@@ -450,7 +454,7 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t ) {
 
     static recursive_mutex m;
 
-    EVP_PKEY* publicKey = nullptr;
+    std::shared_ptr<EVP_PKEY> publicKey;
 
     {
         LOCK( certMutex );
@@ -484,7 +488,7 @@ void SgxZmqClient::verifyMsgSig( const char* _msg, size_t ) {
     }
 }
 
-void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const string& _sig ) {
+void SgxZmqClient::verifySig( std::shared_ptr<EVP_PKEY> _pubkey, const string& _str, const string& _sig ) {
     CHECK_STATE( _pubkey );
     CHECK_STATE( !_str.empty() );
 
@@ -502,7 +506,7 @@ void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const strin
 
     CHECK_STATE( mdctx = EVP_MD_CTX_create() );
 
-    CHECK_STATE( ( EVP_DigestVerifyInit( mdctx, NULL, EVP_sha256(), NULL, _pubkey ) == 1 ) );
+    CHECK_STATE( ( EVP_DigestVerifyInit( mdctx, NULL, EVP_sha256(), NULL, _pubkey.get() ) == 1 ) );
 
     CHECK_STATE( EVP_DigestVerifyUpdate( mdctx, msgToSign.c_str(), msgToSign.size() ) == 1 );
 
@@ -517,7 +521,7 @@ void SgxZmqClient::verifySig( EVP_PKEY* _pubkey, const string& _str, const strin
         EVP_MD_CTX_destroy( mdctx );
 }
 
-cache::lru_cache< string, pair< EVP_PKEY*, X509* > > SgxZmqClient::verifiedCerts( 256 );
+cache::lru_cache< string, pair< std::shared_ptr<EVP_PKEY>, std::shared_ptr<X509> > > SgxZmqClient::verifiedCerts( 256 );
 Schain* SgxZmqClient::getSchain() const {
     CHECK_STATE( schain );
     return schain;

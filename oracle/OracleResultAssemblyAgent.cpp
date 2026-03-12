@@ -13,7 +13,6 @@
 OracleResultAssemblyAgent::OracleResultAssemblyAgent( Schain& _sChain )
     : Agent( _sChain, true ), oracleMessageThreadPool( new OracleMessageThreadPool( this ) ) {
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
         oracleMessageThreadPool->startService();
     } catch ( ... ) {
         throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
@@ -65,7 +64,7 @@ void OracleResultAssemblyAgent::messageThreadProcessingLoop( OracleResultAssembl
                     CHECK_STATE( false );
                 }
             } catch ( exception& e ) {
-                LOG( err, "Exception in Schain::oracleAssemblylLoop" );
+                CONS_LOG( err, "Exception in Schain::oracleAssemblylLoop" );
                 SkaleException::logNested( e );
                 if ( _agent->getNode()->isExitRequested() )
                     return;

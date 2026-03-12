@@ -8,7 +8,6 @@
 #include <array>
 #include <folly/io/IOBuf.h>
 #include "block_transactions_request_generated.h"  // Include FlatBuffers-generated headers
-#undef LOG // avoid conflict with folly
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "BlockTransactionsRequestObject.h"

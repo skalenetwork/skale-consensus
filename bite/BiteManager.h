@@ -7,6 +7,7 @@
 #include <crypto/AESKeyDecryptionShareSet.h>
 #include "node/ConsensusInterface.h"
 #include "abstracttcpserver/ConnectionStatus.h"
+#include <folly/Unit.h>
 
 class Schain;
 
@@ -35,6 +36,8 @@ class BiteManager {
 
 public:
     explicit BiteManager(Schain &_schain);
+
+    ~BiteManager();
 
     static void parseBITETransactions(ptr<BlockProposal> _proposal);
 
@@ -83,4 +86,6 @@ public:
     [[nodiscard]] bool isRealCryptoEnabled() const;
 
     void computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal);
+private:
+    void stopAndDestroyThreadPoolExecutor();
 };

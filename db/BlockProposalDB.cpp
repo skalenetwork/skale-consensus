@@ -74,7 +74,7 @@ void BlockProposalDB::addBlockProposal( const ptr< BlockProposal > _proposal ) {
     CHECK_STATE( ( uint64_t ) proposerIndex <= getSchain()->getNodeCount() );
     CHECK_STATE( proposerIndex > 0 );
 
-    LOG( trace, "addBlockProposal blockID_=" << to_string( _proposal->getBlockID() )
+    CONS_LOG( trace, "addBlockProposal blockID_=" << to_string( _proposal->getBlockID() )
                                              << " proposerIndex="
                                              << to_string( _proposal->getProposerIndex() ) );
 
@@ -108,13 +108,13 @@ void BlockProposalDB::addProposalToCacheIfDoesNotExist( const ptr< BlockProposal
         auto previousProposal = proposalCaches->at( ( uint64_t ) proposerIndex - 1 );
         if ( previousProposal ) {
             if ( previousProposal->getBlockID() > ( uint64_t ) _proposal->getBlockID() ) {
-                LOG( warn,
+                CONS_LOG( warn,
                     "Trying to add a proposal with smaller block id:" << _proposal->getBlockID() );
                 return;
             }
 
             if ( previousProposal->getBlockID() > ( uint64_t ) _proposal->getBlockID() ) {
-                LOG( warn,
+                CONS_LOG( warn,
                     "Trying to add a proposal with same block id:" << _proposal->getBlockID() );
                 return;
             }
@@ -242,7 +242,7 @@ void BlockProposalDB::cleanupUnneededMemoryBeforePushingToEvm(
         auto cachedProposal = proposalCaches->at( i );
         if ( cachedProposal ) {
             if ( ( cachedProposal->getProposerIndex() != proposerIndex ) ||
-                 ( cachedProposal->getBlockID() <= blockId ) ) {
+                 ( cachedProposal->getBlockID() < blockId ) ) {
                 proposalCaches->at( i ) = nullptr;
             }
         }

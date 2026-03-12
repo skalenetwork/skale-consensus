@@ -125,7 +125,7 @@ string CacheLevelDB::readStringUnsafe( const string& _key ) {
     if ( measureTime )
         time = Time::getCurrentTimeMs();
 
-    for ( int i = LEVELDB_SHARDS - 1; i >= 0; i-- ) {
+    for ( int i = db.size() - 1; i >= 0; i-- ) {
         string result;
         CHECK_STATE( db.at( i ) )
         auto status = db.at( i )->Get( readOptions, _key, &result );
@@ -142,7 +142,7 @@ string CacheLevelDB::readStringUnsafe( const string& _key ) {
 }
 
 bool CacheLevelDB::keyExistsUnsafe( const string& _key ) {
-    for ( int i = LEVELDB_SHARDS - 1; i >= 0; i-- ) {
+    for ( int i = db.size() - 1; i >= 0; i-- ) {
         auto result = make_shared< string >();
         CHECK_STATE( db[i] )
         auto status = db.at( i )->Get( readOptions, _key, result.get() );
@@ -163,14 +163,14 @@ bool CacheLevelDB::keyExists( const string& _key ) {
 
 void CacheLevelDB::checkForDeadLock( const char* _functionName ) {
     while ( !m.try_lock_for( chrono::seconds( 60 ) ) ) {
-        LOG( err, "Deadlock detected in " << string( _functionName ) );
+        CONS_LOG( err, "Deadlock detected in " << string( _functionName ) );
     }
     m.unlock();
 }
 
 void CacheLevelDB::checkForDeadLockRead( const char* _functionName ) {
     while ( !m.try_lock_shared_for( chrono::seconds( 60 ) ) ) {
-        LOG( err, "Deadlock detected in " << string( _functionName ) );
+        CONS_LOG( err, "Deadlock detected in " << string( _functionName ) );
     }
     m.unlock_shared();
 }
@@ -190,7 +190,7 @@ void CacheLevelDB::writeString( const string& _key, const string& _value, bool _
         lock_guard< shared_timed_mutex > lock( m );
 
         if ( ( !_overWrite ) && keyExistsUnsafe( _key ) ) {
-            LOG( trace, "Double db entry " << this->prefix << "\n" << _key );
+            CONS_LOG( trace, "Double db entry " << this->prefix << "\n" << _key );
             return;
         }
 
@@ -223,7 +223,7 @@ void CacheLevelDB::writeByteArray(
         lock_guard< shared_timed_mutex > lock( m );
 
         if ( keyExistsUnsafe( string( _key ) ) ) {
-            LOG( trace, "Double entry written to db" );
+            CONS_LOG( trace, "Double entry written to db" );
             return;
         }
 
@@ -280,7 +280,7 @@ ptr< map< string, string > > CacheLevelDB::readPrefixRange( string& _prefix ) {
     checkForDeadLockRead( __FUNCTION__ );
     shared_lock< shared_timed_mutex > lock( m );
 
-    for ( int i = LEVELDB_SHARDS - 1; i >= 0; i-- ) {
+    for ( int i = db.size() - 1; i >= 0; i-- ) {
         CHECK_STATE( db.at( i ) )
         auto partialResult = readPrefixRangeFromDBUnsafe( _prefix, db[i] );
         if ( partialResult ) {
@@ -346,9 +346,7 @@ shared_ptr< leveldb::DB > CacheLevelDB::openDB( uint64_t _index ) {
     try {
         leveldb::DB* dbase = nullptr;
 
-
-
-        auto status  = leveldb::DB::Open( this->options, index2Path( _index ), &dbase );
+        auto status = leveldb::DB::Open( this->options, index2Path( _index ), &dbase );
         if ( !status.ok() ) {
             BOOST_THROW_EXCEPTION( LevelDBException(
                 "Could not open database: " + index2Path( _index ) + ": " + status.ToString(),
@@ -471,6 +469,7 @@ pair< uint64_t, uint64_t > CacheLevelDB::findMaxMinDBIndex() {
 }
 
 void CacheLevelDB::rotateDBsIfNeeded() {
+    bool isArchiveMode = sChain->getNode()->isArchiveMode();
     try {
         if ( getActiveDBSize() <= maxDBSize )
             return;
@@ -481,32 +480,41 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             if ( getActiveDBSize() <= maxDBSize )
                 return;
 
-            LOG(
+            CONS_LOG(
                 info, "ROTATED_DATABASE: " << prefix << ":MAX_DB_SIZE:" << to_string( maxDBSize ) );
 
             auto newDB = openDB( highestDBIndex + 1 );
 
-            for ( uint64_t i = 1; i < LEVELDB_SHARDS; i++ ) {
-                db.at( i - 1 ) = nullptr;
-                db.at( i - 1 ) = db.at( i );
+            if ( isArchiveMode ) {
+                // For archive nodes: add new database
+                db.push_back( newDB );
+                CONS_LOG( info, "ARCHIVE_NODE: Added new database, total databases: " << db.size() );
+            } else {
+                // For regular nodes: keep exactly LEVELDB_SHARDS databases
+                for ( uint64_t i = 1; i < LEVELDB_SHARDS; i++ ) {
+                    db.at( i - 1 ) = nullptr;
+                    db.at( i - 1 ) = db.at( i );
+                }
+                db[LEVELDB_SHARDS - 1] = newDB;
             }
-
-            db[LEVELDB_SHARDS - 1] = newDB;
 
             highestDBIndex++;
 
-            uint64_t minIndex;
+            // For archive nodes, don't delete old databases - keep them for historical data
+            if ( !isArchiveMode ) {
+                uint64_t minIndex;
 
-            while ( ( minIndex = findMaxMinDBIndex().second ) + LEVELDB_SHARDS <= highestDBIndex ) {
-                if ( minIndex == 0 ) {
-                    return;
-                }
+                while ( ( minIndex = findMaxMinDBIndex().second ) + LEVELDB_SHARDS <= highestDBIndex ) {
+                    if ( minIndex == 0 ) {
+                        return;
+                    }
 
-                auto dbName = index2Path( minIndex );
-                try {
-                    boost::filesystem::remove_all( path( dbName ) );
-                } catch ( SkaleException& e ) {
-                    LOG( err, "Could not remove db:" << dbName );
+                    auto dbName = index2Path( minIndex );
+                    try {
+                        boost::filesystem::remove_all( path( dbName ) );
+                    } catch ( SkaleException& e ) {
+                        CONS_LOG( err, "Could not remove db:" << dbName );
+                    }
                 }
             }
 
@@ -543,7 +551,7 @@ uint64_t CacheLevelDB::readCount( block_id _blockId ) {
         return result;
 
     } catch ( ... ) {
-        LOG( err, "Incorrect value in LevelDB:" << countString );
+        CONS_LOG( err, "Incorrect value in LevelDB:" << countString );
         return 0;
     }
 }
@@ -609,7 +617,7 @@ ptr< map< schain_index, string > > CacheLevelDB::writeByteArrayToSetUnsafe(
 
     if ( keyExistsUnsafe( entryKey ) ) {
         if ( !isDuplicateAddOK )
-            LOG( trace, "Double db entry " << this->prefix << "\n"
+            CONS_LOG( trace, "Double db entry " << this->prefix << "\n"
                                            << to_string( _blockId ) << ":" << to_string( _index ) );
         return nullptr;
     }
@@ -635,7 +643,7 @@ ptr< map< schain_index, string > > CacheLevelDB::writeByteArrayToSetUnsafe(
         try {
             count = stoull( *result, NULL, 10 );
         } catch ( ... ) {
-            LOG( err, "Incorrect value in LevelDB:" << *result );
+            CONS_LOG( err, "Incorrect value in LevelDB:" << *result );
             return 0;
         }
     } else {
@@ -677,7 +685,10 @@ ptr< map< schain_index, string > > CacheLevelDB::writeByteArrayToSetUnsafe(
 }
 
 void CacheLevelDB::verify() {
-    CHECK_STATE( db.size() == LEVELDB_SHARDS );
+    if ( !sChain->getNode()->isArchiveMode() ) {
+        CHECK_STATE( db.size() == LEVELDB_SHARDS );
+    }
+    
     for ( auto&& x : db ) {
         CHECK_STATE( x );
     }
@@ -725,9 +736,15 @@ void CacheLevelDB::destroy() {
     checkForDeadLock( __FUNCTION__ );
     lock_guard< shared_timed_mutex > lock( m );
 
-    for ( int i = LEVELDB_SHARDS - 1; i >= 0; i-- ) {
-        CHECK_STATE( db.at( i ) )
-        db.at( i ) = nullptr;
+
+    for ( auto& dbase : db) {
+        CHECK_STATE( dbase );
+        dbase = nullptr;
+    }
+
+    auto [maxIndex, minIndex] = findMaxMinDBIndex();
+    
+    for ( uint64_t i = minIndex; i <= maxIndex; i++ ) {
         DestroyDB( index2Path( i ), leveldb::Options() );
     }
 }
@@ -735,7 +752,7 @@ uint64_t CacheLevelDB::getMemoryUsed() {
     uint totalMemory = 0;
     checkForDeadLockRead( __FUNCTION__ );
     shared_lock< shared_timed_mutex > lock( m );
-    for ( int i = LEVELDB_SHARDS - 1; i >= 0; i-- ) {
+    for ( int i = db.size() - 1; i >= 0; i-- ) {
         CHECK_STATE( db.at( i ) )
         string usage;
         db.at( i )->GetProperty( "leveldb.approximate-memory-usage", &usage );
