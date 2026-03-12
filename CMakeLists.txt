@@ -6,10 +6,6 @@ if (FAIR)
     set(BITE "1")
 endif ()
 
-if (BITE2)
-    set(BITE "1")
-endif ()
-
 if (BITE)
     set(BITE "1")
     add_definitions(-DBITE)
