@@ -30,8 +30,10 @@
 #include "thirdparty/json.hpp"
 #include "chains/Schain.h"
 #include "crypto/BLAKE3Hash.h"
+#ifdef BITE
 #include "bite/BiteManager.h"
 #include "bite/BiteCommittedBlockSerializer.h"
+#endif
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/InvalidStateException.h"
 #include "exceptions/ParsingException.h"

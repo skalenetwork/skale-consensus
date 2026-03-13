@@ -31,7 +31,9 @@
 #include "chains/Schain.h"
 #include "Transaction.h"
 #include "TransactionList.h"
+#ifdef BITE
 #include "bite/BiteManager.h"
+#endif
 
 
 

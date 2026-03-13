@@ -4,7 +4,7 @@
 #include <array>
 #include <cstdint>
 #include "datastructures/SmallVector.h"
-#include "node/ConsensusInterface.h"
+#include "bite/Constants.h"
 
 using namespace std;
 

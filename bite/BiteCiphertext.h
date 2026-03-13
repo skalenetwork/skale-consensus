@@ -4,6 +4,7 @@
 #include <memory>
 #include <optional>
 #include <atomic>
+#include <SkaleCommon.h>
 #include <crypto/EncryptedAESKey.h>
 
 using EncryptedData = std::vector< uint8_t >;

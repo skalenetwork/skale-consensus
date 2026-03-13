@@ -3,7 +3,7 @@
 #include <memory>
 #include <boost/container/flat_map.hpp>
 #include <SkaleCommon.h>
-#include "crypto/TransactionCiphertexts.h"
+#include "bite/crypto/TransactionCiphertexts.h"
 
 /**
  * @brief A wrapper around a flat_map to keep track of total number of ciphertexts stored.

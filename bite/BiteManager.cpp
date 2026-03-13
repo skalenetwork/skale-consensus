@@ -10,7 +10,7 @@
 #include <crypto/AESKeyDecryptionShareSet.h>
 #include <crypto/AESKeyDecryptionShareList.h>
 #include <crypto/MockupAESKeyDecryptionShareSet.h>
-#include <crypto/TransactionCiphertexts.h>
+#include "bite/crypto/TransactionCiphertexts.h"
 #include <crypto/ConsensusAESKeyDecryptionShare.h>
 #include <crypto/ConsensusAESKeyDecryptionShareSet.h>
 #include <crypto/CryptoManager.h>
@@ -55,9 +55,7 @@ void BiteManager::parseBITETransactions(
 
     BiteRuntimeContext runtimeCtx {
         .currentEpoch = schain.getNode()->getCurrentEpochId()
-#ifdef BITE
         , .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
-#endif
     };
 
     auto result = BiteEngine::parseAndCacheBITETransactions(*_proposal->getTransactionList(), 
@@ -174,10 +172,8 @@ std::shared_ptr<DecryptedAESKeyList> BiteManager::mergeAESKeys(
 DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
         const TransactionList &_transactionList,
         const DecryptedAESKeyList &_aesKeys,
-        epoch_id _epochId
-#ifdef BITE
-        , bool _isBite2PatchEnabledForBlock
-#endif
+        epoch_id _epochId,
+        bool _isBite2PatchEnabledForBlock
     ) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
@@ -185,9 +181,7 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
     BiteRuntimeContext runtimeCtx {
         .currentEpoch = _epochId,
         .threadPoolExecutor = threadPoolExecutor
-#ifdef BITE
         , .isBite2PatchEnabled = _isBite2PatchEnabledForBlock
-#endif
     };
 
     return biteEngine.decryptTransactionsListInParallel(
@@ -293,7 +287,6 @@ ptr<vector<uint8_t> > BiteManager::encryptRegularTx(const vector<uint8_t> &_data
 
 }
 
-#ifdef BITE
 ptr<vector<uint8_t>> BiteManager::generateEncryptedCTXData(uint64_t epochId, const std::optional<AddressBytes>& scAddressAadTE) {
     constexpr size_t numberOfCiphertexts = 2;
 
@@ -338,7 +331,6 @@ ptr<vector<uint8_t> > BiteManager::generateEmptyCTXData(uint64_t epochId) {
     
     return std::make_shared<vector<uint8_t>>(BiteCodec::encodeCTXData(encryptedSerializedArgs, plainArgs));
 }
-#endif
 
 void BiteManager::stopAndDestroyThreadPoolExecutor() {
     if ( !threadPoolExecutor )

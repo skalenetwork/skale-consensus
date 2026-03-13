@@ -4,7 +4,7 @@
 class EncryptedAESKey;
 
 #include "crypto/AESKeyDecryptionShare.h"
-#include "crypto/DecryptedAESKey.h"
+#include "bite/crypto/DecryptedAESKey.h"
 #include "crypto/EncryptedAESKey.h"
 
 class AESKeyDecryptionShareSet {

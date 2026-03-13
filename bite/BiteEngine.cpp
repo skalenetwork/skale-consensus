@@ -46,7 +46,6 @@ ptr<BiteCiphertext> BiteEngine::tryGetEncryptedRegularTxFields(
     return biteCiphertext;
 }
 
-#ifdef BITE
 ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCTXArgs(
             const ptr<Transaction>& _transaction, epoch_id _currentEpochId ) {
     CHECK_STATE(_transaction);
@@ -86,7 +85,6 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCTXArgs(
     }
     return encryptedCTXArgs;
 }
-#endif
 
 BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
     const TransactionList& txList,
@@ -100,7 +98,6 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
 
     std::set<size_t> failedTxIndices;
 
-#ifdef BITE
     if ( runtimeContext.isBite2PatchEnabled ) {
         // Try parsing CTX transactions first
         for (size_t i = 0 ; i < transactions->size(); i++) {
@@ -129,10 +126,6 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
         // No BITE2 means all txs are regular
         regularTxsStartIdx = 0;
     }
-#else
-    // No BITE2 means all txs are regular
-    regularTxsStartIdx = 0;
-#endif
 
     // Parse regular txs
     for (size_t i = regularTxsStartIdx; i < transactions->size(); i++) {
@@ -455,10 +448,8 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
     auto decryptedFieldsMap = std::make_shared<DecryptedRegularTxsMap>();
     auto regularTxMapMutex = std::make_shared<std::mutex>();
     
-#ifdef BITE
     auto ctxTxsMap          = std::make_shared<DecryptedCTXTxsMap>();
     auto ctxTxsMapMutex     = std::make_shared<std::mutex>();
-#endif
 
     auto txs = _transactionList.getItems();
     CHECK_STATE(txs);
@@ -478,14 +469,11 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
     try {
         const std::size_t txCount = _transactionList.size();
 
-#ifdef BITE
         bool allCTXsParsed = false;
-#endif
 
         for (std::size_t txIdx = 0; txIdx < txCount; ++txIdx) {
             auto tx = txs->at(txIdx);
 
-#ifdef BITE
             if ( runtimeContext.isBite2PatchEnabled ) {
                 // ---------- Try CTX path first ----------
                 if (!allCTXsParsed) {
@@ -544,8 +532,6 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                 }
             }
 
-#endif // BITE
-
             // ---------- Regular BITE1-style encryption ----------
             ptr<BiteCiphertext> bite;
             try {
@@ -599,9 +585,7 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
     folly::collectAll(futures).get();
 
     return DecryptedTransactions(
-#ifdef BITE 
         ctxTxsMap,
-#endif 
         decryptedFieldsMap 
     );
 
@@ -618,8 +602,6 @@ std::vector<uint8_t> BiteEngine::buildRegularTxData(
     auto cipher = core.encryptData(key, payload);      // core uses doRealCrypto internally
     return BiteCodec::encodeEpochedBiteData(cipher, epochId);
 }
-
-#ifdef BITE
 
 std::vector<uint8_t> BiteEngine::buildCTXData(
     const libBLS::TEPublicKey& key,
@@ -655,8 +637,6 @@ std::vector<uint8_t> BiteEngine::buildCTXData(
 
     return BiteCodec::encodeCTXData(encryptedSerializedArgs, plainArgs);
 }
-
-#endif
 
 
 std::shared_ptr<AESKeyDecryptionShares> BiteEngine::createDecryptionSharesObjects(
