@@ -144,8 +144,8 @@ void BlockSignBroadcastMessage::serializeToStringChild(
 
 void BlockSignBroadcastMessage::updateWithChildHash( blake3_hasher& _hasher ) {
     uint32_t reencryptionSigShareLen = reencryptionSigShareString.size();
-    HASH_UPDATE( _hasher, reencryptionSigShareLen );
     if ( reencryptionSigShareLen > 0 ) {
+        HASH_UPDATE( _hasher, reencryptionSigShareLen );
         blake3_hasher_update(
             &_hasher, ( unsigned char* ) reencryptionSigShareString.data(), reencryptionSigShareLen );
     }

@@ -401,9 +401,6 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                     CHECK_STATE( false )
                 }
             }
-            else {
-                CHECK_STATE2( !d.HasMember( "rsig" ), "BITE2 patch is not enabled but reencryption signature is present in message for block " + to_string( blockID ) );
-            }
 #endif
             nwkMsg = make_shared< BlockSignBroadcastMessage >( node_id( srcNodeID ),
                 block_id( blockID ),
