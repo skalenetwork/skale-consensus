@@ -32,7 +32,7 @@
 
 CommittedBlockHeader::CommittedBlockHeader( CommittedBlock& _block )
     : BlockProposalHeader( _block ),
-#ifdef BITE2
+#ifdef BITE
       reencryptionThresholdSig( _block.getReencryptionThresholdSig() ),
 #endif
       thresholdSig( _block.getThresholdSig() ),
@@ -43,7 +43,7 @@ CommittedBlockHeader::CommittedBlockHeader( CommittedBlock& _block )
     thresholdSig = Header::getString( _json, "thrSig" );
     CHECK_STATE( !thresholdSig.empty() )
     
-#ifdef BITE2
+#ifdef BITE
     // should only be present in the block after bite2 patch timestamp
     auto maybeReencryptionThresholdSig = Header::maybeGetString( _json, "reencryptionThrSig" );
     reencryptionThresholdSig = maybeReencryptionThresholdSig.empty()
@@ -59,7 +59,7 @@ const string& CommittedBlockHeader::getThresholdSig() const {
     return thresholdSig;
 }
 
-#ifdef BITE2
+#ifdef BITE
 const std::optional<string>& CommittedBlockHeader::getReencryptionThresholdSig() const {
     return reencryptionThresholdSig;
 }
@@ -75,7 +75,7 @@ void CommittedBlockHeader::addFields( nlohmann::basic_json<>& _j ) {
 
     _j["thrSig"] = thresholdSig;
 
-#ifdef BITE2
+#ifdef BITE
     // at this point, the reencryption threshold signature should
     // have been already validated against bite2patch timestamp.
     // So its safe to simply get it in case it exists & is non-empty

@@ -177,10 +177,8 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
 
     // build test transactions only once at start (includes encrypting them)
     std::call_once(initFlag, [&] () {
-#ifdef BITE2
         CTXsProportion = (double) numTotalCTXTxs / (numTotalRegularTxs + numTotalCTXTxs);
         ConsensusExtFace::Transactions tmponlyCTXs;
-#endif
 
         ConsensusExtFace::Transactions tmpOnlyRegularTxs;
 
@@ -197,7 +195,6 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
         }
         onlyRegularTxs = std::move(tmpOnlyRegularTxs);
 
-#ifdef BITE2
         // setup ctx txs - include some empty CTXs for coverage
         // Empty CTXs will be at positions: 0 (start), numTotalCTXTxs/2 (middle), numTotalCTXTxs-1 (end)
         // and every 10th transaction to ensure ~10% are empty CTXs
@@ -222,7 +219,6 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
             tmponlyCTXs.emplaceBackCTX( std::move(*signedTx) );
         }
         onlyCTXs = std::move(tmponlyCTXs);
-#endif
     });
 
     ConsensusExtFace::Transactions selectedTxs;
@@ -239,13 +235,11 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
     const size_t numRegularTxs = _limit - numCTXs;
     size_t ctxIdx = txIdxInPrecomputedBatchCTX;
 
-#ifdef BITE2
     // place all CTXs at the start
     for ( size_t i = 0; i < numCTXs; i++ ) {
         ctxIdx = (ctxIdx + 1) % numTotalCTXTxs;
         selectedTxs.emplaceBackCTX( onlyCTXs.at(ctxIdx) );
     }
-#endif
     ( void ) numTotalCTXTxs;
     txIdxInPrecomputedBatchCTX = ctxIdx;
 

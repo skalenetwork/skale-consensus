@@ -190,9 +190,7 @@ void Node::initLevelDBs() {
 #ifdef BITE
     string teDecryptionDBPrefix = "/te_decryptshares_" + to_string( nodeID ) + ".db";
 
-#ifdef BITE2
     string offchainBlockSigShareDBPrefix = "/block_sigshares_offchain_" + to_string( nodeID ) + ".db";
-#endif // BITE2
 
 #endif // BITE
 
@@ -236,11 +234,9 @@ void Node::initLevelDBs() {
     teDecryptionDB = make_shared< TEDecryptionDB >(
         getSchain(), dbDir, teDecryptionDBPrefix, getNodeID(), getTEDecryptionDBSize() );
 
-#ifdef BITE2
     offchainBlockSigShareDB = make_shared< BlockSigShareDB >(
         getSchain(), dbDir, offchainBlockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(), string( blockconsensus::REENCRYPTION_RANDOM_DOMAIN ) );
     
-#endif // BITE2
 #endif // BITE
 
 }
@@ -337,7 +333,7 @@ void Node::initParamsFromConfig() {
         patchTimestamps["verifyBlsSyncPatchTimestamp"] =
             getParamUint64( "verifyBlsSyncPatchTimestamp",
                 getExistingPatchTs( "verifyBlsSyncPatchTimestamp" ) );
-#ifdef BITE2
+#ifdef BITE
         auto bite2PatchTs =
             getParamUint64( "bite2PatchTimestamp",
                 getExistingPatchTs( "bite2PatchTimestamp" ) );
@@ -381,7 +377,7 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
             true );
         // now save the block into the blocks dd
         getBlockDB()->saveBlock( block );
-#ifdef BITE2
+#ifdef BITE
         auto reencryptionSignature = block->getReencryptionThresholdSig();
         if ( getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
             CHECK_STATE2( reencryptionSignature.has_value(),

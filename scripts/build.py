@@ -62,6 +62,7 @@ def main():
     parser = argparse.ArgumentParser(description="Example script for argument parsing")
     parser.add_argument("buildType", type=str, help="Build type (release, debug)")
     parser.add_argument("-buildFAIR", action = "store_true", help="Build FAIR")
+    parser.add_argument("-buildBITE", action = "store_true", help="Build BITE")
     args = parser.parse_args()
 
     os.chdir("..")
@@ -70,6 +71,8 @@ def main():
     print(f"BUILD_TYPE={buildType}")
     buildFAIR = args.buildFAIR
     print(f"buildFAIR={buildFAIR}")
+    buildBITE = args.buildBITE
+    print(f"buildBITE={buildBITE}")
 
     run("ccache -M 20G")
     run("mkdir -p build")
@@ -78,6 +81,8 @@ def main():
     command : str = f"cmake .. -DCMAKE_BUILD_TYPE={buildType} -DCOVERAGE=ON -DMICROPROFILE_ENABLED=0"
     if buildFAIR:
         command += " -DFAIR=1"
+    if buildBITE:
+        command += " -DBITE=1"
 
     run(command)
     run("make -j$(nproc)")

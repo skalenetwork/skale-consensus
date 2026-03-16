@@ -130,11 +130,9 @@ DecryptedAESKeys getDecryptedAESKeysForTransaction(
     std::vector<ptr<BiteCiphertext>> ciphertexts;
 
     // mimic engine: CAT first (if enabled), otherwise regular BITE1
-#ifdef BITE2
     if (auto ctxArgs = BiteEngine::tryGetEncryptedCTXArgs(tx, epoch)) {
         ciphertexts.insert(ciphertexts.end(), ctxArgs->begin(), ctxArgs->end());
     } else
-#endif
     if (auto regular = BiteEngine::tryGetEncryptedRegularTxFields(tx, epoch)) {
         ciphertexts.push_back(regular);
     }
@@ -326,9 +324,7 @@ CATCH_TEST_CASE("BiteEngine parses BITE txs and reports failures", "[bite][engin
     BiteRuntimeContext ctx{
         epoch, 
         nullptr
-#ifdef BITE2
         , true
-#endif
     };
 
     auto result = BiteEngine::parseAndCacheBITETransactions(txList, ctx);
@@ -353,9 +349,7 @@ CATCH_TEST_CASE("BiteEngine parse fails on epoch mismatch, when tx uses single c
     TransactionList txList(txVec);
 
     BiteRuntimeContext ctx{epochTx + 1, nullptr
-#ifdef BITE2
                           , true
-#endif
                           };
     auto result = BiteEngine::parseAndCacheBITETransactions(txList, ctx);
 
@@ -379,9 +373,7 @@ CATCH_TEST_CASE("BiteEngine ignores non-BITE transactions", "[bite][engine][pars
     TransactionList txList(txVec);
 
     BiteRuntimeContext ctx{0, nullptr
-#ifdef BITE2
                             , true
-#endif
                           };
     auto result = BiteEngine::parseAndCacheBITETransactions(txList, ctx);
 
@@ -471,8 +463,6 @@ CATCH_TEST_CASE("BiteEngine validateCiphertexts parse failure only", "[bite][eng
     CATCH_REQUIRE(result.publicDecryptionValues.empty());
 }
 
-#ifdef BITE2
-
 CATCH_TEST_CASE("BiteEngine validateCiphertexts single invalid ciphertext invalidates whole transaction", "[bite][engine][validate][invalid]") {
     BiteEngine engine = makeEngine(true);
     TransactionCiphertextsMap map;
@@ -507,7 +497,6 @@ CATCH_TEST_CASE("BiteEngine validateCiphertexts single invalid ciphertext invali
     // if at least 1 invalid - no public values returned
     CATCH_REQUIRE(result.publicDecryptionValues.empty()); 
 }
-#endif
 
 
 
@@ -541,9 +530,7 @@ CATCH_TEST_CASE("BiteEngine decrypts regular BITE transactions in parallel - sin
     aesKeys.addKeys(0, decryptedKeys);
 
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)
-#ifdef BITE2
                             , true
-#endif
                           };
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
@@ -594,9 +581,7 @@ CATCH_TEST_CASE("BiteEngine decrypts regular BITE transactions in parallel - mul
 
     TransactionList txList(txsVec);
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)
-#ifdef BITE2
                             , true
-#endif
                           };
     auto decrypted = engine.decryptTransactionsListInParallel(txList, decryptedKeysList, ctx);
 
@@ -643,9 +628,7 @@ CATCH_TEST_CASE("BiteEngine decrypts mixed BITE and plaintext transactions", "[b
     aesKeys.addKeys(0, getDecryptedAESKeysForTransaction(biteTx, keys, 1, 1, epoch));
 
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)
-#ifdef BITE2
                             , true
-#endif
                           };
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
@@ -655,7 +638,6 @@ CATCH_TEST_CASE("BiteEngine decrypts mixed BITE and plaintext transactions", "[b
     CATCH_REQUIRE(it != decrypted.regularTxsMap->end());
 }
 
-#ifdef BITE2
 CATCH_TEST_CASE("BiteEngine decrypts only CAT transactions", "[bite][engine][decrypt][cat]") {
     const uint64_t epoch = 9;
     BiteCore core;
@@ -728,9 +710,7 @@ CATCH_TEST_CASE("BiteEngine decrypts mixed CAT and BITE transactions", "[bite][e
     aesKeys.addKeys(1, getDecryptedAESKeysForTransaction(biteTx, keys, 1, 1, epoch));
 
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)
-#ifdef BITE2
                             , true
-#endif
                           };
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
@@ -775,9 +755,7 @@ CATCH_TEST_CASE("BiteEngine decrypts treats out of place CAT as regular tx", "[b
     aesKeys.addKeys(0, getDecryptedAESKeysForTransaction(biteTx, keys, 1, 1, epoch));
 
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)
-#ifdef BITE2
                             , true
-#endif
                           };
     auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
 
@@ -790,7 +768,6 @@ CATCH_TEST_CASE("BiteEngine decrypts treats out of place CAT as regular tx", "[b
     CATCH_REQUIRE(decrypted.regularTxsMap->count(0) == 1); // tx 0 decrypted
     CATCH_REQUIRE(decrypted.regularTxsMap->count(1) == 0); // tx 1 not decrypted - regular
 }
-#endif
 
 CATCH_TEST_CASE("BiteEngine decrypt regular tx missing AES keys throws", "[bite][engine][decrypt][error]") {
     const uint64_t epoch = 14;
@@ -813,14 +790,11 @@ CATCH_TEST_CASE("BiteEngine decrypt regular tx missing AES keys throws", "[bite]
     DecryptedAESKeyList aesKeys; // no keys
 
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2)
-#ifdef BITE2
                             , true
-#endif
                           };
     CATCH_REQUIRE_THROWS(engine.decryptTransactionsListInParallel(txList, aesKeys, ctx));
 }
 
-#ifdef BITE2
 CATCH_TEST_CASE("BiteEngine decrypt throws on CAT AES key count mismatch", "[bite][engine][decrypt][error][cat]") {
     const uint64_t epoch = 13;
     BiteCore core;
@@ -846,7 +820,6 @@ CATCH_TEST_CASE("BiteEngine decrypt throws on CAT AES key count mismatch", "[bit
     BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
     CATCH_REQUIRE_THROWS(engine.decryptTransactionsListInParallel(txList, aesKeys, ctx));
 }
-#endif
 
 CATCH_TEST_CASE("BiteEngine mergeAESKeys combines shares into AES keys (mock)", "[bite][engine][merge]") {
     const block_id blockId = 21;
@@ -905,7 +878,6 @@ CATCH_TEST_CASE("BiteEngine mergeAESKeys throws if not enough share sets", "[bit
     ));
 }
 
-#ifdef BITE2
 CATCH_TEST_CASE("BiteEngine mergeAESKeys handles CAT ciphertexts", "[bite][engine][merge][cat]") {
     const block_id blockId = 23;
     const size_t required = 2;
@@ -1232,7 +1204,5 @@ CATCH_TEST_CASE("BiteEngine tryGetEncryptedCTXArgs caches SC address as AAD", "[
     CATCH_REQUIRE(cachedScAddr != nullptr);
     CATCH_REQUIRE(std::vector<uint8_t>(cachedScAddr->begin(), cachedScAddr->end()) == scAddress);
 }
-
-#endif // BITE2
 
 #endif // BITE

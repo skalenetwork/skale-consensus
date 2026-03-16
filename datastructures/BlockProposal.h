@@ -54,7 +54,7 @@ class BiteCiphertext;
 #define SERIALIZE_AS_PROPOSAL 1
 
 #ifdef BITE
-#include "crypto/TransactionCiphertexts.h"
+#include "bite/crypto/TransactionCiphertexts.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 class AESKeyDecryptionShareList;
 class TransactionCiphertextsMap;

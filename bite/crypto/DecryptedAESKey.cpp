@@ -4,10 +4,10 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusInterface.h"
-#include "BLAKE3Hash.h"
+#include "crypto/BLAKE3Hash.h"
 #include "network/Utils.h"
-#include "EncryptedAESKey.h"
-#include "DecryptedAESKey.h"
+#include "crypto/EncryptedAESKey.h"
+#include "bite/crypto/DecryptedAESKey.h"
 
 DecryptedAESKey::~DecryptedAESKey() {}
 

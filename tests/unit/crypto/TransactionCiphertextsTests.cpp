@@ -2,7 +2,7 @@
 
 #ifdef BITE
 
-#include "crypto/TransactionCiphertexts.h"
+#include "bite/crypto/TransactionCiphertexts.h"
 #include "tests/unit/bite/BiteTestUtils.h"
 #include "libBLS/test/utils.h"
 

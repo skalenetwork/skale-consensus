@@ -25,12 +25,12 @@
 
 #include "messages/NetworkMessage.h"
 
-#ifdef BITE2
+#ifdef BITE
 class BlockConsensusAgent;
 #endif
 
 class BlockSignBroadcastMessage : public NetworkMessage {
-#ifdef BITE2
+#ifdef BITE
     friend class BlockConsensusAgent;
 protected:
     string reencryptionSigShareString;
@@ -52,7 +52,7 @@ public:
         schain_index _blockProposerIndex, uint64_t _time, schain_id _schainId, msg_id _msgID,
         const string& _sigShare, schain_index _srcSchainIndex, const string& _ecdsaSig,
         const string& _pubKey, const string& _pkSig, Schain* _sChain
-#ifdef BITE2
+#ifdef BITE
         , const string& _reencryptionSigShare = ""
 #endif
         );
@@ -61,7 +61,7 @@ public:
 
     virtual bin_consensus_value getValue() const override;
 
-#ifdef BITE2
+#ifdef BITE
     ptr< ThresholdSigShare > getReencryptionSigShare() const;
 
 protected:

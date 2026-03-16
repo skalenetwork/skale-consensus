@@ -20,7 +20,7 @@
     @date 2026
 */
 
-#ifdef BITE2
+#ifdef BITE
 
 #include "thirdparty/catch.hpp"
 #include "Consensust.h"
@@ -195,4 +195,4 @@ CATCH_TEST_CASE(
 
 } // namespace RandomTests
 
-#endif  // BITE2
+#endif  // BITE

@@ -186,7 +186,6 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         auto biteManager = sChain->getBiteManager();
         auto currentEpoch = sChain->getNode()->getCurrentEpochId();
         try {
-#ifdef BITE2
             if (transactions.isCTX(i)) {
                 auto ctxArgs = BiteEngine::tryGetEncryptedCTXArgs(pt, currentEpoch);
                 if (!ctxArgs) {
@@ -195,7 +194,6 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
                 }
             }
             else
-#endif
             {
                 // only used for validation purposes
                 // If BITE2, only do this validation for non-CTXs

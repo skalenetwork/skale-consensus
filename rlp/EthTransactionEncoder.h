@@ -31,7 +31,7 @@ public:
      */
     static void encryptRegularTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager);
 
-#ifdef BITE2
+#ifdef BITE
 
     static void encryptCTXTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager);
 

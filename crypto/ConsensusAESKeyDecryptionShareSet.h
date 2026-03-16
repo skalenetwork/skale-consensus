@@ -1,15 +1,12 @@
 #pragma once
 
-#include "DecryptedAESKey.h"
 #include "AESKeyDecryptionShareSet.h"
-
+#include "bite/crypto/DecryptedAESKey.h"
+#include "crypto/EncryptedAESKey.h"
 
 class PartialHashesList;
 class Schain;
 class BLAKE3Hash;
-
-#include "crypto/DecryptedAESKey.h"
-#include "crypto/EncryptedAESKey.h"
 #include "crypto/AESKeyDecryptionShare.h"
 
 /**

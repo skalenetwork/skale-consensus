@@ -3,7 +3,9 @@
 
     #include "bls_include.h"
     #include "MockupAESKeyDecryptionShare.h"
-    #include "DecryptedAESKey.h"
+    #ifdef BITE
+    #include "bite/crypto/DecryptedAESKey.h"
+    #endif
     #include "MockupAESKeyDecryptionShareSet.h"
 
     #include <network/Utils.h>
@@ -27,6 +29,7 @@
         totalObjects--;
     }
 
+#ifdef BITE
     ptr< DecryptedAESKeys > MockupAESKeyDecryptionShareSet::verifyAndMergeAESKeys(EncryptedAESKeys& _encryptedAESKeys) {
         READ_LOCK( decryptionSharesLock )
         CHECK_STATE(decryptionShares.size() >= requiredDecryptors);
@@ -58,6 +61,7 @@
 
         return decryptedKeys;
     }
+#endif // BITE
 
     bool MockupAESKeyDecryptionShareSet::isEnough() {
         READ_LOCK( decryptionSharesLock )

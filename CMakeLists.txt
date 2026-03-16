@@ -1,24 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 
-if (BITE)
-    set(BITE "1")
-    add_definitions(-DBITE)
-endif ()
-
-if (BITE2)
-    set(BITE2 "1")
-    add_definitions(-DBITE2)
-    set(BITE "1")
-    add_definitions(-DBITE)
-endif ()
-
 if (FAIR)
     set(FAIR "1")
     add_definitions(-DFAIR)
     set(BITE "1")
+endif ()
+
+if (BITE)
+    set(BITE "1")
     add_definitions(-DBITE)
-    set(BITE2 "1")
-    add_definitions(-DBITE2)
 endif ()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -152,6 +142,7 @@ AUX_SOURCE_DIRECTORY(db db_src)
 if (DEFINED BITE)
     AUX_SOURCE_DIRECTORY(flatb flatb_src)
     AUX_SOURCE_DIRECTORY(bite bite_src)
+    AUX_SOURCE_DIRECTORY(bite/crypto bite_crypto_src)
     AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
     AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
     AUX_SOURCE_DIRECTORY(rlp rlp_src)
@@ -198,6 +189,7 @@ SET(SRC_FILES
         ${db_src}
         ${flatb_src}
         ${bite_src}
+        ${bite_crypto_src}
         ${bite_server_src}
         ${bite_client_src}
         ${headers_src}

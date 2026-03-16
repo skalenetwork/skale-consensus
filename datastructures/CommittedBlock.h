@@ -45,7 +45,7 @@ class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
 
-#ifdef BITE2
+#ifdef BITE
     // only available after bite2 patch
     std::optional<string> reencryptionThresholdSig;
 #endif
@@ -59,11 +59,9 @@ public:
     DecryptedTransactions getDecryptedTransactions() const;
     [[nodiscard]] ptr< DecryptedRegularTxsMap > getDecryptedRegularTxFields() const;
 
-#ifdef BITE2
     [[nodiscard]] ptr< DecryptedCTXTxsMap > getDecryptedCTXArgs() const;
 
     std::optional<string> getReencryptionThresholdSig() const;
-#endif
 
 #endif
 
@@ -90,7 +88,7 @@ protected:
         const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& _stateRoot, uint64_t _timeStamp,
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
-#ifdef BITE2
+#ifdef BITE
         std::optional<string> _reencryptionThresholdSig,
 #endif
         const string& _daSig
@@ -110,7 +108,7 @@ public:
 
     static ptr< CommittedBlock > makeFromProposal( const ptr< BlockProposal >& _proposal,
         const ptr< ThresholdSignature >& _thresholdSig, 
-#ifdef BITE2
+#ifdef BITE
         const ptr< ThresholdSignature >& _reencryptionThresholdSig,
 #endif
         ptr< ThresholdSignature > _daSig
@@ -127,7 +125,7 @@ public:
         schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
         const string& _signature, const string& _thresholdSig, 
-#ifdef BITE2
+#ifdef BITE
         std::optional<string> _reencryptionThresholdSig, // may be empty
 #endif
         const string& _daSig

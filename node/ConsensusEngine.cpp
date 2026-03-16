@@ -928,7 +928,7 @@ u256 ConsensusEngine::getRandomForBlockId( uint64_t _blockId ) const {
     return 0;  // make compiler happy
 }
 
-#ifdef BITE2
+#ifdef BITE
 
 u256 ConsensusEngine::getReencryptionRandomForBlockId( uint64_t _blockId ) const {
     CHECK_STATE( nodes.size() > 0 );
@@ -1184,7 +1184,7 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     auto stateRoot = committedBlock->getStateRoot();
     auto currentPrice = schain->getPriceForBlockId( ( uint64_t ) committedBlock->getBlockID() - 1 );
     auto tv = committedBlock->getTransactionList()->createTransactionVector( 
-#ifdef BITE2
+#ifdef BITE
         schain->getBiteManager()
 #endif 
     );

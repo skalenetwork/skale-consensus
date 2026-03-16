@@ -33,7 +33,7 @@
 #include "ListOfHashes.h"
 #include "node/ConsensusEngine.h"
 
-#ifdef BITE2
+#ifdef BITE
 #include "bite/BiteManager.h"
 #endif
 
@@ -74,7 +74,7 @@ public:
      * If none is passed, all transactions are considered regular.
      */
     ptr< ConsensusExtFace::Transactions > createTransactionVector(
-#ifdef BITE2
+#ifdef BITE
         ptr< BiteManager> biteManager = nullptr
 #endif
     );

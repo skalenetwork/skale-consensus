@@ -148,18 +148,14 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
         BiteAESKeySerializer::deserialize(fbAesKeys, *decryptedAesKeyList);
     }
 
-#ifdef BITE2
     // Committed block format is self-describing for BITE2:
     // reencryption signature is present only for BITE2-format committed blocks.
     // FOr such block to have been comitted, it must have been after bite2PatchTimestamp condition
     bool isBite2PatchEnabledForBlock = blockHeader->getReencryptionThresholdSig().has_value();
-#endif
 
     auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(
         *transactionList, *decryptedAesKeyList, blockHeader->getEpochID()
-#ifdef BITE2
-        , isBite2PatchEnabledForBlock 
-#endif
+        , isBite2PatchEnabledForBlock
     );
     
     ptr<CommittedBlock> block = nullptr;
@@ -167,21 +163,15 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
     try {
         block = CommittedBlock::make(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                      blockHeader->getBlockID(),
-#ifdef BITE
                                      blockHeader->getEpochID(),
-#endif
 
                                      blockHeader->getProposerIndex(), transactionList,
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
-#ifdef BITE2
                                      blockHeader->getReencryptionThresholdSig(),
-#endif
                                      blockHeader->getDaSig()
-#ifdef BITE
                                      , decryptedAesKeyList, decryptedTransactionDataFields
-#endif
         );
     } catch (...) {
         throw_with_nested(InvalidStateException("Could not make block", __CLASS_NAME__));

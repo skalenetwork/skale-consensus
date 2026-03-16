@@ -64,14 +64,12 @@ class Transaction : public DataStructure {
     // Stores parsed BITE ciphertext for regular transactions
     ptr<BiteCiphertext> parsedEncryptedRegularTx = nullptr;
     
-#ifdef BITE2
     // Stores a list of encrypted arguments from CAT transaction
     ptr<std::vector<ptr<BiteCiphertext>>> parsedEncryptedCATArgs = nullptr;
 
     // stores the 'to' field of the CTX transaction as AAD for TE
     // using ptr to allow atomic store/load
     ptr<AddressBytes> scAddressAadTE;
-#endif
 
 #endif
 public:
@@ -112,14 +110,12 @@ public:
     ptr<BiteCiphertext> getRegularTxEncryptedData();
     void setRegularTxEncryptedData( ptr<BiteCiphertext> _biteDataField );
 
-#ifdef BITE2
     // Allows caching parsed encrypted CAT transaction arguments
     ptr<std::vector<ptr<BiteCiphertext>>> getCTXEncryptedArgs();
     void setCTXEncryptedArgs( ptr<std::vector<ptr<BiteCiphertext>>> _biteDataField );
 
     void setScAddressAadTE( const AddressBytes& _scAddressAadTE );
     ptr<AddressBytes> getScAddressAadTE();
-#endif
 
     ptr<vector<uint8_t>> emplaceAndReencodeTransaction(vector<uint8_t>& _originalDataField );
 #endif

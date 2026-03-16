@@ -57,9 +57,7 @@ CATCH_TEST_CASE( "BiteCommittedBlockSerializer serialize and deserialize", "[bit
 
     auto block = CommittedBlock::make( schainID, proposerNodeID, blockID, epochID, proposerIndex,
         txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig,
-#ifdef BITE2
         std::nullopt,
-#endif
         daSig, aesKeys,
         DecryptedTransactions()
     );
@@ -175,9 +173,7 @@ CATCH_TEST_CASE(
 
     auto block = CommittedBlock::make( schainID, proposerNodeID, blockID, epochID, proposerIndex,
         txList, stateRoot, timeStamp, timeStampMs, signature, thresholdSig,
-#ifdef BITE2
         std::nullopt,
-#endif
         daSig, aesKeys,
         DecryptedTransactions()
     );
@@ -210,7 +206,6 @@ CATCH_TEST_CASE(
     CATCH_REQUIRE( *reserialized == *serialized );
 }
 
-#ifdef BITE2
 CATCH_TEST_CASE(
     "BiteCommittedBlockSerializer with reencryption threshold signature", "[bite][serializer][committed][bite2]" ) {
     ConsensusEngine engine( 0, 100000000 );
@@ -346,6 +341,5 @@ CATCH_TEST_CASE(
     auto reserialized = deserialized->serialize();
     CATCH_REQUIRE( *reserialized == *serialized );
 }
-#endif
 
 #endif
