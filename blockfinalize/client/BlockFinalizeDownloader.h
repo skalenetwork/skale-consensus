@@ -35,11 +35,26 @@ class BlockProposal;
 class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
 class ThresholdSignature;
+class Header;
 
 #include <folly/synchronization/Baton.h>
 #include <folly/SharedMutex.h>
 #include "datastructures/BlockProposalFragmentList.h"
 
+/**
+ * Client-side BlockFinalize recovery agent.
+ *
+ * Schain creates this after a block has already been decided and signed, but the local node still
+ * lacks some data required to finalize it locally. The downloader contacts peer nodes and fetches:
+ * - missing proposal fragments
+ * - the DA proof signature, when needed
+ * - under BITE, missing decryption shares from other nodes
+ *
+ * Transport behavior:
+ * - prefer the new persistent ZMQ bulk-data lane
+ * - fall back to the legacy per-request TCP CATCHUP path for older or unavailable peers
+ * - cache that fallback decision per peer for a short cooldown period
+ */
 class BlockFinalizeDownloader : public Agent {
     block_id blockId = 0;
 
@@ -56,6 +71,12 @@ private:
     ptr< ThresholdSignature > daSig = nullptr;
 
     recursive_mutex m;
+
+    // Track which nodes are using old TCP interface.
+    // We keep a timestamp until which we should keep using TCP (even if ZMQ is available) 
+    // for each node that we know is using TCP fallback, to avoid repeatedly trying ZMQ for nodes that don't support it.
+    // Eventually all nodes will move to ZMQ, and this map will become mostly unused.
+    map< schain_index, uint64_t > tcpFallbackUntilMs;
 
     std::atomic<uint64_t> fragmentDownloadCounter = 0;
 
@@ -96,8 +117,52 @@ public:
 
     nlohmann::json readBlockFinalizeResponseHeader( const ptr< ClientSocket >& _socket );
 
+    /**
+     * Downloads block fragment from '_dstIndex' node using TCP connection. 
+     * This is the old interface, used only as a fallback when ZMQ download fails, 
+     * and is marked in local cache to keep using TCP for this node for some time in the future.
+     */
+    void downloadFragmentTCP( schain_index _dstIndex, fragment_index _fragmentIndex,
+        const ptr< Header >& _header );
 
-    ptr< BlockProposalFragment > readBlockFragment( const ptr< ClientSocket >& _socket,
+    /**
+     * Downloads block fragment from '_dstIndex' node using ZMQ connection.
+     * This is the new interface, preferred over TCP, and should be used in newer nodes (that 
+     * execute current codebase)
+     */
+    void downloadFragmentZMQ( schain_index _dstIndex, fragment_index _fragmentIndex,
+        const ptr< Header >& _header );
+
+    /**
+     * Check local cache if '_dstIndex' node was using TCP
+     * recently. If so, it should be marked to keep TCP fallback.
+     * Else, returns false, meaning we can try ZMQ for this node.
+     */
+    bool shouldUseTCPFallback( schain_index _dstIndex );
+
+    /**
+     * Mark '_dstIndex' node to use TCP fallback for some time in the future, 
+     * based on current time + configured wait time after network error.
+     */
+    void markTCPFallback( schain_index _dstIndex );
+
+    /**
+     * Clears TCP fallback mark for '_dstIndex' node, 
+     * allowing to try ZMQ for this node again.
+     */
+    void clearTCPFallback( schain_index _dstIndex );
+
+    ptr< vector< uint8_t > > readSerializedBlockFragment(
+        const ptr< ClientSocket >& _socket, nlohmann::json _responseHeader );
+
+    void validateBlockFinalizeResponse(
+        nlohmann::json _responseHeader, schain_index _dstIndex, fragment_index _fragmentIndex );
+
+    void processBlockFinalizePayload( schain_index _dstIndex, fragment_index _fragmentIndex,
+        nlohmann::json _responseHeader, const ptr< vector< uint8_t > >& _serializedFragment );
+
+
+    ptr< BlockProposalFragment > readBlockFragment( const ptr< vector< uint8_t > >& _serializedFragment,
         nlohmann::json responseHeader, fragment_index _fragmentIndex, node_count _nodeCount
 #ifdef BITE
         , schain_index _proposerIndex
@@ -127,6 +192,12 @@ public:
 
     bool needDAProof();
 #ifdef BITE
+    /**
+     * Checks if we have enough shares from other nodes.
+     * If we do, we don't need this node's shares - return false.
+     * Else, check if we have enough shares from '_decryptorIndex' node.
+     * If not, return true.
+     */
     bool needDecryptionShares(schain_index _decryptorIndex);
 #endif
 
