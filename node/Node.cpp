@@ -718,8 +718,13 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
     CONS_LOG( info, "consensus engine exiting: catchup socket touched" );
 
-    if ( isSyncOnlyNode() )
+    if ( isSyncOnlyNode() ) {
+        if ( sockets ) {
+            sockets->getConsensusZMQSockets()->closeAndCleanupAll();
+            sockets->getBulkDataZMQSockets()->closeAndCleanupAll();
+        }
         return;
+    }
 
     if ( sockets && sockets->blockProposalSocket ) {
         sockets->blockProposalSocket->touch();
@@ -732,6 +737,8 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     if ( sockets ) {
         sockets->getConsensusZMQSockets()->closeAndCleanupAll();
         CONS_LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
+        sockets->getBulkDataZMQSockets()->closeAndCleanupAll();
+        CONS_LOG( info, "consensus engine exiting: bulk-data ZMQ sockets closeAndCleanupAll called" );
     }
 
 #ifdef BITE

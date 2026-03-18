@@ -250,10 +250,11 @@ enum port_type {
     BINARY_CONSENSUS = 4,
     ZMQ_BROADCAST = 5,
     MTA = 6,
-    STATUS = 10
+    STATUS = 10,
 #ifdef BITE
-    , BITE_SERVER = 11
-#endif
+    BITE_SERVER = 11,
+#endif  
+    BULK_DATA_ZMQ = 12
 };
 
 

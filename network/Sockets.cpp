@@ -40,6 +40,7 @@ void Sockets::initSockets( const string& _bindIP, uint16_t _basePort ) {
     CONS_LOG( debug, "Initing network processing\n" );
 
     consensusZMQSockets = make_shared< ZMQSockets >( _bindIP, _basePort, BINARY_CONSENSUS );
+    bulkDataZMQSockets = make_shared< ZMQSockets >( _bindIP, _basePort, BULK_DATA_ZMQ );
     blockProposalSocket = make_shared< TCPServerSocket >( _bindIP, _basePort, PROPOSAL );
     catchupSocket = make_shared< TCPServerSocket >( _bindIP, _basePort, CATCHUP );
 }
@@ -71,4 +72,9 @@ Node& Sockets::getNode() const {
 ptr< ZMQSockets > Sockets::getConsensusZMQSockets() const {
     CHECK_STATE( consensusZMQSockets );
     return consensusZMQSockets;
+}
+
+ptr< ZMQSockets > Sockets::getBulkDataZMQSockets() const {
+    CHECK_STATE( bulkDataZMQSockets );
+    return bulkDataZMQSockets;
 }

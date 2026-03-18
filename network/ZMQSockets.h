@@ -30,6 +30,11 @@ class ZMQSockets : public ServerSocket {
     atomic< bool > closeSendCalled = false;
     atomic< bool > closeReceiveCalled = false;
     void* context = nullptr;
+
+    // port type to allow differentiating between different ZMQ socket sets 
+    // (e.g. consensus vs bulk data)
+    port_type portType;
+    
     map< schain_index, void* > sendSockets;
     void* receiveSocket = nullptr;
     void closeSend();
@@ -39,6 +44,7 @@ public:
     ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _portType );
     void* getReceiveSocket();
     void* getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo );
+    void closeDestinationSocket( schain_index _schainIndex );
     void closeAndCleanupAll();
     virtual ~ZMQSockets();
 };

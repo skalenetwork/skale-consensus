@@ -32,7 +32,7 @@
 #include "zmq.h"
 
 ZMQSockets::ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _portType )
-    : ServerSocket( _bindIP, _basePort, _portType ) {
+    : ServerSocket( _bindIP, _basePort, _portType ), portType( _portType ) {
     CHECK_ARGUMENT( !_bindIP.empty() )
     context = zmq_ctx_new();
 }
@@ -80,8 +80,8 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
     zmq_setsockopt( requester, ZMQ_LINGER, &linger, sizeof( int ) );
 
 
-    int result = zmq_connect( requester,
-        ( "tcp://" + ipAddress + ":" + to_string( basePort + BINARY_CONSENSUS ) ).c_str() );
+    int result = zmq_connect(
+        requester, ( "tcp://" + ipAddress + ":" + to_string( basePort + portType ) ).c_str() );
     CONS_LOG( debug, "Connected ZMQ socket" << to_string( result ) );
     sendSockets[schainIndex] = requester;
 
@@ -164,6 +164,22 @@ void ZMQSockets::closeSend() {
                 CONS_LOG( err, "zmq_close returned an error on sendSocket;" );
             }
         }
+    }
+    sendSockets.clear();
+}
+
+void ZMQSockets::closeDestinationSocket( schain_index _schainIndex ) {
+    LOCK( m );
+
+    if ( sendSockets.count( _schainIndex ) == 0 ) {
+        return;
+    }
+
+    auto socket = sendSockets.at( _schainIndex );
+    sendSockets.erase( _schainIndex );
+
+    if ( socket && zmq_close( socket ) != 0 ) {
+        CONS_LOG( err, "zmq_close returned an error on peer sendSocket;" );
     }
 }
 

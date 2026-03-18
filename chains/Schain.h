@@ -54,6 +54,7 @@ class BlockProposalPusherThreadPool;
 
 class BlockFinalizeDownloader;
 class BlockFinalizeDownloaderThreadPool;
+class BlockFinalizeZmqServerAgent;
 
 
 class SchainMessageThreadPool;
@@ -135,8 +136,12 @@ class Schain : public Agent {
 
     ptr< BlockProposalServerAgent > blockProposalServerAgent;
 
+    // Includes both Catchup & BlockFinalize server agents. Uses TCP
     ptr<  CatchupServerAgent > catchupServerAgent;
-
+    // Block Finalize Client. Supports both TCP & ZMQ
+    ptr<BlockFinalizeDownloader> downloaderAgent;
+    // Block Finalize ZMQ Server. Only supports ZMQ
+    ptr<BlockFinalizeZmqServerAgent> blockFinalizeZmqServerAgent;
 
     ptr< MonitoringAgent > monitoringAgent;
 
@@ -147,7 +152,6 @@ class Schain : public Agent {
     ptr< PendingTransactionsAgent > pendingTransactionsAgent;
 
     ptr< BlockProposalClientAgent > blockProposalClient;
-
     ptr< CatchupClientAgent > catchupClientAgent;
 
     ptr< PricingAgent > pricingAgent;
@@ -159,8 +163,6 @@ class Schain : public Agent {
 #endif
 
     ptr<OptimizerAgent> optimizerAgent;
-
-    ptr<BlockFinalizeDownloader> downloaderAgent;
 
     ptr< IO > io;
 
