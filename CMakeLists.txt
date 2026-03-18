@@ -339,15 +339,16 @@ file(GLOB_RECURSE COMMON_TEST_SOURCES
         "tests/unit/db/*.cpp"
         "tests/consensus_tests.cpp"
         "tests/sgx_tests.cpp"
+        "tests/e2e/RestartBootstrapTests.cpp"
 )
 
 set(TEST_SOURCES ${COMMON_TEST_SOURCES})
 
 # Conditionally add rlp test sources if BITE is enabled
 if (DEFINED BITE)
-    file(GLOB_RECURSE BITE_TEST_SOURCES 
-        "tests/unit/bite/*.cpp"
-        "tests/e2e/ReencryptionRandomConsensusTests.cpp"
+    file(GLOB_RECURSE BITE_TEST_SOURCES "tests/unit/bite/*.cpp")
+    list(APPEND BITE_TEST_SOURCES
+        "tests/e2e/bite/ReencryptionRandomConsensusTests.cpp"
     )
     list(APPEND TEST_SOURCES ${BITE_TEST_SOURCES} libBLS/test/utils.cpp)
 
