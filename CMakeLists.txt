@@ -346,9 +346,9 @@ set(TEST_SOURCES ${COMMON_TEST_SOURCES})
 
 # Conditionally add rlp test sources if BITE is enabled
 if (DEFINED BITE)
-    file(GLOB_RECURSE BITE_TEST_SOURCES "tests/unit/bite/*.cpp")
-    list(APPEND BITE_TEST_SOURCES
-        "tests/e2e/bite/ReencryptionRandomConsensusTests.cpp"
+    file(GLOB_RECURSE BITE_TEST_SOURCES 
+        "tests/unit/bite/*.cpp"
+        "tests/e2e/bite/*.cpp"
     )
     list(APPEND TEST_SOURCES ${BITE_TEST_SOURCES} libBLS/test/utils.cpp)
 
