@@ -1273,7 +1273,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
             try {
                 bool isBite2PatchEnabledForBlock = false;
 #ifdef BITE
-                isBite2PatchEnabledForBlock = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
+                isBite2PatchEnabledForBlock = bite2Patch( _lastCommittedBlockTimeStamp );
 #endif
                 auto block = getNode()->getBlockDB()->getBlock(
                     _lastCommittedBlockID + 1, getCryptoManager() );
