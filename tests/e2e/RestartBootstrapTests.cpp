@@ -44,6 +44,7 @@ static constexpr uint64_t SNAPSHOT_WAIT_TIMEOUT_MS = 20000;
 static constexpr uint64_t SNAPSHOT_POLL_INTERVAL_MS = 250;
 static constexpr uint64_t POST_PATCH_SETTLE_MS = 1500;
 static constexpr uint64_t REPLAY_WAIT_TIMEOUT_MS = 10000;
+static constexpr uint64_t MAX_PRE_RESTART_BLOCKS = 100;
 
 struct BlockSnapshot {
     uint64_t blockId = 0;
@@ -179,6 +180,12 @@ std::vector< BlockSnapshot > waitForCommittedSnapshots(
     while ( Time::getCurrentTimeMs() < deadlineMs ) {
         auto lastId = (uint64_t) _engine.getLargestCommittedBlockIDInDb();
         auto elapsedMs = Time::getCurrentTimeMs() - startTimeMs;
+
+        // set max limit of blocks - consensus limits max skaled-consensus delay to be 
+        // 128 blocks
+        if ( lastId >= MAX_PRE_RESTART_BLOCKS ) {
+            return buildSnapshots( _engine, MAX_PRE_RESTART_BLOCKS );
+        }
 
         // if passed minimum wait time
         if ( elapsedMs >= _minWaitMs && lastId > 0 ) {
