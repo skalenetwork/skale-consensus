@@ -153,6 +153,6 @@ unitTest(
 )
 
 
-# fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")
-# fullConsensusTest("twonodes", consensustExecutive, "[consensus-basic]")
-# fullConsensusTest("fournodes", consensustExecutive, "[consensus-basic]")
+fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")
+fullConsensusTest("twonodes", consensustExecutive, "[consensus-basic]")
+fullConsensusTest("fournodes", consensustExecutive, "[consensus-basic]")
