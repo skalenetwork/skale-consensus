@@ -152,6 +152,12 @@ unitTest(
     "End-to-end db tests",
 )
 
+unitTest(
+    consensustExecutive,
+    "[blockfinalize-transport]",
+    "Blockfinalize backward compatibility tests",
+)
+
 
 fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("twonodes", consensustExecutive, "[consensus-basic]")

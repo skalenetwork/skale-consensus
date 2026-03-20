@@ -1,0 +1,11 @@
+{
+  "nodeName": "Node2",
+  "nodeID": 2,
+  "bindIP": "127.0.0.1",
+  "basePort": 2231,
+  "logLevel": "info",
+  "simulateNetworkWriteDelayMs": 100,
+  "testBlockFinalizeZmqClientEnabled": true,
+  "testBlockFinalizeZmqServerEnabled": true,
+  "testBlockFinalizeTransportStatsEnabled": true
+}

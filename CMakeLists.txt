@@ -341,6 +341,7 @@ file(GLOB_RECURSE COMMON_TEST_SOURCES
         "tests/unit/db/*.cpp"
         "tests/consensus_tests.cpp"
         "tests/sgx_tests.cpp"
+        "tests/e2e/BlockFinalizeTransportCompatTests.cpp"
         "tests/e2e/RestartBootstrapTests.cpp"
 )
 
