@@ -23,12 +23,19 @@
 #ifndef SKALED_TESTCONFIG_H
 #define SKALED_TESTCONFIG_H
 
+#include "thirdparty/json.hpp"
 
 class TestConfig {
     bool finalizationDownloadOnly = false;
+    bool blockFinalizeZmqClientEnabled = true;
+    bool blockFinalizeZmqServerEnabled = true;
+    bool blockFinalizeTransportStatsEnabled = false;
 
 public:
     bool isFinalizationDownloadOnly() const;
+    bool isBlockFinalizeZmqClientEnabled() const;
+    bool isBlockFinalizeZmqServerEnabled() const;
+    bool isBlockFinalizeTransportStatsEnabled() const;
 
     TestConfig( nlohmann::json cgf );
 };

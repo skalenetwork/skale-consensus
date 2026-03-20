@@ -106,6 +106,14 @@ class CPUThreadPoolExecutor;
 }
 #endif
 
+struct BlockFinalizeTransportStats {
+    uint64_t zmqClientAttempts = 0;
+    uint64_t zmqClientFallbacksToTcp = 0;
+    uint64_t tcpClientRequests = 0;
+    uint64_t zmqServerRequestsServed = 0;
+    uint64_t tcpServerRequestsServed = 0;
+};
+
 class Schain : public Agent {
     queue< ptr< MessageEnvelope > > messageQueue;
 
@@ -212,6 +220,13 @@ class Schain : public Agent {
     atomic< bool > isStateInitialized = false;
 
     ptr< NodeInfo > thisNodeInfo = nullptr;
+
+    // blockFinalize metrics
+    atomic< uint64_t > blockFinalizeZmqClientAttempts = 0;
+    atomic< uint64_t > blockFinalizeZmqClientFallbacksToTcp = 0;
+    atomic< uint64_t > blockFinalizeTcpClientRequests = 0;
+    atomic< uint64_t > blockFinalizeZmqServerRequestsServed = 0;
+    atomic< uint64_t > blockFinalizeTcpServerRequestsServed = 0;
 
     uint64_t verifyDaSigsPatchTimestamp = 0;
     uint64_t fastConsensusPatchTimestamp = 0;
@@ -514,6 +529,13 @@ public:
     const ptr<CatchupClientAgent> &getCatchupClientAgent() const;
 
     ptr< OptimizerAgent > getOptimizerAgent() const;
+
+    void noteBlockFinalizeZmqClientAttempt();
+    void noteBlockFinalizeZmqClientFallbackToTcp();
+    void noteBlockFinalizeTcpClientRequest();
+    void noteBlockFinalizeZmqServerRequestServed();
+    void noteBlockFinalizeTcpServerRequestServed();
+    BlockFinalizeTransportStats getBlockFinalizeTransportStats() const;
 
     bool fastConsensusPatchEnabled( uint64_t _blockTimeStampSec );
 

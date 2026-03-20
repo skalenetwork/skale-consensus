@@ -191,6 +191,8 @@ void BlockFinalizeDownloader::processBlockFinalizePayload( schain_index _dstInde
     if ( !needFragmentData ) {
         return;
     }
+#else
+    (void) _dstIndex;  // unused parameter
 #endif
 
     fragmentList.addFragment( blockFragment );
@@ -198,6 +200,7 @@ void BlockFinalizeDownloader::processBlockFinalizePayload( schain_index _dstInde
 
 void BlockFinalizeDownloader::downloadFragmentTCP( schain_index _dstIndex,
     fragment_index _fragmentIndex, const ptr< Header >& _header ) {
+    getSchain()->noteBlockFinalizeTcpClientRequest();
     
     // create brand new socket - includes 3-way handshake
     auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
@@ -240,6 +243,7 @@ void BlockFinalizeDownloader::downloadFragmentTCP( schain_index _dstIndex,
 
 void BlockFinalizeDownloader::downloadFragmentZMQ( schain_index _dstIndex,
     fragment_index _fragmentIndex, const ptr< Header >& _header ) {
+    getSchain()->noteBlockFinalizeZmqClientAttempt();
     auto nodeInfo = getNode()->getNodeInfoByIndex( _dstIndex );
     CHECK_STATE( nodeInfo );
 
@@ -299,6 +303,12 @@ void BlockFinalizeDownloader::downloadFragment(
             "Dead node:" + to_string( _dstIndex ), 5, __CLASS_NAME__ ));
     }
 
+    // If ZMQ disabled - try TCP right away
+    if ( !getNode()->getTestConfig()->isBlockFinalizeZmqClientEnabled() ) {
+        downloadFragmentTCP( _dstIndex, _fragmentIndex, header );
+        return;
+    }
+
     // If this node is marked as TCP fallback in local cache, use TCP to download fragment, 
     // and do not try ZMQ for this node, to avoid repeated network errors and retries.
     if ( shouldUseTCPFallback( _dstIndex ) ) {
@@ -318,6 +328,7 @@ void BlockFinalizeDownloader::downloadFragment(
     } catch ( ... ) {
         // peer is not usable via ZMQ, mark it as TCP fallback and retry using TCP
         getNode()->getSockets()->getBulkDataZMQSockets()->closeDestinationSocket( _dstIndex );
+        getSchain()->noteBlockFinalizeZmqClientFallbackToTcp();
         markTCPFallback( _dstIndex );
     }
 

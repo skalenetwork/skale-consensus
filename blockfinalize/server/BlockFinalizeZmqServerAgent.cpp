@@ -100,6 +100,7 @@ void BlockFinalizeZmqServerAgent::processNextRequest( void* _socket ) {
                 "Unknown bulk-data request type:" + type, __CLASS_NAME__ ) );
         }
 
+        getSchain()->noteBlockFinalizeZmqServerRequestServed();
         auto request = BlockFinalizeResponder::parseRequest( jsonRequest );
         MONITOR( "BlockFinalizeResponder", __FUNCTION__ );
         serializedBinary = blockFinalizeResponder->createResponse( request, responseHeader );

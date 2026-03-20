@@ -205,6 +205,7 @@ ptr<vector<uint8_t> > CatchupServerAgent::createResponseHeaderAndBinary(
                                                           dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader),
                                                           blockID);
         } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+            getSchain()->noteBlockFinalizeTcpServerRequestServed();
             auto request = BlockFinalizeResponder::parseRequest(_jsonRequest);
             request.blockID = blockID;
             request.nodeID = nodeID;
