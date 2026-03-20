@@ -112,6 +112,19 @@ struct BlockFinalizeTransportStats {
     uint64_t tcpClientRequests = 0;
     uint64_t zmqServerRequestsServed = 0;
     uint64_t tcpServerRequestsServed = 0;
+
+    void add( const BlockFinalizeTransportStats& _other ) {
+        zmqClientAttempts += _other.zmqClientAttempts;
+        zmqClientFallbacksToTcp += _other.zmqClientFallbacksToTcp;
+        tcpClientRequests += _other.tcpClientRequests;
+        zmqServerRequestsServed += _other.zmqServerRequestsServed;
+        tcpServerRequestsServed += _other.tcpServerRequestsServed;
+    }
+
+    uint64_t totalRequests() const {
+        return zmqClientAttempts + zmqClientFallbacksToTcp + tcpClientRequests +
+            zmqServerRequestsServed + tcpServerRequestsServed;
+    }
 };
 
 class Schain : public Agent {
