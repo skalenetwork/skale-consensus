@@ -1273,7 +1273,7 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
             try {
                 bool isBite2PatchEnabledForBlock = false;
 #ifdef BITE
-                isBite2PatchEnabledForBlock = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
+                isBite2PatchEnabledForBlock = bite2Patch( _lastCommittedBlockTimeStamp );
 #endif
                 auto block = getNode()->getBlockDB()->getBlock(
                     _lastCommittedBlockID + 1, getCryptoManager() );
@@ -1303,9 +1303,20 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
                 _lastCommittedBlockTimeStamp = block->getTimeStampS();
                 _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
                 CONS_LOG(info, "Pushed block to skaled:" << _lastCommittedBlockID);
+            } catch ( exception& e ) {
+                // Cant read the block from db, may be it is corrupt in the  snapshot
+                CONS_LOG(err,
+                    "Bootstrap could not read block "
+                        << (uint64_t) ( _lastCommittedBlockID + 1 )
+                        << " from db. Repair. Exception: " << e.what());
+                SkaleException::logNested(e);
+                // The block will be hopefully pulled by catchup
             } catch (...) {
                 // Cant read the block from db, may be it is corrupt in the  snapshot
-                CONS_LOG(err, "Bootstrap could not read block from db. Repair.");
+                CONS_LOG(err,
+                    "Bootstrap could not read block "
+                        << (uint64_t) ( _lastCommittedBlockID + 1 )
+                        << " from db. Repair. Exception: unknown");
                 // The block will be hopefully pulled by catchup
             }
     }

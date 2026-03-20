@@ -53,9 +53,7 @@ public:
 class StartFromScratch {
 public:
     StartFromScratch() {
-        int i = system( "rm -rf /tmp/*.db.*" );
-        i = system( "rm -rf /tmp/*.db" );
-        i++;  // make compiler happy
+        system( "rm -rf /tmp/*.db" );
         Consensust::setConfigDirPath( boost::filesystem::system_complete( "." ) );
 
 #ifdef GOOGLE_PROFILE

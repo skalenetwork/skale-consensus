@@ -339,6 +339,7 @@ file(GLOB_RECURSE COMMON_TEST_SOURCES
         "tests/unit/db/*.cpp"
         "tests/consensus_tests.cpp"
         "tests/sgx_tests.cpp"
+        "tests/e2e/RestartBootstrapTests.cpp"
 )
 
 set(TEST_SOURCES ${COMMON_TEST_SOURCES})
@@ -347,7 +348,7 @@ set(TEST_SOURCES ${COMMON_TEST_SOURCES})
 if (DEFINED BITE)
     file(GLOB_RECURSE BITE_TEST_SOURCES 
         "tests/unit/bite/*.cpp"
-        "tests/e2e/ReencryptionRandomConsensusTests.cpp"
+        "tests/e2e/bite/*.cpp"
     )
     list(APPEND TEST_SOURCES ${BITE_TEST_SOURCES} libBLS/test/utils.cpp)
 
