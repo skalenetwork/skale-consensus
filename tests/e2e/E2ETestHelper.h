@@ -38,6 +38,7 @@ public:
     inline static const string TWO_NODE_TEST_DATA_DIR = TEST_DATA_ROOT_DIR + "/twonodes_sameip";
     static constexpr uint64_t DEFAULT_RUN_TIME_S = 4;
     static constexpr uint64_t CROSS_NODE_RUN_TIME_S = 20;
+    static constexpr uint64_t DEFAULT_STORAGE_LIMIT_BYTES = 1000000000;
 
     static void configureTestEnvironment(
         bool _cleanDataDir,
@@ -64,6 +65,38 @@ public:
         setTestEnvVar( "TEST_TIME_S", "4", 0 );
     }
 
+    static void startEngine(
+        ConsensusEngine*& _engine,
+        int64_t _lastId,
+        const std::map< string, uint64_t >& _patchTimestamps = {
+#ifdef BITE
+            { "bite2PatchTimestamp", 0 }
+#endif
+        },
+        ConsensusExtFace* _extFace = nullptr,
+        uint64_t _lastCommittedBlockTimeStamp = 0,
+        uint64_t _lastCommittedBlockTimeStampMs = 0,
+        bool _useBlockIDFromConsensus = false ) {
+        CATCH_REQUIRE( _engine == nullptr );
+
+        if ( _extFace != nullptr ) {
+            CATCH_REQUIRE( _lastId >= 0 );
+            _engine = new ConsensusEngine( *_extFace, (uint64_t) _lastId,
+                _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs, _patchTimestamps,
+                DEFAULT_STORAGE_LIMIT_BYTES );
+        } else {
+            _engine = new ConsensusEngine( _lastId, DEFAULT_STORAGE_LIMIT_BYTES );
+            if ( !_patchTimestamps.empty() ) {
+                _engine->setTestPatchTimestamps( _patchTimestamps );
+            }
+        }
+
+        auto useBlockIdFromConsensus = _useBlockIDFromConsensus || ( _extFace == nullptr && _lastId == -1 );
+        _engine->parseTestConfigsAndCreateAllNodes(
+            Consensust::getConfigDirPath(), useBlockIdFromConsensus );
+        _engine->slowStartBootStrapTest();
+    }
+
     static block_id startEngineAndWait(
         ConsensusEngine*& _engine,
         int64_t _lastId,
@@ -73,12 +106,7 @@ public:
             { "bite2PatchTimestamp", 0 }
 #endif 
         } ) {
-        _engine = new ConsensusEngine( _lastId, 1000000000 );
-        if ( !_patchTimestamps.empty() ) {
-            _engine->setTestPatchTimestamps( _patchTimestamps );
-        }
-        _engine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath(), _lastId == -1 );
-        _engine->slowStartBootStrapTest();
+        startEngine( _engine, _lastId, _patchTimestamps );
 
         usleep( 1000 * 1000 * _runTimeS );
 
