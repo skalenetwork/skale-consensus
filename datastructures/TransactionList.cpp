@@ -165,11 +165,10 @@ ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
     // TODO - refactor to simply call biteManager->parseBITETransactions
     if (biteManager) {
         auto epochId = biteManager->getSchain()->getNode()->getCurrentEpochId();
+        bool isBite2PatchEnabled = biteManager->getSchain()->bite2Patch(
+                    biteManager->getSchain()->getLastCommittedBlockTimeStamp().getS() );
         for (size_t i = 0; i < transactions->size(); i++) {
             auto tx = transactions->at(i);
-            bool isBite2PatchEnabled = 
-                biteManager->getSchain()->bite2Patch(
-                    biteManager->getSchain()->getLastCommittedBlockTimeStamp().getS() );
             if (isBite2PatchEnabled && BiteEngine::tryGetEncryptedCTXArgs(tx, epochId)) {
                 tv->pushBackCTX(*(tx->getData()));
             }
