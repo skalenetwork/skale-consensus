@@ -125,5 +125,5 @@ When reviewing code in pull requests:
 - test/                # General tests
 - thirdparty/          # Third-party libraries and code
 - threads/             # Threading and concurrency utilities
-- unittests/           # Unit tests
+- tests/               # Unit and end-to-end tests
 - utils/               # Utility functions and helpers
