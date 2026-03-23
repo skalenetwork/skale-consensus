@@ -278,7 +278,7 @@ class Node {
 
     void releaseGlobalClientBarrier();
 
-    void closeAllSocketsAndNotifyAllAgentsAndThreads();
+    void notifyAllAgentsAndInterruptIo();
 
     atomic< bool > exitOnBlockBoundaryRequested = false;
 
@@ -301,6 +301,9 @@ public:
     void initiateApplicationExitOnFatalConsensusError( const string& message );
 
     void doSoftAndThenHardExit();
+
+    // Called by ConsensusEngine after all worker threads have been joined.
+    void closeZMQSocketsAfterJoin();
 
     string getEcdsaKeyName();
 
