@@ -495,35 +495,41 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                         CHECK_STATE(encryptedArgs->size() == decryptedAESKey->size());
 
                         try {
-                            schedule([corePtr = &this->core, bite, decryptedAESKey, decryptedFieldsMap, txIdx, regularTxMapMutex]()
+                            schedule([corePtr = &this->core, encryptedArgs, decryptedAESKey, ctxTxsMap, txIdx, ctxTxsMapMutex]()
                             -> folly::Unit {
                                 try {
-                                    auto decryptedTransactionFields = BiteCodec::decryptCiphertext(*bite,
-                                            decryptedAESKey->at(0).getAesKey(),
-                                            *corePtr
+                                    DecryptedCTXArgs decryptedData;
+                                    decryptedData.args.reserve(encryptedArgs->size());
+
+                                    for (std::size_t argIdx = 0; argIdx < encryptedArgs->size(); ++argIdx) {
+                                        const auto argCiphertext = encryptedArgs->at(argIdx);
+                                        CHECK_STATE(argCiphertext);
+                                        decryptedData.args.push_back(
+                                            BiteCodec::decryptCiphertext(*argCiphertext,
+                                                decryptedAESKey->at(argIdx).getAesKey(),
+                                                *corePtr
+                                            )
                                         );
+                                    }
 
-                                    auto parsedRegularTx =
-                                        BiteCodec::parseRegularTxDecryptedData(decryptedTransactionFields);
-
-                                    std::lock_guard<std::mutex> lock(*regularTxMapMutex);
-                                    decryptedFieldsMap->emplace(txIdx, std::move(parsedRegularTx));
+                                    std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                                    ctxTxsMap->emplace(txIdx, std::move(decryptedData));
                                 } catch (const std::exception& e) {
-                                    CONS_LOG(err, fmt::format("Corrupt regular tx:{} that doesn't decrypt: {}", txIdx, e.what()));
-                                    std::lock_guard<std::mutex> lock(*regularTxMapMutex);
-                                    decryptedFieldsMap->emplace(txIdx, std::nullopt);
+                                    CONS_LOG(err, fmt::format("Corrupt CTX tx:{} that doesn't decrypt: {}", txIdx, e.what()));
+                                    std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                                    ctxTxsMap->emplace(txIdx, std::nullopt);
                                 } catch (...) {
-                                    CONS_LOG(err, fmt::format("Corrupt regular tx:{} that doesn't decrypt: unknown exception", txIdx));
-                                    std::lock_guard<std::mutex> lock(*regularTxMapMutex);
-                                    decryptedFieldsMap->emplace(txIdx, std::nullopt);
+                                    CONS_LOG(err, fmt::format("Corrupt CTX tx:{} that doesn't decrypt: unknown exception", txIdx));
+                                    std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                                    ctxTxsMap->emplace(txIdx, std::nullopt);
                                 }
 
                                 return folly::unit;
                             });
                         } catch (const std::exception &e) {
-                            CONS_LOG(err, fmt::format("Corrupt regular tx:{} - couldn't schedule for decryption: {}", txIdx, e.what()));
-                            std::lock_guard<std::mutex> lock(*regularTxMapMutex);
-                            decryptedFieldsMap->emplace(txIdx, std::nullopt);
+                            CONS_LOG(err, fmt::format("Corrupt CTX tx:{} - couldn't schedule for decryption: {}", txIdx, e.what()));
+                            std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                            ctxTxsMap->emplace(txIdx, std::nullopt);
                         }
 
                         // This tx is CTX, do not treat it as regular
@@ -550,23 +556,33 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                 CHECK_STATE(decryptedAESKey->size() == 1); // single AES key expected
 
                 try {
-                    schedule([corePtr = &this->core, bite, decryptedAESKey, decryptedFieldsMap, txIdx, regularTxMapMutex]() 
+                    schedule([corePtr = &this->core, bite, decryptedAESKey, decryptedFieldsMap, txIdx, regularTxMapMutex]()
                     -> folly::Unit {
-                        auto decryptedTransactionFields = BiteCodec::decryptCiphertext(*bite, 
-                                decryptedAESKey->at(0).getAesKey(), 
-                                *corePtr
-                            );
+                        try {
+                            auto decryptedTransactionFields = BiteCodec::decryptCiphertext(*bite,
+                                    decryptedAESKey->at(0).getAesKey(),
+                                    *corePtr
+                                );
 
-                        auto parsedRegularTx =
-                            BiteCodec::parseRegularTxDecryptedData(decryptedTransactionFields);
+                            auto parsedRegularTx =
+                                BiteCodec::parseRegularTxDecryptedData(decryptedTransactionFields);
 
-                        std::lock_guard<std::mutex> lock(*regularTxMapMutex);
-                        decryptedFieldsMap->emplace(txIdx, std::move(parsedRegularTx));
+                            std::lock_guard<std::mutex> lock(*regularTxMapMutex);
+                            decryptedFieldsMap->emplace(txIdx, std::move(parsedRegularTx));
+                        } catch (const std::exception& e) {
+                            CONS_LOG(err, fmt::format("Corrupt regular tx:{} that doesn't decrypt: {}", txIdx, e.what()));
+                            std::lock_guard<std::mutex> lock(*regularTxMapMutex);
+                            decryptedFieldsMap->emplace(txIdx, std::nullopt);
+                        } catch (...) {
+                            CONS_LOG(err, fmt::format("Corrupt regular tx:{} that doesn't decrypt: unknown exception", txIdx));
+                            std::lock_guard<std::mutex> lock(*regularTxMapMutex);
+                            decryptedFieldsMap->emplace(txIdx, std::nullopt);
+                        }
 
                         return folly::unit;
                     });
                 } catch (const std::exception &e) {
-                    CONS_LOG(err, fmt::format("Corrupt regular tx:{} that doesn't decrypt: {}", txIdx, e.what()));
+                    CONS_LOG(err, fmt::format("Corrupt regular tx:{} - couldn't schedule for decryption: {}", txIdx, e.what()));
                     std::lock_guard<std::mutex> lock(*regularTxMapMutex);
                     decryptedFieldsMap->emplace(txIdx, std::nullopt);
                 }
