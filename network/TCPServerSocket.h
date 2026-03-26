@@ -33,7 +33,7 @@ class TCPServerSocket : public ServerSocket {
     atomic< int > descriptor;
 
 public:
-    TCPServerSocket( const string& _bindIP, uint16_t _basePort, port_type _portType );
+    TCPServerSocket( const string& _bindIP, uint16_t _bindPort );
 
     void touch();
 

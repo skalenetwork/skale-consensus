@@ -16,26 +16,23 @@
     You should have received a copy of the GNU Affero General Public License
     along with skale-consensus.  If not, see <https://www.gnu.org/licenses/>.
 
-    @file ServerSocket.h
-    @author Stan Kladko
-    @date 2018
+    @file SocketPorts.h
+    @author Sidnei Teixeira
+    @date 2026
 */
 
 #pragma once
 
+#include <cstdint>
+#include "SkaleCommon.h"
 
-class ServerSocket {
-protected:
-    recursive_mutex m;
-
-    string bindIP;
-
-    uint32_t bindPort = 0;
-
-public:
-    ServerSocket( const string& _bindIP, uint16_t _port );
-
-    virtual ~ServerSocket();
-
-    virtual void closeAndCleanupAll() = 0;
+/**
+ * Holds the port deltas for different network sockets used by the node.
+ * These deltas are added to the base port to calculate the final port numbers.
+ */
+struct SocketPortDeltas {
+    uint16_t ZMQBinaryConsensusPortDelta = BINARY_CONSENSUS;
+    uint16_t ZMQBulkDataPortDelta        = BULK_DATA_ZMQ;
+    uint16_t TCPBlockProposalPortDelta   = PROPOSAL;
+    uint16_t TCPCatchupPortDelta         = CATCHUP;
 };

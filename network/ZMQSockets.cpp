@@ -31,8 +31,8 @@
 #include "exceptions/ExitRequestedException.h"
 #include "zmq.h"
 
-ZMQSockets::ZMQSockets( const string& _bindIP, uint16_t _basePort, port_type _portType )
-    : ServerSocket( _bindIP, _basePort, _portType ), portType( _portType ) {
+ZMQSockets::ZMQSockets( const string& _bindIP, uint16_t _bindPort, port_type _portType )
+    : ServerSocket( _bindIP, _bindPort ), portType( _portType ) {
     CHECK_ARGUMENT( !_bindIP.empty() )
     context = zmq_ctx_new();
 }
@@ -48,7 +48,6 @@ void* ZMQSockets::getDestinationSocket( const ptr< NodeInfo >& _remoteNodeInfo )
 
 
     auto ipAddress = _remoteNodeInfo->getBaseIP();
-
     auto basePort = _remoteNodeInfo->getPort();
 
     auto schainIndex = _remoteNodeInfo->getSchainIndex();

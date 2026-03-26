@@ -25,6 +25,7 @@
 
 #include <mutex>
 #include "thirdparty/json.hpp"
+#include "network/SocketPortDeltas.h"
 
 using namespace std;
 
@@ -260,6 +261,9 @@ class Node {
     uint64_t teDecryptionDBSize = 0;
 #endif
     uint64_t visualizationType = 0;
+
+    // Socket ports - already default initializes all port deltas
+    SocketPortDeltas socketPortDeltas;
 
 
     string gethURL = "";

@@ -314,6 +314,10 @@ void Node::initParamsFromConfig() {
 
     simulateNetworkWriteDelayMs = getParamInt64( "simulateNetworkWriteDelayMs", 0 );
 
+    // Socket port deltas may be overwritten in config.
+    socketPortDeltas.ZMQBulkDataPortDelta = static_cast< uint16_t >( getParamUint64(
+        "ZMQBulkDataPortDelta", socketPortDeltas.ZMQBulkDataPortDelta ) );
+
     testConfig = make_shared< TestConfig >( cfg );
 
     // For tests, allow env/config overrides while preserving any values already
@@ -417,7 +421,7 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
 
     this->sockets = make_shared< Sockets >( *this );
 
-    sockets->initSockets( bindIP, ( uint16_t ) basePort );
+    sockets->initSockets( bindIP, static_cast<uint16_t>( basePort ), socketPortDeltas );
 
     CONS_LOG( trace, "Constructing servers" );
 

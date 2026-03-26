@@ -25,12 +25,9 @@
 
 
 #include <arpa/inet.h>
-#include <mutex>
-#include <memory>
-#include "SkaleCommon.h"
-#include "node/Node.h"
+#include "SocketPortDeltas.h"
 
-
+class Node;
 class ServerSocker;
 class TCPServerSocket;
 class ZMQSockets;
@@ -61,5 +58,5 @@ public:
 
     static ptr< sockaddr_in > createSocketAddress( const string& _ip, uint16_t port );
 
-    void initSockets( const string& _bindIP, uint16_t _basePort );
+    void initSockets( const string& _bindIP, uint16_t basePort, const SocketPortDeltas& ports );
 };

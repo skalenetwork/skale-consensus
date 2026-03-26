@@ -34,15 +34,22 @@
 
 using namespace std;
 
-void Sockets::initSockets( const string& _bindIP, uint16_t _basePort ) {
+void Sockets::initSockets( const string& _bindIP, uint16_t basePort, const SocketPortDeltas& ports ) {
     CHECK_ARGUMENT( !_bindIP.empty() );
 
     CONS_LOG( debug, "Initing network processing\n" );
 
-    consensusZMQSockets = make_shared< ZMQSockets >( _bindIP, _basePort, BINARY_CONSENSUS );
-    bulkDataZMQSockets = make_shared< ZMQSockets >( _bindIP, _basePort, BULK_DATA_ZMQ );
-    blockProposalSocket = make_shared< TCPServerSocket >( _bindIP, _basePort, PROPOSAL );
-    catchupSocket = make_shared< TCPServerSocket >( _bindIP, _basePort, CATCHUP );
+    // ZMQ sockets use the base port plus lane delta for both local bind and remote connect.
+    consensusZMQSockets =
+        make_shared< ZMQSockets >( _bindIP, basePort + ports.ZMQBinaryConsensusPortDelta,
+            static_cast< port_type >( ports.ZMQBinaryConsensusPortDelta ) );
+    bulkDataZMQSockets =
+        make_shared< ZMQSockets >( _bindIP, basePort + ports.ZMQBulkDataPortDelta,
+            static_cast< port_type >( ports.ZMQBulkDataPortDelta ) );
+    
+    // TCP sockets used only for server side - no need to differentiate port types
+    blockProposalSocket = make_shared< TCPServerSocket >( _bindIP, basePort + ports.TCPBlockProposalPortDelta );
+    catchupSocket = make_shared< TCPServerSocket >( _bindIP, basePort + ports.TCPCatchupPortDelta );
 }
 
 
