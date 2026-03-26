@@ -41,6 +41,16 @@ class Header;
 #include <folly/SharedMutex.h>
 #include "datastructures/BlockProposalFragmentList.h"
 
+namespace {
+
+struct BlockFinalizeResponse {
+    nlohmann::json header;
+    ptr< vector< uint8_t > > payload;
+};
+
+}  // namespace
+
+
 /**
  * Client-side BlockFinalize recovery agent.
  *
@@ -153,41 +163,41 @@ public:
     void clearTCPFallback( schain_index _dstIndex );
 
     ptr< vector< uint8_t > > readSerializedBlockFragment(
-        const ptr< ClientSocket >& _socket, nlohmann::json _responseHeader );
+        const ptr< ClientSocket >& _socket, const nlohmann::json& _responseHeader );
 
     void validateBlockFinalizeResponse(
-        nlohmann::json _responseHeader, schain_index _dstIndex, fragment_index _fragmentIndex );
+        const nlohmann::json& _responseHeader, schain_index _dstIndex, fragment_index _fragmentIndex );
 
     void processBlockFinalizePayload( schain_index _dstIndex, fragment_index _fragmentIndex,
-        nlohmann::json _responseHeader, const ptr< vector< uint8_t > >& _serializedFragment );
+        const nlohmann::json& _responseHeader, const ptr< vector< uint8_t > >& _serializedFragment );
 
 
     ptr< BlockProposalFragment > readBlockFragment( const ptr< vector< uint8_t > >& _serializedFragment,
-        nlohmann::json responseHeader, fragment_index _fragmentIndex, node_count _nodeCount
+        const nlohmann::json& responseHeader, fragment_index _fragmentIndex, node_count _nodeCount
 #ifdef BITE
         , schain_index _proposerIndex
         , schain_index _destinationIndex
 #endif
     );
 
-    static uint64_t readFragmentSize( nlohmann::json _responseHeader );
+    static uint64_t readFragmentSize( const nlohmann::json& _responseHeader );
 
     bool downloadProposalDAProofAndDecryptions();
 
 
     bool completeAndNeedToExitAllThreads();
 
-    string readBlockHash( nlohmann::json _responseHeader );
+    string readBlockHash( const nlohmann::json& _responseHeader );
 
     block_id getBlockId();
 
     schain_index getProposerIndex();
 
-    static uint64_t readBlockSize( nlohmann::json _responseHeader );
+    static uint64_t readBlockSize( const nlohmann::json& _responseHeader );
 
-    string readDAProofSig( nlohmann::json _responseHeader );
+    string readDAProofSig( const nlohmann::json& _responseHeader );
 
-    void processDAProofSig(nlohmann::json _responseHeader, string h);
+    void processDAProofSig(const nlohmann::json& _responseHeader, string h);
 
 
     bool needDAProof();

@@ -22,55 +22,50 @@
 */
 
 #include "Log.h"
-#include <exceptions/ConnectionRefusedException.h>
-#include "exceptions/ExitRequestedException.h"
+#include <boost/endian/buffers.hpp>
 
+#include "exceptions/ConnectionRefusedException.h"
+#include "exceptions/ExitRequestedException.h"
+#include "exceptions/DoNotHaveProposalYetException.h"
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
-#include "chains/TestConfig.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"
 #include "network/Network.h"
 #include "network/Sockets.h"
 #include "network/ZMQHeaderPayloadFrame.h"
 #include "network/ZMQSockets.h"
+
 #include "node/Node.h"
 
 #include "chains/Schain.h"
-#include "crypto/TrivialSignature.h"
-#include "datastructures/BlockProposalFragment.h"
+#include "chains/BlockErrorAnalyzer.h"
+#include "chains/TestConfig.h"
 
+#include "crypto/TrivialSignature.h"
+#include "crypto/CryptoManager.h"
+
+#include "datastructures/BlockProposalFragment.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/DAProof.h"
+
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
-#include "exceptions/DoNotHaveProposalYetException.h"
-#ifdef BITE
-#include "db/TEDecryptionDB.h"
-#endif
+
 #include "headers/BlockFinalizeRequestHeader.h"
-#include "headers/BlockProposalRequestHeader.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "utils/Time.h"
-#include "chains/BlockErrorAnalyzer.h"
+
 #include "BlockFinalizeDownloader.h"
-
-#include <boost/endian/buffers.hpp>
-
 #include "BlockFinalizeDownloaderThreadPool.h"
+
+
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
 #include "bite/BiteManager.h"
-#include "crypto/CryptoManager.h"
-
-namespace {
-
-struct BlockFinalizeResponse {
-    nlohmann::json header;
-    ptr< vector< uint8_t > > payload;
-};
-
-}  // namespace
+#endif
 
 
 BlockFinalizeDownloader::BlockFinalizeDownloader(
@@ -132,7 +127,7 @@ void BlockFinalizeDownloader::clearTCPFallback( schain_index _dstIndex ) {
     tcpFallbackUntilMs.erase( _dstIndex );
 }
 
-void BlockFinalizeDownloader::validateBlockFinalizeResponse( nlohmann::json _responseHeader,
+void BlockFinalizeDownloader::validateBlockFinalizeResponse( const nlohmann::json& _responseHeader,
     schain_index _dstIndex, fragment_index _fragmentIndex ) {
     auto status = ( ConnectionStatus ) Header::getUint64( _responseHeader, "status" );
     auto substatus = ( ConnectionSubStatus ) Header::getUint64( _responseHeader, "substatus" );
@@ -152,7 +147,7 @@ void BlockFinalizeDownloader::validateBlockFinalizeResponse( nlohmann::json _res
 }
 
 void BlockFinalizeDownloader::processBlockFinalizePayload( schain_index _dstIndex,
-    fragment_index _fragmentIndex, nlohmann::json _responseHeader,
+    fragment_index _fragmentIndex, const nlohmann::json& _responseHeader,
     const ptr< vector< uint8_t > >& _serializedFragment ) {
     CHECK_ARGUMENT( _serializedFragment );
 
@@ -337,7 +332,7 @@ void BlockFinalizeDownloader::downloadFragment(
 }
 
 ptr< vector< uint8_t > > BlockFinalizeDownloader::readSerializedBlockFragment(
-    const ptr< ClientSocket >& _socket, nlohmann::json _responseHeader ) {
+    const ptr< ClientSocket >& _socket, const nlohmann::json& _responseHeader ) {
     CHECK_ARGUMENT( _socket );
 
     auto fragmentSize = readFragmentSize( _responseHeader );
@@ -355,7 +350,7 @@ ptr< vector< uint8_t > > BlockFinalizeDownloader::readSerializedBlockFragment(
     return serializedFragment;
 }
 
-uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeader) {
+uint64_t BlockFinalizeDownloader::readFragmentSize(const nlohmann::json& _responseHeader) {
     uint64_t result = Header::getUint64(_responseHeader, "fragmentSize");
 
     if (result == 0) {
@@ -365,7 +360,7 @@ uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeade
     return result;
 }
 
-uint64_t BlockFinalizeDownloader::readBlockSize(nlohmann::json _responseHeader) {
+uint64_t BlockFinalizeDownloader::readBlockSize(const nlohmann::json& _responseHeader) {
     uint64_t result = Header::getUint64(_responseHeader, "blockSize");
 
     if (result == 0) {
@@ -375,12 +370,12 @@ uint64_t BlockFinalizeDownloader::readBlockSize(nlohmann::json _responseHeader) 
     return result;
 }
 
-string BlockFinalizeDownloader::readBlockHash(nlohmann::json _responseHeader) {
+string BlockFinalizeDownloader::readBlockHash(const nlohmann::json& _responseHeader) {
     auto result = Header::getString(_responseHeader, "blockHash");
     return result;
 }
 
-string BlockFinalizeDownloader::readDAProofSig(nlohmann::json _responseHeader) {
+string BlockFinalizeDownloader::readDAProofSig(const nlohmann::json& _responseHeader) {
     if (getSchain()->verifyDASigsPatch(getSchain()->getLastCommittedBlockTimeStamp().getS())) {
         return Header::getString(_responseHeader, "daSig");
     } else {
@@ -389,7 +384,7 @@ string BlockFinalizeDownloader::readDAProofSig(nlohmann::json _responseHeader) {
 }
 
 
-void BlockFinalizeDownloader::processDAProofSig(nlohmann::json _responseHeader, string h) {
+void BlockFinalizeDownloader::processDAProofSig(const nlohmann::json& _responseHeader, string h) {
     auto sig = readDAProofSig(_responseHeader); {
         LOCK(m)
 
@@ -417,7 +412,7 @@ bool BlockFinalizeDownloader::needDecryptionShares(schain_index _decryptorIndex)
 
 
 ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
-    const ptr<vector<uint8_t> > &_serializedFragment, nlohmann::json _responseHeader,
+    const ptr<vector<uint8_t> > &_serializedFragment, const nlohmann::json& _responseHeader,
     fragment_index _fragmentIndex, node_count _nodeCount
 #ifdef BITE
     , schain_index _proposerIndex
