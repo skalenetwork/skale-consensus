@@ -154,23 +154,23 @@ run("ccache -M 20G")
 consensustExecutive = getConsensustExecutive()
 
 # Run all non-end-to-end and non-performance unit tests
-# unitTest(
-#     consensustExecutive,
-#     "~[end-to-end]~[performance]",
-#     "Non-end-to-end non-performance",
-# )
+unitTest(
+    consensustExecutive,
+    "~[end-to-end]~[performance]",
+    "Non-end-to-end non-performance",
+)
 
-# unitTest(
-#     consensustExecutive,
-#     "'[end-to-end][db]'",
-#     "End-to-end db tests",
-# )
+unitTest(
+    consensustExecutive,
+    "'[end-to-end][db]'",
+    "End-to-end db tests",
+)
 
-# unitTest(
-#     consensustExecutive,
-#     "[blockfinalize-transport]",
-#     "Blockfinalize backward compatibility tests",
-# )
+unitTest(
+    consensustExecutive,
+    "[blockfinalize-transport]",
+    "Blockfinalize backward compatibility tests",
+)
 
 
 basicConsensusEnv = {
