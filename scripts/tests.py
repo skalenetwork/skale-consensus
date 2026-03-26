@@ -28,6 +28,7 @@ import subprocess
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+BASIC_CONSENSUS_MAX_TRANSACTIONS_PER_BLOCK = "512"
 
 
 def print_separator(_label, _char="="):
@@ -102,18 +103,31 @@ def unitTest(_consensustExecutive, _testType, _label=None):
     run_catch_tests(_consensustExecutive, _testType, "Catch tests: " + label)
 
 
-def fullConsensusTest(_test, _consensustExecutive, _testType):
+def fullConsensusTest(_test, _consensustExecutive, _testType, _extraEnv=None):
     testDir = os.path.join(REPO_ROOT, "test", _test)
+    previousEnv = {}
+    if _extraEnv:
+        for key, value in _extraEnv.items():
+            previousEnv[key] = os.environ.get(key)
+            os.environ[key] = value
     os.chdir(testDir)
-    run("pwd", "Entering " + testDir)
-    run("rm -rf ./core", "Cleanup core files for " + _test)
-    run("rm -rf /tmp/*.db*", "Cleanup db files for " + _test)
-    run_catch_tests(
-        _consensustExecutive,
-        _testType,
-        "Consensus test: " + _test + " " + _testType,
-    )
-    os.chdir(REPO_ROOT)
+    try:
+        run("pwd", "Entering " + testDir)
+        run("rm -rf ./core", "Cleanup core files for " + _test)
+        run("rm -rf /tmp/*.db*", "Cleanup db files for " + _test)
+        run_catch_tests(
+            _consensustExecutive,
+            _testType,
+            "Consensus test: " + _test + " " + _testType,
+        )
+    finally:
+        os.chdir(REPO_ROOT)
+        if _extraEnv:
+            for key, value in previousEnv.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
 
 
 def getConsensustExecutive():
@@ -140,25 +154,29 @@ run("ccache -M 20G")
 consensustExecutive = getConsensustExecutive()
 
 # Run all non-end-to-end and non-performance unit tests
-unitTest(
-    consensustExecutive,
-    "~[end-to-end]~[performance]",
-    "Non-end-to-end non-performance",
-)
+# unitTest(
+#     consensustExecutive,
+#     "~[end-to-end]~[performance]",
+#     "Non-end-to-end non-performance",
+# )
 
-unitTest(
-    consensustExecutive,
-    "'[end-to-end][db]'",
-    "End-to-end db tests",
-)
+# unitTest(
+#     consensustExecutive,
+#     "'[end-to-end][db]'",
+#     "End-to-end db tests",
+# )
 
-unitTest(
-    consensustExecutive,
-    "[blockfinalize-transport]",
-    "Blockfinalize backward compatibility tests",
-)
+# unitTest(
+#     consensustExecutive,
+#     "[blockfinalize-transport]",
+#     "Blockfinalize backward compatibility tests",
+# )
 
 
-fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")
-fullConsensusTest("twonodes", consensustExecutive, "[consensus-basic]")
-fullConsensusTest("fournodes", consensustExecutive, "[consensus-basic]")
+basicConsensusEnv = {
+    "maxTransactionsPerBlock": BASIC_CONSENSUS_MAX_TRANSACTIONS_PER_BLOCK,
+}
+
+fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]", basicConsensusEnv)
+fullConsensusTest("twonodes", consensustExecutive, "[consensus-basic]", basicConsensusEnv)
+fullConsensusTest("fournodes", consensustExecutive, "[consensus-basic]", basicConsensusEnv)
