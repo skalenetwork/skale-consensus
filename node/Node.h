@@ -221,6 +221,8 @@ class Node {
 
     uint64_t blockFinalizeDownloadTcpFallbackMs = 0;
 
+    bool blockFinalizeZmqEnabled = true;
+
     uint64_t emptyBlockIntervalMs = 0;
 
     uint64_t emptyBlockIntervalAfterCatchupMs = 0;
@@ -332,6 +334,8 @@ public:
     bool isSgxEnabled();
 
     bool isTestNet() const;
+
+    bool isBlockFinalizeZmqEnabled() const;
 
     [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
 

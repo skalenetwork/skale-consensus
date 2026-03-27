@@ -5,7 +5,6 @@
   "basePort": 1231,
   "logLevel": "info",
   "simulateNetworkWriteDelayMs": 100,
-  "testBlockFinalizeZmqClientEnabled": true,
-  "testBlockFinalizeZmqServerEnabled": false,
+  "blockFinalizeZmqEnabled": true,
   "testBlockFinalizeTransportStatsEnabled": true
 }

@@ -463,6 +463,10 @@ bool Node::isTestNet() const {
     return testNet;
 }
 
+bool Node::isBlockFinalizeZmqEnabled() const {
+    return blockFinalizeZmqEnabled;
+}
+
 void Node::setExitOnBlockBoundaryRequested() {
     CONS_LOG( info, "Set exit on block boundary" );
     exitOnBlockBoundaryRequested = true;

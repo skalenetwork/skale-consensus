@@ -30,14 +30,6 @@ bool TestConfig::isFinalizationDownloadOnly() const {
     return finalizationDownloadOnly;
 }
 
-bool TestConfig::isBlockFinalizeZmqClientEnabled() const {
-    return blockFinalizeZmqClientEnabled;
-}
-
-bool TestConfig::isBlockFinalizeZmqServerEnabled() const {
-    return blockFinalizeZmqServerEnabled;
-}
-
 bool TestConfig::isBlockFinalizeTransportStatsEnabled() const {
     return blockFinalizeTransportStatsEnabled;
 }
@@ -47,24 +39,12 @@ TestConfig::TestConfig( nlohmann::json cgf ) {
     finalizationDownloadOnly = ( option != nullptr );
 
     if ( cgf.is_object() ) {
-        blockFinalizeZmqClientEnabled =
-            cgf.value( "testBlockFinalizeZmqClientEnabled", true );
-        blockFinalizeZmqServerEnabled =
-            cgf.value( "testBlockFinalizeZmqServerEnabled", true );
         blockFinalizeTransportStatsEnabled =
             cgf.value( "testBlockFinalizeTransportStatsEnabled", false );
     }
 
     if ( finalizationDownloadOnly ) {
         CONS_LOG( info, "Testing the case of only finalization download" );
-    }
-
-    if ( !blockFinalizeZmqClientEnabled ) {
-        CONS_LOG( info, "Testing BlockFinalize with ZMQ client disabled" );
-    }
-
-    if ( !blockFinalizeZmqServerEnabled ) {
-        CONS_LOG( info, "Testing BlockFinalize with ZMQ server disabled" );
     }
 
     if ( blockFinalizeTransportStatsEnabled ) {

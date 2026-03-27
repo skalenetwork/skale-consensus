@@ -299,7 +299,7 @@ void BlockFinalizeDownloader::downloadFragment(
     }
 
     // If ZMQ disabled - try TCP right away
-    if ( !getNode()->getTestConfig()->isBlockFinalizeZmqClientEnabled() ) {
+    if ( !getNode()->isBlockFinalizeZmqEnabled() ) {
         downloadFragmentTCP( _dstIndex, _fragmentIndex, header );
         return;
     }

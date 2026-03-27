@@ -1507,7 +1507,7 @@ void Schain::constructServers(const ptr<Sockets> &_sockets) {
 
     catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
     
-    if ( getNode()->getTestConfig()->isBlockFinalizeZmqServerEnabled() ) {
+    if ( getNode()->isBlockFinalizeZmqEnabled() ) {
         blockFinalizeZmqServerAgent =
             make_shared<BlockFinalizeZmqServerAgent>(*this, _sockets->getBulkDataZMQSockets());
     }

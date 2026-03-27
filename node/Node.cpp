@@ -294,6 +294,11 @@ void Node::initParamsFromConfig() {
     syncNodeReadJsonHeaderTimeoutSec =
         getParamUint64( "syncNodeReadJsonHeaderTimeoutSec", SYNC_NODE_READ_JSON_HEADER_TIMEOUT_SEC );
     testNet = ( getParamUint64( "isTestNet", 0 ) > 0 );
+    
+    if ( cfg.find( "blockFinalizeZmqEnabled" ) != cfg.end() ) {
+        blockFinalizeZmqEnabled =
+            cfg.at( "blockFinalizeZmqEnabled" ).get< bool >();
+    }
 
     blockDBSize = storageLimits->getBlockDbSize();
     proposalHashDBSize = storageLimits->getProposalHashDbSize();

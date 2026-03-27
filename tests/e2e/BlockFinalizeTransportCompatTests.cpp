@@ -34,7 +34,9 @@ static constexpr size_t MAX_POLL_ROUNDS = 20;
 
 struct ScenarioResult {
     block_id lastCommittedBlockId = 0;
-    BlockFinalizeTransportStats stats;
+    BlockFinalizeTransportStats totalStats;
+    BlockFinalizeTransportStats node1Stats;
+    BlockFinalizeTransportStats node2Stats;
 };
 
 static ScenarioResult runScenario( const string& _configDir ) {
@@ -51,15 +53,19 @@ static ScenarioResult runScenario( const string& _configDir ) {
         CATCH_REQUIRE( ( uint64_t ) testEngine->nodesCount() == 2 );
         CATCH_REQUIRE( lastId > 0 );
 
-        auto stats = ConsensusEngineTestAccess::getBlockFinalizeTransportStats( *testEngine );
+        auto totalStats = ConsensusEngineTestAccess::getBlockFinalizeTransportStats( *testEngine );
+        auto node1Stats =
+            ConsensusEngineTestAccess::getBlockFinalizeTransportStatsForNode( *testEngine, 1 );
+        auto node2Stats =
+            ConsensusEngineTestAccess::getBlockFinalizeTransportStatsForNode( *testEngine, 2 );
 
-        CATCH_REQUIRE( stats.totalRequests() > 0 );
+        CATCH_REQUIRE( totalStats.totalRequests() > 0 );
 
         E2EHelper::stopEngineGracefully( testEngine );
         TestUtils::restoreTestEnvVar(
             FINALIZATION_DOWNLOAD_ONLY_ENV, finalizationDownloadOnlySnapshot );
 
-        return { block_id( lastId ), stats };
+        return { block_id( lastId ), totalStats, node1Stats, node2Stats };
     } catch ( ... ) {
         if ( testEngine != nullptr ) {
             E2EHelper::stopEngineGracefully( testEngine );
@@ -79,11 +85,11 @@ CATCH_TEST_CASE( "BlockFinalize uses ZMQ between upgraded nodes",
     auto result = runScenario( "test/twonodes_blockfinalize_both_new_zmq" );
 
     CATCH_CAPTURE( result.lastCommittedBlockId );
-    CATCH_REQUIRE( result.stats.zmqClientAttempts > 0 );
-    CATCH_REQUIRE( result.stats.zmqServerRequestsServed > 0 );
-    CATCH_REQUIRE( result.stats.zmqClientFallbacksToTcp == 0 );
-    CATCH_REQUIRE( result.stats.tcpClientRequests == 0 );
-    CATCH_REQUIRE( result.stats.tcpServerRequestsServed == 0 );
+    CATCH_REQUIRE( result.totalStats.zmqClientAttempts > 0 );
+    CATCH_REQUIRE( result.totalStats.zmqServerRequestsServed > 0 );
+    CATCH_REQUIRE( result.totalStats.zmqClientFallbacksToTcp == 0 );
+    CATCH_REQUIRE( result.totalStats.tcpClientRequests == 0 );
+    CATCH_REQUIRE( result.totalStats.tcpServerRequestsServed == 0 );
 }
 
 CATCH_TEST_CASE( "BlockFinalize falls back from new client to old TCP-only server",
@@ -91,11 +97,11 @@ CATCH_TEST_CASE( "BlockFinalize falls back from new client to old TCP-only serve
     auto result = runScenario( "test/twonodes_blockfinalize_new_client_old_server" );
 
     CATCH_CAPTURE( result.lastCommittedBlockId );
-    CATCH_REQUIRE( result.stats.zmqClientAttempts > 0 );
-    CATCH_REQUIRE( result.stats.zmqClientFallbacksToTcp > 0 );
-    CATCH_REQUIRE( result.stats.tcpClientRequests > 0 );
-    CATCH_REQUIRE( result.stats.tcpServerRequestsServed > 0 );
-    CATCH_REQUIRE( result.stats.zmqServerRequestsServed == 0 );
+    CATCH_REQUIRE( result.node1Stats.zmqClientAttempts > 0 );
+    CATCH_REQUIRE( result.node1Stats.zmqClientFallbacksToTcp > 0 );
+    CATCH_REQUIRE( result.node1Stats.tcpClientRequests > 0 );
+    CATCH_REQUIRE( result.node2Stats.tcpServerRequestsServed > 0 );
+    CATCH_REQUIRE( result.totalStats.zmqServerRequestsServed == 0 );
 }
 
 CATCH_TEST_CASE( "BlockFinalize keeps legacy TCP path for old client against new server",
@@ -103,9 +109,9 @@ CATCH_TEST_CASE( "BlockFinalize keeps legacy TCP path for old client against new
     auto result = runScenario( "test/twonodes_blockfinalize_old_client_new_server" );
 
     CATCH_CAPTURE( result.lastCommittedBlockId );
-    CATCH_REQUIRE( result.stats.zmqClientAttempts == 0 );
-    CATCH_REQUIRE( result.stats.zmqClientFallbacksToTcp == 0 );
-    CATCH_REQUIRE( result.stats.tcpClientRequests > 0 );
-    CATCH_REQUIRE( result.stats.tcpServerRequestsServed > 0 );
-    CATCH_REQUIRE( result.stats.zmqServerRequestsServed == 0 );
+    CATCH_REQUIRE( result.node1Stats.zmqClientAttempts == 0 );
+    CATCH_REQUIRE( result.node1Stats.zmqClientFallbacksToTcp == 0 );
+    CATCH_REQUIRE( result.node1Stats.tcpClientRequests > 0 );
+    CATCH_REQUIRE( result.node2Stats.tcpServerRequestsServed > 0 );
+    CATCH_REQUIRE( result.totalStats.zmqServerRequestsServed == 0 );
 }
