@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <exception>
 
 class CommittedBlockList;
 class ClientSocket;
@@ -129,7 +130,7 @@ public:
 
     /**
      * Downloads block fragment from '_dstIndex' node using TCP connection. 
-     * This is the old interface, used only as a fallback when ZMQ download fails, 
+     * This is the old interface, used only as a fallback when ZMQ transport fails, 
      * and is marked in local cache to keep using TCP for this node for some time in the future.
      */
     void downloadFragmentTCP( schain_index _dstIndex, fragment_index _fragmentIndex,

@@ -23,7 +23,9 @@
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/NetworkProtocolException.h"
 #include "exceptions/ParsingException.h"
+#include "exceptions/ZMQTransportException.h"
 #include "headers/Header.h"
+#include "network/ZMQErrorClassifier.h"
 #include "node/Node.h"
 #include "utils/Time.h"
 #include "ZMQHeaderPayloadFrame.h"
@@ -37,6 +39,17 @@ void maybeSimulateDelay( Schain& _sChain ) {
     if ( simulatedDelay > 0 ) {
         usleep( simulatedDelay * 1000 );
     }
+}
+
+[[noreturn]] void throwZMQCommunicationException( const string& _message ) {
+    auto zmqErrno = zmq_errno();
+    auto errorMessage = _message + ":" + string( zmq_strerror( zmqErrno ) );
+
+    if ( isZMQTransportErrorForTcpFallback( zmqErrno ) ) {
+        BOOST_THROW_EXCEPTION( ZMQTransportException( errorMessage, zmqErrno, __CLASS_NAME__ ) );
+    }
+
+    BOOST_THROW_EXCEPTION( NetworkProtocolException( errorMessage, __CLASS_NAME__ ) );
 }
 }
 
@@ -110,8 +123,7 @@ void ZMQHeaderPayloadFrame::sendFrame( Schain& _sChain, void* _socket, const ptr
 
     auto rc = zmq_send( _socket, _frame->data(), _frame->size(), 0 );
     if ( rc < 0 ) {
-        BOOST_THROW_EXCEPTION( NetworkProtocolException(
-            "ZMQ send failed:" + string( zmq_strerror( errno ) ), __CLASS_NAME__ ) );
+        throwZMQCommunicationException( "ZMQ send failed" );
     }
 }
 
@@ -134,8 +146,7 @@ void ZMQHeaderPayloadFrame::sendFrameToRoutingId( Schain& _sChain, void* _socket
     rc = zmq_msg_send( &msg, _socket, 0 );
     if ( rc < 0 ) {
         zmq_msg_close( &msg );
-        BOOST_THROW_EXCEPTION( NetworkProtocolException(
-            "ZMQ send failed:" + string( zmq_strerror( errno ) ), __CLASS_NAME__ ) );
+        throwZMQCommunicationException( "ZMQ send failed" );
     }
 
     rc = zmq_msg_close( &msg );
@@ -154,8 +165,9 @@ ptr< vector< uint8_t > > ZMQHeaderPayloadFrame::receiveFrame(
 
     rc = zmq_msg_recv( &msg, _socket, 0 );
     if ( rc < 0 ) {
+        auto zmqErrno = zmq_errno();
         zmq_msg_close( &msg );
-        if ( errno == EAGAIN ) {
+        if ( zmqErrno == EAGAIN ) {
             // check if timeout happened during exit
             _sChain.getNode()->exitCheck();
 
@@ -164,8 +176,12 @@ ptr< vector< uint8_t > > ZMQHeaderPayloadFrame::receiveFrame(
                 return nullptr;
             }
         }
-        BOOST_THROW_EXCEPTION( NetworkProtocolException(
-            string( _errorString ) + ":" + zmq_strerror( errno ), __CLASS_NAME__ ) );
+        auto errorMessage = string( _errorString ) + ":" + string( zmq_strerror( zmqErrno ) );
+        if ( isZMQTransportErrorForTcpFallback( zmqErrno ) ) {
+            BOOST_THROW_EXCEPTION(
+                ZMQTransportException( errorMessage, zmqErrno, __CLASS_NAME__ ) );
+        }
+        BOOST_THROW_EXCEPTION( NetworkProtocolException( errorMessage, __CLASS_NAME__ ) );
     }
 
     auto frame = make_shared< vector< uint8_t > >( rc );

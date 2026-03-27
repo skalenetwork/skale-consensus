@@ -27,6 +27,7 @@
 #include "exceptions/ConnectionRefusedException.h"
 #include "exceptions/ExitRequestedException.h"
 #include "exceptions/DoNotHaveProposalYetException.h"
+#include "exceptions/ZMQTransportException.h"
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
@@ -311,17 +312,14 @@ void BlockFinalizeDownloader::downloadFragment(
         return;
     }
 
-    // If node is not marked as TCP fallback, try ZMQ first, and if it fails, mark it as TCP fallback and retry using TCP.
+    // If node is not marked as TCP fallback, try ZMQ first. Downgrade to TCP only for
+    // explicit ZMQ transport failures, not for parsing, protocol, or local-state errors.
     try {
         downloadFragmentZMQ( _dstIndex, _fragmentIndex, header );
         clearTCPFallback( _dstIndex );
         return;
-    } catch ( DoNotHaveProposalYetException& ) {
-        throw;
-    } catch ( ExitRequestedException& ) {
-        throw;
-    } catch ( ... ) {
-        // peer is not usable via ZMQ, mark it as TCP fallback and retry using TCP
+    } catch ( const ZMQTransportException& e ) {
+        // peer is not usable via ZMQ transport right now, mark it as TCP fallback
         getNode()->getSockets()->getBulkDataZMQSockets()->closeDestinationSocket( _dstIndex );
         getSchain()->noteBlockFinalizeZmqClientFallbackToTcp();
         markTCPFallback( _dstIndex );
