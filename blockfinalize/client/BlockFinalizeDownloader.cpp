@@ -428,7 +428,7 @@ ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
 ) {
     CHECK_ARGUMENT(_serializedFragment)
 
-    CHECK_ARGUMENT(_responseHeader > 0)
+    CHECK_ARGUMENT(_responseHeader.is_object())
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
