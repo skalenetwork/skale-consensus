@@ -56,6 +56,7 @@ class TestConfig;
 class BlockSigShareDB;
 class DASigShareDB;
 class DAProofDB;
+class NodeTestAccess;
 
 #ifdef BITE
     class TEDecryptionDB;
@@ -79,6 +80,7 @@ enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 class Node {
     friend class Schain;  // Allow Schain to access private barrier methods for teardown
+    friend class NodeTestAccess; // Allow test access to private members
     
     ConsensusEngine* consensusEngine;
 
@@ -216,6 +218,8 @@ class Node {
     uint64_t stuckRestartIntervalMs = 0;
 
     uint64_t waitAfterNetworkErrorMs = 0;
+
+    uint64_t blockFinalizeDownloadTcpFallbackMs = 0;
 
     uint64_t emptyBlockIntervalMs = 0;
 
@@ -484,6 +488,8 @@ public:
     uint64_t getsyncNodeReadJsonHeaderTimeoutSec() const;
 
     uint64_t getWaitAfterNetworkErrorMs();
+
+    uint64_t getBlockFinalizeDownloadTcpFallbackMs();
 
 #ifdef FAIR
     uint64_t getConstantGasPrice() const;

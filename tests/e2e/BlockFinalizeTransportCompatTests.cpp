@@ -40,7 +40,7 @@ struct ScenarioResult {
 static ScenarioResult runScenario( const string& _configDir ) {
     ConsensusEngine* testEngine = nullptr;
     auto finalizationDownloadOnlySnapshot =
-        E2EHelper::setTestEnvVar( FINALIZATION_DOWNLOAD_ONLY_ENV, "1", 1 );
+        TestUtils::setTestEnvVar( FINALIZATION_DOWNLOAD_ONLY_ENV, "1", 1 );
 
     try {
         E2EHelper::configureTestEnvironment( true, _configDir );
@@ -56,7 +56,7 @@ static ScenarioResult runScenario( const string& _configDir ) {
         CATCH_REQUIRE( stats.totalRequests() > 0 );
 
         E2EHelper::stopEngineGracefully( testEngine );
-        E2EHelper::restoreTestEnvVar(
+        TestUtils::restoreTestEnvVar(
             FINALIZATION_DOWNLOAD_ONLY_ENV, finalizationDownloadOnlySnapshot );
 
         return { block_id( lastId ), stats };
@@ -64,7 +64,7 @@ static ScenarioResult runScenario( const string& _configDir ) {
         if ( testEngine != nullptr ) {
             E2EHelper::stopEngineGracefully( testEngine );
         }
-        E2EHelper::restoreTestEnvVar(
+        TestUtils::restoreTestEnvVar(
             FINALIZATION_DOWNLOAD_ONLY_ENV, finalizationDownloadOnlySnapshot );
         throw;
     }

@@ -151,8 +151,8 @@ public:
     bool shouldUseTCPFallback( schain_index _dstIndex );
 
     /**
-     * Mark '_dstIndex' node to use TCP fallback for some time in the future, 
-     * based on current time + configured wait time after network error.
+     * Mark '_dstIndex' node to use TCP fallback for some time in the future,
+     * based on current time + configured TCP fallback duration.
      */
     void markTCPFallback( schain_index _dstIndex );
 

@@ -339,6 +339,7 @@ target_link_libraries(consensusd consensus_full)
 file(GLOB_RECURSE COMMON_TEST_SOURCES
         "tests/unit/datastructures/*.cpp"
         "tests/unit/db/*.cpp"
+        "tests/unit/network/*.cpp"
         "tests/consensus_tests.cpp"
         "tests/sgx_tests.cpp"
         "tests/e2e/BlockFinalizeTransportCompatTests.cpp"

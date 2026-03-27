@@ -119,7 +119,7 @@ bool BlockFinalizeDownloader::shouldUseTCPFallback( schain_index _dstIndex ) {
 void BlockFinalizeDownloader::markTCPFallback( schain_index _dstIndex ) {
     LOCK( m );
     tcpFallbackUntilMs[_dstIndex] =
-        Time::getCurrentTimeMs() + getNode()->getWaitAfterNetworkErrorMs();
+        Time::getCurrentTimeMs() + getNode()->getBlockFinalizeDownloadTcpFallbackMs();
 }
 
 void BlockFinalizeDownloader::clearTCPFallback( schain_index _dstIndex ) {

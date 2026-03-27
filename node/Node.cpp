@@ -278,6 +278,8 @@ void Node::initParamsFromConfig() {
     stuckRestartIntervalMs = getParamUint64( "stuckRestartIntervalMs", STUCK_RESTART_INTERVAL_MS );
     waitAfterNetworkErrorMs =
         getParamUint64( "waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS );
+    blockFinalizeDownloadTcpFallbackMs =
+        getParamUint64( "blockFinalizeDownloadTcpFallbackMs", BLOCK_FINALIZE_DOWNLOAD_TCP_FALLBACK_MS );
     maxCatchupDownloadBytes =
         getParamUint64( "maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES );
     maxTransactionsPerBlock =

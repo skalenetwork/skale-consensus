@@ -279,6 +279,10 @@ uint64_t Node::getWaitAfterNetworkErrorMs() {
     return waitAfterNetworkErrorMs;
 }
 
+uint64_t Node::getBlockFinalizeDownloadTcpFallbackMs() {
+    return blockFinalizeDownloadTcpFallbackMs;
+}
+
 uint64_t Node::getEmptyBlockIntervalMs() const {
     return emptyBlockIntervalMs;
 }
