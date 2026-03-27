@@ -68,6 +68,15 @@
 #include "bite/BiteManager.h"
 #endif
 
+namespace {
+
+struct BlockFinalizeResponse {
+    nlohmann::json header;
+    ptr< vector< uint8_t > > payload;
+};
+
+}  // namespace
+
 
 BlockFinalizeDownloader::BlockFinalizeDownloader(
     Schain *_sChain, block_id _blockId,

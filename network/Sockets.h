@@ -28,7 +28,6 @@
 #include "SocketPortDeltas.h"
 
 class Node;
-class ServerSocker;
 class TCPServerSocket;
 class ZMQSockets;
 

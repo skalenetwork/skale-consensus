@@ -42,16 +42,6 @@ class Header;
 #include <folly/SharedMutex.h>
 #include "datastructures/BlockProposalFragmentList.h"
 
-namespace {
-
-struct BlockFinalizeResponse {
-    nlohmann::json header;
-    ptr< vector< uint8_t > > payload;
-};
-
-}  // namespace
-
-
 /**
  * Client-side BlockFinalize recovery agent.
  *
