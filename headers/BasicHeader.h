@@ -70,7 +70,7 @@ public:
 
     void setComplete() { complete = true; }
 
-    static void nullCheck( nlohmann::json& js, const char* _name );
+    static void nullCheck( const nlohmann::json& js, const char* _name );
 
 
     virtual string serializeToString();
@@ -79,19 +79,19 @@ public:
 
     virtual void addFields( nlohmann::json& j ) = 0;
 
-    static uint64_t getUint64( nlohmann::json& _js, const char* _name );
+    static uint64_t getUint64( const nlohmann::json& _js, const char* _name );
 
-    static string getStringRapid( rapidjson::Document& _d, const char* _name );
+    static string getStringRapid( const rapidjson::Document& _d, const char* _name );
 
-    static uint64_t getUint64Rapid( rapidjson::Document& _d, const char* _name );
+    static uint64_t getUint64Rapid( const rapidjson::Document& _d, const char* _name );
 
-    static uint32_t getUint32( nlohmann::json& _js, const char* _name );
+    static uint32_t getUint32( const nlohmann::json& _js, const char* _name );
 
-    static int32_t getInt32( nlohmann::json& _js, const char* _name );
+    static int32_t getInt32( const nlohmann::json& _js, const char* _name );
 
-    static string getString( nlohmann::json& _js, const char* _name );
+    static string getString( const nlohmann::json& _js, const char* _name );
 
-    static bool getBool( nlohmann::json& _js, const char* _name );
+    static bool getBool( const nlohmann::json& _js, const char* _name );
 
-    static string maybeGetString( nlohmann::json& _js, const char* _name );
+    static string maybeGetString( const nlohmann::json& _js, const char* _name );
 };

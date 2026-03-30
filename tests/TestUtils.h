@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <cstdlib>
 #include <memory>
 #include <string>
 
@@ -35,6 +36,59 @@
 #include "thirdparty/catch.hpp"
 
 namespace TestUtils {
+
+struct TestEnvVarSnapshot {
+    bool hadPreviousValue = false;
+    string previousValue;
+};
+
+inline TestEnvVarSnapshot captureTestEnvVar( const string& _envName ) {
+    TestEnvVarSnapshot snapshot;
+    const char* previousValue = std::getenv( _envName.c_str() );
+    if ( previousValue != nullptr ) {
+        snapshot.hadPreviousValue = true;
+        snapshot.previousValue = previousValue;
+    }
+    return snapshot;
+}
+
+inline TestEnvVarSnapshot setTestEnvVar(
+    const string& _envName, const string& _envValue, int _overwrite = 1 ) {
+    auto snapshot = captureTestEnvVar( _envName );
+    CATCH_REQUIRE( setenv( _envName.c_str(), _envValue.c_str(), _overwrite ) == 0 );
+    return snapshot;
+}
+
+inline void unsetTestEnvVar( const string& _envName ) {
+    CATCH_REQUIRE( unsetenv( _envName.c_str() ) == 0 );
+}
+
+inline void restoreTestEnvVar( const string& _envName, const TestEnvVarSnapshot& _snapshot ) {
+    if ( _snapshot.hadPreviousValue ) {
+        CATCH_REQUIRE( setenv( _envName.c_str(), _snapshot.previousValue.c_str(), 1 ) == 0 );
+    } else {
+        unsetTestEnvVar( _envName );
+    }
+}
+
+class TestEnvVarGuard {
+    string envName;
+    TestEnvVarSnapshot snapshot;
+
+public:
+    explicit TestEnvVarGuard( const string& _envName )
+        : envName( _envName ), snapshot( captureTestEnvVar( _envName ) ) {
+        unsetTestEnvVar( envName );
+    }
+
+    ~TestEnvVarGuard() {
+        if ( snapshot.hadPreviousValue ) {
+            setenv( envName.c_str(), snapshot.previousValue.c_str(), 1 );
+        } else {
+            unsetenv( envName.c_str() );
+        }
+    }
+};
 
 /**
  * @brief Creates a minimal test Node with the given configuration

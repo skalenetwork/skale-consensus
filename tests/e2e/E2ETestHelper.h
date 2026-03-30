@@ -59,10 +59,10 @@ public:
 
         boost::filesystem::create_directories( TEST_DATA_ROOT_DIR );
 
-        setTestEnvVar( "DATA_DIR", TEST_DATA_ROOT_DIR.c_str() );
+        TestUtils::setTestEnvVar( "DATA_DIR", TEST_DATA_ROOT_DIR.c_str() );
 
         // Keep default runtime for fast tests unless caller already set TEST_TIME_S.
-        setTestEnvVar( "TEST_TIME_S", "4", 0 );
+        TestUtils::setTestEnvVar( "TEST_TIME_S", "4", 0 );
     }
 
     static void startEngine(
@@ -125,37 +125,6 @@ public:
         _engine->testExitGracefullyBlocking();
         delete _engine;
         _engine = nullptr;
-    }
-
-    // ========= Environment variable helpers for tests ========= 
-    struct TestEnvVarSnapshot {
-        bool hadPreviousValue = false;
-        string previousValue;
-    };
-
-    static TestEnvVarSnapshot setTestEnvVar(
-        const string& _envName, const string& _envValue, int _overwrite = 1 ) {
-        TestEnvVarSnapshot snapshot;
-        const char* previousValue = std::getenv( _envName.c_str() );
-        if ( previousValue != nullptr ) {
-            snapshot.hadPreviousValue = true;
-            snapshot.previousValue = previousValue;
-        }
-
-        CATCH_REQUIRE( setenv( _envName.c_str(), _envValue.c_str(), _overwrite ) == 0 );
-        return snapshot;
-    }
-
-    static void unsetTestEnvVar( const string& _envName ) {
-        CATCH_REQUIRE( unsetenv( _envName.c_str() ) == 0 );
-    }
-
-    static void restoreTestEnvVar( const string& _envName, const TestEnvVarSnapshot& _snapshot ) {
-        if ( _snapshot.hadPreviousValue ) {
-            CATCH_REQUIRE( setenv( _envName.c_str(), _snapshot.previousValue.c_str(), 1 ) == 0 );
-        } else {
-            unsetTestEnvVar( _envName );
-        }
     }
 };
 

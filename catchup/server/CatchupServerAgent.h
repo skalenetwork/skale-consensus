@@ -40,17 +40,15 @@ class CommittedBlock;
 class CommittedBlockList;
 class CatchupResponseHeader;
 class BlockFinalizeResponseHeader;
+class BlockFinalizeResponder;
 
 class CatchupServerAgent : public AbstractServerAgent {
     ptr< CatchupWorkerThreadPool > catchupWorkerThreadPool;
+    ptr< BlockFinalizeResponder > blockFinalizeResponder;
 
     ptr< vector< uint8_t > > createBlockCatchupResponse( const ptr< ServerConnection >& _connectionEnvelope,
         nlohmann::json _jsonRequest, const ptr< CatchupResponseHeader >& _responseHeader,
         block_id _blockID );
-
-
-    ptr< vector< uint8_t > > createBlockFinalizeResponse( nlohmann::json _jsonRequest,
-        const ptr< BlockFinalizeResponseHeader >& _responseHeader, block_id _blockID );
 
 
 public:

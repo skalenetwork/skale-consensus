@@ -278,6 +278,8 @@ void Node::initParamsFromConfig() {
     stuckRestartIntervalMs = getParamUint64( "stuckRestartIntervalMs", STUCK_RESTART_INTERVAL_MS );
     waitAfterNetworkErrorMs =
         getParamUint64( "waitAfterNetworkErrorMs", WAIT_AFTER_NETWORK_ERROR_MS );
+    blockFinalizeDownloadTcpFallbackMs =
+        getParamUint64( "blockFinalizeDownloadTcpFallbackMs", BLOCK_FINALIZE_DOWNLOAD_TCP_FALLBACK_MS );
     maxCatchupDownloadBytes =
         getParamUint64( "maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES );
     maxTransactionsPerBlock =
@@ -292,6 +294,11 @@ void Node::initParamsFromConfig() {
     syncNodeReadJsonHeaderTimeoutSec =
         getParamUint64( "syncNodeReadJsonHeaderTimeoutSec", SYNC_NODE_READ_JSON_HEADER_TIMEOUT_SEC );
     testNet = ( getParamUint64( "isTestNet", 0 ) > 0 );
+    
+    if ( cfg.find( "blockFinalizeZmqEnabled" ) != cfg.end() ) {
+        blockFinalizeZmqEnabled =
+            cfg.at( "blockFinalizeZmqEnabled" ).get< bool >();
+    }
 
     blockDBSize = storageLimits->getBlockDbSize();
     proposalHashDBSize = storageLimits->getProposalHashDbSize();
@@ -313,6 +320,10 @@ void Node::initParamsFromConfig() {
     visualizationType = getParamUint64( "visualizationType", 0 );
 
     simulateNetworkWriteDelayMs = getParamInt64( "simulateNetworkWriteDelayMs", 0 );
+
+    // Socket port deltas may be overwritten in config.
+    socketPortDeltas.ZMQBulkDataPortDelta = static_cast< uint16_t >( getParamUint64(
+        "ZMQBulkDataPortDelta", socketPortDeltas.ZMQBulkDataPortDelta ) );
 
     testConfig = make_shared< TestConfig >( cfg );
 
@@ -417,7 +428,7 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
 
     this->sockets = make_shared< Sockets >( *this );
 
-    sockets->initSockets( bindIP, ( uint16_t ) basePort );
+    sockets->initSockets( bindIP, static_cast<uint16_t>( basePort ), socketPortDeltas );
 
     CONS_LOG( trace, "Constructing servers" );
 
@@ -669,7 +680,7 @@ void Node::exitImmediately() {
 
     CONS_LOG( info, "Status server stopped" );
 
-    closeAllSocketsAndNotifyAllAgentsAndThreads();
+    notifyAllAgentsAndInterruptIo();
 
     CONS_LOG( info, __FUNCTION__ << string( " completed" ) );
 }
@@ -690,7 +701,7 @@ void Node::checkForExitOnBlockBoundaryAndExitIfNeeded() {
 }
 
 
-void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
+void Node::notifyAllAgentsAndInterruptIo() {
     CONS_LOG( info, "consensus engine exiting: close all sockets called" );
 
     // guaranteed to run only once
@@ -718,8 +729,9 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
     CONS_LOG( info, "consensus engine exiting: catchup socket touched" );
 
-    if ( isSyncOnlyNode() )
+    if ( isSyncOnlyNode() ) {
         return;
+    }
 
     if ( sockets && sockets->blockProposalSocket ) {
         sockets->blockProposalSocket->touch();
@@ -729,17 +741,23 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     getSchain()->getCryptoManager()->exitZMQClient();
     CONS_LOG( info, "consensus engine exiting: exitZMQClient called" );
 
-    if ( sockets ) {
-        sockets->getConsensusZMQSockets()->closeAndCleanupAll();
-        CONS_LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
-    }
-
 #ifdef BITE
     if ( biteBlockFinalizeServer ) {
         biteBlockFinalizeServer->exitProxygenServer();
         CONS_LOG( info, "consensus engine exiting: exitProxygenServer called" );
     }
 #endif
+}
+
+void Node::closeZMQSocketsAfterJoin() {
+    if ( !sockets ) {
+        return;
+    }
+
+    sockets->getConsensusZMQSockets()->closeAndCleanupAll();
+    CONS_LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
+    sockets->getBulkDataZMQSockets()->closeAndCleanupAll();
+    CONS_LOG( info, "consensus engine exiting: bulk-data ZMQ sockets closeAndCleanupAll called" );
 }
 
 /*

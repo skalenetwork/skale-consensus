@@ -35,6 +35,7 @@
 #include "monitoring/StuckDetectionAgent.h"
 #include "utils/Time.h"
 
+#include "TestConfig.h"
 
 #include "SchainMessageThreadPool.h"
 #include "crypto/ConsensusBLSSigShare.h"
@@ -285,6 +286,51 @@ ptr< BiteManager > Schain::getBiteManager() const {
 ptr< OptimizerAgent > Schain::getOptimizerAgent() const {
     CHECK_STATE( optimizerAgent );
     return optimizerAgent;
+}
+
+void Schain::noteBlockFinalizeZmqClientAttempt() {
+    if ( !getNode()->getTestConfig()->isBlockFinalizeTransportStatsEnabled() ) {
+        return;
+    }
+    ++blockFinalizeZmqClientAttempts;
+}
+
+void Schain::noteBlockFinalizeZmqClientFallbackToTcp() {
+    if ( !getNode()->getTestConfig()->isBlockFinalizeTransportStatsEnabled() ) {
+        return;
+    }
+    ++blockFinalizeZmqClientFallbacksToTcp;
+}
+
+void Schain::noteBlockFinalizeTcpClientRequest() {
+    if ( !getNode()->getTestConfig()->isBlockFinalizeTransportStatsEnabled() ) {
+        return;
+    }
+    ++blockFinalizeTcpClientRequests;
+}
+
+void Schain::noteBlockFinalizeZmqServerRequestServed() {
+    if ( !getNode()->getTestConfig()->isBlockFinalizeTransportStatsEnabled() ) {
+        return;
+    }
+    ++blockFinalizeZmqServerRequestsServed;
+}
+
+void Schain::noteBlockFinalizeTcpServerRequestServed() {
+    if ( !getNode()->getTestConfig()->isBlockFinalizeTransportStatsEnabled() ) {
+        return;
+    }
+    ++blockFinalizeTcpServerRequestsServed;
+}
+
+BlockFinalizeTransportStats Schain::getBlockFinalizeTransportStats() const {
+    BlockFinalizeTransportStats stats;
+    stats.zmqClientAttempts = blockFinalizeZmqClientAttempts.load();
+    stats.zmqClientFallbacksToTcp = blockFinalizeZmqClientFallbacksToTcp.load();
+    stats.tcpClientRequests = blockFinalizeTcpClientRequests.load();
+    stats.zmqServerRequestsServed = blockFinalizeZmqServerRequestsServed.load();
+    stats.tcpServerRequestsServed = blockFinalizeTcpServerRequestsServed.load();
+    return stats;
 }
 
 

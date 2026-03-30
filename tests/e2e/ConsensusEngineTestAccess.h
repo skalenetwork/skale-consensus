@@ -90,4 +90,28 @@ public:
     static TimeStamp getCurrentLastCommittedBlockTimeStamp( const ConsensusEngine& e ) {
         return getCurrentLastCommittedBlockTimeStampForNode( e, getFirstNodeId( e ) );
     }
+
+    static BlockFinalizeTransportStats getBlockFinalizeTransportStatsForNode(
+        const ConsensusEngine& e, node_id node ) {
+        auto it = e.nodes.find( node );
+        CHECK_STATE2( it != e.nodes.end(), "Node with id " + to_string( node ) + " not found" );
+        CHECK_STATE( it->second );
+        auto schain = it->second->getSchain();
+        CHECK_STATE( schain );
+        return schain->getBlockFinalizeTransportStats();
+    }
+
+    static BlockFinalizeTransportStats getBlockFinalizeTransportStats(
+        const ConsensusEngine& e ) {
+        BlockFinalizeTransportStats totalStats;
+
+        for ( const auto& item : e.nodes ) {
+            CHECK_STATE( item.second );
+            auto schain = item.second->getSchain();
+            CHECK_STATE( schain );
+            totalStats.add( schain->getBlockFinalizeTransportStats() );
+        }
+
+        return totalStats;
+    }
 };

@@ -182,6 +182,8 @@ static constexpr uint64_t STUCK_RESTART_INTERVAL_MS = 3 * 60 * 60 * 1000;  // th
 
 static constexpr uint64_t WAIT_AFTER_NETWORK_ERROR_MS = 3000;
 
+static constexpr uint64_t BLOCK_FINALIZE_DOWNLOAD_TCP_FALLBACK_MS = 30 * 60 * 1000; // 30 minutes
+
 static constexpr uint64_t CONNECTION_REFUSED_LOG_INTERVAL_MS = 10 * 60 * 1000;
 
 static constexpr uint64_t CATCHUP_TIMEOUT_SEC = 30;
@@ -250,10 +252,11 @@ enum port_type {
     BINARY_CONSENSUS = 4,
     ZMQ_BROADCAST = 5,
     MTA = 6,
-    STATUS = 10
+    STATUS = 10,
 #ifdef BITE
-    , BITE_SERVER = 11
-#endif
+    BITE_SERVER = 11,
+#endif  
+    BULK_DATA_ZMQ = 12
 };
 
 

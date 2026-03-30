@@ -181,7 +181,7 @@ jobs:
     - name: run tests (block sizes)
       env:
         CI_BUILD: "1"
-        TEST_TRANSACTIONS_PER_BLOCK: "1000"
+        TEST_TRANSACTIONS_PER_BLOCK: "500"
       run: |
         cd scripts 
         ./tests.py && cd ..

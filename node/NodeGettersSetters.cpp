@@ -279,6 +279,10 @@ uint64_t Node::getWaitAfterNetworkErrorMs() {
     return waitAfterNetworkErrorMs;
 }
 
+uint64_t Node::getBlockFinalizeDownloadTcpFallbackMs() {
+    return blockFinalizeDownloadTcpFallbackMs;
+}
+
 uint64_t Node::getEmptyBlockIntervalMs() const {
     return emptyBlockIntervalMs;
 }
@@ -457,6 +461,10 @@ uint64_t Node::getVisualizationType() const {
 
 bool Node::isTestNet() const {
     return testNet;
+}
+
+bool Node::isBlockFinalizeZmqEnabled() const {
+    return blockFinalizeZmqEnabled;
 }
 
 void Node::setExitOnBlockBoundaryRequested() {

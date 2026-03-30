@@ -32,8 +32,8 @@
 #include "Sockets.h"
 #include "TCPServerSocket.h"
 
-TCPServerSocket::TCPServerSocket( const string& _bindIP, uint16_t _basePort, port_type _portType )
-    : ServerSocket( _bindIP, _basePort, _portType ) {
+TCPServerSocket::TCPServerSocket( const string& _bindIP, uint16_t _bindPort )
+    : ServerSocket( _bindIP, _bindPort ) {
     socketaddr = Sockets::createSocketAddress( bindIP, bindPort );
 
     CHECK_STATE( socketaddr );
@@ -92,6 +92,6 @@ int TCPServerSocket::getDescriptor() {
 void TCPServerSocket::closeAndCleanupAll() {
     auto previous = descriptor.exchange( 0 );
     if ( previous != 0 ) {
-        close( descriptor );
+        close( previous );
     }
 }

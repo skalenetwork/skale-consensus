@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <exception>
 
 class CommittedBlockList;
 class ClientSocket;
@@ -35,11 +36,26 @@ class BlockProposal;
 class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
 class ThresholdSignature;
+class Header;
 
 #include <folly/synchronization/Baton.h>
 #include <folly/SharedMutex.h>
 #include "datastructures/BlockProposalFragmentList.h"
 
+/**
+ * Client-side BlockFinalize recovery agent.
+ *
+ * Schain creates this after a block has already been decided and signed, but the local node still
+ * lacks some data required to finalize it locally. The downloader contacts peer nodes and fetches:
+ * - missing proposal fragments
+ * - the DA proof signature, when needed
+ * - under BITE, missing decryption shares from other nodes
+ *
+ * Transport behavior:
+ * - prefer the new persistent ZMQ bulk-data lane
+ * - fall back to the legacy per-request TCP CATCHUP path for older or unavailable peers
+ * - cache that fallback decision per peer for a short cooldown period
+ */
 class BlockFinalizeDownloader : public Agent {
     block_id blockId = 0;
 
@@ -56,6 +72,12 @@ private:
     ptr< ThresholdSignature > daSig = nullptr;
 
     recursive_mutex m;
+
+    // Track which nodes are using old TCP interface.
+    // We keep a timestamp until which we should keep using TCP (even if ZMQ is available) 
+    // for each node that we know is using TCP fallback, to avoid repeatedly trying ZMQ for nodes that don't support it.
+    // Eventually all nodes will move to ZMQ, and this map will become mostly unused.
+    map< schain_index, uint64_t > tcpFallbackUntilMs;
 
     std::atomic<uint64_t> fragmentDownloadCounter = 0;
 
@@ -96,37 +118,87 @@ public:
 
     nlohmann::json readBlockFinalizeResponseHeader( const ptr< ClientSocket >& _socket );
 
+    /**
+     * Downloads block fragment from '_dstIndex' node using TCP connection. 
+     * This is the old interface, used only as a fallback when ZMQ transport fails, 
+     * and is marked in local cache to keep using TCP for this node for some time in the future.
+     */
+    void downloadFragmentTCP( schain_index _dstIndex, fragment_index _fragmentIndex,
+        const ptr< Header >& _header );
 
-    ptr< BlockProposalFragment > readBlockFragment( const ptr< ClientSocket >& _socket,
-        nlohmann::json responseHeader, fragment_index _fragmentIndex, node_count _nodeCount
+    /**
+     * Downloads block fragment from '_dstIndex' node using ZMQ connection.
+     * This is the new interface, preferred over TCP, and should be used in newer nodes (that 
+     * execute current codebase)
+     */
+    void downloadFragmentZMQ( schain_index _dstIndex, fragment_index _fragmentIndex,
+        const ptr< Header >& _header );
+
+    /**
+     * Check local cache if '_dstIndex' node was using TCP
+     * recently. If so, it should be marked to keep TCP fallback.
+     * Else, returns false, meaning we can try ZMQ for this node.
+     */
+    bool shouldUseTCPFallback( schain_index _dstIndex );
+
+    /**
+     * Mark '_dstIndex' node to use TCP fallback for some time in the future,
+     * based on current time + configured TCP fallback duration.
+     */
+    void markTCPFallback( schain_index _dstIndex );
+
+    /**
+     * Clears TCP fallback mark for '_dstIndex' node, 
+     * allowing to try ZMQ for this node again.
+     */
+    void clearTCPFallback( schain_index _dstIndex );
+
+    ptr< vector< uint8_t > > readSerializedBlockFragment(
+        const ptr< ClientSocket >& _socket, const nlohmann::json& _responseHeader );
+
+    void validateBlockFinalizeResponse(
+        const nlohmann::json& _responseHeader, schain_index _dstIndex, fragment_index _fragmentIndex );
+
+    void processBlockFinalizePayload( schain_index _dstIndex, fragment_index _fragmentIndex,
+        const nlohmann::json& _responseHeader, const ptr< vector< uint8_t > >& _serializedFragment );
+
+
+    ptr< BlockProposalFragment > readBlockFragment( const ptr< vector< uint8_t > >& _serializedFragment,
+        const nlohmann::json& responseHeader, fragment_index _fragmentIndex, node_count _nodeCount
 #ifdef BITE
         , schain_index _proposerIndex
         , schain_index _destinationIndex
 #endif
     );
 
-    static uint64_t readFragmentSize( nlohmann::json _responseHeader );
+    static uint64_t readFragmentSize( const nlohmann::json& _responseHeader );
 
     bool downloadProposalDAProofAndDecryptions();
 
 
     bool completeAndNeedToExitAllThreads();
 
-    string readBlockHash( nlohmann::json _responseHeader );
+    string readBlockHash( const nlohmann::json& _responseHeader );
 
     block_id getBlockId();
 
     schain_index getProposerIndex();
 
-    static uint64_t readBlockSize( nlohmann::json _responseHeader );
+    static uint64_t readBlockSize( const nlohmann::json& _responseHeader );
 
-    string readDAProofSig( nlohmann::json _responseHeader );
+    string readDAProofSig( const nlohmann::json& _responseHeader );
 
-    void processDAProofSig(nlohmann::json _responseHeader, string h);
+    void processDAProofSig(const nlohmann::json& _responseHeader, string h);
 
 
     bool needDAProof();
 #ifdef BITE
+    /**
+     * Checks if we have enough shares from other nodes.
+     * If we do, we don't need this node's shares - return false.
+     * Else, check if we have enough shares from '_decryptorIndex' node.
+     * If not, return true.
+     */
     bool needDecryptionShares(schain_index _decryptorIndex);
 #endif
 

@@ -863,6 +863,10 @@ void ConsensusEngine::exitGracefullyAsync() {
             it.second->getSchain()->stopAndDestroyFinalizationExecutor();
 #endif
         }
+
+        for ( auto&& it : nodes ) {
+            it.second->closeZMQSocketsAfterJoin();
+        }
     } catch ( exception& e ) {
         SkaleException::logNested( e );
         status = CONSENSUS_EXITED;

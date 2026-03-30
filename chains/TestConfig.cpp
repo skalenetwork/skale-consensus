@@ -30,11 +30,24 @@ bool TestConfig::isFinalizationDownloadOnly() const {
     return finalizationDownloadOnly;
 }
 
-TestConfig::TestConfig( nlohmann::json /*cgf */ ) {
+bool TestConfig::isBlockFinalizeTransportStatsEnabled() const {
+    return blockFinalizeTransportStatsEnabled;
+}
+
+TestConfig::TestConfig( nlohmann::json cgf ) {
     auto option = std::getenv( "TEST_FINALIZATION_DOWNLOAD_ONLY" );
     finalizationDownloadOnly = ( option != nullptr );
 
+    if ( cgf.is_object() ) {
+        blockFinalizeTransportStatsEnabled =
+            cgf.value( "testBlockFinalizeTransportStatsEnabled", false );
+    }
+
     if ( finalizationDownloadOnly ) {
         CONS_LOG( info, "Testing the case of only finalization download" );
+    }
+
+    if ( blockFinalizeTransportStatsEnabled ) {
+        CONS_LOG( info, "Testing BlockFinalize transport stats collection enabled" );
     }
 }

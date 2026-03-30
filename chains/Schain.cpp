@@ -51,6 +51,7 @@
 #include "utils/Time.h"
 
 #include "blockfinalize/client/BlockFinalizeDownloader.h"
+#include "blockfinalize/server/BlockFinalizeZmqServerAgent.h"
 #include "blockproposal/server/BlockProposalServerAgent.h"
 #include "catchup/client/CatchupClientAgent.h"
 #include "catchup/server/CatchupServerAgent.h"
@@ -1505,6 +1506,11 @@ void Schain::constructServers(const ptr<Sockets> &_sockets) {
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     catchupServerAgent = make_shared<CatchupServerAgent>(*this, _sockets->catchupSocket);
+    
+    if ( getNode()->isBlockFinalizeZmqEnabled() ) {
+        blockFinalizeZmqServerAgent =
+            make_shared<BlockFinalizeZmqServerAgent>(*this, _sockets->getBulkDataZMQSockets());
+    }
 
 
     if (getNode()->isSyncOnlyNode())

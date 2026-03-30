@@ -67,7 +67,7 @@ ptr< Buffer > BasicHeader::toBuffer() {
 }
 
 
-void BasicHeader::nullCheck( nlohmann::json& js, const char* _name ) {
+void BasicHeader::nullCheck( const nlohmann::json& js, const char* _name ) {
     CHECK_ARGUMENT( _name );
     if ( js.find( _name ) == js.end() ) {
         BOOST_THROW_EXCEPTION(
@@ -75,14 +75,14 @@ void BasicHeader::nullCheck( nlohmann::json& js, const char* _name ) {
     }
 };
 
-uint64_t BasicHeader::getUint64( nlohmann::json& _js, const char* _name ) {
+uint64_t BasicHeader::getUint64( const nlohmann::json& _js, const char* _name ) {
     CHECK_ARGUMENT( _name );
     nullCheck( _js, _name );
     uint64_t result = _js[_name];
     return result;
 };
 
-uint64_t BasicHeader::getUint64Rapid( rapidjson::Document& _d, const char* _name ) {
+uint64_t BasicHeader::getUint64Rapid( const rapidjson::Document& _d, const char* _name ) {
     CHECK_ARGUMENT( _name );
     CHECK_STATE2( _d.HasMember( _name ), "No JSON member:" + string( _name ) );
     const rapidjson::Value& a = _d[_name];
@@ -90,7 +90,7 @@ uint64_t BasicHeader::getUint64Rapid( rapidjson::Document& _d, const char* _name
     return a.GetUint64();
 };
 
-string BasicHeader::getStringRapid( rapidjson::Document& _d, const char* _name ) {
+string BasicHeader::getStringRapid( const rapidjson::Document& _d, const char* _name ) {
     CHECK_ARGUMENT( _name );
     CHECK_STATE2( _d.HasMember( _name ), "No JSON member:" + string( _name ) );
     CHECK_STATE( _d[_name].IsString() );
@@ -98,7 +98,7 @@ string BasicHeader::getStringRapid( rapidjson::Document& _d, const char* _name )
 };
 
 
-int32_t BasicHeader::getInt32( nlohmann::json& _js, const char* _name ) {
+int32_t BasicHeader::getInt32( const nlohmann::json& _js, const char* _name ) {
     CHECK_ARGUMENT( _name );
     nullCheck( _js, _name );
     int32_t result = _js[_name];
@@ -106,21 +106,21 @@ int32_t BasicHeader::getInt32( nlohmann::json& _js, const char* _name ) {
 };
 
 
-uint32_t BasicHeader::getUint32( nlohmann::json& _js, const char* _name ) {
+uint32_t BasicHeader::getUint32( const nlohmann::json& _js, const char* _name ) {
     CHECK_ARGUMENT( _name );
     nullCheck( _js, _name );
     uint32_t result = _js[_name];
     return result;
 };
 
-string BasicHeader::getString( nlohmann::json& _js, const char* _name ) {
+string BasicHeader::getString( const nlohmann::json& _js, const char* _name ) {
     CHECK_ARGUMENT( _name );
     nullCheck( _js, _name );
     string result = _js[_name];
     return result;
 }
 
-bool  BasicHeader::getBool( nlohmann::json& _js, const char* _name ) {
+bool  BasicHeader::getBool( const nlohmann::json& _js, const char* _name ) {
     CHECK_ARGUMENT( _name );
     nullCheck( _js, _name );
     bool result = _js[_name];
@@ -128,7 +128,7 @@ bool  BasicHeader::getBool( nlohmann::json& _js, const char* _name ) {
 }
 
 
-string BasicHeader::maybeGetString( nlohmann::json& _js, const char* _name ) {
+string BasicHeader::maybeGetString( const nlohmann::json& _js, const char* _name ) {
     CHECK_ARGUMENT( _name );
     if ( _js.find( _name ) == _js.end() ) {
         return "";

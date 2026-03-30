@@ -24,6 +24,8 @@
 #pragma once
 
 #include <mutex>
+#include "thirdparty/json.hpp"
+#include "network/SocketPortDeltas.h"
 
 using namespace std;
 
@@ -54,6 +56,7 @@ class TestConfig;
 class BlockSigShareDB;
 class DASigShareDB;
 class DAProofDB;
+class NodeTestAccess;
 
 #ifdef BITE
     class TEDecryptionDB;
@@ -77,6 +80,7 @@ enum PricingStrategyEnum { ZERO, DOS_PROTECT };
 
 class Node {
     friend class Schain;  // Allow Schain to access private barrier methods for teardown
+    friend class NodeTestAccess; // Allow test access to private members
     
     ConsensusEngine* consensusEngine;
 
@@ -215,6 +219,10 @@ class Node {
 
     uint64_t waitAfterNetworkErrorMs = 0;
 
+    uint64_t blockFinalizeDownloadTcpFallbackMs = 0;
+
+    bool blockFinalizeZmqEnabled = true;
+
     uint64_t emptyBlockIntervalMs = 0;
 
     uint64_t emptyBlockIntervalAfterCatchupMs = 0;
@@ -260,6 +268,9 @@ class Node {
 #endif
     uint64_t visualizationType = 0;
 
+    // Socket ports - already default initializes all port deltas
+    SocketPortDeltas socketPortDeltas;
+
 
     string gethURL = "";
     bool testNet = false;
@@ -277,7 +288,7 @@ class Node {
 
     void releaseGlobalClientBarrier();
 
-    void closeAllSocketsAndNotifyAllAgentsAndThreads();
+    void notifyAllAgentsAndInterruptIo();
 
     atomic< bool > exitOnBlockBoundaryRequested = false;
 
@@ -301,6 +312,9 @@ public:
 
     void doSoftAndThenHardExit();
 
+    // Called by ConsensusEngine after all worker threads have been joined.
+    void closeZMQSocketsAfterJoin();
+
     string getEcdsaKeyName();
 
     ptr< vector< string > > getEcdsaPublicKeys();
@@ -320,6 +334,8 @@ public:
     bool isSgxEnabled();
 
     bool isTestNet() const;
+
+    bool isBlockFinalizeZmqEnabled() const;
 
     [[nodiscard]] const ptr< TestConfig >& getTestConfig() const;
 
@@ -476,6 +492,8 @@ public:
     uint64_t getsyncNodeReadJsonHeaderTimeoutSec() const;
 
     uint64_t getWaitAfterNetworkErrorMs();
+
+    uint64_t getBlockFinalizeDownloadTcpFallbackMs();
 
 #ifdef FAIR
     uint64_t getConstantGasPrice() const;
