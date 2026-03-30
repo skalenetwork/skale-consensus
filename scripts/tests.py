@@ -28,7 +28,7 @@ import subprocess
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
-BASIC_CONSENSUS_MAX_TRANSACTIONS_PER_BLOCK = "500"
+TEST_TRANSACTIONS_PER_BLOCK = "500"
 
 
 def print_separator(_label, _char="="):
@@ -174,7 +174,7 @@ unitTest(
 
 
 basicConsensusEnv = {
-    "maxTransactionsPerBlock": BASIC_CONSENSUS_MAX_TRANSACTIONS_PER_BLOCK,
+    "TEST_TRANSACTIONS_PER_BLOCK": TEST_TRANSACTIONS_PER_BLOCK,
 }
 
 fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]", basicConsensusEnv)
