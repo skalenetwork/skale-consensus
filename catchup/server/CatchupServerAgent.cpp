@@ -388,16 +388,22 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
         ptr<AESKeyDecryptionShareList> myDecryptionShares;
 
         if (needDecryptionShares) {
-            myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(proposal->getBlockID(),
-                proposal->getProposerIndex());
+            // try get cached decryption shares from proposal first
+            myDecryptionShares = proposal->getMyDecryptionShares();
             if (!myDecryptionShares) {
-                _responseHeader->setStatusSubStatus(
-                    CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES);
-                _responseHeader->setComplete();
-                return nullptr;
+                // if proposal does not have decryption shares, try to get from DB 
+                // (e.g., in case of finalized block, shares might not be in proposal but should be in DB)
+                myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(proposal->getBlockID(),
+                    proposal->getProposerIndex());
+                if (!myDecryptionShares) {
+                    _responseHeader->setStatusSubStatus(
+                        CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES);
+                    _responseHeader->setComplete();
+                    return nullptr;
+                }
             }
         } else {
-            // just returtn emptyu list
+            // just return empty list
             myDecryptionShares = make_shared<AESKeyDecryptionShareList>(_blockID, proposerIndex,
                                                                         getSchain()->getSchainIndex());
         }

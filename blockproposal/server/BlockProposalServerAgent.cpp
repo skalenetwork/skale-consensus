@@ -268,7 +268,7 @@ void BlockProposalServerAgent::processDAProofRequest(
 }
 
 pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processProposalRequest(
-        const ptr<ServerConnection> &_connection, nlohmann::json _proposalRequest) {
+        const ptr<ServerConnection> &_connection, nlohmann::json _proposalRequest ) {
     CHECK_ARGUMENT(_connection);
 
     ptr<BlockProposalRequestHeader> requestHeader = nullptr;

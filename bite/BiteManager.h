@@ -111,10 +111,13 @@ public:
      * separated by commas.
      * @param _decryptorIndex - index of the decryptor node that created these shares
      * @param _decryptionFailed - whether decryption failed for this transaction
+     * @param _validate - whether to validate the shares during creation (only applicable if using real crypto). 
+     * If true and validation fails, an exception is thrown.
      */
     [[nodiscard]] ptr<AESKeyDecryptionShares> createAESDecryptionShares(const string& _aesKeyDecryptionShares,
                                                                       schain_index _decryptorIndex,
-                                                                      bool _decryptionFailed);
+                                                                      bool _decryptionFailed,
+                                                                      bool _validate = true);
 
 
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(

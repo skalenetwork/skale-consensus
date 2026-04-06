@@ -30,7 +30,6 @@
 #include "db/TEDecryptionDB.h"
 
 #include "libBLS/bls/BLSPublicKey.h"
-
 BiteManager::BiteManager(Schain& _schain)
   : schain(_schain), 
     biteEngine(
@@ -42,7 +41,7 @@ BiteManager::BiteManager(Schain& _schain)
             }
         )
 {
-    threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
+    threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(getNumBiteValidationThreads());
 }
 
 BiteManager::~BiteManager() {
@@ -86,7 +85,10 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
     ptr<TransactionCiphertextsMap> txsCiphertexts = _proposal->getTransactionCiphertexts();
     auto& failedTransactionRef = _proposal->getFailedTransactionsRef();
 
-    BiteEngine::CiphertextValidationResult validationResult = biteEngine.validateCiphertexts(*txsCiphertexts);
+    BiteRuntimeContext biteCtx;
+    biteCtx.threadPoolExecutor = threadPoolExecutor;
+    BiteEngine::CiphertextValidationResult validationResult =
+        biteEngine.validateCiphertexts(*txsCiphertexts, biteCtx);
 
     if (!validationResult.allValid()) {
         for (auto invalidIdx : validationResult.invalidCiphertextIndices) {
@@ -180,8 +182,8 @@ DecryptedTransactions BiteManager::verifyAndDecryptTransactionList(
 
     BiteRuntimeContext runtimeCtx {
         .currentEpoch = _epochId,
-        .threadPoolExecutor = threadPoolExecutor
-        , .isBite2PatchEnabled = _isBite2PatchEnabledForBlock
+        .threadPoolExecutor = threadPoolExecutor, 
+        .isBite2PatchEnabled = _isBite2PatchEnabledForBlock
     };
 
     return biteEngine.decryptTransactionsListInParallel(
@@ -251,14 +253,13 @@ ptr<vector<ptr<AESKeyDecryptionShares> > > BiteManager::getDecryptionSharesFromA
         flattenedShares,
         _decryptorIndex
     );
-
 }
 
 
 ptr<AESKeyDecryptionShares> BiteManager::createAESDecryptionShares(
-        const string& _aesKeyDecryptionShares, schain_index _decryptorIndex, bool _decryptionFailed) {
+        const string& _aesKeyDecryptionShares, schain_index _decryptorIndex, bool _decryptionFailed, bool _validate) {
     auto shareStrs = BiteCodec::splitShares(_aesKeyDecryptionShares);
-    return biteEngine.createDecryptionSharesObjects(shareStrs, _decryptorIndex, _decryptionFailed);
+    return biteEngine.createDecryptionSharesObjects(shareStrs, _decryptorIndex, _decryptionFailed, _validate);
 }
 
 ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(
