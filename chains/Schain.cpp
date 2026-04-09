@@ -692,8 +692,8 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         }
 
 #ifdef BITE
-        // Compute decryption shares before proposing block - else, could include incorrect
-        // BITE transactions
+        // Parse and validate BITE ciphertexts synchronously, then let the local decryption share
+        // computation run in the background while consensus progresses.
         if (!isProposalCameFromDb) {
             getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
 
@@ -710,21 +710,10 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
                 return;
             }
 
-            getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
-            if (!myProposal->getFailedTransactionsRef().empty()) {
-                CONS_LOG(err, "Critical error - could not decrypt BITE transactions");
-                CONS_LOG(err, "Rejecting proposal and triggering fallback consensus for default block");
-                try {
-                    timeoutAgent->forceEarlyTimeout();
-                } catch (ExitRequestedException &) {
-                    throw;
-                } catch (...) {
-                    CONS_LOG(err, "Could not trigger fallback consensus for default block");
-                }
-                return;
-            }
+            // SGX decryption shares will be computed asynchronously
+            getBiteManager()->scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
+                myProposal);
         }
-        CHECK_STATE(myProposal->getMyDecryptionShares());       
 #endif
 
         CONS_LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ));
@@ -1271,9 +1260,8 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         while (lastCommittedBlockIDInConsensus > _lastCommittedBlockID)
 
             try {
-                bool isBite2PatchEnabledForBlock = false;
 #ifdef BITE
-                isBite2PatchEnabledForBlock = bite2Patch( _lastCommittedBlockTimeStamp );
+                bool isBite2PatchEnabledForBlock = bite2Patch( _lastCommittedBlockTimeStamp );
 #endif
                 auto block = getNode()->getBlockDB()->getBlock(
                     _lastCommittedBlockID + 1, getCryptoManager() );
@@ -1661,7 +1649,13 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
 
 #ifdef BITE
-        getNode()->getTEDecryptionDB()->addDecryptionShares(proposal->getMyDecryptionShares());
+        proposal->waitUntilMyDecryptionSharesResolved();
+
+        auto myDecryptionShares = proposal->getMyDecryptionShares();
+        CHECK_STATE2(myDecryptionShares,
+            "Local decryption shares are unavailable for finalized proposal");
+
+        getNode()->getTEDecryptionDB()->addDecryptionShares(myDecryptionShares);
 
         auto count =
                 getNode()->getTEDecryptionDB()->getDecryptionsCount(_blockId);

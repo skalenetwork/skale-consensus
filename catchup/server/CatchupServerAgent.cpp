@@ -388,11 +388,20 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
         ptr<AESKeyDecryptionShareList> myDecryptionShares;
 
         if (needDecryptionShares) {
-            // try get cached decryption shares from proposal first
+            // waits up to some default set time (2s)
+            bool sharesResolved = proposal->waitUntilMyDecryptionSharesResolved();
+            // time out reached - something wrong happenned
+            if (!sharesResolved) {
+                        CONS_LOG(debug, "Timed out waiting for local decryption shares for proposal "
+                                            << proposal->getBlockID() << ":"
+                                            << proposal->getProposerIndex());
+            }
+
+            // Try the proposal-local cache first. If the proposal came from committed-block
+            // storage it may still not carry local shares, so fall back to the DB.
             myDecryptionShares = proposal->getMyDecryptionShares();
             if (!myDecryptionShares) {
-                // if proposal does not have decryption shares, try to get from DB 
-                // (e.g., in case of finalized block, shares might not be in proposal but should be in DB)
+                // If proposal does not have decryption shares, try to get them from the DB.
                 myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(proposal->getBlockID(),
                     proposal->getProposerIndex());
                 if (!myDecryptionShares) {

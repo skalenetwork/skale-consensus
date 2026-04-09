@@ -58,7 +58,18 @@ public:
 
     // =============== Stage 3: Compute Ciphertext shares =============== //
 
+    /**
+     * @brief For a given proposal, computes the decryption shares for all 
+     * transactions in SGX synchronously.
+     */
     void callSGXToCreateMyDecryptionSharesForProposalTransactions(
+            ptr<BlockProposal> _proposal);
+
+    /**
+     * @brief Schedules the computation of decryption shares in SGX for the given proposal.
+     * If the computation has already started, returns right away.
+     */
+    void scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
             ptr<BlockProposal> _proposal);
 
     // =============== Stage 4: Share merging =============== //
@@ -155,5 +166,11 @@ public:
     [[nodiscard]] ptr<vector<uint8_t> > generateEmptyCTXData(uint64_t epochId);
 
 private:
+
+    /**
+     * @brief For a given proposal, computes the decryption shares for all transactions.
+     */
+    void computeMyDecryptionSharesForProposalTransactions(ptr<BlockProposal> _proposal);
+
     void stopAndDestroyThreadPoolExecutor();
 };
