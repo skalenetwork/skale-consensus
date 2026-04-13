@@ -119,8 +119,10 @@ inline void createTestNodeAndSchain(
     auto nodeInfo = std::make_shared<NodeInfo>(nodeId, bindIP, basePort, schainId, schainIndex);
     node_out->setNodeInfo(nodeInfo);
     
-    // Create the schain
+    // Create the schain and register it on the node so that initLevelDBs() runs
+    // and all database handles (including teDecryptionDB) are initialised.
     chain_out = createTestSchain(node_out, schainIndex, schainId, schainName);
+    node_out->setSchain(chain_out);
 }
 
 }  // namespace TestUtils
