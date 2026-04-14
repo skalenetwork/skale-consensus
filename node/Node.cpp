@@ -614,6 +614,7 @@ void Node::doSoftAndThenHardExit() {
     RETURN_IF_PREVIOUSLY_CALLED( exitCalled )
 
     exitOnBlockBoundaryRequested = true;
+    const bool wasStarted = isStarted();
 
     // this handles the case when exit is called very early
     // so that the start barriers were not released yet
@@ -621,6 +622,14 @@ void Node::doSoftAndThenHardExit() {
     // so it can finish
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
+
+    // Test helpers can construct a node/schain pair without starting services.
+    // Releasing the barriers above mutates the started flags, so use the state
+    // captured before the release to detect this case correctly.
+    if ( !wasStarted ) {
+        exitImmediately();
+        return;
+    }
 
     // we try to wait until the next block is mined, unless the exit
     // was initiated by a fatal error in consensus. In the latter case

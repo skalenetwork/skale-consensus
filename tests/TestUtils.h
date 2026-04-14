@@ -31,6 +31,7 @@
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
+#include "tests/e2e/ConsensusEngineTestAccess.h"
 #include "thirdparty/json.hpp"
 #include "thirdparty/catch.hpp"
 
@@ -123,6 +124,7 @@ inline void createTestNodeAndSchain(
     // and all database handles (including teDecryptionDB) are initialised.
     chain_out = createTestSchain(node_out, schainIndex, schainId, schainName);
     node_out->setSchain(chain_out);
+    ConsensusEngineTestAccess::registerNode(engine, node_out);
 }
 
 }  // namespace TestUtils
