@@ -25,6 +25,7 @@
 #include <oids.h>
 #ifdef BITE
 
+#include <atomic>
 #include <folly/executors/CPUThreadPoolExecutor.h>
 #include <folly/futures/Future.h>
 #include <folly/Unit.h>
@@ -65,7 +66,8 @@ TEDecryptionDB::TEDecryptionDB(
     Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
     : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
           LevelDBOptions::getTEDecryptionDBOptions(), false ) {
-    threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
+
+    threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(getNumBiteValidationThreads());
 }
 
 TEDecryptionDB::~TEDecryptionDB() {
@@ -101,9 +103,6 @@ void TEDecryptionDB::addDecryptionShares(
     if ( decryptionsStore.count(_decryptionShareList->getBlockId()) > 0 )
         if ( decryptionsStore.at(_decryptionShareList->getBlockId()).count(index) > 0 )
             return;
-
-    auto serializedList = BiteAESDecryptionShareSerializer::serialize( _decryptionShareList );
-    CHECK_STATE( serializedList );
 
     std::vector<folly::Future<folly::Unit>> futures;
     futures.reserve(decryptionShareSets.size());
@@ -204,7 +203,6 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
     }
 
     CHECK_STATE(decryptionsStore.size() <= 2 * totalSigners);
-
 
     return aesKeys;
 }

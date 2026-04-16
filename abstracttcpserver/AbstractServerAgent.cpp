@@ -39,6 +39,7 @@
 #include "network/ServerConnection.h"
 #include "network/Sockets.h"
 #include "network/TCPServerSocket.h"
+#include <netinet/tcp.h>
 
 
 #include "AbstractServerAgent.h"
@@ -138,8 +139,9 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
         while ( !getSchain()->getNode()->isExitRequested() ) {
             int newConnection = accept( s, ( sockaddr* ) &clientAddress, &sizeOfClientAddress );
 
-            // static  int one = 1;
-            // CHECK_STATE(setsockopt(newConnection, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
+            // Enable NODELAY option
+            static  int one = 1;
+            CHECK_STATE(setsockopt(newConnection, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
 
             if ( getSchain()->getNode()->isExitRequested() ) {
                 return;

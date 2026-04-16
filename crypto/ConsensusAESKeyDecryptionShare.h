@@ -19,7 +19,8 @@ public:
 
     ConsensusAESKeyDecryptionShare(const string &_decryptionShare,
                                   schain_index _decryptorIndex,
-                                   bool _decryptionFailed);
+                                   bool _decryptionFailed,
+                                  bool _validate = true);
 
 
     [[nodiscard]] ptr<libBLS::TEDecryptionShare> getTEDecryptionShare() const;
