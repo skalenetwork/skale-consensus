@@ -63,7 +63,11 @@ public:
 
     ~TransactionList() override;
 
-    ptr< ConsensusExtFace::transactions_vector > createTransactionVector();
+    ptr< ConsensusExtFace::transactions_vector > createTransactionVector(
+#ifdef BITE
+    ptr< DecryptedTransactionFieldsMap > _decryptedTransactions
+#endif
+    );
 
     ptr< vector< uint64_t > > createTransactionSizesVector( bool _writePartialHash );
 

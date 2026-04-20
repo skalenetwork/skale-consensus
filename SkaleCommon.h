@@ -81,10 +81,8 @@
 
 #include "boost/filesystem.hpp"
 #include <boost/filesystem/operations.hpp>
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/detail/assert.hpp>
 
-#include <boost/bind.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 
@@ -92,6 +90,8 @@
 
 #include "boost/lexical_cast.hpp"
 #include <boost/tokenizer.hpp>
+
+#include "exceptions/InvalidStateException.h"
 
 #pragma GCC diagnostic pop
 
@@ -199,6 +199,12 @@ static constexpr size_t HASH_LEN = 32;
 
 static constexpr size_t PARTIAL_HASH_LEN = 8;
 
+#ifdef BITE
+static constexpr size_t EXTRA_DATA_LEN = 32;
+
+static constexpr size_t NUM_BITE_VALIDATION_THREADS = 8;
+#endif
+
 static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE = 0;
 // static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE  = 10000;
 static constexpr uint64_t SLOW_TEST_MESSAGE_INTERVAL = 10000;
@@ -244,6 +250,9 @@ enum port_type {
     ZMQ_BROADCAST = 5,
     MTA = 6,
     STATUS = 10
+#ifdef BITE
+    , BITE_SERVER = 11
+#endif
 };
 
 
@@ -258,6 +267,11 @@ using fs_path = boost::filesystem::path;  // #define fs_path boost::filesystem::
 
 
 typedef array< uint8_t, PARTIAL_HASH_LEN > partial_sha_hash;
+
+#ifdef BITE
+typedef array< uint8_t, HASH_LEN > sha_hash;
+typedef array< uint8_t, EXTRA_DATA_LEN > extra_data;
+#endif
 
 class SkaleCommon {
 public:
@@ -277,6 +291,9 @@ BOOST_STRONG_TYPEDEF( uint64_t, node_id );
 
 BOOST_STRONG_TYPEDEF( uint64_t, schain_id );
 
+
+BOOST_STRONG_TYPEDEF( uint64_t, epoch_id );
+BOOST_STRONG_TYPEDEF( uint32_t, transaction_index );
 
 BOOST_STRONG_TYPEDEF( unsigned int, tcp_connection );
 
@@ -352,6 +369,10 @@ static const uint64_t ZMQ_RECEIVE_RETRY_MS = 10;
 
 static const uint64_t DEFAULT_MIN_PRICE = 100000;
 
+#ifdef FAIR
+static const uint64_t CONSTANT_PRICING_DEFAULT_PRICE = 100 * 1000;
+#endif
+
 static const uint64_t COMMON_COIN_ROUND = 4;
 
 static const uint64_t ORACLE_RECEIPTS_MAP_SIZE = 100000;
@@ -377,16 +398,16 @@ extern std::string getThreadName();
 #define CHECK_ARGUMENT( _EXPRESSION_ )                                                         \
     if ( !( _EXPRESSION_ ) ) {                                                                 \
         auto __msg__ = string( "Argument Check failed:" ) + #_EXPRESSION_ + "\n" +             \
-                       __CLASS_NAME__ + ":" + __FUNCTION__ + +" " + string( __FILE__ ) + ":" + \
+                       string( __FILE__ ) + ": " + \
                        to_string( __LINE__ );                                                  \
-        throw InvalidArgumentException( __msg__, __CLASS_NAME__ );                             \
+        throw InvalidArgumentException( __msg__, __FUNCTION__ );                             \
     }
 
 #define CHECK_STATE( _EXPRESSION_ )                                             \
     if ( !( _EXPRESSION_ ) ) {                                                  \
         auto __msg__ = string( "State check failed::" ) + #_EXPRESSION_ + " " + \
-                       string( __FILE__ ) + ":" + to_string( __LINE__ );        \
-        throw InvalidStateException( __msg__, __CLASS_NAME__ );                 \
+                       string( __FILE__ ) + ": " + to_string( __LINE__ );        \
+        throw InvalidStateException( __msg__, __FUNCTION__ );                 \
     }
 
 
@@ -399,7 +420,7 @@ extern std::string getThreadName();
 #define CHECK_SIGNATURE_STATE( _EXPRESSION_ )                                       \
     if ( !( _EXPRESSION_ ) ) {                                                      \
         auto __msg__ = string( "Signature check failed::" ) + #_EXPRESSION_ + " " + \
-                       string( __FILE__ ) + ":" + to_string( __LINE__ );            \
+                       string( __FILE__ ) + ": " + to_string( __LINE__ );            \
         throw InvalidSignatureException( __msg__, __CLASS_NAME__ );                 \
     }
 
@@ -408,14 +429,14 @@ extern std::string getThreadName();
     if ( !( _EXPRESSION_ ) ) {                                                                 \
         auto __msg__ = string( "Check failed::" ) + #_EXPRESSION_ + " " + string( __FILE__ ) + \
                        ":" + to_string( __LINE__ );                                            \
-        throw InvalidArgumentException( __msg__ + ":" + _MSG_, __CLASS_NAME__ );               \
+        throw InvalidArgumentException( __msg__ + ": " + _MSG_, __CLASS_NAME__ );               \
     }
 
 #define CHECK_STATE2( _EXPRESSION_, _MSG_ )                                                    \
     if ( !( _EXPRESSION_ ) ) {                                                                 \
         auto __msg__ = string( "Check failed::" ) + #_EXPRESSION_ + " " + string( __FILE__ ) + \
                        ":" + to_string( __LINE__ );                                            \
-        throw InvalidStateException( __msg__ + ":" + _MSG_, __CLASS_NAME__ );                  \
+        throw InvalidStateException( __msg__ + ": " + _MSG_, __FUNCTION__ );                  \
     }
 
 #define ORACLE_CHECK_STATE3( _EXPRESSION_, _MSG_, _ERROR_ )       \

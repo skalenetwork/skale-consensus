@@ -26,6 +26,7 @@
 #include "Log.h"
 #include "chains/Schain.h"
 #include "datastructures/CommittedBlock.h"
+#include "monitoring/LivelinessMonitor.h"
 #include "exceptions/InvalidStateException.h"
 #include "utils/Time.h"
 
@@ -81,16 +82,10 @@ ptr< vector< uint8_t > > BlockDB::getSerializedBlocksFromLevelDB(
 
 
 ptr< vector< uint8_t > > BlockDB::getSerializedBlockFromLevelDB( block_id _blockID ) {
-    // check if block is in the cache and return
-    // cache is already thread safe
-    auto result = blockCache.getIfExists( ( uint64_t ) _blockID );
-    if ( result.has_value() ) {
-        auto block = std::any_cast< ptr< vector< uint8_t > > >( result );
-        CHECK_STATE( block )
-        return block;
-    }
 
-    shared_lock< shared_mutex > lock( m );
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
+    shared_lock< shared_mutex > lock( mBlockDB );
 
     try {
         auto key = createKey( _blockID );
@@ -122,13 +117,13 @@ void BlockDB::saveBlock2LevelDB( const ptr< CommittedBlock >& _block ) {
     CHECK_ARGUMENT( _block )
     CHECK_ARGUMENT( !_block->getSignature().empty() )
 
-    lock_guard< shared_mutex > lock( m );
+    lock_guard< shared_mutex > lock( mBlockDB );
 
     try {
         auto serializedBlock = _block->serialize();
 
-        // put block into the cache
-        blockCache.put( ( uint64_t ) _block->getBlockID(), serializedBlock );
+        // put deserealized block into the cache
+        blockCache.put( (uint64_t) _block->getBlockID(), _block );
 
         CHECK_STATE( serializedBlock )
 
@@ -171,19 +166,36 @@ ptr< CommittedBlock > BlockDB::getBlock(
     block_id _blockID, const ptr< CryptoManager >& _cryptoManager ) {
     CHECK_ARGUMENT( _cryptoManager )
 
-    shared_lock< shared_mutex > lock( m );
+    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+
 
     try {
+        // check if we have this block in cache first
+        auto deserealizedBlock = blockCache.getIfExists( (uint64_t)_blockID );
+        if ( deserealizedBlock.has_value() ) {
+            auto block = std::any_cast<ptr<CommittedBlock>>(deserealizedBlock);
+            CHECK_STATE(block);
+            return block;
+        }
+
         auto serializedBlock = getSerializedBlockFromLevelDB( _blockID );
 
         if ( serializedBlock == nullptr ) {
-            LOG( debug, "Got null block in BlockDB::getBlock" );
+            CONS_LOG( debug, "Got null block in BlockDB::getBlock" );
             return nullptr;
         }
 
         // dont check signatures on blocks that are already in internal db
         // they have already been verified
-        auto result = CommittedBlock::deserialize( serializedBlock, _cryptoManager, false );
+
+
+        MONITOR( __CLASS_NAME__, __FUNCTION__ + string(":deserialize") )
+        auto result = CommittedBlock::deserialize( serializedBlock, _cryptoManager,
+
+#ifdef BITE
+       sChain->getBiteManager(),
+#endif
+        false );
         CHECK_STATE( result )
         return result;
     }
@@ -194,7 +206,7 @@ ptr< CommittedBlock > BlockDB::getBlock(
 }
 
 block_id BlockDB::readLastCommittedBlockID() {
-    shared_lock< shared_mutex > lock( m );
+    shared_lock< shared_mutex > lock( mBlockDB );
 
     uint64_t lastBlockId;
 
@@ -211,7 +223,7 @@ block_id BlockDB::readLastCommittedBlockID() {
 }
 
 bool BlockDB::unfinishedBlockExists( block_id _blockID ) {
-    shared_lock< shared_mutex > lock( m );
+    shared_lock< shared_mutex > lock( mBlockDB );
 
     auto key = createBlockStartKey( _blockID );
     auto str = readString( key );

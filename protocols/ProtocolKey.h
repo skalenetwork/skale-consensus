@@ -28,15 +28,27 @@ class NetworkMessage;
 
 class ProtocolKey {
     const block_id blockID = 0;
+#ifdef BITE
+    const epoch_id epochID;
+#endif
 
     const schain_index blockProposerIndex = 0;
 
 public:
+
     [[nodiscard]] block_id getBlockID() const;
+
+#ifdef BITE
+    [[nodiscard]] epoch_id getEpochID() const;
+#endif
 
     [[nodiscard]] schain_index getBlockProposerIndex() const;
 
-    ProtocolKey( block_id _blockId, schain_index _blockProposerIndex );
+    ProtocolKey( block_id _blockId,
+#ifdef BITE
+    epoch_id _epochId,
+#endif
+    schain_index _blockProposerIndex );
 
     ProtocolKey( const ProtocolKey& key );
 

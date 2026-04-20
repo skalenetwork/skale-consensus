@@ -91,5 +91,7 @@ public:
 
     static string getString( nlohmann::json& _js, const char* _name );
 
+    static bool getBool( nlohmann::json& _js, const char* _name );
+
     static string maybeGetString( nlohmann::json& _js, const char* _name );
 };

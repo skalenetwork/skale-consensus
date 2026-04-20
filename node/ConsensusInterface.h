@@ -36,11 +36,33 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <string_view>
+#include <memory>
+
+#include "libBLS/threshold_encryption/ThresholdEncryption.h"
 
 enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0,
     CONSENSUS_EXITED = 1,
 };
+
+
+constexpr uint64_t BITE_CHAIN_ID = 0xD1D2D3;
+constexpr std::string_view BITE_CHAIN_ID_AS_STRING = "D1D2D3";
+constexpr uint8_t BITE_CHAIN_ID_AS_BYTE_ARRAY[3] = {0xD1, 0xD2, 0xD3};
+
+constexpr uint64_t ADDRESS_SIZE = 20;
+constexpr std::string_view BITE_ADDRESS_AS_STRING = "42495445204D452049274D20454E435259505444";
+constexpr uint8_t BITE_ADDRESS_AS_BYTE_ARRAY[ADDRESS_SIZE] = {0x42, 0x49, 0x54, 0x45, 0x20, 0x4D, 0x45, 0x20,
+    0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
+    0x59, 0x50, 0x54, 0x44};
+
+static constexpr uint64_t BITE_EPOCH_ID_LEN = sizeof(uint64_t);
+static constexpr uint64_t BITE_AES_KEY_LEN = libBLS::AES_256_KEY_SIZE_BYTES;
+static constexpr uint64_t BITE_ENCRYPTED_AES_KEY_LEN = libBLS::CipheredKey::CIPHERED_KEY_SIZE_BYTES;
+static constexpr uint64_t BITE_TE_PUBLIC_KEY_LEN = libBLS::G2_SIZE_BYTES;
+static constexpr uint64_t BITE_TE_RANDOM_LEN = libBLS::RANDOM_SECRET_SIZE_BYTES;
+static constexpr uint64_t BITE_CIPHERTEXT_MIN_LEN = BITE_ENCRYPTED_AES_KEY_LEN + BITE_TE_RANDOM_LEN + ADDRESS_SIZE;
 
 
 using u256 = boost::multiprecision::number<boost::multiprecision::backends::cpp_int_backend<256,
@@ -51,7 +73,9 @@ public:
     virtual ~ConsensusInterface() = default;
 
     virtual void parseFullConfigAndCreateNode(
-            const std::string &fullPathToConfigFile, const string &gethURL) = 0;
+        const std::string &fullPathToConfigFile
+        , const std::string &gethURL
+    ) = 0;
 
 
     // If starting from a snapshot, start all will pass to consensus the last comitted
@@ -81,13 +105,14 @@ public:
 
     virtual u256 getRandomForBlockId(uint64_t _blockId) const = 0;
 
-    virtual map<string, uint64_t> getConsensusDbUsage() const = 0;
+    virtual std::map<std::string, uint64_t> getConsensusDbUsage() const = 0;
 
     virtual uint64_t getEmptyBlockIntervalMs() const { return -1; }
 
     virtual void setEmptyBlockIntervalMs(uint64_t) {}
 
     virtual consensus_engine_status getStatus() const = 0;
+
 
 #define ORACLE_SUCCESS 0
 #define ORACLE_UNKNOWN_RECEIPT 1
@@ -162,7 +187,7 @@ public:
      */
 
     virtual uint64_t submitOracleRequest(
-            const string &_spec, string &_receipt, string &_errorMessage) = 0;
+            const std::string &_spec, std::string &_receipt, std::string &_errorMessage) = 0;
 
     /*
      * Check if Oracle result has been derived.  This will return ORACLE_SUCCESS if
@@ -176,8 +201,7 @@ public:
      */
 
 
-    virtual uint64_t checkOracleResult(const string &_receipt, string &_result) = 0;
-
+    virtual uint64_t checkOracleResult(const std::string &_receipt, std::string &_result) = 0;
 
     struct SyncInfo {
         // sync information as required by eth_syncing API request of geth
@@ -196,7 +220,28 @@ public:
     // if isSyncing is false, all fields will be set to zero.
     virtual SyncInfo getSyncInfo() = 0;
 
+#ifdef FAIR
+    virtual void updateLogger() const = 0;
+#endif
+
 };
+
+
+/**
+ * Contains the needed decrypted fields of a transaction
+ * Data - contains only the original plaintext 'data'
+ * To - contains the original plaintext 'to' address
+ */
+struct DecryptedTransactionFields {
+    std::shared_ptr< std::vector< uint8_t > > data;
+    // TODO better to make it std::array of size 20
+    std::shared_ptr< std::vector< uint8_t > > to;
+};
+
+using TxId = uint64_t;
+
+using DecryptedTransactionFieldsMap = std::map< TxId, DecryptedTransactionFields >;
+
 
 /**
  * Through this interface Consensus interacts with the rest of the system
@@ -209,8 +254,16 @@ public:
     virtual transactions_vector pendingTransactions(size_t _limit, u256 &_stateRoot) = 0;
 
     // Creates new block with specified transactions AND removes them from the queue
-    virtual void createBlock(const transactions_vector &_approvedTransactions, uint64_t _timeStamp,
-                             uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
+    virtual void createBlock(const transactions_vector &_approvedTransactions,
+#ifdef BITE
+        // map of transaction index in the block starting from 0 to transaction
+        // empty mapped is passed for now
+        // Note: if BITE transaction did not decrypt well due to invalid AES ciphertext
+        // , _decryptedTransactionDataFields will include
+        // null for this transaction
+        std::shared_ptr< DecryptedTransactionFieldsMap > _decryptedTransactionDataFields,
+#endif
+        uint64_t _timeStamp, uint32_t _timeStampMillis, uint64_t _blockID, u256 _gasPrice, u256 _stateRoot,
                              uint64_t _winningNodeIndex) = 0;
 
     virtual ~ConsensusExtFace() = default;

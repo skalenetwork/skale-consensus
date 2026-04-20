@@ -1,0 +1,10 @@
+
+include "common_structures.fbs";
+
+namespace skale_fb;
+
+table BlockTransactionsResponse {
+    transactions: [Transaction];
+}
+
+root_type BlockTransactionsResponse;

@@ -74,6 +74,7 @@
 #include "ConsensusEngine.h"
 #include "ConsensusInterface.h"
 #include "Node.h"
+#include "db/TEDecryptionDB.h"
 
 using namespace std;
 
@@ -286,11 +287,9 @@ uint64_t Node::getEmptyBlockIntervalAfterCatchupMs() const {
     return emptyBlockIntervalAfterCatchupMs;
 }
 
-
 uint64_t Node::getMaxCatchupDownloadBytes() const {
     return maxCatchupDownloadBytes;
 }
-
 
 uint64_t Node::getMaxTransactionsPerBlock() const {
     return maxTransactionsPerBlock;
@@ -299,6 +298,12 @@ uint64_t Node::getMaxTransactionsPerBlock() const {
 uint64_t Node::getMinBlockIntervalMs() const {
     return minBlockIntervalMs;
 }
+
+#ifdef FAIR
+uint64_t Node::getConstantGasPrice() const {
+    return constantGasPrice;
+}
+#endif
 
 uint64_t Node::getBlockDBSize() const {
     return blockDBSize;
@@ -353,8 +358,15 @@ ptr< DASigShareDB > Node::getDaSigShareDB() const {
     return daSigShareDB;
 }
 
-ptr< DAProofDB > Node::getDaProofDB() const {
-    CHECK_STATE( daProofDB );
+#ifdef BITE
+ptr<TEDecryptionDB> Node::getTEDecryptionDB() const {
+    CHECK_STATE(teDecryptionDB);
+    return teDecryptionDB;
+}
+#endif
+
+ptr<DAProofDB> Node::getDaProofDB() const {
+    CHECK_STATE(daProofDB);
     return daProofDB;
 }
 
@@ -379,8 +391,22 @@ uint64_t Node::getInternalInfoDBSize() const {
     return internalInfoDBSize;
 }
 
-map< string, uint64_t > Node::getDBUsage() const {
-    map< string, uint64_t > ret;
+#ifdef BITE
+uint64_t Node::getTEDecryptionDBSize() const {
+    return teDecryptionDBSize;
+}
+
+uint64_t Node::getCurrentEpochId() const {
+    return epochId;
+}
+
+void Node::setEpochId( uint64_t _epochId ) {
+    epochId = _epochId;
+}
+#endif
+
+map<string, uint64_t> Node::getDBUsage() const {
+    map<string, uint64_t> ret;
 
     // use getFullDBSize() to get storage used by the entire db
     // not only the active one
@@ -397,6 +423,9 @@ map< string, uint64_t > Node::getDBUsage() const {
     ret["proposal_hash.db_disk_usage"] = getProposalHashDB()->getFullDBSize();
     ret["proposal_vector.db_disk_usage"] = getProposalVectorDB()->getFullDBSize();
     ret["random.db_disk_usage"] = getRandomDB()->getFullDBSize();
+#ifdef BITE
+    ret["te_decryptshare.db_disk_usage"] = getTEDecryptionDB()->getFullDBSize();
+#endif
 
     return ret;
 }
@@ -426,7 +455,7 @@ bool Node::isTestNet() const {
 }
 
 void Node::setExitOnBlockBoundaryRequested() {
-    LOG( info, "Set exit on block boundary" );
+    CONS_LOG( info, "Set exit on block boundary" );
     exitOnBlockBoundaryRequested = true;
 }
 
@@ -445,3 +474,19 @@ uint64_t Node::getReadJsonHeaderTimeoutSec() const {
 uint64_t Node::getsyncNodeReadJsonHeaderTimeoutSec() const {
     return syncNodeReadJsonHeaderTimeoutSec;
 }
+
+#ifdef BITE
+
+node_count Node::nodeCount(0);
+schain_id Node::schainId(0);
+
+node_count Node::getNodeCount() {
+    CHECK_STATE(nodeCount > 0);
+    return nodeCount;
+}
+
+schain_id Node::getSchainId() {
+    CHECK_STATE(schainId > 0);
+    return schainId;
+}
+#endif

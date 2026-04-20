@@ -21,9 +21,8 @@
     @date 2019-
 */
 
-
+#include "Log.h"
 #include <exceptions/ConnectionRefusedException.h>
-
 #include "exceptions/ExitRequestedException.h"
 
 
@@ -40,360 +39,541 @@
 #include "datastructures/BlockProposalFragment.h"
 
 #include "datastructures/CommittedBlock.h"
+#include "datastructures/DAProof.h"
 #include "db/BlockProposalDB.h"
 #include "db/DAProofDB.h"
+#include "exceptions/DoNotHaveProposalYetException.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
 #include "headers/BlockFinalizeRequestHeader.h"
 #include "headers/BlockProposalRequestHeader.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
 #include "utils/Time.h"
-
+#include "chains/BlockErrorAnalyzer.h"
 #include "BlockFinalizeDownloader.h"
+
+#include <boost/endian/buffers.hpp>
+
 #include "BlockFinalizeDownloaderThreadPool.h"
+#include "bite/BiteManager.h"
 #include "crypto/CryptoManager.h"
 
 
 BlockFinalizeDownloader::BlockFinalizeDownloader(
-    Schain* _sChain, block_id _blockId, schain_index _proposerIndex )
-    : Agent( *_sChain, false, true ),
-      blockId( _blockId ),
-      proposerIndex( _proposerIndex ),
-      fragmentList( _blockId, ( uint64_t ) _sChain->getNodeCount() - 1 ) {
-    CHECK_ARGUMENT( _sChain )
+    Schain *_sChain, block_id _blockId,
+#ifdef  BITE
+    epoch_id _epochId,
+#endif
+    schain_index _proposerIndex)
+    : Agent(*_sChain, false, true),
+      blockId(_blockId),
+#ifdef  BITE
+      epochId(_epochId),
+#endif
+      proposerIndex(_proposerIndex),
+      fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
+#ifdef BITE
+    needFragmentData = !getSchain()->haveProposal(_blockId, _proposerIndex);
+#endif
 
-    CHECK_STATE( _sChain->getNodeCount() > 1 )
+    CHECK_ARGUMENT(_sChain)
 
-    if ( _proposerIndex == _sChain->getSchainIndex() ) {
-        LOG( err, "Finalizing own proposal" );
-    }
+    CHECK_STATE(_sChain->getNodeCount() > 1)
 
     try {
-        logThreadLocal_ = _sChain->getNode()->getLog();
-
-        CHECK_STATE( sChain )
-
-    } catch ( ExitRequestedException& ) {
+        CHECK_STATE(sChain)
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(FatalError(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
 nlohmann::json BlockFinalizeDownloader::readBlockFinalizeResponseHeader(
-    const ptr< ClientSocket >& _socket ) {
-    MONITOR( __CLASS_NAME__, __FUNCTION__ )
-    CHECK_ARGUMENT( _socket )
+    const ptr<ClientSocket> &_socket) {
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+    CHECK_ARGUMENT(_socket)
     return getSchain()->getIo()->readJsonHeader(
-        _socket->getDescriptor(), "Read BlockFinalize response", 10, _socket->getIP() );
+        _socket->getDescriptor(), "Read BlockFinalize response", 10, _socket->getIP());
 }
 
 
-uint64_t BlockFinalizeDownloader::downloadFragment(
-    schain_index _dstIndex, fragment_index _fragmentIndex ) {
-    LOG( debug, "BLCK_FRG_DWNLD:" << to_string( _fragmentIndex ) << ":" << to_string( _dstIndex ) );
+void BlockFinalizeDownloader::downloadFragment(
+    schain_index _dstIndex, fragment_index _fragmentIndex) {
+    CHECK_STATE(_fragmentIndex > 0);
+
+    CONS_LOG(debug, "BLCK_FRG_DWNLD:" << to_string( _fragmentIndex ) << ":" << to_string( _dstIndex ));
+
+    fragmentDownloadCounter++;
+
+    if (fragmentDownloadCounter > getSchain()->getNodeCount() * 100) {
+        // something is wrong, we are trying to download too many times
+        CONS_LOG(err, "Fragment download got into infinite loop");
+    }
+
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
+
+    auto header = make_shared<BlockFinalizeRequestHeader>(
+        *sChain, blockId,
+#ifdef BITE
+        epochId,
+#endif
+
+        proposerIndex, this->getNode()->getNodeID(), _fragmentIndex
+#ifdef BITE
+        , needDAProof()
+        , needDecryptionShares(_dstIndex)
+        , needFragmentData
+#endif
+    );
+    CHECK_STATE(_dstIndex != ( uint64_t ) getSchain()->getSchainIndex())
+    if (getSchain()->getDeathTimeMs((uint64_t) _dstIndex) + NODE_DEATH_INTERVAL_MS >
+        Time::getCurrentTimeMs()) {
+        BOOST_THROW_EXCEPTION(ConnectionRefusedException(
+            "Dead node:" + to_string( _dstIndex ), 5, __CLASS_NAME__ ));
+    }
+    auto socket = make_shared<ClientSocket>(*sChain, _dstIndex, CATCHUP);
+
+    auto io = getSchain()->getIo();
 
     try {
-        auto header = make_shared< BlockFinalizeRequestHeader >(
-            *sChain, blockId, proposerIndex, this->getNode()->getNodeID(), _fragmentIndex );
-        CHECK_STATE( _dstIndex != ( uint64_t ) getSchain()->getSchainIndex() )
-        if ( getSchain()->getDeathTimeMs( ( uint64_t ) _dstIndex ) + NODE_DEATH_INTERVAL_MS >
-             Time::getCurrentTimeMs() ) {
-            usleep( 100000 );  // emulate timeout
-            BOOST_THROW_EXCEPTION( ConnectionRefusedException(
-                "Dead node:" + to_string( _dstIndex ), 5, __CLASS_NAME__ ) );
-        }
-        auto socket = make_shared< ClientSocket >( *sChain, _dstIndex, CATCHUP );
-
-        auto io = getSchain()->getIo();
-
-        try {
-            io->writeMagic( socket );
-        } catch ( ExitRequestedException& ) {
-            throw;
-        } catch ( ... ) {
-            throw_with_nested( NetworkProtocolException(
-                "BlockFinalizec: Server disconnect sending magic", __CLASS_NAME__ ) );
-        }
-
-        try {
-            io->writeHeader( socket, header );
-        } catch ( ExitRequestedException& ) {
-            throw;
-        } catch ( ... ) {
-            auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
-            LOG( err, errString );
-            throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
-        }
-
-        nlohmann::json response;
-
-        try {
-            response = readBlockFinalizeResponseHeader( socket );
-        } catch ( ExitRequestedException& ) {
-            throw;
-        } catch ( ... ) {
-            auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
-            LOG( err, errString );
-            throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
-        }
-
-
-        auto status = ( ConnectionStatus ) Header::getUint64( response, "status" );
-
-        if ( status == CONNECTION_DISCONNECT ) {
-            LOG( debug, "BLCK_FRG_DWNLD:NO_FRG:" << to_string( _fragmentIndex ) << ":"
-                                                 << to_string( _dstIndex ) );
-            return 0;
-        }
-
-
-        if ( status != CONNECTION_PROCEED ) {
-            BOOST_THROW_EXCEPTION( NetworkProtocolException(
-                "Server error in BlockFinalize response:" + to_string( status ), __CLASS_NAME__ ) );
-        }
-
-
-        ptr< BlockProposalFragment > blockFragment;
-
-        try {
-            blockFragment =
-                readBlockFragment( socket, response, _fragmentIndex, getSchain()->getNodeCount() );
-            CHECK_ARGUMENT( blockFragment )
-        } catch ( ExitRequestedException& ) {
-            throw;
-        } catch ( ... ) {
-            auto errString = "BlockFinalizec step 3: can not read fragment";
-            LOG( err, errString );
-            throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
-        }
-
-
-        uint64_t next = 0;
-
-        fragmentList.addFragment( blockFragment, next );
-
-        return next;
-
-    } catch ( ExitRequestedException& e ) {
+        io->writeMagic(socket);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
-    }
-}
-
-uint64_t BlockFinalizeDownloader::readFragmentSize( nlohmann::json _responseHeader ) {
-    uint64_t result = Header::getUint64( _responseHeader, "fragmentSize" );
-
-    if ( result == 0 ) {
-        BOOST_THROW_EXCEPTION( NetworkProtocolException( "fragmentSize == 0", __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException(
+            "BlockFinalizec: Server disconnect sending magic", __CLASS_NAME__));
     }
 
-    return result;
-}
-
-uint64_t BlockFinalizeDownloader::readBlockSize( nlohmann::json _responseHeader ) {
-    uint64_t result = Header::getUint64( _responseHeader, "blockSize" );
-
-    if ( result == 0 ) {
-        BOOST_THROW_EXCEPTION( NetworkProtocolException( "blockSize == 0", __CLASS_NAME__ ) );
+    try {
+        io->writeHeader(socket, header);
+    } catch (ExitRequestedException &) {
+        throw;
+    } catch (...) {
+        auto errString = "BlockFinalizec step 1: can not write BlockFinalize request";
+        CONS_LOG(err, errString);
+        throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
     }
 
-    return result;
-}
+    nlohmann::json response;
 
-string BlockFinalizeDownloader::readBlockHash( nlohmann::json _responseHeader ) {
-    auto result = Header::getString( _responseHeader, "blockHash" );
-    return result;
-}
-
-string BlockFinalizeDownloader::readDAProofSig( nlohmann::json _responseHeader ) {
-    if ( getSchain()->verifyDASigsPatch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
-        return Header::getString( _responseHeader, "daSig" );
-    } else {
-        return Header::maybeGetString( _responseHeader, "daSig" );
+    try {
+        response = readBlockFinalizeResponseHeader(socket);
+    } catch (ExitRequestedException &) {
+        throw;
+    } catch (...) {
+        auto errString = "BlockFinalizec step 2: can not read BlockFinalize response";
+        CONS_LOG(err, errString);
+        throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
     }
-}
 
 
-ptr< BlockProposalFragment > BlockFinalizeDownloader::readBlockFragment(
-    const ptr< ClientSocket >& _socket, nlohmann::json _responseHeader,
-    fragment_index _fragmentIndex, node_count _nodeCount ) {
-    CHECK_ARGUMENT( _socket )
+    auto status = (ConnectionStatus) Header::getUint64(response, "status");
+    auto substatus = (ConnectionSubStatus) Header::getUint64(response, "substatus");
 
-    CHECK_ARGUMENT( _responseHeader > 0 )
-
-    MONITOR( __CLASS_NAME__, __FUNCTION__ )
-
-    auto fragmentSize = readFragmentSize( _responseHeader );
-    auto blockSize = readBlockSize( _responseHeader );
-    auto h = readBlockHash( _responseHeader );
-    CHECK_STATE( !h.empty() )
-    auto sig = readDAProofSig( _responseHeader );
-
-    {
-        LOCK( m )
+    if (status == CONNECTION_DISCONNECT && substatus == CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL) {
+        CONS_LOG(debug, "BLCK_FRG_DWNLD:NO_FRG:" << to_string( _fragmentIndex ) << ":"
+            << to_string( _dstIndex ));
+        throw DoNotHaveProposalYetException();
+    }
 
 
-        // if we did not receive block hash yet, set it. Otherwise, compare it to the known hash
-        if ( this->blockHash.empty() ) {
-            this->blockHash = h;
-        } else {
-            if ( this->blockHash != h ) {
-                getSchain()->addBlockErrorAnalyzer( make_shared< BlockErrorAnalyzer >() );
-                CHECK_STATE( h == blockHash );
-            }
+    if (status != CONNECTION_PROCEED) {
+        BOOST_THROW_EXCEPTION(NetworkProtocolException(
+            "Server error in BlockFinalize response:" + to_string( status ) + ":" +
+            to_string(substatus), __CLASS_NAME__ ));
+    }
+
+
+    ptr<BlockProposalFragment> blockFragment;
+
+    try {
+        blockFragment =
+                readBlockFragment(socket, response, _fragmentIndex, getSchain()->getNodeCount()
+#ifdef BITE
+                                  , proposerIndex, _dstIndex
+#endif
+                );
+        CHECK_ARGUMENT(blockFragment)
+    } catch (ExitRequestedException &) {
+        throw;
+    } catch (...) {
+        auto errString = "BlockFinalizec step 3: can not read fragment";
+        CONS_LOG(err, errString);
+        throw_with_nested(NetworkProtocolException(errString, __CLASS_NAME__));
+    }
+
+#ifdef BITE
+    auto teDB = getSchain()->getNode()->getTEDecryptionDB();
+    if (needDecryptionShares(_dstIndex)) {
+        auto decryptionShares = blockFragment->getDecryptionShares();
+        CHECK_STATE2(decryptionShares, "The finalization response did not include decryptionshares");
+
+        try {
+            teDB->addDecryptionShares(decryptionShares);
         }
+        CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not add decryption shares to DB");
+    }
+
+
+    if (!needFragmentData) {
+        return;
+    }
+
+#endif
+
+    fragmentList.addFragment(blockFragment);
+}
+
+uint64_t BlockFinalizeDownloader::readFragmentSize(nlohmann::json _responseHeader) {
+    uint64_t result = Header::getUint64(_responseHeader, "fragmentSize");
+
+    if (result == 0) {
+        BOOST_THROW_EXCEPTION(NetworkProtocolException( "fragmentSize == 0", __CLASS_NAME__ ));
+    }
+
+    return result;
+}
+
+uint64_t BlockFinalizeDownloader::readBlockSize(nlohmann::json _responseHeader) {
+    uint64_t result = Header::getUint64(_responseHeader, "blockSize");
+
+    if (result == 0) {
+        BOOST_THROW_EXCEPTION(NetworkProtocolException( "blockSize == 0", __CLASS_NAME__ ));
+    }
+
+    return result;
+}
+
+string BlockFinalizeDownloader::readBlockHash(nlohmann::json _responseHeader) {
+    auto result = Header::getString(_responseHeader, "blockHash");
+    return result;
+}
+
+string BlockFinalizeDownloader::readDAProofSig(nlohmann::json _responseHeader) {
+    if (getSchain()->verifyDASigsPatch(getSchain()->getLastCommittedBlockTimeStamp().getS())) {
+        return Header::getString(_responseHeader, "daSig");
+    } else {
+        return Header::maybeGetString(_responseHeader, "daSig");
+    }
+}
+
+
+void BlockFinalizeDownloader::processDAProofSig(nlohmann::json _responseHeader, string h) {
+    auto sig = readDAProofSig(_responseHeader); {
+        LOCK(m)
 
         // if we did not received da sig yet, set it.
-        if ( !this->daSig && !sig.empty() ) {
-            auto blakeHash = BLAKE3Hash::fromHex( h );
+        if (!this->daSig && !sig.empty()) {
+            auto blakeHash = BLAKE3Hash::fromHex(h);
             this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
-                blakeHash, sig, blockId, uint64_t( -1 ) );
+                blakeHash, sig, blockId, uint64_t(-1));
         }
     }
+}
 
-    auto serializedFragment = make_shared< vector< uint8_t > >( fragmentSize );
+bool BlockFinalizeDownloader::needDAProof() {
+    // we need DA proof sig if we did not download it yet
+    return !getSchain()->haveDAProof(blockId, proposerIndex) && std::atomic_load(&daSig) == nullptr;
+}
+
+
+#ifdef BITE
+bool BlockFinalizeDownloader::needDecryptionShares(schain_index _decryptorIndex) {
+    auto teDB = getNode()->getTEDecryptionDB();
+    return !teDB->isEnoughForeignShares(blockId) && !teDB->haveDecryptionShares(blockId, _decryptorIndex);
+}
+#endif
+
+
+ptr<BlockProposalFragment> BlockFinalizeDownloader::readBlockFragment(
+    const ptr<ClientSocket> &_socket, nlohmann::json _responseHeader,
+    fragment_index _fragmentIndex, node_count _nodeCount
+#ifdef BITE
+    , schain_index _proposerIndex
+    , schain_index _destinationIndex
+#endif
+) {
+    CHECK_ARGUMENT(_socket)
+
+    CHECK_ARGUMENT(_responseHeader > 0)
+
+    MONITOR(__CLASS_NAME__, __FUNCTION__)
+
+    auto fragmentSize = readFragmentSize(_responseHeader);
+    auto blockSize = readBlockSize(_responseHeader);
+    auto h = readBlockHash(_responseHeader);
+
+    CHECK_STATE(!h.empty())
+    
+    {
+    LOCK(m)
+     
+    // if we did not receive block hash yet, set it. Otherwise, compare it to the known hash
+    if (this->blockHash.empty()) {
+        this->blockHash = h;
+    } else {
+        if (this->blockHash != h) {
+            getSchain()->addBlockErrorAnalyzer(make_shared<BlockErrorAnalyzer>());
+            CHECK_STATE(h == blockHash);
+        }
+    }
+    }
+
+#ifdef BITE
+    if (needDAProof()) {
+#endif
+        processDAProofSig(_responseHeader, h);
+#ifdef BITE
+    }
+#endif
+
+    auto serializedFragment = make_shared<vector<uint8_t> >(fragmentSize);
 
     try {
         getSchain()->getIo()->readBytes(
-            _socket->getDescriptor(), serializedFragment, msg_len( fragmentSize ), 30 );
-    } catch ( ExitRequestedException& ) {
+            _socket->getDescriptor(), serializedFragment, msg_len(fragmentSize), 30);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( NetworkProtocolException( "Could not read blocks", __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException("Could not read blocks", __CLASS_NAME__));
     }
 
-    ptr< BlockProposalFragment > fragment = nullptr;
+    ptr<BlockProposalFragment> fragment = nullptr;
 
     try {
-        fragment = make_shared< BlockProposalFragment >( blockId, ( uint64_t ) _nodeCount - 1,
-            _fragmentIndex, serializedFragment, blockSize, blockHash );
-    } catch ( ExitRequestedException& ) {
+        fragment = make_shared<BlockProposalFragment>(blockId,
+#ifdef BITE
+                                                      _proposerIndex,
+                                                      _destinationIndex,
+                                                      getSchain()->getBiteManager(),
+#endif
+
+                                                      (uint64_t) _nodeCount - 1,
+                                                      _fragmentIndex, serializedFragment, blockSize, blockHash);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
+    } catch (...) {
         throw_with_nested(
-            NetworkProtocolException( "Could not parse block fragment", __CLASS_NAME__ ) );
+            NetworkProtocolException("Could not parse block fragment", __CLASS_NAME__));
     }
 
     return fragment;
 }
 
+bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t
+#ifdef BITE
+            _nextFragmentToDownload
+#endif
+) {
+    if (downloadCompleted) {
+        // we already completed the download and notified waiting threads
+        return true;
+    }
+
+    if (completeAndNeedToExitAllThreads()) {
+        // the downloader has completed its
+        if (!downloadCompleted.exchange(true)) {
+            downLoadCompletedBaton.post();
+        }
+        return true;
+    };
+
+#ifdef BITE
+    // if this thread has no more work  but the the downloader completed its work
+    // it means that other threads are still downloading their decryption shares
+    // exit this thread without signalling that the download is completed
+    if (_nextFragmentToDownload == 0) {
+        return true;
+    }
+#endif
+
+    return false;
+}
+
+
+void BlockFinalizeDownloader::waitAfterNetworkError() {
+    // we have a refused connection
+    // we will wait some time to try
+
+    auto waitTimeAfterError = getNode()->getWaitAfterNetworkErrorMs();
+
+    auto errorTime = Time::getCurrentTimeMs();
+
+    while (Time::getCurrentTimeMs() < errorTime + waitTimeAfterError) {
+        if (getNode()->isExitRequested()) {
+            return;
+        }
+
+        if (downloadCompleted) {
+            return;
+        }
+        usleep(static_cast<__useconds_t>(100 * 1000));
+    }
+}
+
+
+void BlockFinalizeDownloader::waitAfterNoProposal() {
+    // the peer does not have the proposal yet
+    // we will wait 100 ms and try again
+    usleep(static_cast<__useconds_t>(100 * 1000));
+}
+
+
+uint64_t BlockFinalizeDownloader::nextFragmentToDownload() {
+#ifdef BITE
+    if (!needFragmentData)
+        return 0;
+#endif
+    return fragmentList.nextIndexToRetrieve();
+}
+
+
+uint64_t BlockFinalizeDownloader::computeFirstFragmentToDowload(schain_index _dstIndex, schain_index _mySchainIndex) {
+    // since the node does not download from itself
+    // and since the number of fragment is one less the number of
+    // nodes, nodes that have sChainIndex more than current node, download _dstNodeIndex - 1
+    // fragment
+    if (_dstIndex > (uint64_t) _mySchainIndex) {
+        return (uint64_t) _dstIndex - 1;
+    } else {
+        return (uint64_t) _dstIndex;
+    }
+}
 
 void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
-    BlockFinalizeDownloader* _agent, schain_index _dstIndex ) {
-    CHECK_STATE( _agent )
-
+    BlockFinalizeDownloader *_agent, schain_index _dstIndex) {
+    CHECK_STATE(_agent)
 
     auto sChain = _agent->getSchain();
     auto node = sChain->getNode();
     auto proposalDB = node->getBlockProposalDB();
     auto daProofDB = node->getDaProofDB();
-    auto blockId = _agent->getBlockId();
-    auto proposerIndex = _agent->getProposerIndex();
-    auto sChainIndex = sChain->getSchainIndex();
-    bool testFinalizationDownloadOnly = node->getTestConfig()->isFinalizationDownloadOnly();
+    auto mySchainIndex = sChain->getSchainIndex();
 
-    setThreadName( "BlckFinLoop", node->getConsensusEngine() );
+
+    setThreadName("BlckFinLoop", node->getConsensusEngine());
 
     node->waitOnGlobalClientStartBarrier();
-    if ( node->isExitRequested() )
-        return;
 
-    // since the node does not download from itself
-    // and since the number of fragment is one less the number of
-    // nodes, nodes that have sChainIndex more than current node, download _dstNodeIndex - 1
-    // fragment
+    auto fragmentToDownload = computeFirstFragmentToDowload(_dstIndex, mySchainIndex);
 
-    uint64_t nextFragment;
-
-    if ( _dstIndex > ( uint64_t ) sChainIndex ) {
-        nextFragment = ( uint64_t ) _dstIndex - 1;
-    } else {
-        nextFragment = ( uint64_t ) _dstIndex;
-    }
-
-    try {
-        while ( !node->isExitRequested() && !_agent->fragmentList.isComplete() ) {
-            if ( !testFinalizationDownloadOnly ) {
-                // take into account that the block can
-                //  be in parallel committed through catchup
-                // then we need to stop working
-                if ( sChain->getLastCommittedBlockID() >= blockId ) {
-                    return;
-                }
-
-                // take into account that the proposal and da proof can arrive through
-                // BlockproposalServerAgent
-                // then we need to stop working
-                auto proposal = proposalDB->getBlockProposal( blockId, proposerIndex );
-                if ( proposal && daProofDB->haveDAProof( proposal ) ) {
-                    return;
-                }
-            }
-
-            try {
-                nextFragment = _agent->downloadFragment( _dstIndex, nextFragment );
-                if ( nextFragment == 0 ) {
-                    // all fragments have been downloaded
-                    return;
-                }
-            } catch ( ExitRequestedException& ) {
-                return;
-            } catch ( ConnectionRefusedException& e ) {
-                _agent->logConnectionRefused( e, _dstIndex );
-                if ( _agent->fragmentList.isComplete() )
-                    return;
-                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
-            } catch ( exception& e ) {
-                SkaleException::logNested( e );
-                if ( _agent->fragmentList.isComplete() )
-                    return;
-                usleep( static_cast< __useconds_t >( node->getWaitAfterNetworkErrorMs() * 1000 ) );
-            }
+    // we keep running the download loop until everything has been downloaded
+    do {
+        // if testFinalizationDownloadOnly is set to true we do full finalization
+        try {
+            _agent->downloadFragment(_dstIndex, fragmentToDownload);
+            // we successfully downloaded the fragment
+            // find out the next fragment to download
+            fragmentToDownload = _agent->nextFragmentToDownload();
+        } catch (DoNotHaveProposalYetException &) {
+            // this is ok, we just do not have proposal yet on this destionation node
+            // we keep trying to download the fragment until the node has the proposal
+            _agent->waitAfterNoProposal();;
+        } catch (ExitRequestedException &) {
+        } catch (ConnectionRefusedException &e) {
+            // the node may be down. We will wait a little and try again
+            _agent->logConnectionRefused(e, _dstIndex, __PRETTY_FUNCTION__);
+            _agent->waitAfterNetworkError();
+        } catch (exception &e) {
+            CONS_LOG(err, "Error downloading fragment from:" + to_string(_dstIndex));
+            // some unexpected error occured. We will wait a little and try again
+            SkaleException::logNested(e);
+            _agent->waitAfterNetworkError();
+        } catch (...) {
+            CONS_LOG(err, "Unknown error downloading fragment from:" + to_string(_dstIndex));
+            _agent->waitAfterNetworkError();
         }
-    } catch ( FatalError& e ) {
-        SkaleException::logNested( e );
-        node->initiateApplicationExitOnFatalConsensusError( e.what() );
-    }
+    } while (!_agent->exitDownloadLoop(fragmentToDownload));
 }
 
-ptr< BlockProposal > BlockFinalizeDownloader::downloadProposal() {
-    MONITOR( __CLASS_NAME__, __FUNCTION__ )
+void BlockFinalizeDownloader::joinAllThreads() {
+    threadPool->joinAll();
+}
 
-    {
-        threadPool = make_shared< BlockFinalizeDownloaderThreadPool >(
-            ( uint64_t ) getSchain()->getNodeCount(), this );
+bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
+    MONITOR(__CLASS_NAME__, __FUNCTION__) {
+        threadPool = make_shared<BlockFinalizeDownloaderThreadPool>(
+            (uint64_t) getSchain()->getNodeCount(), this);
         threadPool->startService();
-        threadPool->joinAll();
+        // wait until the download is complete
+        downLoadCompletedBaton.wait();
     }
 
     try {
-        if ( fragmentList.isComplete() ) {
-            auto block = BlockProposal::deserialize(
-                fragmentList.serialize(), getSchain()->getCryptoManager(), true );
-            CHECK_STATE( block )
-            CHECK_STATE( block->getProposerIndex() == ( uint64_t ) proposerIndex );
+        // first check if we do not need to do anything because a block separately arrived in catchup
+
+        if (getSchain()->getLastCommittedBlockID() > blockId)
+            return false;
+
+        if (getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex)) {
+            return true;
+        }
+
+        ptr<BlockProposal> proposal = getNode()->getBlockProposalDB()->getBlockProposal(blockId, proposerIndex);
+
+        // now we need to recombine the fragment list
+        if (!proposal && fragmentList.isComplete()) {
+#ifdef BITE
+            CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId));
+#endif
+            proposal = BlockProposal::makeFromNetworkSerialized(
+                fragmentList.serialize(), getSchain()->getCryptoManager());
+            CHECK_STATE(proposal)
+            CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex);
             {
-                LOCK( m )
-                if ( !this->blockHash.empty() ) {
-                    auto h = BLAKE3Hash::fromHex( blockHash );
-                    CHECK_STATE2( block->getHash().compare( h ) == 0, "Incorrect block hash" );
+                LOCK(m);
+                if (!this->blockHash.empty()) {
+                    auto h = BLAKE3Hash::fromHex(blockHash);
+                    CHECK_STATE2(proposal->getHash().compare( h ) == 0, "Incorrect block hash");
                 }
             }
-            return block;
-        } else {
-            return nullptr;
+
+
+#ifdef BITE
+
+
+            CHECK_STATE(proposal->getEncryptedAESKeys());
+
+            getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
+
+            CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
+                         "Proposal includes invalid format BITE transactions");
+
+            getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(
+                proposal);
+            CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
+                         "Proposal includes invalid BITE transactions");
+#endif
+
+            getNode()->getBlockProposalDB()->addBlockProposal(proposal);
         }
-    } catch ( ExitRequestedException& ) {
+
+        if (getNode()->getDaProofDB()->getDASig(blockId, proposerIndex).empty()) {
+            CHECK_STATE(daSig);
+            auto daProof = make_shared<DAProof>(proposal, daSig);
+            getNode()->getDaProofDB()->addDAProof(daProof);
+        }
+#ifdef BITE
+        CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId))
+#endif
+        return true;
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( exception& e ) {
-        SkaleException::logNested( e );
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+    } catch (exception &e) {
+        SkaleException::logNested(e);
+        throw_with_nested(InvalidStateException(__PRETTY_FUNCTION__, __CLASS_NAME__));
     }
 }
 
-BlockFinalizeDownloader::~BlockFinalizeDownloader() {}
+BlockFinalizeDownloader::~BlockFinalizeDownloader() {
+    joinAllThreads();
+}
 
 block_id BlockFinalizeDownloader::getBlockId() {
     return blockId;
@@ -403,14 +583,49 @@ schain_index BlockFinalizeDownloader::getProposerIndex() {
     return proposerIndex;
 }
 
-ptr< ThresholdSignature > BlockFinalizeDownloader::getDaSig( uint64_t _timeStampS ) {
-    if ( getSchain()->verifyDASigsPatch( _timeStampS ) )
-        CHECK_STATE2( daSig,
-            "BlockFinalizeDownloader: block did not include DA sig:" + to_string( _timeStampS ) );
+ptr<ThresholdSignature> BlockFinalizeDownloader::getDaSig(uint64_t _timeStampS) {
+    if (getSchain()->verifyDASigsPatch(_timeStampS))
+        CHECK_STATE2(daSig,
+                 "BlockFinalizeDownloader: block did not include DA sig:" + to_string( _timeStampS ));
 
-    if ( daSig )
+    if (daSig)
         return daSig;
     else
-        return make_shared< TrivialSignature >(
-            getBlockId(), getSchain()->getTotalSigners(), getSchain()->getRequiredSigners() );
+        return make_shared<TrivialSignature>(
+            getBlockId(), getSchain()->getTotalSigners(), getSchain()->getRequiredSigners());
+}
+
+bool BlockFinalizeDownloader::isFragmentDownloadComplete() {
+#ifdef BITE
+    if (!needFragmentData) {
+        return true;
+    }
+#endif
+    return fragmentList.isComplete();
+}
+
+bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
+    if (getSchain()->getNode()->isExitRequested()) {
+        return true;
+    }
+
+    if (getSchain()->getLastCommittedBlockID() >= blockId) {
+        // we received block concurrently through catchup
+        return true;
+    }
+    if (getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex)) {
+        // received needed things concurrently through block proposal
+        return true;
+    }
+
+    // check if we downloaded everything needed
+    if (isFragmentDownloadComplete() && !needDAProof()
+#ifdef BITE
+        && getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId)
+#endif
+    ) {
+        return true;
+    }
+
+    return false;
 }

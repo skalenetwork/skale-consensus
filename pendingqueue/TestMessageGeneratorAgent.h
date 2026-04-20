@@ -43,9 +43,18 @@ public:
 
     ConsensusExtFace::transactions_vector pendingTransactions( size_t _limit );
 
+#ifdef BITE
+    ConsensusExtFace::transactions_vector pendingTransactionsBITE( size_t _limit );
+#endif
+
+
+#ifndef FAIR
+
     void sendTestRequestGet();
 
     void sendTestRequestPost();
 
     void sendTestRequestEthCall();
+
+#endif
 };

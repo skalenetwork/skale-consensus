@@ -42,6 +42,11 @@ class StorageLimits {
     uint64_t BLOCK_PROPOSAL_DB_SIZE = 0;
     uint64_t INTERNAL_INFO_DB_SIZE = 0;
 
+#ifdef BITE
+    uint64_t TE_DECRYPTION_DB_SIZE = 0;
+#endif
+
+
 
 public:
     uint64_t getStorageUnitBytes() const;
@@ -58,7 +63,9 @@ public:
     uint64_t getDaProofDbSize() const;
     uint64_t getBlockProposalDbSize() const;
     uint64_t getInternalInfoDbSize() const;
-
+#ifdef BITE
+    uint64_t getTEDecryptionDbSize() const;
+#endif
 
 public:
     StorageLimits( uint64_t _totalStorageLimitBytes );

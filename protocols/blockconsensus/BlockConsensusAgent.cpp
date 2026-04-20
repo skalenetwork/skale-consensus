@@ -92,7 +92,11 @@ BlockConsensusAgent::BlockConsensusAgent( Schain& _schain )
 
     for ( int i = 0; i < _schain.getNodeCount(); i++ ) {
         children[i]->put( ( uint64_t ) currentBlock,
-            make_shared< BinConsensusInstance >( this, currentBlock, i + 1, true ) );
+            make_shared< BinConsensusInstance >( this, currentBlock,
+#ifdef BITE
+            getSchain()->getNode()->getCurrentEpochId(),
+#endif
+            i + 1, true ) );
     }
 };
 
@@ -101,10 +105,10 @@ void BlockConsensusAgent::startConsensusProposal(
     block_id _blockID, const ptr< BooleanProposalVector >& _proposal ) {
     try {
         if ( getSchain()->getLastCommittedBlockID() >= _blockID ) {
-            LOG( debug, "Terminating consensus proposal since already committed." );
+            CONS_LOG( debug, "Terminating consensus proposal since already committed." );
         }
 
-        LOG( debug, "CONSENSUS START:BLOCK:" << to_string( _blockID ) );
+        CONS_LOG( debug, "CONSENSUS START:BLOCK:" << to_string( _blockID ) );
 
         if (getSchain()->getOptimizerAgent()->doOptimizedConsensus(_blockID,
                  getSchain()->getLastCommittedBlockTimeStamp().getS())) {
@@ -114,7 +118,11 @@ void BlockConsensusAgent::startConsensusProposal(
             auto lastWinner = getSchain()->getOptimizerAgent()->getPreviousWinner( _blockID );
             auto x =
                 bin_consensus_value(_proposal->getProposalValue(schain_index(lastWinner)) ? 1 : 0);
-            propose(x, lastWinner, _blockID);
+            propose(x, lastWinner, _blockID
+#ifdef BITE
+                , getSchain()->getNode()->getCurrentEpochId()
+#endif
+            );
             return;
         }
         // normal consensus. Start N binary consensuses
@@ -126,7 +134,11 @@ void BlockConsensusAgent::startConsensusProposal(
 
             x = bin_consensus_value( _proposal->getProposalValue( schain_index( i ) ) ? 1 : 0 );
 
-            propose( x, schain_index( i ), _blockID );
+            propose( x, schain_index( i ), _blockID
+#ifdef BITE
+            , getSchain()->getNode()->getCurrentEpochId()
+#endif
+            );
         }
 
     } catch ( ExitRequestedException& ) {
@@ -146,15 +158,29 @@ void BlockConsensusAgent::processChildMessageImpl( const ptr< InternalMessageEnv
 }
 
 void BlockConsensusAgent::propose(
-    bin_consensus_value _proposal, schain_index _index, block_id _id ) {
+    bin_consensus_value _proposal, schain_index _index, block_id _id
+#ifdef BITE
+                , epoch_id _epochID
+#endif
+
+    ) {
     try {
         CHECK_ARGUMENT( ( uint64_t ) _index > 0 );
-        auto key = make_shared< ProtocolKey >( _id, _index );
+        auto key = make_shared< ProtocolKey >( _id,
+#ifdef BITE
+                _epochID,
+#endif
+        _index );
 
         auto child = getChild( key );
 
+
         auto msg = make_shared< BVBroadcastMessage >(
-            _id, _index, bin_consensus_round( 0 ), _proposal, Time::getCurrentTimeMs(), *child );
+            _id,
+#ifdef BITE
+                _epochID,
+#endif
+            _index, bin_consensus_round( 0 ), _proposal, Time::getCurrentTimeMs(), *child );
 
 
         auto id = ( uint64_t ) msg->getBlockId();
@@ -179,13 +205,17 @@ void BlockConsensusAgent::decideBlock(
     try {
         BinConsensusInstance::logGlobalStats();
 
-        LOG( info, string( "BLOCK_DECIDED:PROPOSER:" )
+        CONS_LOG( info, string( "BLOCK_DECIDED:PROPOSER:" )
                        << to_string( _sChainIndex ) << ":BID:" + to_string( _blockId ) << ":STATS:|"
                        << _stats << "| Now signing block ..." );
 
 
         auto msg = make_shared< BlockSignBroadcastMessage >(
-            _blockId, _sChainIndex, Time::getCurrentTimeMs(), *this );
+            _blockId,
+#ifdef BITE
+                getSchain()->getNode()->getCurrentEpochId(),
+#endif
+            _sChainIndex, Time::getCurrentTimeMs(), *this );
 
         auto signature = getSchain()->getNode()->getBlockSigShareDB()->checkAndSaveShareInMemory(
             msg->getSigShare(), getSchain()->getCryptoManager(), _sChainIndex );
@@ -244,7 +274,7 @@ void BlockConsensusAgent::reportConsensusAndDecideIfNeeded(
                                                                    getSchain()->getLastCommittedBlockTimeStamp().getS()) &&
             (uint64_t) blockProposerIndex !=
                  getSchain()->getOptimizerAgent()->getPreviousWinner( blockID )) {
-            LOG(warn, "Consensus got ChildBVBroadcastMessage for non-winner in optimized round:" + blockProposerIndex);
+            CONS_LOG(warn, "Consensus got ChildBVBroadcastMessage for non-winner in optimized round:" + blockProposerIndex);
             return;
         }
 
@@ -280,7 +310,7 @@ void BlockConsensusAgent::processBlockSignMessage(
         auto proposer = _message->getBlockProposerIndex();
         auto blockId = _message->getBlockId();
 
-        LOG( info, string( "BLOCK_DECIDED_AND_SIGNED:PRPSR:" )
+        CONS_LOG( info, string( "BLOCK_DECIDED_AND_SIGNED:PRPSR:" )
                        << to_string( proposer ) << ":BID:" << to_string( blockId )
                        << ":SIG:" << signature->toString() );
 
@@ -334,7 +364,7 @@ void BlockConsensusAgent::routeAndProcessMessage( const ptr< MessageEnvelope >& 
         }
 
         if ( _me->getOrigin() == ORIGIN_CHILD ) {
-            LOG( debug, "Got child message "
+            CONS_LOG( debug, "Got child message "
                             << to_string( _me->getMessage()->getBlockId() ) << ":"
                             << to_string( _me->getMessage()->getBlockProposerIndex() ) );
 
@@ -381,6 +411,9 @@ ptr< BinConsensusInstance > BlockConsensusAgent::getChild( const ptr< ProtocolKe
 
     auto bpi = _key->getBlockProposerIndex();
     auto bid = _key->getBlockID();
+#ifdef BITE
+    auto eid = _key->getEpochID();
+#endif
 
     CHECK_ARGUMENT( ( uint64_t ) bpi > 0 );
     CHECK_ARGUMENT( ( uint64_t ) bpi <= ( uint64_t ) getSchain()->getNodeCount() )
@@ -388,12 +421,29 @@ ptr< BinConsensusInstance > BlockConsensusAgent::getChild( const ptr< ProtocolKe
     try {
         LOCK( m )
         if ( !children.at( ( uint64_t ) bpi - 1 )->exists( ( uint64_t ) bid ) ) {
+            auto newChild = make_shared< BinConsensusInstance >( this, bid,
+#ifdef BITE
+                    eid,
+#endif
+                    bpi, false );
             children.at( ( uint64_t ) bpi - 1 )
                 ->putIfDoesNotExist(
-                    ( uint64_t ) bid, make_shared< BinConsensusInstance >( this, bid, bpi ) );
+                    ( uint64_t ) bid, newChild );
+
+            CHECK_STATE(newChild->getBlockID() == _key->getBlockID());
+            CHECK_STATE(newChild->getBlockProposerIndex() == _key->getBlockProposerIndex());
         }
 
-        return children.at( ( uint64_t ) bpi - 1 )->get( ( uint64_t ) bid );
+
+
+        auto child =  children.at( ( uint64_t ) bpi - 1 )->get( ( uint64_t ) bid );
+
+        CHECK_STATE(child->getBlockID() == _key->getBlockID());
+        CHECK_STATE(child->getBlockProposerIndex() == _key->getBlockProposerIndex());
+
+
+
+        return child;
 
     } catch ( ExitRequestedException& ) {
         throw;

@@ -25,11 +25,17 @@
 
 #pragma once
 
+
 #include "Agent.h"
-#include "BlockErrorAnalyzer.h"
 #include "boost/lockfree/queue.hpp"
 #include "jsonrpccpp/server/connectors/httpserver.h"
-#include "statusserver/StatusServer.h"
+#include "datastructures/TimeStamp.h"
+
+#ifdef BITE
+#include "bite/BiteManager.h"
+#endif
+
+
 
 class ThresholdSignature;
 class CommittedBlockList;
@@ -42,7 +48,7 @@ class ServerConnection;
 class BlockProposal;
 class PartialHashesList;
 class DAProof;
-
+class BlockErrorAnalyzer;
 class BlockProposalClientAgent;
 class BlockProposalPusherThreadPool;
 
@@ -90,6 +96,15 @@ class StatusServer;
 class OracleClient;
 class OracleResultAssemblyAgent;
 
+#ifdef BITE
+class BiteBlockFinalizeServer;
+class BiteManager;
+class DecryptedAESKeyList;
+namespace folly {
+class CPUThreadPoolExecutor;
+}
+#endif
+
 class Schain : public Agent {
     queue< ptr< MessageEnvelope > > messageQueue;
 
@@ -103,6 +118,11 @@ class Schain : public Agent {
     ConsensusExtFace* extFace = nullptr;
 
     schain_id schainID = 0;
+
+#ifdef BITE
+    std::thread blockProcessingThread;
+#endif
+
     string schainName;
 
     ptr< jsonrpc::HttpServer > httpserver;
@@ -115,7 +135,8 @@ class Schain : public Agent {
 
     ptr< BlockProposalServerAgent > blockProposalServerAgent;
 
-    ptr< CatchupServerAgent > catchupServerAgent;
+    ptr<  CatchupServerAgent > catchupServerAgent;
+
 
     ptr< MonitoringAgent > monitoringAgent;
 
@@ -133,15 +154,25 @@ class Schain : public Agent {
 
     ptr< SchainMessageThreadPool > consensusMessageThreadPool;
 
-
+#ifndef FAIR
     ptr< OracleResultAssemblyAgent > oracleResultAssemblyAgent;
+#endif
 
     ptr<OptimizerAgent> optimizerAgent;
+
+    ptr<BlockFinalizeDownloader> downloaderAgent;
 
     ptr< IO > io;
 
     // not null in regular mode
     ptr< CryptoManager > cryptoManager;
+
+#ifdef BITE
+    ptr< BiteManager > biteManager;
+    // this is executor thread used to run block finalization
+    ptr<folly::CPUThreadPoolExecutor> finalizationExecutor;
+#endif
+
 
     weak_ptr< Node > node;
 
@@ -157,6 +188,10 @@ class Schain : public Agent {
     atomic< uint64_t > proposalReceiptTime = 0;
     atomic< bool > inCreateBlock = false;
 
+    uint64_t proposalStageStartTimeMs = 0;
+    uint64_t proposalStageFinishTimeMs = 0;
+    uint64_t blockFinalizationStartTimeMs = 0;
+    uint64_t blockFinalizationFinishTimeMs = 0;
 
     atomic< uint64_t > bootstrapBlockID = 0;
     uint64_t maxExternalBlockProcessingTime = 0;
@@ -201,7 +236,11 @@ class Schain : public Agent {
 
     void pushBlockToExtFace( const ptr< CommittedBlock >& _block );
 
-    ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId );
+    ptr< BlockProposal > createDefaultEmptyBlockProposal( block_id _blockId
+#ifdef BITE
+    , epoch_id _epochID
+#endif
+    );
 
     static ptr< ofstream > getVisualizationDataStream();
 
@@ -210,6 +249,8 @@ class Schain : public Agent {
     // run on each block commmit to analyze errors if they happened
     void analyzeErrors( ptr< CommittedBlock > _block );
 
+    uint64_t getProposalStageTimeMs();
+    uint64_t getBlockFinalizationStageTimeMs();
 
 public:
     void addBlockErrorAnalyzer( ptr< BlockErrorAnalyzer > _blockErrorAnalyzer );
@@ -245,9 +286,10 @@ public:
 
     ptr< BlockConsensusAgent > blockConsensusInstance;
 
+#ifndef FAIR
     ptr< OracleServerAgent > oracleServer;
-
     ptr< OracleClient > oracleClient;
+#endif
 
     void createBlockConsensusInstance();
 
@@ -283,7 +325,11 @@ public:
     void blockProposalReceiptTimeoutArrived( block_id _blockID );
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig );
+        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+#ifdef BITE
+        , ptr< DecryptedAESKeyList > _aesKeyList, ptr< DecryptedTransactionFieldsMap > _decryptedTransactions
+#endif
+        );
 
 
     [[nodiscard]] uint64_t blockCommitsArrivedThroughCatchup(
@@ -312,9 +358,17 @@ public:
 
     schain_id getSchainID();
 
+#ifdef BITE
+
+    const shared_ptr< folly::CPUThreadPoolExecutor >& getFinalizationExecutor() const;
+    void stopAndDestroyFinalizationExecutor();
+#endif
+
     ptr< BlockConsensusAgent > getBlockConsensusInstance();
 
+#ifndef FAIR
     ptr< OracleServerAgent > getOracleInstance();
+#endif
 
     ptr< NodeInfo > getThisNodeInfo() const;
 
@@ -347,6 +401,10 @@ public:
 
     ptr< CryptoManager > getCryptoManager() const;
 
+#ifdef BITE
+    ptr< BiteManager > getBiteManager() const;
+#endif
+
     uint64_t getVerifyDaSigsPatchTimeStamp() const;
 
     uint64_t getVerifyBlsSyncPatchTimestampS() const;
@@ -355,6 +413,15 @@ public:
 
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
+        const ptr< ThresholdSignature >& _thresholdSig );
+
+
+    bool haveProposal(block_id _blockId, schain_index _proposerIndex);
+    bool haveDAProof(block_id _blockId, schain_index _proposerIndex);
+
+    bool haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex);
+
+    void finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
         const ptr< ThresholdSignature >& _thresholdSig );
 
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );

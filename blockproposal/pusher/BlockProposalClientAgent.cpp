@@ -38,9 +38,7 @@
 #include "crypto/CryptoManager.h"
 #include "crypto/ThresholdSigShare.h"
 #include "datastructures/BlockProposal.h"
-#include "datastructures/CommittedBlock.h"
 #include "datastructures/DAProof.h"
-#include "datastructures/MyBlockProposal.h"
 #include "exceptions/NetworkProtocolException.h"
 #include "headers/BlockProposalRequestHeader.h"
 #include "headers/FinalProposalResponseHeader.h"
@@ -49,8 +47,6 @@
 #include "headers/SubmitDAProofRequestHeader.h"
 #include "network/ClientSocket.h"
 #include "network/IO.h"
-#include "network/Network.h"
-#include "network/ServerConnection.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
 #include "pendingqueue/PendingTransactionsAgent.h"
@@ -60,12 +56,12 @@
 #include "BlockProposalPusherThreadPool.h"
 #include "abstracttcpclient/AbstractClientAgent.h"
 #include "exceptions/ExitRequestedException.h"
-#include "exceptions/PingException.h"
+
 
 BlockProposalClientAgent::BlockProposalClientAgent( Schain& _sChain )
     : AbstractClientAgent( _sChain, PROPOSAL ) {
     try {
-        LOG( info, "Constructing blockProposalPushAgent" );
+        CONS_LOG( info, "Constructing blockProposalPushAgent" );
 
         this->blockProposalThreadPool = make_shared< BlockProposalPusherThreadPool >(
             num_threads( ( uint64_t ) _sChain.getNodeCount() ), this );
@@ -93,7 +89,7 @@ BlockProposalClientAgent::readMissingTransactionsRequestHeader(
     mtrh->setMissingTransactionsCount( count );
 
     mtrh->setComplete();
-    LOG( trace, "Push agent processed missing transactions header" );
+    CONS_LOG( trace, "Push agent processed missing transactions header" );
     return mtrh;
 }
 
@@ -111,7 +107,7 @@ BlockProposalClientAgent::readAndProcessFinalProposalResponseHeader(
             Header::getString( js, "sig" ), Header::getString( js, "pk" ),
             Header::getString( js, "pks" ) );
     } else {
-        LOG( err, "Proposal push failed:" << to_string( status ) << ":" << to_string( subStatus ) );
+        CONS_LOG( err, "Proposal push failed:Status:" << to_string( status ) << ":Substatus:" << to_string( subStatus ) );
         return make_shared< FinalProposalResponseHeader >( status, subStatus );
     }
 }
@@ -134,8 +130,12 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendItem
 ptr< BlockProposal > BlockProposalClientAgent::corruptProposal(
     const ptr< BlockProposal >& _proposal, schain_index _index ) {
     if ( ( uint64_t ) _index % 2 == 0 ) {
-        auto proposal2 = make_shared< BlockProposal >( _proposal->getSchainID(),
-            _proposal->getProposerNodeID(), _proposal->getBlockID(), _proposal->getProposerIndex(),
+        auto proposal2 = BlockProposal::makeFromSerialized( _proposal->getSchainID(),
+            _proposal->getProposerNodeID(), _proposal->getBlockID(),
+#ifdef BITE
+            _proposal->getEpochID(),
+#endif
+            _proposal->getProposerIndex(),
             make_shared< TransactionList >( make_shared< vector< ptr< Transaction > > >() ),
             _proposal->getStateRoot(), MODERN_TIME + 1, 1, nullptr,
             getSchain()->getCryptoManager() );
@@ -157,7 +157,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
     INJECT_TEST( CORRUPT_PROPOSAL_TEST, proposalCopy = corruptProposal( _proposal, _index ) )
 
-    LOG( trace, "Proposal step 0: Starting block proposal" );
+    CONS_LOG( trace, "Proposal step 0: Starting block proposal" );
 
 
     ptr< Header > header = proposalCopy->createProposalRequestHeader( sChain );
@@ -173,13 +173,13 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     }
 
 
-    LOG( trace, "Proposal step 1: wrote proposal header" );
+    CONS_LOG( trace, "Proposal step 1: wrote proposal header" );
 
     auto response = sChain->getIo()->readJsonHeader(
         _socket->getDescriptor(), "Read proposal resp", 10, _socket->getIP() );
 
 
-    LOG( trace, "Proposal step 2: read proposal response" );
+    CONS_LOG( trace, "Proposal step 2: read proposal response" );
 
     pair< ConnectionStatus, ConnectionSubStatus > result = {
         ConnectionStatus::CONNECTION_STATUS_UNKNOWN,
@@ -194,7 +194,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
 
 
     if ( result.first != CONNECTION_PROCEED ) {
-        LOG( trace, "Proposal Server terminated proposal push:" << to_string( result.first ) << ":"
+        CONS_LOG( trace, "Proposal Server terminated proposal push:" << to_string( result.first ) << ":"
                                                                 << to_string( result.second ) );
         return result;
     }
@@ -216,7 +216,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     }
 
 
-    LOG( trace, "Proposal step 3: sent partial hashes" );
+    CONS_LOG( trace, "Proposal step 3: sent partial hashes" );
 
     ptr< MissingTransactionsRequestHeader > missingTransactionHeader;
 
@@ -233,7 +233,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     auto count = missingTransactionHeader->getMissingTransactionsCount();
 
     if ( count == 0 ) {
-        LOG( trace, "Proposal complete::no missing transactions" );
+        CONS_LOG( trace, "Proposal complete::no missing transactions" );
 
     } else {
         ptr< unordered_set< ptr< partial_sha_hash >, PendingTransactionsAgent::Hasher,
@@ -251,7 +251,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
         }
 
 
-        LOG( trace, "Proposal step 4: read missing transaction hashes" );
+        CONS_LOG( trace, "Proposal step 4: read missing transaction hashes" );
 
 
         auto missingTransactions = make_shared< vector< ptr< Transaction > > >();
@@ -282,7 +282,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
         }
 
 
-        LOG( trace, "Proposal step 5: sent missing transactions header" );
+        CONS_LOG( trace, "Proposal step 5: sent missing transactions header" );
 
 
         auto missingTransactionsList = make_shared< TransactionList >( missingTransactions );
@@ -297,7 +297,7 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
             throw_with_nested( NetworkProtocolException( errString, __CLASS_NAME__ ) );
         }
 
-        LOG( trace, "Proposal step 6: sent missing transactions" );
+        CONS_LOG( trace, "Proposal step 6: sent missing transactions" );
     }
 
     auto finalHeader = readAndProcessFinalProposalResponseHeader( _socket );
@@ -393,12 +393,17 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     CHECK_ARGUMENT( _socket );
 
 
-    LOG( trace, "Proposal step 0: Starting block proposal" );
+    CONS_LOG( trace, "Proposal step 0: Starting block proposal" );
 
     CHECK_STATE( _daProof );
 
     auto header =
-        make_shared< SubmitDAProofRequestHeader >( *getSchain(), _daProof, _daProof->getBlockId() );
+        make_shared< SubmitDAProofRequestHeader >( *getSchain(), _daProof, _daProof->getBlockId()
+#ifdef BITE
+        , _daProof->getEpochId()
+#endif
+
+        );
 
     try {
         getSchain()->getIo()->writeHeader( _socket, header );
@@ -409,13 +414,13 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
     }
 
 
-    LOG( trace, "DA proof step 1: wrote request header" );
+    CONS_LOG( trace, "DA proof step 1: wrote request header" );
 
     auto response = sChain->getIo()->readJsonHeader(
         _socket->getDescriptor(), "Read dap proof resp", 10, _socket->getIP() );
 
 
-    LOG( trace, "DAProof step 2: read response" );
+    CONS_LOG( trace, "DAProof step 2: read response" );
 
     auto status = ConnectionStatus::CONNECTION_STATUS_UNKNOWN;
     auto substatus = ConnectionSubStatus::CONNECTION_SUBSTATUS_UNKNOWN;
@@ -425,12 +430,12 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendDAPr
         status = ( ConnectionStatus ) Header::getUint64( response, "status" );
         substatus = ( ConnectionSubStatus ) Header::getUint64( response, "substatus" );
     } catch ( ... ) {
-        LOG( err, "Unknown failure submitting DA proof" );
+        CONS_LOG( err, "Unknown failure submitting DA proof" );
         return { status, substatus };
     }
 
     if ( status == CONNECTION_ERROR ) {
-        LOG( err, "Failure submitting DA proof:" << to_string( status ) << ":"
+        CONS_LOG( err, "Failure submitting DA proof:" << to_string( status ) << ":"
                                                  << to_string( substatus ) );
     }
 
@@ -462,7 +467,7 @@ BlockProposalClientAgent::readMissingHashes( const ptr< ClientSocket >& _socket,
     } catch ( ExitRequestedException& ) {
         throw;
     } catch ( ... ) {
-        LOG( info, "Could not read partial hashes" );
+        CONS_LOG( info, "Could not read partial hashes" );
         throw_with_nested(
             NetworkProtocolException( "Could not read partial data hashes", __CLASS_NAME__ ) );
     }

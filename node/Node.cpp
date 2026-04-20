@@ -25,6 +25,12 @@
 #include <chrono>
 #include "leveldb/db.h"
 
+
+#ifdef BITE
+#include <folly/executors/CPUThreadPoolExecutor.h>
+#include "bite/server/BiteBlockFinalizeServer.h"
+#endif
+
 #include "SkaleCommon.h"
 #include "Log.h"
 
@@ -61,6 +67,9 @@
 #include "db/ProposalHashDB.h"
 #include "db/ProposalVectorDB.h"
 #include "db/RandomDB.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
 #include "db/SigDB.h"
 #include "messages/Message.h"
 #include "messages/NetworkMessageEnvelope.h"
@@ -86,8 +95,8 @@ const string& Node::getGethUrl() const {
 Node::Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
     string _sgxURL, string _sgxSSLKeyFileFullPath, string _sgxSSLCertFileFullPath,
     string _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys, string _blsKeyName,
-    ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< BLSPublicKey > _blsPublicKey,
-    string& _gethURL, ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+    ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< libBLS::BLSPublicKey > _blsPublicKey,
+    string& _gethURL, ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > _previousBlsPublicKeys,
     ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
     ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups, bool _isSyncNode,
     bool _isArchiveModeEnabled )
@@ -175,6 +184,9 @@ void Node::initLevelDBs() {
     string daProofDBPrefix = "/da_proofs_" + to_string( nodeID ) + ".db";
     string blockProposalDBPrefix = "/block_proposals_" + to_string( nodeID ) + ".db";
     string internalInfoDBPrefix = "/internal_info_" + to_string( nodeID ) + ".db";
+#ifdef BITE
+    string teDecryptionDBPrefix = "/te_decryptshares_" + to_string( nodeID ) + ".db";
+#endif
 
 
     blockDB =
@@ -209,6 +221,13 @@ void Node::initLevelDBs() {
 
     internalInfoDB = make_shared< InternalInfoDB >(
         getSchain(), dbDir, internalInfoDBPrefix, getNodeID(), getInternalInfoDBSize() );
+
+
+#ifdef BITE
+    teDecryptionDB = make_shared< TEDecryptionDB >(
+        getSchain(), dbDir, teDecryptionDBPrefix, getNodeID(), getTEDecryptionDBSize() );
+#endif
+
 }
 
 void Node::initLogging() {
@@ -223,7 +242,7 @@ void Node::initLogging() {
         string category = "logLevel" + item.first;
         if ( cfg.find( category ) != cfg.end() ) {
             string logLevel = cfg.at( category ).get< string >();
-            LOG( info, "Setting log level:" << category << ":" << logLevel );
+            CONS_LOG( info, "Setting log level:" << category << ":" << logLevel );
             log->loggers[item.first]->set_level( SkaleLog::logLevelFromString( logLevel ) );
         }
     }
@@ -252,6 +271,7 @@ void Node::initParamsFromConfig() {
         getParamUint64( "maxCatchupDownloadBytes", MAX_CATCHUP_DOWNLOAD_BYTES );
     maxTransactionsPerBlock =
         getParamUint64( "maxTransactionsPerBlock", MAX_TRANSACTIONS_PER_BLOCK );
+
     minBlockIntervalMs = getParamUint64( "minBlockIntervalMs", MIN_BLOCK_INTERVAL_MS );
     catchupTimeoutSec = getParamUint64( "catchupTimeoutSec", CATCHUP_TIMEOUT_SEC );
     syncNodeCatchupTimeoutSec =
@@ -275,6 +295,9 @@ void Node::initParamsFromConfig() {
     priceDBSize = storageLimits->getPriceDbSize();
     blockProposalDBSize = storageLimits->getBlockProposalDbSize();
     internalInfoDBSize = storageLimits->getInternalInfoDbSize();
+#ifdef  BITE
+    teDecryptionDBSize = storageLimits->getTEDecryptionDbSize();
+#endif
 
     visualizationType = getParamUint64( "visualizationType", 0 );
 
@@ -317,17 +340,21 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
     // skaled will pass to consensus the last committed block coming from the snapshot
 
     if ( _startingFromSnapshotWithThisAsLastBlock ) {
-        LOG( info, "Starting from a snapshot. Importing last block from the snapshot" );
+        CONS_LOG( info, "Starting from a snapshot. Importing last block from the snapshot" );
         // deserialize block. This will verify sigs on it
         // We do not sigs on it now since skaled is trusted
         auto block = CommittedBlock::deserialize(
-            _startingFromSnapshotWithThisAsLastBlock, this->getSchain()->getCryptoManager(), true );
+            _startingFromSnapshotWithThisAsLastBlock, this->getSchain()->getCryptoManager(),
+#ifdef BITE
+            this->getSchain()->getBiteManager(),
+#endif
+            true );
         // now save the block into the blocks dd
         getBlockDB()->saveBlock( block );
         // now do a sanitity check, that the block was imported OK
         CHECK_STATE2( block->getBlockID() == getBlockDB()->readLastCommittedBlockID(),
             "Imported a block from a snapshot, but last committed block id in db did not update" );
-        LOG( info, "Last block from the snapshot imported OK" );
+        CONS_LOG( info, "Last block from the snapshot imported OK" );
     }
 
 
@@ -339,33 +366,40 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
     auto lastCommittedBlockIDInConsensus = getBlockDB()->readLastCommittedBlockID();
     sChain->setLastCommittedBlockId( ( uint64_t ) lastCommittedBlockIDInConsensus );
 
-    LOG( info, "Starting node on" );
+    CONS_LOG( info, "Starting node" );
 
-    LOG( trace, "Initing sockets" );
+    CONS_LOG( trace, "Initing sockets" );
 
     this->sockets = make_shared< Sockets >( *this );
 
     sockets->initSockets( bindIP, ( uint16_t ) basePort );
 
-    LOG( trace, "Constructing servers" );
+    CONS_LOG( trace, "Constructing servers" );
 
     sChain->constructServers( sockets );
 
-    LOG( trace, " Creating consensus network" );
+    CONS_LOG( trace, " Creating consensus network" );
 
     if ( !isSyncOnlyNode() ) {
         network = make_shared< ZMQNetwork >( *sChain );
 
-        LOG( trace, " Starting consensus messaging" );
+        CONS_LOG( trace, " Starting consensus messaging" );
 
         network->startThreads();
+
+#ifdef BITE
+        biteBlockFinalizeServer = make_shared< BiteBlockFinalizeServer >(*sChain);
+        CONS_LOG( trace, " Starting bite server" );
+        biteBlockFinalizeServer->startProxygenServer();
+#endif
+
     }
 
-    LOG( trace, "Starting schain" );
+    CONS_LOG( trace, "Starting schain" );
 
     sChain->startThreads();
 
-    LOG( trace, "Releasing server threads" );
+    CONS_LOG( trace, "Releasing server threads" );
 
     releaseGlobalServerBarrier();
 }
@@ -439,13 +473,13 @@ void Node::initSchain( const ptr< Node >& _node, schain_index _schainIndex, scha
         logThreadLocal_ = _node->getLog();
 
         for ( auto& rni : remoteNodeInfos ) {
-            LOG( debug, "Adding Node Info:" << to_string( rni->getSchainIndex() ) );
+            CONS_LOG( debug, "Adding Node Info:" << to_string( rni->getSchainIndex() ) );
             _node->setNodeInfo( rni );
-            LOG( debug, "Got IP" << rni->getBaseIP() );
+            CONS_LOG( debug, "Got IP" << rni->getBaseIP() );
 
             auto ipPortString = rni->getBaseIP() + ":" + to_string( ( uint16_t ) rni->getPort() );
 
-            LOG( info, "Adding:" << ipPortString );
+            CONS_LOG( info, "Adding:" << ipPortString );
 
             if ( ipPortSet.count( ipPortString ) > 0 ) {
                 BOOST_THROW_EXCEPTION( InvalidStateException(
@@ -460,12 +494,22 @@ void Node::initSchain( const ptr< Node >& _node, schain_index _schainIndex, scha
 
         _node->setSchain( chain );
 
+#ifdef BITE
+        nodeCount = chain->getNodeCount();
+        schainId = _schainId;
+        CHECK_STATE(nodeCount > 0);
+#endif
+
+
         if ( _node->isSyncOnlyNode() ) {
             return;
         }
 
         chain->createBlockConsensusInstance();
+#ifndef FAIR
         chain->createOracleInstance();
+#endif
+
 
     } catch ( ... ) {
         throw_with_nested( FatalError( __FUNCTION__, __CLASS_NAME__ ) );
@@ -519,7 +563,7 @@ void Node::releaseGlobalClientBarrier() {
  * and then  if no luck do hard exit immediately
  */
 void Node::doSoftAndThenHardExit() {
-    LOG( info, "Node::exit() requested" );
+    CONS_LOG( info, "Node::exit() requested" );
 
     // guaranteed to execute only once
     RETURN_IF_PREVIOUSLY_CALLED( exitCalled )
@@ -550,7 +594,7 @@ void Node::doSoftAndThenHardExit() {
 
     auto startTimeMs = Time::getCurrentTimeMs();
 
-    LOG( info, "Node::exit() will try to exit on block boundary for "
+    CONS_LOG( info, "Node::exit() will try to exit on block boundary for "
                    << to_string( CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS / 1000 ) << " seconds" );
 
     while ( Time::getCurrentTimeMs() < startTimeMs + CONSENSUS_WAIT_TIME_BEFORE_HARD_EXIT_MS ) {
@@ -563,7 +607,7 @@ void Node::doSoftAndThenHardExit() {
 
     // no luck exiting on block boundary - exit the hard way
 
-    LOG( info, "No luck exiting on block boundary. Exiting immediately" );
+    CONS_LOG( info, "No luck exiting on block boundary. Exiting immediately" );
     exitImmediately();
 }
 
@@ -574,15 +618,15 @@ void Node::exitImmediately() {
     // guaranteed to execute only once
     RETURN_IF_PREVIOUSLY_CALLED( exitRequested )
 
-    LOG( info, __FUNCTION__ << string( " called" ) );
+    CONS_LOG( info, __FUNCTION__ << string( " called" ) );
 
     getSchain()->stopStatusServer();
 
-    LOG( info, "Status server stopped" );
+    CONS_LOG( info, "Status server stopped" );
 
     closeAllSocketsAndNotifyAllAgentsAndThreads();
 
-    LOG( info, __FUNCTION__ << string( " completed" ) );
+    CONS_LOG( info, __FUNCTION__ << string( " completed" ) );
 }
 
 /* this is called immediately after block is processed so we can exit
@@ -594,7 +638,7 @@ void Node::checkForExitOnBlockBoundaryAndExitIfNeeded() {
         // do immediate exit since we are at the safe point
         auto msg = "Exiting on block boundary for block " +
                    to_string( getSchain()->getLastCommittedBlockID() );
-        LOG( info, msg );
+        CONS_LOG( info, msg );
         getSchain()->getNode()->exitImmediately();
         throw ExitRequestedException( "Exit on block boundary successful" );
     }
@@ -602,7 +646,7 @@ void Node::checkForExitOnBlockBoundaryAndExitIfNeeded() {
 
 
 void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
-    LOG( info, "consensus engine exiting: close all sockets called" );
+    CONS_LOG( info, "consensus engine exiting: close all sockets called" );
 
     // guaranteed to run only once
 
@@ -610,7 +654,7 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
 
     threadServerConditionVariable.notify_all();
 
-    LOG( info, "consensus engine exiting: server conditional vars notified" );
+    CONS_LOG( info, "consensus engine exiting: server conditional vars notified" );
 
     {
         LOCK( agentsLock );
@@ -622,29 +666,35 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
         }
     }
 
-    LOG( info, "consensus engine exiting: agent conditional vars notified" );
+    CONS_LOG( info, "consensus engine exiting: agent conditional vars notified" );
 
     if ( sockets && sockets->catchupSocket )
         sockets->catchupSocket->touch();
 
-    LOG( info, "consensus engine exiting: catchup socket touched" );
+    CONS_LOG( info, "consensus engine exiting: catchup socket touched" );
 
     if ( isSyncOnlyNode() )
         return;
 
     if ( sockets && sockets->blockProposalSocket ) {
         sockets->blockProposalSocket->touch();
-        LOG( info, "consensus engine exiting: block proposal socket touched" );
+        CONS_LOG( info, "consensus engine exiting: block proposal socket touched" );
     }
 
-
     getSchain()->getCryptoManager()->exitZMQClient();
-    LOG( info, "consensus engine exiting: exitZMQClient called" );
+    CONS_LOG( info, "consensus engine exiting: exitZMQClient called" );
 
     if ( sockets ) {
         sockets->getConsensusZMQSockets()->closeAndCleanupAll();
-        LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
+        CONS_LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
     }
+
+#ifdef BITE
+    if ( biteBlockFinalizeServer ) {
+        biteBlockFinalizeServer->exitProxygenServer();
+        CONS_LOG( info, "consensus engine exiting: exitProxygenServer called" );
+    }
+#endif
 }
 
 /*
@@ -660,7 +710,7 @@ void Node::exitCheck() {
  * Fatal exit happened in consensus. Tell skaled to exit.
  */
 void Node::initiateApplicationExitOnFatalConsensusError( const string& message ) {
-    LOG( info, __FUNCTION__ << string( " called" ) );
+    CONS_LOG( info, __FUNCTION__ << string( " called" ) );
 
     // guaranteed to execute only once
     RETURN_IF_PREVIOUSLY_CALLED( fatalErrorOccured )
@@ -673,7 +723,7 @@ void Node::initiateApplicationExitOnFatalConsensusError( const string& message )
         // just force consensus exit
         exitImmediately();
     }
-    LOG( critical, message );
+    CONS_LOG( critical, message );
 }
 
 bool Node::isExitOnBlockBoundaryRequested() const {
@@ -707,11 +757,11 @@ ptr< vector< ptr< vector< string > > > > Node::getBlsPublicKeys() {
     CHECK_STATE( blsPublicKeys );
     return blsPublicKeys;
 }
-ptr< BLSPublicKey > Node::getBlsPublicKey() {
+ptr< libBLS::BLSPublicKey > Node::getBlsPublicKey() {
     CHECK_STATE( blsPublicKey );
     return blsPublicKey;
 }
-ptr< map< uint64_t, ptr< BLSPublicKey > > > Node::getPreviousBLSPublicKeys() {
+ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > Node::getPreviousBLSPublicKeys() {
     CHECK_STATE( previousBlsPublicKeys );
     return previousBlsPublicKeys;
 }

@@ -34,6 +34,8 @@
 #include "exceptions/ConnectionRefusedException.h"
 #include "node/NodeInfo.h"
 
+#include <netinet/tcp.h> 
+
 using namespace std;
 
 
@@ -43,7 +45,6 @@ void ClientSocket::closeSocket() {
         close( ( int ) descriptor );
     descriptor = 0;
 }
-
 
 file_descriptor ClientSocket::getDescriptor() {
     return descriptor;
@@ -66,6 +67,33 @@ int ClientSocket::createTCPSocket() {
             FatalError( "Could not create outgoing socket:" + string( strerror( errno ) ) ) );
     }
 
+
+    // Since we frequently reconnect to the same address, we set options
+    // that help with fast TCP reconnections
+    // Allow quick reuse of address and port (required for reconnecting quickly)
+    int optval = 1;
+    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
+        close(s);
+        BOOST_THROW_EXCEPTION(
+            FatalError("Could not set SO_REUSEADDR: " + std::string(strerror(errno))));
+    }
+
+
+    // reuse port as well (Linux only, mostly useful if you're binding to local port)
+    if (setsockopt(s, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)) < 0) {
+        close(s);
+        BOOST_THROW_EXCEPTION(
+            FatalError("Could not set SO_REUSEPORT: " + std::string(strerror(errno))));
+    }
+
+    // Disable lingering to avoid TIME_WAIT delay
+    struct linger ling = {1, 0};  // close() will send RST
+    if (setsockopt(s, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling)) < 0) {
+        close(s);
+        BOOST_THROW_EXCEPTION(
+            FatalError("Could not set SO_LINGER: " + std::string(strerror(errno))));
+    }
+
     int synRetries = 1;
     setsockopt( s, IPPROTO_TCP, TCP_SYNCNT, &synRetries, sizeof( synRetries ) );
 
@@ -75,9 +103,9 @@ int ClientSocket::createTCPSocket() {
 
     if ( connect( s, ( sockaddr* ) remoteAddr.get(), sizeof( remoteAddr ) ) < 0 ) {
         close( s );
-        BOOST_THROW_EXCEPTION( ConnectionRefusedException(
-            "Couldnt connect to:" + getIP() + ":" + to_string( getPort() ), errno,
-            __CLASS_NAME__ ) );
+        throw ConnectionRefusedException(
+            "Couldnt connect to:" + getIP() + ":" + to_string( getPort() ) + ":" + to_string(errno), errno,
+            __CLASS_NAME__, true );
     }
 
     return s;

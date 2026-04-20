@@ -41,8 +41,6 @@ class ConsensusExtFace;
 class ConsensusEngine;
 class ConsensusBLSSigShare;
 class BLAKE3Hash;
-class BLSPublicKey;
-class BLSPrivateKeyShare;
 class CacheLevelDB;
 class BlockDB;
 class BlockProposalDB;
@@ -56,10 +54,19 @@ class TestConfig;
 class BlockSigShareDB;
 class DASigShareDB;
 class DAProofDB;
+#ifdef BITE
+    class TEDecryptionDB;
+#endif
 class InternalInfoDB;
+class BiteBlockFinalizeServer;
 
 namespace leveldb {
 class DB;
+}
+
+namespace libBLS {
+    class BLSPublicKey;
+    class BLSPrivateKeyShare;
 }
 
 
@@ -115,6 +122,11 @@ class Node {
 
     ptr< Network > network = nullptr;
 
+
+#ifdef BITE
+    ptr <BiteBlockFinalizeServer>  biteBlockFinalizeServer = nullptr;
+#endif
+
     ptr< Schain > sChain = nullptr;
 
     ptr< TestConfig > testConfig = nullptr;
@@ -138,9 +150,9 @@ class Node {
 
     ptr< vector< ptr< vector< string > > > > blsPublicKeys;  // tsafe
 
-    ptr< BLSPublicKey > blsPublicKey;
+    ptr< libBLS::BLSPublicKey > blsPublicKey;
 
-    ptr< map< uint64_t, ptr< BLSPublicKey > > > previousBlsPublicKeys;
+    ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > previousBlsPublicKeys;
 
     ptr< map< uint64_t, string > > historicECDSAPublicKeys;
 
@@ -170,6 +182,10 @@ class Node {
     ptr< BlockSigShareDB > blockSigShareDB;
 
     ptr< DASigShareDB > daSigShareDB;
+
+#ifdef BITE
+    ptr <TEDecryptionDB> teDecryptionDB;
+#endif
 
     ptr< DAProofDB > daProofDB;
 
@@ -210,7 +226,11 @@ class Node {
     uint64_t readJsonHeaderTimeoutSec = 0;
 
     uint64_t syncNodeReadJsonHeaderTimeoutSec = 0;
-    ;
+
+#ifdef FAIR
+    uint64_t constantGasPrice = 0;
+#endif
+
     uint64_t proposalHashDBSize = 0;
     uint64_t proposalVectorDBSize = 0;
     uint64_t outgoingMsgDBSize = 0;
@@ -223,7 +243,11 @@ class Node {
     uint64_t priceDBSize = 0;
     uint64_t blockProposalDBSize = 0;
     uint64_t internalInfoDBSize = 0;
+#ifdef BITE
+    uint64_t teDecryptionDBSize = 0;
+#endif
     uint64_t visualizationType = 0;
+
 
     string gethURL = "";
     bool testNet = false;
@@ -245,6 +269,15 @@ class Node {
 
     atomic< bool > exitOnBlockBoundaryRequested = false;
 
+#ifdef BITE
+    uint64_t epochId = 0;
+
+    //provide a fast way to get schainId and node_count from
+    // anywhere in the count since they never change during the execution
+    static node_count nodeCount;
+    static schain_id schainId;
+#endif
+
 public:
     void checkForExitOnBlockBoundaryAndExitIfNeeded();
 
@@ -264,9 +297,9 @@ public:
 
     ptr< vector< ptr< vector< string > > > > getBlsPublicKeys();
 
-    ptr< BLSPublicKey > getBlsPublicKey();
+    ptr< libBLS::BLSPublicKey > getBlsPublicKey();
 
-    ptr< map< uint64_t, ptr< BLSPublicKey > > > getPreviousBLSPublicKeys();
+    ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > getPreviousBLSPublicKeys();
 
     ptr< map< uint64_t, string > > getHistoricECDSAPublicKeys();
 
@@ -300,6 +333,10 @@ public:
 
     ptr< DASigShareDB > getDaSigShareDB() const;
 
+#ifdef BITE
+    ptr< TEDecryptionDB > getTEDecryptionDB() const;
+#endif
+
     ptr< DAProofDB > getDaProofDB() const;
 
     ptr< BlockProposalDB > getBlockProposalDB() const;
@@ -320,10 +357,18 @@ public:
     uint64_t getBlockProposalDBSize() const;
     uint64_t getInternalInfoDBSize() const;
     uint64_t getSimulateNetworkWriteDelayMs() const;
+#ifdef BITE
+    uint64_t getTEDecryptionDBSize() const;
+    static node_count getNodeCount();
+    static schain_id getSchainId();
+
+    uint64_t getCurrentEpochId() const;
+    void setEpochId( uint64_t _epochId );
+#endif
 
     map< string, uint64_t > getDBUsage() const;
 
-    ptr< BLSPublicKey > getBlsPublicKey() const;
+    ptr< libBLS::BLSPublicKey > getBlsPublicKey() const;
 
     void initLevelDBs();
 
@@ -332,8 +377,8 @@ public:
     Node( const nlohmann::json& _cfg, ConsensusEngine* _consensusEngine, bool _useSGX,
         string _sgxURL, string _sgxSSLKeyFileFullPath, string _sgxSSLCertFileFullPath,
         string _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys, string _blsKeyName,
-        ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< BLSPublicKey > _blsPublicKey,
-        string& _gethURL, ptr< map< uint64_t, ptr< BLSPublicKey > > > _previousBlsPublicKeys,
+        ptr< vector< ptr< vector< string > > > > _blsPublicKeys, ptr< libBLS::BLSPublicKey > _blsPublicKey,
+        string& _gethURL, ptr< map< uint64_t, ptr< libBLS::BLSPublicKey > > > _previousBlsPublicKeys,
         ptr< map< uint64_t, string > > _historicECDSAPublicKeys,
         ptr< map< uint64_t, vector< uint64_t > > > _historicNodeGroups, bool _isSyncNode,
         bool _isArchiveModeEnabled );
@@ -418,6 +463,10 @@ public:
 
     uint64_t getWaitAfterNetworkErrorMs();
 
+#ifdef FAIR
+    uint64_t getConstantGasPrice() const;
+#endif
+
     uint64_t getParamUint64( const string& _paramName, uint64_t paramDefault );
 
     int64_t getParamInt64( const string& _paramName, uint64_t _paramDefault );
@@ -433,6 +482,12 @@ public:
     void setEmptyBlockIntervalAfterCatchupMs( uint64_t _interval ) {
         this->emptyBlockIntervalAfterCatchupMs = _interval;
     }
+
+#ifdef FAIR
+    void setConstantGasPrice( uint64_t _price ) {
+        constantGasPrice = _price;
+    }
+#endif
 
     void testNodeInfos();
 

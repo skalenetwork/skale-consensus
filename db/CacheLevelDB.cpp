@@ -109,7 +109,7 @@ Schain* CacheLevelDB::getSchain() const {
     return sChain;
 }
 
-string CacheLevelDB::readString( string& _key ) {
+string CacheLevelDB::readString( const string& _key ) {
     checkForDeadLockRead( __FUNCTION__ );
     shared_lock< shared_timed_mutex > lock( m );
     return readStringUnsafe( _key );
@@ -117,7 +117,7 @@ string CacheLevelDB::readString( string& _key ) {
 
 #include "utils/Time.h"
 
-string CacheLevelDB::readStringUnsafe( string& _key ) {
+string CacheLevelDB::readStringUnsafe( const string& _key ) {
     uint64_t time = 0;
 
     readCounter.fetch_add( 1 );
@@ -163,14 +163,14 @@ bool CacheLevelDB::keyExists( const string& _key ) {
 
 void CacheLevelDB::checkForDeadLock( const char* _functionName ) {
     while ( !m.try_lock_for( chrono::seconds( 60 ) ) ) {
-        LOG( err, "Deadlock detected in " << string( _functionName ) );
+        CONS_LOG( err, "Deadlock detected in " << string( _functionName ) );
     }
     m.unlock();
 }
 
 void CacheLevelDB::checkForDeadLockRead( const char* _functionName ) {
     while ( !m.try_lock_shared_for( chrono::seconds( 60 ) ) ) {
-        LOG( err, "Deadlock detected in " << string( _functionName ) );
+        CONS_LOG( err, "Deadlock detected in " << string( _functionName ) );
     }
     m.unlock_shared();
 }
@@ -190,7 +190,7 @@ void CacheLevelDB::writeString( const string& _key, const string& _value, bool _
         lock_guard< shared_timed_mutex > lock( m );
 
         if ( ( !_overWrite ) && keyExistsUnsafe( _key ) ) {
-            LOG( trace, "Double db entry " << this->prefix << "\n" << _key );
+            CONS_LOG( trace, "Double db entry " << this->prefix << "\n" << _key );
             return;
         }
 
@@ -223,7 +223,7 @@ void CacheLevelDB::writeByteArray(
         lock_guard< shared_timed_mutex > lock( m );
 
         if ( keyExistsUnsafe( string( _key ) ) ) {
-            LOG( trace, "Double entry written to db" );
+            CONS_LOG( trace, "Double entry written to db" );
             return;
         }
 
@@ -346,9 +346,12 @@ shared_ptr< leveldb::DB > CacheLevelDB::openDB( uint64_t _index ) {
     try {
         leveldb::DB* dbase = nullptr;
 
-
-        CHECK_STATE2( leveldb::DB::Open( this->options, index2Path( _index ), &dbase ).ok(),
-            "Unable to open database" + index2Path( _index ) )
+        auto status = leveldb::DB::Open( this->options, index2Path( _index ), &dbase );
+        if ( !status.ok() ) {
+            BOOST_THROW_EXCEPTION( LevelDBException(
+                "Could not open database: " + index2Path( _index ) + ": " + status.ToString(),
+                __CLASS_NAME__ ) );
+        }
         CHECK_STATE( dbase )
 
         return ptr< DB >( dbase );
@@ -474,7 +477,10 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             checkForDeadLock( __FUNCTION__ );
             lock_guard< shared_timed_mutex > lock( m );
 
-            LOG(
+            if ( getActiveDBSize() <= maxDBSize )
+                return;
+
+            CONS_LOG(
                 info, "ROTATED_DATABASE: " << prefix << ":MAX_DB_SIZE:" << to_string( maxDBSize ) );
 
             auto newDB = openDB( highestDBIndex + 1 );
@@ -482,7 +488,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
             if ( isArchiveMode ) {
                 // For archive nodes: add new database
                 db.push_back( newDB );
-                LOG( info, "ARCHIVE_NODE: Added new database, total databases: " << db.size() );
+                CONS_LOG( info, "ARCHIVE_NODE: Added new database, total databases: " << db.size() );
             } else {
                 // For regular nodes: keep exactly LEVELDB_SHARDS databases
                 for ( uint64_t i = 1; i < LEVELDB_SHARDS; i++ ) {
@@ -507,7 +513,7 @@ void CacheLevelDB::rotateDBsIfNeeded() {
                     try {
                         boost::filesystem::remove_all( path( dbName ) );
                     } catch ( SkaleException& e ) {
-                        LOG( err, "Could not remove db:" << dbName );
+                        CONS_LOG( err, "Could not remove db:" << dbName );
                     }
                 }
             }
@@ -545,7 +551,7 @@ uint64_t CacheLevelDB::readCount( block_id _blockId ) {
         return result;
 
     } catch ( ... ) {
-        LOG( err, "Incorrect value in LevelDB:" << countString );
+        CONS_LOG( err, "Incorrect value in LevelDB:" << countString );
         return 0;
     }
 }
@@ -611,7 +617,7 @@ ptr< map< schain_index, string > > CacheLevelDB::writeByteArrayToSetUnsafe(
 
     if ( keyExistsUnsafe( entryKey ) ) {
         if ( !isDuplicateAddOK )
-            LOG( trace, "Double db entry " << this->prefix << "\n"
+            CONS_LOG( trace, "Double db entry " << this->prefix << "\n"
                                            << to_string( _blockId ) << ":" << to_string( _index ) );
         return nullptr;
     }
@@ -637,7 +643,7 @@ ptr< map< schain_index, string > > CacheLevelDB::writeByteArrayToSetUnsafe(
         try {
             count = stoull( *result, NULL, 10 );
         } catch ( ... ) {
-            LOG( err, "Incorrect value in LevelDB:" << *result );
+            CONS_LOG( err, "Incorrect value in LevelDB:" << *result );
             return 0;
         }
     } else {

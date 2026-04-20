@@ -120,6 +120,14 @@ string BasicHeader::getString( nlohmann::json& _js, const char* _name ) {
     return result;
 }
 
+bool  BasicHeader::getBool( nlohmann::json& _js, const char* _name ) {
+    CHECK_ARGUMENT( _name );
+    nullCheck( _js, _name );
+    bool result = _js[_name];
+    return result;
+}
+
+
 string BasicHeader::maybeGetString( nlohmann::json& _js, const char* _name ) {
     CHECK_ARGUMENT( _name );
     if ( _js.find( _name ) == _js.end() ) {

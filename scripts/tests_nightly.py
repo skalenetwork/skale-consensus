@@ -68,8 +68,7 @@ run ("ccache -M 20G")
 
 consensustExecutive = getConsensustExecutive()
 
-unitTest(consensustExecutive, "[tx-serialize]")
-unitTest(consensustExecutive, "[tx-list-serialize]")
+unitTest(consensustExecutive, "~[end-to-end]~[performance]")
 unitTest(consensustExecutive, "[committed-block-serialize]")
 
 try:

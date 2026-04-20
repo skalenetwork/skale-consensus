@@ -35,6 +35,9 @@ class BlockProposalHeader : public BasicHeader {
     schain_index proposerIndex{};
     node_id proposerNodeID{};
     block_id blockID{};
+#ifdef BITE
+    epoch_id epochID{};
+#endif
     string blockHash;
     string signature;
     ptr< vector< uint64_t > > transactionSizes;
@@ -50,6 +53,10 @@ public:
     schain_id getSchainID();
 
     block_id getBlockID();
+
+#ifdef BITE
+    epoch_id getEpochID();
+#endif
 
     explicit BlockProposalHeader( nlohmann::json& _json );
 

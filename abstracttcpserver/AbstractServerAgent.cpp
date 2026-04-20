@@ -21,9 +21,6 @@
     @date 2018
 */
 
-
-#include "crypto/bls_include.h"
-
 #include "SkaleCommon.h"
 #include "Log.h"
 #include <exceptions/PingException.h>
@@ -86,7 +83,7 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop( void* _params ) 
 
     server->waitOnGlobalStartBarrier();
 
-    LOG( trace, "Started server loop" );
+    CONS_LOG( trace, "Started server loop" );
 
     while ( !server->getNode()->isExitRequested() ) {
         ptr< ServerConnection > connection = nullptr;
@@ -97,7 +94,7 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop( void* _params ) 
             CHECK_STATE( connection );
             server->processNextAvailableConnection( connection );
         } catch ( PingException& e ) {
-            LOG( info, e.what() );
+            CONS_LOG( info, e.what() );
         } catch ( exception& e ) {
             SkaleException::logNested( e );
         }
@@ -118,7 +115,6 @@ void AbstractServerAgent::send(
 AbstractServerAgent::AbstractServerAgent(
     const string& _name, Schain& _schain, const ptr< TCPServerSocket >& _socket )
     : Agent( _schain, true ), name( _name ), socket( _socket ), networkReadThread( nullptr ) {
-    logThreadLocal_ = _schain.getNode()->getLog();
 }
 
 AbstractServerAgent::~AbstractServerAgent() {
@@ -163,16 +159,16 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
 }
 
 void AbstractServerAgent::createNetworkReadThread() {
-    LOG( trace, name << " Starting TCP server network read loop" );
+    CONS_LOG( trace, name << " Starting TCP server network read loop" );
     networkReadThread =
         make_shared< thread >( std::bind( &AbstractServerAgent::acceptTCPConnectionsLoop, this ) );
-    LOG( trace, name << " Started TCP server network read loop" );
+    CONS_LOG( trace, name << " Started TCP server network read loop" );
 }
 
 
 void AbstractServerAgent::notifyAllConditionVariables() {
     Agent::notifyAllConditionVariables();
-    LOG( trace,
+    CONS_LOG( trace,
         "Notifying TCP cond" << to_string( ( uint64_t )( void* ) &incomingTCPConnectionsCond ) );
     incomingTCPConnectionsCond.notify_all();
 }

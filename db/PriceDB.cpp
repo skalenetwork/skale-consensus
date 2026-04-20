@@ -43,8 +43,13 @@ const string& PriceDB::getFormatVersion() {
 
 u256 PriceDB::readPrice( block_id _blockID ) {
     if ( _blockID <= 1 ) {
+#ifndef FAIR
         return getSchain()->getNode()->getParamUint64(
             string( "DYNAMIC_PRICING_START_PRICE" ), DEFAULT_MIN_PRICE );
+#else
+            return getSchain()->getNode()->getParamUint64( "CONSTANT_PRICING_DEFAULT_PRICE",
+                                                           CONSTANT_PRICING_DEFAULT_PRICE );
+#endif
     }
 
 
@@ -69,7 +74,7 @@ u256 PriceDB::readPrice( block_id _blockID ) {
 }
 
 void PriceDB::savePrice( const u256& _price, block_id _blockID ) {
-    LOG( trace, "Save price for block" << to_string( _blockID ) );
+    CONS_LOG( trace, "Save price for block" << to_string( _blockID ) );
 
     try {
         auto key = createKey( _blockID );

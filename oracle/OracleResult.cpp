@@ -13,7 +13,6 @@
 #include "crypto/CryptoManager.h"
 #include "exceptions/OracleException.h"
 #include "network/Utils.h"
-#include "rlp/RLP.h"
 
 
 void OracleResult::parseResultAsJson() {
@@ -308,7 +307,7 @@ void OracleResult::extractWebResults( string& _response ) {
     try {
         j = nlohmann::json::parse( _response );
     } catch ( exception& e ) {
-        LOG( err, _response << " " << e.what() );
+        CONS_LOG( err, _response << " " << e.what() );
         error = ORACLE_ENDPOINT_JSON_RESPONSE_COULD_NOT_BE_PARSED;
     }
 
@@ -341,7 +340,7 @@ void OracleResult::extractWebResults( string& _response ) {
     } catch ( exception& _e ) {
         results->clear();
         error = ORACLE_COULD_NOT_PROCESS_JSPS_IN_JSON_RESPONSE;
-        LOG( err, "Invalid server response:" << _response << " " << _e.what() );
+        CONS_LOG( err, "Invalid server response:" << _response << " " << _e.what() );
         return;
     } catch ( ... ) {
         results->clear();

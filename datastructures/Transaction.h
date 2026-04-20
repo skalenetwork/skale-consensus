@@ -29,12 +29,21 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include "crypto/BLAKE3Hash.h"
-
+#include "rlp/ParsedEthTransaction.h"
 
 #include "datastructures/DataStructure.h"
 
+#ifdef BITE
+#include "node/ConsensusInterface.h"
+#endif
+
 class BLAKE3Hash;
 
+
+#ifdef BITE
+class BiteDataField;
+class ParsedEthTransaction;
+#endif
 
 class Transaction : public DataStructure {
     bool haveHash = false;
@@ -47,10 +56,14 @@ class Transaction : public DataStructure {
 
     ptr< partial_sha_hash > partialHash = nullptr;
 
-
+#ifdef BITE
+    ptr<ParsedEthTransaction> parsedAndValidatedEthTransaction = nullptr;
+    ptr<BiteDataField> parsedBiteDataField = nullptr;
+#endif
 public:
     Transaction( const ptr< vector< uint8_t > >& _data, bool _includesPartialHash );
 
+    void validate();
 
     uint64_t getSerializedSize( bool _writePartialHash );
 
@@ -76,4 +89,13 @@ public:
 
     static ptr< Transaction > createRandomSample( uint64_t _size, boost::random::mt19937& _gen,
         boost::random::uniform_int_distribution<>& _ubyte );
+
+#ifdef BITE
+    void parseAndValidate();
+
+    // this returns nullptr for non-BITE transactions
+    ptr<BiteDataField> tryGetBiteData(epoch_id _currentEpochId);
+    ptr<vector<uint8_t>> emplaceAndReencodeTransaction(vector<uint8_t>& _originalDataField );
+#endif
+
 };

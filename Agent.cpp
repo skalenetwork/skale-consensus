@@ -23,6 +23,9 @@
 
 
 #include "Agent.h"
+
+#include <exceptions/ConnectionRefusedException.h>
+
 #include "SkaleCommon.h"
 #include "Log.h"
 
@@ -76,25 +79,9 @@ ptr< GlobalThreadRegistry > Agent::getThreadRegistry() {
 }
 
 
-void Agent::logConnectionRefused( ConnectionRefusedException& _e, schain_index _index ) {
-    auto logException = true;
-    auto currentTime = Time::getCurrentTimeMs();
-
-    LOCK( lastConnectionRefusedLogTimeLock );
-
-    if ( lastConnectionRefusedLogTime.find( _index ) != lastConnectionRefusedLogTime.end() ) {
-        auto time = lastConnectionRefusedLogTime[_index];
-
-        if ( ( currentTime - time ) > CONNECTION_REFUSED_LOG_INTERVAL_MS ) {
-            lastConnectionRefusedLogTime[_index] = currentTime;
-        } else {
-            logException = false;
-        }
-    } else {
-        lastConnectionRefusedLogTime[_index] = currentTime;
-    }
-
-    if ( logException ) {
-        SkaleException::logNested( ( const exception& ) _e );
+void Agent::logConnectionRefused( ConnectionRefusedException& _e, schain_index _index, const char* _function) {
+    if ( _e.triedConnect() ) {
+        CONS_LOG(err, string("Connection refused connecting to node:" + to_string(_index) + " in " + _function));
+        SkaleException::logNested( _e );
     }
 }

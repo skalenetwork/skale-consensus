@@ -38,6 +38,10 @@
 
 #include "db/BlockDB.h"
 #include "db/DAProofDB.h"
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#include "crypto/AESKeyDecryptionShareList.h"
+#endif
 
 #include "abstracttcpserver/ConnectionStatus.h"
 
@@ -65,31 +69,35 @@
 #include "db/BlockProposalDB.h"
 #include "CatchupServerAgent.h"
 
-CatchupServerAgent::CatchupServerAgent( Schain& _schain, const ptr< TCPServerSocket >& _s )
-        : AbstractServerAgent( "CatchupServer", _schain, _s ) {
-    CHECK_ARGUMENT( _s );
-    catchupWorkerThreadPool = make_shared< CatchupWorkerThreadPool >( num_threads( 2 ), this );
+
+CatchupServerAgent::CatchupServerAgent(Schain &_schain, const ptr<TCPServerSocket> &_s)
+    : AbstractServerAgent("CatchupServer", _schain, _s) {
+    CHECK_ARGUMENT(_s);
+    // we increased the catchup server thread pool to 8 threads since the catchup
+    // server now serves both catchup and BITE finalize requests
+    catchupWorkerThreadPool = make_shared<CatchupWorkerThreadPool>(num_threads(8), this);
     catchupWorkerThreadPool->startService();
     createNetworkReadThread();
 }
 
-CatchupServerAgent::~CatchupServerAgent() {}
+CatchupServerAgent::~CatchupServerAgent() {
+}
 
 
 void CatchupServerAgent::processNextAvailableConnection(
-        const ptr< ServerConnection >& _connection ) {
-    MONITOR( __CLASS_NAME__, __FUNCTION__ );
+    const ptr<ServerConnection> &_connection) {
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
 
-    CHECK_ARGUMENT( _connection );
+    CHECK_ARGUMENT(_connection);
 
     try {
-        sChain->getIo()->readMagic( _connection->getDescriptor() );
-    } catch ( PingException& ) {
+        sChain->getIo()->readMagic(_connection->getDescriptor());
+    } catch (PingException &) {
         throw;
-    } catch ( ExitRequestedException& ) {
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( NetworkProtocolException( "Incorrect magic number", __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException("Incorrect magic number", __CLASS_NAME__));
     }
 
 
@@ -97,161 +105,162 @@ void CatchupServerAgent::processNextAvailableConnection(
 
     try {
         jsonRequest = sChain->getIo()->readJsonHeader(
-                _connection->getDescriptor(), "Read catchup request", 10, _connection->getIP() );
-    } catch ( ExitRequestedException& ) {
+            _connection->getDescriptor(), "Read catchup request", 10, _connection->getIP());
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( NetworkProtocolException( "Could not read request", __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(NetworkProtocolException("Could not read request", __CLASS_NAME__));
     }
 
 
-    ptr< Header > responseHeader = nullptr;
+    ptr<Header> responseHeader = nullptr;
 
-    auto type = Header::getString( jsonRequest, "type" );
+    auto type = Header::getString(jsonRequest, "type");
 
 
-    if ( type.compare( Header::BLOCK_CATCHUP_REQ ) == 0 ) {
-        responseHeader = make_shared< CatchupResponseHeader >();
-    } else if ( type.compare( Header::BLOCK_FINALIZE_REQ ) == 0 ) {
-        responseHeader = make_shared< BlockFinalizeResponseHeader >();
+    if (type.compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+        responseHeader = make_shared<CatchupResponseHeader>();
+    } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+        responseHeader = make_shared<BlockFinalizeResponseHeader>();
     } else {
         BOOST_THROW_EXCEPTION(
-                InvalidMessageFormatException( "Unknown request type:" + type, __CLASS_NAME__ ) );
+            InvalidMessageFormatException( "Unknown request type:" + type, __CLASS_NAME__ ));
     }
 
-    ptr< vector< uint8_t > > serializedBinary = nullptr;
+    ptr<vector<uint8_t> > serializedBinary = nullptr;
 
     try {
         serializedBinary =
-                this->createResponseHeaderAndBinary( _connection, jsonRequest, responseHeader );
-    } catch ( ExitRequestedException& ) {
+                this->createResponseHeaderAndBinary(_connection, jsonRequest, responseHeader);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
+    } catch (...) {
         try {
-            responseHeader->setStatusSubStatus( CONNECTION_ERROR, CONNECTION_SUBSTATUS_UNKNOWN );
+            responseHeader->setStatusSubStatus(CONNECTION_ERROR, CONNECTION_SUBSTATUS_UNKNOWN);
             responseHeader->setComplete();
-            send( _connection, responseHeader );
-        } catch ( ExitRequestedException& ) {
+            send(_connection, responseHeader);
+        } catch (ExitRequestedException &) {
             throw;
-        } catch ( ... ) {
+        } catch (...) {
         }
-        throw_with_nested( CouldNotSendMessageException(
-                "Could not create catchup response header", __CLASS_NAME__ ) );
+        throw_with_nested(CouldNotSendMessageException(
+            "Could not create response header", __CLASS_NAME__));
     }
 
 
     try {
-        send( _connection, responseHeader );
-    } catch ( ExitRequestedException& ) {
+        send(_connection, responseHeader);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
+    } catch (...) {
         throw_with_nested(
-                CouldNotSendMessageException( "Could not send response", __CLASS_NAME__ ) );
+            CouldNotSendMessageException("Could not send response", __CLASS_NAME__));
     }
 
 
-    LOG( debug, "Server step 2: sent catchup response header" );
+    CONS_LOG(debug, "Server step 2: sent catchup response header");
 
 
-    if ( serializedBinary == nullptr ) {
-        LOG( debug, "Server step 3: response completed: no blocks sent" );
+    if (serializedBinary == nullptr) {
+        CONS_LOG(debug, "Server step 3: response completed: no blocks sent");
         return;
     }
 
     try {
-        getSchain()->getIo()->writeBytesVector( _connection->getDescriptor(), serializedBinary );
-    } catch ( ExitRequestedException& ) {
+        getSchain()->getIo()->writeBytesVector(_connection->getDescriptor(), serializedBinary);
+    } catch (ExitRequestedException &) {
         throw;
-    } catch ( ... ) {
+    } catch (...) {
         throw_with_nested(
-                CouldNotSendMessageException( "Could not send serialized binary", __CLASS_NAME__ ) );
+            CouldNotSendMessageException("Could not send serialized binary", __CLASS_NAME__));
     }
 
-    LOG( debug, "Server step 3: response completed: blocks sent" );
+    CONS_LOG(debug, "Server step 3: response completed: blocks sent");
 
     return;
 }
 
 
-ptr< vector< uint8_t > > CatchupServerAgent::createResponseHeaderAndBinary(
-        const ptr< ServerConnection >& _connection, nlohmann::json _jsonRequest,
-        const ptr< Header >& _responseHeader ) {
-    CHECK_ARGUMENT( _responseHeader );
+ptr<vector<uint8_t> > CatchupServerAgent::createResponseHeaderAndBinary(
+    const ptr<ServerConnection> &_connection, nlohmann::json _jsonRequest,
+    const ptr<Header> &_responseHeader) {
+    CHECK_ARGUMENT(_responseHeader);
 
     try {
-        schain_id schainID = Header::getUint64( _jsonRequest, "schainID" );
-        block_id blockID = Header::getUint64( _jsonRequest, "blockID" );
-        node_id nodeID = Header::getUint64( _jsonRequest, "nodeID" );
+        schain_id schainID = Header::getUint64(_jsonRequest, "schainID");
+        block_id blockID = Header::getUint64(_jsonRequest, "blockID");
+        node_id nodeID = Header::getUint64(_jsonRequest, "nodeID");
 
 
-        if ( ( uint64_t ) sChain->getSchainID() != schainID ) {
+        if ((uint64_t) sChain->getSchainID() != schainID) {
             _responseHeader->setStatusSubStatus(
-                    CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID );
-            BOOST_THROW_EXCEPTION( InvalidSchainException(
-                    "Incorrect schain " + to_string( schainID ), __CLASS_NAME__ ) );
+                CONNECTION_ERROR, CONNECTION_ERROR_UNKNOWN_SCHAIN_ID);
+            BOOST_THROW_EXCEPTION(InvalidSchainException(
+                "Incorrect schain " + to_string( schainID ), __CLASS_NAME__ ));
         };
 
 
-        auto type = Header::getString( _jsonRequest, "type" );
+        auto type = Header::getString(_jsonRequest, "type");
 
-        ptr< vector< uint8_t > > serializedBinary = nullptr;
+        ptr<vector<uint8_t> > serializedBinary = nullptr;
 
-        if ( type.compare( Header::BLOCK_CATCHUP_REQ ) == 0 ) {
-            serializedBinary = createBlockCatchupResponse( _connection, _jsonRequest,
-                                                           dynamic_pointer_cast< CatchupResponseHeader >( _responseHeader ), blockID );
+        if (type.compare(Header::BLOCK_CATCHUP_REQ) == 0) {
+            serializedBinary = createBlockCatchupResponse(_connection, _jsonRequest,
+                                                          dynamic_pointer_cast<CatchupResponseHeader>(_responseHeader),
+                                                          blockID);
+        } else if (type.compare(Header::BLOCK_FINALIZE_REQ) == 0) {
+            ptr<NodeInfo> nmi = sChain->getNode()->getNodeInfoById(nodeID);
 
-        } else if ( type.compare( Header::BLOCK_FINALIZE_REQ ) == 0 ) {
-            ptr< NodeInfo > nmi = sChain->getNode()->getNodeInfoById( nodeID );
-
-            if ( nmi == nullptr ) {
+            if (nmi == nullptr) {
                 _responseHeader->setStatusSubStatus(
-                        CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE );
-                BOOST_THROW_EXCEPTION( InvalidNodeIDException(
-                        "Could not find node info for NODE_ID:" + to_string( ( uint64_t ) nodeID ),
-                        __CLASS_NAME__ ) );
+                    CONNECTION_ERROR, CONNECTION_ERROR_DONT_KNOW_THIS_NODE);
+                BOOST_THROW_EXCEPTION(InvalidNodeIDException(
+                    "Could not find node info for NODE_ID:" + to_string( ( uint64_t ) nodeID ),
+                    __CLASS_NAME__ ));
             }
 
 
-            serializedBinary = createBlockFinalizeResponse( _jsonRequest,
-                                                            dynamic_pointer_cast< BlockFinalizeResponseHeader >( _responseHeader ), blockID );
+            serializedBinary = createBlockFinalizeResponse(_jsonRequest,
+                                                           dynamic_pointer_cast<BlockFinalizeResponseHeader>(
+                                                               _responseHeader), blockID);
         }
 
 
         return serializedBinary;
-    } catch ( ExitRequestedException& e ) {
+    } catch (ExitRequestedException &e) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__PRETTY_FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
-ptr< vector< uint8_t > > CatchupServerAgent::createBlockCatchupResponse(
-        const ptr< ServerConnection >& _connectionEnvelope, nlohmann::json /*_jsonRequest */,
-        const ptr< CatchupResponseHeader >& _responseHeader, block_id _blockID ) {
-    CHECK_ARGUMENT( _responseHeader );
+ptr<vector<uint8_t> > CatchupServerAgent::createBlockCatchupResponse(
+    const ptr<ServerConnection> &_connectionEnvelope, nlohmann::json /*_jsonRequest */,
+    const ptr<CatchupResponseHeader> &_responseHeader, block_id _blockID) {
+    CHECK_ARGUMENT(_responseHeader);
 
-    MONITOR( __CLASS_NAME__, __FUNCTION__ );
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     auto responseStartTimeMs = Time::getCurrentTimeMs();
 
     try {
-        if ( sChain->getLastCommittedBlockID() <= block_id( _blockID ) ) {
-            LOG( debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)" );
-            _responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT, CONNECTION_NO_NEW_BLOCKS );
+        if (sChain->getLastCommittedBlockID() <= block_id(_blockID)) {
+            CONS_LOG(debug, "Catchups: sChain->getCommittedBlockID() <= block_id(blockID)");
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_NO_NEW_BLOCKS);
             _responseHeader->setComplete();
             return nullptr;
         }
 
 
-        auto blockSizes = make_shared< list< uint64_t > >();
+        auto blockSizes = make_shared<list<uint64_t> >();
 
         auto lastCommittedBlockID = sChain->getLastCommittedBlockID();
         auto lastCommittedBlockTimestampS = sChain->getLastCommittedBlockTimeStamp().getS();
 
-        if ( _blockID >= lastCommittedBlockID ) {
-            LOG( debug, "Catchups: blockID >= lastCommittedBlockID" );
-            _responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT, CONNECTION_OK );
+        if (_blockID >= lastCommittedBlockID) {
+            CONS_LOG(debug, "Catchups: blockID >= lastCommittedBlockID");
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_OK);
             _responseHeader->setComplete();
             return nullptr;
         }
@@ -259,91 +268,99 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockCatchupResponse(
 
         auto serializedBlocks =
                 getSchain()->getNode()->getBlockDB()->getSerializedBlocksFromLevelDB(
-                        ( uint64_t ) _blockID + 1, lastCommittedBlockID, blockSizes );
+                    (uint64_t) _blockID + 1, lastCommittedBlockID, blockSizes);
 
-        CHECK_STATE( blockSizes->size() > 0 );
+        CHECK_STATE(blockSizes->size() > 0);
 
 
-        if ( serializedBlocks == nullptr ) {
+        if (serializedBlocks == nullptr) {
             _responseHeader->setStatusSubStatus(
-                    CONNECTION_DISCONNECT, CONNECTION_CATCHUP_DONT_HAVE_THIS_BLOCK );
+                CONNECTION_DISCONNECT, CONNECTION_CATCHUP_DONT_HAVE_THIS_BLOCK);
             _responseHeader->setComplete();
             return nullptr;
         }
 
 
-        _responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );
+        _responseHeader->setStatusSubStatus(CONNECTION_PROCEED, CONNECTION_OK);
 
         _responseHeader->setBlockSizesAndLatestBlockInfo(
-                blockSizes, lastCommittedBlockID, lastCommittedBlockTimestampS );
+            blockSizes, lastCommittedBlockID, lastCommittedBlockTimestampS);
 
         auto responseTimeMs = Time::getCurrentTimeMs() - responseStartTimeMs;
 
-        LOG( info, "RETURNED_CATCHUP_BLOCKS:" << blockSizes->size() << ":CRT:" << responseTimeMs
-             << ":TO_NODE:" << _connectionEnvelope->getIP() );
+        CONS_LOG(info, "RETURNED_CATCHUP_BLOCKS:" << blockSizes->size() << ":CRT:" << responseTimeMs
+            << ":TO_NODE:" << _connectionEnvelope->getIP());
 
         return serializedBlocks;
-    } catch ( ExitRequestedException& e ) {
+    } catch (ExitRequestedException &e) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
 }
 
 
-ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
-        nlohmann::json _jsonRequest, const ptr< BlockFinalizeResponseHeader >& _responseHeader,
-        block_id _blockID ) {
-    CHECK_ARGUMENT( _responseHeader );
+ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
+    nlohmann::json _jsonRequest, const ptr<BlockFinalizeResponseHeader> &_responseHeader,
+    block_id _blockID) {
+    CHECK_ARGUMENT(_responseHeader);
 
-    MONITOR( __CLASS_NAME__, __FUNCTION__ );
+    MONITOR(__CLASS_NAME__, __FUNCTION__);
 
     try {
-        fragment_index fragmentIndex = Header::getUint64( _jsonRequest, "fragmentIndex" );
+        fragment_index fragmentIndex = Header::getUint64(_jsonRequest, "fragmentIndex");
 
-        if ( fragmentIndex < 1 || ( uint64_t ) fragmentIndex > getSchain()->getNodeCount() - 1 ) {
-            LOG( debug, "Incorrect fragment index:" << to_string( fragmentIndex ) );
+        if (fragmentIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount() - 1) {
+            CONS_LOG(debug, "Incorrect fragment index:" << to_string( fragmentIndex ));
             _responseHeader->setStatusSubStatus(
-                    CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_FRAGMENT_INDEX );
+                CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_FRAGMENT_INDEX);
             _responseHeader->setComplete();
             return nullptr;
         }
 
 
-        schain_index proposerIndex = Header::getUint64( _jsonRequest, "proposerIndex" );
+        schain_index proposerIndex = Header::getUint64(_jsonRequest, "proposerIndex");
 
 
-        if ( proposerIndex < 1 || ( uint64_t ) fragmentIndex > getSchain()->getNodeCount() ) {
-            LOG( debug, "Incorrect proposer index:" << to_string( proposerIndex ) );
+        if (proposerIndex < 1 || (uint64_t) fragmentIndex > getSchain()->getNodeCount()) {
+            CONS_LOG(debug, "Incorrect proposer index:" << to_string( proposerIndex ));
             _responseHeader->setStatusSubStatus(
-                    CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX );
+                CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX);
             _responseHeader->setComplete();
             return nullptr;
         }
 
+#ifdef BITE
+        bool needDAProofSig = Header::getBool(_jsonRequest, "needDASig");
+        bool needDecryptionShares = Header::getBool(_jsonRequest, "needShares");
+        bool needFragmentData = Header::getBool(_jsonRequest, "needData");
+#endif
 
         // We could have either a proposal or a committed block. Try proposal first.
 
         auto proposal = getSchain()->getNode()->getBlockProposalDB()->getBlockProposal(
-                _blockID, proposerIndex );
+            _blockID, proposerIndex);
         string daSig;
 
 
-        // did not find the proposal or we do not have da proof from it
+        // did not find the proposal or we do not have da proof f`rom it
         // try committed block
-        if ( !proposal || !getNode()->getDaProofDB()->haveDAProof( proposal ) ) {
+        if (!proposal || !getNode()->getDaProofDB()->haveDAProof(proposal)) {
             // Could not find proposal with DA proof. Try committed block
 
-            auto committedBlock = getSchain()->getBlock( _blockID );
+            auto committedBlock = getSchain()->getBlock(_blockID);
 
             // found committed block
-            if ( committedBlock ) {
+            if (committedBlock) {
                 // first check that the proposer index
                 // the client should not be asking for an incorrect proposer index
                 // since at this time we already not which index has been committed
-                if ( committedBlock->getProposerIndex() != ( uint64_t ) proposerIndex ) {
-                    _responseHeader->setStatusSubStatus( CONNECTION_DISCONNECT,
-                                                         CONNECTION_FINALIZER_CLIENT_ASKING_FOR_INCORRECT_PROPOSER_INDEX );
+                if (committedBlock->getProposerIndex() != (uint64_t) proposerIndex) {
+                    _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT,
+                                                        CONNECTION_FINALIZER_CLIENT_ASKING_FOR_INCORRECT_PROPOSER_INDEX);
+                    CONS_LOG(err, "Client asked for proposal with incorrect proposer index:" +
+                        to_string( proposerIndex ) + ":committed block proposer index:" +
+                        to_string( committedBlock->getProposerIndex() ));
                     _responseHeader->setComplete();
                     return nullptr;
                 }
@@ -351,37 +368,77 @@ ptr< vector< uint8_t > > CatchupServerAgent::createBlockFinalizeResponse(
                 daSig = committedBlock->getDaSig();
             } else {
                 _responseHeader->setStatusSubStatus(
-                        CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL );
+                    CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_PROPOSAL);
                 _responseHeader->setComplete();
                 return nullptr;
             }
         } else {
             daSig = getNode()->getDaProofDB()->getDASig(
-                    proposal->getBlockID(), proposal->getProposerIndex() );
+                proposal->getBlockID(), proposal->getProposerIndex());
         }
 
-        CHECK_STATE( !daSig.empty() );
+        CHECK_STATE2(!daSig.empty(), "Proposal has empty daSig");
+
+        auto hash = proposal->getHash().toHex();
+
+        CHECK_STATE2(!hash.empty(), "Proposal has empty hash");
+
+#ifdef BITE
+
+        ptr<AESKeyDecryptionShareList> myDecryptionShares;
+
+        if (needDecryptionShares) {
+            myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(proposal->getBlockID(),
+                proposal->getProposerIndex());
+            if (!myDecryptionShares) {
+                _responseHeader->setStatusSubStatus(
+                    CONNECTION_DISCONNECT, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES);
+                _responseHeader->setComplete();
+                return nullptr;
+            }
+        } else {
+            // just returtn emptyu list
+            myDecryptionShares = make_shared<AESKeyDecryptionShareList>(_blockID, proposerIndex,
+                                                                        getSchain()->getSchainIndex());
+        }
+#endif
 
 
         auto fragment =
-                proposal->getFragment( ( uint64_t ) getSchain()->getNodeCount() - 1, fragmentIndex );
+                proposal->getFragment((uint64_t) getSchain()->getNodeCount() - 1, fragmentIndex
+#ifdef BITE
+                                      , getSchain()->getSchainIndex()
+                                      , myDecryptionShares
+#endif
+                );
 
 
-        CHECK_STATE( fragment );
+        CHECK_STATE(fragment);
 
-        _responseHeader->setStatusSubStatus( CONNECTION_PROCEED, CONNECTION_OK );
+        _responseHeader->setStatusSubStatus(CONNECTION_PROCEED, CONNECTION_OK);
 
-        auto serializedFragment = fragment->serialize();
 
-        CHECK_STATE( serializedFragment );
+        auto serializedFragment = fragment->serialize(
+#ifdef BITE
+            needDecryptionShares,
+            needFragmentData
+#endif
+        );
+        CHECK_STATE(serializedFragment);
+#ifdef BITE
+        if (!needDAProofSig) {
+            // return empty sig
+            daSig = "";
+        }
+#endif
 
-        _responseHeader->setFragmentParams( serializedFragment->size(),
-                                            proposal->serializeProposal()->size(), proposal->getHash().toHex(), daSig );
+        _responseHeader->setFragmentParams(serializedFragment->size(),
+                                           proposal->serializeProposal()->size(), hash, daSig);
 
         return serializedFragment;
-    } catch ( ExitRequestedException& e ) {
+    } catch (ExitRequestedException &e) {
         throw;
-    } catch ( ... ) {
-        throw_with_nested( InvalidStateException( __FUNCTION__, __CLASS_NAME__ ) );
+    } catch (...) {
+        throw_with_nested(InvalidStateException(__PRETTY_FUNCTION__, __CLASS_NAME__));
     }
 }

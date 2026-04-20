@@ -39,7 +39,6 @@
 
 MonitoringAgent::MonitoringAgent( Schain& _sChain ) : Agent( _sChain, false, true ) {
     try {
-        logThreadLocal_ = _sChain.getNode()->getLog();
         this->sChain = &_sChain;
 
         this->monitoringThreadPool = make_shared< MonitoringThreadPool >( 1, this );
@@ -79,7 +78,7 @@ void MonitoringAgent::monitor() {
             auto currentTime = Time::getCurrentTimeMs();
 
             if ( currentTime > monitor->getExpiryTime() ) {
-                LOG( warn, monitor->toString()
+                CONS_LOG( warn, monitor->toString()
                                << " has been stuck for "
                                << to_string( currentTime - monitor->getStartTime() ) + " ms" );
             }
@@ -91,10 +90,11 @@ void MonitoringAgent::monitor() {
 void MonitoringAgent::monitoringLoop( MonitoringAgent* _agent ) {
     CHECK_ARGUMENT( _agent );
 
+    logThreadLocal_ = _agent->getSchain()->getNode()->getLog();
     setThreadName( "MonitoringLoop", _agent->getSchain()->getNode()->getConsensusEngine() );
 
 
-    LOG( info, "Monitoring agent started monitoring" );
+    CONS_LOG( info, "Monitoring agent started monitoring" );
 
     try {
         while ( !_agent->getSchain()->getNode()->isExitRequested() ) {

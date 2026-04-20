@@ -68,8 +68,8 @@ protected:
         const char* _value, uint64_t _valueLen, block_id _blockId, schain_index _index );
     string index2Path( uint64_t index );
 
-    string readString( string& _key );
-    string readStringUnsafe( string& _key );
+    string readString( const string& _key );
+    string readStringUnsafe( const string& _key );
 
     void writeString( const string& key1, const string& value1, bool overWrite = false );
 
@@ -111,7 +111,7 @@ protected:
 
     ptr< leveldb::DB > openDB( uint64_t _index );
 
-    uint64_t readCount( block_id _blockId );
+
 
     bool isEnough( block_id _blockID );
 
@@ -123,6 +123,9 @@ protected:
         string& _prefix, const ptr< leveldb::DB >& _db, bool lastOnly = false );
 
 public:
+
+    uint64_t readCount( block_id _blockId );
+
     void destroy();
 
     virtual const string& getFormatVersion() = 0;

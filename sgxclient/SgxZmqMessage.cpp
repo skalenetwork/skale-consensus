@@ -33,6 +33,10 @@
 #include "BLSSignRspMessage.h"
 #include "ECDSASignReqMessage.h"
 #include "ECDSASignRspMessage.h"
+#ifdef BITE
+#include "DecryptAESKeyShareBatchReqMessage.h"
+#include "DecryptAESKeyShareBatchRspMessage.h"
+#endif
 #include "SgxZmqClient.h"
 #include "sgxclient/SgxZmqMessage.h"
 
@@ -59,6 +63,21 @@ string SgxZmqMessage::getStringRapid( const char* _name ) {
 };
 
 
+ptr<vector<ptr<string>>> SgxZmqMessage::getStringArrayRapid( const char* _name ) {
+    CHECK_STATE( _name );
+    CHECK_STATE( d->HasMember( _name ) );
+    CHECK_STATE( (*d)[_name].IsArray() );
+
+    auto result = make_shared<vector<ptr<string>>>();
+    const auto& strArray = (*d)[_name];
+    for (rapidjson::SizeType i = 0; i < strArray.Size(); ++i) {
+        CHECK_STATE(strArray[i].IsString());
+        result->push_back(make_shared<string>(strArray[i].GetString()));
+    }
+    return result;
+}
+
+
 shared_ptr< SgxZmqMessage > SgxZmqMessage::parse(
     const char* _msg, size_t _size, bool _isRequest ) {
     CHECK_STATE( _msg );
@@ -82,7 +101,7 @@ shared_ptr< SgxZmqMessage > SgxZmqMessage::parse(
     uint64_t status = ( *d )["status"].GetInt64();
 
     if ( status != 0 ) {
-        LOG( err, ( *d )["errorMessage"].GetString() );
+        CONS_LOG( err, ( *d )["errorMessage"].GetString() );
     }
 
     CHECK_STATE( status == 0 );
@@ -104,7 +123,13 @@ shared_ptr< SgxZmqMessage > SgxZmqMessage::buildRequest(
         return make_shared< BLSSignReqMessage >( _d );
     } else if ( _type == SgxZmqMessage::ECDSA_SIGN_REQ ) {
         return make_shared< ECDSASignReqMessage >( _d );
-    } else {
+    }
+#ifdef BITE
+    else if ( _type == SgxZmqMessage::DECRYPT_SHARE_REQ ) {
+        return make_shared< DecryptAESKeyShareBatchReqMessage >( _d );
+    }
+#endif
+    else {
         CHECK_STATE2( false, "Incorrect zmq message type: " + string( _type ) );
     }
 }
@@ -115,7 +140,13 @@ shared_ptr< SgxZmqMessage > SgxZmqMessage::buildResponse(
         return make_shared< BLSSignRspMessage >( _d );
     } else if ( _type == SgxZmqMessage::ECDSA_SIGN_RSP ) {
         return make_shared< ECDSASignRspMessage >( _d );
-    } else {
+    }
+#ifdef BITE
+    else if ( _type == SgxZmqMessage::DECRYPT_SHARE_RSP ) {
+        return make_shared< DecryptAESKeyShareBatchRspMessage >( _d );
+    }
+#endif
+    else {
         BOOST_THROW_EXCEPTION( InvalidStateException(
             "Incorrect zmq message request type: " + string( _type ), __CLASS_NAME__ ) );
     }

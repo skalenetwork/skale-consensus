@@ -77,6 +77,9 @@ void BinConsensusInstance::processMessage( const ptr< MessageEnvelope >& _me ) {
     CHECK_STATE( msg );
 
     CHECK_STATE( msg->getBlockID() == getBlockID() );
+#ifdef BITE
+    CHECK_STATE( msg->getEpochID() == getEpochID() );
+#endif
     CHECK_STATE( msg->getBlockProposerIndex() == getBlockProposerIndex() );
 
     auto msgType = _me->getMessage()->getMsgType();
@@ -103,7 +106,7 @@ void BinConsensusInstance::ifAlreadyDecidedSendDelayedEstimateForNextRound(
     bin_consensus_round _round ) {
     if ( isDecided && _round == getCurrentRound() + 1 &&
          isTwoThird( totalAUXVotes( getCurrentRound() ) ) ) {
-        LOG( debug, to_string( getBlockProposerIndex() )
+        CONS_LOG( debug, to_string( getBlockProposerIndex() )
                         << ":NEW_ROUND_REQUESTED:BLOCK:" << to_string( blockID )
                         << ":ROUND:" << to_string( getCurrentRound() + 1 ) );
         proceedWithNextRound( decidedValue );
@@ -413,7 +416,12 @@ void BinConsensusInstance::networkBroadcastValue( const ptr< BVBroadcastMessage 
     if ( broadcastValues[r].count( v ) > 0 )
         return;
 
-    auto newMsg = make_shared< BVBroadcastMessage >( _m->getBlockID(), _m->getBlockProposerIndex(),
+    auto newMsg = make_shared< BVBroadcastMessage >( _m->getBlockID(),
+#ifdef BITE
+    _m->getEpochID(),
+#endif
+
+    _m->getBlockProposerIndex(),
         _m->getRound(), _m->getValue(), Time::getCurrentTimeMs(), *this );
 
     getSchain()->getNode()->getNetwork()->broadcastMessage( newMsg );
@@ -425,7 +433,11 @@ void BinConsensusInstance::networkBroadcastValue( const ptr< BVBroadcastMessage 
 void BinConsensusInstance::auxSelfVoteAndBroadcastValue(
     bin_consensus_round _r, bin_consensus_value _v ) {
     auto m = make_shared< AUXBroadcastMessage >(
-        _r, _v, blockID, blockProposerIndex, Time::getCurrentTimeMs(), *this );
+        _r, _v, blockID,
+#ifdef BITE
+    epochID,
+#endif
+    blockProposerIndex, Time::getCurrentTimeMs(), *this );
 
     if ( _r >= COMMON_COIN_ROUND ) {
         auxSelfVote( _r, _v, m->getSigShare() );
@@ -500,7 +512,7 @@ uint64_t BinConsensusInstance::computeRandom( bin_consensus_round& _r ) {
 void BinConsensusInstance::playDecisionLottery( bool _hasTrue, bool _hasFalse, uint64_t _random ) {
     CHECK_STATE( !isDecided );
 
-    LOG( debug, to_string( getBlockProposerIndex() )
+    CONS_LOG( debug, to_string( getBlockProposerIndex() )
                     << "ROUND_COMPLETE:BLOCK:" << to_string( blockID )
                     << ":ROUND:" << to_string( getCurrentRound() ) );
 
@@ -511,7 +523,7 @@ void BinConsensusInstance::playDecisionLottery( bool _hasTrue, bool _hasFalse, u
 
     if ( _hasTrue && _hasFalse ) {
         // Section (4.2) (07) Got both values proceed with the next round
-        LOG( debug, to_string( getBlockProposerIndex() )
+        CONS_LOG( debug, to_string( getBlockProposerIndex() )
                         << ":NEW ROUND:BLOCK:" << to_string( blockID )
                         << ":ROUND:" << to_string( getCurrentRound() + 1 ) );
         // Section 4.2 (10)
@@ -522,13 +534,13 @@ void BinConsensusInstance::playDecisionLottery( bool _hasTrue, bool _hasFalse, u
         bin_consensus_value v( _hasTrue );
         if ( v == common_coin_value ) {
             // Lucky. Decide.
-            LOG( debug, ":PROPOSER:" << to_string( getBlockProposerIndex() ) << ":DECIDED VALUE"
+            CONS_LOG( debug, ":PROPOSER:" << to_string( getBlockProposerIndex() ) << ":DECIDED VALUE"
                                      << to_string( v )
                                      << ":ROUND:" << to_string( getCurrentRound() ) );
             decide( v );
         } else {
             // Unlucky. Next round.
-            LOG( debug, to_string( getBlockProposerIndex() )
+            CONS_LOG( debug, to_string( getBlockProposerIndex() )
                             << ":NEW ROUND:BLOCK:" << to_string( v )
                             << ":ROUND:" << to_string( getCurrentRound() ) );
             proceedWithNextRound( v );
@@ -547,7 +559,11 @@ void BinConsensusInstance::proceedWithNextRound( bin_consensus_value _value ) {
 
     addNextRoundToHistory( getCurrentRound(), _value );
 
-    auto m = make_shared< BVBroadcastMessage >( getBlockID(), getBlockProposerIndex(),
+    auto m = make_shared< BVBroadcastMessage >( getBlockID(),
+#ifdef BITE
+                getEpochID(),
+#endif
+    getBlockProposerIndex(),
         getCurrentRound(), _value, Time::getCurrentTimeMs(), *this );
 
     ptr< MessageEnvelope > me =
@@ -586,7 +602,7 @@ void BinConsensusInstance::logGlobalStats() {
         stats.append( to_string( globalDecidedRoundStats.at( i ) ) );
     }
 
-    LOG( info, stats );
+    CONS_LOG( info, stats );
 }
 
 void BinConsensusInstance::addDecideToGlobalHistory(
@@ -613,7 +629,7 @@ void BinConsensusInstance::addDecideToGlobalHistory(
              result.has_value() ) {
             printHistory();
             any_cast< ptr< BinConsensusInstance > >( result )->printHistory();
-            LOG( err, "Double decide 1" );
+            CONS_LOG( err, "Double decide 1" );
         }
         trueCache->put( ( uint64_t ) getBlockID(), child );
     } else {
@@ -621,7 +637,7 @@ void BinConsensusInstance::addDecideToGlobalHistory(
              result.has_value() ) {
             printHistory();
             any_cast< ptr< BinConsensusInstance > >( result )->printHistory();
-            LOG( err, "Double decide 2" );
+            CONS_LOG( err, "Double decide 2" );
         }
         falseCache->put( ( uint64_t ) getBlockID(), child );
     }
@@ -638,7 +654,7 @@ void BinConsensusInstance::decide( bin_consensus_value _b ) {
         this->getCurrentRound(), maxProcessingTimeMs, maxLatencyTimeMs );
 
 
-    LOG( debug, "Decided value: " << to_string( decidedValue )
+    CONS_LOG( debug, "Decided value: " << to_string( decidedValue )
                                   << " for blockid:" << to_string( getBlockID() )
                                   << " proposer:" << to_string( getBlockProposerIndex() ) );
 
@@ -652,19 +668,36 @@ const block_id BinConsensusInstance::getBlockID() const {
     return blockID;
 }
 
+#ifdef BITE
+const epoch_id BinConsensusInstance::getEpochID() const {
+    return epochID;
+}
+#endif
+
 const schain_index BinConsensusInstance::getBlockProposerIndex() const {
     return blockProposerIndex;
 }
 
 
 BinConsensusInstance::BinConsensusInstance( BlockConsensusAgent* _instance, block_id _blockId,
+#ifdef BITE
+    epoch_id _epochId,
+#endif
     schain_index _blockProposerIndex, bool _initFromDB )
     : ProtocolInstance( BIN_CONSENSUS, *_instance->getSchain() ),
       blockConsensusInstance( _instance ),
       blockID( _blockId ),
+#ifdef BITE
+      epochID( _epochId),
+#endif
+
       blockProposerIndex( _blockProposerIndex ),
       nodeCount( _instance ? _instance->getSchain()->getNodeCount() : 0 ),
-      protocolKey( make_shared< ProtocolKey >( _blockId, _blockProposerIndex ) ) {
+      protocolKey( make_shared< ProtocolKey >( _blockId,
+#ifdef BITE
+                        _epochId,
+#endif
+                        _blockProposerIndex ) ) {
     CHECK_ARGUMENT( ( uint64_t ) _blockId > 0 );
     CHECK_ARGUMENT( ( uint64_t ) _blockProposerIndex > 0 );
     CHECK_ARGUMENT( _instance );
@@ -798,7 +831,7 @@ uint64_t BinConsensusInstance::calculateBLSRandom( bin_consensus_round _r ) {
 
     auto random = shares->mergeSignature()->getRandom();
 
-    LOG( debug, to_string( getBlockProposerIndex() )
+    CONS_LOG( debug, to_string( getBlockProposerIndex() )
                     << ":Random for round: " << to_string( _r ) << ":" << to_string( random ) );
 
     return random;

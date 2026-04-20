@@ -57,38 +57,7 @@
 #include <gperftools/heap-profiler.h>
 #endif
 
-
-ConsensusEngine* engine;
-
-
-class DontCleanup {
-public:
-    DontCleanup() { Consensust::setConfigDirPath( boost::filesystem::system_complete( "." ) ); };
-
-    ~DontCleanup() {}
-};
-
-
-class StartFromScratch {
-public:
-    StartFromScratch() {
-        int i = system( "rm -rf /tmp/*.db.*" );
-        i = system( "rm -rf /tmp/*.db" );
-        i++;  // make compiler happy
-        Consensust::setConfigDirPath( boost::filesystem::system_complete( "." ) );
-
-#ifdef GOOGLE_PROFILE
-        HeapProfilerStart( "/tmp/consensusd.profile" );
-        HeapProfilerStart( "/tmp/consensusd.profile" );
-#endif
-    };
-
-    ~StartFromScratch() {
-#ifdef GOOGLE_PROFILE
-        HeapProfilerStop();
-#endif
-    }
-};
+ConsensusEngine* engine;  // definition
 
 uint64_t Consensust::getRunningTimeS() {
     if ( runningTimeS == 0 ) {
@@ -132,9 +101,9 @@ void abort_handler( int ) {
     exit( 0 );
 }
 
-block_id basicRun( int64_t _lastId = 0 ) {
+block_id basicRun( int64_t _lastId ) {
     try {
-        REQUIRE( ConsensusEngine::getEngineVersion().size() > 0 );
+        CATCH_REQUIRE( ConsensusEngine::getEngineVersion().size() > 0 );
 
         engine = new ConsensusEngine( _lastId, 1000000000 );
 
@@ -154,15 +123,15 @@ block_id basicRun( int64_t _lastId = 0 ) {
             };
         }
 
-        REQUIRE( engine->nodesCount() > 0 );
+        CATCH_REQUIRE( engine->nodesCount() > 0 );
         auto lastId = engine->getLargestCommittedBlockID();
-        REQUIRE( lastId > 0 );
+        CATCH_REQUIRE( lastId > 0 );
 
         auto [transactions, timestampS, timeStampMs, price, stateRoot] = engine->getBlock( 1 );
 
 
-        REQUIRE( transactions );
-        REQUIRE( timestampS > 0 );
+        CATCH_REQUIRE( transactions );
+        CATCH_REQUIRE( timestampS > 0 );
 
         cerr << price << ":" << stateRoot << endl;
         signal( SIGABRT, abort_handler );
@@ -191,7 +160,3 @@ void exit_check() {
         usleep( 100 * 1000 );
     }
 }
-
-
-#include "unittests/consensus_tests.cpp"
-#include "unittests/sgx_tests.cpp"
