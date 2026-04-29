@@ -25,6 +25,8 @@
 #include "datastructures/TransactionList.h"
 #include "datastructures/TransactionCiphertextsMap.h"
 
+#include <exceptions/ExitRequestedException.h>
+#include <exceptions/SkaleException.h>
 #include <monitoring/LivelinessMonitor.h>
 
 #include "db/TEDecryptionDB.h"
@@ -110,44 +112,85 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime());
 
     CHECK_STATE(_proposal);
-    // check we are not verifying twice
-
-    auto savedShares = getSchain()->getNode()->getTEDecryptionDB()->getMyDecryptionShares(_proposal->getBlockID(),
-                                                                                          _proposal->getProposerIndex());
-
-    if (savedShares) {
-        // we already successfully parsed and decrypted shares
-        _proposal->setMyDecryptionShares(savedShares);
+    if (!_proposal->tryBeginMyDecryptionSharesComputation()) {
+        _proposal->waitUntilMyDecryptionSharesResolved();
         return;
     }
 
-    auto transactions = _proposal->getTransactionList()->getItems();
+    computeMyDecryptionSharesForProposalTransactions(_proposal);
+}
 
-    CHECK_STATE(transactions);
+void BiteManager::scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
+        ptr<BlockProposal> _proposal) {
+    MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime());
 
-    if (!_proposal->getFailedTransactionsRef().empty()) {
+    CHECK_STATE(_proposal);
+    if (!_proposal->tryBeginMyDecryptionSharesComputation()) {
         return;
     }
 
-    CHECK_STATE(_proposal->getTransactionCiphertexts());
-
-
-    // this function will not throw exception
-    auto decryptionShareList = getDecryptionSharesForProposal(_proposal);
-    if (!_proposal->getFailedTransactionsRef().empty()) {
-        // the block includes invalid transactions, and at this point we know
-        // each of them. So we just return them
-        return;
+    try {
+        threadPoolExecutor->add([this, _proposal]() {
+            logThreadLocal_ = schain.getNode()->getLog();
+            computeMyDecryptionSharesForProposalTransactions(_proposal);
+        });
+    } catch (const std::exception &e) {
+        CONS_LOG(err, "Could not schedule local decryption share computation: " << e.what());
+        _proposal->markMyDecryptionSharesFailed();
+    } catch (...) {
+        CONS_LOG(err, "Could not schedule local decryption share computation");
+        _proposal->markMyDecryptionSharesFailed();
     }
+}
 
-    CHECK_STATE(decryptionShareList);
-    CHECK_STATE(decryptionShareList->totalCiphertextSharesCount() == _proposal->getTransactionCiphertexts()->totalCiphertextCount());
-    // no we know that the decryption shares are valid, we can set them to the proposal
-    // now we set the decryption shares list to the block proposal so it is committed to the
-    // database when proposal is committed
-    _proposal->setMyDecryptionShares(decryptionShareList);
+void BiteManager::computeMyDecryptionSharesForProposalTransactions(ptr<BlockProposal> _proposal) {
+    CHECK_STATE(_proposal);
 
-    getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
+    try {
+        auto savedShares = getSchain()->getNode()->getTEDecryptionDB()->getMyDecryptionShares(
+            _proposal->getBlockID(), _proposal->getProposerIndex());
+
+        if (savedShares) {
+            _proposal->markMyDecryptionSharesReady(savedShares);
+            return;
+        }
+
+        auto transactions = _proposal->getTransactionList()->getItems();
+
+        CHECK_STATE(transactions);
+
+        if (!_proposal->getFailedTransactionsRef().empty()) {
+            _proposal->markMyDecryptionSharesFailed();
+            return;
+        }
+
+        CHECK_STATE(_proposal->getTransactionCiphertexts());
+
+        auto decryptionShareList = getDecryptionSharesForProposal(_proposal);
+        if (!_proposal->getFailedTransactionsRef().empty() || !decryptionShareList) {
+            _proposal->markMyDecryptionSharesFailed();
+            return;
+        }
+
+        CHECK_STATE(
+            decryptionShareList->totalCiphertextSharesCount() ==
+            _proposal->getTransactionCiphertexts()->totalCiphertextCount());
+
+        getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
+        _proposal->markMyDecryptionSharesReady(decryptionShareList);
+    } catch (const ExitRequestedException &) {
+        _proposal->markMyDecryptionSharesFailed();
+    } catch (const std::exception &e) {
+        CONS_LOG(err, "Could not compute local decryption shares for proposal "
+                          << _proposal->getBlockID() << ":" << _proposal->getProposerIndex()
+                          << ": " << e.what());
+        SkaleException::logNested(e);
+        _proposal->markMyDecryptionSharesFailed();
+    } catch (...) {
+        CONS_LOG(err, "Could not compute local decryption shares for proposal "
+                          << _proposal->getBlockID() << ":" << _proposal->getProposerIndex());
+        _proposal->markMyDecryptionSharesFailed();
+    }
 }
 
 

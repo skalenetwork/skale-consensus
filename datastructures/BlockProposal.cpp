@@ -237,6 +237,63 @@ string BlockProposal::getSignature() {
     return signature;
 }
 
+#ifdef BITE
+bool BlockProposal::tryBeginMyDecryptionSharesComputation() {
+    unique_lock<recursive_mutex> lock(m);
+
+    if (myDecryptionSharesState.load(std::memory_order_acquire) !=
+        MyDecryptionSharesState::NotStarted) {
+        // already started or finished
+        return false;
+    }
+
+    myDecryptionSharesState.store(MyDecryptionSharesState::InProgress, std::memory_order_release);
+    return true;
+}
+
+void BlockProposal::markMyDecryptionSharesReady(
+    const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
+    CHECK_STATE(_myDecryptionShares);
+
+    unique_lock<recursive_mutex> lock(m);
+    auto state = myDecryptionSharesState.load(std::memory_order_acquire);
+    CHECK_STATE(state == MyDecryptionSharesState::NotStarted ||
+                state == MyDecryptionSharesState::InProgress);
+    CHECK_STATE(std::atomic_load(&myDecryptionShares) == nullptr);
+
+    std::atomic_store(&myDecryptionShares, _myDecryptionShares);
+    myDecryptionSharesState.store(MyDecryptionSharesState::Ready, std::memory_order_release);
+
+    lock.unlock();
+    myDecryptionSharesCond.notify_all();
+}
+
+void BlockProposal::markMyDecryptionSharesFailed() {
+    unique_lock<recursive_mutex> lock(m);
+    auto state = myDecryptionSharesState.load(std::memory_order_acquire);
+    CHECK_STATE(state != MyDecryptionSharesState::Ready);
+    CHECK_STATE(std::atomic_load(&myDecryptionShares) == nullptr);
+
+    myDecryptionSharesState.store(MyDecryptionSharesState::Failed, std::memory_order_release);
+
+    lock.unlock();
+    myDecryptionSharesCond.notify_all();
+}
+
+bool BlockProposal::waitUntilMyDecryptionSharesResolved(uint64_t _timeoutMs) {
+    unique_lock<recursive_mutex> lock(m);
+    return myDecryptionSharesCond.wait_for(lock, chrono::milliseconds(_timeoutMs), [this]() {
+        return myDecryptionSharesState.load(std::memory_order_acquire) !=
+               MyDecryptionSharesState::InProgress;
+    });
+}
+
+void BlockProposal::setMyDecryptionShares(
+    const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
+    markMyDecryptionSharesReady(_myDecryptionShares);
+}
+#endif
+
 ptr<BlockProposalRequestHeader> BlockProposal::createProposalRequestHeader(Schain *_sChain) {
     CHECK_ARGUMENT(_sChain);
 

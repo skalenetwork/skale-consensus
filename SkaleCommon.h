@@ -188,6 +188,9 @@ static constexpr uint64_t CATCHUP_TIMEOUT_SEC = 30;
 
 static constexpr uint64_t SYNC_NODE_CATCHUP_TIMEOUT_SEC = 300;
 
+// Max wait time for SGX decryption share computation from node's own SGXWallet
+static constexpr uint64_t BITE_LOCAL_DECRYPTION_SHARES_WAIT_TIMEOUT_MS = 5000;
+
 static constexpr uint64_t READ_JSON_HEADER_TIMEOUT_SEC = 6;
 
 static constexpr uint64_t SYNC_NODE_READ_JSON_HEADER_TIMEOUT_SEC = 300;
