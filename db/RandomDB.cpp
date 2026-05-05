@@ -59,9 +59,27 @@ void RandomDB::writeRandom( const block_id& _blockId, const schain_index& _propo
 #ifdef CONSENSUS_STATE_PERSISTENCE
 
     auto key = createKey( _blockId, _proposerIndex, _round );
-    CHECK_STATE( key );
+    CHECK_STATE( !key.empty() )
 
-    writeString( *key, to_string( _random ) );
+    writeString( key, to_string( _random ) );
 
 #endif
+}
+
+// ============ Domain-specific random read/write ============
+
+u256 RandomDB::readDomainRandom( const string_view& _domain, const block_id& _blockId ) {
+    auto key = createKey( _blockId, _domain );
+    CHECK_STATE( !key.empty() )
+    auto value = readString( key );
+    CHECK_STATE( !value.empty() )
+    return u256( value.c_str() );
+}
+
+void RandomDB::writeDomainRandom(
+    const string_view& _domain, const block_id& _blockId, const u256& _random ) {
+    auto key = createKey( _blockId, _domain );
+    CHECK_STATE( !key.empty() )
+
+    writeString( key, _random.str() );
 }

@@ -1,24 +1,14 @@
 cmake_minimum_required(VERSION 3.10)
 
-if (BITE)
-    set(BITE "1")
-    add_definitions(-DBITE)
-endif ()
-
-if (BITE2)
-    set(BITE2 "1")
-    add_definitions(-DBITE2)
-    set(BITE "1")
-    add_definitions(-DBITE)
-endif ()
-
 if (FAIR)
     set(FAIR "1")
     add_definitions(-DFAIR)
     set(BITE "1")
+endif ()
+
+if (BITE)
+    set(BITE "1")
     add_definitions(-DBITE)
-    set(BITE2 "1")
-    add_definitions(-DBITE2)
 endif ()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -152,6 +142,7 @@ AUX_SOURCE_DIRECTORY(db db_src)
 if (DEFINED BITE)
     AUX_SOURCE_DIRECTORY(flatb flatb_src)
     AUX_SOURCE_DIRECTORY(bite bite_src)
+    AUX_SOURCE_DIRECTORY(bite/crypto bite_crypto_src)
     AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
     AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
     AUX_SOURCE_DIRECTORY(rlp rlp_src)
@@ -198,6 +189,7 @@ SET(SRC_FILES
         ${db_src}
         ${flatb_src}
         ${bite_src}
+        ${bite_crypto_src}
         ${bite_server_src}
         ${bite_client_src}
         ${headers_src}
@@ -341,27 +333,33 @@ target_link_libraries(consensusd consensus_full)
 # tests executable
 # ---------------------------------
 
-# Automatically discover all test source files in the unittests directory and its subdirectories.
-file(GLOB_RECURSE ALL_TEST_SOURCES "unittests/*.cpp")
-
-# Common test folders (non-rlp)
+# Common test folders
 file(GLOB_RECURSE COMMON_TEST_SOURCES
-        "unittests/datastructures/*.cpp"
-        "unittests/db/*.cpp"
-        "unittests/consensus_tests.cpp"
-        "unittests/sgx_tests.cpp"
-        # Add other folders as needed, excluding rlp/
+        "tests/unit/datastructures/*.cpp"
+        "tests/unit/db/*.cpp"
+        "tests/consensus_tests.cpp"
+        "tests/sgx_tests.cpp"
+        "tests/e2e/RestartBootstrapTests.cpp"
 )
 
 set(TEST_SOURCES ${COMMON_TEST_SOURCES})
 
 # Conditionally add rlp test sources if BITE is enabled
 if (DEFINED BITE)
-    file(GLOB_RECURSE BITE_TEST_SOURCES "unittests/bite/*.cpp")
+    file(GLOB_RECURSE BITE_TEST_SOURCES 
+        "tests/unit/bite/*.cpp"
+        "tests/e2e/bite/*.cpp"
+    )
     list(APPEND TEST_SOURCES ${BITE_TEST_SOURCES} libBLS/test/utils.cpp)
 
-    file(GLOB_RECURSE RLP_TEST_SOURCES "unittests/rlp/*.cpp")
+    file(GLOB_RECURSE CRYPTO_TEST_SOURCES "tests/unit/crypto/*.cpp")
+    list(APPEND TEST_SOURCES ${CRYPTO_TEST_SOURCES})
+
+    file(GLOB_RECURSE RLP_TEST_SOURCES "tests/unit/rlp/*.cpp")
     list(APPEND TEST_SOURCES ${RLP_TEST_SOURCES})
+
+    file(GLOB_RECURSE CRYPTO_TEST_SOURCES "unittests/crypto/*.cpp")
+    list(APPEND TEST_SOURCES ${CRYPTO_TEST_SOURCES})
 endif ()
 
 # Create the test executable from the main driver and all discovered test files.

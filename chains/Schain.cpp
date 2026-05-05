@@ -119,15 +119,14 @@
 #ifdef BITE
 #include "bite/BiteManager.h"
 #include "crypto/DecryptedAESKeyList.h"
-#endif
+#include "db/TEDecryptionDB.h"
+
+#include "protocols/blockconsensus/ConsensusSignatureDomains.h"
+#endif // BITE
 
 #include "db/BlockDB.h"
 #include "db/CacheLevelDB.h"
 #include "db/ProposalHashDB.h"
-
-#ifdef BITE
-#include "db/TEDecryptionDB.h"
-#endif
 
 #include "libBLS/bls/BLSPrivateKeyShare.h"
 #include "monitoring/LivelinessMonitor.h"
@@ -178,6 +177,7 @@ void Schain::postMessage(const ptr<MessageEnvelope> &_me) {
 
 void Schain::messageThreadProcessingLoop(Schain *_sChain) {
     CHECK_ARGUMENT(_sChain);
+    logThreadLocal_ = _sChain->getNode()->getLog();
 
     setThreadName("msgThreadProcLoop", _sChain->getNode()->getConsensusEngine());
 
@@ -185,8 +185,6 @@ void Schain::messageThreadProcessingLoop(Schain *_sChain) {
 
     try {
         _sChain->startTimeMs = Time::getCurrentTimeMs();
-
-        logThreadLocal_ = _sChain->getNode()->getLog();
 
         queue<ptr<MessageEnvelope> > newQueue;
 
@@ -496,6 +494,10 @@ const atomic<bool> &Schain::getIsStateInitialized() const {
     return isStateInitialized;
 }
 
+uint64_t Schain::getVerifyDaSigsPatchTimeStamp() const {
+    return verifyDaSigsPatchTimestamp;
+}
+
 bool Schain::verifyDASigsPatch(uint64_t
 #ifndef BITE
         _blockTimeStampS
@@ -506,6 +508,10 @@ bool Schain::verifyDASigsPatch(uint64_t
 #else
     return verifyDaSigsPatchTimestamp != 0 && _blockTimeStampS >= verifyDaSigsPatchTimestamp;
 #endif
+}
+
+uint64_t Schain::getVerifyBlsSyncPatchTimestampS() const {
+    return verifyBlsSyncPatchTimestamp;
 }
 
 bool Schain::verifyBlsSyncPatch(uint64_t
@@ -520,8 +526,22 @@ bool Schain::verifyBlsSyncPatch(uint64_t
 #endif
 }
 
+#ifdef BITE
+bool Schain::bite2Patch(uint64_t _blockTimeStampSec) {
+    return bite2PatchTimestamp != 0 && _blockTimeStampSec >= bite2PatchTimestamp;
+}
+
+uint64_t Schain::getBITE2PatchTimestampS() const {
+    return bite2PatchTimestamp;
+}
+#endif
+
 void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _proposerIndex,
-                                const ptr<ThresholdSignature> &_thresholdSig, ptr<ThresholdSignature> _daSig
+                                const ptr<ThresholdSignature> &_thresholdSig, 
+#ifdef BITE
+                                const ptr<ThresholdSignature> &_reencryptionThresholdSig,
+#endif
+                                ptr<ThresholdSignature> _daSig
 #ifdef  BITE
     , ptr< DecryptedAESKeyList > _aesKeyList, DecryptedTransactions _decryptedTransactions
 #endif
@@ -533,6 +553,14 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
 
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList)
+    bool isBite2PatchEnabled = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
+    if ( isBite2PatchEnabled ) {
+        CHECK_ARGUMENT(_reencryptionThresholdSig)
+    }
+    else {
+        // enforce bite2 blocks are rejected if we are not yet in bite2 patch
+        CHECK_ARGUMENT(!_reencryptionThresholdSig)
+    }
 #endif
 
     // wait until the schain state is fully initialized and startup
@@ -584,7 +612,11 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
         CHECK_STATE(committedProposal);
 
         auto newCommittedBlock =
-                CommittedBlock::makeFromProposal(committedProposal, _thresholdSig, _daSig
+                CommittedBlock::makeFromProposal(committedProposal, _thresholdSig, 
+#ifdef BITE
+                    _reencryptionThresholdSig,
+#endif
+                    _daSig
 #ifdef BITE
             , _aesKeyList, _decryptedTransactions
 #endif
@@ -660,8 +692,8 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         }
 
 #ifdef BITE
-        // Compute decryption shares before proposing block - else, could include incorrect
-        // BITE transactions
+        // Parse and validate BITE ciphertexts synchronously, then let the local decryption share
+        // computation run in the background while consensus progresses.
         if (!isProposalCameFromDb) {
             getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
 
@@ -678,21 +710,10 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
                 return;
             }
 
-            getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(myProposal);
-            if (!myProposal->getFailedTransactionsRef().empty()) {
-                CONS_LOG(err, "Critical error - could not decrypt BITE transactions");
-                CONS_LOG(err, "Rejecting proposal and triggering fallback consensus for default block");
-                try {
-                    timeoutAgent->forceEarlyTimeout();
-                } catch (ExitRequestedException &) {
-                    throw;
-                } catch (...) {
-                    CONS_LOG(err, "Could not trigger fallback consensus for default block");
-                }
-                return;
-            }
+            // SGX decryption shares will be computed asynchronously
+            getBiteManager()->scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
+                myProposal);
         }
-        CHECK_STATE(myProposal->getMyDecryptionShares());       
 #endif
 
         CONS_LOG(debug, "PROPOSING BLOCK NUMBER:" << to_string( _proposedBlockID ));
@@ -869,9 +890,7 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
 #ifdef BITE
             auto decryptedTxs = _block->getDecryptedTransactions();
             CHECK_STATE(decryptedTxs.regularTxsMap)
-#ifdef BITE2
             CHECK_STATE(decryptedTxs.ctxTxsMap)
-#endif
 #endif
 
 
@@ -881,9 +900,7 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
                              + ":SBPT:" + to_string( cryptoManager->sgxBlockProcessingTime() )
 #ifdef BITE
                     + ":BITE_DECRYPTED_TXS:" + to_string(decryptedTxs.regularTxsMap->size())
-#ifdef BITE2
                     + ":CAT_DECRYPTED_TXS:" + to_string(decryptedTxs.ctxTxsMap->size())
-#endif
 #endif
 
                              );
@@ -918,7 +935,31 @@ void Schain::saveBlock(const ptr<CommittedBlock> &_block) {
 
     try {
         checkForExit();
+
+#ifdef BITE
+        // save random before saving block. If block is ever available in db, random should also be
+        // compute reencryption random from block signature & save in random db
+        std::optional<string> reencryptionSignature = _block->getReencryptionThresholdSig();
+        bool isBite2PatchEnabled = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
+        if (isBite2PatchEnabled) {
+            CHECK_STATE2(reencryptionSignature.has_value(), 
+                "BITE2 patch is enabled but reencryption signature is missing for block " + to_string( _block->getBlockID() ));
+            CHECK_STATE2(!reencryptionSignature->empty(), 
+                "BITE2 patch is enabled but reencryption signature is empty string for block " + to_string( _block->getBlockID() ));
+
+            auto random = Schain::calculateRandomFromSignatureString( reencryptionSignature.value() );
+            getSchain()->getNode()->getRandomDB()->writeDomainRandom(
+                blockconsensus::REENCRYPTION_RANDOM_DOMAIN, _block->getBlockID(), random );
+        }
+        else {
+            CHECK_STATE2(!reencryptionSignature.has_value(), 
+                "BITE2 patch is not enabled but reencryption signature is present for block " + to_string( _block->getBlockID() ));
+        }
+#endif
+
+        // save in block db
         getNode()->getBlockDB()->saveBlock(_block);
+
     } catch (ExitRequestedException &) {
         throw;
     } catch (...) {
@@ -949,13 +990,13 @@ void Schain::pushBlockToExtFace(const ptr<CommittedBlock> &_block) {
     checkForExit();
 
     try {
-#ifdef BITE2
+#ifdef BITE
         auto biteManager = getSchain()->getBiteManager();
         CHECK_STATE(biteManager);
 #endif
 
         auto tv = _block->getTransactionList()->createTransactionVector(
-#ifdef BITE2
+#ifdef BITE
             biteManager
 #endif
         );
@@ -1184,12 +1225,18 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
     }
 
 
-    // Step 0 Workaround for the fact that skaled does not yet save timestampMs
-
-    if (_lastCommittedBlockTimeStampMs == 0 && _lastCommittedBlockID > 0) {
+    // Step 0: recover missing timestamp fields from consensus DB block if needed.
+    // For test/continue startup we may only know the last committed block id.
+    if ( _lastCommittedBlockID > 0 &&
+         ( _lastCommittedBlockTimeStamp == 0 || _lastCommittedBlockTimeStampMs == 0 ) ) {
         auto block = getNode()->getBlockDB()->getBlock(_lastCommittedBlockID, getCryptoManager());
         if (block) {
-            _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
+            if ( _lastCommittedBlockTimeStamp == 0 ) {
+                _lastCommittedBlockTimeStamp = block->getTimeStampS();
+            }
+            if ( _lastCommittedBlockTimeStampMs == 0 ) {
+                _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
+            }
         };
     }
 
@@ -1213,17 +1260,51 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
         while (lastCommittedBlockIDInConsensus > _lastCommittedBlockID)
 
             try {
+#ifdef BITE
+                bool isBite2PatchEnabledForBlock = bite2Patch( _lastCommittedBlockTimeStamp );
+#endif
                 auto block = getNode()->getBlockDB()->getBlock(
-                    _lastCommittedBlockID + 1, getCryptoManager());
+                    _lastCommittedBlockID + 1, getCryptoManager() );
                 CHECK_STATE2(block, "No block in consensus, repair needed");
+#ifdef BITE
+                auto reencryptionSignature = block->getReencryptionThresholdSig();
+                if ( isBite2PatchEnabledForBlock ) {
+                    CHECK_STATE2( reencryptionSignature.has_value(),
+                        "BITE2 patch is enabled but reencryption signature is missing for replayed block " +
+                            to_string( (uint64_t) block->getBlockID() ) );
+                    CHECK_STATE2( !reencryptionSignature->empty(),
+                        "BITE2 patch is enabled but reencryption signature is empty for replayed block " +
+                            to_string( (uint64_t) block->getBlockID() ) );
+
+                    auto random = Schain::calculateRandomFromSignatureString( *reencryptionSignature );
+                    getNode()->getRandomDB()->writeDomainRandom(
+                        blockconsensus::REENCRYPTION_RANDOM_DOMAIN, block->getBlockID(), random );
+                }
+                else {
+                    CHECK_STATE2( !reencryptionSignature.has_value(),
+                        "BITE2 patch is not enabled but reencryption signature is present for replayed block " +
+                            to_string( (uint64_t) block->getBlockID() ) );
+                }
+#endif
                 pushBlockToExtFace(block);
                 _lastCommittedBlockID = _lastCommittedBlockID + 1;
                 _lastCommittedBlockTimeStamp = block->getTimeStampS();
                 _lastCommittedBlockTimeStampMs = block->getTimeStampMs();
                 CONS_LOG(info, "Pushed block to skaled:" << _lastCommittedBlockID);
+            } catch ( exception& e ) {
+                // Cant read the block from db, may be it is corrupt in the  snapshot
+                CONS_LOG(err,
+                    "Bootstrap could not read block "
+                        << (uint64_t) ( _lastCommittedBlockID + 1 )
+                        << " from db. Repair. Exception: " << e.what());
+                SkaleException::logNested(e);
+                // The block will be hopefully pulled by catchup
             } catch (...) {
                 // Cant read the block from db, may be it is corrupt in the  snapshot
-                CONS_LOG(err, "Bootstrap could not read block from db. Repair.");
+                CONS_LOG(err,
+                    "Bootstrap could not read block "
+                        << (uint64_t) ( _lastCommittedBlockID + 1 )
+                        << " from db. Repair. Exception: unknown");
                 // The block will be hopefully pulled by catchup
             }
     }
@@ -1441,13 +1522,24 @@ ptr<BlockProposal> Schain::createDefaultEmptyBlockProposal(block_id _blockId
 
 
 void Schain::finalizeDecidedAndSignedBlock(block_id _blockId, schain_index _proposerIndex,
-                                           const ptr<ThresholdSignature> &_thresholdSig) {
+                                           const ptr<ThresholdSignature> &_thresholdSig
+#ifdef BITE
+                                           , const ptr<ThresholdSignature> &_reencryptionThresholdSig
+#endif
+    ) {
 
     checkForExit();
 #ifdef BITE
-    getFinalizationExecutor()->add([_blockId, _proposerIndex, _thresholdSig, this]() {
+    getFinalizationExecutor()->add([_blockId, _proposerIndex, _thresholdSig, 
+        _reencryptionThresholdSig, 
+        this]() {
 #endif
-        finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig);
+        logThreadLocal_ = getNode()->getLog();
+        finalizeDecidedAndSignedBlockInThread(_blockId, _proposerIndex, _thresholdSig 
+#ifdef BITE
+            , _reencryptionThresholdSig
+#endif
+        );
 #ifdef BITE
     });
 #endif
@@ -1480,7 +1572,11 @@ bool Schain::haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _pro
 #include <libBLS/bls/BLSPublicKeyShare.h>
 
 void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_index _proposerIndex,
-                                                   const ptr<ThresholdSignature> &_thresholdSig) {
+                                                   const ptr<ThresholdSignature> &_thresholdSig
+#ifdef BITE
+                                                   , const ptr<ThresholdSignature> &_reencryptionThresholdSig
+#endif
+    ) {
 
     CHECK_ARGUMENT(_thresholdSig != nullptr);
 
@@ -1503,7 +1599,11 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
     try {
         if (_proposerIndex == 0) {
             // default empty block
-            blockCommitArrived(_blockId, _proposerIndex, _thresholdSig, nullptr
+            blockCommitArrived(_blockId, _proposerIndex, _thresholdSig, 
+#ifdef BITE
+                _reencryptionThresholdSig, 
+#endif
+                nullptr
 #ifdef BITE
             , make_shared<DecryptedAESKeyList>(), DecryptedTransactions()
 #endif
@@ -1549,7 +1649,13 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
 
 #ifdef BITE
-        getNode()->getTEDecryptionDB()->addDecryptionShares(proposal->getMyDecryptionShares());
+        proposal->waitUntilMyDecryptionSharesResolved();
+
+        auto myDecryptionShares = proposal->getMyDecryptionShares();
+        CHECK_STATE2(myDecryptionShares,
+            "Local decryption shares are unavailable for finalized proposal");
+
+        getNode()->getTEDecryptionDB()->addDecryptionShares(myDecryptionShares);
 
         auto count =
                 getNode()->getTEDecryptionDB()->getDecryptionsCount(_blockId);
@@ -1565,15 +1671,23 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         CHECK_STATE(keys);
 
         auto transactions = proposal->getTransactionList();
-        auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(*transactions, (*keys));
-#endif
+        bool isBite2PatchEnabledForBlock = bite2Patch( getLastCommittedBlockTimeStamp().getS() );
+        auto decryptedTransactions = getBiteManager()->verifyAndDecryptTransactionList(
+            *transactions, (*keys), proposal->getEpochID()
+            , isBite2PatchEnabledForBlock 
+        );
+#endif // BITE
 
         auto daProofSig = getNode()->getDaProofDB()->getDASig( _blockId, _proposerIndex );
         auto hash = proposal->getHash();
         auto daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
             hash, daProofSig, _blockId, proposal->getTimeStampS() );
 
-        blockCommitArrived(_blockId, _proposerIndex, _thresholdSig, daSig
+        blockCommitArrived(_blockId, _proposerIndex, _thresholdSig, 
+#ifdef BITE
+            _reencryptionThresholdSig,
+#endif
+            daSig
 #ifdef BITE
                            , keys, decryptedTransactions
 #endif
@@ -1695,17 +1809,30 @@ u256 Schain::getRandomForBlockId(block_id _blockId) {
     auto block = getNode()->getBlockDB()->getBlock( _blockId, getCryptoManager() );
     
     CHECK_STATE(block);
-    auto signature = block->getThresholdSig();
+    return calculateRandomFromSignatureString( block->getThresholdSig() );
+}
 
-    auto data = make_shared<vector<uint8_t> >();
+u256 Schain::calculateRandomFromSignatureString( const string& _signature ) {
+    CHECK_ARGUMENT( !_signature.empty() )
 
-    for (uint64_t i = 0; i < signature.size(); i++) {
-        data->push_back((uint8_t) signature.at(i));
+    auto data = make_shared< vector< uint8_t > >();
+    data->reserve( _signature.size() );
+    for ( uint64_t i = 0; i < _signature.size(); i++ ) {
+        data->push_back( ( uint8_t ) _signature.at( i ) );
     }
 
-    auto hash = BLAKE3Hash::calculateHash(data);
-    return u256("0x" + hash.toHex());
+    auto hash = BLAKE3Hash::calculateHash( data );
+    return u256( "0x" + hash.toHex() );
 }
+
+#ifdef BITE
+u256 Schain::getReencryptionRandomForBlockId( block_id _blockId ) {
+    // Ensure the block has already been committed to the database
+    CHECK_STATE(_blockId <= readLastCommittedBlockIDFromDb());
+    return getNode()->getRandomDB()->readDomainRandom(
+        blockconsensus::REENCRYPTION_RANDOM_DOMAIN, _blockId );
+}
+#endif
 
 ptr<ofstream> Schain::visualizationDataStream = nullptr;
 
@@ -1733,14 +1860,6 @@ void Schain::analyzeErrors(ptr<CommittedBlock> _block) {
     for (auto &&analyzer: analyzers) {
         analyzer->analyze(_block);
     }
-}
-
-uint64_t Schain::getVerifyDaSigsPatchTimeStamp() const {
-    return verifyDaSigsPatchTimestamp;
-}
-
-uint64_t Schain::getVerifyBlsSyncPatchTimestampS() const {
-    return verifyBlsSyncPatchTimestamp;
 }
 
 
@@ -1801,6 +1920,16 @@ void Schain::setTimeStampValuesFromConfig() {
     SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(verifyBlsSyncPatchTimestamp)
+#ifdef BITE
+    SET_TIMESTAMP_FROM_CONFIG(bite2PatchTimestamp)
+    // Backward compatibility for configs using legacy key casing.
+    if ( bite2PatchTimestamp == 0 ) {
+        auto& timestamps = getNode()->getPatchTimestamps();
+        if ( timestamps.count( "bite2PatchTimestamp" ) > 0 ) {
+            bite2PatchTimestamp = timestamps.at( "bite2PatchTimestamp" );
+        }
+    }
+#endif
 }
 
 uint64_t Schain::getProposalStageTimeMs() {

@@ -867,6 +867,14 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
 ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBatch(
     std::vector<std::string> &_publicDecryptionValues) {
 
+    // do not validate decryption share from node's own SGX.
+    // Since SGX is owned by same node, we should treat it as an internal
+    // operation, and 'trust' it locally.
+    // If any share is invalid (very unlikely), other nodes will eventually 
+    // reject the shares from this node. The only advantage of validating 
+    // here would be early stopping at the cost of extra latency (~100ms)
+    static constexpr bool validateTEDecryptionShareFromSGX = false;
+
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
     uint64_t time = 0;
@@ -889,9 +897,11 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
         sgxBlockProcessingTimeMs += finishTimeMs - startTimeMs;
 
         CHECK_STATE(stringShares);
+
         result->reserve( stringShares->size() );
         for (auto&& stringShare : *stringShares) {
-            auto share = make_shared<libBLS::TEDecryptionShare>(stringShare, (uint64_t) getSchain()->getSchainIndex());
+            auto share = make_shared<libBLS::TEDecryptionShare>(stringShare, (uint64_t) getSchain()->getSchainIndex(),
+                validateTEDecryptionShareFromSGX); // do not validate
             auto consensusDecryptShare =
                 make_shared<ConsensusAESKeyDecryptionShare>(share, sChain->getSchainIndex(), false);
             result->push_back(consensusDecryptShare);
@@ -922,7 +932,8 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
         result->reserve( sharesArray.size() );
         for (Json::Value::ArrayIndex i = 0; i < sharesArray.size(); ++i) {
             string shareStr = sharesArray[i].asString();
-            auto share = make_shared<libBLS::TEDecryptionShare>(shareStr, (uint64_t) getSchain()->getSchainIndex());
+            auto share = make_shared<libBLS::TEDecryptionShare>(shareStr, (uint64_t) getSchain()->getSchainIndex(), 
+                validateTEDecryptionShareFromSGX); // do not validate
             auto consensusDecryptShare =
                 make_shared<ConsensusAESKeyDecryptionShare>(share, sChain->getSchainIndex(), false);
             result->push_back(consensusDecryptShare);

@@ -50,7 +50,7 @@ public:
     // Unparsable transactions will be added to failedTransactions.
     // Transactions starting from the magic number but with incorrect format will be added
     // to failedTransactions.
-    static void parseBITETransactions(ptr<BlockProposal> _proposal);
+    void parseBITETransactions(ptr<BlockProposal> _proposal);
 
     // =============== Stage 2: Ciphertext Validation =============== //
 
@@ -58,7 +58,18 @@ public:
 
     // =============== Stage 3: Compute Ciphertext shares =============== //
 
+    /**
+     * @brief For a given proposal, computes the decryption shares for all 
+     * transactions in SGX synchronously.
+     */
     void callSGXToCreateMyDecryptionSharesForProposalTransactions(
+            ptr<BlockProposal> _proposal);
+
+    /**
+     * @brief Schedules the computation of decryption shares in SGX for the given proposal.
+     * If the computation has already started, returns right away.
+     */
+    void scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
             ptr<BlockProposal> _proposal);
 
     // =============== Stage 4: Share merging =============== //
@@ -73,7 +84,10 @@ public:
 
     // =============== Stage 5: Transaction Decryption =============== //
 
-    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(const TransactionList &_transactionList, const DecryptedAESKeyList &_aesKeys);
+    [[nodiscard]] DecryptedTransactions verifyAndDecryptTransactionList(
+        const TransactionList &_transactionList, const DecryptedAESKeyList &_aesKeys,
+        epoch_id _epochId, bool _isBite2PatchEnabledForBlock
+    );
 
 
     // ============== Getters ============== //
@@ -108,10 +122,13 @@ public:
      * separated by commas.
      * @param _decryptorIndex - index of the decryptor node that created these shares
      * @param _decryptionFailed - whether decryption failed for this transaction
+     * @param _validate - whether to validate the shares during creation (only applicable if using real crypto). 
+     * If true and validation fails, an exception is thrown.
      */
     [[nodiscard]] ptr<AESKeyDecryptionShares> createAESDecryptionShares(const string& _aesKeyDecryptionShares,
                                                                       schain_index _decryptorIndex,
-                                                                      bool _decryptionFailed);
+                                                                      bool _decryptionFailed,
+                                                                      bool _validate = true);
 
 
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
@@ -128,7 +145,6 @@ public:
     [[nodiscard]] ptr<vector<uint8_t> > encryptRegularTx(const vector<uint8_t> &_data,
                                                                   const vector<uint8_t> &_to, uint64_t epochId);
 
-#ifdef BITE2
     /**
      * @brief Encrypts CTX function arguments using BITE2 scheme.
      * @param _scAddressAadTE - Smart contract address used as AAD for TE validation (real crypto only)
@@ -148,8 +164,13 @@ public:
      * Only plain arguments are included.
      */
     [[nodiscard]] ptr<vector<uint8_t> > generateEmptyCTXData(uint64_t epochId);
-#endif
 
 private:
+
+    /**
+     * @brief For a given proposal, computes the decryption shares for all transactions.
+     */
+    void computeMyDecryptionSharesForProposalTransactions(ptr<BlockProposal> _proposal);
+
     void stopAndDestroyThreadPoolExecutor();
 };

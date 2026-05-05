@@ -214,6 +214,9 @@ class Schain : public Agent {
     uint64_t verifyDaSigsPatchTimestamp = 0;
     uint64_t fastConsensusPatchTimestamp = 0;
     uint64_t verifyBlsSyncPatchTimestamp = 0;
+#ifdef BITE
+    uint64_t bite2PatchTimestamp = 0;
+#endif
 
     // If a BlockError analyzer is added to the queue
     // its analyze(CommittedBlock _block) function will be run on commit
@@ -327,7 +330,11 @@ public:
     void blockProposalReceiptTimeoutArrived( block_id _blockID );
 
     void blockCommitArrived( block_id _committedBlockID, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+        const ptr< ThresholdSignature >& _thresholdSig, 
+#ifdef BITE
+        const ptr< ThresholdSignature >& _reencryptionThresholdSig,
+#endif
+        ptr< ThresholdSignature > _daSig
 #ifdef BITE
         , ptr< DecryptedAESKeyList > _aesKeyList, DecryptedTransactions _decryptedTransactions
 #endif
@@ -411,11 +418,17 @@ public:
 
     uint64_t getVerifyBlsSyncPatchTimestampS() const;
 
+    uint64_t getBITE2PatchTimestampS() const;
+
     bool isInCreateBlock() const;
 
 
     void finalizeDecidedAndSignedBlock( block_id _blockId, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig );
+        const ptr< ThresholdSignature >& _thresholdSig
+#ifdef BITE        
+        , const ptr< ThresholdSignature >& _reencryptionThresholdSig
+#endif
+    );
 
 
     bool haveProposal(block_id _blockId, schain_index _proposerIndex);
@@ -424,7 +437,11 @@ public:
     bool haveAllElementsToFinalizeBlock(block_id _blockId, schain_index _proposerIndex);
 
     void finalizeDecidedAndSignedBlockInThread( block_id _blockId, schain_index _proposerIndex,
-        const ptr< ThresholdSignature >& _thresholdSig );
+        const ptr< ThresholdSignature >& _thresholdSig
+#ifdef BITE
+        , const ptr< ThresholdSignature >& _reencryptionThresholdSig
+#endif
+    );
 
     void tryStartingConsensus( const ptr< BooleanProposalVector >& pv, const block_id& bid );
 
@@ -448,7 +465,33 @@ public:
 
     void createOracleInstance();
 
+    /**
+     * @brief Computes a deterministic pseudo-random value for a given block id.
+     * Derived from the merged signature stored inside the corresponding block, so anyone
+     * with access to the block can reproduce it.
+     *
+     * @warning Publicly reproducible; do not use for security-sensitive purposes.
+     * @param _blockid Block identifier.
+     * @return Deterministic value derived from on-chain data.
+    */
     u256 getRandomForBlockId( block_id _blockid );
+
+    /**
+     * Convert a merged signature string into deterministic random.
+     */
+    static u256 calculateRandomFromSignatureString( const string& _signature );
+
+    /**
+     * @brief Computes a deterministic pseudo-random value for a given block id.
+     *
+     * Derived from an additional merged signature that is stored in the block additionally
+     * to the previous block signature. This new signature is never made public to end users.
+     * Deterministic across nodes that have access to it.
+     *
+     * @param _blockid Block identifier.
+     * @return Deterministic value derived from local merged signature data.
+    */
+    u256 getReencryptionRandomForBlockId( block_id _blockid );
 
     const ptr< OracleClient > getOracleClient() const;
 
@@ -459,6 +502,10 @@ public:
     bool verifyDASigsPatch( uint64_t _blockTimeStampSec );
 
     bool verifyBlsSyncPatch( uint64_t _blockTimeStampSec );
+
+#ifdef BITE
+    bool bite2Patch( uint64_t _blockTimeStampSec );
+#endif
 
     void updateInternalChainInfo( block_id _lastCommittedBlockID );
 

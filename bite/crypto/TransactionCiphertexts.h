@@ -5,9 +5,10 @@
 #include <vector>
 #include <cstdint>
 #include <optional>
-#include "EncryptedAESKey.h"
+#include "crypto/EncryptedAESKey.h"
 #include <SkaleCommon.h>
-#include <bite/BiteCiphertext.h>
+#include "node/ConsensusTypes.h"
+#include "bite/BiteCiphertext.h"
 #include "datastructures/SmallVector.h"
 
 namespace libBLS {
@@ -17,9 +18,9 @@ namespace libBLS {
 /**
  * @brief Holds ciphertexts (EncryptedAESKeys) for a transaction. Transactions may have
  * 0 or multiple ciphertexts, depending on whether they are:
- * 
+ *
  * 1) A regular transaction - Requires a single EncryptedAESKey (single ciphertext)
- * 
+ *
  * 2) A CAT transaction - May have 0 or multiple EncryptedAESKeys (multiple ciphertexts)
  */
 class TransactionCiphertexts {
@@ -29,14 +30,14 @@ class TransactionCiphertexts {
 
     // Optional smart contract address used as AAD in threshold encryption
     // For CAT transactions, this is the address of the SC that issued
-    // the CAT. 
+    // the CAT.
     std::optional<AddressBytes> scAddressAadTE;
 
 public:
-    TransactionCiphertexts( ptr<BiteCiphertext> ciphertext, 
+    TransactionCiphertexts( ptr<BiteCiphertext> ciphertext,
         std::optional<AddressBytes> scAddressAadTE = std::nullopt);
 
-    TransactionCiphertexts(std::vector<ptr<BiteCiphertext>>& ciphertextsVec, 
+    TransactionCiphertexts(std::vector<ptr<BiteCiphertext>>& ciphertextsVec,
         std::optional<AddressBytes> scAddressAadTE = std::nullopt);
 
     auto begin() const { return ciphertexts.begin(); }
@@ -61,7 +62,7 @@ public:
 
     // Returns the SC address AAD for TE validation (only set for CAT txs)
     [[nodiscard]] const std::optional<AddressBytes>& getScAddressAadTE() const { return scAddressAadTE; }
-    
+
     // Returns true if this is a CAT transaction (has SC address AAD)
     [[nodiscard]] bool isCTX() const { return scAddressAadTE.has_value(); }
 };

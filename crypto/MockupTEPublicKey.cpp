@@ -1,12 +1,10 @@
 
 #include "SkaleCommon.h"
-#include "Log.h"
 #include "crypto/EncryptedAESKey.h"
-#include "crypto/DecryptedAESKey.h"
-#include "node/ConsensusInterface.h"
 #include "MockupTEPublicKey.h"
 
-
+#ifdef BITE
+#include "bite/crypto/DecryptedAESKey.h"
 
 ptr<EncryptedAESKey> MockupTEPublicKey::encryptAESKey(ptr<DecryptedAESKey>& _decryptedAESKey) {
     CHECK_STATE(_decryptedAESKey);
@@ -35,3 +33,4 @@ ptr<EncryptedAESKey> MockupTEPublicKey::encryptAESKey(ptr<DecryptedAESKey>& _dec
 
     return std::make_shared<EncryptedAESKey>(encryptedKeyBytes);
 }
+#endif // BITE

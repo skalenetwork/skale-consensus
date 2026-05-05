@@ -23,6 +23,7 @@
 #include "node/NodeInfo.h"
 #include "rlp/EthTransactionEncoder.h"
 #include "thirdparty/json.hpp"
+#include "tests/TestUtils.h"
 
 namespace BiteTestUtils {
 
@@ -71,7 +72,6 @@ inline std::shared_ptr<Transaction> buildBite1Transaction(
     return std::make_shared<Transaction>(encoded, false);
 }
 
-#ifdef BITE2
 inline std::shared_ptr<Transaction> buildBite2Transaction(
     const std::vector<std::vector<uint8_t>>& encryptedArgsPlaintext,
     const std::vector<std::vector<uint8_t>>& plainArgs,
@@ -145,29 +145,12 @@ inline std::shared_ptr<Transaction> buildBite2TransactionWithScAddress(
     auto encoded = EthTransactionEncoder::signAndEncodeTx(tx);
     return std::make_shared<Transaction>(encoded, false);
 }
-#endif
 
 // Helper to create a valid CryptoManager with necessary dependencies for tests
 inline std::shared_ptr< CryptoManager > createTestCryptoManager(
     std::shared_ptr< Schain >& chain_out, std::shared_ptr< Node >& node_out,
     ConsensusEngine& engine ) {
-    nlohmann::json cfg;
-    cfg["nodeID"] = 1;
-    cfg["nodeName"] = "testNode";
-    cfg["bindIP"] = "127.0.0.1";
-    cfg["basePort"] = 10000;
-    std::string gethUrl = "";
-    std::string schainName = "testChain";
-    schain_id schainId = 1337;
-
-    node_out = std::make_shared< Node >( cfg, &engine, false, "", "", "", "", nullptr, "", nullptr,
-        nullptr, gethUrl, nullptr, nullptr, nullptr, false, false );
-
-    auto nodeInfo = std::make_shared< NodeInfo >( 1, "127.0.0.1", 10000, 1337, 1 );
-    node_out->setNodeInfo( nodeInfo );
-
-    chain_out = std::make_shared< Schain >( node_out, 1, schainId, nullptr, schainName );
-
+    TestUtils::createTestNodeAndSchain(node_out, chain_out, engine);
     return std::make_shared< CryptoManager >( *chain_out );
 }
 

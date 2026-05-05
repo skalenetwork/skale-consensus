@@ -67,9 +67,11 @@
 #include "db/ProposalHashDB.h"
 #include "db/ProposalVectorDB.h"
 #include "db/RandomDB.h"
+
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
 #endif
+
 #include "db/SigDB.h"
 #include "messages/Message.h"
 #include "messages/NetworkMessageEnvelope.h"
@@ -82,6 +84,7 @@
 #include "utils/Time.h"
 #include "NodeInfo.h"
 #include "Node.h"
+#include "protocols/blockconsensus/ConsensusSignatureDomains.h"
 
 
 using namespace std;
@@ -186,7 +189,10 @@ void Node::initLevelDBs() {
     string internalInfoDBPrefix = "/internal_info_" + to_string( nodeID ) + ".db";
 #ifdef BITE
     string teDecryptionDBPrefix = "/te_decryptshares_" + to_string( nodeID ) + ".db";
-#endif
+
+    string offchainBlockSigShareDBPrefix = "/block_sigshares_offchain_" + to_string( nodeID ) + ".db";
+
+#endif // BITE
 
 
     blockDB =
@@ -212,6 +218,7 @@ void Node::initLevelDBs() {
 
     blockSigShareDB = make_shared< BlockSigShareDB >(
         getSchain(), dbDir, blockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize() );
+
     daSigShareDB = make_shared< DASigShareDB >(
         getSchain(), dbDir, daSigShareDBPrefix, getNodeID(), getDaSigShareDBSize() );
     daProofDB = make_shared< DAProofDB >(
@@ -226,7 +233,11 @@ void Node::initLevelDBs() {
 #ifdef BITE
     teDecryptionDB = make_shared< TEDecryptionDB >(
         getSchain(), dbDir, teDecryptionDBPrefix, getNodeID(), getTEDecryptionDBSize() );
-#endif
+
+    offchainBlockSigShareDB = make_shared< BlockSigShareDB >(
+        getSchain(), dbDir, offchainBlockSigShareDBPrefix, getNodeID(), getBlockSigShareDBSize(), string( blockconsensus::REENCRYPTION_RANDOM_DOMAIN ) );
+    
+#endif // BITE
 
 }
 
@@ -305,14 +316,29 @@ void Node::initParamsFromConfig() {
 
     testConfig = make_shared< TestConfig >( cfg );
 
-    // for tests we add an option to read patchtimestamps from config
+    // For tests, allow env/config overrides while preserving any values already
+    // injected by ConsensusEngine::setTestPatchTimestamps().
     if ( !consensusEngine->getExtFace() ) {
+        auto getExistingPatchTs = [this]( const char* _name ) -> uint64_t {
+            auto it = patchTimestamps.find( _name );
+            return it == patchTimestamps.end() ? 0 : it->second;
+        };
+
         patchTimestamps["fastConsensusPatchTimestamp"] =
-            getParamUint64( "fastConsensusPatchTimestamp", 0 );
+            getParamUint64( "fastConsensusPatchTimestamp",
+                getExistingPatchTs( "fastConsensusPatchTimestamp" ) );
         patchTimestamps["verifyDaSigsPatchTimestamp"] =
-            getParamUint64( "verifyDaSigsPatchTimestamp", 0 );
+            getParamUint64( "verifyDaSigsPatchTimestamp",
+                getExistingPatchTs( "verifyDaSigsPatchTimestamp" ) );
         patchTimestamps["verifyBlsSyncPatchTimestamp"] =
-                getParamUint64( "verifyBlsSyncPatchTimestamp", 0 );
+            getParamUint64( "verifyBlsSyncPatchTimestamp",
+                getExistingPatchTs( "verifyBlsSyncPatchTimestamp" ) );
+#ifdef BITE
+        auto bite2PatchTs =
+            getParamUint64( "bite2PatchTimestamp",
+                getExistingPatchTs( "bite2PatchTimestamp" ) );
+        patchTimestamps["bite2PatchTimestamp"] = bite2PatchTs;
+#endif
     }
 }
 
@@ -351,6 +377,25 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
             true );
         // now save the block into the blocks dd
         getBlockDB()->saveBlock( block );
+#ifdef BITE
+        auto reencryptionSignature = block->getReencryptionThresholdSig();
+        if ( getSchain()->bite2Patch( getSchain()->getLastCommittedBlockTimeStamp().getS() ) ) {
+            CHECK_STATE2( reencryptionSignature.has_value(),
+                "BITE2 patch is enabled but reencryption signature is missing for imported snapshot block " +
+                    to_string( (uint64_t) block->getBlockID() ) );
+            CHECK_STATE2( !reencryptionSignature->empty(),
+                "BITE2 patch is enabled but reencryption signature is empty for imported snapshot block " +
+                    to_string( (uint64_t) block->getBlockID() ) );
+
+            auto random = Schain::calculateRandomFromSignatureString( *reencryptionSignature );
+            getRandomDB()->writeDomainRandom(
+                blockconsensus::REENCRYPTION_RANDOM_DOMAIN, block->getBlockID(), random );
+        }
+        else {
+            CHECK_STATE2( !reencryptionSignature.has_value(),
+                "BITE2 patch is not enabled but reencryption signature is present for imported snapshot block " + to_string( (uint64_t) block->getBlockID() ) );
+        }
+#endif
         // now do a sanitity check, that the block was imported OK
         CHECK_STATE2( block->getBlockID() == getBlockDB()->readLastCommittedBlockID(),
             "Imported a block from a snapshot, but last committed block id in db did not update" );
@@ -569,6 +614,7 @@ void Node::doSoftAndThenHardExit() {
     RETURN_IF_PREVIOUSLY_CALLED( exitCalled )
 
     exitOnBlockBoundaryRequested = true;
+    const bool wasStarted = isStarted();
 
     // this handles the case when exit is called very early
     // so that the start barriers were not released yet
@@ -576,6 +622,14 @@ void Node::doSoftAndThenHardExit() {
     // so it can finish
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
+
+    // Test helpers can construct a node/schain pair without starting services.
+    // Releasing the barriers above mutates the started flags, so use the state
+    // captured before the release to detect this case correctly.
+    if ( !wasStarted ) {
+        exitImmediately();
+        return;
+    }
 
     // we try to wait until the next block is mined, unless the exit
     // was initiated by a fatal error in consensus. In the latter case

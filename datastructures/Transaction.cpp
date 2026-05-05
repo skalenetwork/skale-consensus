@@ -206,7 +206,6 @@ void Transaction::setRegularTxEncryptedData( ptr<BiteCiphertext> _biteDataField 
     std::atomic_store(&parsedEncryptedRegularTx, _biteDataField);
 }
 
-#ifdef BITE2
 ptr<std::vector<ptr<BiteCiphertext>>> Transaction::getCTXEncryptedArgs() {
     // thread safe
     return std::atomic_load(&parsedEncryptedCATArgs );
@@ -224,7 +223,5 @@ void Transaction::setScAddressAadTE( const AddressBytes& _scAddressAadTE ) {
 ptr<AddressBytes> Transaction::getScAddressAadTE() {
     return std::atomic_load(&scAddressAadTE);
 }
-
-#endif
 
 #endif

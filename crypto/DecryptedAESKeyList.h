@@ -5,7 +5,7 @@
 #include <boost/container/flat_map.hpp>
 #pragma GCC diagnostic pop
 #include "SkaleCommon.h"
-#include "DecryptedAESKey.h"
+#include "bite/crypto/DecryptedAESKey.h"
 #include "datastructures/SmallVector.h"
 
 

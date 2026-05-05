@@ -45,6 +45,10 @@ class BlockProposalFragment;
 
 class CommittedBlock : public BlockProposal {
 
+#ifdef BITE
+    // only available after bite2 patch
+    std::optional<string> reencryptionThresholdSig;
+#endif
     string thresholdSig;
     string daSig;
 #ifdef BITE
@@ -55,9 +59,9 @@ public:
     DecryptedTransactions getDecryptedTransactions() const;
     [[nodiscard]] ptr< DecryptedRegularTxsMap > getDecryptedRegularTxFields() const;
 
-#ifdef BITE2
-    [[nodiscard]] ptr< DecryptedCTXTxsMap > getDecryptedCATArgs() const;
-#endif
+    [[nodiscard]] ptr< DecryptedCTXTxsMap > getDecryptedCTXArgs() const;
+
+    std::optional<string> getReencryptionThresholdSig() const;
 
 #endif
 
@@ -84,6 +88,9 @@ protected:
         const schain_index& _proposerIndex,
         const ptr< TransactionList >& _transactions, const u256& _stateRoot, uint64_t _timeStamp,
         __uint32_t _timeStampMs, const string& _signature, const string& _thresholdSig,
+#ifdef BITE
+        std::optional<string> _reencryptionThresholdSig,
+#endif
         const string& _daSig
 #ifdef  BITE
 , ptr< DecryptedAESKeyList > _aesKeyList, DecryptedTransactions _decryptedTransactions
@@ -100,7 +107,11 @@ public:
 
 
     static ptr< CommittedBlock > makeFromProposal( const ptr< BlockProposal >& _proposal,
-        const ptr< ThresholdSignature >& _thresholdSig, ptr< ThresholdSignature > _daSig
+        const ptr< ThresholdSignature >& _thresholdSig, 
+#ifdef BITE
+        const ptr< ThresholdSignature >& _reencryptionThresholdSig,
+#endif
+        ptr< ThresholdSignature > _daSig
 #ifdef  BITE
     , ptr< DecryptedAESKeyList > _aesKeyList, DecryptedTransactions _decryptedTransactions
 #endif
@@ -113,7 +124,11 @@ public:
 #endif
         schain_index _proposerIndex, const ptr< TransactionList >& _transactions,
         const u256& _stateRoot, uint64_t _timeStamp, uint64_t _timeStampMs,
-        const string& _signature, const string& _thresholdSig, const string& _daSig
+        const string& _signature, const string& _thresholdSig, 
+#ifdef BITE
+        std::optional<string> _reencryptionThresholdSig, // may be empty
+#endif
+        const string& _daSig
 #ifdef  BITE
     , ptr< DecryptedAESKeyList > _aesKeyList, DecryptedTransactions _decryptedTransactions
 #endif

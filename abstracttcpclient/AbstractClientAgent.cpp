@@ -46,7 +46,6 @@ blic License as published
 
 #include "datastructures/BlockProposal.h"
 #include "datastructures/DAProof.h"
-#include "utils/Time.h"
 
 
 AbstractClientAgent::AbstractClientAgent( Schain& _sChain, port_type _portType )
@@ -142,10 +141,9 @@ void AbstractClientAgent::enqueueItemImpl( const ptr< SendableItem >& _item ) {
 void AbstractClientAgent::workerThreadItemSendLoop( AbstractClientAgent* agent ) {
     CHECK_STATE( agent );
 
-    setThreadName( "BlockPopClnt", agent->getSchain()->getNode()->getConsensusEngine() );
-
-    agent->waitOnGlobalStartBarrier();
     logThreadLocal_ = agent->getSchain()->getNode()->getLog();
+    setThreadName( "BlockPopClnt", agent->getSchain()->getNode()->getConsensusEngine() );
+    agent->waitOnGlobalStartBarrier();
 
     auto destinationSchainIndex = schain_index( agent->incrementAndReturnThreadCounter() + 1 );
 

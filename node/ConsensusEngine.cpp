@@ -261,6 +261,7 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
     try {
         nlohmann::json j = nlohmann::json::parse( configFileContents );
 
+        // empty nodeId -> always create the node from the config file
         std::set< node_id > dummy;
 
         ptr< Node > node = nullptr;
@@ -280,6 +281,8 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
         JSONFactory::createAndAddSChainFromJsonObject( node, j["skaleConfig"]["sChain"], this );
 
         nodes[node->getNodeID()] = node;
+        // set nodeID after parsing the config file
+        nodeIDs.insert( node->getNodeID() );
 
     } catch ( SkaleException& e ) {
         SkaleException::logNested( e );
@@ -510,6 +513,15 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(
         }
 
         CHECK_STATE( nodeCount == nodes.size() );
+
+        // nodeIDs is used as a filter when building the node from config.
+        // if empty, al lnodes will be built - we need to update nodeIDs with new IDs.
+        // If was not empty, then some nodes may still fail to build, and we still need
+        // to update nodeIDs with the IDs of the nodes that were built successfully.
+        nodeIDs.clear();
+        for ( const auto& item : nodes ) {
+            nodeIDs.insert( item.first );
+        }
 
         BinConsensusInstance::initHistory( nodes.begin()->second->getSchain()->getNodeCount() );
 
@@ -829,21 +841,14 @@ void ConsensusEngine::exitGracefullyAsync() {
         // thread for tests, we have many node objects and
         // need many threads
 
-        uint64_t counter = 0;
+        vector< thread > nodeExitThreads;
+        nodeExitThreads.reserve( nodes.size() );
 
         for ( auto&& it : nodes ) {
-            // run and forget
-
             auto node = it.second;
+            CHECK_STATE( node );
 
-            CHECK_STATE( it.second );
-
-            // run and forget
-
-            counter++;
-
-            if ( counter == nodes.size() ) {
-                // run exit for the last node in the same thread
+            nodeExitThreads.emplace_back( [node]() {
                 try {
                     CONS_LOG( info, "Node exit called" );
                     node->doSoftAndThenHardExit();
@@ -851,18 +856,13 @@ void ConsensusEngine::exitGracefullyAsync() {
                 } catch ( exception& e ) {
                     SkaleException::logNested( e );
                 } catch ( ... ) {
-                };
-            } else {
-                thread( [node]() {
-                    try {
-                        CONS_LOG( info, "Node exit called" );
-                        node->doSoftAndThenHardExit();
-                        CONS_LOG( info, "Node exit completed" );
-                    } catch ( exception& e ) {
-                        SkaleException::logNested( e );
-                    } catch ( ... ) {
-                    };
-                } ).detach();
+                }
+            } );
+        }
+
+        for ( auto& t : nodeExitThreads ) {
+            if ( t.joinable() ) {
+                t.join();
             }
         }
 
@@ -940,6 +940,28 @@ u256 ConsensusEngine::getRandomForBlockId( uint64_t _blockId ) const {
     }
     return 0;  // make compiler happy
 }
+
+#ifdef BITE
+
+u256 ConsensusEngine::getReencryptionRandomForBlockId( uint64_t _blockId ) const {
+    CHECK_STATE( nodes.size() > 0 );
+
+    for ( auto&& item : nodes ) {
+        CHECK_STATE( item.second );
+        return item.second->getSchain()->getReencryptionRandomForBlockId( _blockId );
+    }
+    return 0;  // make compiler happy
+}
+
+u256 ConsensusEngine::getReencryptionRandomForBlockIdForNode(
+    uint64_t _blockId, node_id _nodeId ) const {
+    auto it = nodes.find( _nodeId );
+    CHECK_STATE( it != nodes.end() );
+    CHECK_STATE( it->second );
+    return it->second->getSchain()->getReencryptionRandomForBlockId( _blockId );
+}
+
+#endif
 
 
 u256 ConsensusEngine::getPriceForBlockId( uint64_t _blockId ) const {
@@ -1029,6 +1051,10 @@ const string& ConsensusEngine::getHealthCheckDir() const {
 string ConsensusEngine::getDbDir() const {
     CHECK_STATE( dbDir != "" );
     return dbDir;
+}
+
+void ConsensusEngine::setTestPatchTimestamps( const std::map< string, uint64_t >& _patchTimestamps ) {
+    patchTimestamps = _patchTimestamps;
 }
 
 void ConsensusEngine::setTestKeys(
@@ -1171,7 +1197,7 @@ ConsensusEngine::getBlock( block_id _blockId ) {
     auto stateRoot = committedBlock->getStateRoot();
     auto currentPrice = schain->getPriceForBlockId( ( uint64_t ) committedBlock->getBlockID() - 1 );
     auto tv = committedBlock->getTransactionList()->createTransactionVector( 
-#ifdef BITE2
+#ifdef BITE
         schain->getBiteManager()
 #endif 
     );

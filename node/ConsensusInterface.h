@@ -34,7 +34,6 @@
 #pragma GCC diagnostic pop
 
 #include "node/ConsensusTypes.h"
-#include "bite/Constants.h"
 
 enum consensus_engine_status {
     CONSENSUS_ACTIVE = 0,
@@ -80,6 +79,17 @@ public:
     virtual u256 getPriceForBlockId(uint64_t _blockId) const = 0;
 
     virtual u256 getRandomForBlockId(uint64_t _blockId) const = 0;
+
+#ifdef BITE
+    /**
+     * Returns a random for a block id that is derived from the threshold signature of the block 
+     * with a custom domain. The merged signature is never stored on chain and is only used 
+     * locally by nodes, so the resulting random is not publicly reproducible.
+     * The generated random is deterministic - all nodes will generate the same random for a 
+     * given block id, but it cannot be reproduced by external observers.
+     */
+    virtual u256 getReencryptionRandomForBlockId(uint64_t _blockId) const = 0;
+#endif
 
     virtual std::map<std::string, uint64_t> getConsensusDbUsage() const = 0;
 
@@ -219,7 +229,7 @@ public:
     private:
         transactions_vector all;
         
-#ifdef BITE2
+#ifdef BITE
         // number of CAT txs in 'all' vector
         std::size_t ctxsSize = 0;
 #endif
@@ -229,7 +239,7 @@ public:
 
     public:
 
-#ifdef BITE2
+#ifdef BITE
         std::size_t sizeCTX() const noexcept {
             return ctxsSize;
         }
