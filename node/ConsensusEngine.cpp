@@ -287,6 +287,19 @@ void ConsensusEngine::parseFullConfigAndCreateNode(
     }
 }
 
+#ifdef BITE
+void ConsensusEngine::setEpochId( uint64_t _epochId ) {
+    LOCK( mutex )
+
+    epochId = _epochId;
+
+    for ( const auto& item : nodes ) {
+        if ( item.second )
+            item.second->setEpochId( _epochId );
+    }
+}
+#endif
+
 ptr< Node > ConsensusEngine::readNodeTestConfigFileAndCreateNode( const string path,
     set< node_id >& _nodeIDs, bool _useSGX, string _sgxSSLKeyFileFullPath,
     string _sgxSSLCertFileFullPath, string _ecdsaKeyName, ptr< vector< string > > _ecdsaPublicKeys,

@@ -185,6 +185,12 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 #ifdef BITE
         auto biteManager = sChain->getBiteManager();
         auto currentEpoch = sChain->getNode()->getCurrentEpochId();
+
+        CONS_LOG(info, "BITE consensus pending tx epoch: epochId="
+            << currentEpoch
+            << " blockId=" << getSchain()->getLastCommittedBlockID() + 1);
+
+
         try {
 #ifdef BITE2
             if (transactions.isCTX(i)) {

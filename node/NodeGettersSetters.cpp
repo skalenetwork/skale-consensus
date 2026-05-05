@@ -397,11 +397,11 @@ uint64_t Node::getTEDecryptionDBSize() const {
 }
 
 uint64_t Node::getCurrentEpochId() const {
-    return epochId;
+    return epochId.load();
 }
 
 void Node::setEpochId( uint64_t _epochId ) {
-    epochId = _epochId;
+    epochId.store( _epochId );
 }
 #endif
 

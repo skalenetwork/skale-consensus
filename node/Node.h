@@ -272,7 +272,7 @@ class Node {
     atomic< bool > exitOnBlockBoundaryRequested = false;
 
 #ifdef BITE
-    uint64_t epochId = 0;
+    atomic< uint64_t > epochId = 0;
 
     //provide a fast way to get schainId and node_count from
     // anywhere in the count since they never change during the execution

@@ -200,6 +200,10 @@ public:
     virtual void updateLogger() const = 0;
 #endif
 
+#ifdef BITE
+    virtual void setEpochId( uint64_t _epochId ) = 0;
+#endif
+
 };
 
 
