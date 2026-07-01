@@ -300,9 +300,10 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
     const string& _header, Schain* _sChain, bool _lite ) {
     uint64_t sChainID;
     uint64_t blockID;
-# ifdef BITE
+#ifdef BITE
     uint64_t epochID;
-#endif
+    string reencryptionSignature;
+#endif // BITE
     uint64_t blockProposerIndex;
     string type;
     uint64_t msgID;
@@ -389,6 +390,18 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
                 bin_consensus_value( value ), timeMs, schain_id( sChainID ), msg_id( msgID ),
                 sigShare, srcSchainIndex, ecdsaSig, publicKey, pkSig, _sChain );
         } else if ( type == BasicHeader::BLOCK_SIG_BROADCAST ) {
+#ifdef BITE
+            // Only try parsing member if the message is past bite2 patch time
+            if ( _sChain->bite2Patch( _sChain->getLastCommittedBlockTimeStamp().getS() ) ) {
+                if ( d.HasMember( "rsig" ) ) {
+                    reencryptionSignature = getStringRapid( d, "rsig" );
+                }
+                else {
+                    CONS_LOG( warn, "BITE2 patch is enabled but reencryption signature is missing in message for block " + to_string( blockID ) );
+                    CHECK_STATE( false )
+                }
+            }
+#endif
             nwkMsg = make_shared< BlockSignBroadcastMessage >( node_id( srcNodeID ),
                 block_id( blockID ),
 #ifdef BITE
@@ -396,7 +409,11 @@ ptr< NetworkMessage > NetworkMessage::parseMessage(
 #endif
                 schain_index( blockProposerIndex ), timeMs,
                 schain_id( sChainID ), msg_id( msgID ), sigShare, srcSchainIndex, ecdsaSig,
-                publicKey, pkSig, _sChain );
+                publicKey, pkSig, _sChain
+#ifdef BITE
+                , reencryptionSignature
+#endif
+                );
 #ifndef FAIR
         } else if ( type == BasicHeader::ORACLE_REQUEST_BROADCAST ) {
             string spec = getStringRapid( d, "spec" );

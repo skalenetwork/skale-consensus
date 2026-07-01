@@ -83,6 +83,8 @@ void AbstractServerAgent::workerThreadConnectionProcessingLoop( void* _params ) 
 
     server->waitOnGlobalStartBarrier();
 
+    logThreadLocal_ = server->getSchain()->getNode()->getLog();
+
     CONS_LOG( trace, "Started server loop" );
 
     while ( !server->getNode()->isExitRequested() ) {
@@ -122,6 +124,7 @@ AbstractServerAgent::~AbstractServerAgent() {
 }
 
 void AbstractServerAgent::acceptTCPConnectionsLoop() {
+    logThreadLocal_ = getSchain()->getNode()->getLog();
     setThreadName( name, getSchain()->getNode()->getConsensusEngine() );
 
     waitOnGlobalStartBarrier();

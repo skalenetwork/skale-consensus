@@ -37,3 +37,7 @@ ThresholdSigShareSet::ThresholdSigShareSet(
     : blockId( _blockId ), totalSigners( _totalSigners ), requiredSigners( _requiredSigners ) {}
 
 ThresholdSigShareSet::~ThresholdSigShareSet() {}
+
+uint64_t ThresholdSigShareSet::getRequiredSigners() const {
+    return requiredSigners;
+}

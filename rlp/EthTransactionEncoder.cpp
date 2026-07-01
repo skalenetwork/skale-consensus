@@ -11,8 +11,10 @@
 #include "SkaleCommon.h"
 #include "Log.h"
 #include "node/ConsensusInterface.h"
-#include "bite/BiteDataFiled.h"
+#ifdef BITE
+#include "bite/BiteCiphertext.h"
 #include "bite/BiteManager.h"
+#endif
 #include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "crypto/EncryptedAESKey.h"
 #include "ParsedEthTransaction.h"
@@ -34,24 +36,17 @@ std::vector< uint8_t > EthTransactionEncoder::generateRandomPrivateKey() {
 }
 
 
-ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const EthTransaction& tx ) {
-
-
+ptr< vector< uint8_t > > EthTransactionEncoder::signAndEncodeTx( const std::unique_ptr<EthTransaction>& tx ) {
     std::vector< uint8_t > privkey = generateRandomPrivateKey();
-    Signature signature = tx.sign(privkey);
+    Signature signature = tx->sign(privkey);
 
-    std::vector< uint8_t > encodedTx = tx.rlpEncode( std::make_optional( signature ) );
-    tx.verifySignature(signature);
+    std::vector< uint8_t > encodedTx = tx->rlpEncode( std::make_optional( signature ) );
+    tx->verifySignature(signature);
     return make_shared< vector< uint8_t > >( std::move( encodedTx ) );
 }
 
-/// @brief Generates a sample transaction of one of the three types (Legacy, Type1, Type2).
-/// The transaction is signed and encoded. Each time it is called, it rotates through the three types.
-/// @param _isByte Specifies if the transaction data should be BITE encrypted.
-/// @param _biteManager 
-/// @return pointer to RLP-encoded transaction
-ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, ptr<BiteManager> _biteManager ) {
-    CHECK_STATE(_biteManager)
+
+std::unique_ptr<EthTransaction> EthTransactionEncoder::generateSampleTx() {
     static atomic< uint64_t > counter = 0;
     static atomic< uint64_t > nonce = 0;
 
@@ -115,28 +110,52 @@ ptr< vector< uint8_t > > EthTransactionEncoder::generateSampleTx( bool _isByte, 
         default:
             throw std::invalid_argument( "Unknown transaction type" );
     }
-
-    EthTransaction& txRef = *tx;
-    txRef.nonce = RLPStream::u256toBytes( static_cast<u256>( currentNonce ) );
-
-    if ( _isByte ) {
-        auto encryptedKeyPlusData = _biteManager->teEncryptDataAndToAddress(txRef.data, txRef.to);
-        BiteDataField biteDataField(encryptedKeyPlusData , 0);
-        // set data
-        txRef.data = *biteDataField.getSerializedData();
-        // set to field with BITE magic number
-        txRef.to = { 0x42, 0x49, 0x54, 0x45, 0x20, 0x4D, 0x45, 0x20,
-                     0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
-                     0x59, 0x50, 0x54, 0x44 };
-    }
-
-    auto encodedTx = signAndEncodeTx( txRef );
-    CHECK_STATE( encodedTx );
-
-    return encodedTx;
+    tx->nonce = RLPStream::u256toBytes( static_cast<u256>( currentNonce ) );
+    return tx;
 }
 
-ptr< vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
+
+void EthTransactionEncoder::encryptRegularTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
+    uint64_t epochId = 0;
+    auto encryptedKeyPlusData = _biteManager->encryptRegularTx(tx->data, tx->to, epochId);
+    // set data
+    tx->data = *encryptedKeyPlusData;
+    // set to field with BITE magic number
+    tx->to = { 0x42, 0x49, 0x54, 0x45, 0x20, 0x4D, 0x45, 0x20,
+                0x49, 0x27, 0x4D, 0x20, 0x45, 0x4E, 0x43, 0x52,
+                0x59, 0x50, 0x54, 0x44 };
+}
+
+
+#ifdef BITE
+
+void EthTransactionEncoder::encryptCTXTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
+    uint64_t epochId = 0;
+    
+    std::optional<AddressBytes> scAddressAadTE = std::nullopt;
+    if (tx->to.size() == 20) {
+        AddressBytes addr;
+        std::copy(tx->to.begin(), tx->to.end(), addr.begin());
+        scAddressAadTE = addr;
+    }
+
+    auto catData = _biteManager->generateEncryptedCTXData(epochId, scAddressAadTE);
+    tx->data = *catData;
+}
+
+void EthTransactionEncoder::encryptEmptyCTXTransaction(std::unique_ptr<EthTransaction>& tx, std::shared_ptr<BiteManager> _biteManager) {
+    uint64_t epochId = 0;
+    // Empty CAT also has SC address AAD if needed (though empty CATs usually don't have encrypted args needing AAD validation on decryption of args, 
+    // but BiteEngine::buildCTXData might be used if we change logic. 
+    // Currently generateEmptyCTXData doesn't call buildCTXData with encryption, so maybe no change needed there?)
+    // Let's check generateEmptyCTXData implementation.
+    auto catData = _biteManager->generateEmptyCTXData(epochId);
+    tx->data = *catData;
+}
+
+#endif
+
+std::shared_ptr< std::vector< uint8_t > >  EthTransactionEncoder::rlpEncodeWithoutSig(
     ParsedEthTransaction& _ethTransaction ) {
     auto fields = _ethTransaction.getFields();
 

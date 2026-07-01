@@ -35,7 +35,7 @@
 
 #ifdef  BITE
 #include "rlp/ParsedEthTransaction.h"
-#include "bite/BiteDataFiled.h"
+#include "bite/BiteCiphertext.h"
 #include "rlp/EthTransactionEncoder.h"
 #endif
 
@@ -173,36 +173,6 @@ ptr< Transaction > Transaction::createRandomSample( uint64_t _size, boost::rando
 
 #ifdef BITE
 
-void Transaction::parseAndValidate() {
-    // thread safe
-    auto pt = std::atomic_load(&parsedAndValidatedEthTransaction );
-    if (pt)
-        return;
-    pt = ParsedEthTransaction::parse( *data);
-    CHECK_STATE(pt)
-    std::atomic_store(&parsedAndValidatedEthTransaction, pt );
-}
-
-
-ptr< BiteDataField > Transaction::tryGetBiteData(epoch_id _currentEpochId) {
-    auto pt = std::atomic_load(&parsedBiteDataField);
-    if (pt)
-        return pt;
-
-    auto tx = std::atomic_load(&parsedAndValidatedEthTransaction );
-
-    ptr< BiteDataField > result = nullptr;
-    
-    if (tx->hasToField()) {
-        auto dataField = tx->getTransactionDataField();
-        auto to = tx->getToField();
-        result = BiteDataField::createIfMagicMatches(dataField, to, _currentEpochId);
-        std::atomic_store(&parsedBiteDataField, result);
-    }
-
-    return result;
-}
-
 ptr< vector< uint8_t > > Transaction::emplaceAndReencodeTransaction(
     vector< uint8_t >& _originalDataField ) {
 
@@ -212,4 +182,46 @@ ptr< vector< uint8_t > > Transaction::emplaceAndReencodeTransaction(
     pt->setTransactionDataField(_originalDataField);
     return EthTransactionEncoder::rlpEncodeWithoutSig(*pt);
 };
+
+// ------- Cached Fields -----------
+
+ptr<ParsedEthTransaction> Transaction::getAsEthereumTransaction() {
+    // thread safe
+    auto pt = std::atomic_load(&parsedAndValidatedEthTransaction );
+    
+    if (pt) return pt;
+    
+    pt = ParsedEthTransaction::parse( *data);
+    CHECK_STATE(pt)
+    std::atomic_store(&parsedAndValidatedEthTransaction, pt );
+    return pt;
+}
+
+ptr<BiteCiphertext> Transaction::getRegularTxEncryptedData() {
+    // thread safe
+    return std::atomic_load(&parsedEncryptedRegularTx );
+}
+void Transaction::setRegularTxEncryptedData( ptr<BiteCiphertext> _biteDataField ) {
+    // thread safe
+    std::atomic_store(&parsedEncryptedRegularTx, _biteDataField);
+}
+
+ptr<std::vector<ptr<BiteCiphertext>>> Transaction::getCTXEncryptedArgs() {
+    // thread safe
+    return std::atomic_load(&parsedEncryptedCATArgs );
+}
+void Transaction::setCTXEncryptedArgs( ptr<std::vector<ptr<BiteCiphertext>>> _biteDataField ) {
+    // thread safe
+    std::atomic_store(&parsedEncryptedCATArgs, _biteDataField);
+}
+
+void Transaction::setScAddressAadTE( const AddressBytes& _scAddressAadTE ) {
+    auto address = make_shared<AddressBytes>(_scAddressAadTE);
+    std::atomic_store(&scAddressAadTE, address);
+}
+
+ptr<AddressBytes> Transaction::getScAddressAadTE() {
+    return std::atomic_load(&scAddressAadTE);
+}
+
 #endif

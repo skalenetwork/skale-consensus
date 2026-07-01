@@ -136,7 +136,7 @@ ptr< vector< uint8_t > > BlockProposalFragment::serialize(
         fbData = builder.CreateVector( *data );
     }
 
-    // ✅ Create empty vector of raw pointers for Hash*
+    // Create empty vector of raw pointers for Hash*
     auto emptyHashVec = builder.CreateVector< const skale_fb::Hash* >( {} );
     std::vector< flatbuffers::Offset< skale_fb::DecryptionShare > > decryptionShareOffsets;
 
@@ -146,10 +146,15 @@ ptr< vector< uint8_t > > BlockProposalFragment::serialize(
     }
 
 
-    for ( const auto& decryptionShare : decryptionShares->getDecryptionShares() ) {
-        uint32_t transactionIndex = ( uint32_t ) decryptionShare.first;
-        const auto decryptionData =
-            decryptionShare.second->toString();  // Assumes std::string or std::vector<uint8_t>
+    for ( const auto& [txId, decryptionShares] : decryptionShares->getDecryptionShares() ) {
+        uint32_t transactionIndex = ( uint32_t ) txId;
+        std::string decryptionData;
+        for ( size_t i = 0; i < decryptionShares->size(); i++ ) {
+            decryptionData += decryptionShares->at(i)->toString();
+            if ( i != decryptionShares->size() - 1 ) {
+                decryptionData += ",";
+            }
+        }
         auto dataOffset =
             builder.CreateVector( reinterpret_cast< const uint8_t* >( decryptionData.data() ), decryptionData.size() );
 
@@ -202,20 +207,16 @@ void BlockProposalFragment::deserializeFromFlatBuffer(ptr<BiteManager> _biteMana
 
 
 BlockProposalFragment::BlockProposalFragment( const block_id& _blockId,
-#ifdef BITE
     const schain_index _proposerIndex, const schain_index _decryptorIndex,
     ptr< AESKeyDecryptionShareList > _decryptionShares,
-#endif
     uint64_t _totalFragments, const fragment_index& _fragmentIndex,
     const ptr< vector< uint8_t > >& _data,  uint64_t _blockSize,
     const string& _blockHash )
     : data( _data ),
       blockId( _blockId ),
-#ifdef BITE
       proposerIndex( _proposerIndex ),
       decryptorIndex( _decryptorIndex ),
       decryptionShares( _decryptionShares ),
-#endif
       blockSize( _blockSize ),
       blockHash( _blockHash ),
       totalFragments( _totalFragments ),

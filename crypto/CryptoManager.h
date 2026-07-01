@@ -185,7 +185,7 @@ public:
     static ifstream urandom;
 
 #ifdef BITE
-    ptr<vector<ptr<AESKeyDecryptionShare>>> sgxDecryptAESKeyShareBatch( std::vector<std::shared_ptr<std::string>>& _publicDecryptionValues);
+    ptr<vector<ptr<AESKeyDecryptionShare>>> sgxDecryptAESKeyShareBatch( std::vector<std::string>& _publicDecryptionValues);
 #endif
 
 

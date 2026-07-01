@@ -34,7 +34,7 @@ class PricingAgent : public Agent {
 public:
     explicit PricingAgent( Schain& _sChain );
 
-    u256 calculatePrice( const ConsensusExtFace::transactions_vector& _approvedTransactions,
+    u256 calculatePrice( const ConsensusExtFace::Transactions& _approvedTransactions,
         uint64_t _timeStamp, uint32_t _timeStampMs, block_id _blockID );
 
     u256 readPrice( block_id _blockId );

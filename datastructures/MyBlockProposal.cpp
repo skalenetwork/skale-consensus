@@ -31,7 +31,9 @@
 #include "chains/Schain.h"
 #include "Transaction.h"
 #include "TransactionList.h"
+#ifdef BITE
 #include "bite/BiteManager.h"
+#endif
 
 
 
@@ -64,6 +66,7 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
     const schain_index &_proposerIndex,
     const ptr<TransactionList> &_transactions, u256 _stateRoot, uint64_t _timeStamp,
     uint32_t _timeStampMs, const ptr<CryptoManager> &_cryptoManager) {
+
     auto proposal = shared_ptr<MyBlockProposal>(new MyBlockProposal(
         _sChain, _blockID,
 #ifdef BITE
@@ -72,7 +75,7 @@ ptr<MyBlockProposal> MyBlockProposal::createMyProposal(
         _proposerIndex, _transactions, _stateRoot, _timeStamp, _timeStampMs, _cryptoManager));
 
 #ifdef BITE
-    BiteManager::parseBITETransactions(proposal);
+    _sChain.getBiteManager()->parseBITETransactions(proposal);
     CHECK_STATE(proposal->getFailedTransactionsRef().empty());
 #endif
     return proposal;

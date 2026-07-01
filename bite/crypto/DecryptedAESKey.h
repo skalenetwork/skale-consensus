@@ -1,4 +1,7 @@
 #pragma once
+#include "bite/Constants.h"
+#include "datastructures/SmallVector.h"
+#include <string>
 
 class EncryptedAESKey;
 
@@ -7,7 +10,7 @@ class DecryptedAESKey {
     std::array< uint8_t, BITE_AES_KEY_LEN > aesKey;
 
 public:
-    string toHex();
+    std::string toHex();
 
     void print();
 
@@ -28,3 +31,5 @@ public:
 
     virtual ~DecryptedAESKey();
 };
+
+using DecryptedAESKeys = small_vector<DecryptedAESKey>;

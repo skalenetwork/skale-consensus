@@ -7,14 +7,12 @@
 #include "EncryptedAESKey.h"
 
 
-EncryptedAESKey::EncryptedAESKey(std::shared_ptr<std::array<std::uint8_t, BITE_ENCRYPTED_AES_KEY_LEN>> key)
-    : key(key) {
-    CHECK_STATE(key);
+EncryptedAESKey::EncryptedAESKey(std::array<std::uint8_t, BITE_ENCRYPTED_AES_KEY_LEN> _key)
+    : regularTxKey(_key) {
 }
 
 
 ptr<string> EncryptedAESKey::toHex() const {
-    CHECK_STATE(key);
-    return  make_shared<string>(Utils::carray2Hex(key->data(), key->size()));
+    return  make_shared<string>(Utils::carray2Hex(regularTxKey.data(), regularTxKey.size()));
  }
 
