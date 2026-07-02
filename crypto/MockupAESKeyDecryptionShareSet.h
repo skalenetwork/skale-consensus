@@ -15,6 +15,7 @@ class BLAKE3Hash;
 
 class MockupAESKeyDecryptionShareSet : public AESKeyDecryptionShareSet {
 
+    // stores single share from each decryptor
     std::map< size_t, ptr< MockupAESKeyDecryptionShare > > decryptionShares;  // tsafe
     
     size_t totalDecryptors; 
@@ -28,11 +29,11 @@ public:
     MockupAESKeyDecryptionShareSet( block_id _blockId, transaction_index _transactionIndex,
         size_t _totalDecryptors, size_t _requiredDecryptors );
 
-    ptr< DecryptedAESKey > verifyAndMergeAESKey(ptr<EncryptedAESKey>  _encryptedAESKey) override;
+    ptr< DecryptedAESKeys > verifyAndMergeAESKeys(EncryptedAESKeys&  _encryptedAESKey) override;
 
-    bool addDecryptionShare( const ptr< AESKeyDecryptionShare >& _sigShare );
+    bool addDecryptionSharesFromSameDecryptor( const ptr< AESKeyDecryptionShares >& _sigShare ) override;
 
-    bool isEnough();
+    bool isEnough() override;
 
     virtual ~MockupAESKeyDecryptionShareSet();
 };

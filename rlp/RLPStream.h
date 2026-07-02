@@ -55,8 +55,4 @@ public:
         data.push_back(other.encode());
         return *this;
     }
-
-
-
-
 };

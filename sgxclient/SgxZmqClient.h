@@ -130,8 +130,8 @@ public:
         int _n, bool _throwExceptionOnTimeout );
 
 #ifdef BITE
-    ptr<vector<ptr<string>>>decryptAESKeySharesBatch( const string& _keyShareName,
-    std::vector<std::shared_ptr<std::string> > & _aesKeySharesBatch, int _t, int _n,
+    ptr<vector<string>>decryptAESKeySharesBatch( const string& _keyShareName,
+    const std::vector<std::string> & _aesKeySharesBatch, int _t, int _n,
     bool _throwExceptionOnTimeout );
 #endif
 

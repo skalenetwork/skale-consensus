@@ -59,11 +59,11 @@ TestMessageGeneratorAgent::TestMessageGeneratorAgent( Schain& _sChain_ )
 }
 
 
-ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactions(
+ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactions(
     size_t _limit ) {
     // test oracle for the first block
 
-    ConsensusExtFace::transactions_vector result;
+    ConsensusExtFace::Transactions result;
 
     auto test = sChain->getBlockProposerTest();
 
@@ -75,7 +75,7 @@ ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransact
     for ( uint64_t i = 0; i < _limit; i++ ) {
         vector< uint8_t > transaction( TEST_MESSAGE_SIZE );
         std::copy_n(randomBytes.begin() + position, TEST_MESSAGE_SIZE, transaction.begin());
-        result.push_back( transaction );
+        result.pushBackRegular( transaction );
         counter++;
         position = (position + randomBytes.at(position)) % (RANDOM_TEST_ARRAY_LEN - TEST_MESSAGE_SIZE - 1);
     }
@@ -162,44 +162,94 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
 
 #ifdef BITE
 
-ConsensusExtFace::transactions_vector TestMessageGeneratorAgent::pendingTransactionsBITE(
+ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBITE(
     size_t _limit ) {
-    static size_t txIdxInPrecomputedBatch = 0;
-    static ConsensusExtFace::transactions_vector result;
+    static size_t txIdxInPrecomputedBatchRegular = 0;
+    static size_t txIdxInPrecomputedBatchCTX = 0;
+    // contains 3/4 BITE encrypted & 1/4 unencrypted regular transactions
+    static ConsensusExtFace::Transactions onlyRegularTxs;
+    // contains only BITE2 CTX transactions (with encrypted args)
+    static ConsensusExtFace::Transactions onlyCTXs;
     static std::once_flag initFlag;
+    static size_t numTotalRegularTxs = 1000;
+    static size_t numTotalCTXTxs = 200;
+    static double CTXsProportion = 0;
 
     // build test transactions only once at start (includes encrypting them)
     std::call_once(initFlag, [&] () {
-        ConsensusExtFace::transactions_vector tmpRes;
+        CTXsProportion = (double) numTotalCTXTxs / (numTotalRegularTxs + numTotalCTXTxs);
+        ConsensusExtFace::Transactions tmponlyCTXs;
 
-        for ( uint64_t i = 0; i < 1000; i++ ) {
-            // 1/4 chance of being bite encoded
-            // make half of them bite encoded
+        ConsensusExtFace::Transactions tmpOnlyRegularTxs;
+
+        // setup only regular txs
+        for ( uint64_t i = 0; i < numTotalRegularTxs; i++ ) {
+            auto tx = EthTransactionEncoder::generateSampleTx();
+            // 3/4 chance of being bite encoded
             // make one quarter unencrypted
-            auto tx = EthTransactionEncoder::generateSampleTx( i % 4 != 0, sChain->getBiteManager()  );
-            tmpRes.emplace_back( *tx );
+            if ( i % 4 != 0 ) {
+                EthTransactionEncoder::encryptRegularTransaction( tx, sChain->getBiteManager() );
+            }
+            auto signedTx = EthTransactionEncoder::signAndEncodeTx( tx );
+            tmpOnlyRegularTxs.emplaceBackRegular( std::move(*signedTx) );
         }
+        onlyRegularTxs = std::move(tmpOnlyRegularTxs);
 
-        result = std::move(tmpRes);
+        // setup ctx txs - include some empty CTXs for coverage
+        // Empty CTXs will be at positions: 0 (start), numTotalCTXTxs/2 (middle), numTotalCTXTxs-1 (end)
+        // and every 10th transaction to ensure ~10% are empty CTXs
+        for ( uint64_t i = 0; i < numTotalCTXTxs; i++ ) {
+            auto tx = EthTransactionEncoder::generateSampleTx();
+            
+            // Make empty CTX at start, middle, end, and every 10th transaction
+            bool isEmptyCTX = (i == 0) || 
+                              (i == numTotalCTXTxs / 2) || 
+                              (i == numTotalCTXTxs - 1) ||
+                              (i % 10 == 0);
+            
+            if (isEmptyCTX) {
+                // CTX with no encrypted arguments (empty ciphertexts)
+                EthTransactionEncoder::encryptEmptyCTXTransaction( tx, sChain->getBiteManager() );
+            } else {
+                // Regular CTX with encrypted arguments
+                EthTransactionEncoder::encryptCTXTransaction( tx, sChain->getBiteManager() );
+            }
+            
+            auto signedTx = EthTransactionEncoder::signAndEncodeTx( tx );
+            tmponlyCTXs.emplaceBackCTX( std::move(*signedTx) );
+        }
+        onlyCTXs = std::move(tmponlyCTXs);
     });
 
-
-    ConsensusExtFace::transactions_vector selectedTxs;
+    ConsensusExtFace::Transactions selectedTxs;
 
     auto test = sChain->getBlockProposerTest();
 
     CHECK_STATE( !test.empty() );
 
     if ( test == SchainTest::NONE )
-        return result;
+        return selectedTxs;
 
-    size_t idx = txIdxInPrecomputedBatch;
-    for ( uint64_t i = 0; i < _limit; i++ ) {
-        idx = (idx + 1) % result.size();
-        selectedTxs.emplace_back( result.at(idx) );
+    // compute how many CTXs / non-CTXs to include
+    const size_t numCTXs = (CTXsProportion * _limit);
+    const size_t numRegularTxs = _limit - numCTXs;
+    size_t ctxIdx = txIdxInPrecomputedBatchCTX;
+
+    // place all CTXs at the start
+    for ( size_t i = 0; i < numCTXs; i++ ) {
+        ctxIdx = (ctxIdx + 1) % numTotalCTXTxs;
+        selectedTxs.emplaceBackCTX( onlyCTXs.at(ctxIdx) );
     }
+    ( void ) numTotalCTXTxs;
+    txIdxInPrecomputedBatchCTX = ctxIdx;
 
-    txIdxInPrecomputedBatch = idx;
+    size_t regularIdx = txIdxInPrecomputedBatchRegular;
+    for ( uint64_t i = 0; i < numRegularTxs; i++ ) {
+        regularIdx = (regularIdx + 1) % numTotalRegularTxs;
+        selectedTxs.emplaceBackRegular( onlyRegularTxs.at(regularIdx) );
+    }
+    txIdxInPrecomputedBatchRegular = regularIdx;
+    
     return selectedTxs;
 };
 #endif

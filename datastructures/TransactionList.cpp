@@ -30,7 +30,11 @@
 
 #include "Transaction.h"
 #include "TransactionList.h"
-
+#ifdef BITE
+#include "bite/BiteManager.h"
+#include "bite/BiteEngine.h"
+#include "chains/Schain.h"
+#endif
 
 TransactionList::TransactionList( const ptr< vector< ptr< Transaction > > >& _transactions ) {
     CHECK_ARGUMENT( _transactions );
@@ -98,7 +102,7 @@ TransactionList::TransactionList( const ptr< vector< uint64_t > >& _transactionS
 };
 
 
-ptr< vector< ptr< Transaction > > > TransactionList::getItems() {
+ptr< vector< ptr< Transaction > > > TransactionList::getItems() const {
     CHECK_STATE( transactions );
     return transactions;
 }
@@ -137,28 +141,60 @@ TransactionList::~TransactionList() {
 
 atomic< int64_t > TransactionList::totalObjects( 0 );
 
-size_t TransactionList::size() {
+size_t TransactionList::size() const {
     CHECK_STATE( transactions );
     return transactions->size();
 }
 
 
-ptr< ConsensusExtFace::transactions_vector > TransactionList::createTransactionVector(
+ptr< ConsensusExtFace::Transactions > TransactionList::createTransactionVector(
 #ifdef BITE
-ptr< DecryptedTransactionFieldsMap >
+    ptr< BiteManager> biteManager
 #endif
 ) {
     LOCK( m )
 
-    auto tv = make_shared< ConsensusExtFace::transactions_vector >();
+    auto tv = make_shared< ConsensusExtFace::Transactions >();
 
     CHECK_STATE( transactions );
 
-    for ( auto&& t : *transactions ) {
-        tv->push_back( *( t->getData() ) );
+    // Assume no regular txs by default; only process regular txs if a non-CAT is found
+    size_t startRegularTxsIdx = transactions->size();
+
+#ifdef BITE
+    // TODO - refactor to simply call biteManager->parseBITETransactions
+    if (biteManager) {
+        auto epochId = biteManager->getSchain()->getNode()->getCurrentEpochId();
+        bool isBite2PatchEnabled = biteManager->getSchain()->bite2Patch(
+                    biteManager->getSchain()->getLastCommittedBlockTimeStamp().getS() );
+        for (size_t i = 0; i < transactions->size(); i++) {
+            auto tx = transactions->at(i);
+            if (isBite2PatchEnabled && BiteEngine::tryGetEncryptedCTXArgs(tx, epochId)) {
+                tv->pushBackCTX(*(tx->getData()));
+            }
+            else {
+                // first regular tx found
+                startRegularTxsIdx = i;
+                break;
+            }
+        }
+    } else {
+        // No biteManager means all txs are regular
+        startRegularTxsIdx = 0;
     }
+#else
+    // No BITE2 means all txs are regular
+    startRegularTxsIdx = 0;
+#endif
+
+    for (size_t i = startRegularTxsIdx; i < transactions->size(); i++) {
+        auto tx = transactions->at(i);
+        tv->pushBackRegular(*(tx->getData()));
+    }
+
     return tv;
 }
+
 ptr< TransactionList > TransactionList::deserialize(
     const ptr< vector< uint64_t > >& _transactionSizes,
     const ptr< vector< uint8_t > >& _serializedTransactions, uint32_t _offset,

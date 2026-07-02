@@ -63,16 +63,16 @@ string SgxZmqMessage::getStringRapid( const char* _name ) {
 };
 
 
-ptr<vector<ptr<string>>> SgxZmqMessage::getStringArrayRapid( const char* _name ) {
+ptr<vector<string>> SgxZmqMessage::getStringArrayRapid( const char* _name ) {
     CHECK_STATE( _name );
     CHECK_STATE( d->HasMember( _name ) );
     CHECK_STATE( (*d)[_name].IsArray() );
 
-    auto result = make_shared<vector<ptr<string>>>();
+    auto result = make_shared<vector<string>>();
     const auto& strArray = (*d)[_name];
     for (rapidjson::SizeType i = 0; i < strArray.Size(); ++i) {
         CHECK_STATE(strArray[i].IsString());
-        result->push_back(make_shared<string>(strArray[i].GetString()));
+        result->push_back(strArray[i].GetString());
     }
     return result;
 }

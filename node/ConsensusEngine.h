@@ -45,11 +45,16 @@ using namespace spdlog::level;
 
 class GlobalThreadRegistry;
 class StorageLimits;
+class CommittedBlock;
+class ConsensusEngineTestAccess;
 
 
 #include "thirdparty/lrucache.hpp"
 
 class ConsensusEngine : public ConsensusInterface {
+    // allow access to private members for testing purposes
+    friend class ConsensusEngineTestAccess;
+
     map< node_id, ptr< Node > > nodes;  // tsafe
 
     mutable cache::lru_cache< uint64_t, u256 > prices;  // tsafe
@@ -151,6 +156,8 @@ public:
 
     static void log( level_enum _severity, const string& _message, const string& _className );
 
+    static void ensureConfigLogger();
+
     static void logConfig( level_enum _severity, const string& _message, const string& _className );
 
     ptr< spdlog::logger > createLogger( const string& loggerName );
@@ -200,7 +207,7 @@ public:
      *   }
      */
 
-    tuple< ptr< ConsensusExtFace::transactions_vector >, uint32_t, uint32_t, u256, u256 > getBlock(
+    tuple< ptr< ConsensusExtFace::Transactions >, uint32_t, uint32_t, u256, u256 > getBlock(
         block_id _blockID );
 
     set< node_id >& getNodeIDs();
@@ -285,6 +292,8 @@ public:
 
     [[nodiscard]] ptr< GlobalThreadRegistry > getThreadRegistry() const;
 
+    void setTestPatchTimestamps( const std::map< string, uint64_t >& _patchTimestamps );
+
     void setTestKeys(
         string _serverURL, string _configFile, uint64_t _totalNodes, uint64_t _requiredNodes );
 
@@ -323,6 +332,18 @@ public:
 
 #ifdef BITE
     void setEpochId( uint64_t _epochId ) { epochId = _epochId; }
-#endif
+
+    /**
+     * @brief Gets the reencryption random for a given block ID, if available.
+     * Uses the first node available.
+     */
+    u256 getReencryptionRandomForBlockId( uint64_t _blockId ) const;
+
+    /**
+     * @brief Gets the reencryption random for a given block ID and node ID.
+     */
+    u256 getReencryptionRandomForBlockIdForNode( uint64_t _blockId, node_id _nodeId ) const;
+
+#endif // BITE
 
 };

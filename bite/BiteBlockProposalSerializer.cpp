@@ -116,9 +116,7 @@ ptr< BlockProposal > BiteBlockProposalSerializer::deserialize(
     auto proposal =
         BlockProposal::makeFromSerialized( blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
             blockHeader->getBlockID(),
-#ifdef BITE
             blockHeader->getEpochID(),
-#endif
             blockHeader->getProposerIndex(), list,
             blockHeader->getStateRoot(), blockHeader->getTimeStamp(), blockHeader->getTimeStampMs(),
             blockHeader->getSignature(), nullptr );
@@ -140,7 +138,7 @@ ptr< BlockProposal > BiteBlockProposalSerializer::deserialize(
 
 void BiteBlockProposalSerializer::serializedSanityCheck( const ptr< vector< uint8_t > >& _serializedBlock ) {
     CHECK_STATE(_serializedBlock);
-    // 🔍 Verify the resulting buffer before returning
+    // Verify the resulting buffer before returning
     flatbuffers::Verifier verifier(_serializedBlock->data(), _serializedBlock->size());
     CHECK_STATE(skale_fb::VerifyBlockProposalBuffer(verifier));
 }

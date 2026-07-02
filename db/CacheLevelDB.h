@@ -88,6 +88,8 @@ protected:
 
     string createKey( block_id _blockId );
 
+    string createKey( block_id _blockId, const string_view& _domain  );
+
     string createKey( block_id _blockId, schain_index _proposerIndex );
 
     string createKey( block_id _blockId, schain_index _proposerIndex, schain_index _senderIndex );

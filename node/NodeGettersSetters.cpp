@@ -363,7 +363,12 @@ ptr<TEDecryptionDB> Node::getTEDecryptionDB() const {
     CHECK_STATE(teDecryptionDB);
     return teDecryptionDB;
 }
-#endif
+
+ptr< BlockSigShareDB > Node::getOffchainBlockSigShareDB() const {
+    CHECK_STATE( offchainBlockSigShareDB );
+    return offchainBlockSigShareDB;
+}
+#endif // BITE
 
 ptr<DAProofDB> Node::getDaProofDB() const {
     CHECK_STATE(daProofDB);

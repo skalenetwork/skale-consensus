@@ -8,6 +8,7 @@
 #include "flatb/common_structures_generated.h"
 #include "flatb/committed_bloc_generated.h"
 #include "headers/BlockProposalHeader.h"
+#include "bite/serde/BiteAESKeySerializer.h"
 #include "exceptions/ParsingException.h"
 #include "network/Buffer.h"
 #include "datastructures/Transaction.h"
@@ -17,8 +18,8 @@
 
 
 ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAndCompleteSerialization(
-    BasicHeader& _blockHeader, TransactionList& transactionList,
-    DecryptedAESKeyList& _decryptedAesKeyList) {
+    BasicHeader& _blockHeader, const TransactionList& transactionList,
+    const DecryptedAESKeyList& _decryptedAesKeyList) {
     static_assert(BITE_AES_KEY_LEN == 32, "FlatBuffer AesKey requires 32-byte AES keys");
 
 
@@ -55,23 +56,7 @@ ptr<std::vector<uint8_t> > BiteCommittedBlockSerializer::serializeTransactionsAn
     auto transactionsOffset = builder.CreateVector(transactionsVec);
 
 
-    // no do keys
-
-    // ---- Serialize AES Keys ----
-    std::vector<skale_fb::AesKey> aesKeysVec;
-
-    for (auto &&it: _decryptedAesKeyList.getKeys()) {
-        auto key = it.second;
-        CHECK_STATE(key)
-
-        auto rawKey = key->getAesKey(); // std::array<uint8_t, BITE_AES_KEY_LEN>
-        aesKeysVec.push_back(skale_fb::AesKey{
-            static_cast<uint32_t>(it.first),
-            rawKey // rawKey is std::array<uint8_t, 32>
-        });
-    }
-
-
+    auto aesKeysVec = BiteAESKeySerializer::serialize(_decryptedAesKeyList);
     auto aesKeysOffset = builder.CreateVectorOfStructs(aesKeysVec);
 
     auto emptyVec = builder.CreateVector(std::vector<uint8_t>{});
@@ -105,7 +90,7 @@ void BiteCommittedBlockSerializer::serializedSanityCheck(const ptr<vector<uint8_
 
 ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<uint8_t> > &_serializedBlock,
                                                               const ptr<CryptoManager> &_cryptoManager,
-                                                              const ptr<BiteManager> _biteManager, bool _verifySig) {
+                                                              const ptr<BiteManager> _biteManager, bool _verifySig ) {
     CHECK_ARGUMENT(_serializedBlock);
     CHECK_ARGUMENT(_cryptoManager);
     CHECK_ARGUMENT(_biteManager);
@@ -160,35 +145,33 @@ ptr<CommittedBlock> BiteCommittedBlockSerializer::deserialize(const ptr<vector<u
     CHECK_STATE(fbAesKeys)
 
     if (fbAesKeys) {
-        for (const auto *aesKey: *fbAesKeys) {
-            CHECK_STATE(aesKey->data() && aesKey->data()->size() == BITE_AES_KEY_LEN);
-            std::array<uint8_t, BITE_AES_KEY_LEN> rawKey;
-            std::memcpy(rawKey.data(), aesKey->data()->data(), BITE_AES_KEY_LEN);
-
-            DecryptedAESKey key(rawKey);
-            decryptedAesKeyList->addKey(aesKey->transaction_index(), key);
-        }
+        BiteAESKeySerializer::deserialize(fbAesKeys, *decryptedAesKeyList);
     }
 
-    auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(*transactionList,
-        *decryptedAesKeyList);
+    // Committed block format is self-describing for BITE2:
+    // reencryption signature is present only for BITE2-format committed blocks.
+    // FOr such block to have been comitted, it must have been after bite2PatchTimestamp condition
+    bool isBite2PatchEnabledForBlock = blockHeader->getReencryptionThresholdSig().has_value();
+
+    auto decryptedTransactionDataFields = _biteManager->verifyAndDecryptTransactionList(
+        *transactionList, *decryptedAesKeyList, blockHeader->getEpochID()
+        , isBite2PatchEnabledForBlock
+    );
+    
     ptr<CommittedBlock> block = nullptr;
 
     try {
         block = CommittedBlock::make(blockHeader->getSchainID(), blockHeader->getProposerNodeId(),
                                      blockHeader->getBlockID(),
-#ifdef BITE
                                      blockHeader->getEpochID(),
-#endif
 
                                      blockHeader->getProposerIndex(), transactionList,
                                      blockHeader->getStateRoot(), blockHeader->getTimeStamp(),
                                      blockHeader->getTimeStampMs(),
                                      blockHeader->getSignature(), blockHeader->getThresholdSig(),
+                                     blockHeader->getReencryptionThresholdSig(),
                                      blockHeader->getDaSig()
-#ifdef BITE
                                      , decryptedAesKeyList, decryptedTransactionDataFields
-#endif
         );
     } catch (...) {
         throw_with_nested(InvalidStateException("Could not make block", __CLASS_NAME__));

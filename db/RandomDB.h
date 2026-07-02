@@ -33,12 +33,23 @@ public:
     RandomDB(
         Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize );
 
+    // ============ 64bit randoms ============
+
     uint64_t readRandom( const block_id& _blockId, const schain_index& _proposerIndex,
         const bin_consensus_round& _round );
 
-
     void writeRandom( const block_id& _blockId, const schain_index& _proposerIndex,
         const bin_consensus_round& _round, uint64_t _random );
+
+    // ============ Domain-specific random read/write (256bit randoms) ============
+
+    /**
+     * Reads the random value for a specific domain. Domain is used to differentiate between different
+     * randoms for same block and proposer.
+     */
+    u256 readDomainRandom( const string_view& _domain, const block_id& _blockId );
+
+    void writeDomainRandom( const string_view& _domain, const block_id& _blockId, const u256& _random );
 
     const string& getFormatVersion() override;
 };

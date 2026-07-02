@@ -41,10 +41,10 @@ class TestMessageGeneratorAgent : Agent {
 public:
     explicit TestMessageGeneratorAgent( Schain& _sChain );
 
-    ConsensusExtFace::transactions_vector pendingTransactions( size_t _limit );
+    ConsensusExtFace::Transactions pendingTransactions( size_t _limit );
 
 #ifdef BITE
-    ConsensusExtFace::transactions_vector pendingTransactionsBITE( size_t _limit );
+    ConsensusExtFace::Transactions pendingTransactionsBITE( size_t _limit );
 #endif
 
 

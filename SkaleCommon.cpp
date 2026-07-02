@@ -45,7 +45,7 @@ void setThreadName( std::string const& _n, ConsensusEngine* _engine ) {
     CHECK_STATE( _engine );
 
 
-    if ( _engine->getNodeIDs().size() > 1 ) {
+    if ( _engine->getNodeIDs().size() > 1 && logThreadLocal_ != nullptr ) {
         prefix = to_string( logThreadLocal_->getNodeID() );
     } else {
         prefix = "";

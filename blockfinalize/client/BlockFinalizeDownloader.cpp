@@ -457,6 +457,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     auto mySchainIndex = sChain->getSchainIndex();
 
 
+    logThreadLocal_ = node->getLog();
     setThreadName("BlckFinLoop", node->getConsensusEngine());
 
     node->waitOnGlobalClientStartBarrier();
@@ -522,8 +523,10 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 #ifdef BITE
             CHECK_STATE(getNode()->getTEDecryptionDB()->isEnoughForeignShares(blockId));
 #endif
+            // Already parses all BITE txs
             proposal = BlockProposal::makeFromNetworkSerialized(
                 fragmentList.serialize(), getSchain()->getCryptoManager());
+
             CHECK_STATE(proposal)
             CHECK_STATE(proposal->getProposerIndex() == ( uint64_t ) proposerIndex);
             {
@@ -538,15 +541,15 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 #ifdef BITE
 
 
-            CHECK_STATE(proposal->getEncryptedAESKeys());
+            CHECK_STATE(proposal->getTransactionCiphertexts());
 
-            getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(proposal);
+            auto biteManager = getSchain()->getBiteManager();
+            biteManager->computeAndValidateSGXAESKeyBatch(proposal);
 
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                          "Proposal includes invalid format BITE transactions");
 
-            getSchain()->getBiteManager()->callSGXToCreateMyDecryptionSharesForProposalTransactions(
-                proposal);
+            biteManager->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                          "Proposal includes invalid BITE transactions");
 #endif
