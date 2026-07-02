@@ -48,17 +48,13 @@ public:
 
 #ifdef BITE
     Json::Value getDecryptionShares(
-        const std::string& keyShareName, std::vector<std::shared_ptr<std::string>>& _publicDecryptionValues ) {
+        const std::string& keyShareName, const std::vector<std::string>& _publicDecryptionValues ) {
 
         Json::Value p;
         Json::Value batch(Json::arrayValue);
 
         for (const auto& v : _publicDecryptionValues) {
-            if (v && !v->empty()) {
-                batch.append(*v);
-            } else {
-                batch.append(Json::Value(""));
-            }
+            batch.append(v);
         }
 
         p["blsKeyName"] = keyShareName;

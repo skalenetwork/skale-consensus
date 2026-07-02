@@ -4,7 +4,10 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #include <boost/container/flat_map.hpp>
+#include "datastructures/SmallVector.h"
 #pragma GCC diagnostic pop
+
+#include "SkaleCommon.h"
 
 class BLAKE3Hash;
 
@@ -33,3 +36,5 @@ public:
 
     BLAKE3Hash computeHash();
 };
+
+using AESKeyDecryptionShares = small_vector<ptr<AESKeyDecryptionShare>>;

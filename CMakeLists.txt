@@ -1,17 +1,17 @@
 cmake_minimum_required(VERSION 3.10)
 
+if (FAIR)
+    set(FAIR "1")
+    add_definitions(-DFAIR)
+    set(BITE "1")
+endif ()
+
 if (BITE)
     set(BITE "1")
     add_definitions(-DBITE)
 endif ()
 
-if (FAIR)
-    set(FAIR "1")
-    add_definitions(-DFAIR)
-    set(BITE "1")
-    add_definitions(-DBITE)
-endif ()
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(COVERAGE "Build with code coverage support" OFF)
 if (COVERAGE)
@@ -74,7 +74,7 @@ add_subdirectory(libBLS)
 
 project(consensus)
 
-include_directories("${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp"
+include_directories(SYSTEM "${DEPS_INSTALL_ROOT}/include" "${DEPS_INSTALL_ROOT}/include/cryptopp"
         "cppzmq")
 link_directories("${DEPS_INSTALL_ROOT}/lib")
 set(CMAKE_PREFIX_PATH "${DEPS_INSTALL_ROOT}")
@@ -85,7 +85,7 @@ find_package(leveldb CONFIG REQUIRED)
 find_package(Snappy CONFIG REQUIRED)
 find_package(Crc32c CONFIG REQUIRED)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/gcc_ver_query.sh OUTPUT_VARIABLE GXX_MAJOR_VERSION)
 message(STATUS "-------- GXX_MAJOR_VERSION is ${GXX_MAJOR_VERSION}")
 add_compile_options(-Wno-error=deprecated-declarations -Wno-error=return-type -Wno-error=unused-result -Wno-error=unused-variable -Wno-error=maybe-uninitialized -Wno-error=deprecated-copy -Wno-error=pessimizing-move -Wno-sign-compare)
@@ -142,6 +142,7 @@ AUX_SOURCE_DIRECTORY(db db_src)
 if (DEFINED BITE)
     AUX_SOURCE_DIRECTORY(flatb flatb_src)
     AUX_SOURCE_DIRECTORY(bite bite_src)
+    AUX_SOURCE_DIRECTORY(bite/crypto bite_crypto_src)
     AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
     AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
     AUX_SOURCE_DIRECTORY(rlp rlp_src)
@@ -188,6 +189,7 @@ SET(SRC_FILES
         ${db_src}
         ${flatb_src}
         ${bite_src}
+        ${bite_crypto_src}
         ${bite_server_src}
         ${bite_client_src}
         ${headers_src}
@@ -214,7 +216,8 @@ SET(SRC_FILES
 )
 
 
-include_directories(. spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include libBLS/bls libBLS
+include_directories(. libBLS/bls libBLS)
+include_directories(SYSTEM spdlog/include ${BLS_INCLUDE_DIRS} ${DEPS_INSTALL_ROOT}/include
         "${DEPS_INSTALL_ROOT}/include" ${CMAKE_BINARY_DIR}/deps/include)
 if (NOT CMAKE_PROJECT_NAME STREQUAL "consensus" AND NOT DEFINED BITE)
     include_directories(${PARENT_BINARY_DIR}/deps/include)
@@ -330,24 +333,33 @@ target_link_libraries(consensusd consensus_full)
 # tests executable
 # ---------------------------------
 
-# Automatically discover all test source files in the unittests directory and its subdirectories.
-file(GLOB_RECURSE ALL_TEST_SOURCES "unittests/*.cpp")
-
-# Common test folders (non-rlp)
+# Common test folders
 file(GLOB_RECURSE COMMON_TEST_SOURCES
-        "unittests/datastructures/*.cpp"
-        "unittests/db/*.cpp"
-        "unittests/consensus_tests.cpp"
-        "unittests/sgx_tests.cpp"
-        # Add other folders as needed, excluding rlp/
+        "tests/unit/datastructures/*.cpp"
+        "tests/unit/db/*.cpp"
+        "tests/consensus_tests.cpp"
+        "tests/sgx_tests.cpp"
+        "tests/e2e/RestartBootstrapTests.cpp"
 )
 
 set(TEST_SOURCES ${COMMON_TEST_SOURCES})
 
 # Conditionally add rlp test sources if BITE is enabled
 if (DEFINED BITE)
-    file(GLOB_RECURSE RLP_TEST_SOURCES "unittests/rlp/*.cpp")
+    file(GLOB_RECURSE BITE_TEST_SOURCES 
+        "tests/unit/bite/*.cpp"
+        "tests/e2e/bite/*.cpp"
+    )
+    list(APPEND TEST_SOURCES ${BITE_TEST_SOURCES} libBLS/test/utils.cpp)
+
+    file(GLOB_RECURSE CRYPTO_TEST_SOURCES "tests/unit/crypto/*.cpp")
+    list(APPEND TEST_SOURCES ${CRYPTO_TEST_SOURCES})
+
+    file(GLOB_RECURSE RLP_TEST_SOURCES "tests/unit/rlp/*.cpp")
     list(APPEND TEST_SOURCES ${RLP_TEST_SOURCES})
+
+    file(GLOB_RECURSE CRYPTO_TEST_SOURCES "unittests/crypto/*.cpp")
+    list(APPEND TEST_SOURCES ${CRYPTO_TEST_SOURCES})
 endif ()
 
 # Create the test executable from the main driver and all discovered test files.

@@ -115,6 +115,7 @@ class SkaleLog;
         explicit operator T&() { return t; }                                             \
         explicit operator const T&() const { return t; }                                 \
         bool operator==( const D& rhs ) const { return t == rhs.t; }                     \
+        bool operator==( const T& rhs ) const { return t == rhs; }                       \
         bool operator<( const D& rhs ) const { return t < rhs.t; }                       \
                                                                                          \
         D& operator+=( const T& rhs ) {                                                  \

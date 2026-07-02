@@ -865,7 +865,7 @@ ptr<ThresholdSigShare> CryptoManager::signSigShare(
 
 #ifdef BITE
 ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBatch(
-    std::vector<std::shared_ptr<std::string> > &_publicDecryptionValues) {
+    std::vector<std::string> &_publicDecryptionValues) {
 
     MONITOR(__CLASS_NAME__, __FUNCTION__)
 
@@ -891,8 +891,7 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
         CHECK_STATE(stringShares);
         result->reserve( stringShares->size() );
         for (auto&& stringShare : *stringShares) {
-            CHECK_STATE(stringShare);
-            auto share = make_shared<libBLS::TEDecryptionShare>(*stringShare, (uint64_t) getSchain()->getSchainIndex());
+            auto share = make_shared<libBLS::TEDecryptionShare>(stringShare, (uint64_t) getSchain()->getSchainIndex());
             auto consensusDecryptShare =
                 make_shared<ConsensusAESKeyDecryptionShare>(share, sChain->getSchainIndex(), false);
             result->push_back(consensusDecryptShare);
@@ -931,9 +930,6 @@ ptr<vector<ptr<AESKeyDecryptionShare> > > CryptoManager::sgxDecryptAESKeyShareBa
 
         JSONFactory::checkSGXStatus(jsonShares);
     }
-
-
-
 
     if (measureTime) {
         addTEDecryptStats(Time::getCurrentTimeMs() - time );

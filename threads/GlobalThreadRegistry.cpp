@@ -36,7 +36,9 @@ void GlobalThreadRegistry::joinAll() {
         return;
 
     for ( auto&& thread : GlobalThreadRegistry::allThreads ) {
-        thread->join();
+        if ( thread->joinable() ) {
+            thread->join();
+        }
     }
 
     joined = true;

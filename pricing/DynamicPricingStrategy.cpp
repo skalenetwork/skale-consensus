@@ -27,7 +27,7 @@
 
 
 u256 DynamicPricingStrategy::calculatePrice( u256 _previousPrice,
-    const ConsensusExtFace::transactions_vector& _block, uint64_t, uint32_t, block_id ) {
+    const ConsensusExtFace::Transactions& _block, uint64_t, uint32_t, block_id ) {
     auto loadPercentage = ( _block.size() * 100 ) / MAX_TRANSACTIONS_PER_BLOCK;
 
     u256 price;

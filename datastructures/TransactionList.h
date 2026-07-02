@@ -28,13 +28,14 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
-
 #include "DataStructure.h"
-
 
 #include "ListOfHashes.h"
 #include "node/ConsensusEngine.h"
 
+#ifdef BITE
+#include "bite/BiteManager.h"
+#endif
 
 class Transaction;
 class ConsensusExtFace;
@@ -55,17 +56,26 @@ public:
 
     explicit TransactionList( const ptr< vector< ptr< Transaction > > >& _transactions );
 
-    ptr< vector< ptr< Transaction > > > getItems();
+    ptr< vector< ptr< Transaction > > > getItems() const;
 
     ptr< vector< uint8_t > > serialize( bool _writeTxPartialHash );
 
-    size_t size();
+    size_t size() const;
 
     ~TransactionList() override;
 
-    ptr< ConsensusExtFace::transactions_vector > createTransactionVector(
+    /**
+     * @brief Runs trough each transaction, and identifies the N first CAT transactions,
+     * placing all these transactions at the beginning of the returned Transactions structure.
+     * TODO - need to refactor this class - maybe we should also serialize the number of CATs, such that
+     * we avoid parsing them again here.
+     * 
+     * @param biteManager - optional BiteManager pointer, needed to identify CAT transactions.
+     * If none is passed, all transactions are considered regular.
+     */
+    ptr< ConsensusExtFace::Transactions > createTransactionVector(
 #ifdef BITE
-    ptr< DecryptedTransactionFieldsMap > _decryptedTransactions
+        ptr< BiteManager> biteManager = nullptr
 #endif
     );
 

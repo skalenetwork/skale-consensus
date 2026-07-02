@@ -24,6 +24,16 @@
 #ifndef SKALED_STORAGELIMITS_H
 #define SKALED_STORAGELIMITS_H
 
+namespace StorageConfig {
+    // Relative weights used to partition total storage
+    static constexpr uint32_t FRACTION_LARGE  = 1000;
+    static constexpr uint32_t FRACTION_MEDIUM = 100;
+    static constexpr uint32_t FRACTION_SMALL  = 10;
+    static constexpr uint32_t FRACTION_TINY   = 1;
+
+    // Custom sizes
+    static constexpr uint32_t FRACTION_CUSTOM_INCOMING_MSG_DB_SIZE = 9;
+}
 
 class StorageLimits {
     uint64_t storageUnitBytes = 0;
