@@ -12,7 +12,9 @@
 ptr<BiteCiphertext> BiteCodec::tryParseEncryptedRegularTxFields(
         std::vector<uint8_t>& _to, ptr<std::vector<uint8_t>> _data, epoch_id _currentEpochId) {
     // compare _to field to BITE magic number
-    if (!std::equal(BITE_ADDRESS_AS_BYTE_ARRAY, BITE_ADDRESS_AS_BYTE_ARRAY + ADDRESS_SIZE,
+    if (_to.size() != ADDRESS_SIZE ||
+        !std::equal(BITE_ADDRESS_AS_BYTE_ARRAY,
+                    BITE_ADDRESS_AS_BYTE_ARRAY + ADDRESS_SIZE,
                     _to.begin())) {
         return nullptr;
     }
@@ -33,30 +35,52 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
         return nullptr;
     }
 
-    // Parse args as RLP list
-    // Data comes as:
-    // [funcSelector, RLP( RLP(cipher1, cipher2, ...), RLP(plaintext1, plaintext2, ...) )]
-    // offset function selector
-    auto dataWithoutSelector = std::vector<uint8_t>(_dataField.begin() + BITE2_FUNCTION_SELECTOR_SIZE_BYTES, _dataField.end());
-    RLPItem rlpItem(dataWithoutSelector);
-    CHECK_STATE(rlpItem.isList());
-    CHECK_STATE(rlpItem.size() == 2); // RLP(ciphertexts, plaintexts)
-    RLPItem encryptedArgsRLP = rlpItem[0];
-    CHECK_STATE(encryptedArgsRLP.isList());
+    // It claims to be CTX, so it must contain an RLP payload.
+    CHECK_STATE2(
+        _dataField.size() > BITE2_FUNCTION_SELECTOR_SIZE_BYTES,
+        "CTX data is missing its RLP payload"
+    );
 
-    auto encryptedCTXArgs = std::make_shared<std::vector<std::shared_ptr<BiteCiphertext>>>();
+    // Strip the selector and parse the complete CTX RLP envelope.
+    auto dataWithoutSelector = std::vector<uint8_t>(
+        _dataField.begin() + BITE2_FUNCTION_SELECTOR_SIZE_BYTES,
+        _dataField.end()
+    );
 
+    size_t rlpOffset = 0;
+    RLPItem rlpItem(dataWithoutSelector, rlpOffset);
+
+    CHECK_STATE2(
+        rlpOffset == dataWithoutSelector.size(),
+        "CTX RLP payload contains trailing bytes"
+    );
+
+    CHECK_STATE2(rlpItem.isList(), "CTX payload must be an RLP list");
+    CHECK_STATE2(rlpItem.size() == 2, "CTX payload must contain encrypted and plaintext lists");
+
+    const RLPItem& encryptedArgsRLP = rlpItem[0];
+    const RLPItem& plaintextArgsRLP = rlpItem[1];
+
+    CHECK_STATE2(encryptedArgsRLP.isList(), "CTX encrypted arguments must be an RLP list");
+    CHECK_STATE2(plaintextArgsRLP.isList(), "CTX plaintext arguments must be an RLP list");
+
+    auto encryptedCTXArgs =
+        std::make_shared<std::vector<std::shared_ptr<BiteCiphertext>>>();
     encryptedCTXArgs->reserve(encryptedArgsRLP.size());
-    for (size_t i = 0; i < encryptedArgsRLP.size(); i++) {
-        auto argData = std::make_shared<std::vector<uint8_t>>(encryptedArgsRLP[i].asBytes());
-        encryptedCTXArgs->emplace_back( std::make_shared<BiteCiphertext>(argData, _currentEpochId) );
+
+    for (size_t i = 0; i < encryptedArgsRLP.size(); ++i) {
+        const RLPItem& encryptedArg = encryptedArgsRLP[i];
+
+        CHECK_STATE2(!encryptedArg.isList(), "CTX encrypted argument must be an RLP byte string");
+
+        auto argData = std::make_shared<std::vector<uint8_t>>(encryptedArg.asBytes());
+        encryptedCTXArgs->emplace_back(
+            std::make_shared<BiteCiphertext>(argData, _currentEpochId)
+        );
     }
+
     return encryptedCTXArgs;
 }
-
-
-
-
 
 // ==================== BiteCiphertext building for Transaction fields ==================== //
 
@@ -115,21 +139,22 @@ vector<uint8_t> BiteCodec::decryptCiphertext(const BiteCiphertext& _bite, const 
 DecryptedRegularTxFields BiteCodec::parseRegularTxDecryptedData(
         const vector<uint8_t> &_data) {
 
-    CHECK_STATE2(_data.size() >= ADDRESS_SIZE,
-                 "Decrypted data is not long enough to include the original tx.to field!");
-
     RLPItem decryptedDataRlp(_data);
     CHECK_STATE2(decryptedDataRlp.isList(), "Encrypted data rlp size must be a list");
     CHECK_STATE2(decryptedDataRlp.size() == 2,
-                 "Encrypted data rlp lsit must have exactly 2 elements");
+                 "Encrypted data rlp list must have exactly 2 elements");
     // extract decrypted data and to fields
     vector<uint8_t> dataField = decryptedDataRlp[0].asBytes();
+    vector<uint8_t> toBytes = decryptedDataRlp[1].asBytes();
+
+    CHECK_STATE2(toBytes.size() == ADDRESS_SIZE,
+                 "Decrypted tx.to field must be exactly 20 bytes");
     
     std::array<uint8_t, 20> toField;
-    std::copy(decryptedDataRlp[1].asBytes().begin(), decryptedDataRlp[1].asBytes().end(), toField.begin());
+    std::copy(toBytes.begin(), toBytes.end(), toField.begin());
 
     auto decryptedFields = DecryptedRegularTxFields {
-            .data = std::move(decryptedDataRlp[0].asBytes()),
+            .data = std::move(dataField),
             .to = std::move(toField),
     };
 
@@ -170,11 +195,6 @@ BiteCodec::EpochedBiteData BiteCodec::decodeEpochedBiteData(
         .keyPlusEncryptedData = keyPlusEncryptedData
     };
 }
-
-
-
-
-
 
 
 // Helper function to split string_view by commas

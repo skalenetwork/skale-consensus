@@ -19,6 +19,19 @@ struct BiteCodec {
     static std::shared_ptr<BiteCiphertext> tryParseEncryptedRegularTxFields(
         std::vector<uint8_t>& _to, ptr<std::vector<uint8_t>> _data, epoch_id _currentEpochId);
 
+    /**
+     * Parses BITE2 CTX calldata:
+     *
+     *   function selector (4 bytes) ||
+     *   RLP([
+     *       RLP([encrypted ciphertext 1, encrypted ciphertext 2, ...]),
+     *       RLP([plaintext argument 1, plaintext argument 2, ...])
+     *   ])
+     *
+     * Each encrypted ciphertext is a byte string containing serialized epoched BITE data.
+     * Returns nullptr when the selector does not identify a CTX call; throws when matching
+     * selector data is malformed.
+     */
     static std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> tryParseEncryptedCTXArgs(
         const std::vector<uint8_t>& _dataField, epoch_id _currentEpochId);
 
