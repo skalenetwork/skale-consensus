@@ -282,10 +282,20 @@ void BlockProposal::markMyDecryptionSharesFailed() {
 
 bool BlockProposal::waitUntilMyDecryptionSharesResolved(uint64_t _timeoutMs) {
     unique_lock<recursive_mutex> lock(m);
-    return myDecryptionSharesCond.wait_for(lock, chrono::milliseconds(_timeoutMs), [this]() {
+    // Only block while a computation is actually in progress. NotStarted means no
+    // computation was ever scheduled for this proposal (e.g. proposals reconstructed
+    // from committed-block storage), so there is nothing to wait for and we return
+    // right away instead of stalling for the full timeout.
+    myDecryptionSharesCond.wait_for(lock, chrono::milliseconds(_timeoutMs), [this]() {
         return myDecryptionSharesState.load(std::memory_order_acquire) !=
                MyDecryptionSharesState::InProgress;
     });
+    // Report success only when the shares reached a terminal, resolved state. In
+    // particular NotStarted is not "resolved", so callers relying on the boolean
+    // are not misled into treating never-computed shares as ready.
+    auto state = myDecryptionSharesState.load(std::memory_order_acquire);
+    return state == MyDecryptionSharesState::Ready ||
+           state == MyDecryptionSharesState::Failed;
 }
 
 void BlockProposal::setMyDecryptionShares(

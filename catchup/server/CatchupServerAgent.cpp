@@ -388,19 +388,34 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
         ptr<AESKeyDecryptionShareList> myDecryptionShares;
 
         if (needDecryptionShares) {
-            // waits up to some default set time (2s)
-            bool sharesResolved = proposal->waitUntilMyDecryptionSharesResolved();
-            // time out reached - something wrong happenned
-            if (!sharesResolved) {
-                        CONS_LOG(debug, "Timed out waiting for local decryption shares for proposal "
-                                            << proposal->getBlockID() << ":"
-                                            << proposal->getProposerIndex());
-            }
+            // waits up to some default set time
+            proposal->waitUntilMyDecryptionSharesResolved();
 
             // Try the proposal-local cache first. If the proposal came from committed-block
             // storage it may still not carry local shares, so fall back to the DB.
             myDecryptionShares = proposal->getMyDecryptionShares();
             if (!myDecryptionShares) {
+                auto state = proposal->getMyDecryptionSharesState();
+                if (state == BlockProposal::MyDecryptionSharesState::Failed) {
+                    // computation was scheduled and definitively failed - unexpected
+                    CONS_LOG(warn, "Local decryption share computation failed for proposal "
+                                        << proposal->getBlockID() << ":"
+                                        << proposal->getProposerIndex()
+                                        << "; falling back to DB");
+                } else if (state == BlockProposal::MyDecryptionSharesState::InProgress) {
+                    // computation was scheduled but did not finish in time - unexpected
+                    CONS_LOG(warn, "Timed out waiting for local decryption shares for proposal "
+                                        << proposal->getBlockID() << ":"
+                                        << proposal->getProposerIndex());
+                } else if (state == BlockProposal::MyDecryptionSharesState::NotStarted) {
+                    // this proposal instance never started local share computation; shares may
+                    // still exist in TE DB for this block/proposer
+                    CONS_LOG(debug, "Local share computation was not started for this proposal instance "
+                                        << proposal->getBlockID() << ":"
+                                        << proposal->getProposerIndex()
+                                        << "; checking DB fallback");
+                }
+
                 // If proposal does not have decryption shares, try to get them from the DB.
                 myDecryptionShares = getNode()->getTEDecryptionDB()->getMyDecryptionShares(proposal->getBlockID(),
                     proposal->getProposerIndex());

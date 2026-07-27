@@ -242,6 +242,10 @@ public:
         return result;
     }
 
+    [[nodiscard]] MyDecryptionSharesState getMyDecryptionSharesState() const {
+        return myDecryptionSharesState.load(std::memory_order_acquire);
+    }
+
     [[nodiscard]] bool tryBeginMyDecryptionSharesComputation();
 
     void markMyDecryptionSharesReady(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares);
