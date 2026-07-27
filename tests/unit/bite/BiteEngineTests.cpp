@@ -1237,7 +1237,7 @@ CATCH_TEST_CASE("BiteEngine mergeAESKeys performance", "[bite][engine][merge][pe
         txCiphertexts.emplace(i, std::make_shared<TransactionCiphertexts>(c));
     }
 
-    for (size_t i = 0; i < numTxs; ++i) {
+    for (size_t i = numCATTxs; i < numCATTxs + numTxs; ++i) {
         auto c = makeValidCiphertextWithKey(epoch, keySet.commonPublic);
         txCiphertexts.emplace(i, std::make_shared<TransactionCiphertexts>(c));
     }
