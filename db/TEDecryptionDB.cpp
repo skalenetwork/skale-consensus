@@ -89,7 +89,8 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::deserializeDecryptionShareFromS
         reinterpret_cast< const uint8_t* >( decryptions.data() ),
         reinterpret_cast< const uint8_t* >( decryptions.data() ) + decryptions.size() );
     return BiteAESDecryptionShareSerializer::deserialize(
-        decryptionsVec, getSchain()->getCryptoManager(), false );
+        decryptionsVec, getSchain()->getCryptoManager(), 
+        CryptographicValidationMode::SkipValidationTrustedSource );
 }
 
 
@@ -241,7 +242,8 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
         reinterpret_cast< const uint8_t* >( result.data() ) + result.size() );
 
     auto shares =  BiteAESDecryptionShareSerializer::deserialize(
-        data, getSchain()->getCryptoManager(), false );
+        data, getSchain()->getCryptoManager(),
+        CryptographicValidationMode::SkipValidationTrustedSource );
 
     addDecryptionShares(shares);
 

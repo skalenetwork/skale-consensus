@@ -139,9 +139,10 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
         while ( !getSchain()->getNode()->isExitRequested() ) {
             int newConnection = accept( s, ( sockaddr* ) &clientAddress, &sizeOfClientAddress );
 
-            // Enable NODELAY option
-            static  int one = 1;
-            CHECK_STATE(setsockopt(newConnection, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
+            // Disable Nagle's algorithm to reduce latency for small TCP writes.
+            const int enableTcpNoDelay = 1;
+            CHECK_STATE(setsockopt(newConnection, IPPROTO_TCP, TCP_NODELAY, 
+                &enableTcpNoDelay, sizeof(enableTcpNoDelay)) == 0);
 
             if ( getSchain()->getNode()->isExitRequested() ) {
                 return;

@@ -1,6 +1,7 @@
 #pragma once
 #include "SkaleCommon.h"
 #include "bite/BiteCore.h"
+#include "bite/crypto/CryptographicValidationMode.h"
 #include "crypto/AESKeyDecryptionShare.h"
 #include "datastructures/TransactionCiphertextsMap.h"
 
@@ -154,7 +155,7 @@ public:
         const std::vector<std::string_view>& shareStrs,
         schain_index decryptorIndex,
         bool decryptionFailed,
-        bool validate = true
+        CryptographicValidationMode validationMode = CryptographicValidationMode::Validate
     ) const;
 
     ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSetObject(

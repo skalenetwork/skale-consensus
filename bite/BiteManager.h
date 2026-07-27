@@ -128,7 +128,7 @@ public:
     [[nodiscard]] ptr<AESKeyDecryptionShares> createAESDecryptionShares(const string& _aesKeyDecryptionShares,
                                                                       schain_index _decryptorIndex,
                                                                       bool _decryptionFailed,
-                                                                      bool _validate = true);
+                                                                      CryptographicValidationMode _validationMode = CryptographicValidationMode::Validate);
 
 
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(

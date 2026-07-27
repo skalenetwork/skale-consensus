@@ -205,6 +205,8 @@ static constexpr size_t PARTIAL_HASH_LEN = 8;
 
 #ifdef BITE
 static constexpr size_t EXTRA_DATA_LEN = 32;
+
+static constexpr size_t FALLBACK_NUM_BITE_VALIDATION_THREADS = 8;
 #endif
 
 static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE = 0;
@@ -261,7 +263,7 @@ enum port_type {
 
 inline size_t getNumBiteValidationThreads() {
     const unsigned int n = std::thread::hardware_concurrency();
-    return n == 0 ? 8 : static_cast<size_t>(n);
+    return n == 0 ? FALLBACK_NUM_BITE_VALIDATION_THREADS : static_cast<size_t>(n);
 }
 
 #endif

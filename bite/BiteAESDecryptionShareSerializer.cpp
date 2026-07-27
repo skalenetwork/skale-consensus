@@ -78,7 +78,7 @@ void BiteAESDecryptionShareSerializer::serializedSanityCheck(
 
 ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::deserialize(
     const ptr< vector< uint8_t > >& _serializedDecryptionShares,
-    const ptr< CryptoManager >& _manager, bool _validate ) {
+    const ptr< CryptoManager >& _manager, CryptographicValidationMode _validationMode ) {
     CHECK_ARGUMENT( _serializedDecryptionShares );
     CHECK_ARGUMENT( _manager );
 
@@ -96,14 +96,14 @@ ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::deserialize(
     CHECK_STATE( fbDecryptionSharesHandle );
 
     return getDecryptionShares(blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle,
-        _manager->getSchain()->getBiteManager(), _validate );
+        _manager->getSchain()->getBiteManager(), _validationMode );
 }
 
 
 shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDecryptionShares(
     const block_id _blockId, const schain_index _proposerIndex, const schain_index _decryptorIndex,
     const flatbuffers::Vector< ::flatbuffers::Offset< skale_fb::DecryptionShare > >*
-        _fbDecryptionSharesHandle, ptr<BiteManager> _biteManager, bool _validate) {
+        _fbDecryptionSharesHandle, ptr<BiteManager> _biteManager, CryptographicValidationMode _validationMode) {
     CHECK_STATE(_biteManager)
 
     const size_t numShares = _fbDecryptionSharesHandle->size();
@@ -130,7 +130,7 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
         auto future = folly::via(_biteManager->getExecutor().get(),
                                  [threadId, startIdx, endIdx, _fbDecryptionSharesHandle,
                                 _decryptorIndex, _biteManager, &threadLocalShares,
-                                _validate]() {
+                                _validationMode]() {
             threadLocalShares[threadId].reserve(endIdx - startIdx);
 
             for (size_t i = startIdx; i < endIdx; ++i) {
@@ -143,7 +143,7 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
                 string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
                 auto decryptionShares = _biteManager->createAESDecryptionShares(
                     decryptionShareStr, _decryptorIndex, 
-                    fbdecryptionShareHandle->decryption_failed(), _validate );
+                    fbdecryptionShareHandle->decryption_failed(), _validationMode );
 
                 threadLocalShares[threadId].emplace_back(
                     fbdecryptionShareHandle->transaction_index(), decryptionShares);

@@ -300,9 +300,9 @@ ptr<vector<ptr<AESKeyDecryptionShares> > > BiteManager::getDecryptionSharesFromA
 
 
 ptr<AESKeyDecryptionShares> BiteManager::createAESDecryptionShares(
-        const string& _aesKeyDecryptionShares, schain_index _decryptorIndex, bool _decryptionFailed, bool _validate) {
+        const string& _aesKeyDecryptionShares, schain_index _decryptorIndex, bool _decryptionFailed, CryptographicValidationMode _validationMode ) {
     auto shareStrs = BiteCodec::splitShares(_aesKeyDecryptionShares);
-    return biteEngine.createDecryptionSharesObjects(shareStrs, _decryptorIndex, _decryptionFailed, _validate);
+    return biteEngine.createDecryptionSharesObjects(shareStrs, _decryptorIndex, _decryptionFailed, _validationMode);
 }
 
 ptr<AESKeyDecryptionShareSet> BiteManager::createAESDecryptionShareSet(

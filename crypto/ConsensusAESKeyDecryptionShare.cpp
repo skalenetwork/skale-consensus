@@ -26,14 +26,15 @@ ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
 
 ConsensusAESKeyDecryptionShare::ConsensusAESKeyDecryptionShare(
     const string& _decryptionShare, schain_index _decryptorIndex, bool _decryptionFailed, 
-    bool _validate )
+    CryptographicValidationMode _validationMode )
     : AESKeyDecryptionShare( _decryptorIndex, _decryptionFailed ) {
     CHECK_ARGUMENT( _decryptionShare != "" );
 
     try {
+        bool shouldValidate = shouldValidateAsBool(_validationMode);
         // validate() is called in TEDecryptionShare constructor
         aesKeyDecryptionShare =
-            std::make_shared< TEDecryptionShare >( _decryptionShare, ( uint64_t ) _decryptorIndex, _validate );
+            std::make_shared< TEDecryptionShare >( _decryptionShare, ( uint64_t ) _decryptorIndex, shouldValidate );
     } CATCH_LOG_AND_RETHROW_ANY_EXCEPTION( err, "Could not create TEDecryptionShare" );
 }
 

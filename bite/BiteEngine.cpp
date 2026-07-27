@@ -4,6 +4,7 @@
 
 #include <atomic>
 
+#include "crypto/CryptographicValidationMode.h"
 #include "crypto/DecryptedAESKeyList.h"
 #include "crypto/AESKeyDecryptionShareList.h"
 #include "node/ConsensusTypes.h"
@@ -797,7 +798,7 @@ std::shared_ptr<AESKeyDecryptionShares> BiteEngine::createDecryptionSharesObject
     const std::vector<std::string_view>& shareStrs,
     schain_index decryptorIndex,
     bool decryptionFailed, 
-    bool validate
+    CryptographicValidationMode validationMode
 ) const {
     auto shares = std::make_shared<AESKeyDecryptionShares>();
     for (auto shareStr : shareStrs) {
@@ -805,7 +806,7 @@ std::shared_ptr<AESKeyDecryptionShares> BiteEngine::createDecryptionSharesObject
         if (usingRealCrypto()) {
             shares->push_back(
                 std::make_shared<ConsensusAESKeyDecryptionShare>(
-                    s, decryptorIndex, decryptionFailed, validate));
+                    s, decryptorIndex, decryptionFailed, validationMode));
         } else {
             shares->push_back(
                 std::make_shared<MockupAESKeyDecryptionShare>(
