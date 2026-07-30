@@ -438,6 +438,7 @@ public:
     ptr< NodeInfo > getNodeInfoById( node_id _id );
 
     ptr< Network > getNetwork() const;
+    bool hasNetwork() const;
 
     string getBindIP() const;
 
