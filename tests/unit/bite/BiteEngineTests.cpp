@@ -184,24 +184,6 @@ std::vector<uint8_t> randomAddress() {
     return randomData(ADDRESS_SIZE);
 }
 
-ptr<AESKeyDecryptionShareList> makeMockupShareList(
-    block_id blockId,
-    schain_index decryptorIdx,
-    const TransactionCiphertextsMap& txCiphertexts
-) {
-    auto list = std::make_shared<AESKeyDecryptionShareList>(blockId, /*proposer*/1, decryptorIdx);
-    for (auto&& [txIdx, txCts] : txCiphertexts) {
-    auto shares = std::make_shared<AESKeyDecryptionShares>();
-    for (auto& encKey : txCts->getCiphertexts()) {
-        // mockupDecrypt expects non-const reference
-        auto copy = encKey;
-        shares->push_back(MockupAESKeyDecryptionShare::mockupDecrypt(copy, decryptorIdx));
-    }
-    list->addShares(txIdx, shares);
-}
-return list;
-}
-
 ptr<AESKeyDecryptionShareList> makeConsensusShareList(
     block_id blockId,
     schain_index decryptorIdx,

@@ -343,7 +343,7 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
         string daSig;
 
 
-        // did not find the proposal or we do not have da proof f`rom it
+        // did not find the proposal or we do not have da proof from it
         // try committed block
         if (!proposal || !getNode()->getDaProofDB()->haveDAProof(proposal)) {
             // Could not find proposal with DA proof. Try committed block
@@ -388,7 +388,7 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
         ptr<AESKeyDecryptionShareList> myDecryptionShares;
 
         if (needDecryptionShares) {
-            // waits up to some default set time
+            // wait for my own decryption shares if they are not ready yet
             proposal->waitUntilMyDecryptionSharesResolved();
 
             // Try the proposal-local cache first. If the proposal came from committed-block

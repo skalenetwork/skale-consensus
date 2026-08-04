@@ -17,38 +17,6 @@ using namespace BiteTestUtils;
 
 namespace {
 
-ptr<BlockProposal> makeAsyncTestProposal(
-    const shared_ptr<Schain> &chain,
-    const shared_ptr<CryptoManager> &cryptoManager,
-    block_id blockId) {
-    auto keys = generateKeys(1, 1);
-    auto epoch = epoch_id(chain->getNode()->getCurrentEpochId());
-
-    auto tx = buildBite1Transaction(
-        vector<uint8_t>{0x01, 0x02, 0x03},
-        vector<uint8_t>(20, 0x11),
-        static_cast<uint64_t>(epoch),
-        keys.commonPublic);
-
-    auto txs = make_shared<vector<ptr<Transaction>>>();
-    txs->push_back(tx);
-
-    const auto timeStamp =
-        std::max<uint64_t>(static_cast<uint64_t>(std::time(nullptr)),
-                           static_cast<uint64_t>(MODERN_TIME + 1));
-
-    return MyBlockProposal::createMyProposal(
-        *chain,
-        blockId,
-        epoch,
-        chain->getSchainIndex(),
-        make_shared<TransactionList>(txs),
-        u256(0x1234),
-        timeStamp,
-        1,
-        cryptoManager);
-}
-
 ptr<AESKeyDecryptionShareList> makeEmptyShareList(
     const ptr<BlockProposal> &proposal,
     schain_index decryptorIndex) {
@@ -68,7 +36,8 @@ CATCH_TEST_CASE(
     shared_ptr<Node> node;
     auto cryptoManager = createTestCryptoManager(chain, node, engine);
 
-    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(501));
+    auto kp = generateKeys(1, 1);
+    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(501), kp);
     auto readyShares = makeEmptyShareList(proposal, chain->getSchainIndex());
 
     CATCH_REQUIRE(proposal->tryBeginMyDecryptionSharesComputation());
@@ -99,7 +68,8 @@ CATCH_TEST_CASE(
     shared_ptr<Node> node;
     auto cryptoManager = createTestCryptoManager(chain, node, engine);
 
-    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(502));
+    auto kp = generateKeys(1, 1);
+    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(502), kp);
 
     CATCH_REQUIRE(proposal->tryBeginMyDecryptionSharesComputation());
 
@@ -129,7 +99,8 @@ CATCH_TEST_CASE(
     shared_ptr<Node> node;
     auto cryptoManager = createTestCryptoManager(chain, node, engine);
 
-    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(503));
+    auto kp = generateKeys(1, 1);
+    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(503), kp);
 
     CATCH_REQUIRE(proposal->tryBeginMyDecryptionSharesComputation());
     CATCH_REQUIRE_FALSE(proposal->tryBeginMyDecryptionSharesComputation());
@@ -147,7 +118,8 @@ CATCH_TEST_CASE(
     shared_ptr<Node> node;
     auto cryptoManager = createTestCryptoManager(chain, node, engine);
 
-    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(504));
+    auto kp = generateKeys(1, 1);
+    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(504), kp);
     auto biteManager = chain->getBiteManager();
 
     CATCH_REQUIRE(biteManager);

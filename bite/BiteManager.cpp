@@ -107,7 +107,7 @@ void BiteManager::computeAndValidateSGXAESKeyBatch(ptr<BlockProposal> _proposal)
 
 // =============== Stage 3: Compute Ciphertext shares =============== //
 
-void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
+void BiteManager::ensureMyDecryptionSharesAreComputed(
         ptr<BlockProposal> _proposal) {
     MONITOR2(__CLASS_NAME__, __FUNCTION__, schain.getMaxExternalBlockProcessingTime());
 
@@ -117,7 +117,7 @@ void BiteManager::callSGXToCreateMyDecryptionSharesForProposalTransactions(
         return;
     }
 
-    computeMyDecryptionSharesForProposalTransactions(_proposal);
+    computeOrLoadMyDecryptionShares(_proposal);
 }
 
 void BiteManager::scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
@@ -132,7 +132,7 @@ void BiteManager::scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
     try {
         threadPoolExecutor->add([this, _proposal]() {
             logThreadLocal_ = schain.getNode()->getLog();
-            computeMyDecryptionSharesForProposalTransactions(_proposal);
+            computeOrLoadMyDecryptionShares(_proposal);
         });
     } catch (const std::exception &e) {
         CONS_LOG(err, "Could not schedule local decryption share computation: " << e.what());
@@ -143,7 +143,7 @@ void BiteManager::scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
     }
 }
 
-void BiteManager::computeMyDecryptionSharesForProposalTransactions(ptr<BlockProposal> _proposal) {
+void BiteManager::computeOrLoadMyDecryptionShares(ptr<BlockProposal> _proposal) {
     CHECK_STATE(_proposal);
 
     try {
@@ -175,6 +175,17 @@ void BiteManager::computeMyDecryptionSharesForProposalTransactions(ptr<BlockProp
         CHECK_STATE(
             decryptionShareList->totalCiphertextSharesCount() ==
             _proposal->getTransactionCiphertexts()->totalCiphertextCount());
+
+        // Do not write an empty entry to TEDecryptionDB for proposals with no BITE
+        // transactions. An empty share list occupies one slot in decryptionsStore
+        // (which closes the door once size >= requiredSigners), but contributes
+        // nothing to decryptionShareSets. This leaves room for only requiredSigners-1
+        // foreign shares, while the merge still needs requiredSigners valid entries
+        // in decryptionShareSets — so finalization would stall permanently.
+        if ( decryptionShareList->totalCiphertextSharesCount() == 0 ) {
+            _proposal->markMyDecryptionSharesReady( decryptionShareList );
+            return;
+        }
 
         getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
         _proposal->markMyDecryptionSharesReady(decryptionShareList);

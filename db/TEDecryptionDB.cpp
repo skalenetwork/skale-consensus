@@ -271,12 +271,10 @@ bool TEDecryptionDB::isEnoughForeignShares(block_id _blockID) {
         return false;
 
     const auto& shares = it->second;
-    bool hasOwnShare = shares.find(sChain->getSchainIndex()) != shares.end();
-
-    // if the DB already has the own share, it needs to contain required shares
-    // Else, it needs to contain required - 1 shares
-    size_t requiredShares = hasOwnShare ? requiredSigners : requiredSigners - 1;
-    return shares.size() >= requiredShares;
+    // A full threshold is always required.
+    // - own share present : shares.size() includes own + (requiredSigners-1) foreign
+    // - own share absent  : all requiredSigners must be foreign so merge can succeed
+    return shares.size() >= static_cast<size_t>(requiredSigners);
 }
 
 

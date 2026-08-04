@@ -25,6 +25,8 @@
 
 #include <memory>
 #include <string>
+#include <cstdlib>
+#include <filesystem>
 
 #include "SkaleCommon.h"
 #include "chains/Schain.h"
@@ -34,6 +36,32 @@
 #include "tests/e2e/ConsensusEngineTestAccess.h"
 #include "thirdparty/json.hpp"
 #include "thirdparty/catch.hpp"
+
+// RAII helper: creates a unique temporary directory for LevelDB files and
+// redirects the engine's dbDir to it for the lifetime of the object.
+// Prevents stale DB state from previous test runs sharing /tmp.
+class TempDbDir {
+public:
+    explicit TempDbDir( ConsensusEngine& engine ) {
+        char tmpl[] = "/tmp/consensus_test_XXXXXX";
+        const char* created = mkdtemp( tmpl );
+        CHECK_STATE2( created != nullptr, "mkdtemp failed" );
+        path_ = created;
+        ConsensusEngineTestAccess::setDbDir( engine, path_ );
+    }
+
+    ~TempDbDir() {
+        if ( !path_.empty() ) {
+            std::filesystem::remove_all( path_ );
+        }
+    }
+
+    TempDbDir( const TempDbDir& ) = delete;
+    TempDbDir& operator=( const TempDbDir& ) = delete;
+
+private:
+    std::string path_;
+};
 
 namespace TestUtils {
 
@@ -48,12 +76,13 @@ namespace TestUtils {
 inline std::shared_ptr<Node> createTestNode(
     const nlohmann::json& cfg,
     ConsensusEngine* engine,
-    const std::string& gethUrl = "") {
+    const std::string& gethUrl = "",
+    bool isSyncNode = false) {
     auto mutableGethUrl = gethUrl;
     
     return std::make_shared<Node>(
         cfg, engine, false, "", "", "", "", nullptr, "", nullptr,
-        nullptr, mutableGethUrl, nullptr, nullptr, nullptr, false, false);
+        nullptr, mutableGethUrl, nullptr, nullptr, nullptr, isSyncNode, false);
 }
 
 /**

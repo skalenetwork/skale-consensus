@@ -62,7 +62,7 @@ public:
      * @brief For a given proposal, computes the decryption shares for all 
      * transactions in SGX synchronously.
      */
-    void callSGXToCreateMyDecryptionSharesForProposalTransactions(
+    void ensureMyDecryptionSharesAreComputed(
             ptr<BlockProposal> _proposal);
 
     /**
@@ -170,7 +170,7 @@ private:
     /**
      * @brief For a given proposal, computes the decryption shares for all transactions.
      */
-    void computeMyDecryptionSharesForProposalTransactions(ptr<BlockProposal> _proposal);
+    void computeOrLoadMyDecryptionShares(ptr<BlockProposal> _proposal);
 
     void stopAndDestroyThreadPoolExecutor();
 };

@@ -682,18 +682,8 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
         CHECK_STATE(myProposal->getProposerIndex() == getSchainIndex());
         CHECK_STATE(myProposal->getSignature() != "");
 
-        proposedBlockArrived(myProposal);
-
-        if (getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposedBlockID)) {
-            // a node skips sending and saving its proposal during
-            // optimized block consensus, if the node was not a winner
-            // last time
-            return; // dont propose
-        }
-
 #ifdef BITE
-        // Parse and validate BITE ciphertexts synchronously, then let the local decryption share
-        // computation run in the background while consensus progresses.
+        // Parse and validate BITE ciphertexts
         if (!isProposalCameFromDb) {
             getSchain()->getBiteManager()->computeAndValidateSGXAESKeyBatch(myProposal);
 
@@ -709,7 +699,21 @@ void Schain::proposeNextBlock(bool _isCalledAfterCatchup) {
                 }
                 return;
             }
+        }
+#endif
 
+        // only after the proposal is fully built and validated we can announce it to the network
+        proposedBlockArrived(myProposal);
+
+        if (getOptimizerAgent()->skipSendingProposalToTheNetwork(_proposedBlockID)) {
+            // a node skips sending and saving its proposal during
+            // optimized block consensus, if the node was not a winner
+            // last time
+            return; // dont propose
+        }
+
+#ifdef BITE
+        if (!isProposalCameFromDb) {
             // SGX decryption shares will be computed asynchronously
             getBiteManager()->scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
                 myProposal);
@@ -812,7 +816,7 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
     if (!getNode()->isSyncOnlyNode()) {
         output << ":KNWN:" << pendingTransactionsAgent->getKnownTransactionsSize()
                << ":CONS:" << ServerConnection::getTotalObjects()
-               << ":DSDS:" << getSchain()->getNode()->getNetwork()->computeTotalDelayedSends()
+               << ":DSDS:" << (getSchain()->getNode()->hasNetwork() ? getSchain()->getNode()->getNetwork()->computeTotalDelayedSends() : 0)
                << ":SET:" << CryptoManager::getEcdsaStats()
                << ":SBT:" << CryptoManager::getBLSStats()
 #ifdef BITE
@@ -1649,13 +1653,13 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
         blockFinalizationFinishTimeMs = Time::getCurrentTimeMs();
 
 #ifdef BITE
-        proposal->waitUntilMyDecryptionSharesResolved();
-
+        // Do not hard-require the local SGX share: if it failed (e.g. SGX node
+        // unreachable), a full threshold of foreign shares is sufficient to
+        // reconstruct the AES keys and finalize the block.
         auto myDecryptionShares = proposal->getMyDecryptionShares();
-        CHECK_STATE2(myDecryptionShares,
-            "Local decryption shares are unavailable for finalized proposal");
-
-        getNode()->getTEDecryptionDB()->addDecryptionShares(myDecryptionShares);
+        if (myDecryptionShares) {
+            getNode()->getTEDecryptionDB()->addDecryptionShares(myDecryptionShares);
+        }
 
         auto count =
                 getNode()->getTEDecryptionDB()->getDecryptionsCount(_blockId);

@@ -548,9 +548,6 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
                          "Proposal includes invalid format BITE transactions");
 
             biteManager->scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
-            proposal->waitUntilMyDecryptionSharesResolved();
-            CHECK_STATE2(proposal->getMyDecryptionShares(),
-                         "Proposal is missing local decryption shares");
 #endif
 
             getNode()->getBlockProposalDB()->addBlockProposal(proposal);

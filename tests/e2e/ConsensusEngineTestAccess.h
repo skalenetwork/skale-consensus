@@ -98,4 +98,8 @@ public:
     static TimeStamp getCurrentLastCommittedBlockTimeStamp( const ConsensusEngine& e ) {
         return getCurrentLastCommittedBlockTimeStampForNode( e, getFirstNodeId( e ) );
     }
+
+    static void setDbDir( ConsensusEngine& e, const std::string& dir ) {
+        e.dbDir = dir;
+    }
 };
