@@ -678,7 +678,7 @@ void Node::exitImmediately() {
 
     CONS_LOG( info, "Status server stopped" );
 
-    closeAllSocketsAndNotifyAllAgentsAndThreads();
+    notifyAllAgentsAndInterruptIo();
 
     CONS_LOG( info, __FUNCTION__ << string( " completed" ) );
 }
@@ -699,7 +699,7 @@ void Node::checkForExitOnBlockBoundaryAndExitIfNeeded() {
 }
 
 
-void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
+void Node::notifyAllAgentsAndInterruptIo() {
     CONS_LOG( info, "consensus engine exiting: close all sockets called" );
 
     // guaranteed to run only once
@@ -738,17 +738,21 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     getSchain()->getCryptoManager()->exitZMQClient();
     CONS_LOG( info, "consensus engine exiting: exitZMQClient called" );
 
-    if ( sockets ) {
-        sockets->getConsensusZMQSockets()->closeAndCleanupAll();
-        CONS_LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
-    }
-
 #ifdef BITE
     if ( biteBlockFinalizeServer ) {
         biteBlockFinalizeServer->exitProxygenServer();
         CONS_LOG( info, "consensus engine exiting: exitProxygenServer called" );
     }
 #endif
+}
+
+void Node::closeZMQSocketsAfterJoin() {
+    if ( !sockets ) {
+        return;
+    }
+
+    sockets->getConsensusZMQSockets()->closeAndCleanupAll();
+    CONS_LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
 }
 
 /*
