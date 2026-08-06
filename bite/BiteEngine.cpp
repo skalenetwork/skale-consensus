@@ -4,16 +4,17 @@
 
 #include <atomic>
 
-#include "crypto/CryptographicValidationMode.h"
-#include "crypto/DecryptedAESKeyList.h"
-#include "crypto/AESKeyDecryptionShareList.h"
+
 #include "node/ConsensusTypes.h"
+#include "bite/crypto/CryptographicValidationMode.h"
 #include "bite/BiteEngine.h"
 #include "bite/BiteCodec.h"
 #include "datastructures/Transaction.h"
 #include "datastructures/TransactionList.h"
 #include "SkaleCommon.h"
 #include "Log.h"
+#include "crypto/DecryptedAESKeyList.h"
+#include "crypto/AESKeyDecryptionShareList.h"
 #include "crypto/ConsensusAESKeyDecryptionShare.h"
 #include "crypto/MockupAESKeyDecryptionShare.h"
 #include "crypto/ConsensusAESKeyDecryptionShareSet.h"
