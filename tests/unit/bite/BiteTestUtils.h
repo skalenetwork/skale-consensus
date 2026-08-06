@@ -21,6 +21,13 @@
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
+#include "crypto/AESKeyDecryptionShareList.h"
+#include "crypto/MockupAESKeyDecryptionShare.h"
+#include "datastructures/BlockProposal.h"
+#include "datastructures/MyBlockProposal.h"
+#include "datastructures/TransactionCiphertextsMap.h"
+#include "datastructures/TransactionList.h"
+#include "libBLS/test/utils.h"
 #include "rlp/EthTransactionEncoder.h"
 #include "thirdparty/json.hpp"
 #include "tests/TestUtils.h"
@@ -158,6 +165,73 @@ inline std::shared_ptr< CryptoManager > createTestCryptoManager(
 inline std::shared_ptr< BiteManager > createTestBiteManager(
     std::shared_ptr< Schain >& chain ) {
     return std::make_shared< BiteManager >( *chain );
+}
+
+// Create a single-transaction BITE1 block proposal for testing.
+// The caller supplies the TE keypair; use generateKeys(1,1) for tests that do not
+// exercise decryption and generateKeys(t,n) when the fixture requires specific shares.
+inline ptr<BlockProposal> makeAsyncTestProposal(
+    const std::shared_ptr<Schain>& chain,
+    const std::shared_ptr<CryptoManager>& cryptoManager,
+    block_id blockId,
+    const keys& kp) {
+    auto epoch = epoch_id(chain->getNode()->getCurrentEpochId());
+
+    auto tx = buildBite1Transaction(
+        std::vector<uint8_t>{0x01, 0x02, 0x03},
+        std::vector<uint8_t>(20, 0x11),
+        static_cast<uint64_t>(epoch),
+        kp.commonPublic);
+
+    auto txs = std::make_shared<std::vector<ptr<Transaction>>>();
+    txs->push_back(tx);
+
+    const auto timeStamp =
+        std::max<uint64_t>(static_cast<uint64_t>(std::time(nullptr)),
+                           static_cast<uint64_t>(MODERN_TIME + 1));
+
+    return MyBlockProposal::createMyProposal(
+        *chain,
+        blockId,
+        epoch,
+        chain->getSchainIndex(),
+        std::make_shared<TransactionList>(txs),
+        u256(0x1234),
+        timeStamp,
+        1,
+        cryptoManager);
+}
+
+// Build a mockup AESKeyDecryptionShareList for the given ciphertext map.
+// Uses MockupAESKeyDecryptionShare (no real crypto); compatible with the
+// mockup merge path when SGX is disabled.
+inline ptr<AESKeyDecryptionShareList> makeMockupShareList(
+    block_id blockId,
+    schain_index proposerIdx,
+    schain_index decryptorIdx,
+    const TransactionCiphertextsMap& txCiphertexts) {
+    auto list = std::make_shared<AESKeyDecryptionShareList>(blockId, proposerIdx, decryptorIdx);
+    for (auto&& [txIdx, txCts] : txCiphertexts) {
+        auto shares = std::make_shared<AESKeyDecryptionShares>();
+        for (auto& encKey : txCts->getCiphertexts()) {
+            auto copy = encKey;
+            shares->push_back(MockupAESKeyDecryptionShare::mockupDecrypt(copy, decryptorIdx));
+        }
+        list->addShares(txIdx, shares);
+    }
+    return list;
+}
+
+// Proposal-wrapping overload: extracts block ID, proposer index, and ciphertexts
+// from the proposal so call sites need only pass the proposal and decryptor index.
+inline ptr<AESKeyDecryptionShareList> makeMockupShareList(
+    const ptr<BlockProposal>& proposal,
+    schain_index decryptorIdx) {
+    return makeMockupShareList(
+        proposal->getBlockID(),
+        proposal->getProposerIndex(),
+        decryptorIdx,
+        *proposal->getTransactionCiphertexts());
 }
 
 }  // namespace BiteTestUtils

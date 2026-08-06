@@ -164,57 +164,56 @@ void TestMessageGeneratorAgent::sendTestRequestEthCall() {
 
 ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBITE(
     size_t _limit ) {
+    // pre-built pool sizes — large enough to avoid repetition within a single block
+    static constexpr size_t numTotalRegularTxs = 1000;
+    static constexpr size_t numTotalCTXTxs     = 200;
+
     static size_t txIdxInPrecomputedBatchRegular = 0;
-    static size_t txIdxInPrecomputedBatchCTX = 0;
-    // contains 3/4 BITE encrypted & 1/4 unencrypted regular transactions
+    static size_t txIdxInPrecomputedBatchCTX     = 0;
+
+    // pool of regular txs: BITE-encrypted and unencrypted, interleaved by proportion
     static ConsensusExtFace::Transactions onlyRegularTxs;
-    // contains only BITE2 CTX transactions (with encrypted args)
+    // pool of CTX txs: non-empty and empty CTXs, scattered throughout the pool
     static ConsensusExtFace::Transactions onlyCTXs;
     static std::once_flag initFlag;
-    static size_t numTotalRegularTxs = 1000;
-    static size_t numTotalCTXTxs = 200;
-    static double CTXsProportion = 0;
 
-    // build test transactions only once at start (includes encrypting them)
-    std::call_once(initFlag, [&] () {
-        CTXsProportion = (double) numTotalCTXTxs / (numTotalRegularTxs + numTotalCTXTxs);
+    // Target proportions per block
+    static double CTXsProportion       = 0.2;
+    static double BITEProportion        = 0.5;
+    static double UnencryptedProportion = 1 - CTXsProportion - BITEProportion;
+
+    // Build both pools once at startup (includes encrypting transactions).
+    std::call_once(initFlag, [this] () {
+        ConsensusExtFace::Transactions tmpOnlyRegularTxs;
         ConsensusExtFace::Transactions tmponlyCTXs;
 
-        ConsensusExtFace::Transactions tmpOnlyRegularTxs;
-
-        // setup only regular txs
+        // Build the regular pool with BITE and unencrypted txs interleaved according to
+        // their relative proportions (BITEProportion : UnencryptedProportion).
+        // Bresenham-style tracking ensures they are evenly scattered rather than bunched.
+        size_t biteBuilt = 0, unencBuilt = 0;
         for ( uint64_t i = 0; i < numTotalRegularTxs; i++ ) {
             auto tx = EthTransactionEncoder::generateSampleTx();
-            // 3/4 chance of being bite encoded
-            // make one quarter unencrypted
-            if ( i % 4 != 0 ) {
+            bool isBITE = ( biteBuilt * UnencryptedProportion <= unencBuilt * BITEProportion );
+            if ( isBITE ) {
                 EthTransactionEncoder::encryptRegularTransaction( tx, sChain->getBiteManager() );
+                biteBuilt++;
+            } else {
+                unencBuilt++;
             }
             auto signedTx = EthTransactionEncoder::signAndEncodeTx( tx );
             tmpOnlyRegularTxs.emplaceBackRegular( std::move(*signedTx) );
         }
         onlyRegularTxs = std::move(tmpOnlyRegularTxs);
 
-        // setup ctx txs - include some empty CTXs for coverage
-        // Empty CTXs will be at positions: 0 (start), numTotalCTXTxs/2 (middle), numTotalCTXTxs-1 (end)
-        // and every 10th transaction to ensure ~10% are empty CTXs
+        // Build the CTX pool with ~10% empty CTXs scattered evenly throughout.
         for ( uint64_t i = 0; i < numTotalCTXTxs; i++ ) {
             auto tx = EthTransactionEncoder::generateSampleTx();
-            
-            // Make empty CTX at start, middle, end, and every 10th transaction
-            bool isEmptyCTX = (i == 0) || 
-                              (i == numTotalCTXTxs / 2) || 
-                              (i == numTotalCTXTxs - 1) ||
-                              (i % 10 == 0);
-            
-            if (isEmptyCTX) {
-                // CTX with no encrypted arguments (empty ciphertexts)
+            if ( i % 10 == 0 ) {
+                // empty CTX: no encrypted arguments
                 EthTransactionEncoder::encryptEmptyCTXTransaction( tx, sChain->getBiteManager() );
             } else {
-                // Regular CTX with encrypted arguments
                 EthTransactionEncoder::encryptCTXTransaction( tx, sChain->getBiteManager() );
             }
-            
             auto signedTx = EthTransactionEncoder::signAndEncodeTx( tx );
             tmponlyCTXs.emplaceBackCTX( std::move(*signedTx) );
         }
@@ -224,32 +223,31 @@ ConsensusExtFace::Transactions TestMessageGeneratorAgent::pendingTransactionsBIT
     ConsensusExtFace::Transactions selectedTxs;
 
     auto test = sChain->getBlockProposerTest();
-
     CHECK_STATE( !test.empty() );
-
     if ( test == SchainTest::NONE )
         return selectedTxs;
 
-    // compute how many CTXs / non-CTXs to include
-    const size_t numCTXs = (CTXsProportion * _limit);
+    // CTXs must occupy the front of the Transactions vector (data structure invariant).
+    // Both pools are pre-built with their types scattered, so pulling sequentially from
+    // each pool naturally distributes empty CTXs within the CTX section and
+    // BITE/unencrypted txs within the regular section.
+    const size_t numCTXs       = static_cast<size_t>( CTXsProportion * _limit );
     const size_t numRegularTxs = _limit - numCTXs;
-    size_t ctxIdx = txIdxInPrecomputedBatchCTX;
 
-    // place all CTXs at the start
+    size_t ctxIdx = txIdxInPrecomputedBatchCTX;
     for ( size_t i = 0; i < numCTXs; i++ ) {
         ctxIdx = (ctxIdx + 1) % numTotalCTXTxs;
         selectedTxs.emplaceBackCTX( onlyCTXs.at(ctxIdx) );
     }
-    ( void ) numTotalCTXTxs;
     txIdxInPrecomputedBatchCTX = ctxIdx;
 
     size_t regularIdx = txIdxInPrecomputedBatchRegular;
-    for ( uint64_t i = 0; i < numRegularTxs; i++ ) {
+    for ( size_t i = 0; i < numRegularTxs; i++ ) {
         regularIdx = (regularIdx + 1) % numTotalRegularTxs;
         selectedTxs.emplaceBackRegular( onlyRegularTxs.at(regularIdx) );
     }
     txIdxInPrecomputedBatchRegular = regularIdx;
-    
+
     return selectedTxs;
 };
 #endif

@@ -209,12 +209,13 @@ ptr< BlockProposal > BlockProposalDB::getBlockProposal(
 
     
 
+    // TODO - validation could be skipped here, since block comes from DB
     biteManager->computeAndValidateSGXAESKeyBatch(proposal);
     CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                  "Proposal in database includes invalid format BITE transactions");
 
 
-    biteManager->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
+    biteManager->ensureMyDecryptionSharesAreComputed(proposal);
     CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                  "Proposal in database includes invalid BITE transactions");
 #endif
