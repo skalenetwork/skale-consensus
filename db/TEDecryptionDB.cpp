@@ -25,6 +25,7 @@
 #include <oids.h>
 #ifdef BITE
 
+#include <atomic>
 #include <folly/executors/CPUThreadPoolExecutor.h>
 #include <folly/futures/Future.h>
 #include <folly/Unit.h>
@@ -65,7 +66,8 @@ TEDecryptionDB::TEDecryptionDB(
     Schain* _sChain, string& _dirName, string& _prefix, node_id _nodeId, uint64_t _maxDBSize )
     : CacheLevelDB( _sChain, _dirName, _prefix, _nodeId, _maxDBSize,
           LevelDBOptions::getTEDecryptionDBOptions(), false ) {
-    threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(NUM_BITE_VALIDATION_THREADS);
+
+    threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(getNumBiteValidationThreads());
 }
 
 TEDecryptionDB::~TEDecryptionDB() {
@@ -87,7 +89,8 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::deserializeDecryptionShareFromS
         reinterpret_cast< const uint8_t* >( decryptions.data() ),
         reinterpret_cast< const uint8_t* >( decryptions.data() ) + decryptions.size() );
     return BiteAESDecryptionShareSerializer::deserialize(
-        decryptionsVec, getSchain()->getCryptoManager(), false );
+        decryptionsVec, getSchain()->getCryptoManager(), 
+        CryptographicValidationMode::SkipValidationTrustedSource );
 }
 
 
@@ -101,9 +104,6 @@ void TEDecryptionDB::addDecryptionShares(
     if ( decryptionsStore.count(_decryptionShareList->getBlockId()) > 0 )
         if ( decryptionsStore.at(_decryptionShareList->getBlockId()).count(index) > 0 )
             return;
-
-    auto serializedList = BiteAESDecryptionShareSerializer::serialize( _decryptionShareList );
-    CHECK_STATE( serializedList );
 
     std::vector<folly::Future<folly::Unit>> futures;
     futures.reserve(decryptionShareSets.size());
@@ -205,7 +205,6 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
 
     CHECK_STATE(decryptionsStore.size() <= 2 * totalSigners);
 
-
     return aesKeys;
 }
 
@@ -243,7 +242,8 @@ ptr< AESKeyDecryptionShareList > TEDecryptionDB::getMyDecryptionShares(
         reinterpret_cast< const uint8_t* >( result.data() ) + result.size() );
 
     auto shares =  BiteAESDecryptionShareSerializer::deserialize(
-        data, getSchain()->getCryptoManager(), false );
+        data, getSchain()->getCryptoManager(),
+        CryptographicValidationMode::SkipValidationTrustedSource );
 
     addDecryptionShares(shares);
 
@@ -271,12 +271,10 @@ bool TEDecryptionDB::isEnoughForeignShares(block_id _blockID) {
         return false;
 
     const auto& shares = it->second;
-    bool hasOwnShare = shares.find(sChain->getSchainIndex()) != shares.end();
-
-    // if the DB already has the own share, it needs to contain required shares
-    // Else, it needs to contain required - 1 shares
-    size_t requiredShares = hasOwnShare ? requiredSigners : requiredSigners - 1;
-    return shares.size() >= requiredShares;
+    // A full threshold is always required.
+    // - own share present : shares.size() includes own + (requiredSigners-1) foreign
+    // - own share absent  : all requiredSigners must be foreign so merge can succeed
+    return shares.size() >= static_cast<size_t>(requiredSigners);
 }
 
 

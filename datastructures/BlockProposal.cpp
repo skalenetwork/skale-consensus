@@ -237,6 +237,73 @@ string BlockProposal::getSignature() {
     return signature;
 }
 
+#ifdef BITE
+bool BlockProposal::tryBeginMyDecryptionSharesComputation() {
+    unique_lock<recursive_mutex> lock(m);
+
+    if (myDecryptionSharesState.load(std::memory_order_acquire) !=
+        MyDecryptionSharesState::NotStarted) {
+        // already started or finished
+        return false;
+    }
+
+    myDecryptionSharesState.store(MyDecryptionSharesState::InProgress, std::memory_order_release);
+    return true;
+}
+
+void BlockProposal::markMyDecryptionSharesReady(
+    const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
+    CHECK_STATE(_myDecryptionShares);
+
+    unique_lock<recursive_mutex> lock(m);
+    auto state = myDecryptionSharesState.load(std::memory_order_acquire);
+    CHECK_STATE(state == MyDecryptionSharesState::NotStarted ||
+                state == MyDecryptionSharesState::InProgress);
+    CHECK_STATE(std::atomic_load(&myDecryptionShares) == nullptr);
+
+    std::atomic_store(&myDecryptionShares, _myDecryptionShares);
+    myDecryptionSharesState.store(MyDecryptionSharesState::Ready, std::memory_order_release);
+
+    lock.unlock();
+    myDecryptionSharesCond.notify_all();
+}
+
+void BlockProposal::markMyDecryptionSharesFailed() {
+    unique_lock<recursive_mutex> lock(m);
+    auto state = myDecryptionSharesState.load(std::memory_order_acquire);
+    CHECK_STATE(state != MyDecryptionSharesState::Ready);
+    CHECK_STATE(std::atomic_load(&myDecryptionShares) == nullptr);
+
+    myDecryptionSharesState.store(MyDecryptionSharesState::Failed, std::memory_order_release);
+
+    lock.unlock();
+    myDecryptionSharesCond.notify_all();
+}
+
+bool BlockProposal::waitUntilMyDecryptionSharesResolved(uint64_t _timeoutMs) {
+    unique_lock<recursive_mutex> lock(m);
+    // Only block while a computation is actually in progress. NotStarted means no
+    // computation was ever scheduled for this proposal (e.g. proposals reconstructed
+    // from committed-block storage), so there is nothing to wait for and we return
+    // right away instead of stalling for the full timeout.
+    myDecryptionSharesCond.wait_for(lock, chrono::milliseconds(_timeoutMs), [this]() {
+        return myDecryptionSharesState.load(std::memory_order_acquire) !=
+               MyDecryptionSharesState::InProgress;
+    });
+    // Report success only when the shares reached a terminal, resolved state. In
+    // particular NotStarted is not "resolved", so callers relying on the boolean
+    // are not misled into treating never-computed shares as ready.
+    auto state = myDecryptionSharesState.load(std::memory_order_acquire);
+    return state == MyDecryptionSharesState::Ready ||
+           state == MyDecryptionSharesState::Failed;
+}
+
+void BlockProposal::setMyDecryptionShares(
+    const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
+    markMyDecryptionSharesReady(_myDecryptionShares);
+}
+#endif
+
 ptr<BlockProposalRequestHeader> BlockProposal::createProposalRequestHeader(Schain *_sChain) {
     CHECK_ARGUMENT(_sChain);
 

@@ -1,8 +1,7 @@
 #pragma once
 
-
+#include "bite/crypto/CryptographicValidationMode.h"
 #include "libBLS/threshold_encryption/TEDecryptionShare.h"
-
 #include "AESKeyDecryptionShare.h"
 
 namespace libBLS {
@@ -19,7 +18,8 @@ public:
 
     ConsensusAESKeyDecryptionShare(const string &_decryptionShare,
                                   schain_index _decryptorIndex,
-                                   bool _decryptionFailed);
+                                   bool _decryptionFailed,
+                                   CryptographicValidationMode _validationMode = CryptographicValidationMode::Validate);
 
 
     [[nodiscard]] ptr<libBLS::TEDecryptionShare> getTEDecryptionShare() const;

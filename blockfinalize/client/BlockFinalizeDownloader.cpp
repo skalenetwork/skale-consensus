@@ -220,11 +220,9 @@ void BlockFinalizeDownloader::downloadFragment(
         CATCH_LOG_AND_RETHROW_ANY_EXCEPTION(err, "Could not add decryption shares to DB");
     }
 
-
     if (!needFragmentData) {
         return;
     }
-
 #endif
 
     fragmentList.addFragment(blockFragment);
@@ -475,7 +473,7 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
         } catch (DoNotHaveProposalYetException &) {
             // this is ok, we just do not have proposal yet on this destionation node
             // we keep trying to download the fragment until the node has the proposal
-            _agent->waitAfterNoProposal();;
+            _agent->waitAfterNoProposal();
         } catch (ExitRequestedException &) {
         } catch (ConnectionRefusedException &e) {
             // the node may be down. We will wait a little and try again
@@ -549,9 +547,7 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
             CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
                          "Proposal includes invalid format BITE transactions");
 
-            biteManager->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
-            CHECK_STATE2(proposal->getFailedTransactionsRef().empty(),
-                         "Proposal includes invalid BITE transactions");
+            biteManager->scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
 #endif
 
             getNode()->getBlockProposalDB()->addBlockProposal(proposal);

@@ -6,6 +6,14 @@
 
 class ConsensusEngineTestAccess {
 public:
+    static void registerNode( ConsensusEngine& e, const ptr< Node >& node ) {
+        CHECK_STATE( node );
+        CHECK_STATE( e.nodes.count( node->getNodeID() ) == 0 );
+
+        e.nodes[node->getNodeID()] = node;
+        e.nodeIDs.insert( node->getNodeID() );
+    }
+
     static node_id getFirstNodeId( const ConsensusEngine& e ) {
         CHECK_STATE( e.nodes.size() > 0 );
         auto it = e.nodes.begin();
@@ -89,5 +97,9 @@ public:
 
     static TimeStamp getCurrentLastCommittedBlockTimeStamp( const ConsensusEngine& e ) {
         return getCurrentLastCommittedBlockTimeStampForNode( e, getFirstNodeId( e ) );
+    }
+
+    static void setDbDir( ConsensusEngine& e, const std::string& dir ) {
+        e.dbDir = dir;
     }
 };

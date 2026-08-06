@@ -185,6 +185,10 @@ ptr< Network > Node::getNetwork() const {
     return network;
 }
 
+bool Node::hasNetwork() const {
+    return network != nullptr;
+}
+
 nlohmann::json Node::getCfg() const {
     return cfg;
 }

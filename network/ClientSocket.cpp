@@ -67,6 +67,15 @@ int ClientSocket::createTCPSocket() {
             FatalError( "Could not create outgoing socket:" + string( strerror( errno ) ) ) );
     }
 
+    // Disable Nagle so protocol steps that send small control messages back-to-back
+    // do not wait for an ACK before flushing the next write.
+    int noDelay = 1;
+    if ( setsockopt( s, IPPROTO_TCP, TCP_NODELAY, &noDelay, sizeof( noDelay ) ) < 0 ) {
+        close( s );
+        BOOST_THROW_EXCEPTION(
+            FatalError( "Could not set TCP_NODELAY: " + std::string( strerror( errno ) ) ) );
+    }
+
 
     // Since we frequently reconnect to the same address, we set options
     // that help with fast TCP reconnections

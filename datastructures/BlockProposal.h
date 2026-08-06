@@ -200,12 +200,24 @@ public:
     static uint64_t getTotalObjects();
 
 #ifdef BITE
+
+    enum class MyDecryptionSharesState {
+        NotStarted,  // not yet scheduled
+        InProgress,  // scheduled and waiting for result
+        Ready,       // ready and available
+        Failed       // decryption shares could not be computed
+    };
+
     // For BITE protocol when a node receives a block proposal, it verifies and decrypts BITE shares for this proposal
     // using the SGX server
     // the resulting AESKeyDecryptionShareList is then saved together with the block proposal.
 
 private:
     ptr<AESKeyDecryptionShareList> myDecryptionShares = nullptr;
+
+    atomic<MyDecryptionSharesState> myDecryptionSharesState = MyDecryptionSharesState::NotStarted;
+    // this condition variable is notified when myDecryptionSharesState changes to Ready or Failed
+    condition_variable_any myDecryptionSharesCond;
 
     // Stores 1 or more ciphertexts associated with some transaction index
     ptr<TransactionCiphertextsMap> transactionCiphertexts = nullptr;
@@ -222,9 +234,25 @@ public:
 
 
     [[nodiscard]] ptr<AESKeyDecryptionShareList> getMyDecryptionShares() const {
+        if (myDecryptionSharesState.load(std::memory_order_acquire) !=
+            MyDecryptionSharesState::Ready) {
+            return nullptr;
+        }
         auto result = std::atomic_load(&myDecryptionShares);
         return result;
     }
+
+    [[nodiscard]] MyDecryptionSharesState getMyDecryptionSharesState() const {
+        return myDecryptionSharesState.load(std::memory_order_acquire);
+    }
+
+    [[nodiscard]] bool tryBeginMyDecryptionSharesComputation();
+
+    void markMyDecryptionSharesReady(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares);
+
+    void markMyDecryptionSharesFailed();
+
+    bool waitUntilMyDecryptionSharesResolved(uint64_t _timeoutMs = BITE_LOCAL_DECRYPTION_SHARES_WAIT_TIMEOUT_MS);
 
 
     [[nodiscard]] ptr<vector<string>> getSGXAESKeyBatch() const {
@@ -238,11 +266,7 @@ public:
     }
 
 
-    void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares) {
-        CHECK_STATE(_myDecryptionShares);
-        // verify we are not setting it twice
-        CHECK_STATE(std::atomic_exchange(&myDecryptionShares, _myDecryptionShares) == nullptr);
-    }
+    void setMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_myDecryptionShares);
 
 
     void setTransactionCiphertexts(ptr<TransactionCiphertextsMap> _EncryptedAESKeyMap) {

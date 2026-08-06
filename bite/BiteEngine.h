@@ -1,6 +1,7 @@
 #pragma once
 #include "SkaleCommon.h"
 #include "bite/BiteCore.h"
+#include "bite/crypto/CryptographicValidationMode.h"
 #include "crypto/AESKeyDecryptionShare.h"
 #include "datastructures/TransactionCiphertextsMap.h"
 
@@ -90,7 +91,8 @@ public:
      * Only if all ciphertexts are valid, public decryption values are returned.
      */
     CiphertextValidationResult validateCiphertexts(
-        const TransactionCiphertextsMap& txsCiphertexts
+        const TransactionCiphertextsMap& txsCiphertexts,
+        const BiteRuntimeContext& runtimeContext
     ) const;
 
     //=================== Stage 3: Merging TE Decryption Shares into AES Keys  =================== //
@@ -139,10 +141,21 @@ public:
     ) const;
 
 
+    /**
+     * @brief Creates AESKeyDecryptionShares objects from their string representations.
+     * If using real crypto, optionally validates the shares during creation. 
+     * If validation fails, an exception is thrown.
+     * If using mockup, no validation.
+     * @param shareStrs vector of string representations of decryption shares, each corresponding to a ciphertext
+     * @param decryptorIndex the index of the decryptor that created these shares
+     * @param decryptionFailed whether the decryption shares correspond to a failed decryption
+     * @param validate whether to validate the shares during creation (only applicable if using real crypto)
+     */
     ptr<AESKeyDecryptionShares> createDecryptionSharesObjects(
         const std::vector<std::string_view>& shareStrs,
         schain_index decryptorIndex,
-        bool decryptionFailed
+        bool decryptionFailed,
+        CryptographicValidationMode validationMode = CryptographicValidationMode::Validate
     ) const;
 
     ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSetObject(
