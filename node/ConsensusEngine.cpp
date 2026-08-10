@@ -1040,6 +1040,10 @@ string ConsensusEngine::getDbDir() const {
     return dbDir;
 }
 
+void ConsensusEngine::setPaused(bool paused) {
+    nodes.begin()->second->setPaused(paused);
+}
+
 void ConsensusEngine::setTestPatchTimestamps( const std::map< string, uint64_t >& _patchTimestamps ) {
     patchTimestamps = _patchTimestamps;
 }
