@@ -632,6 +632,7 @@ void Node::doSoftAndThenHardExit() {
     RETURN_IF_PREVIOUSLY_CALLED( exitCalled )
 
     exitOnBlockBoundaryRequested = true;
+    const bool wasStarted = isStarted();
 
     // this handles the case when exit is called very early
     // so that the start barriers were not released yet
@@ -639,6 +640,14 @@ void Node::doSoftAndThenHardExit() {
     // so it can finish
     releaseGlobalClientBarrier();
     releaseGlobalServerBarrier();
+
+    // Test helpers can construct a node/schain pair without starting services.
+    // Releasing the barriers above mutates the started flags, so use the state
+    // captured before the release to detect this case correctly.
+    if ( !wasStarted ) {
+        exitImmediately();
+        return;
+    }
 
     // we try to wait until the next block is mined, unless the exit
     // was initiated by a fatal error in consensus. In the latter case
@@ -687,7 +696,7 @@ void Node::exitImmediately() {
 
     CONS_LOG( info, "Status server stopped" );
 
-    closeAllSocketsAndNotifyAllAgentsAndThreads();
+    notifyAllAgentsAndInterruptIo();
 
     CONS_LOG( info, __FUNCTION__ << string( " completed" ) );
 }
@@ -708,7 +717,7 @@ void Node::checkForExitOnBlockBoundaryAndExitIfNeeded() {
 }
 
 
-void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
+void Node::notifyAllAgentsAndInterruptIo() {
     CONS_LOG( info, "consensus engine exiting: close all sockets called" );
 
     // guaranteed to run only once
@@ -747,17 +756,21 @@ void Node::closeAllSocketsAndNotifyAllAgentsAndThreads() {
     getSchain()->getCryptoManager()->exitZMQClient();
     CONS_LOG( info, "consensus engine exiting: exitZMQClient called" );
 
-    if ( sockets ) {
-        sockets->getConsensusZMQSockets()->closeAndCleanupAll();
-        CONS_LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
-    }
-
 #ifdef BITE
     if ( biteBlockFinalizeServer ) {
         biteBlockFinalizeServer->exitProxygenServer();
         CONS_LOG( info, "consensus engine exiting: exitProxygenServer called" );
     }
 #endif
+}
+
+void Node::closeZMQSocketsAfterJoin() {
+    if ( !sockets ) {
+        return;
+    }
+
+    sockets->getConsensusZMQSockets()->closeAndCleanupAll();
+    CONS_LOG( info, "consensus engine exiting: ZMQ sockets closeAndCleanupAll called" );
 }
 
 /*

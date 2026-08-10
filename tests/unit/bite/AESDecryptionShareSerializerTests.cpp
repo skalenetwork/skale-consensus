@@ -144,7 +144,7 @@ CATCH_TEST_CASE(
 
     // Deserialize
     auto deserialized = BiteAESDecryptionShareSerializer::deserialize(
-        serialized, cryptoManager, false );
+        serialized, cryptoManager, CryptographicValidationMode::SkipValidationTrustedSource );
     CATCH_REQUIRE( deserialized != nullptr );
     CATCH_REQUIRE( deserialized->size() == 2 );
     CATCH_REQUIRE( deserialized->getBlockId() == blockId );

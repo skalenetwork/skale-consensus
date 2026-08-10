@@ -58,7 +58,18 @@ public:
 
     // =============== Stage 3: Compute Ciphertext shares =============== //
 
-    void callSGXToCreateMyDecryptionSharesForProposalTransactions(
+    /**
+     * @brief For a given proposal, computes the decryption shares for all 
+     * transactions in SGX synchronously.
+     */
+    void ensureMyDecryptionSharesAreComputed(
+            ptr<BlockProposal> _proposal);
+
+    /**
+     * @brief Schedules the computation of decryption shares in SGX for the given proposal.
+     * If the computation has already started, returns right away.
+     */
+    void scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(
             ptr<BlockProposal> _proposal);
 
     // =============== Stage 4: Share merging =============== //
@@ -111,10 +122,13 @@ public:
      * separated by commas.
      * @param _decryptorIndex - index of the decryptor node that created these shares
      * @param _decryptionFailed - whether decryption failed for this transaction
+     * @param _validate - whether to validate the shares during creation (only applicable if using real crypto). 
+     * If true and validation fails, an exception is thrown.
      */
     [[nodiscard]] ptr<AESKeyDecryptionShares> createAESDecryptionShares(const string& _aesKeyDecryptionShares,
                                                                       schain_index _decryptorIndex,
-                                                                      bool _decryptionFailed);
+                                                                      bool _decryptionFailed,
+                                                                      CryptographicValidationMode _validationMode = CryptographicValidationMode::Validate);
 
 
     [[nodiscard]] ptr<AESKeyDecryptionShareSet> createAESDecryptionShareSet(
@@ -152,5 +166,11 @@ public:
     [[nodiscard]] ptr<vector<uint8_t> > generateEmptyCTXData(uint64_t epochId);
 
 private:
+
+    /**
+     * @brief For a given proposal, computes the decryption shares for all transactions.
+     */
+    void computeOrLoadMyDecryptionShares(ptr<BlockProposal> _proposal);
+
     void stopAndDestroyThreadPoolExecutor();
 };

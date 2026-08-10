@@ -188,6 +188,9 @@ static constexpr uint64_t CATCHUP_TIMEOUT_SEC = 30;
 
 static constexpr uint64_t SYNC_NODE_CATCHUP_TIMEOUT_SEC = 300;
 
+// Max wait time for SGX decryption share computation from node's own SGXWallet
+static constexpr uint64_t BITE_LOCAL_DECRYPTION_SHARES_WAIT_TIMEOUT_MS = 5000;
+
 static constexpr uint64_t READ_JSON_HEADER_TIMEOUT_SEC = 6;
 
 static constexpr uint64_t SYNC_NODE_READ_JSON_HEADER_TIMEOUT_SEC = 300;
@@ -203,7 +206,7 @@ static constexpr size_t PARTIAL_HASH_LEN = 8;
 #ifdef BITE
 static constexpr size_t EXTRA_DATA_LEN = 32;
 
-static constexpr size_t NUM_BITE_VALIDATION_THREADS = 8;
+static constexpr size_t FALLBACK_NUM_BITE_VALIDATION_THREADS = 8;
 #endif
 
 static constexpr uint32_t SLOW_TEST_INITIAL_GENERATE = 0;
@@ -255,6 +258,15 @@ enum port_type {
     , BITE_SERVER = 11
 #endif
 };
+
+#ifdef BITE
+
+inline size_t getNumBiteValidationThreads() {
+    const unsigned int n = std::thread::hardware_concurrency();
+    return n == 0 ? FALLBACK_NUM_BITE_VALIDATION_THREADS : static_cast<size_t>(n);
+}
+
+#endif
 
 
 template < typename T >
