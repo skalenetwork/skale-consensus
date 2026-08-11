@@ -99,6 +99,8 @@ public:
 
     virtual consensus_engine_status getStatus() const = 0;
 
+    virtual void setPaused(bool _paused) = 0;
+
 
 #define ORACLE_SUCCESS 0
 #define ORACLE_UNKNOWN_RECEIPT 1

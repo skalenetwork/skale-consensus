@@ -494,6 +494,24 @@ void Node::testNodeInfos() {
     ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosById;
 }
 
+void Node::setPaused(bool paused) {
+    if ( paused && !consensusIsPaused ) {
+        CONS_LOG( warn, "Consensus stopped (paused)" );
+    }
+    else if ( !paused && consensusIsPaused ) {
+        lastUnpauseTimeMs = Time::getCurrentTimeMs();
+        CONS_LOG( warn, "Consensus resumed (unpaused)" );
+    }
+    consensusIsPaused = paused;
+}
+
+bool Node::isPaused() const {
+    return consensusIsPaused;
+}
+
+uint64_t Node::getLastUnpauseTimeMs() const {
+    return lastUnpauseTimeMs;
+}
 
 void Node::setNodeInfo( const ptr< NodeInfo >& _nodeInfo ) {
     CHECK_ARGUMENT( _nodeInfo );

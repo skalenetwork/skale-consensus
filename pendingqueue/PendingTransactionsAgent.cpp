@@ -129,6 +129,11 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
     while (transactions.empty()) {
         getSchain()->getNode()->exitCheck();
 
+        if (getNode()->isPaused()) {
+            usleep(1000 * 1000); // sleep for 1s while paused
+            continue;
+        }
+
         if (sChain->getExtFace()) {
             getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
             transactions = sChain->getExtFace()->pendingTransactions(needMax, stateRoot);

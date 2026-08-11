@@ -1044,6 +1044,14 @@ string ConsensusEngine::getDbDir() const {
     return dbDir;
 }
 
+void ConsensusEngine::setPaused(bool paused) {
+    CHECK_STATE( nodes.size() > 0 );
+    for ( auto&& it : nodes ) {
+        CHECK_STATE( it.second );
+        it.second->setPaused( paused );
+    }
+}
+
 void ConsensusEngine::setTestPatchTimestamps( const std::map< string, uint64_t >& _patchTimestamps ) {
     patchTimestamps = _patchTimestamps;
 }

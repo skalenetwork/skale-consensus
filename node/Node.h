@@ -105,6 +105,9 @@ class Node {
 
     atomic_bool closeAllSocketsCalled = false;
 
+    atomic_bool consensusIsPaused = false;
+    atomic< uint64_t > lastUnpauseTimeMs = 0;
+
     void exitImmediately();
 
     bool isExitOnBlockBoundaryRequested() const;
@@ -481,6 +484,8 @@ public:
 
     uint64_t getWaitAfterNetworkErrorMs();
 
+    uint64_t getLastUnpauseTimeMs() const;
+
 #ifdef FAIR
     uint64_t getConstantGasPrice() const;
 #endif
@@ -500,6 +505,8 @@ public:
     void setEmptyBlockIntervalAfterCatchupMs( uint64_t _interval ) {
         this->emptyBlockIntervalAfterCatchupMs = _interval;
     }
+
+    void setPaused(bool paused);
 
 #ifdef FAIR
     void setConstantGasPrice( uint64_t _price ) {
@@ -524,6 +531,8 @@ public:
     bool isSyncOnlyNode() const;
 
     bool isArchiveMode() const;
+
+    bool isPaused() const;
 
     bool verifyRealSignatures() const;
 
