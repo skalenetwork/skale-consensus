@@ -503,10 +503,21 @@ void Node::setPaused(bool paused) {
         CONS_LOG( warn, "Consensus resumed (unpaused)" );
     }
     consensusIsPaused = paused;
+
+    if ( paused ) {
+        // Set the flag first, then drain. A fetch that is already in flight holds
+        // proposalFetchMutex - possibly blocked for a few ms inside skaled waiting for a
+        // transaction to appear - so this blocks until it returns.
+        std::lock_guard< std::mutex > drainInFlightFetch( proposalFetchMutex );
+    }
 }
 
 bool Node::isPaused() const {
     return consensusIsPaused;
+}
+
+mutex& Node::getProposalFetchMutex() {
+    return proposalFetchMutex;
 }
 
 uint64_t Node::getLastUnpauseTimeMs() const {

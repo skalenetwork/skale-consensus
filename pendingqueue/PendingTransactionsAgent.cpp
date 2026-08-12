@@ -130,25 +130,40 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
         getSchain()->getNode()->exitCheck();
 
         if (getNode()->isPaused()) {
-            usleep(1000 * 1000); // sleep for 1s while paused
+            // deliberately not holding proposalFetchMutex here - setPaused() drains that
+            // mutex, so parking while holding it would deadlock the pausing thread
+            usleep(10 * 1000); // poll while paused
             continue;
         }
 
-        if (sChain->getExtFace()) {
-            getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
-            transactions = sChain->getExtFace()->pendingTransactions(needMax, stateRoot);
-            // block boundary is the safest place for exit
-            // exit immediately if exit has been requested
-            // this will initiate immediate exit and throw ExitRequestedException
-            getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
-        } else {
-            stateRootSample++;
-            stateRoot = 7;
+        {
+            // Serialize the fetch against setPaused(): while this is held, a pause request
+            // blocks, so debug_pauseConsensus only returns once no fetch is running. The
+            // re-check below covers the opposite order - flag set and mutex released before
+            // we got here - which would otherwise let a transaction submitted after the
+            // pause still end up in this proposal.
+            std::lock_guard< std::mutex > fetchLock(getNode()->getProposalFetchMutex());
+
+            if (getNode()->isPaused())
+                continue;
+
+            if (sChain->getExtFace()) {
+                getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
+                transactions = sChain->getExtFace()->pendingTransactions(needMax, stateRoot);
+                // block boundary is the safest place for exit
+                // exit immediately if exit has been requested
+                // this will initiate immediate exit and throw ExitRequestedException
+                getSchain()->getNode()->checkForExitOnBlockBoundaryAndExitIfNeeded();
+            } else {
+                stateRootSample++;
+                stateRoot = 7;
 #ifdef BITE
-            transactions = sChain->getTestMessageGeneratorAgent()->pendingTransactionsBITE(needMax);
+                transactions =
+                    sChain->getTestMessageGeneratorAgent()->pendingTransactionsBITE(needMax);
 #else
-            transactions = sChain->getTestMessageGeneratorAgent()->pendingTransactions(needMax);
+                transactions = sChain->getTestMessageGeneratorAgent()->pendingTransactions(needMax);
 #endif
+            }
         }
 
         auto finishTime = Time::getCurrentTimeMs();
