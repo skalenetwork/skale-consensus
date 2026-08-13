@@ -142,7 +142,7 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
             // re-check below covers the opposite order - flag set and mutex released before
             // we got here - which would otherwise let a transaction submitted after the
             // pause still end up in this proposal.
-            std::lock_guard< std::mutex > fetchLock(getNode()->getProposalFetchMutex());
+            auto fetchLock = getNode()->lockProposalFetch();
 
             if (getNode()->isPaused())
                 continue;

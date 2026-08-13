@@ -537,7 +537,7 @@ public:
 
     bool isPaused() const;
 
-    mutex& getProposalFetchMutex();
+    std::unique_lock< std::mutex > lockProposalFetch();
 
     bool verifyRealSignatures() const;
 

@@ -516,8 +516,8 @@ bool Node::isPaused() const {
     return consensusIsPaused;
 }
 
-mutex& Node::getProposalFetchMutex() {
-    return proposalFetchMutex;
+std::unique_lock< std::mutex > Node::lockProposalFetch() {
+    return std::unique_lock< std::mutex >( proposalFetchMutex );
 }
 
 uint64_t Node::getLastUnpauseTimeMs() const {
