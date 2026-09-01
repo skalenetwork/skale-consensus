@@ -1208,14 +1208,14 @@ void Schain::bootstrap(block_id _lastCommittedBlockID, uint64_t _lastCommittedBl
     // catch situations that should never happen
 
 
-    if (lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128) {
-        CONS_LOG(critical,
-            "CRITICAL ERROR: consensus has way more blocks than skaled. This should never "
-            "happen,"
-            "since consensus passes blocks to skaled.");
-        BOOST_THROW_EXCEPTION(InvalidStateException(
-            "_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128", __CLASS_NAME__ ));
-    }
+    // if (lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128) {
+    //     CONS_LOG(critical,
+    //         "CRITICAL ERROR: consensus has way more blocks than skaled. This should never "
+    //         "happen,"
+    //         "since consensus passes blocks to skaled.");
+    //     BOOST_THROW_EXCEPTION(InvalidStateException(
+    //         "_lastCommittedBlockIDInConsensus > _lastCommittedBlockID + 128", __CLASS_NAME__ ));
+    // }
 
 
     if (lastCommittedBlockIDInConsensus < _lastCommittedBlockID) {
