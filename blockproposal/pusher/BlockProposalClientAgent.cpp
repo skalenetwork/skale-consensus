@@ -314,8 +314,9 @@ pair< ConnectionStatus, ConnectionSubStatus > BlockProposalClientAgent::sendBloc
     } catch ( ... ) {
     }
 
-    if ( finalResult.first != ConnectionStatus::CONNECTION_SUCCESS )
+    if ( finalResult.first != ConnectionStatus::CONNECTION_SUCCESS ) {
         return finalResult;
+    }
 
 
     auto sigShare = getSchain()->getCryptoManager()->createDAProofSigShare(

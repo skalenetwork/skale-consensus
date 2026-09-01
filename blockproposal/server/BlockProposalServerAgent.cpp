@@ -268,7 +268,7 @@ void BlockProposalServerAgent::processDAProofRequest(
 }
 
 pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processProposalRequest(
-        const ptr<ServerConnection> &_connection, nlohmann::json _proposalRequest) {
+        const ptr<ServerConnection> &_connection, nlohmann::json _proposalRequest ) {
     CHECK_ARGUMENT(_connection);
 
     ptr<BlockProposalRequestHeader> requestHeader = nullptr;
@@ -482,19 +482,21 @@ pair<ConnectionStatus, ConnectionSubStatus> BlockProposalServerAgent::processPro
 
     send(_connection, finalResponseHeader);
 
+    auto [status, subStatus] = finalResponseHeader->getStatusSubStatus();
+
 #ifdef BITE
-    // we talk to sgx after we sent response to the proposer since sgx is time consuming
-    biteManager->callSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
-    if (!proposal->getFailedTransactionsRef().empty()) {
-        CONS_LOG(err, "Can not create decryptions for network proposal" +
-        to_string(proposal->getFailedTransactionsRef().begin()->second));
+    if (status == CONNECTION_SUCCESS) {
+        // Local share generation is slower than proposal validation, so keep it off the
+        // network response path and let late consumers wait only when they truly need it.
+        biteManager->scheduleSGXToCreateMyDecryptionSharesForProposalTransactions(proposal);
     }
-    CHECK_STATE(proposal->getMyDecryptionShares())
 #endif
 
-    sChain->proposedBlockArrived(proposal);
+    if (status == CONNECTION_SUCCESS) {
+        sChain->proposedBlockArrived(proposal);
+    }
 
-    return finalResponseHeader->getStatusSubStatus();
+    return {status, subStatus};
 }
 
 

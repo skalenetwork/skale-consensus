@@ -78,7 +78,7 @@ void BiteAESDecryptionShareSerializer::serializedSanityCheck(
 
 ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::deserialize(
     const ptr< vector< uint8_t > >& _serializedDecryptionShares,
-    const ptr< CryptoManager >& _manager, bool ) {
+    const ptr< CryptoManager >& _manager, CryptographicValidationMode _validationMode ) {
     CHECK_ARGUMENT( _serializedDecryptionShares );
     CHECK_ARGUMENT( _manager );
 
@@ -96,29 +96,31 @@ ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::deserialize(
     CHECK_STATE( fbDecryptionSharesHandle );
 
     return getDecryptionShares(blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle,
-        _manager->getSchain()->getBiteManager());
+        _manager->getSchain()->getBiteManager(), _validationMode );
 }
 
 
 shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDecryptionShares(
     const block_id _blockId, const schain_index _proposerIndex, const schain_index _decryptorIndex,
     const flatbuffers::Vector< ::flatbuffers::Offset< skale_fb::DecryptionShare > >*
-        _fbDecryptionSharesHandle, ptr<BiteManager> _biteManager) {
+        _fbDecryptionSharesHandle, ptr<BiteManager> _biteManager, CryptographicValidationMode _validationMode) {
     CHECK_STATE(_biteManager)
 
     const size_t numShares = _fbDecryptionSharesHandle->size();
     auto shares = make_shared< AESKeyDecryptionShareList >( _blockId, _proposerIndex, _decryptorIndex );
 
     std::vector<folly::Future<folly::Unit>> futures;
-    futures.reserve(NUM_BITE_VALIDATION_THREADS);
+    
+    const size_t numThreads = getNumBiteValidationThreads();
+    futures.reserve(numThreads);
 
-    const size_t chunkSize = (numShares + NUM_BITE_VALIDATION_THREADS - 1) / NUM_BITE_VALIDATION_THREADS;
+    const size_t chunkSize = (numShares + numThreads - 1) / numThreads;
 
     // Thread-local storage for results to minimize lock contention
     std::vector<std::vector<std::pair<transaction_index, ptr<AESKeyDecryptionShares>>>>
-            threadLocalShares(NUM_BITE_VALIDATION_THREADS);
+            threadLocalShares(numThreads);
 
-    for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
+    for (size_t threadId = 0; threadId < numThreads; ++threadId) {
         size_t startIdx = threadId * chunkSize;
         size_t endIdx = std::min(startIdx + chunkSize, numShares);
 
@@ -127,7 +129,8 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
 
         auto future = folly::via(_biteManager->getExecutor().get(),
                                  [threadId, startIdx, endIdx, _fbDecryptionSharesHandle,
-                                _decryptorIndex, _biteManager, &threadLocalShares]() {
+                                _decryptorIndex, _biteManager, &threadLocalShares,
+                                _validationMode]() {
             threadLocalShares[threadId].reserve(endIdx - startIdx);
 
             for (size_t i = startIdx; i < endIdx; ++i) {
@@ -139,7 +142,8 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
 
                 string decryptionShareStr( rawData, rawData + fbdecryptionShareHandle->data()->size() );
                 auto decryptionShares = _biteManager->createAESDecryptionShares(
-                    decryptionShareStr, _decryptorIndex, fbdecryptionShareHandle->decryption_failed() );
+                    decryptionShareStr, _decryptorIndex, 
+                    fbdecryptionShareHandle->decryption_failed(), _validationMode );
 
                 threadLocalShares[threadId].emplace_back(
                     fbdecryptionShareHandle->transaction_index(), decryptionShares);
@@ -151,12 +155,11 @@ shared_ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::getDec
         futures.push_back(std::move(future));
     }
 
-    // Wait for all tasks to complete
-    auto allResults = folly::collectAll(futures).get();
+    folly::collectAll(futures).get();
 
     // Merge results from all threads
     shares->reserve( numShares );
-    for (size_t threadId = 0; threadId < NUM_BITE_VALIDATION_THREADS; ++threadId) {
+    for (size_t threadId = 0; threadId < numThreads; ++threadId) {
         for (auto& [txId, decryptionShares] : threadLocalShares.at(threadId)) {
             shares->addShares(txId, decryptionShares);
         }

@@ -39,6 +39,7 @@
 #include "network/ServerConnection.h"
 #include "network/Sockets.h"
 #include "network/TCPServerSocket.h"
+#include <netinet/tcp.h>
 
 
 #include "AbstractServerAgent.h"
@@ -138,9 +139,6 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
         while ( !getSchain()->getNode()->isExitRequested() ) {
             int newConnection = accept( s, ( sockaddr* ) &clientAddress, &sizeOfClientAddress );
 
-            // static  int one = 1;
-            // CHECK_STATE(setsockopt(newConnection, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) == 0);
-
             if ( getSchain()->getNode()->isExitRequested() ) {
                 return;
             }
@@ -149,6 +147,11 @@ void AbstractServerAgent::acceptTCPConnectionsLoop() {
                 BOOST_THROW_EXCEPTION( NetworkProtocolException(
                     "accept failed:" + string( strerror( errno ) ), __CLASS_NAME__ ) );
             }
+
+            // Disable Nagle's algorithm to reduce latency for small TCP writes.
+            const int enableTcpNoDelay = 1;
+            CHECK_STATE(setsockopt(newConnection, IPPROTO_TCP, TCP_NODELAY, 
+                &enableTcpNoDelay, sizeof(enableTcpNoDelay)) == 0);
 
             string ip( inet_ntoa( clientAddress.sin_addr ) );
 
