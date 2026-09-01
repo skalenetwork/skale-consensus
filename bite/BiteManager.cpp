@@ -176,17 +176,6 @@ void BiteManager::computeOrLoadMyDecryptionShares(ptr<BlockProposal> _proposal) 
             decryptionShareList->totalCiphertextSharesCount() ==
             _proposal->getTransactionCiphertexts()->totalCiphertextCount());
 
-        // Do not write an empty entry to TEDecryptionDB for proposals with no BITE
-        // transactions. An empty share list occupies one slot in decryptionsStore
-        // (which closes the door once size >= requiredSigners), but contributes
-        // nothing to decryptionShareSets. This leaves room for only requiredSigners-1
-        // foreign shares, while the merge still needs requiredSigners valid entries
-        // in decryptionShareSets — so finalization would stall permanently.
-        if ( decryptionShareList->totalCiphertextSharesCount() == 0 ) {
-            _proposal->markMyDecryptionSharesReady( decryptionShareList );
-            return;
-        }
-
         getSchain()->getNode()->getTEDecryptionDB()->addMyDecryptionShares(decryptionShareList);
         _proposal->markMyDecryptionSharesReady(decryptionShareList);
     } catch (const ExitRequestedException &) {
