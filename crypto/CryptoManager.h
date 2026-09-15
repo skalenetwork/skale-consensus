@@ -23,7 +23,9 @@
 
 #pragma once
 
+#include <regex>
 
+#include "datastructures/TimeStamp.h"
 #include "messages/NetworkMessage.h"
 #include "openssl/ec.h"
 
@@ -334,6 +336,8 @@ public:
     pair<node_id, node_id> getHistoricNodeIDByIndex(uint64_t schain_id, uint64_t _timeStamp);
 
     uint64_t sgxBlockProcessingTime();
+
+    static string sanitizeIpAddress(const string &_error);
 };
 
 #define RETRY_BEGIN                           \
@@ -361,11 +365,12 @@ public:
             };                                                                                 \
             if ( !CryptoManager::isRetryHappened() )                                           \
             CONS_LOG( err, "Could not connect to sgx server, retrying each five seconds ... \n" +   \
-                string( e.what() ) );                                                          \
+                CryptoManager::sanitizeIpAddress( string( e.what() ) ) );                      \
             CryptoManager::setRetryHappened( true );                                           \
             sleep( 5 );                                                                        \
         } else {                                                                               \
-            CONS_LOG( err, "Could not connect to sgx server: " + string( e.what() ) );              \
+            CONS_LOG( err, "Could not connect to sgx server: " +                               \
+                CryptoManager::sanitizeIpAddress( string( e.what() ) ) );                      \
             throw;                                                                             \
         }                                                                                      \
     }                                                                                          \
