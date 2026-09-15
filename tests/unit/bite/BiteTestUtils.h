@@ -170,7 +170,7 @@ inline std::shared_ptr< BiteManager > createTestBiteManager(
 // Create a single-transaction BITE1 block proposal for testing.
 // The caller supplies the TE keypair; use generateKeys(1,1) for tests that do not
 // exercise decryption and generateKeys(t,n) when the fixture requires specific shares.
-inline ptr<BlockProposal> makeAsyncTestProposal(
+inline ptr<BlockProposal> makeTestProposal(
     const std::shared_ptr<Schain>& chain,
     const std::shared_ptr<CryptoManager>& cryptoManager,
     block_id blockId,
@@ -185,6 +185,32 @@ inline ptr<BlockProposal> makeAsyncTestProposal(
 
     auto txs = std::make_shared<std::vector<ptr<Transaction>>>();
     txs->push_back(tx);
+
+    const auto timeStamp =
+        std::max<uint64_t>(static_cast<uint64_t>(std::time(nullptr)),
+                           static_cast<uint64_t>(MODERN_TIME + 1));
+
+    return MyBlockProposal::createMyProposal(
+        *chain,
+        blockId,
+        epoch,
+        chain->getSchainIndex(),
+        std::make_shared<TransactionList>(txs),
+        u256(0x1234),
+        timeStamp,
+        1,
+        cryptoManager);
+}
+
+// Build a proposal with zero BITE transactions (an "empty" block) - used to
+// exercise the finalization threshold math for empty-ciphertext proposals.
+inline ptr<BlockProposal> makeEmptyTestProposal(
+    const std::shared_ptr<Schain>& chain,
+    const std::shared_ptr<CryptoManager>& cryptoManager,
+    block_id blockId) {
+    auto epoch = epoch_id(chain->getNode()->getCurrentEpochId());
+
+    auto txs = std::make_shared<std::vector<ptr<Transaction>>>();
 
     const auto timeStamp =
         std::max<uint64_t>(static_cast<uint64_t>(std::time(nullptr)),

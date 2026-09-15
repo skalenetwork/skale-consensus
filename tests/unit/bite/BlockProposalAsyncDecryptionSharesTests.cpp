@@ -37,7 +37,7 @@ CATCH_TEST_CASE(
     auto cryptoManager = createTestCryptoManager(chain, node, engine);
 
     auto kp = generateKeys(1, 1);
-    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(501), kp);
+    auto proposal = makeTestProposal(chain, cryptoManager, block_id(501), kp);
     auto readyShares = makeEmptyShareList(proposal, chain->getSchainIndex());
 
     CATCH_REQUIRE(proposal->tryBeginMyDecryptionSharesComputation());
@@ -69,7 +69,7 @@ CATCH_TEST_CASE(
     auto cryptoManager = createTestCryptoManager(chain, node, engine);
 
     auto kp = generateKeys(1, 1);
-    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(502), kp);
+    auto proposal = makeTestProposal(chain, cryptoManager, block_id(502), kp);
 
     CATCH_REQUIRE(proposal->tryBeginMyDecryptionSharesComputation());
 
@@ -100,7 +100,7 @@ CATCH_TEST_CASE(
     auto cryptoManager = createTestCryptoManager(chain, node, engine);
 
     auto kp = generateKeys(1, 1);
-    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(503), kp);
+    auto proposal = makeTestProposal(chain, cryptoManager, block_id(503), kp);
 
     CATCH_REQUIRE(proposal->tryBeginMyDecryptionSharesComputation());
     CATCH_REQUIRE_FALSE(proposal->tryBeginMyDecryptionSharesComputation());
@@ -119,7 +119,7 @@ CATCH_TEST_CASE(
     auto cryptoManager = createTestCryptoManager(chain, node, engine);
 
     auto kp = generateKeys(1, 1);
-    auto proposal = makeAsyncTestProposal(chain, cryptoManager, block_id(504), kp);
+    auto proposal = makeTestProposal(chain, cryptoManager, block_id(504), kp);
     auto biteManager = chain->getBiteManager();
 
     CATCH_REQUIRE(biteManager);
