@@ -369,9 +369,10 @@ public:
             CryptoManager::setRetryHappened( true );                                           \
             sleep( 5 );                                                                        \
         } else {                                                                               \
-            CONS_LOG( err, "Could not connect to sgx server: " +                               \
-                CryptoManager::sanitizeIpAddress( string( e.what() ) ) );                      \
-            throw;                                                                             \
+            string sanitizedSgxErrorMsg =                                                      \
+                CryptoManager::sanitizeIpAddress( string( e.what() ) );                        \
+            CONS_LOG( err, "Could not connect to sgx server: " + sanitizedSgxErrorMsg );        \
+            throw std::runtime_error( sanitizedSgxErrorMsg );                                  \
         }                                                                                      \
     }                                                                                          \
     catch ( ... ) {                                                                            \

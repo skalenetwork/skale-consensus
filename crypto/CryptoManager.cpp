@@ -1411,7 +1411,7 @@ string CryptoManager::sgxURL = "";
 
 string CryptoManager::sanitizeIpAddress(const string &_error) {
     static const std::regex endpointPattern(
-        R"((?:https?://)?(?:\d{1,3}\.){3}\d{1,3}(?::\d{1,5})?)" );
+        R"((?:https?://[^\s:/]+(?::\d{1,5})?|(?:\d{1,3}\.){3}\d{1,3}(?::\d{1,5})?))" );
     return std::regex_replace( _error, endpointPattern, "[redacted]" );
 }
 
