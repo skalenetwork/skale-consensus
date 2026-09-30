@@ -197,16 +197,18 @@ PendingTransactionsAgent::createTransactionsListForProposal(bool _isCalledAfterC
 
     auto result = make_shared<vector<ptr<Transaction> > >();
 
+#ifdef BITE
+    auto currentEpoch = sChain->getNode()->getCurrentEpochId();
+#endif
+
     for (size_t i = 0; i < transactions.size(); i++) {
         auto tx = transactions.at(i);
         ptr<Transaction> pt = Transaction::deserialize(
             make_shared<std::vector<uint8_t> >(tx), 0, tx.size(), false);
 
 #ifdef BITE
-        auto biteManager = sChain->getBiteManager();
-        auto currentEpoch = sChain->getNode()->getCurrentEpochId();
         try {
-            if (transactions.isCTX(i)) {
+            if (transactions.isMarkedAsCtx(i)) {
                 auto ctxArgs = BiteEngine::tryGetEncryptedCTXArgs(pt, currentEpoch);
                 if (!ctxArgs) {
                     CONS_LOG(err, "Found regular transaction marked as CTX. Skipping it from my proposal.");

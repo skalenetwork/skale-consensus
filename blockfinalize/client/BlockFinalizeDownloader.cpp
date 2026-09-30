@@ -55,6 +55,7 @@
 #include "BlockFinalizeDownloader.h"
 
 #include <boost/endian/buffers.hpp>
+#include <chrono>
 
 #include "BlockFinalizeDownloaderThreadPool.h"
 #include "bite/BiteManager.h"
@@ -73,10 +74,11 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
       epochId(_epochId),
 #endif
       proposerIndex(_proposerIndex),
-      fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1) {
+      fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1)
 #ifdef BITE
-    needFragmentData = !getSchain()->haveProposal(_blockId, _proposerIndex);
+      , needFragmentData(!getSchain()->haveProposal(_blockId, _proposerIndex))
 #endif
+{
 
     CHECK_ARGUMENT(_sChain)
 
@@ -269,8 +271,9 @@ void BlockFinalizeDownloader::processDAProofSig(nlohmann::json _responseHeader, 
         // if we did not received da sig yet, set it.
         if (!this->daSig && !sig.empty()) {
             auto blakeHash = BLAKE3Hash::fromHex(h);
-            this->daSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
+            auto verifiedSig = getSchain()->getCryptoManager()->verifyDAProofThresholdSig(
                 blakeHash, sig, blockId, uint64_t(-1));
+            std::atomic_store(&this->daSig, verifiedSig);
         }
     }
 }
@@ -284,7 +287,7 @@ bool BlockFinalizeDownloader::needDAProof() {
 #ifdef BITE
 bool BlockFinalizeDownloader::needDecryptionShares(schain_index _decryptorIndex) {
     auto teDB = getNode()->getTEDecryptionDB();
-    return !teDB->isEnoughForeignShares(blockId) && !teDB->haveDecryptionShares(blockId, _decryptorIndex);
+    return !teDB->haveDecryptionShares(blockId, _decryptorIndex);
 }
 #endif
 
@@ -369,23 +372,25 @@ bool BlockFinalizeDownloader::exitDownloadLoop(uint64_t
             _nextFragmentToDownload
 #endif
 ) {
-    if (downloadCompleted) {
-        // we already completed the download and notified waiting threads
+    if (shouldStop()) {
         return true;
     }
 
-    if (completeAndNeedToExitAllThreads()) {
-        // the downloader has completed its
-        if (!downloadCompleted.exchange(true)) {
-            downLoadCompletedBaton.post();
+    if (isDownloadReady()) {
+        {
+            std::lock_guard<std::mutex> lock(downloadStateMutex);
+            downloadReady = true;
         }
+        downloadStateChanged.notify_all();
+#ifndef BITE
+        requestStop();
         return true;
-    };
+#endif
+    }
 
 #ifdef BITE
-    // if this thread has no more work  but the the downloader completed its work
-    // it means that other threads are still downloading their decryption shares
-    // exit this thread without signalling that the download is completed
+    // This worker has no more work. Other workers may still be downloading shares,
+    // so exit without signalling that the whole download is complete.
     if (_nextFragmentToDownload == 0) {
         return true;
     }
@@ -408,7 +413,7 @@ void BlockFinalizeDownloader::waitAfterNetworkError() {
             return;
         }
 
-        if (downloadCompleted) {
+        if (shouldStop()) {
             return;
         }
         usleep(static_cast<__useconds_t>(100 * 1000));
@@ -464,6 +469,9 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
 
     // we keep running the download loop until everything has been downloaded
     do {
+        if (_agent->shouldStop()) {
+            return;
+        }
         // if testFinalizationDownloadOnly is set to true we do full finalization
         try {
             _agent->downloadFragment(_dstIndex, fragmentToDownload);
@@ -491,8 +499,18 @@ void BlockFinalizeDownloader::workerThreadFragmentDownloadLoop(
     } while (!_agent->exitDownloadLoop(fragmentToDownload));
 }
 
+void BlockFinalizeDownloader::requestStop() {
+    {
+        std::lock_guard<std::mutex> lock(downloadStateMutex);
+        stopRequested = true;
+    }
+    downloadStateChanged.notify_all();
+}
+
 void BlockFinalizeDownloader::joinAllThreads() {
-    threadPool->joinAll();
+    if (threadPool) {
+        threadPool->joinAll();
+    }
 }
 
 bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
@@ -500,14 +518,21 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
         threadPool = make_shared<BlockFinalizeDownloaderThreadPool>(
             (uint64_t) getSchain()->getNodeCount(), this);
         threadPool->startService();
-        // wait until the download is complete
-        downLoadCompletedBaton.wait();
+        // Local shares and catchup can arrive after all peer workers have exited.
+        // Periodically recheck shared state as well as notifications from workers.
+        std::unique_lock<std::mutex> lock(downloadStateMutex);
+        while (!downloadReady && !isDownloadReady() && !shouldStop()) {
+            downloadStateChanged.wait_for(lock, std::chrono::milliseconds(100));
+        }
+        if (!downloadReady && !isDownloadReady()) {
+            return false;
+        }
     }
 
     try {
         // first check if we do not need to do anything because a block separately arrived in catchup
 
-        if (getSchain()->getLastCommittedBlockID() > blockId)
+        if (getNode()->isExitRequested() || getSchain()->getLastCommittedBlockID() >= blockId)
             return false;
 
         if (getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex)) {
@@ -571,6 +596,7 @@ bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
 }
 
 BlockFinalizeDownloader::~BlockFinalizeDownloader() {
+    requestStop();
     joinAllThreads();
 }
 
@@ -603,15 +629,13 @@ bool BlockFinalizeDownloader::isFragmentDownloadComplete() {
     return fragmentList.isComplete();
 }
 
-bool BlockFinalizeDownloader::completeAndNeedToExitAllThreads() {
-    if (getSchain()->getNode()->isExitRequested()) {
-        return true;
-    }
+bool BlockFinalizeDownloader::shouldStop() {
+    return stopRequested || getNode()->isExitRequested() ||
+           getSchain()->getLastCommittedBlockID() >= blockId;
+}
 
-    if (getSchain()->getLastCommittedBlockID() >= blockId) {
-        // we received block concurrently through catchup
-        return true;
-    }
+bool BlockFinalizeDownloader::isDownloadReady() {
+
     if (getSchain()->haveAllElementsToFinalizeBlock(blockId, proposerIndex)) {
         // received needed things concurrently through block proposal
         return true;

@@ -2,6 +2,8 @@
 
 
 #include "Agent.h"
+#include <chrono>
+#include <condition_variable>
 
 class Schain;
 class DecryptedAESKeyList;
@@ -26,8 +28,8 @@ class TEDecryptionDB : public CacheLevelDB {
     recursive_mutex teDecryptionMutex;
 
     map<block_id, map<schain_index, ptr< AESKeyDecryptionShareList>>> decryptionsStore;
-    map<block_id, map< transaction_index, ptr< AESKeyDecryptionShareSet >>> decryptionShareSets;
     shared_mutex decryptionSetsMutex;
+    std::condition_variable_any decryptionSharesChanged;
 
     std::shared_ptr<folly::CPUThreadPoolExecutor> threadPoolExecutor;
 
@@ -40,7 +42,13 @@ public:
 
     bool haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex);
 
-    ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId, ptr<TransactionCiphertextsMap> _ciphertextsMap);
+    // Reports the snapshot size even when merging throws, so callers can wait for new shares.
+    ptr<DecryptedAESKeyList> mergeAESKeys(block_id _blockId,
+        ptr<TransactionCiphertextsMap> _ciphertextsMap, uint64_t* _sharesUsed = nullptr);
+
+    // A bounded wait lets callers also observe shutdown and catchup.
+    bool waitForMoreDecryptionShares(block_id _blockId, uint64_t _previousCount,
+        std::chrono::milliseconds _timeout = std::chrono::milliseconds(100));
 
     void addMyDecryptionShares(const ptr<AESKeyDecryptionShareList> &_decryptionShareList);
 

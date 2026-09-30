@@ -242,7 +242,7 @@ public:
             return ctxsSize;
         }
 
-        bool isCTX(size_t index) const {
+        bool isMarkedAsCtx(size_t index) const {
             return index < ctxsSize;
         }
 

@@ -452,12 +452,11 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
     CHECK_STATE(!_decryptionShareMap.empty());
     CHECK_STATE(_decryptionShareMap.size() >= config.requiredSigners);
 
-    auto firstDecryptionShareList = _decryptionShareMap.begin()->second;
-    CHECK_STATE(firstDecryptionShareList);
-    auto expectedSharesCount = firstDecryptionShareList->totalCiphertextSharesCount();
+    // The shape of a received list is not trusted: a peer may send any number of shares for any
+    // transactions. The proposal's ciphertexts define the expected layout, and processTx below
+    // skips, per transaction, every decryptor whose shares do not match it.
     for (auto&& [_, list] : _decryptionShareMap) {
         CHECK_STATE(list);
-        CHECK_STATE(list->totalCiphertextSharesCount() == expectedSharesCount);
     }
 
     // Initialize decryption share sets & build CipheredKey vectors for TE validation
@@ -467,13 +466,12 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
     auto encryptions = std::make_shared<std::map<transaction_index, std::vector<libBLS::CipheredKey>>>();
 
     bool toValidate = false;
-    for (auto&& [idx, shares] : firstDecryptionShareList->getDecryptionShares()) {
+    for (auto&& [idx, txCiphertexts] : _txCiphertexts) {
         decryptionShareSets[idx] =
-            createAESDecryptionShareSetObject(_blockId, idx, shares->size());
+            createAESDecryptionShareSetObject(_blockId, idx, txCiphertexts->count());
 
         if (config.sgxEnabled) {
-            auto& ciphertextsForCurrTx = *_txCiphertexts.at(idx);
-            for (auto& ciphertext : ciphertextsForCurrTx) {
+            for (auto& ciphertext : *txCiphertexts) {
                 // deserialize - no validation needed
                 (*encryptions)[idx].push_back(
                     libBLS::CipheredKey::fromBytes(ciphertext.data(), toValidate));
@@ -490,8 +488,8 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
 
     // Initialize decryption share sets & build CipheredKey vectors for TE validation
 
-    auto processTx = [aesKeys, aesKeysMutex, &_txCiphertexts, 
-        &_decryptionShareMap, &_tePublicKeyShares, encryptions, config = this->config
+    auto processTx = [aesKeys, aesKeysMutex, &_txCiphertexts,
+        &_decryptionShareMap, &_tePublicKeyShares, encryptions, config = this->config, _blockId
     ](transaction_index txId, ptr<AESKeyDecryptionShareSet> decryptionSet) -> folly::Unit {
 
         size_t numberOfCiphertexts = _txCiphertexts.at(txId)->count();
@@ -539,7 +537,11 @@ std::shared_ptr<DecryptedAESKeyList> BiteEngine::mergeAESKeys(
                     }
 
                 }  catch ( const std::exception& ex ) {
-                    CONS_LOG(err, std::string("Error during adding shares: ") + ex.what());
+                    // A peer may send shares that do not match the proposal. Such a decryptor is
+                    // skipped for this transaction, the remaining decryptors are still used.
+                    CONS_LOG(warn, fmt::format(
+                        "Skipping shares from decryptor {} for block {} tx {}: {}",
+                        (uint64_t) decryptorIdx, (uint64_t) _blockId, (uint32_t) txId, ex.what()));
                 }
             }
 

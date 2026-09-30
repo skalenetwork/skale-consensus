@@ -99,14 +99,7 @@ void TEDecryptionDB::addDecryptionShares(
     const ::std::shared_ptr< AESKeyDecryptionShareList >& _decryptionShareList ) {
     CHECK_ARGUMENT( _decryptionShareList );
 
-    // we dont need to store shares twice if we have shares from this node already
     auto index = _decryptionShareList->getDecryptorIndex();
-    if ( decryptionsStore.count(_decryptionShareList->getBlockId()) > 0 )
-        if ( decryptionsStore.at(_decryptionShareList->getBlockId()).count(index) > 0 )
-            return;
-
-    std::vector<folly::Future<folly::Unit>> futures;
-    futures.reserve(decryptionShareSets.size());
     auto blockId = _decryptionShareList->getBlockId();
 
     {
@@ -114,38 +107,25 @@ void TEDecryptionDB::addDecryptionShares(
 
         // decryptor - all shares for all txs
         map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareListSet =
-            decryptionsStore[_decryptionShareList->getBlockId()];
+            decryptionsStore[blockId];
 
-        if ( decryptionShareListSet.size() >= requiredSigners ) {
+        // One slot per decryptor, first list wins. The shape is not checked here: the reference
+        // is the proposal, which may not be known yet. mergeAESKeys() checks it.
+        if (decryptionShareListSet.count(index) > 0 ||
+            decryptionShareListSet.size() >= totalSigners) {
             return;
         }
 
         if (!decryptionShareListSet.empty()) {
             auto firstShare = decryptionShareListSet.begin()->second;
             CHECK_STATE( firstShare->getProposerIndex() == _decryptionShareList->getProposerIndex() );
-            // all decryptors should send shares for same number of ciphertexts
-            CHECK_STATE( firstShare->totalCiphertextSharesCount() == _decryptionShareList->totalCiphertextSharesCount() );
         }
 
         decryptionShareListSet[index] = _decryptionShareList;
-
-        if (decryptionShareSets[blockId].empty()) {
-            for ( auto&& [txId, shares] : _decryptionShareList->getDecryptionShares() ) {
-                decryptionShareSets[blockId][txId] =
-                    sChain->getBiteManager()->createAESDecryptionShareSet(
-                            blockId, txId, shares->size() );
-            }
-        }
     }
 
-    for (const auto& [txIdx, shares]: _decryptionShareList->getDecryptionShares()) {
-        auto future = folly::via(threadPoolExecutor.get(), [blockId, this, shares, txIdx]() -> folly::Unit {
-            decryptionShareSets[blockId][txIdx]->addDecryptionSharesFromSameDecryptor( shares );
-            return folly::unit;
-        });
-        futures.push_back(std::move(future));
-    }
-    auto allResults = folly::collectAll(futures).get();
+    // Publish progress for both peer responses and asynchronously computed local shares.
+    decryptionSharesChanged.notify_all();
 };
 
 bool TEDecryptionDB::haveDecryptionShares(block_id _blockID, schain_index _decryptorIndex) {
@@ -162,14 +142,31 @@ bool TEDecryptionDB::haveDecryptionShares(block_id _blockID, schain_index _decry
 
 };
 
-ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<TransactionCiphertextsMap> _transactionCiphertextsMap) {
+bool TEDecryptionDB::waitForMoreDecryptionShares(block_id _blockId, uint64_t _previousCount,
+    std::chrono::milliseconds _timeout) {
+    std::unique_lock<shared_mutex> lock(decryptionSetsMutex);
+    return decryptionSharesChanged.wait_for(lock, _timeout, [&] {
+        const auto it = decryptionsStore.find(_blockId);
+        return it != decryptionsStore.end() && it->second.size() > _previousCount;
+    });
+}
+
+ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId,
+    ptr<TransactionCiphertextsMap> _transactionCiphertextsMap, uint64_t* _sharesUsed) {
     CHECK_STATE(_transactionCiphertextsMap);
 
-    WRITE_LOCK(decryptionSetsMutex);
-
-    // nodeId -> decryption shares
-    map< schain_index, ptr< AESKeyDecryptionShareList > >& decryptionShareMap =
-        decryptionsStore[_blockId];
+    // Merge a stable snapshot while workers continue storing additional share lists.
+    map<schain_index, ptr<AESKeyDecryptionShareList>> decryptionShareMap;
+    {
+        READ_LOCK(decryptionSetsMutex);
+        const auto it = decryptionsStore.find(_blockId);
+        if (it != decryptionsStore.end()) {
+            decryptionShareMap = it->second;
+        }
+        if (_sharesUsed) {
+            *_sharesUsed = decryptionShareMap.size();
+        }
+    }
 
     // 1 key for each signer (index = signerId)
     vector<libBLS::TEPublicKeyShare> tePublicKeys;
@@ -193,6 +190,8 @@ ptr< DecryptedAESKeyList > TEDecryptionDB::mergeAESKeys(block_id _blockId, ptr<T
         tePublicKeys,
         BiteRuntimeContext{ sChain->getNode()->isSgxEnabled(), threadPoolExecutor }
     );
+
+    WRITE_LOCK(decryptionSetsMutex);
 
     // clean old shares if they exist in the map
     // we keep in the map shares for the current block and for the previous block
@@ -256,7 +255,7 @@ bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
     const auto it = decryptionsStore.find(_blockID);
     if ( it == decryptionsStore.end() )
         return false;
-    return it->second.size() == requiredSigners;
+    return it->second.size() >= static_cast<size_t>(requiredSigners);
 };
 
 bool TEDecryptionDB::isEnoughForeignShares(block_id _blockID) {
