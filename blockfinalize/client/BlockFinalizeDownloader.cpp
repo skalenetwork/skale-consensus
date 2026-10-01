@@ -74,7 +74,9 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
       epochId(_epochId),
 #endif
       proposerIndex(_proposerIndex),
-      fragmentList(_blockId, (uint64_t) _sChain->getNodeCount() - 1)
+      // A single-node downloader only waits for local data; its fragment slot is unused.
+      fragmentList(_blockId, _sChain->getNodeCount() > 1 ?
+          (uint64_t) _sChain->getNodeCount() - 1 : 1)
 #ifdef BITE
       , needFragmentData(!getSchain()->haveProposal(_blockId, _proposerIndex))
 #endif
@@ -82,7 +84,7 @@ BlockFinalizeDownloader::BlockFinalizeDownloader(
 
     CHECK_ARGUMENT(_sChain)
 
-    CHECK_STATE(_sChain->getNodeCount() > 1)
+    CHECK_STATE(_sChain->getNodeCount() > 0)
 
     try {
         CHECK_STATE(sChain)
@@ -514,14 +516,44 @@ void BlockFinalizeDownloader::joinAllThreads() {
 }
 
 bool BlockFinalizeDownloader::downloadProposalDAProofAndDecryptions() {
+    ptr<BlockProposal> localProposal;
+    if (getSchain()->getNodeCount() == 1) {
+        localProposal = getNode()->getBlockProposalDB()->getBlockProposal(blockId, proposerIndex);
+        CHECK_STATE(localProposal);
+        CHECK_STATE(getSchain()->haveDAProof(blockId, proposerIndex));
+    }
     MONITOR(__CLASS_NAME__, __FUNCTION__) {
         threadPool = make_shared<BlockFinalizeDownloaderThreadPool>(
             (uint64_t) getSchain()->getNodeCount(), this);
         threadPool->startService();
-        // Local shares and catchup can arrive after all peer workers have exited.
-        // Periodically recheck shared state as well as notifications from workers.
+        // Local shares notify TEDecryptionDB, not downloadStateChanged, so wait
+        // there while below threshold. Once shares suffice, use the downloader
+        // notification for missing proposal/DA-proof data. Both waits are bounded
+        // to observe shutdown, catchup and local computation failure.
         std::unique_lock<std::mutex> lock(downloadStateMutex);
-        while (!downloadReady && !isDownloadReady() && !shouldStop()) {
+        while (!downloadReady && !shouldStop()) {
+#ifdef BITE
+            auto teDB = getNode()->getTEDecryptionDB();
+            // Snapshot before checking readiness so an intervening share arrival
+            // makes the database wait return immediately rather than being missed.
+            auto shareCount = teDB->getDecryptionsCount(blockId);
+#endif
+            if (isDownloadReady()) {
+                break;
+            }
+#ifdef BITE
+            CHECK_STATE2(!localProposal || localProposal->getMyDecryptionSharesState() !=
+                             BlockProposal::MyDecryptionSharesState::Failed,
+                "Local decryption share computation failed for single-node block " +
+                    to_string(blockId));
+            if (shareCount < getSchain()->getRequiredSigners()) {
+                // Peer workers must remain free to publish download completion.
+                lock.unlock();
+                teDB->waitForMoreDecryptionShares(blockId, shareCount);
+                lock.lock();
+                continue;
+            }
+#endif
             downloadStateChanged.wait_for(lock, std::chrono::milliseconds(100));
         }
         if (!downloadReady && !isDownloadReady()) {

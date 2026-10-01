@@ -259,10 +259,6 @@ bool TEDecryptionDB::isEnoughDecryptions( block_id _blockID ) {
 };
 
 bool TEDecryptionDB::isEnoughForeignShares(block_id _blockID) {
-    // if required signers < 2, we always have our own share
-    if ( requiredSigners < 2 )
-        return true;
-
     READ_LOCK(decryptionSetsMutex);
 
     const auto it = decryptionsStore.find(_blockID);
