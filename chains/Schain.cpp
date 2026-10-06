@@ -26,6 +26,7 @@
 #include <malloc.h>
 #include <sched.h>
 #include <unordered_set>
+#include <folly/ScopeGuard.h>
 
 #ifdef BITE
 #include <folly/executors/CPUThreadPoolExecutor.h>
@@ -1615,33 +1616,30 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
             return;
         }
 
-        if (!haveAllElementsToFinalizeBlock(_blockId, _proposerIndex) ||
-            // force download  - this switch is for testing only
-            getNode()->getTestConfig()->isFinalizationDownloadOnly()
-        ) {
-            // Dowload missing objects - proposal, daProof, and decryption shares
-            // Note that due to the BLS signature proof, 2t hosts out of 3t + 1 total are
-            // guaranteed to posSess the proposal
-            auto newDownloaderAgent = make_shared<BlockFinalizeDownloader>(this, _blockId,
+        ptr<BlockFinalizeDownloader> blockDownloader;
+        auto stopDownloads = folly::makeGuard([&] {
+            if (blockDownloader) {
+                blockDownloader->requestStop();
+            }
+        });
+        auto startDownload = [&]() {
+            CHECK_STATE(!blockDownloader);
+            blockDownloader = make_shared<BlockFinalizeDownloader>(this, _blockId,
 #ifdef BITE
-            getNode()->getCurrentEpochId(),
+                getNode()->getCurrentEpochId(),
 #endif
-            _proposerIndex);
-
-            // at this point the destructor of the previous agent will be called
-            // this will make all its threads to exit
-            downloaderAgent =  newDownloaderAgent;
+                _proposerIndex);
+            downloaderAgent = blockDownloader;
 
             const string msg = "Finalization download:" + to_string(_blockId) + ":" +
-                                   to_string(_proposerIndex);
-
+                               to_string(_proposerIndex);
             MONITOR(__CLASS_NAME__, msg.c_str());
-                // This will complete successfully also if block arrives through catchup
-            auto completedDownload = downloaderAgent->downloadProposalDAProofAndDecryptions();
-                // if null is returned it means that catchup happened first and
-                // the block will be processed through catchup
-            if (!completedDownload) {
-                    // catchup happened
+            return blockDownloader->downloadProposalDAProofAndDecryptions();
+        };
+
+        if (!haveAllElementsToFinalizeBlock(_blockId, _proposerIndex) ||
+            getNode()->getTestConfig()->isFinalizationDownloadOnly()) {
+            if (!startDownload()) {
                 return;
             }
             CHECK_STATE(haveAllElementsToFinalizeBlock(_blockId, _proposerIndex));
@@ -1670,9 +1668,52 @@ void Schain::finalizeDecidedAndSignedBlockInThread(block_id _blockId, schain_ind
 
         CHECK_STATE(encryptedAESKeys);
 
-        auto keys = getNode()->getTEDecryptionDB()->mergeAESKeys(proposal->getBlockID(), encryptedAESKeys);
+        auto teDB = getNode()->getTEDecryptionDB();
+        ptr<DecryptedAESKeyList> keys;
+        while (!keys) {
+            checkForExit();
+            if (getLastCommittedBlockID() >= _blockId) {
+                return;
+            }
 
-        CHECK_STATE(keys);
+            uint64_t sharesUsed = 0;
+            try {
+                keys = teDB->mergeAESKeys(proposal->getBlockID(), encryptedAESKeys, &sharesUsed);
+                CHECK_STATE(keys);
+            } catch (const ExitRequestedException&) {
+                throw;
+            } catch (const exception& e) {
+                checkForExit();
+                if (getLastCommittedBlockID() >= _blockId) {
+                    return;
+                }
+                // Only give up if the failed attempt actually used every decryptor.
+                // A share arriving after that snapshot must still get a merge attempt.
+                if (sharesUsed >= getNodeCount()) {
+                    throw;
+                }
+                CONS_LOG(warn, "mergeAESKeys failed with " + to_string(sharesUsed) +
+                               " share lists: " + string(e.what()) + ". Waiting for more shares.");
+
+                // we saved a new share in the meantime - no need to wait
+                if (teDB->getDecryptionsCount(_blockId) > sharesUsed) {
+                    continue;
+                }
+                // if no downloader exists yet, start one now
+                if (!blockDownloader && !startDownload()) {
+                    return;
+                }
+                do {
+                    checkForExit();
+                    if (getLastCommittedBlockID() >= _blockId) {
+                        return;
+                    }
+                } while (!teDB->waitForMoreDecryptionShares(_blockId, sharesUsed));
+            }
+        }
+        if (blockDownloader) {
+            blockDownloader->requestStop();
+        }
 
         auto transactions = proposal->getTransactionList();
         bool isBite2PatchEnabledForBlock = bite2Patch( getLastCommittedBlockTimeStamp().getS() );

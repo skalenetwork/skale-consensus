@@ -38,6 +38,8 @@ class BiteManager {
 
 public:
     explicit BiteManager(Schain &_schain);
+    // Explicit crypto mode / config, independent of the node's SGX and sync-node settings.
+    BiteManager(Schain &_schain, BiteCore _core, BiteConfig _config);
     ~BiteManager();
 
     // =============== Stage 1: Ciphertext Parsing =============== //

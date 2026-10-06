@@ -15,6 +15,7 @@
 #include "chains/Schain.h"
 #include "crypto/CryptoManager.h"
 #include "datastructures/Transaction.h"
+#include "libBLS/bls/BLSPublicKey.h"
 #include "libBLS/threshold_encryption/TEPublicKey.h"
 #include "libBLS/threshold_encryption/ThresholdEncryption.h"
 #include "libBLS/threshold_encryption/threshold_encryption.h"
@@ -165,6 +166,16 @@ inline std::shared_ptr< CryptoManager > createTestCryptoManager(
 inline std::shared_ptr< BiteManager > createTestBiteManager(
     std::shared_ptr< Schain >& chain ) {
     return std::make_shared< BiteManager >( *chain );
+}
+
+// Helper to create a BiteManager that produces real (ConsensusAES...) decryption shares on a
+// regular mock test chain. Making the node itself real-crypto (sync node + BLS key) is not an
+// option: Schain/CryptoManager init then requires full ECDSA/BLS key material.
+inline std::shared_ptr< BiteManager > createRealCryptoTestBiteManager(
+    std::shared_ptr< Schain >& chain, size_t required, size_t total ) {
+    BiteCore core;
+    core.doRealCrypto = true;
+    return std::make_shared< BiteManager >( *chain, core, BiteConfig{ required, total } );
 }
 
 // Create a single-transaction BITE1 block proposal for testing.
