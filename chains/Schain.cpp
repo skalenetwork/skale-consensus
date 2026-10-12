@@ -889,30 +889,40 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
         auto evmProcessingStartMs = Time::getCurrentTimeMs();
         auto blockPushedToExtFaceTimeMs = evmProcessingStartMs;
 
+        string blockProcessingMetrics;
+        string blockCommitMetrics = "BCT:" + std::to_string(blockCommitTimeMs);
+
         if (!getNode()->isSyncOnlyNode()) {
-            // pending transaction ageent does not exist on a sync node
+            // pending transaction agent does not exist on a sync node
             CHECK_STATE(pendingTransactionsAgent);
-#ifdef BITE
-            auto decryptedTxs = _block->getDecryptedTransactions();
-            CHECK_STATE(decryptedTxs.regularTxsMap)
-            CHECK_STATE(decryptedTxs.ctxTxsMap)
-#endif
+            blockProcessingMetrics =
+                "CWT:" + to_string(blockPushedToExtFaceTimeMs -
+                                   pendingTransactionsAgent->transactionListReceivedTime())
+                + ":TLWT:" + to_string(pendingTransactionsAgent->getTransactionListWaitTime())
+                + ":SBPT:" + to_string(cryptoManager->sgxBlockProcessingTime());
 
-
-            CONS_LOG(info, "CWT:" + to_string( blockPushedToExtFaceTimeMs -
-                                           pendingTransactionsAgent->transactionListReceivedTime() )
-                             + ":TLWT:" + to_string( pendingTransactionsAgent->getTransactionListWaitTime() )
-                             + ":SBPT:" + to_string( cryptoManager->sgxBlockProcessingTime() )
-#ifdef BITE
-                    + ":BITE_DECRYPTED_TXS:" + to_string(decryptedTxs.regularTxsMap->size())
-                    + ":CAT_DECRYPTED_TXS:" + to_string(decryptedTxs.ctxTxsMap->size())
-#endif
-
-                             );
-            CONS_LOG( debug, "BCT:" + std::to_string( blockCommitTimeMs ) +
-                        ":BFST:" + std::to_string( getBlockFinalizationStageTimeMs() ) +
-                        ":PST:" + std::to_string( getProposalStageTimeMs() ) );
+            blockCommitMetrics +=
+                ":BFST:" + std::to_string(getBlockFinalizationStageTimeMs())
+                + ":PST:" + std::to_string(getProposalStageTimeMs());
         }
+
+#ifdef BITE
+        auto decryptedTxs = _block->getDecryptedTransactions();
+        CHECK_STATE(decryptedTxs.regularTxsMap)
+        CHECK_STATE(decryptedTxs.ctxTxsMap)
+
+        if (!blockProcessingMetrics.empty()) {
+            blockProcessingMetrics += ":";
+        }
+        blockProcessingMetrics +=
+            "BITE_DECRYPTED_TXS:" + to_string(decryptedTxs.regularTxsMap->size())
+            + ":CAT_DECRYPTED_TXS:" + to_string(decryptedTxs.ctxTxsMap->size());
+#endif
+
+        if (!blockProcessingMetrics.empty()) {
+            CONS_LOG(info, blockProcessingMetrics);
+        }
+        CONS_LOG(debug, blockCommitMetrics);
 
         pushBlockToExtFace(_block);
         auto evmProcessingTimeMs = Time::getCurrentTimeMs() - evmProcessingStartMs;
