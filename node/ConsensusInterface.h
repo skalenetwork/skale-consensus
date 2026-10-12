@@ -99,6 +99,8 @@ public:
 
     virtual consensus_engine_status getStatus() const = 0;
 
+    virtual void setPaused(bool _paused) = 0;
+
 
 #define ORACLE_SUCCESS 0
 #define ORACLE_UNKNOWN_RECEIPT 1
@@ -240,7 +242,7 @@ public:
             return ctxsSize;
         }
 
-        bool isCTX(size_t index) const {
+        bool isMarkedAsCtx(size_t index) const {
             return index < ctxsSize;
         }
 

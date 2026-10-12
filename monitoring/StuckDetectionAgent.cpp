@@ -159,7 +159,8 @@ bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _tim
 
     auto result = ( currentTimeMs - getSchain()->getStartTimeMs() ) > _restartIntervalMs &&
                   ( currentTimeMs - getSchain()->getLastCommitTimeMs() > _restartIntervalMs ) &&
-                  ( Time::getCurrentTimeMs() - _timeStamp > _restartIntervalMs ) &&
+                  ( currentTimeMs - _timeStamp > _restartIntervalMs ) &&
+                  ( currentTimeMs - getNode()->getLastUnpauseTimeMs() > _restartIntervalMs ) &&
                   checkNodesAreOnline();
 
     return result;
@@ -169,6 +170,10 @@ bool StuckDetectionAgent::stuckCheck( uint64_t _restartIntervalMs, uint64_t _tim
 // othewise it returns Linux time in ms when to restart
 uint64_t StuckDetectionAgent::doStuckCheckAndReturnTimeWhenToRestart(uint64_t _restartIteration ) {
     CHECK_STATE( _restartIteration >= 1 );
+
+    if (getNode()->isPaused()) {
+        return 0;  // do not restart if consensus is paused
+    }
 
     auto restartIntervalMs = getSchain()->getNode()->getStuckRestartIntervalMs();
 

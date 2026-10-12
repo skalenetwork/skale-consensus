@@ -33,15 +33,16 @@
 
 #include "libBLS/bls/BLSPublicKey.h"
 BiteManager::BiteManager(Schain& _schain)
-  : schain(_schain), 
-    biteEngine(
-            BiteCore{_schain.getNode()->verifyRealSignatures() },
-            BiteConfig{
-                _schain.getRequiredSigners(), 
-                _schain.getTotalSigners(),
-                _schain.getNode()->isSgxEnabled()
-            }
-        )
+  : BiteManager(_schain,
+        BiteCore{_schain.getNode()->verifyRealSignatures() },
+        BiteConfig{
+            _schain.getRequiredSigners(), 
+            _schain.getTotalSigners(),
+            _schain.getNode()->isSgxEnabled()
+        }) {}
+
+BiteManager::BiteManager(Schain& _schain, BiteCore _core, BiteConfig _config)
+  : schain(_schain), biteEngine(_core, _config)
 {
     threadPoolExecutor = std::make_shared<folly::CPUThreadPoolExecutor>(getNumBiteValidationThreads());
 }

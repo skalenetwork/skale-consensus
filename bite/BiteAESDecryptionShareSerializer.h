@@ -14,6 +14,11 @@ public:
         const ptr< vector< uint8_t > >& _serializedDecryptionShares,
         const ptr< CryptoManager >& _manager, CryptographicValidationMode _validationMode = CryptographicValidationMode::Validate );
 
+    // Same as above, but the share type (real vs mockup) is chosen by the given BiteManager.
+    static ptr< AESKeyDecryptionShareList > deserialize(
+        const ptr< vector< uint8_t > >& _serializedDecryptionShares,
+        const ptr< BiteManager >& _biteManager, CryptographicValidationMode _validationMode = CryptographicValidationMode::Validate );
+
     static void serializedSanityCheck(
         const ptr< vector< uint8_t > >& _serializedDecryptionShares );
 

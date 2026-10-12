@@ -58,6 +58,11 @@ void MonitoringAgent::monitor() {
         usleep( 100000 );
     }
 
+    // While consensus is paused (e.g. via debug_pauseConsensus), block-processing
+    // threads intentionally sit idle past their normal liveliness timeouts, so
+    // "stuck" warnings would just be noise. Skip reporting until unpaused.
+    if ( getNode()->isPaused() )
+        return;
 
     map< uint64_t, weak_ptr< LivelinessMonitor > > monitorsCopy;
 

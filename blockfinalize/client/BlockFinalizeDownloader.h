@@ -36,7 +36,8 @@ class BlockFinalizeDownloaderThreadPool;
 class BlockProposalSet;
 class ThresholdSignature;
 
-#include <folly/synchronization/Baton.h>
+#include <condition_variable>
+#include <mutex>
 #include <folly/SharedMutex.h>
 #include "datastructures/BlockProposalFragmentList.h"
 
@@ -65,14 +66,17 @@ private:
 #endif
 
     bool isFragmentDownloadComplete();
+    bool isDownloadReady();
+    bool shouldStop();
+
+    // Readiness wakes finalization without cancelling unfinished peer downloads.
+    std::mutex downloadStateMutex;
+    std::condition_variable downloadStateChanged;
+    bool downloadReady = false;
+    atomic<bool> stopRequested = false;
 
 public:
-
-    // this is used to signal to the outside world that
-    // downloader completed the download and consensus has everything
-    // to commit the block
-    atomic<bool> downloadCompleted = false;
-    folly::Baton<> downLoadCompletedBaton;
+    void requestStop();
 
     ptr< ThresholdSignature > getDaSig( uint64_t _blockTimeStampS );
 
@@ -108,9 +112,6 @@ public:
     static uint64_t readFragmentSize( nlohmann::json _responseHeader );
 
     bool downloadProposalDAProofAndDecryptions();
-
-
-    bool completeAndNeedToExitAllThreads();
 
     string readBlockHash( nlohmann::json _responseHeader );
 

@@ -494,6 +494,35 @@ void Node::testNodeInfos() {
     ptr< map< uint64_t, ptr< NodeInfo > > > testNodeInfosById;
 }
 
+void Node::setPaused(bool paused) {
+    if ( paused && !consensusIsPaused ) {
+        CONS_LOG( warn, "Consensus stopped (paused)" );
+    }
+    else if ( !paused && consensusIsPaused ) {
+        lastUnpauseTimeMs = Time::getCurrentTimeMs();
+        CONS_LOG( warn, "Consensus resumed (unpaused)" );
+    }
+    consensusIsPaused = paused;
+
+    if ( paused ) {
+        // Set the flag first, then drain. A fetch that is already in flight holds
+        // proposalFetchMutex - possibly blocked for a few ms inside skaled waiting for a
+        // transaction to appear - so this blocks until it returns.
+        std::lock_guard< std::mutex > drainInFlightFetch( proposalFetchMutex );
+    }
+}
+
+bool Node::isPaused() const {
+    return consensusIsPaused;
+}
+
+std::unique_lock< std::mutex > Node::lockProposalFetch() {
+    return std::unique_lock< std::mutex >( proposalFetchMutex );
+}
+
+uint64_t Node::getLastUnpauseTimeMs() const {
+    return lastUnpauseTimeMs;
+}
 
 void Node::setNodeInfo( const ptr< NodeInfo >& _nodeInfo ) {
     CHECK_ARGUMENT( _nodeInfo );

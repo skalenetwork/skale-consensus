@@ -41,6 +41,7 @@
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
 #include "crypto/AESKeyDecryptionShareList.h"
+#include "tests/TestHooks.h"
 #endif
 
 #include "abstracttcpserver/ConnectionStatus.h"
@@ -236,9 +237,10 @@ ptr<vector<uint8_t> > CatchupServerAgent::createResponseHeaderAndBinary(
 
 
 ptr<vector<uint8_t> > CatchupServerAgent::createBlockCatchupResponse(
-    const ptr<ServerConnection> &_connectionEnvelope, nlohmann::json /*_jsonRequest */,
+    const ptr<ServerConnection> &_connectionEnvelope, nlohmann::json _jsonRequest,
     const ptr<CatchupResponseHeader> &_responseHeader, block_id _blockID) {
     CHECK_ARGUMENT(_responseHeader);
+    (void)_jsonRequest;
 
     MONITOR(__CLASS_NAME__, __FUNCTION__);
 
@@ -252,6 +254,17 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockCatchupResponse(
             return nullptr;
         }
 
+#ifdef BITE
+        // Test-only hook to potentially suppress catchup responses
+        bool suppressCatchup = false;
+        TestHooks::BlockCatchupResponseHook::fire(getNode()->getNodeID(),
+            Header::getUint64(_jsonRequest, "nodeID"), _blockID, suppressCatchup);
+        if (suppressCatchup) {
+            _responseHeader->setStatusSubStatus(CONNECTION_DISCONNECT, CONNECTION_NO_NEW_BLOCKS);
+            _responseHeader->setComplete();
+            return nullptr;
+        }
+#endif
 
         auto blockSizes = make_shared<list<uint64_t> >();
 
@@ -430,6 +443,20 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockFinalizeResponse(
             // just return empty list
             myDecryptionShares = make_shared<AESKeyDecryptionShareList>(_blockID, proposerIndex,
                                                                         getSchain()->getSchainIndex());
+        }
+
+        // Used for testing purposes - simulate malicious decryption share being sent by this node
+        if (needDecryptionShares && myDecryptionShares) {
+            node_id requestingNodeId = Header::getUint64(_jsonRequest, "nodeID");
+            bool retryLater = false;
+            TestHooks::BlockFinalizeResponseHook::fire(
+                getNode()->getNodeID(), requestingNodeId, _blockID, myDecryptionShares, retryLater);
+            if (retryLater) {
+                _responseHeader->setStatusSubStatus(
+                    CONNECTION_RETRY_LATER, CONNECTION_FINALIZE_DONT_HAVE_DECRYPTION_SHARES);
+                _responseHeader->setComplete();
+                return nullptr;
+            }
         }
 #endif
 

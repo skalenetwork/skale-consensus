@@ -25,6 +25,7 @@
 
 #include <boost/asio.hpp>
 #include <random>
+#include <regex>
 
 #include "openssl/bio.h"
 
@@ -1407,6 +1408,12 @@ ptr<StubClient> CryptoManager::getSgxClient() {
 bool CryptoManager::retryHappened = false;
 
 string CryptoManager::sgxURL = "";
+
+string CryptoManager::sanitizeIpAddress(const string &_error) {
+    static const std::regex endpointPattern(
+        R"((?:https?://[^\s:/]+(?::\d{1,5})?|(?:\d{1,3}\.){3}\d{1,3}(?::\d{1,5})?))" );
+    return std::regex_replace( _error, endpointPattern, "[redacted]" );
+}
 
 bool CryptoManager::isRetryHappened() {
     return retryHappened;

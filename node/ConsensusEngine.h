@@ -306,6 +306,8 @@ public:
         ptr< vector< ptr< vector< string > > > >& _blsPublicKeyShares, uint64_t _requiredSigners,
         uint64_t _totalSigners, bool _isSyncNode );
 
+    void setPaused(bool paused) override;
+
 
     void setRotationHistory( ptr< map< uint64_t, vector< string > > > _previousBLSKeys,
         ptr< map< uint64_t, string > > _historicECDSAKeys,

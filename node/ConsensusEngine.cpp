@@ -618,7 +618,8 @@ std::string ConsensusEngine::exec( const char* cmd ) {
 
     std::array< char, 128 > buffer;
     std::string result;
-    std::unique_ptr< FILE, decltype( &pclose ) > pipe( popen( cmd, "r" ), pclose );
+    auto closer = []( FILE* f ) { return pclose( f ); };
+    std::unique_ptr< FILE, decltype( closer ) > pipe( popen( cmd, "r" ), closer );
     if ( !pipe ) {
         BOOST_THROW_EXCEPTION( std::runtime_error( "popen() failed!" ) );
     }
@@ -1042,6 +1043,14 @@ const string& ConsensusEngine::getHealthCheckDir() const {
 string ConsensusEngine::getDbDir() const {
     CHECK_STATE( dbDir != "" );
     return dbDir;
+}
+
+void ConsensusEngine::setPaused(bool paused) {
+    CHECK_STATE( nodes.size() > 0 );
+    for ( auto&& it : nodes ) {
+        CHECK_STATE( it.second );
+        it.second->setPaused( paused );
+    }
 }
 
 void ConsensusEngine::setTestPatchTimestamps( const std::map< string, uint64_t >& _patchTimestamps ) {

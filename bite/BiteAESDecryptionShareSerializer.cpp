@@ -82,6 +82,15 @@ ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::deserialize(
     CHECK_ARGUMENT( _serializedDecryptionShares );
     CHECK_ARGUMENT( _manager );
 
+    return deserialize( _serializedDecryptionShares, _manager->getSchain()->getBiteManager(), _validationMode );
+}
+
+
+ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::deserialize(
+    const ptr< vector< uint8_t > >& _serializedDecryptionShares,
+    const ptr< BiteManager >& _biteManager, CryptographicValidationMode _validationMode ) {
+    CHECK_ARGUMENT( _serializedDecryptionShares );
+    CHECK_ARGUMENT( _biteManager );
 
     const skale_fb::DecryptionShares* fbDecryptionShares = nullptr;
 
@@ -96,7 +105,7 @@ ptr< AESKeyDecryptionShareList > BiteAESDecryptionShareSerializer::deserialize(
     CHECK_STATE( fbDecryptionSharesHandle );
 
     return getDecryptionShares(blockId, proposerIndex, decryptorIndex, fbDecryptionSharesHandle,
-        _manager->getSchain()->getBiteManager(), _validationMode );
+        _biteManager, _validationMode );
 }
 
 

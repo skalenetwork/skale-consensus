@@ -16,6 +16,7 @@
 #include "crypto/MockupAESKeyDecryptionShareSet.h"
 #include "crypto/AESKeyDecryptionShare.h"
 #include "bite/serde/BiteAESKeySerializer.h"
+#include "bite/BiteAESDecryptionShareSerializer.h"
 #include <flatbuffers/flatbuffers.h>
 #include "datastructures/TransactionCiphertextsMap.h"
 #include "datastructures/TransactionList.h"
@@ -53,7 +54,7 @@ ptr<BiteCiphertext> makeValidCiphertextWithKey(uint64_t epoch, const libBLS::TEP
     return std::make_shared<BiteCiphertext>(serialized, epoch);
 }
 
-std::vector<ptr<BiteCiphertext>> makeCatCiphertextsWithKey(
+std::vector<ptr<BiteCiphertext>> makeBiteCiphertextsWithKey(
     uint64_t epoch,
     const libBLS::TEPublicKey& pk,
     size_t count
@@ -875,8 +876,8 @@ CATCH_TEST_CASE("BiteEngine mergeAESKeys handles CAT ciphertexts", "[bite][engin
     auto keySet = generateKeys(required, total);
 
     TransactionCiphertextsMap txCiphertexts;
-    auto catCiphertexts = makeCatCiphertextsWithKey(epoch, keySet.commonPublic, 2);
-    txCiphertexts.emplace(0, std::make_shared<TransactionCiphertexts>(catCiphertexts));
+    auto ctxCiphertexts = makeBiteCiphertextsWithKey(epoch, keySet.commonPublic, 2);
+    txCiphertexts.emplace(0, std::make_shared<TransactionCiphertexts>(ctxCiphertexts));
 
     std::map<schain_index, std::shared_ptr<AESKeyDecryptionShareList>> shareMap;
     shareMap.emplace(1, makeConsensusShareList(blockId, 1, txCiphertexts, keySet));
@@ -908,8 +909,8 @@ CATCH_TEST_CASE("BiteEngine mergeAESKeys handles mixed BITE1 and CAT ciphertexts
     TransactionCiphertextsMap txCiphertexts;
     auto regular = makeValidCiphertextWithKey(epoch, keySet.commonPublic);
     txCiphertexts.emplace(0, std::make_shared<TransactionCiphertexts>(regular));
-    auto catCiphertexts = makeCatCiphertextsWithKey(epoch, keySet.commonPublic, 2);
-    txCiphertexts.emplace(1, std::make_shared<TransactionCiphertexts>(catCiphertexts));
+    auto ctxCiphertexts = makeBiteCiphertextsWithKey(epoch, keySet.commonPublic, 2);
+    txCiphertexts.emplace(1, std::make_shared<TransactionCiphertexts>(ctxCiphertexts));
 
     std::map<schain_index, std::shared_ptr<AESKeyDecryptionShareList>> shareMap;
     shareMap.emplace(1, makeConsensusShareList(blockId, 1, txCiphertexts, keySet));
@@ -1215,7 +1216,7 @@ CATCH_TEST_CASE("BiteEngine mergeAESKeys performance", "[bite][engine][merge][pe
     // build ciphertexts of timer
     TransactionCiphertextsMap txCiphertexts;
     for (size_t i = 0; i < numCATTxs; ++i) {
-        auto c = makeCatCiphertextsWithKey(epoch, keySet.commonPublic, 2); // CAT with 2 ciphertexts each
+        auto c = makeBiteCiphertextsWithKey(epoch, keySet.commonPublic, 2); // Two ciphertexts per transaction
         txCiphertexts.emplace(i, std::make_shared<TransactionCiphertexts>(c));
     }
 
@@ -1250,6 +1251,216 @@ CATCH_TEST_CASE("BiteEngine mergeAESKeys performance", "[bite][engine][merge][pe
               << " BITE transactions + " << numCATTxs << " CAT transactions" << std::endl;
 
     CATCH_REQUIRE(aesKeys);
+}
+
+// ============ Byzantine Decryption Share Validation Boundary Tests ============ //
+
+CATCH_TEST_CASE(
+    "Byzantine random decryption share passes syntactic serialization/deserialization but fails semantic validation and merge",
+    "[bite][decryption-share][semantic-validation][byzantine]"
+) {
+    const block_id blockId = 42;
+    const size_t required = 2;
+    const size_t total = 4;
+    const uint64_t epoch = 10;
+
+    ConsensusEngine engineObj(0, 100000000);
+    std::shared_ptr<Schain> chain;
+    std::shared_ptr<Node> node;
+    // Deserialization picks real vs mockup shares from the chain's BiteManager, so it must be real.
+    createTestCryptoManager(chain, node, engineObj);
+    auto biteManager = createRealCryptoTestBiteManager(chain, required, total);
+
+    BiteEngine engine = makeEngine(true, BiteConfig{required, total});
+    auto keySet = generateKeys(required, total);
+
+    // 1. Construct a valid ciphertext for tx 0
+    TransactionCiphertextsMap txCiphertexts;
+    auto c0 = makeValidCiphertextWithKey(epoch, keySet.commonPublic);
+    txCiphertexts.emplace(0, std::make_shared<TransactionCiphertexts>(c0));
+
+    // 2. Produce honest decryption share lists for signers 1 and 2
+    auto honestShareList1 = makeConsensusShareList(blockId, 1, txCiphertexts, keySet);
+    auto honestShareList2 = makeConsensusShareList(blockId, 2, txCiphertexts, keySet);
+
+    // Positive control: honest share list (signer 1) serializes, deserializes, and merges cleanly
+    auto serializedHonest1 = BiteAESDecryptionShareSerializer::serialize(honestShareList1);
+    CATCH_REQUIRE(serializedHonest1 != nullptr);
+    CATCH_REQUIRE_NOTHROW(BiteAESDecryptionShareSerializer::serializedSanityCheck(serializedHonest1));
+
+    auto deserializedHonest1 = BiteAESDecryptionShareSerializer::deserialize(
+        serializedHonest1, biteManager, CryptographicValidationMode::Validate);
+    CATCH_REQUIRE(deserializedHonest1 != nullptr);
+    CATCH_REQUIRE(std::dynamic_pointer_cast<ConsensusAESKeyDecryptionShare>(
+        deserializedHonest1->getDecryptionShares(0)->at(0)) != nullptr);
+
+    std::array<uint8_t, BITE_AES_KEY_LEN> expectedKey{};
+    // Verify positive control: honest shares 1 and 2 satisfy merge
+    {
+        std::map<schain_index, std::shared_ptr<AESKeyDecryptionShareList>> honestShareMap;
+        honestShareMap.emplace(1, deserializedHonest1);
+        honestShareMap.emplace(2, honestShareList2);
+
+        BiteRuntimeContext ctx{epoch, nullptr};
+        auto aesKeys = engine.mergeAESKeys(
+            blockId,
+            txCiphertexts,
+            honestShareMap,
+            keySet.publicKeys,
+            ctx
+        );
+        CATCH_REQUIRE(aesKeys != nullptr);
+        CATCH_REQUIRE(aesKeys->getSize() == 1);
+        CATCH_REQUIRE(aesKeys->totalDecryptedCiphertextsCount() == 1);
+        expectedKey = aesKeys->getKeys(0)->at(0).getAesKey();
+    }
+
+    // 3. Construct a Byzantine malicious share from signer 2:
+    // A random valid G2 curve point that is syntactically a valid point,
+    // but not computed from signer 2's secret key and the ciphertext.
+    libBLS::algebra::G2Point randomG2 = libBLS::algebra::G2Point::random();
+    randomG2.validate(); // Explicitly verify this is a mathematically valid G2 point
+
+    libBLS::TEDecryptionShare maliciousTEShare(randomG2, 2, /*validate*/ true);
+    auto maliciousShare = std::make_shared<ConsensusAESKeyDecryptionShare>(
+        std::make_shared<libBLS::TEDecryptionShare>(maliciousTEShare),
+        2,
+        /*decryptionFailed*/ false);
+
+    auto maliciousShareList = std::make_shared<AESKeyDecryptionShareList>(blockId, /*proposer*/ 1, /*decryptor*/ 2);
+    auto maliciousShares = std::make_shared<AESKeyDecryptionShares>();
+    maliciousShares->push_back(maliciousShare);
+    maliciousShareList->addShares(0, maliciousShares);
+
+    // 4. Serialize and deserialize malicious share list through production serializer
+    auto serializedMalicious = BiteAESDecryptionShareSerializer::serialize(maliciousShareList);
+    CATCH_REQUIRE(serializedMalicious != nullptr);
+    CATCH_REQUIRE_NOTHROW(BiteAESDecryptionShareSerializer::serializedSanityCheck(serializedMalicious));
+
+    // PROOF: Syntactic validation at deserialization time SUCCEEDS with CryptographicValidationMode::Validate
+    // because it only checks curve point membership and encoding.
+    std::shared_ptr<AESKeyDecryptionShareList> deserializedMalicious = nullptr;
+    CATCH_REQUIRE_NOTHROW(
+        deserializedMalicious = BiteAESDecryptionShareSerializer::deserialize(
+            serializedMalicious, biteManager, CryptographicValidationMode::Validate)
+    );
+    CATCH_REQUIRE(deserializedMalicious != nullptr);
+    CATCH_REQUIRE(deserializedMalicious->size() == 1);
+
+    // 5. Explicitly assert that semantic batch validation against the ciphertext and public key REJECTS it
+    const auto& encKeyBytes = txCiphertexts.at(0)->getCiphertexts().at(0);
+    auto cipheredKey = libBLS::CipheredKey::fromBytes(encKeyBytes.data(), true);
+    std::vector<libBLS::CipheredKey> cipheredKeys{cipheredKey};
+
+    auto maliciousConsensusShare = std::dynamic_pointer_cast<ConsensusAESKeyDecryptionShare>(
+        deserializedMalicious->getDecryptionShares(0)->at(0));
+    CATCH_REQUIRE(maliciousConsensusShare != nullptr);
+
+    std::vector<libBLS::TEDecryptionShare> teShares{*maliciousConsensusShare->getTEDecryptionShare()};
+    std::vector<libBLS::TEPublicKeyShare> publicKeys{keySet.publicKeys.at(1)}; // signer 2 is at index 1
+
+    auto validationResults = libBLS::ThresholdEncryption::validateDecryptionSharesBatch(
+        cipheredKeys, teShares, publicKeys, nullptr);
+    CATCH_REQUIRE(validationResults.size() == 1);
+    CATCH_REQUIRE(validationResults[0] == false); // Semantic validation MUST fail!
+
+    // 6. Assert that a threshold set containing 1 honest and 1 malicious share cannot decrypt/merge
+    // Because required=2 and signer 2's share is invalid, valid shares = 1 (< 2).
+    // mergeAESKeys must drop the bad share and throw CHECK_STATE2 failure.
+    {
+        std::map<schain_index, std::shared_ptr<AESKeyDecryptionShareList>> byzantineShareMap;
+        byzantineShareMap.emplace(1, deserializedHonest1);
+        byzantineShareMap.emplace(2, deserializedMalicious);
+
+        BiteRuntimeContext ctx{epoch, nullptr};
+        CATCH_REQUIRE_THROWS_WITH(
+            engine.mergeAESKeys(
+                blockId,
+                txCiphertexts,
+                byzantineShareMap,
+                keySet.publicKeys,
+                ctx
+            ),
+            Catch::Contains("Not all aes keys could be decrypted")
+        );
+
+        // One new honest peer is sufficient. Signer 4 never responds, and the bad
+        // list stays in the candidate map so semantic validation must exclude it.
+        byzantineShareMap.emplace(3, makeConsensusShareList(blockId, 3, txCiphertexts, keySet));
+        auto recoveredKeys = engine.mergeAESKeys(
+            blockId, txCiphertexts, byzantineShareMap, keySet.publicKeys, ctx);
+        CATCH_REQUIRE(recoveredKeys);
+        CATCH_REQUIRE(recoveredKeys->getKeys(0)->at(0).getAesKey() == expectedKey);
+        CATCH_REQUIRE(byzantineShareMap.size() < total);
+    }
+}
+
+// The lowest-index list used to be the reference for the expected layout, so a Byzantine
+// decryptor 1 could make the merge throw for everybody. The proposal's ciphertexts are the
+// reference now, and a list that does not match it is skipped.
+CATCH_TEST_CASE(
+    "BiteEngine mergeAESKeys skips share lists that do not match the proposal",
+    "[bite][engine][merge][byzantine]"
+) {
+    const block_id blockId = 43;
+    const size_t required = 2;
+    const size_t total = 4;
+    const uint64_t epoch = 10;
+
+    BiteEngine engine = makeEngine(true, BiteConfig{required, total});
+    auto keySet = generateKeys(required, total);
+
+    TransactionCiphertextsMap txCiphertexts;
+    auto c0 = makeValidCiphertextWithKey(epoch, keySet.commonPublic);
+    txCiphertexts.emplace(0, std::make_shared<TransactionCiphertexts>(c0));
+
+    auto honest2 = makeConsensusShareList(blockId, 2, txCiphertexts, keySet);
+    auto honest3 = makeConsensusShareList(blockId, 3, txCiphertexts, keySet);
+
+    BiteRuntimeContext ctx{epoch, nullptr};
+
+    // Control: the two honest lists alone decrypt the key.
+    std::array<uint8_t, BITE_AES_KEY_LEN> expectedKey{};
+    {
+        std::map<schain_index, std::shared_ptr<AESKeyDecryptionShareList>> honestShareMap;
+        honestShareMap.emplace(2, honest2);
+        honestShareMap.emplace(3, honest3);
+        auto aesKeys = engine.mergeAESKeys(
+            blockId, txCiphertexts, honestShareMap, keySet.publicKeys, ctx);
+        CATCH_REQUIRE(aesKeys);
+        expectedKey = aesKeys->getKeys(0)->at(0).getAesKey();
+    }
+
+    // Byzantine decryptor 1 has the lowest index.
+    std::shared_ptr<AESKeyDecryptionShareList> byzantineList;
+
+    CATCH_SECTION("empty list") {
+        byzantineList = std::make_shared<AESKeyDecryptionShareList>(blockId, 1, 1);
+        CATCH_REQUIRE(byzantineList->totalCiphertextSharesCount() == 0);
+    }
+
+    // Same total share count as an honest list, so a count comparison cannot detect it.
+    CATCH_SECTION("shares for a transaction that is not in the proposal") {
+        auto honest1 = makeConsensusShareList(blockId, 1, txCiphertexts, keySet);
+        byzantineList = std::make_shared<AESKeyDecryptionShareList>(blockId, 1, 1);
+        byzantineList->addShares(transaction_index(99), honest1->getDecryptionShares(0));
+        CATCH_REQUIRE(byzantineList->totalCiphertextSharesCount() ==
+                      honest1->totalCiphertextSharesCount());
+    }
+
+    CATCH_REQUIRE(byzantineList);
+
+    std::map<schain_index, std::shared_ptr<AESKeyDecryptionShareList>> shareMap;
+    shareMap.emplace(1, byzantineList);
+    shareMap.emplace(2, honest2);
+    shareMap.emplace(3, honest3);
+
+    std::shared_ptr<DecryptedAESKeyList> recoveredKeys;
+    CATCH_REQUIRE_NOTHROW(recoveredKeys = engine.mergeAESKeys(
+        blockId, txCiphertexts, shareMap, keySet.publicKeys, ctx));
+    CATCH_REQUIRE(recoveredKeys);
+    CATCH_REQUIRE(recoveredKeys->totalDecryptedCiphertextsCount() == 1);
+    CATCH_REQUIRE(recoveredKeys->getKeys(0)->at(0).getAesKey() == expectedKey);
 }
 
 #endif // BITE
