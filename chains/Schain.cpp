@@ -792,6 +792,12 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
 
     auto stamp = TimeStamp(_block->getTimeStampS(), _block->getTimeStampMs());
 
+#ifdef BITE
+    auto decryptedTxs = _block->getDecryptedTransactions();
+    CHECK_STATE(decryptedTxs.regularTxsMap)
+    CHECK_STATE(decryptedTxs.ctxTxsMap)
+#endif
+
 
     stringstream output;
 
@@ -828,6 +834,11 @@ void Schain::printBlockLog(const ptr<CommittedBlock> &_block) {
                << ":ZSC:" << getCryptoManager()->getZMQSocketCount()
                << ":EPT:" << lastCommittedBlockEvmProcessingTimeMs;
     }
+
+#ifdef BITE
+    output << ":BITE_DECRYPTED_TXS:" << decryptedTxs.regularTxsMap->size()
+           << ":CAT_DECRYPTED_TXS:" << decryptedTxs.ctxTxsMap->size();
+#endif
 
     output << ":STAMP:" << stamp.toString();
 
@@ -889,13 +900,13 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
         auto evmProcessingStartMs = Time::getCurrentTimeMs();
         auto blockPushedToExtFaceTimeMs = evmProcessingStartMs;
 
-        string blockProcessingMetrics;
+        string coreBlockProcessingMetrics;
         string blockCommitMetrics = "BCT:" + std::to_string(blockCommitTimeMs);
 
         if (!getNode()->isSyncOnlyNode()) {
             // pending transaction agent does not exist on a sync node
             CHECK_STATE(pendingTransactionsAgent);
-            blockProcessingMetrics =
+            coreBlockProcessingMetrics =
                 "CWT:" + to_string(blockPushedToExtFaceTimeMs -
                                    pendingTransactionsAgent->transactionListReceivedTime())
                 + ":TLWT:" + to_string(pendingTransactionsAgent->getTransactionListWaitTime())
@@ -906,21 +917,8 @@ void Schain::processCommittedBlock(const ptr<CommittedBlock> &_block) {
                 + ":PST:" + std::to_string(getProposalStageTimeMs());
         }
 
-#ifdef BITE
-        auto decryptedTxs = _block->getDecryptedTransactions();
-        CHECK_STATE(decryptedTxs.regularTxsMap)
-        CHECK_STATE(decryptedTxs.ctxTxsMap)
-
-        if (!blockProcessingMetrics.empty()) {
-            blockProcessingMetrics += ":";
-        }
-        blockProcessingMetrics +=
-            "BITE_DECRYPTED_TXS:" + to_string(decryptedTxs.regularTxsMap->size())
-            + ":CAT_DECRYPTED_TXS:" + to_string(decryptedTxs.ctxTxsMap->size());
-#endif
-
-        if (!blockProcessingMetrics.empty()) {
-            CONS_LOG(info, blockProcessingMetrics);
+        if (!coreBlockProcessingMetrics.empty()) {
+            CONS_LOG(info, coreBlockProcessingMetrics);
         }
         CONS_LOG(debug, blockCommitMetrics);
 
