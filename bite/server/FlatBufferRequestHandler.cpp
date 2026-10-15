@@ -45,6 +45,13 @@ void FlatBufferRequestHandler::onEOM() noexcept {
 
         // Merge chained buffers into a contiguous block (efficient if already contiguous)
         auto request = bodyQueue.move();
+
+        if(!request) {
+            errorSubStatus = ConnectionSubStatus::CONNECTION_ERROR_CANT_PARSE_REQUEST;
+            errorMessage = "Bad Request: Empty FlatBuffer data";
+            goto send_error;
+        }
+
         request->coalesce();
 
         // do sanity check
