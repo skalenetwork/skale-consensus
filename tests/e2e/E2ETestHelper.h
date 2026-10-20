@@ -24,6 +24,7 @@
 #include "SkaleCommon.h"
 #include "node/ConsensusEngine.h"
 #include "tests/TestUtils.h"
+#include "tests/e2e/harness/ConsensusStartup.h"
 
 #include <boost/filesystem.hpp>
 #include <cstdio>
@@ -38,7 +39,8 @@ public:
     inline static const string TWO_NODE_TEST_DATA_DIR = TEST_DATA_ROOT_DIR + "/twonodes_sameip";
     static constexpr uint64_t DEFAULT_RUN_TIME_S = 4;
     static constexpr uint64_t CROSS_NODE_RUN_TIME_S = 20;
-    static constexpr uint64_t DEFAULT_STORAGE_LIMIT_BYTES = 1000000000;
+    static constexpr uint64_t DEFAULT_STORAGE_LIMIT_BYTES =
+        ConsensusStartupOptions::DEFAULT_STORAGE_LIMIT_BYTES;
 
     static void configureTestEnvironment(
         bool _cleanDataDir,
@@ -68,44 +70,35 @@ public:
     static void startEngine(
         ConsensusEngine*& _engine,
         int64_t _lastId,
-        const std::map< string, uint64_t >& _patchTimestamps = {
-#ifdef BITE
-            { "bite2PatchTimestamp", 0 }
-#endif
-        },
+        const std::map< string, uint64_t >& _patchTimestamps =
+            ConsensusStartupOptions{}.patchTimestamps,
         ConsensusExtFace* _extFace = nullptr,
         uint64_t _lastCommittedBlockTimeStamp = 0,
         uint64_t _lastCommittedBlockTimeStampMs = 0,
         bool _useBlockIDFromConsensus = false ) {
         CATCH_REQUIRE( _engine == nullptr );
 
-        if ( _extFace != nullptr ) {
+        if ( _extFace != nullptr )
             CATCH_REQUIRE( _lastId >= 0 );
-            _engine = new ConsensusEngine( *_extFace, (uint64_t) _lastId,
-                _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs, _patchTimestamps,
-                DEFAULT_STORAGE_LIMIT_BYTES );
-        } else {
-            _engine = new ConsensusEngine( _lastId, DEFAULT_STORAGE_LIMIT_BYTES );
-            if ( !_patchTimestamps.empty() ) {
-                _engine->setTestPatchTimestamps( _patchTimestamps );
-            }
-        }
 
-        auto useBlockIdFromConsensus = _useBlockIDFromConsensus || ( _extFace == nullptr && _lastId == -1 );
-        _engine->parseTestConfigsAndCreateAllNodes(
-            Consensust::getConfigDirPath(), useBlockIdFromConsensus );
-        _engine->slowStartBootStrapTest();
+        ConsensusStartupOptions options;
+        options.configDirectory = Consensust::getConfigDirPath();
+        options.lastCommittedBlockId = _lastId;
+        options.storageLimitBytes = DEFAULT_STORAGE_LIMIT_BYTES;
+        options.patchTimestamps = _patchTimestamps;
+        options.externalFace = _extFace;
+        options.lastCommittedTimestampS = _lastCommittedBlockTimeStamp;
+        options.lastCommittedTimestampMs = _lastCommittedBlockTimeStampMs;
+        options.useBlockIdFromConsensus = _useBlockIDFromConsensus;
+        _engine = startConsensusEngine( options ).release();
     }
 
     static block_id startEngineAndWait(
         ConsensusEngine*& _engine,
         int64_t _lastId,
         uint64_t _runTimeS,
-        const std::map< string, uint64_t >& _patchTimestamps = { // default patch timestamps
-#ifdef BITE
-            { "bite2PatchTimestamp", 0 }
-#endif 
-        } ) {
+        const std::map< string, uint64_t >& _patchTimestamps =
+            ConsensusStartupOptions{}.patchTimestamps ) {
         startEngine( _engine, _lastId, _patchTimestamps );
 
         usleep( 1000 * 1000 * _runTimeS );
