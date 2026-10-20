@@ -367,6 +367,7 @@ endif ()
 add_executable(consensust
         Consensust.cpp
         ${TEST_SOURCES}
+        tests/e2e/harness/ConsensusStartup.cpp
 )
 
 target_link_libraries(consensust PRIVATE consensus_full)
