@@ -1,6 +1,7 @@
 #include "SkaleCommon.h"
 #include "tests/e2e/harness/ControlChannel.h"
 #include "tests/e2e/harness/ConsensusStartup.h"
+#include "tests/e2e/harness/HarnessTimeouts.h"
 #include "network/TCPServerSocket.h"
 #include "tests/TestHooks.h"
 
@@ -17,6 +18,7 @@
 namespace {
 using E2ETestUtils::ControlCommand;
 using E2ETestUtils::ControlEvent;
+namespace Timeouts = E2ETestUtils::HarnessTimeouts;
 
 }  // namespace
 
@@ -42,36 +44,35 @@ int main( int argc, char** argv ) {
         auto acceptErrors = std::make_shared< std::atomic< uint64_t > >( 0 );
         std::optional< TestHooks::TCPAcceptErrorHook::Scope > acceptErrorHook;
 
-        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds( 45 );
+        const auto deadline = E2ETestUtils::deadlineIn( Timeouts::CHILD_FIRST_BLOCK );
         uint64_t height = 0;
-        while ( std::chrono::steady_clock::now() < deadline ) {
-            height = static_cast< uint64_t >( engine->getLargestCommittedBlockIDInDb() );
-            if ( height > 0 )
-                break;
-            std::this_thread::sleep_for( std::chrono::milliseconds( 50 ) );
-        }
-
-        if ( height == 0 )
+        const auto result = E2ETestUtils::waitUntil(
+            [&] {
+                height = static_cast< uint64_t >( engine->getLargestCommittedBlockIDInDb() );
+                return height > 0;
+            },
+            deadline, Timeouts::CHILD_READINESS_POLL );
+        if ( result == E2ETestUtils::WaitResult::TimedOut )
             throw std::runtime_error( "Child did not commit a block before readiness deadline" );
 
         control.sendResponse( ControlEvent::Ready, { { "height", height } },
-            std::chrono::steady_clock::now() + std::chrono::seconds( 10 ) );
+            E2ETestUtils::deadlineIn( Timeouts::CHILD_RESPONSE ) );
 
         while ( true ) {
             switch ( control.receiveCommand(
-                std::chrono::steady_clock::now() + std::chrono::seconds( 120 ) ) ) {
+                E2ETestUtils::deadlineIn( Timeouts::CHILD_COMMAND_IDLE ) ) ) {
             case ControlCommand::Progress:
                 control.sendResponse( ControlEvent::Progress,
                     { { "height",
                         static_cast< uint64_t >( engine->getLargestCommittedBlockIDInDb() ) } },
-                    std::chrono::steady_clock::now() + std::chrono::seconds( 10 ) );
+                    E2ETestUtils::deadlineIn( Timeouts::CHILD_RESPONSE ) );
                 break;
             case ControlCommand::Stop:
                 acceptErrorHook.reset();
                 engine->testExitGracefullyBlocking();
                 engine.reset();
                 control.sendResponse( ControlEvent::Stopped, nlohmann::json::object(),
-                    std::chrono::steady_clock::now() + std::chrono::seconds( 10 ) );
+                    E2ETestUtils::deadlineIn( Timeouts::CHILD_RESPONSE ) );
                 return 0;
             case ControlCommand::InjectAcceptError:
                 if ( acceptErrorHook )
@@ -85,19 +86,19 @@ int main( int argc, char** argv ) {
                         }
                     } );
                 control.sendResponse( ControlEvent::AcceptErrorEnabled, nlohmann::json::object(),
-                    std::chrono::steady_clock::now() + std::chrono::seconds( 10 ) );
+                    E2ETestUtils::deadlineIn( Timeouts::CHILD_RESPONSE ) );
                 break;
             case ControlCommand::ClearAcceptError:
                 if ( !acceptErrorHook )
                     throw std::logic_error( "Accept-error injection is not active" );
                 acceptErrorHook.reset();
                 control.sendResponse( ControlEvent::AcceptErrorCleared, nlohmann::json::object(),
-                    std::chrono::steady_clock::now() + std::chrono::seconds( 10 ) );
+                    E2ETestUtils::deadlineIn( Timeouts::CHILD_RESPONSE ) );
                 break;
             case ControlCommand::AcceptErrorCount:
                 control.sendResponse( ControlEvent::AcceptErrorCount,
                     { { "count", acceptErrors->load( std::memory_order_relaxed ) } },
-                    std::chrono::steady_clock::now() + std::chrono::seconds( 10 ) );
+                    E2ETestUtils::deadlineIn( Timeouts::CHILD_RESPONSE ) );
                 break;
             }
         }

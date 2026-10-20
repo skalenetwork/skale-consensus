@@ -1,7 +1,6 @@
 #include "ConsensusProcess.h"
 #include "TestSockets.h"
 
-#include <array>
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -61,13 +60,13 @@ void writeConfig( const std::filesystem::path& source,
 
 } // namespace
 
-ConsensusProcess::ConsensusProcess( const std::string& executable, const std::string& sourceRoot ) {
+ConsensusProcess::ConsensusProcess( const std::string& executable, const std::string& sourceRoot,
+    const std::vector< std::string >& extraArguments ) {
     try {
         prepareEnvironment( sourceRoot );
-        launchChild( executable );
-        waitUntilReady( std::chrono::steady_clock::now() + std::chrono::seconds( 60 ) );
+        launchChild( executable, extraArguments );
+        waitUntilReady( deadlineIn( HarnessTimeouts::PARENT_READINESS ) );
     } catch ( ... ) {
-        cleanup( true );
         rethrowChildFailure( "Consensus child startup failed" );
     }
 }
@@ -103,11 +102,16 @@ void ConsensusProcess::prepareEnvironment( const std::string& sourceRoot ) {
         } );
 }
 
-void ConsensusProcess::launchChild( const std::string& executable ) {
-    std::string configPath = ( directory / "config" ).string();
-    std::string dataPath = ( directory / "data" ).string();
-    std::array< char*, 4 > args{ const_cast< char* >( executable.c_str() ),
-        configPath.data(), dataPath.data(), nullptr };
+void ConsensusProcess::launchChild(
+    const std::string& executable, const std::vector< std::string >& extraArguments ) {
+    std::vector< std::string > arguments{
+        executable, ( directory / "config" ).string(), ( directory / "data" ).string() };
+    arguments.insert( arguments.end(), extraArguments.begin(), extraArguments.end() );
+    std::vector< char* > args;
+    args.reserve( arguments.size() + 1 );
+    for ( auto& argument : arguments )
+        args.push_back( argument.data() );
+    args.push_back( nullptr );
     auto sockets = createTestSocketPair();
     control = ControlChannel{ std::move( sockets[0] ) };
     SpawnActions actions;
@@ -185,21 +189,23 @@ void ConsensusProcess::stop( Deadline deadline ) {
     try {
         control.sendCommand( ControlCommand::Stop, deadline );
         control.receiveResponse( ControlEvent::Stopped, deadline );
-        while ( std::chrono::steady_clock::now() < deadline ) {
-            collectChildStatus( false );
-            if ( childStatus ) {
-                if ( !WIFEXITED( *childStatus ) || WEXITSTATUS( *childStatus ) != 0 )
-                    throw std::runtime_error( "Consensus child exited unsuccessfully" );
-                stoppedSuccessfully = true;
-                return;
-            }
-            if ( waitError != 0 )
-                throw std::system_error(
-                    waitError, std::generic_category(), "Could not wait for consensus child" );
-            const auto nextCheck = std::chrono::steady_clock::now() + std::chrono::milliseconds( 10 );
-            std::this_thread::sleep_until( nextCheck < deadline ? nextCheck : deadline );
-        }
-        throw std::runtime_error( "Consensus child did not exit after shutdown" );
+        const auto result = waitUntil(
+            [this] {
+                collectChildStatus( false );
+                if ( childStatus ) {
+                    if ( !WIFEXITED( *childStatus ) || WEXITSTATUS( *childStatus ) != 0 )
+                        throw std::runtime_error( "Consensus child exited unsuccessfully" );
+                    return true;
+                }
+                if ( waitError != 0 )
+                    throw std::system_error(
+                        waitError, std::generic_category(), "Could not wait for consensus child" );
+                return false;
+            },
+            deadline, HarnessTimeouts::CHILD_REAP_POLL );
+        if ( result == WaitResult::TimedOut )
+            throw std::runtime_error( "Consensus child did not exit after shutdown" );
+        stoppedSuccessfully = true;
     } catch ( ... ) {
         rethrowChildFailure( "Consensus child shutdown failed" );
     }

@@ -5,6 +5,7 @@
 #include "network/Socket.h"
 #include "thirdparty/json.hpp"
 
+#include <cstdint>
 #include <string>
 
 namespace E2ETestUtils {
@@ -18,12 +19,14 @@ class ControlChannel {
 
     // Sends a validated length-prefixed body; the header and body share the deadline.
     void sendFrame( const std::string& body, Deadline deadline );
-    // Reads a length-prefixed body, rejecting empty frames and frames larger than 4096 bytes.
+    // Reads a length-prefixed body, rejecting empty frames and bodies exceeding MAX_FRAME_SIZE.
     std::string receiveFrame( Deadline deadline );
     // Throws if no socket is owned.
     void requireOpen() const;
 
 public:
+    static constexpr std::uint32_t MAX_FRAME_SIZE = 4096;
+
     // Creates a closed channel for later move assignment.
     ControlChannel() = default;
     // Takes ownership of an already-connected socket endpoint.

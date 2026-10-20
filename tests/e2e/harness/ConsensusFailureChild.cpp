@@ -1,8 +1,8 @@
 #include "ControlChannel.h"
+#include "HarnessTimeouts.h"
 
 #include <cstdio>
 #include <cstdlib>
-#include <filesystem>
 #include <stdexcept>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -18,21 +18,21 @@ namespace {
 
 int main( int argc, char** argv ) {
     try {
-        if ( argc != 3 )
-            throw std::invalid_argument( "Expected configuration and data directories" );
+        if ( argc != 4 )
+            throw std::invalid_argument( "Expected configuration and data directories and failure mode" );
         const rlimit noCore{ 0, 0 };
         if ( ::setrlimit( RLIMIT_CORE, &noCore ) != 0 )
             throw std::runtime_error( "Could not disable fixture core dumps" );
-        const auto mode = std::filesystem::path( argv[0] ).filename().string();
+        const std::string mode = argv[3];
         if ( mode.find( "startup" ) == 0 )
             fail( mode );
 
         using namespace E2ETestUtils;
         ControlChannel control{ Socket{ STDIN_FILENO } };
         control.sendResponse( ControlEvent::Ready, { { "height", uint64_t{ 1 } } },
-            std::chrono::steady_clock::now() + std::chrono::seconds( 5 ) );
+            deadlineIn( HarnessTimeouts::FAILURE_FIXTURE_EXCHANGE ) );
         const auto command = control.receiveCommand(
-            std::chrono::steady_clock::now() + std::chrono::seconds( 5 ) );
+            deadlineIn( HarnessTimeouts::FAILURE_FIXTURE_EXCHANGE ) );
         if ( mode == "progress-timeout" ) {
             for ( ;; )
                 ::pause();
@@ -41,7 +41,7 @@ int main( int argc, char** argv ) {
             if ( command != ControlCommand::Stop )
                 throw std::runtime_error( "Expected stop command" );
             control.sendResponse( ControlEvent::Stopped, nlohmann::json::object(),
-                std::chrono::steady_clock::now() + std::chrono::seconds( 5 ) );
+                deadlineIn( HarnessTimeouts::FAILURE_FIXTURE_EXCHANGE ) );
         }
         fail( mode );
     } catch ( const std::exception& error ) {

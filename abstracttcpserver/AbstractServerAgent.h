@@ -24,6 +24,7 @@
 #pragma once
 
 #include "Agent.h"
+#include "PendingConnectionQueue.h"
 
 class ServerConnection;
 class Schain;
@@ -36,24 +37,13 @@ class PartialHashesList;
 
 class AbstractServerAgent : public Agent {
 protected:
-    // Maximum number of pending TCP connections allowed in the 
-    // queue before new connections are rejected.
-    static constexpr size_t MAX_PENDING_CONNECTIONS = 1024;
-    
-    // Queue-only construction for component tests; does not register or start the agent.
-    explicit AbstractServerAgent( const string& _name );
-
     const string name;
 
     ptr< ServerSocket > socket;
 
     ptr< thread > networkReadThread;
 
-    mutex incomingTCPConnectionsMutex;
-
-    condition_variable incomingTCPConnectionsCond;
-
-    queue< ptr< ServerConnection > > incomingTCPConnections;  // thread safe
+    PendingConnectionQueue pendingConnections;
 
     void send( const ptr< ServerConnection >& _connectionEnvelope, const ptr< Header >& _header );
 

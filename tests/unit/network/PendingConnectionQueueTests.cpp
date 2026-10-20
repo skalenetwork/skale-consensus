@@ -1,39 +1,21 @@
 #include "SkaleCommon.h"
-#include "abstracttcpserver/AbstractServerAgent.h"
+#include "abstracttcpserver/PendingConnectionQueue.h"
 #include "network/ServerConnection.h"
 #include "tests/e2e/harness/TestSockets.h"
 #include "thirdparty/catch.hpp"
 
 #include <cerrno>
 #include <fcntl.h>
+#include <future>
 #include <memory>
-#include <mutex>
-#include <stdexcept>
 #include <vector>
 
 namespace {
-// Exercises production admission without a node or workers; exposes queue inspection and
-// test-controlled removal, not production dequeue or concurrent synchronization.
-class QueueTestServer final : public AbstractServerAgent {
-public:
-    using AbstractServerAgent::MAX_PENDING_CONNECTIONS;
+struct ShutdownQueueOnExit {
+    PendingConnectionQueue& queue;
 
-    QueueTestServer() : AbstractServerAgent( "QueueTestServer" ) {}
-
-    size_t pendingCount() {
-        std::lock_guard< std::mutex > lock( incomingTCPConnectionsMutex );
-        return incomingTCPConnections.size();
-    }
-
-    void removeOnePending() {
-        std::lock_guard< std::mutex > lock( incomingTCPConnectionsMutex );
-        if ( incomingTCPConnections.empty() )
-            throw std::logic_error( "Expected a pending connection" );
-        incomingTCPConnections.pop();
-    }
-
-    void processNextAvailableConnection( const ptr< ServerConnection >& ) override {
-        throw std::logic_error( "Queue test must not start workers" );
+    ~ShutdownQueueOnExit() {
+        queue.shutdown();
     }
 };
 
@@ -50,62 +32,143 @@ ptr< ServerConnection > createConnection() {
 }
 }  // namespace
 
-CATCH_TEST_CASE( "Pending TCP queue enforces the 1024 boundary and releases connections",
-    "[component][network][pending-queue]" ) {
-    constexpr size_t capacity = QueueTestServer::MAX_PENDING_CONNECTIONS;
+CATCH_TEST_CASE( "Pending TCP queue enforces its capacity and releases connections",
+    "[unit][network][pending-queue]" ) {
+    static_assert( PendingConnectionQueue::DEFAULT_CAPACITY == 1024,
+        "Pending TCP admission must retain its default 1024 boundary" );
+    constexpr size_t capacity = 3;
     const auto initialObjects = ServerConnection::getTotalObjects();
 
     std::vector< int > queuedDescriptors;
     queuedDescriptors.reserve( capacity );
     {
-        QueueTestServer server;
-        CATCH_REQUIRE( server.pendingCount() == 0 );
-        
+        PendingConnectionQueue queue( capacity );
+
         // Fill the queue to capacity and confirm it retains every admitted socket.
         for ( size_t i = 0; i < capacity; ++i ) {
             auto connection = createConnection();
             queuedDescriptors.push_back( int( connection->getDescriptor() ) );
-            CATCH_REQUIRE( server.tryPushToQueueAndNotifyWorker( connection ) );
+            CATCH_REQUIRE( queue.tryPush( connection ) );
         }
-        CATCH_REQUIRE( server.pendingCount() == capacity );
         CATCH_REQUIRE( ServerConnection::getTotalObjects() == initialObjects + capacity );
         for ( int fd : queuedDescriptors )
             CATCH_REQUIRE( ::fcntl( fd, F_GETFD ) >= 0 );
 
-        // Confirm full-queue rejection closes each socket once the caller releases ownership.
-        for ( size_t attempt = 0; attempt < 16; ++attempt ) {
-            int rejectedDescriptor = -1;
-            std::weak_ptr< ServerConnection > rejected;
-            {
-                auto connection = createConnection();
-                rejectedDescriptor = int( connection->getDescriptor() );
-                rejected = connection;
-                CATCH_REQUIRE_FALSE( server.tryPushToQueueAndNotifyWorker( connection ) );
-                CATCH_REQUIRE( server.pendingCount() == capacity );
-                // Rejection leaves cleanup to the accept loop's owning reference.
-                CATCH_REQUIRE( ::fcntl( rejectedDescriptor, F_GETFD ) >= 0 );
-            }
-            CATCH_REQUIRE( rejected.expired() );
-            requireClosed( rejectedDescriptor );
-            CATCH_REQUIRE( ServerConnection::getTotalObjects() == initialObjects + capacity );
+        int rejectedDescriptor = -1;
+        std::weak_ptr< ServerConnection > rejected;
+        {
+            auto connection = createConnection();
+            rejectedDescriptor = int( connection->getDescriptor() );
+            rejected = connection;
+            CATCH_REQUIRE_FALSE( queue.tryPush( connection ) );
+            CATCH_REQUIRE( ::fcntl( rejectedDescriptor, F_GETFD ) >= 0 );
         }
+        CATCH_REQUIRE( rejected.expired() );
+        requireClosed( rejectedDescriptor );
+        CATCH_REQUIRE( ServerConnection::getTotalObjects() == initialObjects + capacity );
 
         // Free one slot and confirm a replacement connection can be admitted.
         const int removedDescriptor = queuedDescriptors.front();
-        server.removeOnePending();
-        CATCH_REQUIRE( server.pendingCount() == capacity - 1 );
+        {
+            auto removed = queue.waitAndPop();
+            CATCH_REQUIRE( removed );
+            CATCH_REQUIRE( int( removed->getDescriptor() ) == removedDescriptor );
+            CATCH_REQUIRE( ::fcntl( removedDescriptor, F_GETFD ) >= 0 );
+        }
         requireClosed( removedDescriptor );
         CATCH_REQUIRE( ServerConnection::getTotalObjects() == initialObjects + capacity - 1 );
         {
             auto replacement = createConnection();
-            CATCH_REQUIRE( server.tryPushToQueueAndNotifyWorker( replacement ) );
+            CATCH_REQUIRE( queue.tryPush( replacement ) );
             queuedDescriptors.front() = int( replacement->getDescriptor() );
         }
-        CATCH_REQUIRE( server.pendingCount() == capacity );
         CATCH_REQUIRE( ServerConnection::getTotalObjects() == initialObjects + capacity );
+        auto overflow = createConnection();
+        CATCH_REQUIRE_FALSE( queue.tryPush( overflow ) );
     }
     // Confirm queue destruction releases all remaining connections and sockets.
     CATCH_REQUIRE( ServerConnection::getTotalObjects() == initialObjects );
     for ( int fd : queuedDescriptors )
         requireClosed( fd );
+}
+
+CATCH_TEST_CASE( "Pending TCP queue dequeues connections in FIFO order",
+    "[unit][network][pending-queue]" ) {
+    PendingConnectionQueue queue;
+    auto first = createConnection();
+    auto second = createConnection();
+    CATCH_REQUIRE( queue.tryPush( first ) );
+    CATCH_REQUIRE( queue.tryPush( second ) );
+    CATCH_REQUIRE( queue.waitAndPop() == first );
+    CATCH_REQUIRE( queue.waitAndPop() == second );
+}
+
+CATCH_TEST_CASE( "Pending TCP queue wakes a consumer when a connection arrives",
+    "[unit][network][pending-queue]" ) {
+    PendingConnectionQueue queue;
+    auto consumer = std::async( std::launch::async, [&queue] { return queue.waitAndPop(); } );
+    ShutdownQueueOnExit cleanup{ queue };
+    CATCH_REQUIRE( consumer.wait_for( std::chrono::milliseconds( 50 ) ) ==
+                   std::future_status::timeout );
+
+    auto connection = createConnection();
+    CATCH_REQUIRE( queue.tryPush( connection ) );
+    CATCH_REQUIRE( consumer.wait_for( std::chrono::seconds( 1 ) ) == std::future_status::ready );
+    CATCH_REQUIRE( consumer.get() == connection );
+}
+
+CATCH_TEST_CASE( "Pending TCP queue shutdown wakes all consumers and prevents further use",
+    "[unit][network][pending-queue]" ) {
+    PendingConnectionQueue queue;
+    std::vector< std::future< ptr< ServerConnection > > > consumers;
+    ShutdownQueueOnExit cleanup{ queue };
+    for ( size_t i = 0; i < 3; ++i )
+        consumers.push_back(
+            std::async( std::launch::async, [&queue] { return queue.waitAndPop(); } ) );
+    for ( auto& consumer : consumers )
+        CATCH_REQUIRE( consumer.wait_for( std::chrono::milliseconds( 50 ) ) ==
+                       std::future_status::timeout );
+
+    queue.shutdown();
+    queue.shutdown();
+    for ( auto& consumer : consumers ) {
+        CATCH_REQUIRE( consumer.wait_for( std::chrono::seconds( 1 ) ) ==
+                       std::future_status::ready );
+        CATCH_REQUIRE_FALSE( consumer.get() );
+    }
+    CATCH_REQUIRE_FALSE( queue.waitAndPop() );
+    auto connection = createConnection();
+    CATCH_REQUIRE_FALSE( queue.tryPush( connection ) );
+}
+
+CATCH_TEST_CASE( "Pending TCP queue shutdown retains queued ownership until destruction",
+    "[unit][network][pending-queue]" ) {
+    std::weak_ptr< ServerConnection > pending;
+    int descriptor = -1;
+    {
+        PendingConnectionQueue queue;
+        {
+            auto connection = createConnection();
+            descriptor = int( connection->getDescriptor() );
+            pending = connection;
+            CATCH_REQUIRE( queue.tryPush( connection ) );
+        }
+        queue.shutdown();
+        CATCH_REQUIRE_FALSE( queue.waitAndPop() );
+        CATCH_REQUIRE_FALSE( pending.expired() );
+        CATCH_REQUIRE( ::fcntl( descriptor, F_GETFD ) >= 0 );
+    }
+    CATCH_REQUIRE( pending.expired() );
+    requireClosed( descriptor );
+}
+
+CATCH_TEST_CASE( "Pending TCP queue rejects null connections",
+    "[unit][network][pending-queue]" ) {
+    PendingConnectionQueue queue;
+    CATCH_REQUIRE_THROWS( queue.tryPush( nullptr ) );
+}
+
+CATCH_TEST_CASE( "Pending TCP queue rejects zero capacity",
+    "[unit][network][pending-queue]" ) {
+    CATCH_REQUIRE_THROWS( PendingConnectionQueue( 0 ) );
 }

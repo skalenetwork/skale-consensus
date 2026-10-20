@@ -7,9 +7,6 @@
 #include <utility>
 
 namespace E2ETestUtils {
-namespace {
-constexpr uint32_t MAX_FRAME_SIZE = 4096;
-}
 
 ControlChannel::ControlChannel( Socket endpoint ) noexcept : socket( std::move( endpoint ) ) {}
 
