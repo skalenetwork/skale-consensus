@@ -39,15 +39,8 @@
 using namespace std;
 
 
-void ClientSocket::closeSocket() {
-    LOCK( m )
-    if ( descriptor != 0 )
-        close( ( int ) descriptor );
-    descriptor = 0;
-}
-
 file_descriptor ClientSocket::getDescriptor() {
-    return descriptor;
+    return file_descriptor{ descriptor.get() };
 }
 
 string& ClientSocket::getIP() {
@@ -59,19 +52,19 @@ network_port ClientSocket::getPort() {
     return remotePort;
 }
 
-int ClientSocket::createTCPSocket() {
+Socket ClientSocket::createTCPSocket() {
     int s;
 
     if ( ( s = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) < 0 ) {
         BOOST_THROW_EXCEPTION(
             FatalError( "Could not create outgoing socket:" + string( strerror( errno ) ) ) );
     }
+    Socket ownedSocket( s );
 
     // Disable Nagle so protocol steps that send small control messages back-to-back
     // do not wait for an ACK before flushing the next write.
     int noDelay = 1;
     if ( setsockopt( s, IPPROTO_TCP, TCP_NODELAY, &noDelay, sizeof( noDelay ) ) < 0 ) {
-        close( s );
         BOOST_THROW_EXCEPTION(
             FatalError( "Could not set TCP_NODELAY: " + std::string( strerror( errno ) ) ) );
     }
@@ -82,7 +75,6 @@ int ClientSocket::createTCPSocket() {
     // Allow quick reuse of address and port (required for reconnecting quickly)
     int optval = 1;
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
-        close(s);
         BOOST_THROW_EXCEPTION(
             FatalError("Could not set SO_REUSEADDR: " + std::string(strerror(errno))));
     }
@@ -90,7 +82,6 @@ int ClientSocket::createTCPSocket() {
 
     // reuse port as well (Linux only, mostly useful if you're binding to local port)
     if (setsockopt(s, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)) < 0) {
-        close(s);
         BOOST_THROW_EXCEPTION(
             FatalError("Could not set SO_REUSEPORT: " + std::string(strerror(errno))));
     }
@@ -98,7 +89,6 @@ int ClientSocket::createTCPSocket() {
     // Disable lingering to avoid TIME_WAIT delay
     struct linger ling = {1, 0};  // close() will send RST
     if (setsockopt(s, SOL_SOCKET, SO_LINGER, &ling, sizeof(ling)) < 0) {
-        close(s);
         BOOST_THROW_EXCEPTION(
             FatalError("Could not set SO_LINGER: " + std::string(strerror(errno))));
     }
@@ -111,13 +101,12 @@ int ClientSocket::createTCPSocket() {
     CHECK_STATE( remoteAddr )
 
     if ( connect( s, ( sockaddr* ) remoteAddr.get(), sizeof( remoteAddr ) ) < 0 ) {
-        close( s );
         throw ConnectionRefusedException(
             "Couldnt connect to:" + getIP() + ":" + to_string( getPort() ) + ":" + to_string(errno), errno,
             __CLASS_NAME__, true );
     }
 
-    return s;
+    return ownedSocket;
 }
 
 
@@ -148,7 +137,7 @@ ClientSocket::ClientSocket( Schain& _sChain, schain_index _destinationIndex, por
 
     _sChain.markAliveNode( ( uint64_t ) _destinationIndex );
 
-    CHECK_STATE( descriptor != 0 )
+    CHECK_STATE( descriptor && descriptor.get() != 0 )
 
     totalSockets++;
 }
