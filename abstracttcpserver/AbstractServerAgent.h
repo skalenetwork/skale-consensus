@@ -36,6 +36,13 @@ class PartialHashesList;
 
 class AbstractServerAgent : public Agent {
 protected:
+    // Maximum number of pending TCP connections allowed in the 
+    // queue before new connections are rejected.
+    static constexpr size_t MAX_PENDING_CONNECTIONS = 1024;
+    
+    // Queue-only construction for component tests; does not register or start the agent.
+    explicit AbstractServerAgent( const string& _name );
+
     const string name;
 
     ptr< ServerSocket > socket;
@@ -58,7 +65,7 @@ public:
     ~AbstractServerAgent() override;
 
 
-    void pushToQueueAndNotifyWorkers( const ptr< ServerConnection >& _connectionEnvelope );
+    bool tryPushToQueueAndNotifyWorker( const ptr< ServerConnection >& _connectionEnvelope );
 
     ptr< ServerConnection > workerThreadWaitandPopConnection();
 

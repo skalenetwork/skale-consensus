@@ -28,6 +28,7 @@
 #include "Agent.h"
 
 #include "exceptions/OldBlockIDException.h"
+#include "exceptions/ExitRequestedException.h"
 
 
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
@@ -39,17 +40,23 @@
 #include "network/ServerConnection.h"
 #include "network/Sockets.h"
 #include "network/TCPServerSocket.h"
-#include <netinet/tcp.h>
+#include "utils/LogThrottle.h"
+#include <chrono>
 
 
 #include "AbstractServerAgent.h"
 
-void AbstractServerAgent::pushToQueueAndNotifyWorkers(
+bool AbstractServerAgent::tryPushToQueueAndNotifyWorker(
     const ptr< ServerConnection >& _connectionEnvelope ) {
     CHECK_ARGUMENT( _connectionEnvelope );
-    lock_guard< mutex > lock( incomingTCPConnectionsMutex );
-    incomingTCPConnections.push( _connectionEnvelope );
-    incomingTCPConnectionsCond.notify_all();
+    {
+        lock_guard< mutex > lock( incomingTCPConnectionsMutex );
+        if ( incomingTCPConnections.size() >= MAX_PENDING_CONNECTIONS )
+            return false;
+        incomingTCPConnections.push( _connectionEnvelope );
+    }
+    incomingTCPConnectionsCond.notify_one();
+    return true;
 }
 
 ptr< ServerConnection > AbstractServerAgent::workerThreadWaitandPopConnection() {
@@ -115,52 +122,80 @@ void AbstractServerAgent::send(
     getSchain()->getIo()->writeBuf( _connectionEnvelope->getDescriptor(), buf );
 }
 
+AbstractServerAgent::AbstractServerAgent( const string& _name )
+    : Agent(), name( _name ) {
+}
+
 AbstractServerAgent::AbstractServerAgent(
     const string& _name, Schain& _schain, const ptr< TCPServerSocket >& _socket )
     : Agent( _schain, true ), name( _name ), socket( _socket ), networkReadThread( nullptr ) {
 }
 
 AbstractServerAgent::~AbstractServerAgent() {
-    this->networkReadThread->join();
+    if ( networkReadThread && networkReadThread->joinable() )
+        networkReadThread->join();
 }
 
 void AbstractServerAgent::acceptTCPConnectionsLoop() {
-    logThreadLocal_ = getSchain()->getNode()->getLog();
-    setThreadName( name, getSchain()->getNode()->getConsensusEngine() );
-
-    waitOnGlobalStartBarrier();
-
-    struct sockaddr_in clientAddress;
-    socklen_t sizeOfClientAddress = sizeof( clientAddress );
-    CHECK_STATE( this->socket > 0 );
-    auto s = dynamic_pointer_cast< TCPServerSocket >( this->socket )->getDescriptor();
-    CHECK_STATE( s > 0 );
     try {
+        logThreadLocal_ = getSchain()->getNode()->getLog();
+        setThreadName( name, getSchain()->getNode()->getConsensusEngine() );
+        waitOnGlobalStartBarrier();
+
+        const auto tcpSocket = dynamic_pointer_cast< TCPServerSocket >( socket );
+        CHECK_STATE( tcpSocket );
+
+        LogThrottle resourceWarnings( std::chrono::seconds( 5 ) );
+        LogThrottle admissionWarnings( std::chrono::seconds( 5 ) );
+        bool recoveringFromResourceError = false;
+
         while ( !getSchain()->getNode()->isExitRequested() ) {
-            int newConnection = accept( s, ( sockaddr* ) &clientAddress, &sizeOfClientAddress );
-
-            if ( getSchain()->getNode()->isExitRequested() ) {
+            auto result = tcpSocket->acceptConnection();
+            if ( getNode()->isExitRequested() )
                 return;
+
+            if ( result.status != TCPServerSocket::AcceptStatus::Accepted ) {
+                if ( result.status == TCPServerSocket::AcceptStatus::RetryableError )
+                    continue;
+                if ( result.status == TCPServerSocket::AcceptStatus::ResourceExhausted ) {
+                    if ( resourceWarnings.shouldLog() ) {
+                        CONS_LOG( warn, name << ": accept resource exhaustion; retrying"
+                            << "; events since last report: " << resourceWarnings.lastReportEventCount()
+                            << "; errno: " << result.error );
+                    }
+                    recoveringFromResourceError = true;
+                    std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+                    continue;
+                }
+
+                BOOST_THROW_EXCEPTION( FatalError(
+                    "accept failed:" + string( strerror( result.error ) ), __CLASS_NAME__ ) );
             }
 
-            if ( newConnection < 0 ) {
-                BOOST_THROW_EXCEPTION( NetworkProtocolException(
-                    "accept failed:" + string( strerror( errno ) ), __CLASS_NAME__ ) );
+            if ( recoveringFromResourceError ) {
+                CONS_LOG( info, name << ": TCP acceptance recovered from resource exhaustion" );
+                recoveringFromResourceError = false;
             }
 
-            // Disable Nagle's algorithm to reduce latency for small TCP writes.
-            const int enableTcpNoDelay = 1;
-            CHECK_STATE(setsockopt(newConnection, IPPROTO_TCP, TCP_NODELAY, 
-                &enableTcpNoDelay, sizeof(enableTcpNoDelay)) == 0);
-
-            string ip( inet_ntoa( clientAddress.sin_addr ) );
-
-            this->pushToQueueAndNotifyWorkers(
-                make_shared< ServerConnection >( newConnection, ip ) );
+            if ( !tryPushToQueueAndNotifyWorker( result.connection ) ) {
+                if ( admissionWarnings.shouldLog() ) {
+                    CONS_LOG( warn, name << ": TCP pending queue full; connection rejected"
+                        << "; events since last report: " << admissionWarnings.lastReportEventCount() );
+                }
+            }
         }
-    } catch ( FatalError& e ) {
+    } catch ( ExitRequestedException& e ) {
+        if ( !getNode()->isExitRequested() ) {
+            SkaleException::logNested( e );
+            getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
+        }
+    } catch ( std::exception& e ) {
         SkaleException::logNested( e );
         getNode()->initiateApplicationExitOnFatalConsensusError( e.what() );
+    } catch ( ... ) {
+        CONS_LOG( critical, name << ": unknown exception in TCP accept thread" );
+        getNode()->initiateApplicationExitOnFatalConsensusError(
+            "Unknown exception in TCP accept thread" );
     }
 }
 
