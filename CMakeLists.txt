@@ -337,13 +337,14 @@ target_link_libraries(consensusd consensus_full)
 file(GLOB_RECURSE COMMON_TEST_SOURCES
         "tests/unit/datastructures/*.cpp"
         "tests/unit/db/*.cpp"
+        "tests/unit/harness/*.cpp"
+        "tests/unit/network/*.cpp"
         "tests/unit/utils/*.cpp"
         "tests/consensus_tests.cpp"
         "tests/sgx_tests.cpp"
         "tests/e2e/RestartBootstrapTests.cpp"
         "tests/e2e/ConsensusProcessTests.cpp"
-        "tests/e2e/network/DescriptorExhaustionTests.cpp"
-        "tests/unit/network/PendingConnectionQueueTests.cpp"
+        "tests/e2e/network/*.cpp"
 )
 
 set(TEST_SOURCES ${COMMON_TEST_SOURCES})
@@ -366,38 +367,36 @@ if (DEFINED BITE)
     list(APPEND TEST_SOURCES ${CRYPTO_TEST_SOURCES})
 endif ()
 
-# Create the test executable from the main driver and all discovered test files.
-# Note: Consensust.h is not needed here as it's a header file.
-add_executable(consensust
-        Consensust.cpp
-        ${TEST_SOURCES}
+add_library(consensus_test_harness STATIC
         tests/e2e/harness/ConsensusProcess.cpp
         tests/e2e/harness/ConsensusStartup.cpp
         tests/e2e/harness/ControlChannel.cpp
         tests/e2e/harness/SocketIO.cpp
 )
+target_include_directories(consensus_test_harness PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
-target_link_libraries(consensust PRIVATE consensus_full)
+# Create the test executable from the main driver and all discovered test files.
+# Note: Consensust.h is not needed here as it's a header file.
+add_executable(consensust Consensust.cpp ${TEST_SOURCES})
+target_link_libraries(consensust PRIVATE consensus_test_harness consensus_full)
 
 target_compile_options(consensust PRIVATE -Wno-error=unused-variable)
-# force catch2 macros to be prefixed with CATCH_ to avoid conflicts
-target_compile_definitions(consensust PRIVATE CATCH_CONFIG_PREFIX_ALL)
 
+# Child processes and paths for isolated consensus-process E2E tests.
 add_executable(consensus_test_child
         tests/e2e/harness/ConsensusTestChild.cpp
-        tests/e2e/harness/ConsensusStartup.cpp
-        tests/e2e/harness/ControlChannel.cpp
-        tests/e2e/harness/SocketIO.cpp
 )
-target_link_libraries(consensus_test_child PRIVATE consensus_full)
+target_link_libraries(consensus_test_child PRIVATE consensus_test_harness consensus_full)
+
 add_executable(consensus_failure_child
         tests/e2e/harness/ConsensusFailureChild.cpp
-        tests/e2e/harness/ControlChannel.cpp
-        tests/e2e/harness/SocketIO.cpp
 )
-target_link_libraries(consensus_failure_child PRIVATE consensus_full)
+target_link_libraries(consensus_failure_child PRIVATE consensus_test_harness)
+
 add_dependencies(consensust consensus_test_child consensus_failure_child)
 target_compile_definitions(consensust PRIVATE
+        # force catch2 macros to be prefixed with CATCH_ to avoid conflicts
+        CATCH_CONFIG_PREFIX_ALL
         CONSENSUS_TEST_CHILD_PATH="$<TARGET_FILE:consensus_test_child>"
         CONSENSUS_FAILURE_CHILD_PATH="$<TARGET_FILE:consensus_failure_child>"
         CONSENSUS_TEST_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}"

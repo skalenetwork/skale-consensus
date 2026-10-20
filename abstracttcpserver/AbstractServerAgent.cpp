@@ -48,38 +48,16 @@
 
 bool AbstractServerAgent::tryPushToQueueAndNotifyWorker(
     const ptr< ServerConnection >& _connectionEnvelope ) {
-    CHECK_ARGUMENT( _connectionEnvelope );
-    {
-        lock_guard< mutex > lock( incomingTCPConnectionsMutex );
-        if ( incomingTCPConnections.size() >= MAX_PENDING_CONNECTIONS )
-            return false;
-        incomingTCPConnections.push( _connectionEnvelope );
-    }
-    incomingTCPConnectionsCond.notify_one();
-    return true;
+    return pendingConnections.tryPush( _connectionEnvelope );
 }
 
 ptr< ServerConnection > AbstractServerAgent::workerThreadWaitandPopConnection() {
-    unique_lock< mutex > mlock( incomingTCPConnectionsMutex );
-
-    while ( incomingTCPConnections.empty() ) {
-        if ( getSchain()->getNode()->isExitRequested() )
-            return nullptr;
-        incomingTCPConnectionsCond.wait_for(
-            mlock, std::chrono::milliseconds( 1000 ) );  // incomingTCPConnectionsCond.wait(mlock);
-        getSchain()->getNode()->exitCheck();
-    }
     if ( getSchain()->getNode()->isExitRequested() )
         return nullptr;
 
-    CHECK_STATE( !incomingTCPConnections.empty() );
-
-    ptr< ServerConnection > connection = incomingTCPConnections.front();
-
-    CHECK_STATE( connection );
-
-    incomingTCPConnections.pop();
-
+    auto connection = pendingConnections.waitAndPop();
+    if ( getSchain()->getNode()->isExitRequested() )
+        return nullptr;
     return connection;
 }
 
@@ -120,10 +98,6 @@ void AbstractServerAgent::send(
 
     auto buf = _header->toBuffer();
     getSchain()->getIo()->writeBuf( _connectionEnvelope->getDescriptor(), buf );
-}
-
-AbstractServerAgent::AbstractServerAgent( const string& _name )
-    : Agent(), name( _name ) {
 }
 
 AbstractServerAgent::AbstractServerAgent(
@@ -209,7 +183,6 @@ void AbstractServerAgent::createNetworkReadThread() {
 
 void AbstractServerAgent::notifyAllConditionVariables() {
     Agent::notifyAllConditionVariables();
-    CONS_LOG( trace,
-        "Notifying TCP cond" << to_string( ( uint64_t )( void* ) &incomingTCPConnectionsCond ) );
-    incomingTCPConnectionsCond.notify_all();
+    CONS_LOG( trace, name << ": stopping TCP pending queue" );
+    pendingConnections.shutdown();
 }

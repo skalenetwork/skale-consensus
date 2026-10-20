@@ -1,12 +1,14 @@
 #pragma once
 
 #include "ControlChannel.h"
+#include "HarnessTimeouts.h"
 
 #include <cstdint>
 #include <filesystem>
 #include <optional>
 #include <string>
 #include <sys/types.h>
+#include <vector>
 
 namespace E2ETestUtils {
 
@@ -21,7 +23,8 @@ class ConsensusProcess {
     bool killRequested = false;
 
     void prepareEnvironment( const std::string& sourceRoot );
-    void launchChild( const std::string& executable );
+    void launchChild(
+        const std::string& executable, const std::vector< std::string >& extraArguments );
     void waitUntilReady( Deadline deadline );
     uint64_t receiveHeight( ControlEvent event, Deadline deadline );
     void collectChildStatus( bool blocking ) noexcept;
@@ -33,7 +36,9 @@ class ConsensusProcess {
 public:
     static constexpr uint16_t BASE_PORT = 12310;
 
-    ConsensusProcess( const std::string& executable, const std::string& sourceRoot );
+    // Extra arguments follow the configuration and data directory arguments.
+    ConsensusProcess( const std::string& executable, const std::string& sourceRoot,
+        const std::vector< std::string >& extraArguments = {} );
     ~ConsensusProcess();
     ConsensusProcess( const ConsensusProcess& ) = delete;
     ConsensusProcess& operator=( const ConsensusProcess& ) = delete;
@@ -44,9 +49,9 @@ public:
     void clearAcceptError( Deadline deadline );
     uint64_t acceptErrorCount( Deadline deadline );
     uint64_t progress(
-        Deadline deadline = std::chrono::steady_clock::now() + std::chrono::seconds( 30 ) );
+        Deadline deadline = deadlineIn( HarnessTimeouts::PROGRESS_RESPONSE ) );
     void stop(
-        Deadline deadline = std::chrono::steady_clock::now() + std::chrono::seconds( 40 ) );
+        Deadline deadline = deadlineIn( HarnessTimeouts::SHUTDOWN ) );
 };
 
 } // namespace E2ETestUtils
