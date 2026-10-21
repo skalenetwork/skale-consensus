@@ -16,10 +16,11 @@ template < typename Transfer >
 void transferAll( int fd, size_t size, short events, Deadline deadline, Transfer transfer ) {
     size_t offset = 0;
     while ( offset < size ) {
-        const auto remaining = std::chrono::duration_cast< std::chrono::milliseconds >(
-            deadline - std::chrono::steady_clock::now() ).count();
-        if ( remaining <= 0 )
+        const auto now = std::chrono::steady_clock::now();
+        if ( now >= deadline )
             throw std::runtime_error( HarnessDiagnostics::SOCKET_TIMEOUT );
+        const auto remaining = std::chrono::duration_cast< std::chrono::milliseconds >(
+            deadline - now ).count();
         pollfd event{ fd, events, 0 };
         const int timeout = remaining > std::numeric_limits< int >::max() ?
             std::numeric_limits< int >::max() : static_cast< int >( remaining );
@@ -30,6 +31,8 @@ void transferAll( int fd, size_t size, short events, Deadline deadline, Transfer
             throw std::runtime_error( std::string( "poll: " ) + std::strerror( errno ) );
         if ( ready == 0 )
             continue;
+        if ( std::chrono::steady_clock::now() >= deadline )
+            throw std::runtime_error( HarnessDiagnostics::SOCKET_TIMEOUT );
         const auto count = transfer( offset, size - offset );
         if ( count < 0 && ( errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK ) )
             continue;
