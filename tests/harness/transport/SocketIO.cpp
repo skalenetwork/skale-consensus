@@ -1,4 +1,5 @@
 #include "SocketIO.h"
+#include "tests/harness/HarnessDiagnostics.h"
 
 #include <cerrno>
 #include <cstring>
@@ -18,7 +19,7 @@ void transferAll( int fd, size_t size, short events, Deadline deadline, Transfer
         const auto remaining = std::chrono::duration_cast< std::chrono::milliseconds >(
             deadline - std::chrono::steady_clock::now() ).count();
         if ( remaining <= 0 )
-            throw std::runtime_error( "Consensus test socket operation timed out" );
+            throw std::runtime_error( HarnessDiagnostics::SOCKET_TIMEOUT );
         pollfd event{ fd, events, 0 };
         const int timeout = remaining > std::numeric_limits< int >::max() ?
             std::numeric_limits< int >::max() : static_cast< int >( remaining );

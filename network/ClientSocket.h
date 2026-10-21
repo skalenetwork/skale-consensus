@@ -38,10 +38,9 @@ class ClientSocket {
 
     network_port remotePort = 0;
 
-    ptr< sockaddr_in > remoteAddr = nullptr;
+    static Socket createTCPSocket();
 
-    Socket createTCPSocket();
-
+    void connectTCPSocket( const Socket& _socket, const sockaddr_in& _remoteAddress );
 
 public:
     file_descriptor getDescriptor();

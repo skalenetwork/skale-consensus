@@ -1,6 +1,7 @@
 #include "SkaleCommon.h"
-#include "tests/e2e/harness/ControlChannel.h"
-#include "tests/e2e/harness/TestSockets.h"
+#include "tests/harness/transport/ControlChannel.h"
+#include "tests/harness/HarnessDiagnostics.h"
+#include "tests/harness/transport/TestSockets.h"
 #include "thirdparty/catch.hpp"
 
 #include <thread>
@@ -86,7 +87,7 @@ CATCH_TEST_CASE( "Control channels reject invalid responses and cannot be reused
         sendAll( sockets[1].get(), body.data(), body.size(), deadline );
     CATCH_REQUIRE_THROWS( channel.receiveResponse( ControlEvent::Progress, deadline ) );
     CATCH_REQUIRE_THROWS_WITH( channel.sendCommand( ControlCommand::Progress, deadline ),
-        "Consensus child control channel is closed" );
+        HarnessDiagnostics::CONTROL_CHANNEL_CLOSED );
 }
 
 CATCH_TEST_CASE( "Control channels close after incomplete frames reach their deadline",
@@ -99,9 +100,9 @@ CATCH_TEST_CASE( "Control channels close after incomplete frames reach their dea
     sendAll( sockets[1].get(), &size, sizeof( size ), deadline );
     sendAll( sockets[1].get(), "pro", 3, deadline );
     CATCH_REQUIRE_THROWS_WITH( channel.receiveCommand( deadline ),
-        "Consensus test socket operation timed out" );
+        HarnessDiagnostics::SOCKET_TIMEOUT );
     CATCH_REQUIRE_THROWS_WITH( channel.receiveCommand( deadline ),
-        "Consensus child control channel is closed" );
+        HarnessDiagnostics::CONTROL_CHANNEL_CLOSED );
 }
 
 CATCH_TEST_CASE( "Control channels reject unknown commands",
@@ -116,7 +117,7 @@ CATCH_TEST_CASE( "Control channels reject unknown commands",
     sendAll( sockets[1].get(), body.data(), body.size(), deadline );
     CATCH_REQUIRE_THROWS_WITH( channel.receiveCommand( deadline ), "Unknown parent command: unknown" );
     CATCH_REQUIRE_THROWS_WITH( channel.receiveCommand( deadline ),
-        "Consensus child control channel is closed" );
+        HarnessDiagnostics::CONTROL_CHANNEL_CLOSED );
 }
 
 CATCH_TEST_CASE( "Control responses cannot reset an exchange deadline",
@@ -131,9 +132,9 @@ CATCH_TEST_CASE( "Control responses cannot reset an exchange deadline",
     child.sendResponse( ControlEvent::Progress, { { "height", uint64_t{ 1 } } }, deadline );
     std::this_thread::sleep_until( deadline );
     CATCH_REQUIRE_THROWS_WITH( parent.receiveResponse( ControlEvent::Progress, deadline ),
-        "Consensus test socket operation timed out" );
+        HarnessDiagnostics::SOCKET_TIMEOUT );
     CATCH_REQUIRE_THROWS_WITH( parent.sendCommand( ControlCommand::Progress, deadline ),
-        "Consensus child control channel is closed" );
+        HarnessDiagnostics::CONTROL_CHANNEL_CLOSED );
 }
 
 CATCH_TEST_CASE( "Consensus socket transfers respect shared deadlines",
@@ -150,7 +151,7 @@ CATCH_TEST_CASE( "Consensus socket transfers respect shared deadlines",
         char received = '\0';
         CATCH_REQUIRE_THROWS_WITH(
             receiveExact( sockets[1].get(), &received, sizeof( received ), deadline ),
-            "Consensus test socket operation timed out" );
+            E2ETestUtils::HarnessDiagnostics::SOCKET_TIMEOUT );
         CATCH_REQUIRE( received == '\0' );
     }
 
@@ -158,7 +159,7 @@ CATCH_TEST_CASE( "Consensus socket transfers respect shared deadlines",
         char received[2]{};
         CATCH_REQUIRE_THROWS_WITH(
             receiveExact( sockets[1].get(), received, sizeof( received ), deadline ),
-            "Consensus test socket operation timed out" );
+            E2ETestUtils::HarnessDiagnostics::SOCKET_TIMEOUT );
         CATCH_REQUIRE( received[0] == sent );
         CATCH_REQUIRE( std::chrono::steady_clock::now() < deadline + std::chrono::seconds( 1 ) );
     }

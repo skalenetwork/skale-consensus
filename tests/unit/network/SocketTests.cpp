@@ -2,7 +2,7 @@
 #include "network/ServerConnection.h"
 #include "network/TCPServerSocket.h"
 #include "tests/TestHooks.h"
-#include "tests/e2e/harness/TestSockets.h"
+#include "tests/harness/transport/TestSockets.h"
 #include "thirdparty/catch.hpp"
 
 #include <arpa/inet.h>

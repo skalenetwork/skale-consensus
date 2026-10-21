@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ControlChannel.h"
-#include "HarnessTimeouts.h"
+#include "tests/harness/transport/ControlChannel.h"
+#include "tests/harness/HarnessTimeouts.h"
 
 #include <cstdint>
 #include <filesystem>
@@ -13,6 +13,12 @@
 namespace E2ETestUtils {
 
 class ConsensusProcess {
+    enum class State { NotStarted, Starting, Ready, Stopped, Failed };
+
+    const std::string executable;
+    const std::string sourceRoot;
+    const std::vector< std::string > extraArguments;
+    State state = State::NotStarted;
     pid_t pid = -1;
     ControlChannel control;
     std::filesystem::path directory;
@@ -26,6 +32,7 @@ class ConsensusProcess {
     void launchChild(
         const std::string& executable, const std::vector< std::string >& extraArguments );
     void waitUntilReady( Deadline deadline );
+    void requireReady() const;
     uint64_t receiveHeight( ControlEvent event, Deadline deadline );
     void collectChildStatus( bool blocking ) noexcept;
     void terminateChild() noexcept;
@@ -42,6 +49,9 @@ public:
     ~ConsensusProcess();
     ConsensusProcess( const ConsensusProcess& ) = delete;
     ConsensusProcess& operator=( const ConsensusProcess& ) = delete;
+
+    // Single-use startup; returns only after a valid readiness response.
+    void start( Deadline deadline = deadlineIn( HarnessTimeouts::PARENT_READINESS ) );
 
     const std::string& address() const { return bindIP; }
     std::filesystem::path logsDirectory() const { return directory / "logs"; }
