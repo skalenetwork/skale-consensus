@@ -97,16 +97,17 @@ Socket ClientSocket::createTCPSocket() {
     setsockopt( s, IPPROTO_TCP, TCP_SYNCNT, &synRetries, sizeof( synRetries ) );
 
 
-    // Init the connection
-    CHECK_STATE( remoteAddr )
+    return ownedSocket;
+}
 
-    if ( connect( s, ( sockaddr* ) remoteAddr.get(), sizeof( remoteAddr ) ) < 0 ) {
+void ClientSocket::connectTCPSocket(
+    const Socket& _socket, const sockaddr_in& _remoteAddress ) {
+    if ( connect( _socket.get(), reinterpret_cast< const sockaddr* >( &_remoteAddress ),
+             sizeof( _remoteAddress ) ) < 0 ) {
         throw ConnectionRefusedException(
             "Couldnt connect to:" + getIP() + ":" + to_string( getPort() ) + ":" + to_string(errno), errno,
             __CLASS_NAME__, true );
     }
-
-    return ownedSocket;
 }
 
 
@@ -125,19 +126,19 @@ ClientSocket::ClientSocket( Schain& _sChain, schain_index _destinationIndex, por
 
     remotePort = ni->getPort() + portType;
 
-    this->remoteAddr = Sockets::createSocketAddress( remoteIP, ( uint16_t ) remotePort );
+    const auto remoteAddr = Sockets::createSocketAddress( remoteIP, ( uint16_t ) remotePort );
     CHECK_STATE( remoteAddr )
 
+    Socket ownedSocket = createTCPSocket();
     try {
-        descriptor = createTCPSocket();
+        connectTCPSocket( ownedSocket, *remoteAddr );
     } catch ( ConnectionRefusedException& e ) {
         _sChain.addDeadNode( ( uint64_t ) _destinationIndex, Time::getCurrentTimeMs() );
         throw;
     }
+    descriptor = std::move( ownedSocket );
 
     _sChain.markAliveNode( ( uint64_t ) _destinationIndex );
-
-    CHECK_STATE( descriptor && descriptor.get() != 0 )
 
     totalSockets++;
 }

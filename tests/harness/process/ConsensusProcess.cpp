@@ -1,5 +1,6 @@
 #include "ConsensusProcess.h"
-#include "TestSockets.h"
+#include "tests/harness/HarnessDiagnostics.h"
+#include "tests/harness/transport/TestSockets.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -61,11 +62,18 @@ void writeConfig( const std::filesystem::path& source,
 } // namespace
 
 ConsensusProcess::ConsensusProcess( const std::string& executable, const std::string& sourceRoot,
-    const std::vector< std::string >& extraArguments ) {
+    const std::vector< std::string >& extraArguments )
+    : executable( executable ), sourceRoot( sourceRoot ), extraArguments( extraArguments ) {}
+
+void ConsensusProcess::start( Deadline deadline ) {
+    if ( state != State::NotStarted )
+        throw std::logic_error( "Consensus child startup can only be attempted once" );
+    state = State::Starting;
     try {
         prepareEnvironment( sourceRoot );
         launchChild( executable, extraArguments );
-        waitUntilReady( deadlineIn( HarnessTimeouts::PARENT_READINESS ) );
+        waitUntilReady( deadline );
+        state = State::Ready;
     } catch ( ... ) {
         rethrowChildFailure( "Consensus child startup failed" );
     }
@@ -73,6 +81,11 @@ ConsensusProcess::ConsensusProcess( const std::string& executable, const std::st
 
 ConsensusProcess::~ConsensusProcess() {
     cleanup( !stoppedSuccessfully || std::uncaught_exceptions() > 0 );
+}
+
+void ConsensusProcess::requireReady() const {
+    if ( state != State::Ready )
+        throw std::logic_error( "Consensus child is not ready; start must succeed before commands" );
 }
 
 void ConsensusProcess::prepareEnvironment( const std::string& sourceRoot ) {
@@ -146,6 +159,7 @@ void ConsensusProcess::waitUntilReady( Deadline deadline ) {
 }
 
 uint64_t ConsensusProcess::progress( Deadline deadline ) {
+    requireReady();
     try {
         control.sendCommand( ControlCommand::Progress, deadline );
         return receiveHeight( ControlEvent::Progress, deadline );
@@ -155,6 +169,7 @@ uint64_t ConsensusProcess::progress( Deadline deadline ) {
 }
 
 void ConsensusProcess::injectAcceptError( Deadline deadline ) {
+    requireReady();
     try {
         control.sendCommand( ControlCommand::InjectAcceptError, deadline );
         control.receiveResponse( ControlEvent::AcceptErrorEnabled, deadline );
@@ -164,6 +179,7 @@ void ConsensusProcess::injectAcceptError( Deadline deadline ) {
 }
 
 void ConsensusProcess::clearAcceptError( Deadline deadline ) {
+    requireReady();
     try {
         control.sendCommand( ControlCommand::ClearAcceptError, deadline );
         control.receiveResponse( ControlEvent::AcceptErrorCleared, deadline );
@@ -173,6 +189,7 @@ void ConsensusProcess::clearAcceptError( Deadline deadline ) {
 }
 
 uint64_t ConsensusProcess::acceptErrorCount( Deadline deadline ) {
+    requireReady();
     try {
         control.sendCommand( ControlCommand::AcceptErrorCount, deadline );
         const auto response = control.receiveResponse( ControlEvent::AcceptErrorCount, deadline );
@@ -186,6 +203,7 @@ uint64_t ConsensusProcess::acceptErrorCount( Deadline deadline ) {
 }
 
 void ConsensusProcess::stop( Deadline deadline ) {
+    requireReady();
     try {
         control.sendCommand( ControlCommand::Stop, deadline );
         control.receiveResponse( ControlEvent::Stopped, deadline );
@@ -206,6 +224,7 @@ void ConsensusProcess::stop( Deadline deadline ) {
         if ( result == WaitResult::TimedOut )
             throw std::runtime_error( "Consensus child did not exit after shutdown" );
         stoppedSuccessfully = true;
+        state = State::Stopped;
     } catch ( ... ) {
         rethrowChildFailure( "Consensus child shutdown failed" );
     }
@@ -248,12 +267,12 @@ void ConsensusProcess::terminateChild() noexcept {
 std::string ConsensusProcess::describeChildStatus() const {
     if ( childStatus ) {
         if ( WIFEXITED( *childStatus ) )
-            return "child exited with code " + std::to_string( WEXITSTATUS( *childStatus ) );
+            return HarnessDiagnostics::CHILD_EXIT_CODE + std::to_string( WEXITSTATUS( *childStatus ) );
         if ( WIFSIGNALED( *childStatus ) ) {
             const int signal = WTERMSIG( *childStatus );
-            std::string result = "child terminated by signal " + std::to_string( signal );
+            std::string result = HarnessDiagnostics::CHILD_SIGNAL + std::to_string( signal );
             if ( signal == SIGKILL && killRequested )
-                result += " (supervisor-requested SIGKILL)";
+                result += HarnessDiagnostics::SUPERVISOR_KILL;
             return result;
         }
         return "child returned unexpected wait status " + std::to_string( *childStatus );
@@ -264,16 +283,20 @@ std::string ConsensusProcess::describeChildStatus() const {
 }
 
 void ConsensusProcess::rethrowChildFailure( const char* operation ) {
+    state = State::Failed;
     terminateChild();
     control.close();
     const std::string context = std::string( operation ) + "; " + describeChildStatus() +
-        "; diagnostics: " + ( directory.empty() ? "not created" : directory.string() );
+        HarnessDiagnostics::DIAGNOSTICS_MARKER +
+        ( directory.empty() ? "not created" : directory.string() );
     try {
         throw;
     } catch ( const std::exception& error ) {
-        std::throw_with_nested( std::runtime_error( context + "; cause: " + error.what() ) );
+        std::throw_with_nested(
+            std::runtime_error( context + HarnessDiagnostics::CAUSE_MARKER + error.what() ) );
     } catch ( ... ) {
-        std::throw_with_nested( std::runtime_error( context + "; cause: unknown exception" ) );
+        std::throw_with_nested(
+            std::runtime_error( context + HarnessDiagnostics::CAUSE_MARKER + "unknown exception" ) );
     }
 }
 
@@ -290,7 +313,7 @@ void ConsensusProcess::cleanup( bool preserveDiagnostics ) noexcept {
                     std::fprintf( stderr, "Consensus child terminated by signal %d%s\n",
                         WTERMSIG( *childStatus ),
                         WTERMSIG( *childStatus ) == SIGKILL && killRequested ?
-                            " (supervisor-requested SIGKILL)" : "" );
+                            HarnessDiagnostics::SUPERVISOR_KILL : "" );
             }
             std::fprintf( stderr, "Consensus test diagnostics preserved in %s (logs in logs/)\n",
                 directory.c_str() );

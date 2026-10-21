@@ -1,7 +1,7 @@
 #include "SkaleCommon.h"
 #include "abstracttcpserver/PendingConnectionQueue.h"
 #include "network/ServerConnection.h"
-#include "tests/e2e/harness/TestSockets.h"
+#include "tests/harness/transport/TestSockets.h"
 #include "thirdparty/catch.hpp"
 
 #include <cerrno>

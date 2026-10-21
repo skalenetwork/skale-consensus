@@ -155,7 +155,7 @@ unitTest(
 unitTest(
     consensustExecutive,
     "[end-to-end][consensus-process]",
-    "End-to-end consensus process tests",
+    "End-to-end consensus process and harness supervisor tests",
 )
 
 

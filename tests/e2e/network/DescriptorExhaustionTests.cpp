@@ -1,8 +1,8 @@
 #include "SkaleCommon.h"
 #include "abstracttcpserver/ConnectionStatus.h"
 #include "headers/BasicHeader.h"
-#include "tests/e2e/harness/ConsensusProcess.h"
-#include "tests/e2e/harness/TestSockets.h"
+#include "tests/harness/process/ConsensusProcess.h"
+#include "tests/harness/transport/TestSockets.h"
 #include "thirdparty/catch.hpp"
 
 #include <arpa/inet.h>
@@ -137,6 +137,8 @@ uint64_t requireAcceptRetries( ConsensusProcess& child, uint64_t minimum, Deadli
 CATCH_TEST_CASE( "Consensus process retries and recovers from injected TCP accept exhaustion",
     "[end-to-end][consensus-process][descriptor-exhaustion]" ) {
     ConsensusProcess child{ CONSENSUS_TEST_CHILD_PATH, CONSENSUS_TEST_SOURCE_ROOT };
+    child.start();
+    CATCH_REQUIRE_THROWS_AS( child.start(), std::logic_error );
     const auto initialHeight = child.progress();
     CATCH_REQUIRE( initialHeight > 0 );
 
@@ -168,4 +170,7 @@ CATCH_TEST_CASE( "Consensus process retries and recovers from injected TCP accep
         deadlineIn( std::chrono::seconds( 20 ) ) );
     CATCH_REQUIRE( child.acceptErrorCount( deadlineIn( std::chrono::seconds( 10 ) ) ) == finalCount );
     child.stop();
+    CATCH_REQUIRE_THROWS_AS( child.start(), std::logic_error );
+    CATCH_REQUIRE_THROWS_AS( child.progress(), std::logic_error );
+    CATCH_REQUIRE_THROWS_AS( child.stop(), std::logic_error );
 }

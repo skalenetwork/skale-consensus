@@ -1,4 +1,5 @@
 #include "ControlChannel.h"
+#include "tests/harness/HarnessDiagnostics.h"
 
 #include <cstdio>
 #include <cstdint>
@@ -12,7 +13,7 @@ ControlChannel::ControlChannel( Socket endpoint ) noexcept : socket( std::move( 
 
 void ControlChannel::requireOpen() const {
     if ( !socket )
-        throw std::runtime_error( "Consensus child control channel is closed" );
+        throw std::runtime_error( HarnessDiagnostics::CONTROL_CHANNEL_CLOSED );
 }
 
 void ControlChannel::close() noexcept {

@@ -24,7 +24,7 @@
 #include "SkaleCommon.h"
 #include "node/ConsensusEngine.h"
 #include "tests/TestUtils.h"
-#include "tests/e2e/harness/ConsensusStartup.h"
+#include "tests/harness/consensus/ConsensusStartup.h"
 
 #include <boost/filesystem.hpp>
 #include <cstdio>

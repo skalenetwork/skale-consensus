@@ -1,7 +1,7 @@
 #include "SkaleCommon.h"
-#include "tests/e2e/harness/ControlChannel.h"
-#include "tests/e2e/harness/ConsensusStartup.h"
-#include "tests/e2e/harness/HarnessTimeouts.h"
+#include "tests/harness/transport/ControlChannel.h"
+#include "tests/harness/consensus/ConsensusStartup.h"
+#include "tests/harness/HarnessTimeouts.h"
 #include "network/TCPServerSocket.h"
 #include "tests/TestHooks.h"
 

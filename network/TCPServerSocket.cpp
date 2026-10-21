@@ -166,7 +166,7 @@ void TCPServerSocket::touch() {
 
 int TCPServerSocket::getDescriptor() {
     LOCK( m )
-    CHECK_STATE( descriptor && descriptor.get() != 0 );
+    CHECK_STATE( descriptor );
     return descriptor.get();
 }
 

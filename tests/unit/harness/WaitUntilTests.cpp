@@ -1,4 +1,4 @@
-#include "tests/e2e/harness/SocketIO.h"
+#include "tests/harness/transport/SocketIO.h"
 #include "thirdparty/catch.hpp"
 
 using E2ETestUtils::deadlineIn;

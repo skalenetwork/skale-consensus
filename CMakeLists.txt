@@ -343,7 +343,7 @@ file(GLOB_RECURSE COMMON_TEST_SOURCES
         "tests/consensus_tests.cpp"
         "tests/sgx_tests.cpp"
         "tests/e2e/RestartBootstrapTests.cpp"
-        "tests/e2e/ConsensusProcessTests.cpp"
+        "tests/e2e/harness/ConsensusProcessTests.cpp"
         "tests/e2e/network/*.cpp"
 )
 
@@ -368,10 +368,10 @@ if (DEFINED BITE)
 endif ()
 
 add_library(consensus_test_harness STATIC
-        tests/e2e/harness/ConsensusProcess.cpp
-        tests/e2e/harness/ConsensusStartup.cpp
-        tests/e2e/harness/ControlChannel.cpp
-        tests/e2e/harness/SocketIO.cpp
+        tests/harness/process/ConsensusProcess.cpp
+        tests/harness/consensus/ConsensusStartup.cpp
+        tests/harness/transport/ControlChannel.cpp
+        tests/harness/transport/SocketIO.cpp
 )
 target_include_directories(consensus_test_harness PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -382,23 +382,24 @@ target_link_libraries(consensust PRIVATE consensus_test_harness consensus_full)
 
 target_compile_options(consensust PRIVATE -Wno-error=unused-variable)
 
-# Child processes and paths for isolated consensus-process E2E tests.
+# Real consensus child for isolated E2E tests.
 add_executable(consensus_test_child
-        tests/e2e/harness/ConsensusTestChild.cpp
+        tests/harness/consensus/ConsensusTestChild.cpp
 )
 target_link_libraries(consensus_test_child PRIVATE consensus_test_harness consensus_full)
 
-add_executable(consensus_failure_child
-        tests/e2e/harness/ConsensusFailureChild.cpp
+# Fake child for harness supervisor tests; does not start consensus.
+add_executable(supervisor_failure_child
+        tests/e2e/harness/fixtures/SupervisorFailureChild.cpp
 )
-target_link_libraries(consensus_failure_child PRIVATE consensus_test_harness)
+target_link_libraries(supervisor_failure_child PRIVATE consensus_test_harness)
 
-add_dependencies(consensust consensus_test_child consensus_failure_child)
+add_dependencies(consensust consensus_test_child supervisor_failure_child)
 target_compile_definitions(consensust PRIVATE
         # force catch2 macros to be prefixed with CATCH_ to avoid conflicts
         CATCH_CONFIG_PREFIX_ALL
         CONSENSUS_TEST_CHILD_PATH="$<TARGET_FILE:consensus_test_child>"
-        CONSENSUS_FAILURE_CHILD_PATH="$<TARGET_FILE:consensus_failure_child>"
+        SUPERVISOR_FAILURE_CHILD_PATH="$<TARGET_FILE:supervisor_failure_child>"
         CONSENSUS_TEST_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
