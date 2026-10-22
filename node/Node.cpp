@@ -28,7 +28,6 @@
 
 #ifdef BITE
 #include <folly/executors/CPUThreadPoolExecutor.h>
-#include "bite/server/BiteBlockFinalizeServer.h"
 #endif
 
 #include "SkaleCommon.h"
@@ -431,13 +430,6 @@ void Node::startServers( ptr< vector< uint8_t > > _startingFromSnapshotWithThisA
         CONS_LOG( trace, " Starting consensus messaging" );
 
         network->startThreads();
-
-#ifdef BITE
-        biteBlockFinalizeServer = make_shared< BiteBlockFinalizeServer >(*sChain);
-        CONS_LOG( trace, " Starting bite server" );
-        biteBlockFinalizeServer->startProxygenServer();
-#endif
-
     }
 
     CONS_LOG( trace, "Starting schain" );
@@ -766,13 +758,6 @@ void Node::notifyAllAgentsAndInterruptIo() {
 
     getSchain()->getCryptoManager()->exitZMQClient();
     CONS_LOG( info, "consensus engine exiting: exitZMQClient called" );
-
-#ifdef BITE
-    if ( biteBlockFinalizeServer ) {
-        biteBlockFinalizeServer->exitProxygenServer();
-        CONS_LOG( info, "consensus engine exiting: exitProxygenServer called" );
-    }
-#endif
 }
 
 void Node::closeZMQSocketsAfterJoin() {
