@@ -97,7 +97,6 @@ class OracleClient;
 class OracleResultAssemblyAgent;
 
 #ifdef BITE
-class BiteBlockFinalizeServer;
 class BiteManager;
 class DecryptedAESKeyList;
 namespace folly {
