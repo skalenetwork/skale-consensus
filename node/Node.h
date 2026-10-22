@@ -60,7 +60,6 @@ class DAProofDB;
 #endif // BITE
 
 class InternalInfoDB;
-class BiteBlockFinalizeServer;
 
 namespace leveldb {
 class DB;
@@ -131,11 +130,6 @@ class Node {
     ptr< Sockets > sockets = nullptr;
 
     ptr< Network > network = nullptr;
-
-
-#ifdef BITE
-    ptr <BiteBlockFinalizeServer>  biteBlockFinalizeServer = nullptr;
-#endif
 
     ptr< Schain > sChain = nullptr;
 

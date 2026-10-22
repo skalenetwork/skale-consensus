@@ -143,8 +143,6 @@ if (DEFINED BITE)
     AUX_SOURCE_DIRECTORY(flatb flatb_src)
     AUX_SOURCE_DIRECTORY(bite bite_src)
     AUX_SOURCE_DIRECTORY(bite/crypto bite_crypto_src)
-    AUX_SOURCE_DIRECTORY(bite/server bite_server_src)
-    AUX_SOURCE_DIRECTORY(bite/client bite_client_src)
     AUX_SOURCE_DIRECTORY(rlp rlp_src)
 endif ()
 AUX_SOURCE_DIRECTORY(log log_src)
@@ -190,8 +188,6 @@ SET(SRC_FILES
         ${flatb_src}
         ${bite_src}
         ${bite_crypto_src}
-        ${bite_server_src}
-        ${bite_client_src}
         ${headers_src}
         ${log_src}
         ${messages_src}
@@ -256,13 +252,7 @@ SET(LINK_LIBRARIES
     pthread
     idn2
     blake3
-    "${DEPS_INSTALL_ROOT}/lib/libquicwebtransport.a"
-    "${DEPS_INSTALL_ROOT}/lib/libproxygenhttpserver.a"
-    "${DEPS_INSTALL_ROOT}/lib/libproxygen.a"
-    "${DEPS_INSTALL_ROOT}/lib/libmvfst_exception.a"
-    "${DEPS_INSTALL_ROOT}/lib/libwangle.a"
     "${DEPS_INSTALL_ROOT}/lib/libflatbuffers.a"
-    "${DEPS_INSTALL_ROOT}/lib/libfizz.a"
     "${DEPS_INSTALL_ROOT}/lib/libfolly.a"
     "${DEPS_INSTALL_ROOT}/lib/liblzma.a"
     "${DEPS_INSTALL_ROOT}/lib/libz.a"
