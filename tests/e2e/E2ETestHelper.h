@@ -65,9 +65,11 @@ public:
 
         // Keep default runtime for fast tests unless caller already set TEST_TIME_S.
         setTestEnvVar( "TEST_TIME_S", "4", 0 );
+        // Functional tests use small blocks unless the caller requests a larger workload.
+        setTestEnvVar( "TEST_TRANSACTIONS_PER_BLOCK", "10", 0 );
     }
 
-    static void startEngine(
+    static void setupEngine(
         ConsensusEngine*& _engine,
         int64_t _lastId,
         const std::map< string, uint64_t >& _patchTimestamps =
@@ -90,7 +92,22 @@ public:
         options.lastCommittedTimestampS = _lastCommittedBlockTimeStamp;
         options.lastCommittedTimestampMs = _lastCommittedBlockTimeStampMs;
         options.useBlockIdFromConsensus = _useBlockIDFromConsensus;
-        _engine = startConsensusEngine( options ).release();
+        _engine = setupConsensusEngine( options ).release();
+    }
+
+    static void startEngine(
+        ConsensusEngine*& _engine,
+        int64_t _lastId,
+        const std::map< string, uint64_t >& _patchTimestamps =
+            ConsensusStartupOptions{}.patchTimestamps,
+        ConsensusExtFace* _extFace = nullptr,
+        uint64_t _lastCommittedBlockTimeStamp = 0,
+        uint64_t _lastCommittedBlockTimeStampMs = 0,
+        bool _useBlockIDFromConsensus = false ) {
+        setupEngine( _engine, _lastId, _patchTimestamps, _extFace,
+            _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs,
+            _useBlockIDFromConsensus );
+        _engine->slowStartBootStrapTest();
     }
 
     static block_id startEngineAndWait(

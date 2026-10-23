@@ -4,7 +4,7 @@
 
 namespace E2ETestUtils {
 
-std::unique_ptr< ConsensusEngine > startConsensusEngine( const ConsensusStartupOptions& _options ) {
+std::unique_ptr< ConsensusEngine > setupConsensusEngine( const ConsensusStartupOptions& _options ) {
     std::unique_ptr< ConsensusEngine > engine;
     if ( _options.externalFace != nullptr ) {
         if ( _options.lastCommittedBlockId < 0 )
@@ -25,6 +25,11 @@ std::unique_ptr< ConsensusEngine > startConsensusEngine( const ConsensusStartupO
                                             _options.lastCommittedBlockId == -1 );
     engine->parseTestConfigsAndCreateAllNodes(
         _options.configDirectory, useBlockIdFromConsensus );
+    return engine;
+}
+
+std::unique_ptr< ConsensusEngine > startConsensusEngine( const ConsensusStartupOptions& _options ) {
+    auto engine = setupConsensusEngine( _options );
     engine->slowStartBootStrapTest();
     return engine;
 }

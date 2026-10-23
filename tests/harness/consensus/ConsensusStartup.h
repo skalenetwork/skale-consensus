@@ -30,7 +30,10 @@ struct ConsensusStartupOptions {
     bool useBlockIdFromConsensus = false;
 };
 
-// Constructs and bootstraps nodes; callers own environment setup and readiness waits.
+// Constructs and configures nodes without starting services or bootstrapping.
+std::unique_ptr< ConsensusEngine > setupConsensusEngine( const ConsensusStartupOptions& _options );
+
+// Convenience wrapper for callers that do not need to wire dependencies before startup.
 std::unique_ptr< ConsensusEngine > startConsensusEngine( const ConsensusStartupOptions& _options );
 
 }  // namespace E2ETestUtils
