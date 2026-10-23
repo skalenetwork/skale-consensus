@@ -21,10 +21,10 @@
 */
 
 #include "thirdparty/catch.hpp"
-#include "Consensust.h"
 #include "SkaleCommon.h"
 #include "datastructures/CommittedBlock.h"
 #include "datastructures/TransactionList.h"
+#include "pendingqueue/TestMessageGeneratorAgent.h"
 #include "tests/e2e/ConsensusEngineTestAccess.h"
 #include "tests/e2e/E2ETestHelper.h"
 #include "utils/Time.h"
@@ -33,6 +33,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <optional>
+#include <thread>
 #include <vector>
 
 namespace RestartBootstrapTests {
@@ -40,11 +41,10 @@ namespace RestartBootstrapTests {
 using E2EHelper = E2ETestUtils::E2ETestHelper;
 
 static constexpr uint64_t PATCH_DELAY_MS = 4000;
-static constexpr uint64_t SNAPSHOT_WAIT_TIMEOUT_MS = 20000;
-static constexpr uint64_t SNAPSHOT_POLL_INTERVAL_MS = 250;
+static constexpr uint64_t SNAPSHOT_WAIT_TIMEOUT_MS = 60000;
 static constexpr uint64_t POST_PATCH_SETTLE_MS = 1500;
 static constexpr uint64_t REPLAY_WAIT_TIMEOUT_MS = 10000;
-static constexpr uint64_t MAX_PRE_RESTART_BLOCKS = 100;
+static constexpr uint64_t MAX_PRE_RESTART_BLOCKS = 10;
 
 struct BlockSnapshot {
     uint64_t blockId = 0;
@@ -64,18 +64,60 @@ struct ReplayStartState {
     uint64_t lastCommittedBlockId = 0;
     uint64_t lastCommittedBlockTimestampS = 0;
     uint64_t lastCommittedBlockTimestampMs = 0;
-    size_t expectedReplayStartIndex = 0;
 };
+
+ConsensusExtFace::Transactions generateTestTransactions(
+    ConsensusEngine& _engine, size_t _limit, u256& _stateRoot ) {
+    auto node = ConsensusEngineTestAccess::getNode(
+        _engine, ConsensusEngineTestAccess::getFirstNodeId( _engine ) );
+    auto generator = node->getSchain()->getTestMessageGeneratorAgent();
+    _stateRoot = 7;
+#ifdef BITE
+    return generator->pendingTransactionsBITE( _limit );
+#else
+    return generator->pendingTransactions( _limit );
+#endif
+}
 
 // ConsensusExtFace implementation that records blocks created
 // by the engine and allows waiting for a certain number of blocks to be recorded.
 class RecordingConsensusExtFace : public ConsensusExtFace {
-    mutable std::mutex mutex;
+    std::mutex mutex;
     std::condition_variable condition;
     std::vector< BlockSnapshot > replayedBlocks;
 
+    // Borrowed; configured before startup and kept alive until all workers stop.
+    ConsensusEngine* initialEngine = nullptr;
+    uint64_t bite2PatchTimestamp = 0;
+
+    void controlInitialRunAfterBlock( uint64_t _blockID ) {
+        CHECK_STATE( initialEngine );
+#ifdef BITE
+        if ( _blockID == 1 ) {
+            // Keep the pre-patch block without producing more blocks while waiting.
+            std::this_thread::sleep_until( std::chrono::system_clock::time_point(
+                std::chrono::milliseconds(
+                    bite2PatchTimestamp * 1000 + POST_PATCH_SETTLE_MS ) ) );
+        }
+#endif
+        if ( _blockID == MAX_PRE_RESTART_BLOCKS ) {
+            initialEngine->exitGracefully();
+        }
+    }
+
 public:
-    Transactions pendingTransactions( size_t, u256& _stateRoot ) override {
+    RecordingConsensusExtFace() = default;
+
+    void configureInitialRun( ConsensusEngine& _engine, uint64_t _bite2PatchTimestamp ) {
+        CHECK_STATE( initialEngine == nullptr );
+        initialEngine = &_engine;
+        bite2PatchTimestamp = _bite2PatchTimestamp;
+    }
+
+    Transactions pendingTransactions( size_t _limit, u256& _stateRoot ) override {
+        if ( initialEngine ) {
+            return generateTestTransactions( *initialEngine, _limit, _stateRoot );
+        }
         _stateRoot = 0;
         return Transactions();
     }
@@ -97,6 +139,10 @@ public:
             snapshot.stateRoot = _stateRoot;
             replayedBlocks.push_back( snapshot );
         }
+        if ( initialEngine ) {
+            controlInitialRunAfterBlock( _blockID );
+        }
+
         condition.notify_all();
     }
 
@@ -154,8 +200,8 @@ std::vector< BlockSnapshot > buildSnapshots(
     return snapshots;
 }
 
-bool hasBothSidesOfTransition( const std::vector< BlockSnapshot >& _snapshots ) {
 #ifdef BITE
+bool hasBothSidesOfTransition( const std::vector< BlockSnapshot >& _snapshots ) {
     bool hasBeforePatch = false;
     bool hasAfterPatch = false;
 
@@ -165,86 +211,44 @@ bool hasBothSidesOfTransition( const std::vector< BlockSnapshot >& _snapshots ) 
     }
 
     return hasBeforePatch && hasAfterPatch;
-#else
-    (void) _snapshots;
-    return true;
-#endif
 }
-
-std::vector< BlockSnapshot > waitForCommittedSnapshots(
-    ConsensusEngine& _engine, uint64_t _minWaitMs ) {
-    auto startTimeMs = Time::getCurrentTimeMs();
-    auto deadlineMs = startTimeMs + SNAPSHOT_WAIT_TIMEOUT_MS;
-
-    // wait for a max time
-    while ( Time::getCurrentTimeMs() < deadlineMs ) {
-        auto lastId = (uint64_t) _engine.getLargestCommittedBlockIDInDb();
-        auto elapsedMs = Time::getCurrentTimeMs() - startTimeMs;
-
-        // set max limit of blocks - consensus limits max skaled-consensus delay to be 
-        // 128 blocks
-        if ( lastId >= MAX_PRE_RESTART_BLOCKS ) {
-            return buildSnapshots( _engine, MAX_PRE_RESTART_BLOCKS );
-        }
-
-        // if passed minimum wait time
-        if ( elapsedMs >= _minWaitMs && lastId > 0 ) {
-            auto snapshots = buildSnapshots( _engine, lastId );
-#ifdef BITE
-            // if we have at least 1 BITE block - return early
-            if ( hasBothSidesOfTransition( snapshots ) ) {
-                return snapshots;
-            }
-#else
-            return snapshots;
 #endif
-        }
-
-        usleep( SNAPSHOT_POLL_INTERVAL_MS * 1000 );
-    }
-
-    CATCH_FAIL( "Timed out waiting for committed blocks to stabilize before restart" );
-    return {};
-}
 
 void runReplayScenario(
     const ReplayStartState& _startState,
-    const std::map< string, uint64_t >& _patchTimestamps ) {
+    const std::map< string, uint64_t >& _patchTimestamps,
+    const std::vector< BlockSnapshot >& _originalSnapshots ) {
     CATCH_CAPTURE( _startState.name );
     CATCH_CAPTURE( _startState.lastCommittedBlockId );
     CATCH_CAPTURE( _startState.lastCommittedBlockTimestampS );
     CATCH_CAPTURE( _startState.lastCommittedBlockTimestampMs );
-    CATCH_CAPTURE( _startState.expectedReplayStartIndex );
+
+    CATCH_REQUIRE( _startState.lastCommittedBlockId < _originalSnapshots.size() );
+    const auto replayStartIndex = static_cast< size_t >( _startState.lastCommittedBlockId );
+    const auto expectedReplayCount = _originalSnapshots.size() - replayStartIndex;
 
     ConsensusEngine* replayEngine = nullptr;
+    RecordingConsensusExtFace extFace;
 
     try {
-        RecordingConsensusExtFace extFace;
         E2EHelper::startEngine( replayEngine, (int64_t) _startState.lastCommittedBlockId,
             _patchTimestamps, &extFace, _startState.lastCommittedBlockTimestampS,
             _startState.lastCommittedBlockTimestampMs, false );
 
         auto bootstrapBlockID =
             (uint64_t) ConsensusEngineTestAccess::getBootstrapBlockID( *replayEngine );
-        auto authoritativeSnapshots = buildSnapshots( *replayEngine, bootstrapBlockID );
-        auto expectedReplaySnapshots = std::vector< BlockSnapshot >(
-            authoritativeSnapshots.begin() + _startState.expectedReplayStartIndex,
-            authoritativeSnapshots.end() );
+        CATCH_REQUIRE( bootstrapBlockID >= _originalSnapshots.back().blockId );
 
-        CATCH_REQUIRE( !expectedReplaySnapshots.empty() );
-        CATCH_REQUIRE( bootstrapBlockID == authoritativeSnapshots.back().blockId );
-
-        auto actualSnapshots = extFace.waitForAtLeast( expectedReplaySnapshots.size() );
-        CATCH_REQUIRE( actualSnapshots.size() >= expectedReplaySnapshots.size() );
-        actualSnapshots.resize( expectedReplaySnapshots.size() );
+        auto actualSnapshots = extFace.waitForAtLeast( expectedReplayCount );
+        actualSnapshots.resize( expectedReplayCount );
 
 #ifdef BITE
         fillBiteFieldsFromEngine( *replayEngine, actualSnapshots );
 #endif
 
-        for ( size_t i = 0; i < expectedReplaySnapshots.size(); ++i ) {
+        for ( size_t i = 0; i < expectedReplayCount; ++i ) {
             CATCH_CAPTURE( i );
-            const auto& expected = expectedReplaySnapshots.at( i );
+            const auto& expected = _originalSnapshots.at( replayStartIndex + i );
             const auto& actual = actualSnapshots.at( i );
 
             CATCH_REQUIRE( actual.blockId == expected.blockId );
@@ -264,7 +268,7 @@ void runReplayScenario(
             (uint64_t) ConsensusEngineTestAccess::getCurrentLastCommittedBlockID( *replayEngine );
         auto currentLastCommittedBlockTimeStamp =
             ConsensusEngineTestAccess::getCurrentLastCommittedBlockTimeStamp( *replayEngine );
-        auto replayTip = expectedReplaySnapshots.back();
+        const auto& replayTip = _originalSnapshots.back();
 
         CATCH_REQUIRE( currentLastCommittedBlockID >= bootstrapBlockID );
         if ( currentLastCommittedBlockID == replayTip.blockId ) {
@@ -296,11 +300,14 @@ CATCH_TEST_CASE(
     ConsensusEngine* initialEngine = nullptr;
     std::vector< BlockSnapshot > snapshots;
     std::map< string, uint64_t > patchTimestamps;
+    auto bite2PatchTimestamp = ( Time::getCurrentTimeMs() + PATCH_DELAY_MS + 999 ) / 1000;
+
+
+    RecordingConsensusExtFace initialExtFace;
 
     try {
         E2EHelper::configureTestEnvironment( true );
 
-        auto bite2PatchTimestamp = ( Time::getCurrentTimeMs() + PATCH_DELAY_MS + 999 ) / 1000;
         patchTimestamps = {
 #ifdef BITE
             { "bite2PatchTimestamp", bite2PatchTimestamp }
@@ -310,13 +317,22 @@ CATCH_TEST_CASE(
 
         // ------- 1st Run to produce some blocks -------
 
-        E2EHelper::startEngine( initialEngine, 0, patchTimestamps );
+        E2EHelper::setupEngine( initialEngine, 0, patchTimestamps, &initialExtFace );
+        initialExtFace.configureInitialRun( *initialEngine, bite2PatchTimestamp );
+        initialEngine->slowStartBootStrapTest();
 
-        // wait either for minimum waittime OR until we have at least 1 bite2 block committed.
-        snapshots = waitForCommittedSnapshots(
-            *initialEngine, PATCH_DELAY_MS + POST_PATCH_SETTLE_MS );
+        initialExtFace.waitForAtLeast( MAX_PRE_RESTART_BLOCKS, SNAPSHOT_WAIT_TIMEOUT_MS );
+        initialEngine->testExitGracefullyBlocking();
+
+        auto lastId = (uint64_t) initialEngine->getLargestCommittedBlockIDInDb();
+        CATCH_REQUIRE( lastId == MAX_PRE_RESTART_BLOCKS );
+        snapshots = buildSnapshots( *initialEngine, lastId );
 
         CATCH_REQUIRE( !snapshots.empty() );
+        for ( const auto& snapshot : snapshots ) {
+            CATCH_CAPTURE( snapshot.blockId );
+            CATCH_REQUIRE( snapshot.txCount > 0 );
+        }
 #ifdef BITE
         CATCH_REQUIRE( hasBothSidesOfTransition( snapshots ) );
 #endif
@@ -341,11 +357,9 @@ CATCH_TEST_CASE(
     const auto& midpointSnapshot = snapshots.at( midpointIndex - 1 );
 
     runReplayScenario(
-        { "replay-from-zero", 0, 0, 0, 0 }, patchTimestamps );
+        { "replay-from-zero", 0, 0, 0 }, patchTimestamps, snapshots );
     runReplayScenario(
         { "replay-from-midpoint", midpointSnapshot.blockId, midpointSnapshot.timestampS,
-            midpointSnapshot.timestampMs, midpointIndex },
-        patchTimestamps );
-
-    CATCH_SUCCEED();
+            midpointSnapshot.timestampMs },
+        patchTimestamps, snapshots );
 }
