@@ -40,6 +40,7 @@
 #include "network/ServerConnection.h"
 #include "network/Sockets.h"
 #include "network/TCPServerSocket.h"
+#include "threads/GlobalThreadRegistry.h"
 #include "utils/LogThrottle.h"
 #include <chrono>
 
@@ -177,6 +178,7 @@ void AbstractServerAgent::createNetworkReadThread() {
     CONS_LOG( trace, name << " Starting TCP server network read loop" );
     networkReadThread =
         make_shared< thread >( std::bind( &AbstractServerAgent::acceptTCPConnectionsLoop, this ) );
+    getThreadRegistry()->add( networkReadThread );
     CONS_LOG( trace, name << " Started TCP server network read loop" );
 }
 

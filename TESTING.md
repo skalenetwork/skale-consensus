@@ -182,6 +182,10 @@ sudo TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust '[con
 - `TEST_TRANSACTIONS_PER_BLOCK` - Number of transactions per block
 - `NO_ULIMIT_CHECK=1` - Bypass ulimit checks (for single-node tests)
 
+Tests using `E2ETestHelper::configureTestEnvironment()` default to 10 transactions
+per block when `TEST_TRANSACTIONS_PER_BLOCK` is unset. Explicit environment
+settings, including CI workload settings, are preserved.
+
 ## SGX Simulation Testing
 
 Multi-node tests require SGX wallet simulation using Docker.
