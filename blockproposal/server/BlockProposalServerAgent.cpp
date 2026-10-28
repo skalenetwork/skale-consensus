@@ -90,6 +90,8 @@
 #include "crypto/ConsensusBLSSigShare.h"
 #include "headers/BlockFinalizeResponseHeader.h"
 #include "monitoring/LivelinessMonitor.h"
+#include "monitoring/OptimizerAgent.h"
+#include "tests/TestHooks.h"
 
 
 ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher,
@@ -631,6 +633,24 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         responseHeader->setComplete();
         return responseHeader;
     }
+
+#ifdef BITE
+    {
+        bool retryLater = false;
+        TestHooks::BlockProposalAdmissionHook::fire(
+            _header.getProposerNodeId(),
+            sChain->getNode()->getNodeID(),
+            _header.getBlockId(),
+            _header.getProposerIndex(),
+            retryLater);
+        if (retryLater) {
+            responseHeader->setStatusSubStatus(
+                CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE);
+            responseHeader->setComplete();
+            return responseHeader;
+        }
+    }
+#endif
 
     if (!getSchain()->getNode()->getProposalHashDB()->checkAndSaveHash(
             _header.getBlockId(), _header.getProposerIndex(), _header.getHash())) {
