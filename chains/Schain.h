@@ -95,6 +95,7 @@ class CryptoManager;
 class StatusServer;
 class OracleClient;
 class OracleResultAssemblyAgent;
+class ConsensusEngineTestAccess;
 
 #ifdef BITE
 class BiteManager;
@@ -105,6 +106,8 @@ class CPUThreadPoolExecutor;
 #endif
 
 class Schain : public Agent {
+    friend class ConsensusEngineTestAccess;
+
     queue< ptr< MessageEnvelope > > messageQueue;
 
     timed_mutex blockProcessMutex;
