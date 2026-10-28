@@ -28,7 +28,10 @@
 
 #include <boost/filesystem.hpp>
 #include <cstdio>
+#include <cstdlib>
+#include <functional>
 #include <map>
+#include <optional>
 
 namespace E2ETestUtils {
 
@@ -138,35 +141,79 @@ public:
     }
 
     // ========= Environment variable helpers for tests ========= 
-    struct TestEnvVarSnapshot {
-        bool hadPreviousValue = false;
-        string previousValue;
-    };
-
-    static TestEnvVarSnapshot setTestEnvVar(
+    static void setTestEnvVar(
         const string& _envName, const string& _envValue, int _overwrite = 1 ) {
-        TestEnvVarSnapshot snapshot;
-        const char* previousValue = std::getenv( _envName.c_str() );
-        if ( previousValue != nullptr ) {
-            snapshot.hadPreviousValue = true;
-            snapshot.previousValue = previousValue;
-        }
-
         CATCH_REQUIRE( setenv( _envName.c_str(), _envValue.c_str(), _overwrite ) == 0 );
-        return snapshot;
-    }
-
-    static void unsetTestEnvVar( const string& _envName ) {
-        CATCH_REQUIRE( unsetenv( _envName.c_str() ) == 0 );
-    }
-
-    static void restoreTestEnvVar( const string& _envName, const TestEnvVarSnapshot& _snapshot ) {
-        if ( _snapshot.hadPreviousValue ) {
-            CATCH_REQUIRE( setenv( _envName.c_str(), _snapshot.previousValue.c_str(), 1 ) == 0 );
-        } else {
-            unsetTestEnvVar( _envName );
-        }
     }
 };
+
+// Sets an environment variable for the lifetime of the object. The destructor must not
+// throw, so it restores the previous state directly instead of using CATCH_REQUIRE.
+class ScopedTestEnvVar {
+    string name;
+    bool hadPreviousValue = false;
+    string previousValue;
+
+public:
+    ScopedTestEnvVar( const string& _name, const string& _value ) : name( _name ) {
+        if ( const char* previous = std::getenv( _name.c_str() ) ) {
+            hadPreviousValue = true;
+            previousValue = previous;
+        }
+        E2ETestHelper::setTestEnvVar( _name, _value );
+    }
+
+    ~ScopedTestEnvVar() {
+        if ( hadPreviousValue ) {
+            setenv( name.c_str(), previousValue.c_str(), 1 );
+        } else {
+            unsetenv( name.c_str() );
+        }
+    }
+
+    ScopedTestEnvVar( const ScopedTestEnvVar& ) = delete;
+    ScopedTestEnvVar& operator=( const ScopedTestEnvVar& ) = delete;
+};
+
+// Stops the engine on scope exit if the test did not already do so. Declare it before any
+// hook scopes the engine depends on, so hooks are removed first and cannot block shutdown.
+class ScopedEngineShutdown {
+    ConsensusEngine*& engine;
+
+public:
+    explicit ScopedEngineShutdown( ConsensusEngine*& _engine ) : engine( _engine ) {}
+
+    ~ScopedEngineShutdown() {
+        if ( engine == nullptr )
+            return;
+        try {
+            E2ETestHelper::stopEngineGracefully( engine );
+        } catch ( ... ) {
+        }
+    }
+
+    ScopedEngineShutdown( const ScopedEngineShutdown& ) = delete;
+    ScopedEngineShutdown& operator=( const ScopedEngineShutdown& ) = delete;
+};
+
+// Node identities of test/fournodes-same-ip; NODE_n has schain index n.
+struct FourNodeTestChain {
+    static constexpr const char* CONFIG_DIR = "test/fournodes-same-ip";
+    inline static const node_id NODE_1 = node_id( 1112 );
+    inline static const node_id NODE_2 = node_id( 1113 );
+    inline static const node_id NODE_3 = node_id( 1114 );
+    inline static const node_id NODE_4 = node_id( 1115 );
+};
+
+// Callback for TestHooks::BlockCatchupResponseHook. Without it, catch-up could deliver a block
+// that a finalization test expects the receiver to fail to commit by itself. With no receiver
+// given, initial catch-up is suppressed for every node.
+inline std::function< void( node_id, node_id, block_id, bool& ) > suppressInitialCatchup(
+    std::optional< node_id > _receiver = std::nullopt ) {
+    return [_receiver]( node_id, node_id receiverNodeId, block_id afterBlockId, bool& suppress ) {
+        if ( afterBlockId == 0 && ( !_receiver || receiverNodeId == *_receiver ) )
+            suppress = true;
+    };
+}
 
 }  // namespace E2ETestUtils
