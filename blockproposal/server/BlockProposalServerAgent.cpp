@@ -562,6 +562,20 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
+#ifdef BITE
+    // Under BITE only the round-robin designated proposer may propose; accepting any other
+    // proposal would compute local decryption shares that occupy this node's decryptor slot.
+    if (sChain->getOptimizerAgent()->getPreviousWinner(blockIDInHeader) != _header.getProposerIndex()) {
+        responseHeader->setStatusSubStatus(
+                CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX);
+        responseHeader->setComplete();
+        CONS_LOG(err, "Proposal from non-designated proposer for block:"
+                << to_string(blockIDInHeader) << " proposer index:"
+                << to_string(_header.getProposerIndex()));
+        return responseHeader;
+    }
+#endif
+
     if (sChain->getNode()->getDaProofDB()->isEnoughProofs(blockIDInHeader)) {
         responseHeader->setStatusSubStatus(
                 CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_ENOUGH_PROPOSALS_FOR_THIS_BLOCK_ID);
