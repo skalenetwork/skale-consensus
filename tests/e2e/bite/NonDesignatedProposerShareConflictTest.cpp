@@ -126,7 +126,13 @@ CATCH_TEST_CASE(
     TestHooks::BlockCatchupResponseHook::Scope noInitialCatchupForVictimScope(
         E2ETestUtils::suppressInitialCatchup( VICTIM_NODE ) );
 
-    E2EHelper::startEngine( testEngine, 0 );
+    E2EHelper::setupEngine( testEngine, 0 );
+    for ( auto nodeId :
+        { EXTRA_PROPOSER_NODE, DESIGNATED_PROPOSER_NODE, VICTIM_NODE, OTHER_VALIDATOR_NODE } ) {
+        CATCH_INFO( "SGX test keys are required for node " << nodeId );
+        CATCH_REQUIRE( ConsensusEngineTestAccess::getNode( *testEngine, nodeId )->isSgxEnabled() );
+    }
+    testEngine->slowStartBootStrapTest();
 
     auto extraProposer = ConsensusEngineTestAccess::getNode( *testEngine, EXTRA_PROPOSER_NODE );
     auto victim = ConsensusEngineTestAccess::getNode( *testEngine, VICTIM_NODE );
