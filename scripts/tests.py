@@ -139,26 +139,14 @@ run("ccache -M 20G")
 
 consensustExecutive = getConsensustExecutive()
 
-# Run all non-end-to-end and non-performance unit tests
+# Configuration-driven basic consensus runs separately below.
 unitTest(
     consensustExecutive,
-    "~[end-to-end]~[performance]",
-    "Non-end-to-end non-performance",
+    "~[legacy]~[performance]~[consensus-basic]",
+    "All non-legacy non-performance tests (except configuration-driven basic consensus)",
 )
 
-unitTest(
-    consensustExecutive,
-    "'[end-to-end][db]'",
-    "End-to-end db tests",
-)
-
-unitTest(
-    consensustExecutive,
-    "[end-to-end][consensus-process]",
-    "End-to-end consensus process and harness supervisor tests",
-)
-
-
-fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")
-fullConsensusTest("twonodes", consensustExecutive, "[consensus-basic]")
-fullConsensusTest("fournodes", consensustExecutive, "[consensus-basic]")
+for configuration in ("onenode", "twonodes", "fournodes"):
+    fullConsensusTest(
+        configuration, consensustExecutive, "[consensus-basic]~[legacy]~[performance]"
+    )
