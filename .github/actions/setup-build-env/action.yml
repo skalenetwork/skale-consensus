@@ -1,5 +1,5 @@
 name: 'Setup build environment'
-description: 'Prepares Ubuntu 24.04 environment, installs toolchain and dependencies, configures SGX wallet sim, and sets up ccache'
+description: 'Prepares Ubuntu 24.04 environment, installs toolchain and dependencies, and sets up ccache'
 inputs:
   cache-prefix:
     description: 'Prefix for ccache cache key'
@@ -26,35 +26,6 @@ runs:
       run: |
         docker --version
         docker compose version
-
-    - name: Start SGX simulator
-      shell: bash
-      run: |
-        cd run_sgx_test
-        docker compose pull
-        docker compose up -d
-        container_id=$(docker compose ps -q sgxwallet)
-        for attempt in {1..120}; do
-          if [[ -z "$container_id" ]] || \
-             [[ "$(docker inspect --format '{{.State.Running}}' "$container_id")" != "true" ]]; then
-            echo "::error::SGX simulator is not running"
-            docker compose logs --no-color --tail=200
-            exit 1
-          fi
-          logs=$(docker compose logs --no-color sgxwallet 2>&1)
-          if [[ -s sgx_data/4node.json && -s sgx_data/16node.json ]] && \
-             grep -q "Started zmq read loop" <<< "$logs" && \
-             grep -Eq "Successfully completed generating test keys|Found test keys" <<< "$logs"; then
-            echo "SGX simulator and test keys are ready"
-            break
-          fi
-          if [[ "$attempt" -eq 120 ]]; then
-            echo "::error::Timed out waiting for SGX simulator and test keys"
-            docker compose logs --no-color --tail=200
-            exit 1
-          fi
-          sleep 5
-        done
 
     - name: Configure GCC 11 alternatives
       shell: bash
