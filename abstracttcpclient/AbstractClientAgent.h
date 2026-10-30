@@ -36,8 +36,11 @@ class DataStructure;
 class BlockProposal;
 class DAProof;
 class ClientSocket;
+class ConsensusEngineTestAccess;
 
 class AbstractClientAgent : public Agent {
+    friend class ConsensusEngineTestAccess;
+
 protected:
     port_type portType;
 
