@@ -152,6 +152,12 @@ unitTest(
     "End-to-end db tests",
 )
 
+unitTest(
+    consensustExecutive,
+    "[end-to-end][consensus-process]",
+    "End-to-end consensus process and harness supervisor tests",
+)
+
 
 fullConsensusTest("onenode", consensustExecutive, "[consensus-basic]")
 fullConsensusTest("twonodes", consensustExecutive, "[consensus-basic]")

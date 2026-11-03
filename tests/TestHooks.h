@@ -7,6 +7,8 @@
 #include <utility>
 #include "SkaleCommon.h"
 
+class TCPServerSocket;
+
 #ifdef BITE
 class AESKeyDecryptionShareList;
 #endif
@@ -77,6 +79,12 @@ private:
     inline static std::mutex mtx;
     inline static Callback cb = nullptr;
 };
+
+// Set error to a positive errno to bypass accept() for the selected listener; zero uses real I/O.
+struct TCPAcceptErrorTag {};
+using TCPAcceptErrorHook = HookPoint<
+    TCPAcceptErrorTag, void(const TCPServerSocket& listener, int& error)
+>;
 
 #ifdef BITE
 // Block finalization response hook: mutate shares or ask the client to retry.

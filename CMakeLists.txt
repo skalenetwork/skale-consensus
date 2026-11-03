@@ -337,9 +337,14 @@ target_link_libraries(consensusd consensus_full)
 file(GLOB_RECURSE COMMON_TEST_SOURCES
         "tests/unit/datastructures/*.cpp"
         "tests/unit/db/*.cpp"
+        "tests/unit/harness/*.cpp"
+        "tests/unit/network/*.cpp"
+        "tests/unit/utils/*.cpp"
         "tests/consensus_tests.cpp"
         "tests/sgx_tests.cpp"
         "tests/e2e/RestartBootstrapTests.cpp"
+        "tests/e2e/harness/ConsensusProcessTests.cpp"
+        "tests/e2e/network/*.cpp"
 )
 
 set(TEST_SOURCES ${COMMON_TEST_SOURCES})
@@ -362,18 +367,41 @@ if (DEFINED BITE)
     list(APPEND TEST_SOURCES ${CRYPTO_TEST_SOURCES})
 endif ()
 
+add_library(consensus_test_harness STATIC
+        tests/harness/process/ConsensusProcess.cpp
+        tests/harness/consensus/ConsensusStartup.cpp
+        tests/harness/transport/ControlChannel.cpp
+        tests/harness/transport/SocketIO.cpp
+)
+target_include_directories(consensus_test_harness PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+
 # Create the test executable from the main driver and all discovered test files.
 # Note: Consensust.h is not needed here as it's a header file.
-add_executable(consensust
-        Consensust.cpp
-        ${TEST_SOURCES}
-)
-
-target_link_libraries(consensust PRIVATE consensus_full)
+add_executable(consensust Consensust.cpp ${TEST_SOURCES})
+target_link_libraries(consensust PRIVATE consensus_test_harness consensus_full)
 
 target_compile_options(consensust PRIVATE -Wno-error=unused-variable)
-# force catch2 macros to be prefixed with CATCH_ to avoid conflicts
-target_compile_definitions(consensust PRIVATE CATCH_CONFIG_PREFIX_ALL)
+
+# Real consensus child for isolated E2E tests.
+add_executable(consensus_test_child
+        tests/harness/consensus/ConsensusTestChild.cpp
+)
+target_link_libraries(consensus_test_child PRIVATE consensus_test_harness consensus_full)
+
+# Fake child for harness supervisor tests; does not start consensus.
+add_executable(supervisor_failure_child
+        tests/e2e/harness/fixtures/SupervisorFailureChild.cpp
+)
+target_link_libraries(supervisor_failure_child PRIVATE consensus_test_harness)
+
+add_dependencies(consensust consensus_test_child supervisor_failure_child)
+target_compile_definitions(consensust PRIVATE
+        # force catch2 macros to be prefixed with CATCH_ to avoid conflicts
+        CATCH_CONFIG_PREFIX_ALL
+        CONSENSUS_TEST_CHILD_PATH="$<TARGET_FILE:consensus_test_child>"
+        SUPERVISOR_FAILURE_CHILD_PATH="$<TARGET_FILE:supervisor_failure_child>"
+        CONSENSUS_TEST_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}"
+)
 
 # # libgoogle-perftools-dev
 # if (CMAKE_PROJECT_NAME STREQUAL "consensus")

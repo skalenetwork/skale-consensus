@@ -1,13 +1,36 @@
 # SKALE Consensus Testing Guide
 
-This document provides comprehensive testing instructions for SKALE Consensus, including unit tests, integration tests, and end-to-end testing scenarios.
+SKALE Consensus has three test workflows. All use the Catch-based `consensust`
+executable; they differ in scope, engine lifecycle, configuration, and setup.
+
+| Workflow | Purpose | Engine and configuration |
+|---|---|---|
+| Unit tests | Check individual components and helpers | No running consensus engine |
+| Focused E2E tests | Check specific behavior using a real consensus engine | Engine started by the test, either in-process or in a harness-managed child |
+| Configuration-driven consensus runs | Exercise full consensus with a selected node topology | Full engine run using configuration directories such as `test/fournodes` |
 
 ## Table of Contents
 
-- [Test Organization](#test-organization)
-- [Running Tests](#running-tests)
-- [End-to-end tests](#end-to-end-tests)
-- [SGX Simulation Testing](#sgx-simulation-testing)
+- [SKALE Consensus Testing Guide](#skale-consensus-testing-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Test Organization Guidelines](#test-organization-guidelines)
+      - [1. Component-Based Structure and Tagging](#1-component-based-structure-and-tagging)
+      - [2. Test Type Tags](#2-test-type-tags)
+      - [3. Scope Tags](#3-scope-tags)
+  - [Running Tests](#running-tests)
+  - [1. Unit Tests](#1-unit-tests)
+  - [2. Focused E2E Tests](#2-focused-e2e-tests)
+    - [Shared Harness and Its Own Tests](#shared-harness-and-its-own-tests)
+  - [3. Configuration-Driven Consensus Runs](#3-configuration-driven-consensus-runs)
+    - [Single Node Test](#single-node-test)
+    - [Multi-Node Tests (Requires SGX Setup)](#multi-node-tests-requires-sgx-setup)
+    - [Test Parameters](#test-parameters)
+  - [SGX Simulation Testing](#sgx-simulation-testing)
+    - [Prerequisites](#prerequisites)
+    - [Starting SGX Wallet](#starting-sgx-wallet)
+    - [Monitoring SGX Wallet Startup](#monitoring-sgx-wallet-startup)
+    - [Verifying Test Keys](#verifying-test-keys)
+  - [Contributing Test Cases](#contributing-test-cases)
 
 ---
 
@@ -62,31 +85,80 @@ These tags define the **granularity** of the test:
 ---
 ## Running Tests
 
+Commands below assume an existing build in `build/`. Run unit and focused E2E
+commands from the repository root; configuration-driven runs explicitly change
+to the selected configuration directory.
+
+Catch tag expressions select tests in the same executable for all three
+workflows. Quote expressions to avoid shell interpretation. Component and concern
+tags can further narrow a selection:
+
 ```bash
 # Run all RLP correctness unit tests
-./build/consensust [rlp][unit][correctness]
+./build/consensust '[rlp][unit][correctness]'
 
 # Run all security RLP tests (any scope)
-./build/consensust [rlp][security]
+./build/consensust '[rlp][security]'
 
 # Run all performance tests
-./build/consensust [performance]
-
-# Run all non-performance tests
-./build/consensust ~[performance]
+./build/consensust '[performance]'
 ```
 
----
+## 1. Unit Tests
 
-## End-to-End Tests
+Tests under `tests/unit/` check individual components without starting consensus.
 
-End-to-end tests simulate real network conditions with multiple nodes.
+```bash
+./build/consensust '[unit]~[performance]'
+./build/consensust '[unit][harness]'
+```
+
+## 2. Focused E2E Tests
+
+These tests start a real consensus engine to inspect specific behavior, such as
+restart/bootstrap, BITE patch transitions, or TCP accept-error recovery. There are
+currently two execution styles:
+
+- **In-process:** tests start and stop the engine inside `consensust`.
+- **Harness-managed child:** `ConsensusProcess` launches a separate executable,
+  waits for readiness, exchanges control messages, and manages shutdown and
+  diagnostics.
+
+```bash
+# Real consensus in a harness-managed child
+./build/consensust '[end-to-end][descriptor-exhaustion]'
+
+# Focused in-process engine tests selected by the existing script
+./build/consensust '[end-to-end][db]'
+
+# A specific BITE in-process scenario (requires a BITE build)
+./build/consensust '[end-to-end][reencryption-signature-transition]'
+```
+
+### Shared Harness and Its Own Tests
+
+Shared test infrastructure lives in `tests/harness/`, separately from test cases.
+It is grouped into `process/` for child supervision, `consensus/` for real engine
+startup and the consensus child executable, and `transport/` for the control
+protocol, channels, and socket helpers. Shared diagnostics and timeout policy
+remain at the harness root.
+
+## 3. Configuration-Driven Consensus Runs
+
+These tests exercise full consensus with the topology selected by a configuration
+directory under `test/`. Unlike focused E2E scenarios that choose their own setup,
+the standard `[consensus-basic]` workflow is launched from that directory.
+
+These are also Catch tests, defined in `tests/consensus_tests.cpp`. Multiple
+configured nodes do not necessarily mean multiple OS processes: this workflow
+creates the configured nodes through the engine in the test runner, rather than
+automatically launching one child process per node.
 
 ### Single Node Test
 
 ```bash
 cd test/onenode
-sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust [consensus-basic]
+sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust '[consensus-basic]'
 ```
 
 ### Multi-Node Tests (Requires SGX Setup)
@@ -94,13 +166,14 @@ sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../buil
 For 4-node and 16-node tests, you need to set up SGX simulation first (see [SGX Simulation Testing](#sgx-simulation-testing)).
 
 ```bash
-# 4-node test
+# 4-node test (from the repository root)
 cd test/fournodes
-sudo TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust [consensus-basic]
+sudo TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust '[consensus-basic]'
+cd ../..
 
 # 16-node test
 cd test/sixteennodes
-sudo TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust [consensus-basic]
+sudo TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust '[consensus-basic]'
 ```
 
 ### Test Parameters
