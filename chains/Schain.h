@@ -95,9 +95,9 @@ class CryptoManager;
 class StatusServer;
 class OracleClient;
 class OracleResultAssemblyAgent;
+class ConsensusEngineTestAccess;
 
 #ifdef BITE
-class BiteBlockFinalizeServer;
 class BiteManager;
 class DecryptedAESKeyList;
 namespace folly {
@@ -106,6 +106,8 @@ class CPUThreadPoolExecutor;
 #endif
 
 class Schain : public Agent {
+    friend class ConsensusEngineTestAccess;
+
     queue< ptr< MessageEnvelope > > messageQueue;
 
     timed_mutex blockProcessMutex;

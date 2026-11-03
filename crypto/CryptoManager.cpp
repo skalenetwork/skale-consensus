@@ -1354,8 +1354,8 @@ void CryptoManager::generateSSLClientCertAndKey(string &_fullPathToDir) {
     std::generate_n(std::back_inserter(random_string), 10,
                     [&]() { return VALID_CHARS[distribution(generator)]; });
     int res = system(
-        ("/usr/bin/openssl req -new -sha256 -nodes -out " + _fullPathToDir +
-         "/csr  -newkey rsa:2048 -keyout " + _fullPathToDir + "/key -subj /CN=" + random_string)
+        ("/usr/bin/openssl req -new -sha256 -nodes -out '" + _fullPathToDir +
+         "/csr' -newkey rsa:2048 -keyout '" + _fullPathToDir + "/key' -subj /CN=" + random_string)
         .data());
     CHECK_STATE(res == 0);
     string str, csr;
@@ -1365,6 +1365,7 @@ void CryptoManager::generateSSLClientCertAndKey(string &_fullPathToDir) {
         csr.append(str);
         csr.append("\n");
     }
+    CHECK_STATE(!csr.empty());
 
     jsonrpc::HttpClient client("http://localhost:1027");
     StubClient c(client, jsonrpc::JSONRPC_CLIENT_V2);
@@ -1385,9 +1386,12 @@ void CryptoManager::generateSSLClientCertAndKey(string &_fullPathToDir) {
     JSONFactory::checkSGXStatus(result);
 
     string signedCert = JSONFactory::getString(result, "cert");
+    CHECK_STATE(!signedCert.empty());
     ofstream outFile;
     outFile.open(_fullPathToDir + "/cert");
     outFile << signedCert;
+    outFile.close();
+    CHECK_STATE(outFile.good());
 }
 
 

@@ -24,6 +24,7 @@
 #pragma once
 
 #include "Agent.h"
+#include "PendingConnectionQueue.h"
 
 class ServerConnection;
 class Schain;
@@ -42,11 +43,7 @@ protected:
 
     ptr< thread > networkReadThread;
 
-    mutex incomingTCPConnectionsMutex;
-
-    condition_variable incomingTCPConnectionsCond;
-
-    queue< ptr< ServerConnection > > incomingTCPConnections;  // thread safe
+    PendingConnectionQueue pendingConnections;
 
     void send( const ptr< ServerConnection >& _connectionEnvelope, const ptr< Header >& _header );
 
@@ -58,7 +55,7 @@ public:
     ~AbstractServerAgent() override;
 
 
-    void pushToQueueAndNotifyWorkers( const ptr< ServerConnection >& _connectionEnvelope );
+    bool tryPushToQueueAndNotifyWorker( const ptr< ServerConnection >& _connectionEnvelope );
 
     ptr< ServerConnection > workerThreadWaitandPopConnection();
 

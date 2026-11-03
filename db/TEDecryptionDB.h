@@ -14,6 +14,7 @@ class AESKeyDecryptionShareList;
 class AESKeyDecryptionShareSet;
 class EncryptedAESKey;
 class TransactionCiphertextsMap;
+class ConsensusEngineTestAccess;
 
 namespace folly {
 class CPUThreadPoolExecutor;
@@ -25,6 +26,8 @@ class CPUThreadPoolExecutor;
 
 
 class TEDecryptionDB : public CacheLevelDB {
+    friend class ConsensusEngineTestAccess;
+
     recursive_mutex teDecryptionMutex;
 
     map<block_id, map<schain_index, ptr< AESKeyDecryptionShareList>>> decryptionsStore;

@@ -1,5 +1,5 @@
 name: 'Setup build environment'
-description: 'Prepares Ubuntu 24.04 environment, installs toolchain and dependencies, configures SGX wallet sim, and sets up ccache'
+description: 'Prepares Ubuntu 24.04 environment, installs toolchain and dependencies, and sets up ccache'
 inputs:
   cache-prefix:
     description: 'Prefix for ccache cache key'
@@ -26,13 +26,6 @@ runs:
       run: |
         docker --version
         docker compose version
-
-    - name: Start SGX simulator
-      shell: bash
-      run: |
-        cd sgxwallet/run_sgx_sim
-        docker compose pull
-        docker compose up -d
 
     - name: Configure GCC 11 alternatives
       shell: bash

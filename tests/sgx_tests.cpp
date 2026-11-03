@@ -5,61 +5,40 @@
 #include "thirdparty/catch.hpp"
 #include "Consensust.h"
 #include "crypto/CryptoManager.h"
+#include "crypto/OpenSSLECDSAKey.h"
+#include "json/JSONFactory.h"
 #include "JsonStubClient.h"
 #include <jsonrpccpp/client/connectors/httpclient.h>
 
 
 CATCH_TEST_CASE_METHOD( StartFromScratch, "Test sgx server connection", "[sgx][end-to-end][correctness]" ) {
-    string certDir( "/tmp" );
-
-
-
-    auto engine = new ConsensusEngine( 0, 100000000 );
+    auto engine = make_shared< ConsensusEngine >( 0, 100000000 );
     engine->logInit();
-    CryptoManager::generateSSLClientCertAndKey( certDir );
-
-    auto certFilePath = certDir + "/cert";
-    auto keyFilePath = certDir + "/key";
-
-    CryptoManager::setSGXKeyAndCert( keyFilePath, certFilePath, SGX_SSL_PORT );
-
-    setenv( "sgxKeyFileFullPath", keyFilePath.data(), 1 );
-    setenv( "certFileFullPath", certFilePath.data(), 1 );
-
-    jsonrpc::HttpClient client( "https://localhost:" + to_string( SGX_SSL_PORT ) );
+    jsonrpc::HttpClient client( "http://localhost:1029" );
     auto c = make_shared< StubClient >( client, jsonrpc::JSONRPC_CLIENT_V2 );
-
-    auto keyNames = make_shared< vector< string > >();
-    auto publicKeys = make_shared< vector< string > >();
-
-    using namespace CryptoPP;
 
     for ( int i = 1; i <= 4; i++ ) {
         auto res = CryptoManager::generateSGXECDSAKey( c );
-        auto keyName = res.first;
-        auto publicKey = res.second;
+        CATCH_REQUIRE_FALSE( res.first.empty() );
+        CATCH_REQUIRE_FALSE( res.second.empty() );
 
-        setenv( ( "sgxECDSAKeyName." + to_string( i ) ).data(), keyName.data(), 1 );
-        setenv( ( "sgxECDSAPublicKey." + to_string( i ) ).data(), publicKey.data(), 1 );
+        auto msg = make_shared< vector< uint8_t > >();
+        msg->push_back( static_cast< uint8_t >( i ) );
+        auto hash = BLAKE3Hash::calculateHash( msg );
+        auto result = c->ecdsaSignMessageHash( 16, res.first, hash.toHex() );
+        JSONFactory::checkSGXStatus( result );
+        auto r = JSONFactory::getString( result, "signature_r" );
+        auto s = JSONFactory::getString( result, "signature_s" );
+        auto v = JSONFactory::getString( result, "signature_v" );
+        CATCH_REQUIRE( r.size() > 2 );
+        CATCH_REQUIRE( s.size() > 2 );
+        auto signature = v + ":" + r.substr( 2 ) + ":" + s.substr( 2 );
 
-        keyNames->push_back( keyName );
-        publicKeys->push_back( publicKey );
+        auto key = OpenSSLECDSAKey::importSGXPubKey( res.second );
+        CATCH_REQUIRE( key );
+        CATCH_REQUIRE_NOTHROW(
+            key->verifySGXSig( signature, reinterpret_cast< const char* >( hash.data() ) ) );
     }
-
-
-    CryptoManager cm( 4, 3, true, string( "https://127.0.0.1:1026" ), string( keyFilePath ),
-        string( certFilePath ), string( keyNames->at( 0 ) ), publicKeys );
-
-    auto msg = make_shared< vector< uint8_t > >();
-    msg->push_back( '1' );
-    auto hash = BLAKE3Hash::calculateHash( msg );
-    auto sig = cm.sgxSignECDSA( hash, keyNames->at( 0 ) );
-
-    cm.verifyECDSA( hash, sig, string( publicKeys->at( 0 ) ) );
-
-    auto key = CryptoManager::decodeSGXPublicKey( string( publicKeys->at( 0 ) ) );
-
-    CATCH_SUCCEED();
 }
 
 
