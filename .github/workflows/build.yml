@@ -40,12 +40,18 @@ jobs:
         run: |
           cd scripts && ./build.py Debug ${{ matrix.flavor.flags }}
 
-      - name: run tests (block sizes)
+      - name: run unit tests
         env:
           CI_BUILD: "1"
           NO_NTP_CHECK: "1"
           TEST_TRANSACTIONS_PER_BLOCK: "1000"
         run: |
-          cd scripts
-          ./tests.py && cd ..
+          ./scripts/tests.py unit
 
+      - name: run E2E tests
+        env:
+          CI_BUILD: "1"
+          NO_NTP_CHECK: "1"
+          TEST_TRANSACTIONS_PER_BLOCK: "1000"
+        run: |
+          ./scripts/tests.py e2e
