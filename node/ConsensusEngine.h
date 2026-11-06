@@ -333,7 +333,7 @@ public:
     [[nodiscard]] SyncInfo getSyncInfo() override;
 
 #ifdef BITE
-    void setEpochId( uint64_t _epochId ) { epochId = _epochId; }
+    void setEpochId( uint64_t _epochId ) override;
 
     /**
      * @brief Gets the reencryption random for a given block ID, if available.
