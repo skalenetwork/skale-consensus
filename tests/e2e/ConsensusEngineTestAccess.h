@@ -109,4 +109,13 @@ public:
     static void setDbDir( ConsensusEngine& e, const std::string& dir ) {
         e.dbDir = dir;
     }
+
+#ifdef BITE
+    static uint64_t getCurrentEpochIdForNode( const ConsensusEngine& e, node_id node ) {
+        auto it = e.nodes.find( node );
+        CHECK_STATE2( it != e.nodes.end(), "Node with id " + to_string( node ) + " not found" );
+        CHECK_STATE( it->second );
+        return it->second->getCurrentEpochId();
+    }
+#endif
 };

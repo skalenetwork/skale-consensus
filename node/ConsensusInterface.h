@@ -212,6 +212,11 @@ public:
     virtual void updateLogger() const = 0;
 #endif
 
+#ifdef BITE
+    // the epoch id used for the next blocks
+    virtual void setEpochId( uint64_t _epochId ) = 0;
+#endif
+
 };
 
 
