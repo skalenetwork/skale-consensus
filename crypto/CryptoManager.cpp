@@ -1051,7 +1051,7 @@ void CryptoManager::verifyBlsSigShare(libBLS::BLSSigShare& _sigShare, BLAKE3Hash
 
     try {
         CHECK_STATE(blsPublicKeySharesMapByIndex.size() == getSchain()->getNodeCount());
-        CHECK_STATE(blsPublicKeySharesMapByIndex.count( _sigShare.getSignerIndex() > 0 ));
+        CHECK_STATE(blsPublicKeySharesMapByIndex.count( _sigShare.getSignerIndex() ) > 0);
 
 
         auto& pubKeyShare = blsPublicKeySharesMapByIndex.at( _sigShare.getSignerIndex() );
