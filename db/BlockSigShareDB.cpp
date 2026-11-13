@@ -35,6 +35,7 @@
 #include "exceptions/InvalidStateException.h"
 #include "node/Node.h"
 #include "node/NodeInfo.h"
+#include "tests/TestHooks.h"
 
 
 #include "LevelDBOptions.h"
@@ -60,12 +61,7 @@ ptr< ThresholdSignature > BlockSigShareDB::checkAndSaveShareInMemory(
         ( uint64_t ) _sigShare->getBlockId(), ( uint64_t ) getSchain()->getSchainID() );
 
     if ( !signatureDomain.empty() ) {
-        auto data = make_shared< vector< uint8_t > >();
-        const auto& baseHash = hash.getHash();
-        data->reserve( baseHash.size() + signatureDomain.size() );
-        data->insert( data->end(), baseHash.begin(), baseHash.end() );
-        data->insert( data->end(), signatureDomain.begin(), signatureDomain.end() );
-        hash = BLAKE3Hash::calculateHash( data );
+        hash = BLAKE3Hash::getDomainHash( hash, signatureDomain );
     }
 
     return checkAndSaveShareInMemory( _sigShare, _cryptoManager, _proposer, hash );
@@ -86,6 +82,12 @@ ptr< ThresholdSignature > BlockSigShareDB::checkAndSaveShareInMemory(
 
 
         auto sigShareString = _sigShare->toString();
+
+        // ------ test only hook for replacing the stored share string ------
+        TestHooks::BlockSigShareStoreHook::fire( sChain->getNode()->getNodeID(),
+            _sigShare->getSignerIndex(), !signatureDomain.empty(), sigShareString );
+        // ------------------------------------------------------------------
+
         CHECK_STATE( !sigShareString.empty() )
 
         LOCK( sigShareMutex )

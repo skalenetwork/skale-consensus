@@ -332,6 +332,9 @@ void Node::initParamsFromConfig() {
         patchTimestamps["verifyBlsSyncPatchTimestamp"] =
             getParamUint64( "verifyBlsSyncPatchTimestamp",
                 getExistingPatchTs( "verifyBlsSyncPatchTimestamp" ) );
+        patchTimestamps["protocolHardeningV1PatchTimestamp"] =
+            getParamUint64( "protocolHardeningV1PatchTimestamp",
+                getExistingPatchTs( "protocolHardeningV1PatchTimestamp" ) );
 #ifdef BITE
         auto bite2PatchTs =
             getParamUint64( "bite2PatchTimestamp",

@@ -527,6 +527,11 @@ bool Schain::verifyBlsSyncPatch(uint64_t
 #endif
 }
 
+bool Schain::protocolHardeningV1Patch(uint64_t _blockTimeStampSec) {
+    return protocolHardeningV1PatchTimestamp != 0 &&
+           _blockTimeStampSec >= protocolHardeningV1PatchTimestamp;
+}
+
 #ifdef BITE
 bool Schain::bite2Patch(uint64_t _blockTimeStampSec) {
     return bite2PatchTimestamp != 0 && _blockTimeStampSec >= bite2PatchTimestamp;
@@ -612,10 +617,30 @@ void Schain::blockCommitArrived(block_id _committedBlockID, schain_index _propos
 
         CHECK_STATE(committedProposal);
 
-        auto newCommittedBlock =
-                CommittedBlock::makeFromProposal(committedProposal, _thresholdSig, 
+        auto thresholdSigString = _thresholdSig->toString();
 #ifdef BITE
+        std::optional<string> reencryptionThresholdSigString = _reencryptionThresholdSig ?
+            std::optional<string>(_reencryptionThresholdSig->toString()) : std::nullopt;
+#endif
+
+        // store the same signature text on every node, whatever form the shares arrived in
+        if (protocolHardeningV1Patch(committedProposal->getTimeStampS())) {
+            auto sigHash = BLAKE3Hash::getConsensusHash((uint64_t) _proposerIndex,
+                (uint64_t) _committedBlockID, (uint64_t) getSchainID());
+            thresholdSigString = CryptoManager::canonicalBlsSigString(_thresholdSig, sigHash);
+#ifdef BITE
+            if (reencryptionThresholdSigString) {
+                reencryptionThresholdSigString = CryptoManager::canonicalBlsSigString(
                     _reencryptionThresholdSig,
+                    BLAKE3Hash::getDomainHash(sigHash, blockconsensus::REENCRYPTION_RANDOM_DOMAIN));
+            }
+#endif
+        }
+
+        auto newCommittedBlock =
+                CommittedBlock::makeFromProposal(committedProposal, thresholdSigString,
+#ifdef BITE
+                    reencryptionThresholdSigString,
 #endif
                     _daSig
 #ifdef BITE
@@ -1973,6 +1998,7 @@ void Schain::setTimeStampValuesFromConfig() {
     SET_TIMESTAMP_FROM_CONFIG(verifyDaSigsPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(fastConsensusPatchTimestamp)
     SET_TIMESTAMP_FROM_CONFIG(verifyBlsSyncPatchTimestamp)
+    SET_TIMESTAMP_FROM_CONFIG(protocolHardeningV1PatchTimestamp)
 #ifdef BITE
     SET_TIMESTAMP_FROM_CONFIG(bite2PatchTimestamp)
     // Backward compatibility for configs using legacy key casing.

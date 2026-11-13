@@ -43,12 +43,13 @@
 #include "CommittedBlock.h"
 #include "TransactionList.h"
 #include "exceptions/InvalidSignatureException.h"
+#include "protocols/blockconsensus/ConsensusSignatureDomains.h"
 
 
 ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_proposal,
-                                                     const ptr<ThresholdSignature> &_thresholdSig,
+                                                     const string &_thresholdSig,
 #ifdef BITE
-                                                     const ptr<ThresholdSignature> &_reencryptionThresholdSig,
+                                                     const std::optional<string> &_reencryptionThresholdSig,
 #endif
                                                      ptr<ThresholdSignature> _daSig
 #ifdef  BITE
@@ -58,7 +59,7 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
 #endif
 ) {
     CHECK_ARGUMENT(_proposal);
-    CHECK_ARGUMENT(_thresholdSig);
+    CHECK_ARGUMENT(!_thresholdSig.empty());
     CHECK_ARGUMENT(_daSig || _proposal->getProposerIndex() == 0)
 #ifdef BITE
     CHECK_ARGUMENT(_aesKeyList);
@@ -71,11 +72,6 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
         daSig = _daSig->toString();
     }
 
-#ifdef BITE
-    std::optional<string> reencryptionThresholdSigOpt = _reencryptionThresholdSig ? 
-        std::optional<string>(_reencryptionThresholdSig->toString()) : std::nullopt;
-#endif
-
     return CommittedBlock::make(_proposal->getSchainID(), _proposal->getProposerNodeID(),
                                 _proposal->getBlockID(),
 #ifdef BITE
@@ -84,9 +80,9 @@ ptr<CommittedBlock> CommittedBlock::makeFromProposal(const ptr<BlockProposal> &_
 
                                 _proposal->getProposerIndex(), _proposal->getTransactionList(),
                                 _proposal->getStateRoot(), _proposal->getTimeStampS(), _proposal->getTimeStampMs(),
-                                _proposal->getSignature(), _thresholdSig->toString(), 
+                                _proposal->getSignature(), _thresholdSig,
 #ifdef BITE
-                                reencryptionThresholdSigOpt,
+                                _reencryptionThresholdSig,
 #endif
                                 daSig
 #ifdef  BITE
@@ -406,6 +402,30 @@ void CommittedBlock::verifyBlockSig(ptr<CryptoManager> _cryptoManager) {
         throw_with_nested(
             InvalidStateException("Could not verify block BLS sig:", __CLASS_NAME__));
     }
+
+    // a crypto manager created for tests has no chain
+    auto schain = _cryptoManager->getSchain();
+    if (!schain || !schain->protocolHardeningV1Patch(getTimeStampS())) {
+        return;
+    }
+
+    // a block received from another node must carry the signature text every node stores
+    CHECK_STATE2(sig == CryptoManager::canonicalBlsSigString(sig, hash),
+        "Unexpected block signature format in block " + to_string((uint64_t) getBlockID()));
+
+#ifdef BITE
+    if (reencryptionThresholdSig) {
+        auto reencryptionSig = *reencryptionThresholdSig;
+        auto reencryptionHash =
+            BLAKE3Hash::getDomainHash(hash, blockconsensus::REENCRYPTION_RANDOM_DOMAIN);
+        _cryptoManager->verifyBlockSig(
+            reencryptionSig, getBlockID(), reencryptionHash, getTimeStamp());
+        CHECK_STATE2(
+            reencryptionSig == CryptoManager::canonicalBlsSigString(reencryptionSig, reencryptionHash),
+            "Unexpected reencryption signature format in block " +
+                to_string((uint64_t) getBlockID()));
+    }
+#endif
 }
 
 void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
@@ -430,6 +450,10 @@ void CommittedBlock::verifyDaSig(ptr<CryptoManager> _cryptoManager) {
 #ifdef BITE
 DecryptedTransactions CommittedBlock::getDecryptedTransactions() const {
     return decryptedTransactions;
+}
+
+ptr< const DecryptedAESKeyList > CommittedBlock::getDecryptedAesKeyList() const {
+    return decryptedAesKeyList;
 }
 
 ptr< DecryptedRegularTxsMap > CommittedBlock::getDecryptedRegularTxFields() const {

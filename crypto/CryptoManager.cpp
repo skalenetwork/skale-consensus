@@ -77,6 +77,7 @@
 #include "ConsensusEdDSASigShare.h"
 #include "bls/BLSPrivateKeyShare.h"
 #include "bls/BLSPublicKeyShare.h"
+#include "bls/BLSSignature.h"
 #include "datastructures/CommittedBlock.h"
 #include "monitoring/LivelinessMonitor.h"
 #include "node/Node.h"
@@ -993,6 +994,41 @@ void CryptoManager::verifyThresholdSig(
     } catch (...) {
         throw_with_nested(InvalidStateException(__FUNCTION__, __CLASS_NAME__));
     }
+}
+
+
+// X:Y of _point in plain decimal, followed by the hint computed from _hash
+static string blsSigStringWithComputedHint(
+    const libBLS::algebra::G1Point &_point, const BLAKE3Hash &_hash) {
+    // same computation a signer does in BLSPrivateKeyShare::sign
+    auto [hashedPoint, counter] = libBLS::algebra::hashToG1withHint(_hash.getHash());
+    auto hint = hashedPoint.getY().toString(libBLS::algebra::Base::DEC) + ":" + counter;
+
+    // the signer counts are not part of the text form
+    return libBLS::BLSSignature(_point, hint, 1, 1).toString();
+}
+
+string CryptoManager::canonicalBlsSigString(const string &_sig, const BLAKE3Hash &_hash) {
+    // mockup signatures have no separators
+    if (_sig.find(':') == string::npos) {
+        return _sig;
+    }
+
+    return blsSigStringWithComputedHint(libBLS::BLSSignature(_sig, 1, 1).getSig(), _hash);
+}
+
+string CryptoManager::canonicalBlsSigString(
+    const ptr<ThresholdSignature> &_sig, const BLAKE3Hash &_hash) {
+    CHECK_ARGUMENT(_sig);
+
+    auto blsSig = dynamic_pointer_cast<ConsensusBLSSignature>(_sig);
+
+    // mockup signatures are stored as they are
+    if (!blsSig) {
+        return _sig->toString();
+    }
+
+    return blsSigStringWithComputedHint(blsSig->getBlsSig()->getSig(), _hash);
 }
 
 

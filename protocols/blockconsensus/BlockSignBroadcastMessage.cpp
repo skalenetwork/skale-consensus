@@ -79,15 +79,9 @@ BlockSignBroadcastMessage::BlockSignBroadcastMessage( block_id _blockID,
     if ( isBite2PatchEnabled ) {
         // compute additional offchain signature using domain separation.
         // This signature will be used to derive a random value seen only by validators.
-        auto& signatureDomain = blockconsensus::REENCRYPTION_RANDOM_DOMAIN;
-
         // Compute offchain block sig share as hash( blockHash || signatureDomain )
-        auto data = make_shared< vector< uint8_t > >();
-        const auto& baseHash = hash.getHash();
-        data->reserve( baseHash.size() + signatureDomain.size() );
-        data->insert( data->end(), baseHash.begin(), baseHash.end() );
-        data->insert( data->end(), signatureDomain.begin(), signatureDomain.end() );
-        auto offchainHash = BLAKE3Hash::calculateHash( data );
+        auto offchainHash =
+            BLAKE3Hash::getDomainHash( hash, blockconsensus::REENCRYPTION_RANDOM_DOMAIN );
 
         // Sign offchain digest and store in message
         auto reencryptionSigShare = schain->getCryptoManager()->signBlockSigShare( offchainHash, _blockID );

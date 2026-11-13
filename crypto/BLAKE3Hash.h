@@ -37,6 +37,8 @@
 #define HASH_FINAL( __HASH__, __OBJECT__ ) \
     blake3_hasher_finalize( &__HASH__, __OBJECT__, BLAKE3_OUT_LEN );
 
+#include <string_view>
+
 using namespace std;
 
 class BLAKE3Hash {
@@ -66,6 +68,9 @@ public:
 
     static BLAKE3Hash getConsensusHash(
         uint64_t _blockProposerIndex, uint64_t _blockId, uint64_t _schainId );
+
+    // hash( _baseHash || _domain ), used for domain-separated block signatures
+    static BLAKE3Hash getDomainHash( const BLAKE3Hash& _baseHash, string_view _domain );
 };
 
 
