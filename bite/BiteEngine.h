@@ -133,6 +133,10 @@ public:
     static ptr<std::vector<ptr<BiteCiphertext>>> tryGetEncryptedCTXArgs(
             const ptr<Transaction>& _transaction, epoch_id _currentEpochId );
 
+    // First argument encrypted for another epoch, nullptr if there is none. A CTX with such an
+    // argument keeps its place in the block, gets no decryption shares and is passed on as not decrypted.
+    static ptr<BiteCiphertext> getStaleEpochArg( const ptr<std::vector<ptr<BiteCiphertext>>>& _encryptedCTXArgs );
+
     std::vector<uint8_t> buildCTXData(
         const libBLS::TEPublicKey& key,
         size_t numberOfCiphertexts,

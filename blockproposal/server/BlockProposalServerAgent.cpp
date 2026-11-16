@@ -591,6 +591,21 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
+#ifdef BITE
+    // a proposal and the block committed from it are parsed with the epoch in the header,
+    // so it has to be the epoch of this node
+    if (_header.getEpochId() != myBlockProposalForTheSameBlockID->getEpochID()) {
+        responseHeader->setStatusSubStatus(
+                CONNECTION_ERROR, CONNECTION_ERROR_INVALID_EPOCH_ID);
+        responseHeader->setComplete();
+        CONS_LOG(err, "Proposal epoch " << to_string((uint64_t) _header.getEpochId())
+                          << " does not match epoch "
+                          << to_string((uint64_t) myBlockProposalForTheSameBlockID->getEpochID())
+                          << " for block " << to_string((uint64_t) blockIDInHeader));
+        return responseHeader;
+    }
+#endif
+
 
     if (_header.getTimeStamp() <= MODERN_TIME) {
         CONS_LOG(info, "Time less than modern time");

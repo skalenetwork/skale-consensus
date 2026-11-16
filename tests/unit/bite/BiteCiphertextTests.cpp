@@ -102,3 +102,17 @@ CATCH_TEST_CASE("BiteCiphertext rejects malformed payloads", "[bite][ciphertext]
         CATCH_REQUIRE_THROWS(BiteCiphertext(serializedPtr, epochId + 1));
     }
 }
+
+CATCH_TEST_CASE("BiteCiphertext marks a mismatched epoch as stale when allowed", "[bite][ciphertext][epoch]") {
+    const uint64_t epochId = 3;
+    auto keyPlusEncryptedData = makeKeyPlusEncryptedData();
+    auto serialized = BiteCodec::encodeEpochedBiteData(keyPlusEncryptedData, epochId);
+    auto serializedPtr = std::make_shared<std::vector<uint8_t>>(serialized);
+
+    BiteCiphertext current(serializedPtr, epochId, true);
+    CATCH_REQUIRE(!current.isStaleEpoch());
+
+    BiteCiphertext stale(serializedPtr, epochId + 1, true);
+    CATCH_REQUIRE(stale.isStaleEpoch());
+    CATCH_REQUIRE(stale.getEpoch() == epochId);
+}

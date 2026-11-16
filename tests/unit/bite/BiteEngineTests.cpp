@@ -345,6 +345,37 @@ CATCH_TEST_CASE("BiteEngine parse fails on epoch mismatch, when tx uses single c
 //     // TODO
 // }
 
+CATCH_TEST_CASE("BiteEngine keeps a CTX encrypted for another epoch without ciphertexts", "[bite][engine][parse][epoch][cat]") {
+    const uint64_t epoch = 10;
+    auto pk = libBLS::TEPublicKey::random();
+
+    auto staleCtx = buildBite2Transaction({ {0x01} }, { {0xAA} }, epoch - 1, pk);
+    auto emptyCtx = buildBite2Transaction({}, { {0xBB} }, epoch, pk);
+    auto currentCtx = buildBite2Transaction({ {0x02}, {0x03} }, { {0xCC} }, epoch, pk);
+    auto biteTx = buildBite1Transaction({0x04}, std::vector<uint8_t>(ADDRESS_SIZE, 0x11), epoch, pk);
+
+    auto txVec = std::make_shared<std::vector<ptr<Transaction>>>();
+    txVec->push_back(staleCtx);   // idx 0
+    txVec->push_back(emptyCtx);   // idx 1
+    txVec->push_back(currentCtx); // idx 2
+    txVec->push_back(biteTx);     // idx 3
+    TransactionList txList(txVec);
+
+    BiteRuntimeContext ctx{epoch, nullptr, true};
+    auto result = BiteEngine::parseAndCacheBITETransactions(txList, ctx);
+
+    // the stale CTX does not fail the list and the CTXs after it are still parsed as CTXs
+    CATCH_REQUIRE(result.failedTransactions.empty());
+    CATCH_REQUIRE(result.txsCiphertexts.size() == 3);
+    CATCH_REQUIRE(result.txsCiphertexts.totalCiphertextCount() == 3);
+    for (auto&& [idx, ciphertexts] : result.txsCiphertexts) {
+        CATCH_REQUIRE(idx != 0);
+    }
+    CATCH_REQUIRE(result.txsCiphertexts.at(1)->count() == 0);
+    CATCH_REQUIRE(result.txsCiphertexts.at(2)->count() == 2);
+    CATCH_REQUIRE(result.txsCiphertexts.at(3)->count() == 1);
+}
+
 CATCH_TEST_CASE("BiteEngine ignores non-BITE transactions", "[bite][engine][parse][nonbite]") {
     auto tx = EthTransactionEncoder::generateSampleTx();
     tx->to = std::vector<uint8_t>(ADDRESS_SIZE, 0x00); // non-BITE address
@@ -664,6 +695,40 @@ CATCH_TEST_CASE("BiteEngine decrypts only CAT transactions", "[bite][engine][dec
     CATCH_REQUIRE(decrypted.ctxTxsMap->count(0) == 1);
     CATCH_REQUIRE(decrypted.ctxTxsMap->count(1) == 1);
     CATCH_REQUIRE(decrypted.regularTxsMap->empty());
+}
+
+CATCH_TEST_CASE("BiteEngine passes a CTX encrypted for another epoch as not decrypted", "[bite][engine][decrypt][cat][epoch]") {
+    const uint64_t epoch = 9;
+    BiteCore core;
+    core.doRealCrypto = true;
+    BiteEngine engine(core, BiteConfig{});
+    auto keys = generateKeys(1, 1);
+
+    auto staleCtx = buildBite2Transaction({ {0x01} }, { {0xAA} }, epoch - 1, keys.commonPublic);
+    auto currentCtx = buildBite2Transaction({ {0x10}, {0x20} }, { {0xCC} }, epoch, keys.commonPublic);
+    auto biteTx = buildBite1Transaction({0xAB}, std::vector<uint8_t>(ADDRESS_SIZE, 0x44), epoch, keys.commonPublic);
+
+    auto txVec = std::make_shared<std::vector<ptr<Transaction>>>();
+    txVec->push_back(staleCtx);   // idx 0
+    txVec->push_back(currentCtx); // idx 1
+    txVec->push_back(biteTx);     // idx 2
+    TransactionList txList(txVec);
+
+    // no AES keys exist for the stale CTX
+    DecryptedAESKeyList aesKeys;
+    aesKeys.addKeys(1, getDecryptedAESKeysForTransaction(currentCtx, keys, 1, 1, epoch));
+    aesKeys.addKeys(2, getDecryptedAESKeysForTransaction(biteTx, keys, 1, 1, epoch));
+
+    BiteRuntimeContext ctx{epoch, std::make_shared<folly::CPUThreadPoolExecutor>(2), true};
+    auto decrypted = engine.decryptTransactionsListInParallel(txList, aesKeys, ctx);
+
+    CATCH_REQUIRE(decrypted.ctxTxsMap);
+    CATCH_REQUIRE(decrypted.ctxTxsMap->size() == 2);
+    CATCH_REQUIRE(!decrypted.ctxTxsMap->at(0).has_value());
+    CATCH_REQUIRE(decrypted.ctxTxsMap->at(1).has_value());
+    CATCH_REQUIRE(decrypted.ctxTxsMap->at(1)->args.size() == 2);
+    CATCH_REQUIRE(decrypted.regularTxsMap);
+    CATCH_REQUIRE(decrypted.regularTxsMap->count(2) == 1);
 }
 
 CATCH_TEST_CASE("BiteEngine decrypts mixed CAT and BITE transactions", "[bite][engine][decrypt][cat][mixed]") {

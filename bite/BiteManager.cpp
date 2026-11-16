@@ -55,8 +55,9 @@ BiteManager::~BiteManager() {
 void BiteManager::parseBITETransactions(
     ptr<BlockProposal> _proposal) {
 
+    // the epoch of the proposal, which is also what decryption and catchup parse with
     BiteRuntimeContext runtimeCtx {
-        .currentEpoch = schain.getNode()->getCurrentEpochId()
+        .currentEpoch = _proposal->getEpochID()
         , .isBite2PatchEnabled = schain.bite2Patch( schain.getLastCommittedBlockTimeStamp().getS() )
     };
 

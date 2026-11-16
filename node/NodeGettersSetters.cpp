@@ -410,6 +410,7 @@ uint64_t Node::getCurrentEpochId() const {
 }
 
 void Node::setEpochId( uint64_t _epochId ) {
+    CONS_LOG( info, "Epoch id set to " << _epochId << ", was " << epochId.load() );
     epochId.store( _epochId );
 }
 #endif

@@ -2,6 +2,7 @@
 #include <folly/futures/Future.h>
 #include <folly/Unit.h>
 
+#include <algorithm>
 #include <atomic>
 
 
@@ -90,6 +91,13 @@ ptr<std::vector<ptr<BiteCiphertext>>> BiteEngine::tryGetEncryptedCTXArgs(
     return encryptedCTXArgs;
 }
 
+ptr<BiteCiphertext> BiteEngine::getStaleEpochArg( const ptr<std::vector<ptr<BiteCiphertext>>>& _encryptedCTXArgs ) {
+    CHECK_STATE(_encryptedCTXArgs);
+    auto it = std::find_if(_encryptedCTXArgs->begin(), _encryptedCTXArgs->end(),
+        [](const ptr<BiteCiphertext>& _arg) { return _arg->isStaleEpoch(); });
+    return it != _encryptedCTXArgs->end() ? *it : nullptr;
+}
+
 BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
     const TransactionList& txList,
     BiteRuntimeContext& runtimeContext
@@ -109,7 +117,16 @@ BiteEngine::ParseResult BiteEngine::parseAndCacheBITETransactions(
                 auto tx = transactions->at(i);
                 auto ctxArgs = BiteEngine::tryGetEncryptedCTXArgs(tx, runtimeContext.currentEpoch);
 
-                if (ctxArgs) {
+                // Should only ever happen if CTX is submitted in last block of rotation R and
+                // included in first block of rotation R+1 for DKG scheme that does not preserve
+                // the same keys
+                ptr<BiteCiphertext> staleArg = ctxArgs ? getStaleEpochArg(ctxArgs) : nullptr;
+                if (staleArg) {
+                    // stays in the block as a CTX, without ciphertexts to validate or decrypt
+                    CONS_LOG(info, fmt::format(
+                        "CTX {} is encrypted for epoch {}, current epoch {}, it will not be decrypted",
+                        i, staleArg->getEpoch(), (uint64_t) runtimeContext.currentEpoch));
+                } else if (ctxArgs) {
                     // Fetch the cached SC address for AAD
                     auto scAddressAadTE = tx->getScAddressAadTE();
                     std::optional<AddressBytes> scAddrOpt = scAddressAadTE ? std::make_optional(*scAddressAadTE) : std::nullopt;
@@ -676,6 +693,12 @@ DecryptedTransactions BiteEngine::decryptTransactionsListInParallel(
                         encryptedArgs = tryGetEncryptedCTXArgs(tx, runtimeContext.currentEpoch);
                     } catch (const std::exception& e) {
                         CONS_LOG(warn, fmt::format("Could not try to parse as CTX encrypted transaction during decryption: {}: {}", txIdx, e.what()));
+                    }
+                    if (encryptedArgs && getStaleEpochArg(encryptedArgs)) {
+                        // encrypted for another epoch: no AES keys were produced for it
+                        std::lock_guard<std::mutex> lock(*ctxTxsMapMutex);
+                        ctxTxsMap->emplace(txIdx, std::nullopt);
+                        continue;
                     }
                     if (encryptedArgs) {
                         // CTX tx with no encrypted arguments — nothing to decrypt

@@ -17,7 +17,8 @@ const auto BITE_MIN_DATA_LEN = BITE_EPOCH_ID_LEN + ADDRESS_SIZE;
 const auto KEY_COUNT_BYTE_OFFSET = 1;
 
 
-BiteCiphertext::BiteCiphertext(const std::shared_ptr<std::vector<uint8_t> > &_data, epoch_id _currentEpochId) {
+BiteCiphertext::BiteCiphertext(const std::shared_ptr<std::vector<uint8_t> > &_data, epoch_id _currentEpochId,
+                               bool _isCTXArgument) {
     CHECK_STATE(_data);
 
     // get epoch and ciphered data from RLP-encoded payload
@@ -71,7 +72,8 @@ BiteCiphertext::BiteCiphertext(const std::shared_ptr<std::vector<uint8_t> > &_da
         encryptedAESKey.emplace(EncryptedAESKey(encryptedBITEData.getTargetKey().toBytes()));
     }
     
-    CHECK_STATE2((uint64_t) _currentEpochId == epoch, "Incorrectly formatted BITE transaction: wrong epochId");
+    staleEpoch = (uint64_t) _currentEpochId != epoch;
+    CHECK_STATE2(!staleEpoch || _isCTXArgument, "Incorrectly formatted BITE transaction: wrong epochId");
 
     CHECK_STATE2(keyPlusEncryptedData->size() >= BITE_ENCRYPTED_AES_KEY_LEN,
             "Incorrectly formatted BITE transaction: Encrypted data size is not at least " +
@@ -90,6 +92,10 @@ const shared_ptr< EncryptedData >& BiteCiphertext::getKeyPlusEncryptedData() con
 
 uint64_t BiteCiphertext::getEpoch() {
     return epoch;
+}
+
+bool BiteCiphertext::isStaleEpoch() const {
+    return staleEpoch;
 }
 
 ptr<vector<uint8_t> > &BiteCiphertext::getSerializedData() {

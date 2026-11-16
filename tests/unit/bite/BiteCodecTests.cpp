@@ -114,7 +114,7 @@ CATCH_TEST_CASE("BiteCodec parses CAT args with selector and ignores others", "[
     CATCH_REQUIRE(BiteCodec::tryParseEncryptedCTXArgs(withoutSelector, epoch) == nullptr);
 }
 
-CATCH_TEST_CASE("BiteCodec enforces epoch for CAT args", "[bite][codec][cat][epoch]") {
+CATCH_TEST_CASE("BiteCodec marks CAT args of another epoch as stale", "[bite][codec][cat][epoch]") {
     const uint64_t epoch = 4;
     std::vector<std::vector<uint8_t>> encryptedArgs = {
         buildBITE1EpochedData(
@@ -138,11 +138,17 @@ CATCH_TEST_CASE("BiteCodec enforces epoch for CAT args", "[bite][codec][cat][epo
     auto parsed = BiteCodec::tryParseEncryptedCTXArgs(encoded, epoch);
     CATCH_REQUIRE(parsed);
     CATCH_REQUIRE(parsed->size() == encryptedArgs.size());
+    for (const auto& arg : *parsed) {
+        CATCH_REQUIRE(!arg->isStaleEpoch());
+    }
 
-    // mismatching epoch throws when constructing BiteCiphertext for args
-    CATCH_REQUIRE_THROWS_AS(
-        BiteCodec::tryParseEncryptedCTXArgs(encoded, epoch + 1),
-        InvalidStateException);
+    // mismatching epoch still parses: the args are marked as stale
+    auto stale = BiteCodec::tryParseEncryptedCTXArgs(encoded, epoch + 1);
+    CATCH_REQUIRE(stale);
+    CATCH_REQUIRE(stale->size() == encryptedArgs.size());
+    for (const auto& arg : *stale) {
+        CATCH_REQUIRE(arg->isStaleEpoch());
+    }
 }
 
 CATCH_TEST_CASE("BiteCodec round trips regular payload encoding", "[bite][codec]") {
