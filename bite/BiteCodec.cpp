@@ -68,6 +68,10 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
         std::make_shared<std::vector<std::shared_ptr<BiteCiphertext>>>();
     encryptedCTXArgs->reserve(encryptedArgsRLP.size());
 
+    // a CTX cannot be dropped once skaled queued it: an argument encrypted for another
+    // epoch is kept and marked as stale
+    const bool isCTXArgument = true;
+
     for (size_t i = 0; i < encryptedArgsRLP.size(); ++i) {
         const RLPItem& encryptedArg = encryptedArgsRLP[i];
 
@@ -75,7 +79,7 @@ std::shared_ptr<std::vector<std::shared_ptr<BiteCiphertext>>> BiteCodec::tryPars
 
         auto argData = std::make_shared<std::vector<uint8_t>>(encryptedArg.asBytes());
         encryptedCTXArgs->emplace_back(
-            std::make_shared<BiteCiphertext>(argData, _currentEpochId)
+            std::make_shared<BiteCiphertext>(argData, _currentEpochId, isCTXArgument)
         );
     }
 
