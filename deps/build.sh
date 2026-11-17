@@ -2501,7 +2501,15 @@ then
             git clone https://github.com/skalenetwork/leveldb.git --recursive
         fi
         cd leveldb
-        git checkout skale
+        # LevelDB 1.22 from the skale branch of the fork, pinned to the commit that has the fix
+        # for deleted keys reading back after a compaction (upstream 13e3c4ef). A source
+        # directory cloned before that commit existed gets it with the fetch.
+        LEVELDB_COMMIT=c90aa8c0cf2264e34479e8e79412d973765166d2
+        if ! git cat-file -e "${LEVELDB_COMMIT}^{commit}" 2> /dev/null;
+        then
+            git fetch origin skale
+        fi
+        git checkout "$LEVELDB_COMMIT"
         echo -e "${COLOR_INFO}configuring it${COLOR_DOTS}...${COLOR_RESET}"
         mkdir -p build
         cd build
