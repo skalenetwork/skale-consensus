@@ -312,7 +312,7 @@ CATCH_TEST_CASE( "Serialize/deserialize transaction list", "[tx-list-serialize][
 }
 
 
-CATCH_TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize][end-to-end][correctness]" ) {
+CATCH_TEST_CASE( "Serialize/deserialize committed block", "[committed-block-serialize][end-to-end][correctness][legacy]" ) {
     CATCH_SECTION( "Test successful serialize/deserialize" )
 
     test_committed_block_serialize_deserialize( false );
@@ -325,7 +325,7 @@ CATCH_TEST_CASE( "Serialize/deserialize committed block", "[committed-block-seri
 }
 
 
-CATCH_TEST_CASE( "Serialize/deserialize committed block list", "[committed-block-list-serialize][end-to-end][correctness]" ) {
+CATCH_TEST_CASE( "Serialize/deserialize committed block list", "[committed-block-list-serialize][end-to-end][correctness][legacy]" ) {
     CATCH_SECTION( "Test successful serialize/deserialize" )
 
     test_committed_block_list_serialize_deserialize();
@@ -337,7 +337,7 @@ CATCH_TEST_CASE( "Serialize/deserialize committed block list", "[committed-block
     // Test successful serialize/deserialize failure
 }
 
-CATCH_TEST_CASE( "Test committed block fragment/defragment", "[committed-block-defragment][end-to-end][correctness]" ) {
+CATCH_TEST_CASE( "Test committed block fragment/defragment", "[committed-block-defragment][end-to-end][correctness][legacy]" ) {
     CATCH_SECTION( "Test successful serialize/deserialize" )
 
     test_committed_block_fragment_defragment( false );

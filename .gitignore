@@ -100,8 +100,8 @@ libconsensusd.a
 libBLS/
 /build
 
-/run_sgx_test/sgx_data/4node.json
-/run_sgx_test/sgx_data/16node.json
+/run_sgx_test/sgx_data/
+/run_sgx_test/client_cert/
 
 /deps/argtable2/
 /deps/BLAKE3/

@@ -23,19 +23,17 @@
 
 #pragma once
 
-class ServerConnection {
-    recursive_mutex m;
+#include "Socket.h"
 
+class ServerConnection {
     static atomic< int64_t > totalObjects;
 
-    file_descriptor descriptor = 0;
+    Socket descriptor;
 
     string ip;
 
-    void closeConnection();
-
 public:
-    ServerConnection( unsigned int _descriptor, const string& _ip );
+    ServerConnection( Socket _descriptor, const string& _ip );
 
     virtual ~ServerConnection();
 

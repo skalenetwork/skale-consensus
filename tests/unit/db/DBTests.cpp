@@ -71,7 +71,7 @@ void test_committed_block_save() {
     CATCH_REQUIRE( db->findMaxMinDBIndex().first > 10 );
 }
 
-CATCH_TEST_CASE( "Save/read block", "[block-save-read-db][end-to-end][correctness]" ) {
+CATCH_TEST_CASE( "Save/read block", "[block-save-read-db][end-to-end][correctness][legacy]" ) {
     CATCH_SECTION( "Test successful save/read" )
     test_committed_block_save();
 }

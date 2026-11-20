@@ -39,6 +39,7 @@
 #include "node/Node.h"
 #include "oracle/OracleClient.h"
 #include "catchup/client/CatchupClientAgent.h"
+#include "crypto/CryptoManager.h"
 #include "thirdparty/json.hpp"
 #include "threads/GlobalThreadRegistry.h"
 
@@ -383,6 +384,35 @@ void ConsensusEngine::checkExistsAndDirectory( const fs_path& _dirPath ) {
 }
 
 
+// Test-only: key and cert that consensus uses to sign ZMQ requests to the SGX simulator.
+// The cert is issued by the simulator CA and reused while that CA still verifies it,
+// so tests never read the wallet's own server key.
+static void prepareTestSGXClientCert( const string& _certDir, const string& _rootCAPath ) {
+    CHECK_STATE( _certDir.find( '\'' ) == string::npos );
+    CHECK_STATE( _rootCAPath.find( '\'' ) == string::npos );
+
+    string keyPath = _certDir + "/key";
+    string certPath = _certDir + "/cert";
+    string verifyCommand = "/usr/bin/openssl verify -CAfile '" + _rootCAPath + "' '" +
+                           certPath + "' > /dev/null 2>&1";
+
+    if ( is_regular_file( keyPath ) && access( keyPath.c_str(), R_OK ) == 0 &&
+         is_regular_file( certPath ) && system( verifyCommand.c_str() ) == 0 ) {
+        return;
+    }
+
+    remove_all( _certDir );
+    create_directories( _certDir );
+    string certDir = _certDir;
+    CryptoManager::generateSSLClientCertAndKey( certDir );
+
+    if ( system( verifyCommand.c_str() ) != 0 ) {
+        BOOST_THROW_EXCEPTION(
+            FatalError( "SGX simulator CA did not verify test client cert: " + certPath ) );
+    }
+}
+
+
 void ConsensusEngine::checkExistsAndFile( const fs_path& _filePath ) {
     if ( !exists( _filePath ) ) {
         BOOST_THROW_EXCEPTION( FatalError( "Not found: " + _filePath.string() ) );
@@ -431,10 +461,13 @@ void ConsensusEngine::parseTestConfigsAndCreateAllNodes(
                 CHECK_STATE( nodeCount % 3 == 1 );
                 sgxServerUrl = string( "http://localhost:1029" );
 
-                sgxSSLKeyFileFullPath =
-                    "../../run_sgx_test/sgx_data/cert_data/SGXServerCert.key";
-                sgxSSLCertFileFullPath =
-                    "../../run_sgx_test/sgx_data/cert_data/SGXServerCert.crt";
+                string sgxTestDir =
+                    canonical( dirname.string() + "/../../run_sgx_test" ).string();
+                string clientCertDir = sgxTestDir + "/client_cert";
+                prepareTestSGXClientCert(
+                    clientCertDir, sgxTestDir + "/sgx_data/cert_data/rootCA.pem" );
+                sgxSSLKeyFileFullPath = clientCertDir + "/key";
+                sgxSSLCertFileFullPath = clientCertDir + "/cert";
 
                 this->setTestKeys( sgxServerUrl, filePath, nodeCount, nodeCount - 1 / 3 );
             }

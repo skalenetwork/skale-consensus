@@ -23,29 +23,24 @@
 
 #pragma once
 
+#include "Socket.h"
 
 class Node;
 class NodeInfo;
 class Schain;
 
 class ClientSocket {
-    recursive_mutex m;
-
     static atomic< int64_t > totalSockets;
 
-    file_descriptor descriptor = 0;
+    Socket descriptor;
 
     string remoteIP;
 
     network_port remotePort = 0;
 
-    ptr< sockaddr_in > remoteAddr = nullptr;
+    static Socket createTCPSocket();
 
-    void closeSocket();
-
-
-    int createTCPSocket();
-
+    void connectTCPSocket( const Socket& _socket, const sockaddr_in& _remoteAddress );
 
 public:
     file_descriptor getDescriptor();
@@ -57,7 +52,6 @@ public:
     static uint64_t getTotalSockets();
 
     virtual ~ClientSocket() {
-        closeSocket();
         totalSockets--;
     }
 
