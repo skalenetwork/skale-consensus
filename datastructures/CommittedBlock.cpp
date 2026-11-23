@@ -403,9 +403,9 @@ void CommittedBlock::verifyBlockSig(ptr<CryptoManager> _cryptoManager) {
             InvalidStateException("Could not verify block BLS sig:", __CLASS_NAME__));
     }
 
-    // a crypto manager created for tests has no chain
     auto schain = _cryptoManager->getSchain();
-    if (!schain || !schain->protocolHardeningV1Patch(getTimeStampS())) {
+    CHECK_STATE(schain);
+    if (!schain->protocolHardeningV1Patch(getTimeStampS())) {
         return;
     }
 
