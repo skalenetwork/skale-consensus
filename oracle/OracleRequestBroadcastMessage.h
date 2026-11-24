@@ -33,7 +33,9 @@ class OracleRequestSpec;
 
 class OracleRequestBroadcastMessage : public NetworkMessage {
     string requestSpec;
+    // Parsed on first use. Messages received from the network are not parsed on construction.
     ptr< OracleRequestSpec > parsedSpec = nullptr;
+    recursive_mutex parsedSpecLock;
 
 protected:
 public:
@@ -53,7 +55,8 @@ public:
         uint64_t _timeMs,
         OracleClient& sourceProtocolInstance );
 
-    const ptr< OracleRequestSpec >& getParsedSpec() const;
+    // Parses the spec on first call. Throws if the spec is invalid.
+    ptr< OracleRequestSpec > getParsedSpec();
 
     OracleRequestBroadcastMessage( const string& _requestSpec, node_id _srcNodeID,
         block_id _blockID, 

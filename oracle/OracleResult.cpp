@@ -33,9 +33,11 @@ void OracleResult::parseResultAsJson() {
         d.Parse( oracleResult.data() );
 
         CHECK_STATE2( !d.HasParseError(), "Unparsable Oracle result:" + oracleResult );
+        CHECK_STATE2( d.IsObject(), "Oracle result is not a JSON object:" + oracleResult );
 
 
         CHECK_STATE2( d.HasMember( "sig" ), "No sig in Oracle result:" + oracleResult );
+        CHECK_STATE2( d["sig"].IsString(), "Sig in Oracle result is not string:" + oracleResult );
 
         sig = d["sig"].GetString();
 
@@ -47,6 +49,9 @@ void OracleResult::parseResultAsJson() {
             error = d["err"].GetInt64();
             return;
         }
+
+        CHECK_STATE2(
+            d["rslts"].IsArray(), "Rslts in Oracle result is not array:" + oracleResult );
 
         auto resultsArray = d["rslts"].GetArray();
 
@@ -267,6 +272,7 @@ void OracleResult::extractEthCallResults( std::string& _response ) {
         d.Parse( _response.data() );
 
         CHECK_STATE2( !d.HasParseError(), "Unparsable response:" + _response );
+        CHECK_STATE2( d.IsObject(), "Response is not a JSON object:" + _response );
 
         CHECK_STATE2( d.HasMember( "result" ) || d.HasMember( "error" ),
             "No result or error in response:" + _response );
@@ -277,6 +283,8 @@ void OracleResult::extractEthCallResults( std::string& _response ) {
             results->push_back( make_shared< string >( d["result"].GetString() ) );
         } else {  // error
             CHECK_STATE2( d["error"].IsObject(), "Error shall be object in response:" + _response );
+            CHECK_STATE2(
+                d["error"].HasMember( "code" ), "No code in error in response:" + _response );
             CHECK_STATE2(
                 d["error"]["code"].IsInt64(), "Code shall be Int64 in response" + _response );
             error = d["error"]["code"].GetInt64();

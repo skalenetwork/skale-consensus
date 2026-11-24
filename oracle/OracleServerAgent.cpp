@@ -144,6 +144,7 @@ void OracleServerAgent::workerThreadItemSendLoop( OracleServerAgent* _agent ) {
             auto orclMsg =
                 dynamic_pointer_cast< OracleRequestBroadcastMessage >( msge->getMessage() );
 
+            CHECK_STATE( orclMsg );
 
             auto spec = orclMsg->getParsedSpec();
 
@@ -166,9 +167,7 @@ void OracleServerAgent::workerThreadItemSendLoop( OracleServerAgent* _agent ) {
             }
 
 
-            CHECK_STATE( orclMsg );
-
-            auto msg = _agent->doEndpointRequestResponse( orclMsg->getParsedSpec() );
+            auto msg = _agent->doEndpointRequestResponse( spec );
 
             _agent->sendOutResult( msg, msge->getSrcSchainIndex() );
         } catch ( ExitRequestedException& e ) {

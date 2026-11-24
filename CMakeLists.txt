@@ -329,6 +329,7 @@ file(GLOB_RECURSE COMMON_TEST_SOURCES
         "tests/unit/db/*.cpp"
         "tests/unit/harness/*.cpp"
         "tests/unit/network/*.cpp"
+        "tests/unit/oracle/*.cpp"
         "tests/unit/utils/*.cpp"
         "tests/consensus_tests.cpp"
         "tests/sgx_tests.cpp"
