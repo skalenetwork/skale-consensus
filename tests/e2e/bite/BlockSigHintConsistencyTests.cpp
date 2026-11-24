@@ -93,11 +93,7 @@ static constexpr uint64_t CATCHUP_CHECKED_BLOCKS = 5;
 
 // In the tests where the patch turns on during the run, it turns on this many seconds after
 // the chain starts, so that some blocks are committed before it and some after.
-static constexpr uint64_t ACTIVATION_DELAY_S = 20;
-
-// The test waits until every node has committed a block at least this many seconds after the
-// patch turned on.
-static constexpr uint64_t POST_ACTIVATION_MARGIN_S = 3;
+static constexpr uint64_t ACTIVATION_DELAY_S = 30;
 
 // Block 1 has no reencryption signature, so reencryption checks start at block 2.
 static constexpr uint64_t FIRST_REENCRYPTION_BLOCK_ID = 2;
@@ -200,19 +196,23 @@ struct ActivationRun {
 };
 
 // Starts the chain with the patch turning on ACTIVATION_DELAY_S seconds later, and waits until
-// there are blocks both before and after that moment. Fails the test unless all blocks up to
-// _firstCheckedBlock were committed before the patch turned on.
+// every node has committed at least three blocks after that moment. Fails the test unless all
+// blocks up to _firstCheckedBlock were committed before the patch turned on.
 static ActivationRun runAcrossActivation(
     ConsensusEngine*& _engine, uint64_t _firstCheckedBlock = 1 ) {
     ActivationRun run{};
     run.activationS = activationInSeconds( ACTIVATION_DELAY_S );
     setupFourNodeEngine( _engine, run.activationS );
-    const uint64_t waitUntilS = run.activationS + POST_ACTIVATION_MARGIN_S;
-    waitOrFail( [&] { return minLastCommittedTimeStampS( *_engine ) >= waitUntilS; } );
-    run.lastBlock = minLastCommitted( *_engine );
-    run.firstActive = firstBlockAtOrAfter( *_engine, run.activationS, run.lastBlock );
+    // Only read blocks once every node is past the activation time, so the loop does not scan
+    // the block database on every poll while the chain is still before it.
+    waitOrFail( [&] {
+        if ( minLastCommittedTimeStampS( *_engine ) < run.activationS )
+            return false;
+        run.lastBlock = minLastCommitted( *_engine );
+        run.firstActive = firstBlockAtOrAfter( *_engine, run.activationS, run.lastBlock );
+        return run.firstActive != 0 && run.firstActive + 2 <= run.lastBlock;
+    } );
     CATCH_REQUIRE( run.firstActive > _firstCheckedBlock );
-    CATCH_REQUIRE( run.firstActive + 1 <= run.lastBlock );
     return run;
 }
 

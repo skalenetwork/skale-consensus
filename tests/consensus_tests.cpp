@@ -4,8 +4,18 @@
 
 #include "thirdparty/catch.hpp"
 #include "Consensust.h"
+#include "tests/e2e/E2ETestHelper.h"
+
+#include <cstdlib>
+
+// Block size for the load test. Other tests use small blocks.
+static constexpr const char* LOAD_TEST_TRANSACTIONS_PER_BLOCK = "1000";
 
 CATCH_TEST_CASE_METHOD( StartFromScratch, "Run basic consensus", "[consensus-basic][end-to-end]" ) {
+    // This is a load test, so it uses large blocks unless the caller set a block size.
+    const char* callerBlockSize = std::getenv( "TEST_TRANSACTIONS_PER_BLOCK" );
+    E2ETestUtils::ScopedTestEnvVar blockSize( "TEST_TRANSACTIONS_PER_BLOCK",
+        callerBlockSize ? callerBlockSize : LOAD_TEST_TRANSACTIONS_PER_BLOCK );
     basicRun();
     CATCH_SUCCEED();
 }

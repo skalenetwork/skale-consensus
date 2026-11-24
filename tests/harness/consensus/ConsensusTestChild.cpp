@@ -38,6 +38,10 @@ int main( int argc, char** argv ) {
         if ( ::setenv( "LOG_DIR", logDirectory.c_str(), 1 ) != 0 )
             throw std::runtime_error( "Could not set child LOG_DIR" );
 
+        // Use small blocks like the in-process tests, unless the parent set a block size.
+        if ( ::setenv( "TEST_TRANSACTIONS_PER_BLOCK", "10", 0 ) != 0 )
+            throw std::runtime_error( "Could not set child TEST_TRANSACTIONS_PER_BLOCK" );
+
         E2ETestUtils::ConsensusStartupOptions options;
         options.configDirectory = fs_path( argv[1] );
         auto engine = E2ETestUtils::startConsensusEngine( options );
