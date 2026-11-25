@@ -29,8 +29,6 @@
 #include "crypto/BLAKE3Hash.h"
 #include "crypto/CryptoManager.h"
 #include "crypto/DecryptedAESKeyList.h"
-#include "crypto/bls_include.h"
-#include "libBLS/bls/BLSSignature.h"
 #include "datastructures/CommittedBlock.h"
 #include "node/ConsensusEngine.h"
 #include "node/Node.h"
@@ -66,10 +64,6 @@ using E2ETestUtils::waitUntil;
 static const std::vector< node_id > ALL_NODES = {
     Chain::NODE_1, Chain::NODE_2, Chain::NODE_3, Chain::NODE_4 };
 
-// The chain has 4 nodes and a signature needs shares from 3 of them.
-static constexpr size_t TOTAL_SIGNERS = 4;
-static constexpr size_t REQUIRED_SIGNERS = 3;
-
 // In some tests this node rewrites the signature shares it receives before saving them.
 static const node_id MODIFIED_NODE = Chain::NODE_2;
 
@@ -95,10 +89,7 @@ static constexpr uint64_t CATCHUP_CHECKED_BLOCKS = 5;
 // the chain starts, so that some blocks are committed before it and some after.
 static constexpr uint64_t ACTIVATION_DELAY_S = 30;
 
-// Block 1 has no reencryption signature, so reencryption checks start at block 2.
-static constexpr uint64_t FIRST_REENCRYPTION_BLOCK_ID = 2;
-
-// Name of the patch under test. When it is on, every node must store the block signature in
+// Name of the patch under test. When it is on, every node must store the block signatures in
 // one exact text format.
 static const char* const SIG_PATCH_KEY = "protocolHardeningV1PatchTimestamp";
 
@@ -106,14 +97,19 @@ static const char* const SIG_PATCH_KEY = "protocolHardeningV1PatchTimestamp";
 static constexpr uint64_t NO_ACTIVATION = 0;
 static constexpr uint64_t ACTIVE_FROM_START = 1;
 
+// The two threshold signatures a block carries. The tests check both the same way.
+enum class SigKind { Block, Reencryption };
+
+// Block 1 has no reencryption signature, so reencryption checks start at block 2.
+static uint64_t firstBlockWithSig( SigKind _kind ) {
+    return _kind == SigKind::Block ? 1 : 2;
+}
+
 
 // ---------- Starting the chain and reading blocks from each node ----------
 
 static std::map< std::string, uint64_t > patchMap( uint64_t _sigPatchTimestamp ) {
-    return { 
-        { "bite2PatchTimestamp", ACTIVE_FROM_START },
-        { SIG_PATCH_KEY, _sigPatchTimestamp } 
-    };
+    return { { "bite2PatchTimestamp", ACTIVE_FROM_START }, { SIG_PATCH_KEY, _sigPatchTimestamp } };
 }
 
 static uint64_t activationInSeconds( uint64_t _delayS ) {
@@ -157,15 +153,9 @@ static ptr< CommittedBlock > blockOf(
         _engine, _blockId, _nodeId );
 }
 
-static u256 randomOf( const ConsensusEngine& _engine, node_id _nodeId, uint64_t _blockId ) {
-    return ConsensusEngineTestAccess::getNode( _engine, _nodeId )
-        ->getSchain()
-        ->getRandomForBlockId( block_id( _blockId ) );
-}
-
 // Returns the first block with a timestamp at or after _timeStampS, or 0 if there is none.
-static uint64_t firstBlockAtOrAfter( const ConsensusEngine& _engine, uint64_t _timeStampS,
-    uint64_t _last ) {
+static uint64_t firstBlockAtOrAfter(
+    const ConsensusEngine& _engine, uint64_t _timeStampS, uint64_t _last ) {
     for ( uint64_t blockId = 1; blockId <= _last; blockId++ ) {
         if ( blockOf( _engine, Chain::NODE_1, blockId )->getTimeStampS() >= _timeStampS )
             return blockId;
@@ -196,13 +186,16 @@ struct ActivationRun {
 };
 
 // Starts the chain with the patch turning on ACTIVATION_DELAY_S seconds later, and waits until
-// every node has committed at least three blocks after that moment. Fails the test unless all
-// blocks up to _firstCheckedBlock were committed before the patch turned on.
-static ActivationRun runAcrossActivation(
-    ConsensusEngine*& _engine, uint64_t _firstCheckedBlock = 1 ) {
+// every node has committed at least three blocks after that moment. Fails the test unless at
+// least one block with a _kind signature was committed before the patch turned on.
+static ActivationRun runAcrossActivation( ConsensusEngine*& _engine, SigKind _kind ) {
     ActivationRun run{};
     run.activationS = activationInSeconds( ACTIVATION_DELAY_S );
+    const uint64_t setupStartMs = Time::getCurrentTimeMs();
     setupFourNodeEngine( _engine, run.activationS );
+    const uint64_t setupMs = Time::getCurrentTimeMs() - setupStartMs;
+    CATCH_INFO( "patch turns on at " << run.activationS << " s; engine setup took " << setupMs
+                                      << " ms of the " << ACTIVATION_DELAY_S << " s delay" );
     // Only read blocks once every node is past the activation time, so the loop does not scan
     // the block database on every poll while the chain is still before it.
     waitOrFail( [&] {
@@ -212,18 +205,21 @@ static ActivationRun runAcrossActivation(
         run.firstActive = firstBlockAtOrAfter( *_engine, run.activationS, run.lastBlock );
         return run.firstActive != 0 && run.firstActive + 2 <= run.lastBlock;
     } );
-    CATCH_REQUIRE( run.firstActive > _firstCheckedBlock );
+    // If this fails, the chain committed too few blocks before the patch turned on. Raise
+    // ACTIVATION_DELAY_S.
+    CATCH_INFO( "first block at or after activation: "
+                << run.firstActive << "; block 1 timestamp: "
+                << blockOf( *_engine, Chain::NODE_1, 1 )->getTimeStampS() << " s" );
+    CATCH_REQUIRE( run.firstActive > firstBlockWithSig( _kind ) );
     return run;
 }
 
 // Returns the two blocks before the patch turned on and the first three blocks after it,
-// skipping any below _minBlockId.
-static std::vector< uint64_t > blocksAroundActivation(
-    const ActivationRun& _run, uint64_t _minBlockId ) {
-    CATCH_REQUIRE( _run.firstActive >= 2 );
+// skipping blocks without a _kind signature. runAcrossActivation guarantees firstActive >= 2.
+static std::vector< uint64_t > blocksAroundActivation( const ActivationRun& _run, SigKind _kind ) {
     std::vector< uint64_t > result;
     for ( uint64_t blockId = _run.firstActive - 2; blockId <= _run.firstActive + 2; blockId++ ) {
-        if ( blockId >= _minBlockId && blockId <= _run.lastBlock )
+        if ( blockId >= firstBlockWithSig( _kind ) && blockId <= _run.lastBlock )
             result.push_back( blockId );
     }
     return result;
@@ -231,6 +227,34 @@ static std::vector< uint64_t > blocksAroundActivation(
 
 
 // ---------- Expected signature text and checks against it ----------
+
+// The text of the _kind signature stored in _block.
+static std::string sigOf( const ptr< CommittedBlock >& _block, SigKind _kind ) {
+    if ( _kind == SigKind::Block )
+        return _block->getThresholdSig();
+    auto sig = _block->getReencryptionThresholdSig();
+    CATCH_REQUIRE( sig.has_value() );
+    return *sig;
+}
+
+// The hash that the _kind signature of _block signs.
+static BLAKE3Hash sigHash( const ptr< CommittedBlock >& _block, SigKind _kind ) {
+    auto hash = BLAKE3Hash::getConsensusHash( ( uint64_t ) _block->getProposerIndex(),
+        ( uint64_t ) _block->getBlockID(), ( uint64_t ) _block->getSchainID() );
+    if ( _kind == SigKind::Block )
+        return hash;
+    return BLAKE3Hash::getDomainHash( hash, blockconsensus::REENCRYPTION_RANDOM_DOMAIN );
+}
+
+// The random that node _nodeId derives from the _kind signature of block _blockId.
+static u256 randomOf(
+    const ConsensusEngine& _engine, node_id _nodeId, uint64_t _blockId, SigKind _kind ) {
+    if ( _kind == SigKind::Block )
+        return ConsensusEngineTestAccess::getNode( _engine, _nodeId )
+            ->getSchain()
+            ->getRandomForBlockId( block_id( _blockId ) );
+    return _engine.getReencryptionRandomForBlockIdForNode( _blockId, _nodeId );
+}
 
 // A signature is stored as text with four fields: "X:Y:hintY:counter".
 using SigTokens = std::array< std::string, 4 >;
@@ -242,11 +266,11 @@ static SigTokens splitSigString( const std::string& _s ) {
     CATCH_REQUIRE( std::count( _s.begin(), _s.end(), ':' ) == 3 );
     SigTokens tokens;
     size_t start = 0;
-    for ( size_t i = 0; i < tokens.size(); i++ ) {
-        auto pos = ( i + 1 < tokens.size() ) ? _s.find( ':', start ) : _s.size();
-        tokens[i] = _s.substr( start, pos - start );
-        CATCH_REQUIRE( !tokens[i].empty() );
-        start = pos + 1;
+    for ( auto& token : tokens ) {
+        auto end = _s.find( ':', start );
+        token = _s.substr( start, end - start );
+        CATCH_REQUIRE( !token.empty() );
+        start = end + 1;
     }
     return tokens;
 }
@@ -255,102 +279,49 @@ static std::string joinTokens( const SigTokens& _tokens ) {
     return _tokens[0] + ":" + _tokens[1] + ":" + _tokens[2] + ":" + _tokens[3];
 }
 
-// Returns the text every node should store for the signature _stored, which signs _hash.
-// The signature point (X and Y) is taken from _stored. The hint is not taken from _stored:
-// it is computed again from _hash, because a node may have received it in another format.
-static std::string canonicalSigString( const std::string& _stored, const BLAKE3Hash& _hash ) {
-    using libBLS::algebra::Base;
-    CATCH_INFO( "Stored signature string: " << _stored );
-    // Compute the hint the same way a signer does in BLSPrivateKeyShare::sign.
-    auto [hashedPoint, hashCounter] = libBLS::algebra::hashToG1withHint( _hash.getHash() );
-    const auto hint = hashedPoint.getY().toString( Base::DEC ) + ":" + hashCounter;
-
-    // Let libBLS read X and Y and write the whole signature back out, so the result uses
-    // exactly the number format libBLS produces.
-    const auto tokens = splitSigString( _stored );
-    const auto& x = tokens[0];
-    const auto& y = tokens[1];
-    return libBLS::BLSSignature( x + ":" + y + ":" + hint, REQUIRED_SIGNERS, TOTAL_SIGNERS )
-        .toString();
+// Returns the text every node should store for the _kind signature of _block. Fails the test
+// unless the stored text is a BLS signature with four fields, so that a signature the canonical
+// form leaves unchanged (one without separators) cannot pass the checks below.
+static std::string canonicalSig( const ptr< CommittedBlock >& _block, SigKind _kind ) {
+    const auto stored = sigOf( _block, _kind );
+    splitSigString( stored );
+    return CryptoManager::canonicalBlsSigString( stored, sigHash( _block, _kind ) );
 }
 
-// The hash that the block signature signs.
-static BLAKE3Hash blockSigHash( const ptr< CommittedBlock >& _block ) {
-    return BLAKE3Hash::getConsensusHash( ( uint64_t ) _block->getProposerIndex(),
-        ( uint64_t ) _block->getBlockID(), ( uint64_t ) _block->getSchainID() );
-}
-
-// The hash that the reencryption signature signs: the block signature hash followed by the
-// reencryption domain text, hashed again.
-static BLAKE3Hash reencryptionSigHash( const ptr< CommittedBlock >& _block ) {
-    auto baseHash = blockSigHash( _block );
-    auto data = std::make_shared< std::vector< uint8_t > >();
-    const auto& domain = blockconsensus::REENCRYPTION_RANDOM_DOMAIN;
-    data->insert( data->end(), baseHash.getHash().begin(), baseHash.getHash().end() );
-    data->insert( data->end(), domain.begin(), domain.end() );
-    return BLAKE3Hash::calculateHash( data );
-}
-
-static std::string canonicalBlockSig( const ptr< CommittedBlock >& _block ) {
-    return canonicalSigString( 
-        _block->getThresholdSig(), 
-        blockSigHash( _block ) 
-    );
-}
-
-static std::string canonicalReencryptionSig( const ptr< CommittedBlock >& _block ) {
-    auto sig = _block->getReencryptionThresholdSig();
-    CATCH_REQUIRE( sig.has_value() );
-    return canonicalSigString( *sig, reencryptionSigHash( _block ) );
-}
-
-// For every block from _first to _last, checks that each node in _nodes stored the expected
-// block signature text and computed the same block random.
-static void checkBlockSignaturesOnNodes( const ConsensusEngine& _engine,
+// For every block from _first to _last, checks that each node in _nodes has the same block
+// timestamp, stored the _kind signature in the expected text, and derived the same random from
+// it.
+static void checkSignaturesOnNodes( const ConsensusEngine& _engine, SigKind _kind,
     const std::vector< node_id >& _nodes, uint64_t _first, uint64_t _last ) {
     CATCH_REQUIRE( !_nodes.empty() );
     for ( uint64_t blockId = _first; blockId <= _last; blockId++ ) {
         auto reference = blockOf( _engine, _nodes.front(), blockId );
-        auto referenceSig = reference->getThresholdSig();
-        auto canonicalSig = canonicalBlockSig( reference );
-        auto referenceRandom = randomOf( _engine, _nodes.front(), blockId );
+        auto expectedSig = canonicalSig( reference, _kind );
+        auto expectedRandom = randomOf( _engine, _nodes.front(), blockId, _kind );
+        CATCH_REQUIRE( expectedRandom != u256( 0 ) );
         for ( auto nodeId : _nodes ) {
             CATCH_INFO( "block " << blockId << " node " << nodeId << " proposer index "
                                  << ( uint64_t ) reference->getProposerIndex() );
             auto block = blockOf( _engine, nodeId, blockId );
             CATCH_REQUIRE( block->getTimeStampS() == reference->getTimeStampS() );
-            CATCH_REQUIRE( block->getThresholdSig() == referenceSig );
-            CATCH_REQUIRE( block->getThresholdSig() == canonicalSig );
-            CATCH_REQUIRE( randomOf( _engine, nodeId, blockId ) == referenceRandom );
+            CATCH_REQUIRE( sigOf( block, _kind ) == expectedSig );
+            CATCH_REQUIRE( randomOf( _engine, nodeId, blockId, _kind ) == expectedRandom );
         }
     }
 }
 
-// For every block from _first to _last, checks that all nodes stored the expected reencryption
-// signature text and computed the same reencryption random.
-static void checkReencryptionSignaturesOnAllNodes(
-    const ConsensusEngine& _engine, uint64_t _first, uint64_t _last ) {
+// Returns true if, for at least one block from _first to _last, MODIFIED_NODE stored different
+// _kind signature text than node 1. MODIFIED_NODE may still receive some blocks from other nodes
+// through catchup, and those blocks carry node 1's text, so the tests do not require every block
+// to differ.
+static bool modifiedNodeStoredOtherText(
+    const ConsensusEngine& _engine, SigKind _kind, uint64_t _first, uint64_t _last ) {
     for ( uint64_t blockId = _first; blockId <= _last; blockId++ ) {
-        auto canonicalSig =
-            canonicalReencryptionSig( blockOf( _engine, ALL_NODES.front(), blockId ) );
-        auto referenceRandom =
-            _engine.getReencryptionRandomForBlockIdForNode( blockId, ALL_NODES.front() );
-        CATCH_REQUIRE( referenceRandom != u256( 0 ) );
-        for ( auto nodeId : ALL_NODES ) {
-            CATCH_INFO( "block " << blockId << " node " << nodeId );
-            auto block = blockOf( _engine, nodeId, blockId );
-            CATCH_REQUIRE( block->getReencryptionThresholdSig() == canonicalSig );
-            CATCH_REQUIRE( _engine.getReencryptionRandomForBlockIdForNode( blockId, nodeId ) ==
-                           referenceRandom );
-        }
+        if ( sigOf( blockOf( _engine, MODIFIED_NODE, blockId ), _kind ) !=
+             sigOf( blockOf( _engine, Chain::NODE_1, blockId ), _kind ) )
+            return true;
     }
-}
-
-// Starts the chain, waits for blocks, and checks the block signature text of every block on
-// all nodes.
-static void startChainAndCheckBlockSignatures( ConsensusEngine*& _engine, uint64_t _sigPatchTimestamp ) {
-    const uint64_t lastBlock = startAndWaitForBlocks( _engine, _sigPatchTimestamp );
-    checkBlockSignaturesOnNodes( *_engine, ALL_NODES, 1, lastBlock );
+    return false;
 }
 
 
@@ -366,15 +337,15 @@ static std::string zeroPadCounter( const std::string& _s ) {
     return _s.substr( 0, pos + 1 ) + "0" + _s.substr( pos + 1 );
 }
 
-// Returns a hook that makes MODIFIED_NODE add a leading zero to the counter of every signature
-// share it saves, including its own. If _offchainDomain is true it changes reencryption
-// signature shares, otherwise block signature shares. Counts the changed shares in _modified.
+// Returns a hook that makes MODIFIED_NODE add a leading zero to the counter of every _kind
+// signature share it saves, including its own. Counts the changed shares in _modified.
 // The hook runs on consensus threads, so it only updates the atomic counter.
 static std::function< void( node_id, schain_index, bool, std::string& ) >
-zeroPadSharesOnModifiedNode( bool _offchainDomain, std::atomic< uint64_t >& _modified ) {
-    return [_offchainDomain, &_modified]( node_id _receiverNodeId, schain_index,
+zeroPadSharesOnModifiedNode( SigKind _kind, std::atomic< uint64_t >& _modified ) {
+    const bool offchainDomain = _kind == SigKind::Reencryption;
+    return [offchainDomain, &_modified]( node_id _receiverNodeId, schain_index,
                bool _shareOffchainDomain, std::string& _shareString ) {
-        if ( _receiverNodeId != MODIFIED_NODE || _shareOffchainDomain != _offchainDomain )
+        if ( _receiverNodeId != MODIFIED_NODE || _shareOffchainDomain != offchainDomain )
             return;
         auto padded = zeroPadCounter( _shareString );
         if ( padded != _shareString ) {
@@ -399,78 +370,100 @@ static std::function< void( node_id, node_id, block_id, bool& ) > isolateModifie
     };
 }
 
+// MODIFIED_NODE stores the _kind signature shares it saves in another format while the chain
+// runs across activation. Checks that:
+// - before activation, the other nodes store the expected text and MODIFIED_NODE stores the
+//   format it received, at least for the blocks it built itself. This shows the hook changed
+//   the signatures MODIFIED_NODE builds;
+// - after activation, every node, MODIFIED_NODE included, stores the expected text.
+static void checkModifiedNodeAcrossActivation( ConsensusEngine*& _engine, SigKind _kind ) {
+    std::atomic< uint64_t > modifiedShares{ 0 };
+    TestHooks::BlockSigShareStoreHook::Scope modifyScope(
+        zeroPadSharesOnModifiedNode( _kind, modifiedShares ) );
+    TestHooks::BlockCatchupResponseHook::Scope catchupScope( isolateModifiedNodeCatchup() );
+
+    const auto run = runAcrossActivation( _engine, _kind );
+    CATCH_REQUIRE( modifiedShares.load() > 0 );
+
+    const uint64_t first = firstBlockWithSig( _kind );
+    const uint64_t lastBefore = run.firstActive - 1;
+    checkSignaturesOnNodes( *_engine, _kind, UNCHANGED_NODES, first, lastBefore );
+    CATCH_REQUIRE( modifiedNodeStoredOtherText( *_engine, _kind, first, lastBefore ) );
+
+    checkSignaturesOnNodes( *_engine, _kind, ALL_NODES, run.firstActive, run.lastBlock );
+}
+
 
 // ---------- Catchup test: does a node accept a block whose signature text was changed? ----------
 
-// A named change to a block's signature text. The test puts these signatures into a copy of
-// the block and offers it to a node through catchup.
+// Error texts that tell which check rejected a block received through catchup.
+static const char* const BLOCK_SIG_FORMAT_ERROR = "Unexpected block signature format";
+static const char* const REENCRYPTION_SIG_FORMAT_ERROR = "Unexpected reencryption signature format";
+// Both BLS verification failures in CryptoManager::verifyThresholdSig contain this text.
+static const char* const SIG_VERIFICATION_ERROR = "BLS sig";
+
+// A named change to one signature of a block. The test puts the changed text into a copy of the
+// block and offers it to a node through catchup. After the patch turns on, the copy must be
+// rejected with an error that contains expectedError.
 struct SigVariant {
     std::string name;
-    std::string thresholdSig;
-    std::optional< std::string > reencryptionSig;
+    std::string sig;
+    std::string expectedError;
 };
 
-using SigVariantMaker = std::vector< SigVariant > ( * )( const ptr< CommittedBlock >& );
+// Changes to the _kind signature text of _block. All but two only write the same values in
+// another format: "other counter" changes the hint counter, and "block signature as reencryption
+// signature" is a valid signature of the wrong hash.
+static std::vector< SigVariant > sigVariants( const ptr< CommittedBlock >& _block, SigKind _kind ) {
+    const auto [x, y, hintY, counter] = splitSigString( sigOf( _block, _kind ) );
 
-// Changes to the block signature text. The reencryption signature is left as stored.
-// Every change except the last only rewrites the same values in another format.
-static std::vector< SigVariant > blockSigVariants( const ptr< CommittedBlock >& _block ) {
-    const auto [x, y, hintY, counter] = splitSigString( _block->getThresholdSig() );
+    if ( _kind == SigKind::Reencryption ) {
+        return {
+            { "block signature as reencryption signature", _block->getThresholdSig(),
+                SIG_VERIFICATION_ERROR },
+            { "zero-padded counter", joinTokens( { x, y, hintY, "0" + counter } ),
+                REENCRYPTION_SIG_FORMAT_ERROR },
+        };
+    }
+
     const auto otherCounter = std::to_string( std::stoull( counter ) + 1 );
-
-    auto reencryptionSig = _block->getReencryptionThresholdSig();
-    auto variant = [&]( const std::string& _name, const std::string& _thresholdSig ) {
-        return SigVariant{ _name, _thresholdSig, reencryptionSig };
-    };
-
     return {
-        variant( "zero-padded X", joinTokens( { "0" + x, y, hintY, counter } ) ),
-        variant( "zero-padded Y", joinTokens( { x, "0" + y, hintY, counter } ) ),
-        variant( "zero-padded hint", joinTokens( { x, y, "0" + hintY, counter } ) ),
-        variant( "zero-padded counter", joinTokens( { x, y, hintY, "0" + counter } ) ),
-        variant( "empty token", x + "::" + y + ":" + hintY + ":" + counter ),
-        variant( "other counter", joinTokens( { x, y, hintY, otherCounter } ) ),
+        { "zero-padded X", joinTokens( { "0" + x, y, hintY, counter } ), BLOCK_SIG_FORMAT_ERROR },
+        { "zero-padded Y", joinTokens( { x, "0" + y, hintY, counter } ), BLOCK_SIG_FORMAT_ERROR },
+        { "zero-padded hint", joinTokens( { x, y, "0" + hintY, counter } ),
+            BLOCK_SIG_FORMAT_ERROR },
+        { "zero-padded counter", joinTokens( { x, y, hintY, "0" + counter } ),
+            BLOCK_SIG_FORMAT_ERROR },
+        { "empty token", x + "::" + y + ":" + hintY + ":" + counter, BLOCK_SIG_FORMAT_ERROR },
+        { "other counter", joinTokens( { x, y, hintY, otherCounter } ), BLOCK_SIG_FORMAT_ERROR },
     };
 }
 
-// Changes to the reencryption signature text. The block signature is left as stored.
-static std::vector< SigVariant > reencryptionSigVariants( const ptr< CommittedBlock >& _block ) {
-    const auto reencryptionSig = _block->getReencryptionThresholdSig();
-    CATCH_REQUIRE( reencryptionSig.has_value() );
-    const auto [x, y, hintY, counter] = splitSigString( *reencryptionSig );
-
-    const auto blockSig = _block->getThresholdSig();
-    auto variant = [&]( const std::string& _name, const std::string& _reencryptionSig ) {
-        return SigVariant{ _name, blockSig, _reencryptionSig };
-    };
-
-    return {
-        // A valid signature, but of the wrong hash: the block hash, not the reencryption hash.
-        variant( "block signature as reencryption signature", blockSig ),
-        variant( "zero-padded counter", joinTokens( { x, y, hintY, "0" + counter } ) ),
-    };
+// Returns the messages of _e and of every exception nested in it, one per line. Consensus code
+// wraps exceptions with throw_with_nested, so the message of the check that failed is usually
+// in a nested exception.
+static std::string allMessages( const std::exception& _e ) {
+    std::string result = _e.what();
+    try {
+        std::rethrow_if_nested( _e );
+    } catch ( const std::exception& nested ) {
+        result += "\n" + allMessages( nested );
+    } catch ( ... ) {
+        result += "\nunknown exception";
+    }
+    return result;
 }
 
-// Returns a copy of _block with the given signature texts.
-static ptr< CommittedBlock > rebuildBlock( const ptr< CommittedBlock >& _block,
-    const std::string& _thresholdSig, const std::optional< std::string >& _reencryptionSig,
-    const ptr< DecryptedAESKeyList >& _aesKeys ) {
-    return CommittedBlock::make( _block->getSchainID(), _block->getProposerNodeID(),
-        _block->getBlockID(), _block->getEpochID(), _block->getProposerIndex(),
-        _block->getTransactionList(), _block->getStateRoot(), _block->getTimeStampS(),
-        _block->getTimeStampMs(), _block->getSignature(), _thresholdSig, _reencryptionSig,
-        _block->getDaSig(), _aesKeys, _block->getDecryptedTransactions() );
-}
-
-// Takes block _blockId from node 1, makes one copy per change from _makeVariants, and reads
-// each copy the way node 1 reads a block received through catchup (with signature checks).
-// If the block was committed after the patch turned on, every changed copy must be rejected.
-// Otherwise every changed copy must be accepted, as before the patch.
-static void checkCatchupOfChangedSignatures( const ConsensusEngine& _engine, uint64_t _blockId,
-    uint64_t _activationS, SigVariantMaker _makeVariants ) {
-    auto node = ConsensusEngineTestAccess::getNode( _engine, Chain::NODE_1 );
-    auto cryptoManager = node->getSchain()->getCryptoManager();
-    auto biteManager = node->getSchain()->getBiteManager();
+// Takes block _blockId from node 1, makes one copy per change from sigVariants, and reads each
+// copy the way node 1 reads a block received through catchup (with signature checks).
+// If the block was committed after the patch turned on, every changed copy must be rejected,
+// with an error that shows the expected check rejected it. Otherwise every changed copy must be
+// accepted, as before the patch.
+static void checkCatchupOfChangedSignatures(
+    const ConsensusEngine& _engine, uint64_t _blockId, uint64_t _activationS, SigKind _kind ) {
+    auto schain = ConsensusEngineTestAccess::getNode( _engine, Chain::NODE_1 )->getSchain();
+    auto cryptoManager = schain->getCryptoManager();
+    auto biteManager = schain->getBiteManager();
     CATCH_REQUIRE( cryptoManager );
     CATCH_REQUIRE( biteManager );
 
@@ -482,37 +475,58 @@ static void checkCatchupOfChangedSignatures( const ConsensusEngine& _engine, uin
     const bool mustBeRejected =
         _activationS != NO_ACTIVATION && block->getTimeStampS() >= _activationS;
 
-    // Builds a copy of the block with the given signatures and reads it as a catchup block.
-    // Returns the error message if the copy is rejected, or "" if it is accepted.
-    auto catchupError = [&]( const std::string& _thresholdSig,
-                         const std::optional< std::string >& _reencryptionSig ) -> std::string {
-        auto rebuilt = rebuildBlock( block, _thresholdSig, _reencryptionSig, aesKeys );
+    // Builds a copy of the block with _sig as its _kind signature and reads it as a catchup
+    // block. Returns the error messages if the copy is rejected, or "" if it is accepted.
+    auto catchupError = [&]( const std::string& _sig ) -> std::string {
+        auto thresholdSig = block->getThresholdSig();
+        auto reencryptionSig = block->getReencryptionThresholdSig();
+        if ( _kind == SigKind::Block ) {
+            thresholdSig = _sig;
+        } else {
+            CATCH_REQUIRE( reencryptionSig.has_value() );
+            reencryptionSig = _sig;
+        }
+        auto rebuilt = CommittedBlock::make( block->getSchainID(), block->getProposerNodeID(),
+            block->getBlockID(), block->getEpochID(), block->getProposerIndex(),
+            block->getTransactionList(), block->getStateRoot(), block->getTimeStampS(),
+            block->getTimeStampMs(), block->getSignature(), thresholdSig, reencryptionSig,
+            block->getDaSig(), aesKeys, block->getDecryptedTransactions() );
+        // Errors while building the copy fail the test; only reading it back counts as rejection.
         auto serialized = rebuilt->serialize();
         try {
             CommittedBlock::deserialize( serialized, cryptoManager, biteManager, true );
             return "";
         } catch ( const std::exception& e ) {
-            return e.what();
+            return allMessages( e );
         } catch ( ... ) {
             return "unknown exception";
         }
     };
 
-    CATCH_INFO( "block " << _blockId << " timestamp " << block->getTimeStampS()
-                         << " activation " << _activationS );
+    CATCH_INFO( "block " << _blockId << " timestamp " << block->getTimeStampS() << " activation "
+                         << _activationS );
 
     // An unchanged copy must always be accepted.
-    CATCH_REQUIRE(
-        catchupError( block->getThresholdSig(), block->getReencryptionThresholdSig() ) == "" );
+    CATCH_REQUIRE( catchupError( sigOf( block, _kind ) ) == "" );
 
-    for ( const auto& variant : _makeVariants( block ) ) {
-        CATCH_INFO( "variant: " << variant.name << ", threshold signature "
-                                << variant.thresholdSig );
-        const auto error = catchupError( variant.thresholdSig, variant.reencryptionSig );
+    for ( const auto& variant : sigVariants( block, _kind ) ) {
+        CATCH_INFO( "variant: " << variant.name << ", signature " << variant.sig );
+        const auto error = catchupError( variant.sig );
         CATCH_INFO( "catchup error: " << ( error.empty() ? "none" : error ) );
-        const bool rejected = !error.empty();
-        CATCH_REQUIRE( rejected == mustBeRejected );
+        CATCH_REQUIRE( !error.empty() == mustBeRejected );
+        if ( mustBeRejected ) {
+            CATCH_INFO( "expected error: " << variant.expectedError );
+            CATCH_REQUIRE( error.find( variant.expectedError ) != std::string::npos );
+        }
     }
+}
+
+// Runs the chain across activation and checks catchup of changed _kind signatures for the
+// blocks just before and just after activation.
+static void checkCatchupAroundActivation( ConsensusEngine*& _engine, SigKind _kind ) {
+    const auto run = runAcrossActivation( _engine, _kind );
+    for ( auto blockId : blocksAroundActivation( run, _kind ) )
+        checkCatchupOfChangedSignatures( *_engine, blockId, run.activationS, _kind );
 }
 
 }  // namespace BlockSigHintConsistencyTests
@@ -523,48 +537,29 @@ using namespace BlockSigHintConsistencyTests;
 // block random, even if one node received its signature shares in another format.
 CATCH_TEST_CASE( "Block signature string is canonical and identical on all nodes",
     "[bite][sgx][block-signature][end-to-end]" ) {
-
     E2EHelper::configureTestEnvironment( true, Chain::CONFIG_DIR );
 
     ConsensusEngine* testEngine = nullptr;
     E2ETestUtils::ScopedEngineShutdown engineShutdown( testEngine );
 
-    std::atomic< uint64_t > modifiedShares{ 0 };
-    std::optional< TestHooks::BlockSigShareStoreHook::Scope > modifyHintScope;
-    std::optional< TestHooks::BlockCatchupResponseHook::Scope > catchupScope;
-
     CATCH_SECTION( "activation from the start, modified share encoding on one node" ) {
-        modifyHintScope.emplace( zeroPadSharesOnModifiedNode( false, modifiedShares ) );
-        catchupScope.emplace( isolateModifiedNodeCatchup() );
+        std::atomic< uint64_t > modifiedShares{ 0 };
+        TestHooks::BlockSigShareStoreHook::Scope modifyScope(
+            zeroPadSharesOnModifiedNode( SigKind::Block, modifiedShares ) );
+        TestHooks::BlockCatchupResponseHook::Scope catchupScope( isolateModifiedNodeCatchup() );
 
-        startChainAndCheckBlockSignatures( testEngine, ACTIVE_FROM_START );
+        const uint64_t lastBlock = startAndWaitForBlocks( testEngine, ACTIVE_FROM_START );
         CATCH_REQUIRE( modifiedShares.load() > 0 );
-    }
-
-    CATCH_SECTION( "unmodified run keeps the canonical bytes" ) {
-        startChainAndCheckBlockSignatures( testEngine, ACTIVE_FROM_START );
+        checkSignaturesOnNodes( *testEngine, SigKind::Block, ALL_NODES, 1, lastBlock );
     }
 
     CATCH_SECTION( "unmodified run without activation keeps the canonical bytes" ) {
-        startChainAndCheckBlockSignatures( testEngine, NO_ACTIVATION );
+        const uint64_t lastBlock = startAndWaitForBlocks( testEngine, NO_ACTIVATION );
+        checkSignaturesOnNodes( *testEngine, SigKind::Block, ALL_NODES, 1, lastBlock );
     }
 
     CATCH_SECTION( "activation in the future, modified share encoding on one node" ) {
-        modifyHintScope.emplace( zeroPadSharesOnModifiedNode( false, modifiedShares ) );
-        catchupScope.emplace( isolateModifiedNodeCatchup() );
-
-        const auto run = runAcrossActivation( testEngine );
-        CATCH_REQUIRE( modifiedShares.load() > 0 );
-
-        // Before the patch turns on, the other nodes store the expected text, but MODIFIED_NODE
-        // stores the format it received. Check this for the last block before the patch.
-        checkBlockSignaturesOnNodes( *testEngine, UNCHANGED_NODES, 1, run.firstActive - 1 );
-        CATCH_REQUIRE(
-            blockOf( *testEngine, MODIFIED_NODE, run.firstActive - 1 )->getThresholdSig() !=
-            blockOf( *testEngine, Chain::NODE_1, run.firstActive - 1 )->getThresholdSig() );
-
-        // After the patch turns on, all nodes, MODIFIED_NODE included, store the expected text.
-        checkBlockSignaturesOnNodes( *testEngine, ALL_NODES, run.firstActive, run.lastBlock );
+        checkModifiedNodeAcrossActivation( testEngine, SigKind::Block );
     }
 
     CATCH_SUCCEED();
@@ -574,25 +569,20 @@ CATCH_TEST_CASE( "Block signature string is canonical and identical on all nodes
 // catchup if its signature text differs from the expected text. Older blocks are accepted.
 CATCH_TEST_CASE( "Non-canonical block signature string is rejected on catchup",
     "[bite][sgx][block-signature][catchup][end-to-end]" ) {
-
     E2EHelper::configureTestEnvironment( true, Chain::CONFIG_DIR );
 
     ConsensusEngine* testEngine = nullptr;
     E2ETestUtils::ScopedEngineShutdown engineShutdown( testEngine );
 
     CATCH_SECTION( "activation in the future" ) {
-        const auto run = runAcrossActivation( testEngine );
-
-        for ( auto blockId : blocksAroundActivation( run, 1 ) )
-            checkCatchupOfChangedSignatures( *testEngine, blockId, run.activationS, blockSigVariants );
+        checkCatchupAroundActivation( testEngine, SigKind::Block );
     }
 
     CATCH_SECTION( "no activation" ) {
         const uint64_t lastBlock = startAndWaitForBlocks( testEngine, NO_ACTIVATION );
-
         const uint64_t lastChecked = std::min( lastBlock, CATCHUP_CHECKED_BLOCKS );
         for ( uint64_t blockId = 1; blockId <= lastChecked; blockId++ )
-            checkCatchupOfChangedSignatures( *testEngine, blockId, NO_ACTIVATION, blockSigVariants );
+            checkCatchupOfChangedSignatures( *testEngine, blockId, NO_ACTIVATION, SigKind::Block );
     }
 
     CATCH_SUCCEED();
@@ -601,32 +591,17 @@ CATCH_TEST_CASE( "Non-canonical block signature string is rejected on catchup",
 // The same checks as above, for the reencryption signature and the reencryption random.
 CATCH_TEST_CASE( "Reencryption signature string is canonical and verified",
     "[bite][sgx][block-signature][reencryption][end-to-end]" ) {
-
     E2EHelper::configureTestEnvironment( true, Chain::CONFIG_DIR );
 
     ConsensusEngine* testEngine = nullptr;
     E2ETestUtils::ScopedEngineShutdown engineShutdown( testEngine );
 
-    std::atomic< uint64_t > modifiedShares{ 0 };
-
     CATCH_SECTION( "reencryption random is identical on all nodes" ) {
-        TestHooks::BlockSigShareStoreHook::Scope modifyHintScope(
-            zeroPadSharesOnModifiedNode( true, modifiedShares ) );
-        TestHooks::BlockCatchupResponseHook::Scope catchupScope( isolateModifiedNodeCatchup() );
-
-        const uint64_t lastBlock = startAndWaitForBlocks( testEngine, ACTIVE_FROM_START );
-        CATCH_REQUIRE( modifiedShares.load() > 0 );
-
-        checkReencryptionSignaturesOnAllNodes(
-            *testEngine, FIRST_REENCRYPTION_BLOCK_ID, lastBlock );
+        checkModifiedNodeAcrossActivation( testEngine, SigKind::Reencryption );
     }
 
     CATCH_SECTION( "reencryption signature on catchup" ) {
-        const auto run = runAcrossActivation( testEngine, FIRST_REENCRYPTION_BLOCK_ID );
-
-        for ( auto blockId : blocksAroundActivation( run, FIRST_REENCRYPTION_BLOCK_ID ) )
-            checkCatchupOfChangedSignatures(
-                *testEngine, blockId, run.activationS, reencryptionSigVariants );
+        checkCatchupAroundActivation( testEngine, SigKind::Reencryption );
     }
 
     CATCH_SUCCEED();
