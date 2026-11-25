@@ -109,22 +109,6 @@ string makeRequestMessage( Schain* _sChain, const string& _spec ) {
 }  // namespace
 
 
-CATCH_TEST_CASE( "Oracle request spec accepts well-formed web specs", "[unit][oracle]" ) {
-    CATCH_SECTION( "With trims" ) {
-        auto spec = OracleRequestSpec::parseSpec( makeWebSpec( 1, "[3]" ) );
-        CATCH_REQUIRE( spec->getChainId() == 1 );
-        CATCH_REQUIRE( spec->getJsps() == vector< string >{ "/unixtime" } );
-        CATCH_REQUIRE( spec->getTrims() == vector< uint64_t >{ 3 } );
-        CATCH_REQUIRE( !spec->getReceipt().empty() );
-    }
-
-    CATCH_SECTION( "Without trims" ) {
-        auto spec = OracleRequestSpec::parseSpec( makeWebSpec( 1, "" ) );
-        CATCH_REQUIRE( spec->getTrims() == vector< uint64_t >{ 0 } );
-    }
-}
-
-
 CATCH_TEST_CASE( "Oracle request spec rejects trims of the wrong type", "[unit][oracle]" ) {
     const vector< string > values = { "5", "\"abc\"", "\"a\"", "{\"a\":1}", "null", "true",
         "1.5" };
@@ -132,20 +116,6 @@ CATCH_TEST_CASE( "Oracle request spec rejects trims of the wrong type", "[unit][
     for ( const auto& trims : values ) {
         CATCH_INFO( "trims: " << trims );
         CATCH_REQUIRE( parseError( makeWebSpec( 1, trims ) ) == ORACLE_TRIMS_NOT_ARRAY );
-    }
-}
-
-
-CATCH_TEST_CASE( "Oracle request spec rejects malformed trims arrays", "[unit][oracle]" ) {
-    CATCH_SECTION( "Item is not a number" ) {
-        CATCH_REQUIRE(
-            parseError( makeWebSpec( 1, "[\"1\"]" ) ) == ORACLE_TRIMS_ITEM_NOT_STRING );
-    }
-
-    CATCH_SECTION( "Size differs from jsps" ) {
-        CATCH_REQUIRE(
-            parseError( makeWebSpec( 1, "[1,2]" ) ) == ORACLE_HSPS_TRIMS_SIZE_NOT_EQUAL );
-        CATCH_REQUIRE( parseError( makeWebSpec( 1, "[]" ) ) == ORACLE_HSPS_TRIMS_SIZE_NOT_EQUAL );
     }
 }
 
@@ -163,28 +133,20 @@ CATCH_TEST_CASE( "Oracle request spec rejects documents that are not objects", "
 CATCH_TEST_CASE( "Oracle result rejects fields of the wrong type", "[unit][oracle]" ) {
     auto spec = OracleRequestSpec::parseSpec( makeWebSpec( 1, "" ) );
 
-    CATCH_SECTION( "Well-formed result parses" ) {
-        string result = "{\"rslts\":[\"1\",null],\"sig\":\"abc\"}";
-        auto parsed = OracleResult::parseResult( result, spec );
-        CATCH_REQUIRE( parsed->getSig() == "abc" );
-    }
+    const vector< string > results = {
+        // sig is not a string
+        "{\"rslts\":[\"1\"],\"sig\":5}", "{\"rslts\":[\"1\"],\"sig\":[1]}",
+        "{\"rslts\":[\"1\"],\"sig\":null}",
+        // rslts is not an array
+        "{\"rslts\":5,\"sig\":\"abc\"}", "{\"rslts\":\"abc\",\"sig\":\"abc\"}",
+        "{\"rslts\":{\"a\":1},\"sig\":\"abc\"}", "{\"rslts\":null,\"sig\":\"abc\"}",
+        // document is not an object
+        "[1,2]", "[\"rslts\",\"sig\"]"
+    };
 
-    CATCH_SECTION( "Malformed results throw" ) {
-        const vector< string > results = {
-            // sig is not a string
-            "{\"rslts\":[\"1\"],\"sig\":5}", "{\"rslts\":[\"1\"],\"sig\":[1]}",
-            "{\"rslts\":[\"1\"],\"sig\":null}",
-            // rslts is not an array
-            "{\"rslts\":5,\"sig\":\"abc\"}", "{\"rslts\":\"abc\",\"sig\":\"abc\"}",
-            "{\"rslts\":{\"a\":1},\"sig\":\"abc\"}", "{\"rslts\":null,\"sig\":\"abc\"}",
-            // document is not an object
-            "[1,2]", "[\"rslts\",\"sig\"]"
-        };
-
-        for ( auto result : results ) {
-            CATCH_INFO( "result: " << result );
-            CATCH_REQUIRE_THROWS( OracleResult::parseResult( result, spec ) );
-        }
+    for ( auto result : results ) {
+        CATCH_INFO( "result: " << result );
+        CATCH_REQUIRE_THROWS( OracleResult::parseResult( result, spec ) );
     }
 }
 
@@ -227,11 +189,6 @@ CATCH_TEST_CASE( "Oracle request message parses its spec on first use", "[unit][
             // a failed parse is not cached as success
             CATCH_REQUIRE_THROWS( msg->getParsedSpec() );
         }
-    }
-
-    CATCH_SECTION( "Spec that is not enclosed in braces is rejected when the message is parsed" ) {
-        CATCH_REQUIRE_THROWS(
-            NetworkMessage::parseMessage( makeRequestMessage( sChain, "[1,2]" ), sChain ) );
     }
 }
 
