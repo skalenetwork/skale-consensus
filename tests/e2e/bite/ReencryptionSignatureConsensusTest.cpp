@@ -47,7 +47,7 @@ CATCH_TEST_CASE(
     "reencryption random/signature transition across bite2 patch timestamp",
     "[reencryption-signature-transition][bite2][end-to-end][db]" ) {
     
-    ConsensusEngine* testEngine = nullptr;
+    std::unique_ptr< ConsensusEngine > testEngine;
 
     try {
         E2EHelper::configureTestEnvironment( true, "test/twonodes_sameip" );
@@ -61,7 +61,7 @@ CATCH_TEST_CASE(
         static constexpr uint64_t PATCH_DELAY_MS = 4000;
         auto bite2PatchTimestamp = ( Time::getCurrentTimeMs() + PATCH_DELAY_MS + 999 ) / 1000;
         
-        testEngine = new ConsensusEngine( 0, 1000000000 );
+        testEngine = std::make_unique< ConsensusEngine >( 0, 1000000000 );
         testEngine->setTestPatchTimestamps( { { "bite2PatchTimestamp", bite2PatchTimestamp } } );
         testEngine->parseTestConfigsAndCreateAllNodes( Consensust::getConfigDirPath(), false );
         testEngine->slowStartBootStrapTest();
@@ -174,19 +174,8 @@ CATCH_TEST_CASE(
         CATCH_REQUIRE( checkedBlocks == lastId );
         CATCH_REQUIRE( checkedBeforePatch > 0 );
         CATCH_REQUIRE( checkedAfterPatch > 0 );
-        
-        E2EHelper::stopEngineGracefully( testEngine );
-
     } catch ( SkaleException& e ) {
-        if ( testEngine ) {
-            E2EHelper::stopEngineGracefully( testEngine );
-        }
         SkaleException::logNested( e );
-        throw;
-    } catch ( ... ) {
-        if ( testEngine ) {
-            E2EHelper::stopEngineGracefully( testEngine );
-        }
         throw;
     }
     

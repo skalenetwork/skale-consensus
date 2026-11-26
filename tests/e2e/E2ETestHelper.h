@@ -23,17 +23,40 @@
 #include "Consensust.h"
 #include "SkaleCommon.h"
 #include "node/ConsensusEngine.h"
+#include "node/Node.h"
 #include "tests/TestUtils.h"
+#include "tests/e2e/ConsensusEngineTestAccess.h"
 #include "tests/harness/consensus/ConsensusStartup.h"
+#include "tests/harness/transport/SocketIO.h"
 
 #include <boost/filesystem.hpp>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
+#include <exception>
 #include <functional>
 #include <map>
+#include <memory>
 #include <optional>
+#include <vector>
 
 namespace E2ETestUtils {
+
+// Arguments of E2ETestHelper::setupEngine and startEngine. Every field has a default, so a
+// test names only the fields it changes, in the order they are declared here.
+struct EngineOptions {
+    int64_t lastCommittedBlockId = 0;
+    std::map< string, uint64_t > patchTimestamps = ConsensusStartupOptions{}.patchTimestamps;
+    // Borrowed; must outlive the engine. Requires lastCommittedBlockId >= 0.
+    ConsensusExtFace* extFace = nullptr;
+    uint64_t lastCommittedTimestampS = 0;
+    uint64_t lastCommittedTimestampMs = 0;
+    bool useBlockIdFromConsensus = false;
+    // Fail the test unless every node signs with SGX keys. When run_sgx_test/sgx_data is
+    // missing, the nodes silently fall back to mock crypto, which accepts any signature or
+    // share, so a test of a cryptographic check would pass without checking anything.
+    bool requireSgx = false;
+};
 
 class E2ETestHelper {
 public:
@@ -72,54 +95,53 @@ public:
         setTestEnvVar( "TEST_TRANSACTIONS_PER_BLOCK", "10", 0 );
     }
 
-    static void setupEngine(
-        ConsensusEngine*& _engine,
-        int64_t _lastId,
-        const std::map< string, uint64_t >& _patchTimestamps =
-            ConsensusStartupOptions{}.patchTimestamps,
-        ConsensusExtFace* _extFace = nullptr,
-        uint64_t _lastCommittedBlockTimeStamp = 0,
-        uint64_t _lastCommittedBlockTimeStampMs = 0,
-        bool _useBlockIDFromConsensus = false ) {
-        CATCH_REQUIRE( _engine == nullptr );
-
-        if ( _extFace != nullptr )
-            CATCH_REQUIRE( _lastId >= 0 );
+    // Creates the nodes without starting them, so a test can wire dependencies first. The
+    // engine stops its nodes in its destructor, so it shuts down when the returned pointer goes
+    // out of scope, also when a failed CATCH_REQUIRE throws.
+    static std::unique_ptr< ConsensusEngine > setupEngine( const EngineOptions& _options = {} ) {
+        if ( _options.extFace != nullptr )
+            CATCH_REQUIRE( _options.lastCommittedBlockId >= 0 );
 
         ConsensusStartupOptions options;
         options.configDirectory = Consensust::getConfigDirPath();
-        options.lastCommittedBlockId = _lastId;
+        options.lastCommittedBlockId = _options.lastCommittedBlockId;
         options.storageLimitBytes = DEFAULT_STORAGE_LIMIT_BYTES;
-        options.patchTimestamps = _patchTimestamps;
-        options.externalFace = _extFace;
-        options.lastCommittedTimestampS = _lastCommittedBlockTimeStamp;
-        options.lastCommittedTimestampMs = _lastCommittedBlockTimeStampMs;
-        options.useBlockIdFromConsensus = _useBlockIDFromConsensus;
-        _engine = setupConsensusEngine( options ).release();
+        options.patchTimestamps = _options.patchTimestamps;
+        options.externalFace = _options.extFace;
+        options.lastCommittedTimestampS = _options.lastCommittedTimestampS;
+        options.lastCommittedTimestampMs = _options.lastCommittedTimestampMs;
+        options.useBlockIdFromConsensus = _options.useBlockIdFromConsensus;
+        auto engine = setupConsensusEngine( options );
+
+        if ( _options.requireSgx ) {
+            for ( auto nodeId : ConsensusEngineTestAccess::getNodeIds( *engine ) ) {
+                CATCH_INFO( "SGX test keys are required (run_sgx_test/sgx_data); node "
+                            << nodeId << " uses mock crypto" );
+                CATCH_REQUIRE(
+                    ConsensusEngineTestAccess::getNode( *engine, nodeId )->isSgxEnabled() );
+            }
+        }
+        return engine;
     }
 
-    static void startEngine(
-        ConsensusEngine*& _engine,
-        int64_t _lastId,
-        const std::map< string, uint64_t >& _patchTimestamps =
-            ConsensusStartupOptions{}.patchTimestamps,
-        ConsensusExtFace* _extFace = nullptr,
-        uint64_t _lastCommittedBlockTimeStamp = 0,
-        uint64_t _lastCommittedBlockTimeStampMs = 0,
-        bool _useBlockIDFromConsensus = false ) {
-        setupEngine( _engine, _lastId, _patchTimestamps, _extFace,
-            _lastCommittedBlockTimeStamp, _lastCommittedBlockTimeStampMs,
-            _useBlockIDFromConsensus );
-        _engine->slowStartBootStrapTest();
+    // Creates the nodes and starts the chain.
+    static std::unique_ptr< ConsensusEngine > startEngine( const EngineOptions& _options = {} ) {
+        auto engine = setupEngine( _options );
+        engine->slowStartBootStrapTest();
+        return engine;
     }
 
+    // Starts the chain into _engine, waits _runTimeS seconds, and returns the highest block
+    // committed in the database.
     static block_id startEngineAndWait(
-        ConsensusEngine*& _engine,
+        std::unique_ptr< ConsensusEngine >& _engine,
         int64_t _lastId,
         uint64_t _runTimeS,
         const std::map< string, uint64_t >& _patchTimestamps =
             ConsensusStartupOptions{}.patchTimestamps ) {
-        startEngine( _engine, _lastId, _patchTimestamps );
+        CATCH_REQUIRE( _engine == nullptr );
+        _engine = startEngine(
+            { .lastCommittedBlockId = _lastId, .patchTimestamps = _patchTimestamps } );
 
         usleep( 1000 * 1000 * _runTimeS );
 
@@ -132,12 +154,6 @@ public:
         }
 
         return committedBlockIdInDb;
-    }
-
-    static void stopEngineGracefully( ConsensusEngine*& _engine ) {
-        _engine->testExitGracefullyBlocking();
-        delete _engine;
-        _engine = nullptr;
     }
 
     // ========= Environment variable helpers for tests ========= 
@@ -175,27 +191,6 @@ public:
     ScopedTestEnvVar& operator=( const ScopedTestEnvVar& ) = delete;
 };
 
-// Stops the engine on scope exit if the test did not already do so. Declare it before any
-// hook scopes the engine depends on, so hooks are removed first and cannot block shutdown.
-class ScopedEngineShutdown {
-    ConsensusEngine*& engine;
-
-public:
-    explicit ScopedEngineShutdown( ConsensusEngine*& _engine ) : engine( _engine ) {}
-
-    ~ScopedEngineShutdown() {
-        if ( engine == nullptr )
-            return;
-        try {
-            E2ETestHelper::stopEngineGracefully( engine );
-        } catch ( ... ) {
-        }
-    }
-
-    ScopedEngineShutdown( const ScopedEngineShutdown& ) = delete;
-    ScopedEngineShutdown& operator=( const ScopedEngineShutdown& ) = delete;
-};
-
 // Node identities of test/fournodes-same-ip; NODE_n has schain index n.
 struct FourNodeTestChain {
     static constexpr const char* CONFIG_DIR = "test/fournodes-same-ip";
@@ -203,17 +198,44 @@ struct FourNodeTestChain {
     inline static const node_id NODE_2 = node_id( 1113 );
     inline static const node_id NODE_3 = node_id( 1114 );
     inline static const node_id NODE_4 = node_id( 1115 );
+    inline static const std::vector< node_id > ALL_NODES = { NODE_1, NODE_2, NODE_3, NODE_4 };
 };
 
-// Callback for TestHooks::BlockCatchupResponseHook. Without it, catch-up could deliver a block
-// that a finalization test expects the receiver to fail to commit by itself. With no receiver
-// given, initial catch-up is suppressed for every node.
+// Callback for TestHooks::BlockCatchupResponseHook. The hook runs on the node that answers a
+// catchup request. This callback makes it reply "no new blocks" to the catchup that _receiver does
+// at startup (the request that starts at block 0), so _receiver has to commit its first blocks
+// through consensus instead of downloading them. Later catchup requests are answered as usual.
+// With no _receiver given, the startup catchup of every node is refused.
 inline std::function< void( node_id, node_id, block_id, bool& ) > suppressInitialCatchup(
     std::optional< node_id > _receiver = std::nullopt ) {
     return [_receiver]( node_id, node_id receiverNodeId, block_id afterBlockId, bool& suppress ) {
         if ( afterBlockId == 0 && ( !_receiver || receiverNodeId == *_receiver ) )
             suppress = true;
     };
+}
+
+// Checks _condition every _interval until it is true or _timeout has passed, and returns
+// whether it became true. Callers wrap it in CATCH_REQUIRE, so a failure reports the line of
+// the wait that timed out.
+template < typename Condition >
+bool becomesTrueWithin(
+    std::chrono::milliseconds _timeout, std::chrono::milliseconds _interval, Condition _condition ) {
+    return waitUntil( _condition, deadlineIn( _timeout ), _interval ) == WaitResult::Satisfied;
+}
+
+// Returns the messages of _e and of every exception nested in it, one per line. Consensus code
+// wraps exceptions with throw_with_nested, so the message of the check that failed is usually
+// in a nested exception.
+inline std::string nestedExceptionMessages( const std::exception& _e ) {
+    std::string result = _e.what();
+    try {
+        std::rethrow_if_nested( _e );
+    } catch ( const std::exception& nested ) {
+        result += "\n" + nestedExceptionMessages( nested );
+    } catch ( ... ) {
+        result += "\nunknown exception";
+    }
+    return result;
 }
 
 }  // namespace E2ETestUtils
