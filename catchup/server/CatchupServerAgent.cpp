@@ -38,10 +38,10 @@
 
 #include "db/BlockDB.h"
 #include "db/DAProofDB.h"
+#include "tests/TestHooks.h"
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
 #include "crypto/AESKeyDecryptionShareList.h"
-#include "tests/TestHooks.h"
 #endif
 
 #include "abstracttcpserver/ConnectionStatus.h"
@@ -254,7 +254,6 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockCatchupResponse(
             return nullptr;
         }
 
-#ifdef BITE
         // Test-only hook to potentially suppress catchup responses
         bool suppressCatchup = false;
         TestHooks::BlockCatchupResponseHook::fire(getNode()->getNodeID(),
@@ -264,7 +263,6 @@ ptr<vector<uint8_t> > CatchupServerAgent::createBlockCatchupResponse(
             _responseHeader->setComplete();
             return nullptr;
         }
-#endif
 
         auto blockSizes = make_shared<list<uint64_t> >();
 

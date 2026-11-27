@@ -161,27 +161,17 @@ CATCH_TEST_CASE(
         }
     };
 
-    // Declared before the hook scopes so hooks are removed first when the test ends early.
-    ConsensusEngine* testEngine = nullptr;
-    E2ETestUtils::ScopedEngineShutdown engineShutdown( testEngine );
+    // Declared before the hook scopes, so the hooks are removed before the engine shuts down.
+    std::unique_ptr< ConsensusEngine > testEngine;
 
     // A committed block from another node must not make this finalization test pass via catchup.
     TestHooks::BlockFinalizeResponseHook::Scope responseScope( responseHook );
     TestHooks::BlockCatchupResponseHook::Scope catchupScope( E2ETestUtils::suppressInitialCatchup() );
 
-    // Stage 2: Create nodes, then verify SGX keys before bootstrapping.
-    E2EHelper::setupEngine( testEngine, 0 );
-
+    // Stage 2: Create nodes, verify SGX keys, then bootstrap.
     // Mock crypto cannot reject a corrupted share, so without SGX the recovery below proves
-    // nothing. parseTestConfigsAndCreateAllNodes() silently falls back to mock crypto when
-    // run_sgx_test/sgx_data is missing, so fail explicitly instead of passing vacuously.
-    for ( const auto& nodeId : { NODE_1, BYZANTINE_NODE, NODE_3, NODE_4 } ) {
-        CATCH_INFO( "SGX test keys are required (run_sgx_test/sgx_data); node " << nodeId
-                                                                          << " uses mock crypto" );
-        CATCH_REQUIRE( ConsensusEngineTestAccess::getNode( *testEngine, nodeId )->isSgxEnabled() );
-    }
-
-    testEngine->slowStartBootStrapTest();
+    // nothing.
+    testEngine = E2EHelper::startEngine( { .requireSgx = true } );
 
     auto node1Db = ConsensusEngineTestAccess::getNode( *testEngine, NODE_1 )->getTEDecryptionDB();
     auto node3Db = ConsensusEngineTestAccess::getNode( *testEngine, NODE_3 )->getTEDecryptionDB();
@@ -254,9 +244,6 @@ CATCH_TEST_CASE(
     CATCH_REQUIRE( obs.releasedRecipients.load() == ALL_HONEST );
     CATCH_REQUIRE( storedHeldShares == ALL_HONEST );
     CATCH_REQUIRE( honestNodesCommitted() );
-
-    // Stage 6: Graceful shutdown and cleanup.
-    E2EHelper::stopEngineGracefully( testEngine );
 }
 
 }  // namespace ByzantineDecryptionShareTests

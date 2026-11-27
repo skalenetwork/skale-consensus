@@ -227,66 +227,60 @@ void runReplayScenario(
     const auto replayStartIndex = static_cast< size_t >( _startState.lastCommittedBlockId );
     const auto expectedReplayCount = _originalSnapshots.size() - replayStartIndex;
 
-    ConsensusEngine* replayEngine = nullptr;
+    // The engine calls into extFace until it stops, so extFace is declared first and is
+    // destroyed after the engine.
     RecordingConsensusExtFace extFace;
+    auto replayEngine = E2EHelper::startEngine(
+        { .lastCommittedBlockId = (int64_t) _startState.lastCommittedBlockId,
+            .patchTimestamps = _patchTimestamps,
+            .extFace = &extFace,
+            .lastCommittedTimestampS = _startState.lastCommittedBlockTimestampS,
+            .lastCommittedTimestampMs = _startState.lastCommittedBlockTimestampMs } );
 
-    try {
-        E2EHelper::startEngine( replayEngine, (int64_t) _startState.lastCommittedBlockId,
-            _patchTimestamps, &extFace, _startState.lastCommittedBlockTimestampS,
-            _startState.lastCommittedBlockTimestampMs, false );
+    auto bootstrapBlockID =
+        (uint64_t) ConsensusEngineTestAccess::getBootstrapBlockID( *replayEngine );
+    CATCH_REQUIRE( bootstrapBlockID >= _originalSnapshots.back().blockId );
 
-        auto bootstrapBlockID =
-            (uint64_t) ConsensusEngineTestAccess::getBootstrapBlockID( *replayEngine );
-        CATCH_REQUIRE( bootstrapBlockID >= _originalSnapshots.back().blockId );
-
-        auto actualSnapshots = extFace.waitForAtLeast( expectedReplayCount );
-        actualSnapshots.resize( expectedReplayCount );
-
-#ifdef BITE
-        fillBiteFieldsFromEngine( *replayEngine, actualSnapshots );
-#endif
-
-        for ( size_t i = 0; i < expectedReplayCount; ++i ) {
-            CATCH_CAPTURE( i );
-            const auto& expected = _originalSnapshots.at( replayStartIndex + i );
-            const auto& actual = actualSnapshots.at( i );
-
-            CATCH_REQUIRE( actual.blockId == expected.blockId );
-            CATCH_REQUIRE( actual.timestampS == expected.timestampS );
-            CATCH_REQUIRE( actual.timestampMs == expected.timestampMs );
-            CATCH_REQUIRE( actual.proposerIndex == expected.proposerIndex );
-            CATCH_REQUIRE( actual.txCount == expected.txCount );
-            CATCH_REQUIRE( actual.stateRoot == expected.stateRoot );
+    auto actualSnapshots = extFace.waitForAtLeast( expectedReplayCount );
+    actualSnapshots.resize( expectedReplayCount );
 
 #ifdef BITE
-            CATCH_REQUIRE( actual.isBite2Enabled == expected.isBite2Enabled );
-            CATCH_REQUIRE( actual.reencryptionRandom == expected.reencryptionRandom );
+    fillBiteFieldsFromEngine( *replayEngine, actualSnapshots );
 #endif
-        }
 
-        auto currentLastCommittedBlockID =
-            (uint64_t) ConsensusEngineTestAccess::getCurrentLastCommittedBlockID( *replayEngine );
-        auto currentLastCommittedBlockTimeStamp =
-            ConsensusEngineTestAccess::getCurrentLastCommittedBlockTimeStamp( *replayEngine );
-        const auto& replayTip = _originalSnapshots.back();
+    for ( size_t i = 0; i < expectedReplayCount; ++i ) {
+        CATCH_CAPTURE( i );
+        const auto& expected = _originalSnapshots.at( replayStartIndex + i );
+        const auto& actual = actualSnapshots.at( i );
 
-        CATCH_REQUIRE( currentLastCommittedBlockID >= bootstrapBlockID );
-        if ( currentLastCommittedBlockID == replayTip.blockId ) {
-            CATCH_REQUIRE( currentLastCommittedBlockTimeStamp.getS() == replayTip.timestampS );
-            CATCH_REQUIRE( currentLastCommittedBlockTimeStamp.getMs() == replayTip.timestampMs );
-        } else {
-            CATCH_REQUIRE( currentLastCommittedBlockTimeStamp.getS() >= replayTip.timestampS );
-            if ( currentLastCommittedBlockTimeStamp.getS() == replayTip.timestampS ) {
-                CATCH_REQUIRE( currentLastCommittedBlockTimeStamp.getMs() >= replayTip.timestampMs );
-            }
-        }
+        CATCH_REQUIRE( actual.blockId == expected.blockId );
+        CATCH_REQUIRE( actual.timestampS == expected.timestampS );
+        CATCH_REQUIRE( actual.timestampMs == expected.timestampMs );
+        CATCH_REQUIRE( actual.proposerIndex == expected.proposerIndex );
+        CATCH_REQUIRE( actual.txCount == expected.txCount );
+        CATCH_REQUIRE( actual.stateRoot == expected.stateRoot );
 
-        E2EHelper::stopEngineGracefully( replayEngine );
-    } catch ( ... ) {
-        if ( replayEngine ) {
-            E2EHelper::stopEngineGracefully( replayEngine );
+#ifdef BITE
+        CATCH_REQUIRE( actual.isBite2Enabled == expected.isBite2Enabled );
+        CATCH_REQUIRE( actual.reencryptionRandom == expected.reencryptionRandom );
+#endif
+    }
+
+    auto currentLastCommittedBlockID =
+        (uint64_t) ConsensusEngineTestAccess::getCurrentLastCommittedBlockID( *replayEngine );
+    auto currentLastCommittedBlockTimeStamp =
+        ConsensusEngineTestAccess::getCurrentLastCommittedBlockTimeStamp( *replayEngine );
+    const auto& replayTip = _originalSnapshots.back();
+
+    CATCH_REQUIRE( currentLastCommittedBlockID >= bootstrapBlockID );
+    if ( currentLastCommittedBlockID == replayTip.blockId ) {
+        CATCH_REQUIRE( currentLastCommittedBlockTimeStamp.getS() == replayTip.timestampS );
+        CATCH_REQUIRE( currentLastCommittedBlockTimeStamp.getMs() == replayTip.timestampMs );
+    } else {
+        CATCH_REQUIRE( currentLastCommittedBlockTimeStamp.getS() >= replayTip.timestampS );
+        if ( currentLastCommittedBlockTimeStamp.getS() == replayTip.timestampS ) {
+            CATCH_REQUIRE( currentLastCommittedBlockTimeStamp.getMs() >= replayTip.timestampMs );
         }
-        throw;
     }
 }
 
@@ -297,13 +291,15 @@ using namespace RestartBootstrapTests;
 CATCH_TEST_CASE(
     "restart bootstrap replays committed blocks",
     "[restart-bootstrap][end-to-end][db]" ) {
-    ConsensusEngine* initialEngine = nullptr;
     std::vector< BlockSnapshot > snapshots;
     std::map< string, uint64_t > patchTimestamps;
     auto bite2PatchTimestamp = ( Time::getCurrentTimeMs() + PATCH_DELAY_MS + 999 ) / 1000;
 
 
+    // The engine calls into initialExtFace until it stops, so initialExtFace is declared first
+    // and is destroyed after the engine.
     RecordingConsensusExtFace initialExtFace;
+    std::unique_ptr< ConsensusEngine > initialEngine;
 
     try {
         E2EHelper::configureTestEnvironment( true );
@@ -317,7 +313,8 @@ CATCH_TEST_CASE(
 
         // ------- 1st Run to produce some blocks -------
 
-        E2EHelper::setupEngine( initialEngine, 0, patchTimestamps, &initialExtFace );
+        initialEngine = E2EHelper::setupEngine(
+            { .patchTimestamps = patchTimestamps, .extFace = &initialExtFace } );
         initialExtFace.configureInitialRun( *initialEngine, bite2PatchTimestamp );
         initialEngine->slowStartBootStrapTest();
 
@@ -337,17 +334,10 @@ CATCH_TEST_CASE(
         CATCH_REQUIRE( hasBothSidesOfTransition( snapshots ) );
 #endif
 
-        E2EHelper::stopEngineGracefully( initialEngine );
+        // The replay runs below open the same databases, so this engine must be gone first.
+        initialEngine.reset();
     } catch ( SkaleException& e ) {
-        if ( initialEngine ) {
-            E2EHelper::stopEngineGracefully( initialEngine );
-        }
         SkaleException::logNested( e );
-        throw;
-    } catch ( ... ) {
-        if ( initialEngine ) {
-            E2EHelper::stopEngineGracefully( initialEngine );
-        }
         throw;
     }
 

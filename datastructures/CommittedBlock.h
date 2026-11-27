@@ -57,6 +57,7 @@ class CommittedBlock : public BlockProposal {
 
 public:
     DecryptedTransactions getDecryptedTransactions() const;
+    [[nodiscard]] ptr< const DecryptedAESKeyList > getDecryptedAesKeyList() const;
     [[nodiscard]] ptr< DecryptedRegularTxsMap > getDecryptedRegularTxFields() const;
 
     [[nodiscard]] ptr< DecryptedCTXTxsMap > getDecryptedCTXArgs() const;
@@ -107,9 +108,9 @@ public:
 
 
     static ptr< CommittedBlock > makeFromProposal( const ptr< BlockProposal >& _proposal,
-        const ptr< ThresholdSignature >& _thresholdSig, 
+        const string& _thresholdSig,
 #ifdef BITE
-        const ptr< ThresholdSignature >& _reencryptionThresholdSig,
+        const std::optional< string >& _reencryptionThresholdSig,
 #endif
         ptr< ThresholdSignature > _daSig
 #ifdef  BITE
