@@ -115,3 +115,12 @@ BLAKE3Hash BLAKE3Hash::getConsensusHash(
     HASH_FINAL( hashObj, _hash.data() );
     return _hash;
 }
+
+BLAKE3Hash BLAKE3Hash::getDomainHash( const BLAKE3Hash& _baseHash, string_view _domain ) {
+    auto data = make_shared< vector< uint8_t > >();
+    const auto& baseHash = _baseHash.getHash();
+    data->reserve( baseHash.size() + _domain.size() );
+    data->insert( data->end(), baseHash.begin(), baseHash.end() );
+    data->insert( data->end(), _domain.begin(), _domain.end() );
+    return calculateHash( data );
+}

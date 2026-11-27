@@ -35,7 +35,6 @@
 #include "tests/TestHooks.h"
 #include "tests/e2e/ConsensusEngineTestAccess.h"
 #include "tests/e2e/E2ETestHelper.h"
-#include "tests/harness/transport/SocketIO.h"
 
 #include <atomic>
 #include <chrono>
@@ -46,9 +45,6 @@ namespace NonDesignatedProposerShareConflictTests {
 using namespace std::chrono_literals;
 using E2EHelper = E2ETestUtils::E2ETestHelper;
 using Chain = E2ETestUtils::FourNodeTestChain;
-using E2ETestUtils::WaitResult;
-using E2ETestUtils::deadlineIn;
-using E2ETestUtils::waitUntil;
 
 // A proposal from a non-designated proposer used to be accepted, and its local decryption
 // shares occupied the receiver's decryptor slot, so the decided block could never finalize.
@@ -115,9 +111,8 @@ CATCH_TEST_CASE(
         }
     };
 
-    // Declared before the hook scopes so hooks are removed first when the test ends early.
-    ConsensusEngine* testEngine = nullptr;
-    E2ETestUtils::ScopedEngineShutdown engineShutdown( testEngine );
+    // Declared before the hook scopes, so the hooks are removed before the engine shuts down.
+    std::unique_ptr< ConsensusEngine > testEngine;
 
     TestHooks::BlockProposalAdmissionHook::Scope holdDesignatedProposalScope(
         holdDesignatedProposalHook );
@@ -126,13 +121,7 @@ CATCH_TEST_CASE(
     TestHooks::BlockCatchupResponseHook::Scope noInitialCatchupForVictimScope(
         E2ETestUtils::suppressInitialCatchup( VICTIM_NODE ) );
 
-    E2EHelper::setupEngine( testEngine, 0 );
-    for ( auto nodeId :
-        { EXTRA_PROPOSER_NODE, DESIGNATED_PROPOSER_NODE, VICTIM_NODE, OTHER_VALIDATOR_NODE } ) {
-        CATCH_INFO( "SGX test keys are required for node " << nodeId );
-        CATCH_REQUIRE( ConsensusEngineTestAccess::getNode( *testEngine, nodeId )->isSgxEnabled() );
-    }
-    testEngine->slowStartBootStrapTest();
+    testEngine = E2EHelper::startEngine( { .requireSgx = true } );
 
     auto extraProposer = ConsensusEngineTestAccess::getNode( *testEngine, EXTRA_PROPOSER_NODE );
     auto victim = ConsensusEngineTestAccess::getNode( *testEngine, VICTIM_NODE );
@@ -146,15 +135,10 @@ CATCH_TEST_CASE(
             *testEngine, VICTIM_NODE, BLOCK_ID, VICTIM_INDEX );
     };
 
-    auto becomesTrueWithinStageTimeout = [&]( auto predicate ) {
-        return waitUntil( predicate, deadlineIn( STAGE_TIMEOUT ), POLL_INTERVAL ) ==
-               WaitResult::Satisfied;
-    };
-
     // Stage 1: both non-designated proposals exist, and the designated proposal is held.
     ptr< BlockProposal > extraProposal;
     ptr< BlockProposal > victimOwnProposal;
-    CATCH_REQUIRE( becomesTrueWithinStageTimeout( [&] {
+    CATCH_REQUIRE( E2ETestUtils::becomesTrueWithin( STAGE_TIMEOUT, POLL_INTERVAL, [&] {
         extraProposal = extraProposer->getBlockProposalDB()->getBlockProposal(
             BLOCK_ID, EXTRA_PROPOSER_INDEX );
         victimOwnProposal = victimProposalDb->getBlockProposal( BLOCK_ID, VICTIM_INDEX );
@@ -188,7 +172,7 @@ CATCH_TEST_CASE(
 
     // getMyDecryptionShares() is non-null only once local shares are Ready.
     ptr< BlockProposal > designatedProposalAtVictim;
-    CATCH_REQUIRE( becomesTrueWithinStageTimeout( [&] {
+    CATCH_REQUIRE( E2ETestUtils::becomesTrueWithin( STAGE_TIMEOUT, POLL_INTERVAL, [&] {
         designatedProposalAtVictim =
             victimProposalDb->getBlockProposal( BLOCK_ID, DESIGNATED_PROPOSER_INDEX );
         return designatedProposalAtVictim && designatedProposalAtVictim->getMyDecryptionShares();
@@ -212,7 +196,7 @@ CATCH_TEST_CASE(
     peersMayServeSharesToVictim.store( true );
     othersMayAcceptDesignatedProposal.store( true );
 
-    CATCH_REQUIRE( becomesTrueWithinStageTimeout( [&] {
+    CATCH_REQUIRE( E2ETestUtils::becomesTrueWithin( STAGE_TIMEOUT, POLL_INTERVAL, [&] {
         return ConsensusEngineTestAccess::haveAllCommitted( *testEngine,
                    { EXTRA_PROPOSER_NODE, DESIGNATED_PROPOSER_NODE, VICTIM_NODE,
                        OTHER_VALIDATOR_NODE },
@@ -224,8 +208,6 @@ CATCH_TEST_CASE(
         *testEngine, static_cast< uint64_t >( BLOCK_ID ), VICTIM_NODE );
     CATCH_REQUIRE( committedBlockAtVictim );
     CATCH_REQUIRE( committedBlockAtVictim->getProposerIndex() == DESIGNATED_PROPOSER_INDEX );
-
-    E2EHelper::stopEngineGracefully( testEngine );
 }
 
 }  // namespace NonDesignatedProposerShareConflictTests

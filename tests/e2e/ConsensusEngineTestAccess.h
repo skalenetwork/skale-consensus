@@ -5,7 +5,10 @@
 #include "db/BlockDB.h"
 #include "blockproposal/pusher/BlockProposalClientAgent.h"
 #include "datastructures/BlockProposal.h"
+#include <algorithm>
 #include <initializer_list>
+#include <limits>
+#include <vector>
 #ifdef BITE
 #include "db/TEDecryptionDB.h"
 #endif
@@ -96,6 +99,17 @@ public:
         return true;
     }
 
+    // Highest block that every node of the engine has committed.
+    static uint64_t getLastBlockCommittedByAll( const ConsensusEngine& e ) {
+        CHECK_STATE( !e.nodes.empty() );
+        uint64_t result = std::numeric_limits< uint64_t >::max();
+        for ( const auto& item : e.nodes ) {
+            result = std::min( result,
+                static_cast< uint64_t >( getCurrentLastCommittedBlockIDForNode( e, item.first ) ) );
+        }
+        return result;
+    }
+
     static block_id getCurrentLastCommittedBlockID( const ConsensusEngine& e ) {
         return getCurrentLastCommittedBlockIDForNode( e, getFirstNodeId( e ) );
     }
@@ -112,6 +126,13 @@ public:
 
     static TimeStamp getCurrentLastCommittedBlockTimeStamp( const ConsensusEngine& e ) {
         return getCurrentLastCommittedBlockTimeStampForNode( e, getFirstNodeId( e ) );
+    }
+
+    static std::vector< node_id > getNodeIds( const ConsensusEngine& e ) {
+        std::vector< node_id > ids;
+        for ( const auto& item : e.nodes )
+            ids.push_back( item.first );
+        return ids;
     }
 
     static ptr< Node > getNode( const ConsensusEngine& e, node_id node ) {

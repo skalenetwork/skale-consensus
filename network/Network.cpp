@@ -304,8 +304,6 @@ void Network::networkReadLoop() {
  * These messages are placed in deferredMessage queue to be processed later.
  * Messages with very old block ids are discarded.
  */
-
-
 void Network::postDeferOrDrop( const ptr< NetworkMessageEnvelope >& _me ) {
     CHECK_ARGUMENT( _me );
 

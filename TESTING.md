@@ -183,8 +183,12 @@ sudo TEST_TIME_S=180 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust '[con
 - `NO_ULIMIT_CHECK=1` - Bypass ulimit checks (for single-node tests)
 
 Tests using `E2ETestHelper::configureTestEnvironment()` default to 10 transactions
-per block when `TEST_TRANSACTIONS_PER_BLOCK` is unset. Explicit environment
-settings, including CI workload settings, are preserved.
+per block when `TEST_TRANSACTIONS_PER_BLOCK` is unset. CI does not set it, so these
+tests run with small blocks there too. The test child process (`consensus_test_child`)
+also defaults to 10. The load test `Run basic consensus` uses 1000 unless
+`TEST_TRANSACTIONS_PER_BLOCK` is set. A few BITE tests always use their own small
+fixed value. Tests that use none of these, such as the legacy `basicRun` cases, fall
+back to the node's `maxTransactionsPerBlock` (8192 by default).
 
 ## SGX Simulation Testing
 

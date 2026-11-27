@@ -216,6 +216,7 @@ class Schain : public Agent {
     uint64_t verifyDaSigsPatchTimestamp = 0;
     uint64_t fastConsensusPatchTimestamp = 0;
     uint64_t verifyBlsSyncPatchTimestamp = 0;
+    uint64_t protocolHardeningV1PatchTimestamp = 0;
 #ifdef BITE
     uint64_t bite2PatchTimestamp = 0;
 #endif
@@ -504,6 +505,9 @@ public:
     bool verifyDASigsPatch( uint64_t _blockTimeStampSec );
 
     bool verifyBlsSyncPatch( uint64_t _blockTimeStampSec );
+
+    // evaluated against the timestamp of the block being stored or verified
+    bool protocolHardeningV1Patch( uint64_t _blockTimeStampSec );
 
 #ifdef BITE
     bool bite2Patch( uint64_t _blockTimeStampSec );

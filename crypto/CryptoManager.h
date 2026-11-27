@@ -199,6 +199,17 @@ public:
 
     void verifyThresholdSigShare(ptr<ThresholdSigShare> _sigShare, BLAKE3Hash &_hash);
 
+    // Returns the one accepted text form of the BLS signature _sig over _hash:
+    // X and Y in plain decimal, followed by the hint computed from _hash.
+    // A string that is not a BLS signature (mockup) is returned unchanged.
+    // Throws if _sig looks like a BLS signature but cannot be parsed.
+    static string canonicalBlsSigString(const string &_sig, const BLAKE3Hash &_hash);
+
+    // Same text form, built from the signature point without parsing any text, so it
+    // cannot fail on a hint taken over from a share. Used when a block is committed.
+    static string canonicalBlsSigString(
+        const ptr<ThresholdSignature> &_sig, const BLAKE3Hash &_hash);
+
 
     static bool isRetryHappened();
 

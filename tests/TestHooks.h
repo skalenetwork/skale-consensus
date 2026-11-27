@@ -86,6 +86,24 @@ using TCPAcceptErrorHook = HookPoint<
     TCPAcceptErrorTag, void(const TCPServerSocket& listener, int& error)
 >;
 
+// Lets a test replace the block signature share string just before the receiver stores it.
+// offchainDomain is true for the domain-separated (reencryption) signature shares.
+struct BlockSigShareStoreTag {};
+using BlockSigShareStoreHook = HookPoint<
+    BlockSigShareStoreTag,
+    void(node_id receiverNodeId,
+         schain_index signerIndex,
+         bool offchainDomain,
+         std::string& shareString)
+>;
+
+// Suppress catchup while a test verifies that a block finalized locally.
+struct BlockCatchupResponseTag {};
+using BlockCatchupResponseHook = HookPoint<
+    BlockCatchupResponseTag,
+    void(node_id senderNodeId, node_id receiverNodeId, block_id afterBlockId, bool& suppress)
+>;
+
 #ifdef BITE
 // Block finalization response hook: mutate shares or ask the client to retry.
 struct BlockFinalizeResponseTag {};
@@ -96,13 +114,6 @@ using BlockFinalizeResponseHook = HookPoint<
          block_id blockId,
          std::shared_ptr<AESKeyDecryptionShareList>& shares,
          bool& retryLater)
->;
-
-// Suppress catchup while a test verifies that a block finalized locally.
-struct BlockCatchupResponseTag {};
-using BlockCatchupResponseHook = HookPoint<
-    BlockCatchupResponseTag,
-    void(node_id senderNodeId, node_id receiverNodeId, block_id afterBlockId, bool& suppress)
 >;
 
 // Ask a proposal sender to retry before the receiver records the proposal hash.
