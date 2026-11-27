@@ -77,13 +77,14 @@ OracleRequestBroadcastMessage::OracleRequestBroadcastMessage( const string& _req
           0, 0, 0, _timeMs, _schainId,
           _msgID, "", _ecdsaSig, _publicKey, _pkSig, _srcSchainIndex, _sChain->getCryptoManager() ),
       requestSpec( _requestSpec ) {
+    CHECK_STATE( !_requestSpec.empty() )
     CHECK_STATE( _requestSpec.front() == '{' && _requestSpec.back() == '}' )
     printPrefix = "o";
 
     requestSpec.erase(
         std::remove_if( requestSpec.begin(), requestSpec.end(), ::isspace ), requestSpec.end() );
 
-    parsedSpec = OracleRequestSpec::parseSpec( requestSpec );
+    // The spec is parsed on first use, in getParsedSpec().
 }
 
 void OracleRequestBroadcastMessage::updateWithChildHash( blake3_hasher& _hasher ) {
@@ -101,7 +102,11 @@ void OracleRequestBroadcastMessage::serializeToStringChild(
     _writer.String( requestSpec.data(), requestSpec.size() );
 }
 
-const ptr< OracleRequestSpec >& OracleRequestBroadcastMessage::getParsedSpec() const {
+ptr< OracleRequestSpec > OracleRequestBroadcastMessage::getParsedSpec() {
+    LOCK( parsedSpecLock )
+    if ( !parsedSpec ) {
+        parsedSpec = OracleRequestSpec::parseSpec( requestSpec );
+    }
     CHECK_STATE( parsedSpec );
     return parsedSpec;
 }
