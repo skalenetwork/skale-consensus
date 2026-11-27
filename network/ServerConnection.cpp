@@ -31,15 +31,13 @@ using namespace std;
 
 atomic< int64_t > ServerConnection::totalObjects = 0;
 
-ServerConnection::ServerConnection( unsigned int _descriptor, const string& _ip ) {
+ServerConnection::ServerConnection( Socket _descriptor, const string& _ip )
+    : descriptor( std::move( _descriptor ) ), ip( _ip ) {
     totalObjects++;
-
-    this->descriptor = _descriptor;
-    this->ip = _ip;
 }
 
 file_descriptor ServerConnection::getDescriptor() {
-    return descriptor;
+    return file_descriptor{ descriptor.get() };
 }
 
 string ServerConnection::getIP() {
@@ -49,14 +47,6 @@ string ServerConnection::getIP() {
 
 ServerConnection::~ServerConnection() {
     totalObjects--;
-    closeConnection();
-}
-
-void ServerConnection::closeConnection() {
-    LOCK( m )
-    if ( descriptor != 0 )
-        close( ( int ) descriptor );
-    descriptor = 0;
 }
 
 

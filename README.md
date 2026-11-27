@@ -70,42 +70,8 @@ cmake --build build -- -j$(nproc)
 
 ## Testing
 
-SKALE Consensus includes comprehensive test suites covering unit tests, integration tests, and end-to-end scenarios.
-
-### Quick Test Run
-
-After building, you can run a basic test:
-
-```bash
-cd test/onenode
-sudo NO_ULIMIT_CHECK=1 TEST_TIME_S=60 TEST_TRANSACTIONS_PER_BLOCK=10 ../../build/consensust [consensus-basic]
-```
-
-### Running Specific Tests
-
-Tests are organized with a multi-dimensional tagging system:
-
-```bash
-# Run RLP unit tests that only test correctness (ignores safety and performance tests)
-./build/consensust [rlp][unit][correctness]
-
-# Run all crypto tests
-./build/consensust [crypto]
-
-# Run performance tests
-./build/consensust [performance]
-```
-
-### Multi-Node Testing
-
-For more detailed testing scenarios, including 4-node and 16-node tests with SGX simulation, see our comprehensive **[Testing Guide](TESTING.md)**.
-
-The testing guide covers:
-- Detailed test organization and tagging
-- SGX simulation setup with Docker
-- Performance testing procedures
-
-
+For build prerequisites, test commands, unit and E2E test selection, and SGX
+simulation setup, see the [Testing Guide](TESTING.md).
 
 ## Contributing
 

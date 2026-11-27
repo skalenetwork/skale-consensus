@@ -166,6 +166,7 @@ public:
 #define ORACLE_HSPS_TRIMS_SIZE_NOT_EQUAL 60
 #define ORACLE_PARAMS_NO_ARRAY 61
 #define ORACLE_PARAMS_GAS_NOT_UINT64 62
+#define ORACLE_TRIMS_NOT_ARRAY 63
 
     /*
      * Submit Oracle Request. This will return ORACLE_SUCCESS and a string receipt if everything

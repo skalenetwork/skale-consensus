@@ -3,6 +3,12 @@
 #include "node/ConsensusEngine.h"
 #include "chains/Schain.h"
 #include "db/BlockDB.h"
+#include "blockproposal/pusher/BlockProposalClientAgent.h"
+#include "datastructures/BlockProposal.h"
+#include <initializer_list>
+#ifdef BITE
+#include "db/TEDecryptionDB.h"
+#endif
 
 class ConsensusEngineTestAccess {
 public:
@@ -81,6 +87,15 @@ public:
         return schain->getLastCommittedBlockID();
     }
 
+    static bool haveAllCommitted(
+        const ConsensusEngine& e, std::initializer_list< node_id > nodes, block_id blockId ) {
+        for ( auto nodeId : nodes ) {
+            if ( getCurrentLastCommittedBlockIDForNode( e, nodeId ) < blockId )
+                return false;
+        }
+        return true;
+    }
+
     static block_id getCurrentLastCommittedBlockID( const ConsensusEngine& e ) {
         return getCurrentLastCommittedBlockIDForNode( e, getFirstNodeId( e ) );
     }
@@ -109,4 +124,43 @@ public:
     static void setDbDir( ConsensusEngine& e, const std::string& dir ) {
         e.dbDir = dir;
     }
+
+    // Sends through the real proposal exchange to one peer, bypassing only the sender's
+    // turn check. Blocks the caller while the receiver answers CONNECTION_RETRY_LATER.
+    static void sendProposalToPeer(
+        const ConsensusEngine& e,
+        node_id senderNode,
+        const ptr< BlockProposal >& proposal,
+        schain_index dstIndex ) {
+        CHECK_STATE( proposal );
+        auto schain = getNode( e, senderNode )->getSchain();
+        CHECK_STATE( schain );
+        CHECK_STATE( schain->blockProposalClient );
+        AbstractClientAgent& client = *schain->blockProposalClient;
+        client.sendItem( proposal, dstIndex );
+    }
+
+#ifdef BITE
+    // Read-only view of a decryptor slot; unlike getMyDecryptionShares(), it does not insert.
+    static ptr< AESKeyDecryptionShareList > getStoredDecryptionShareList(
+        const ConsensusEngine& e,
+        node_id nodeId,
+        block_id blockId,
+        schain_index decryptorIndex ) {
+
+        auto node = getNode( e, nodeId );
+        auto teDb = node->getTEDecryptionDB();
+        CHECK_STATE( teDb );
+        READ_LOCK( teDb->decryptionSetsMutex );
+        const auto blockIt = teDb->decryptionsStore.find( blockId );
+        if ( blockIt == teDb->decryptionsStore.end() ) {
+            return nullptr;
+        }
+        const auto shareIt = blockIt->second.find( decryptorIndex );
+        if ( shareIt == blockIt->second.end() ) {
+            return nullptr;
+        }
+        return shareIt->second;
+    }
+#endif
 };

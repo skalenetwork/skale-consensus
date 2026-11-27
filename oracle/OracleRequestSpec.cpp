@@ -79,6 +79,8 @@ OracleRequestSpec::OracleRequestSpec( const string& _spec ) : spec( _spec ) {
     d.Parse( spec.data() );
     ORACLE_CHECK_STATE3(
         !d.HasParseError(), "Unparsable Oracle spec:" + _spec, ORACLE_UNPARSABLE_SPEC );
+    ORACLE_CHECK_STATE3(
+        d.IsObject(), "Oracle spec is not a JSON object:" + _spec, ORACLE_UNPARSABLE_SPEC );
 
 
     // first check elements required for all calls
@@ -165,6 +167,8 @@ void OracleRequestSpec::parseWebRequestSpec( rapidjson::Document& d, const strin
 
 
     if ( d.HasMember( "trims" ) ) {
+        ORACLE_CHECK_STATE3( d["trims"].IsArray(), "Trims in Oracle spec is not array:" + _spec,
+            ORACLE_TRIMS_NOT_ARRAY );
         auto trimArray = d["trims"].GetArray();
         for ( auto&& item : trimArray ) {
             ORACLE_CHECK_STATE3( item.IsUint64(), "Trims array item is not uint64:" + _spec,

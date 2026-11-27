@@ -25,15 +25,30 @@
 
 
 #include "ServerSocket.h"
+#include "Socket.h"
 
+class ServerConnection;
 
 class TCPServerSocket : public ServerSocket {
     ptr< sockaddr_in > socketaddr;
 
-    atomic< int > descriptor;
+    Socket descriptor;
+    const port_type portType;
 
 public:
+    enum class AcceptStatus { Accepted, RetryableError, ResourceExhausted, FatalError };
+
+    struct AcceptResult {
+        AcceptStatus status;
+        // Owns the accepted socket only when status is Accepted; otherwise error contains errno.
+        ptr< ServerConnection > connection;
+        int error;
+    };
+
     TCPServerSocket( const string& _bindIP, uint16_t _basePort, port_type _portType );
+
+    AcceptResult acceptConnection();
+    port_type getPortType() const { return portType; }
 
     void touch();
 

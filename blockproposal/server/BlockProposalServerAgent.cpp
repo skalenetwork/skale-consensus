@@ -90,6 +90,8 @@
 #include "crypto/ConsensusBLSSigShare.h"
 #include "headers/BlockFinalizeResponseHeader.h"
 #include "monitoring/LivelinessMonitor.h"
+#include "monitoring/OptimizerAgent.h"
+#include "tests/TestHooks.h"
 
 
 ptr<unordered_map<ptr<partial_sha_hash>, ptr<Transaction>, PendingTransactionsAgent::Hasher,
@@ -560,6 +562,20 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         return responseHeader;
     }
 
+#ifdef BITE
+    // Under BITE only the round-robin designated proposer may propose; accepting any other
+    // proposal would compute local decryption shares that occupy this node's decryptor slot.
+    if (sChain->getOptimizerAgent()->getPreviousWinner(blockIDInHeader) != _header.getProposerIndex()) {
+        responseHeader->setStatusSubStatus(
+                CONNECTION_DISCONNECT, CONNECTION_ERROR_INVALID_PROPOSER_INDEX);
+        responseHeader->setComplete();
+        CONS_LOG(err, "Proposal from non-designated proposer for block:"
+                << to_string(blockIDInHeader) << " proposer index:"
+                << to_string(_header.getProposerIndex()));
+        return responseHeader;
+    }
+#endif
+
     if (sChain->getNode()->getDaProofDB()->isEnoughProofs(blockIDInHeader)) {
         responseHeader->setStatusSubStatus(
                 CONNECTION_DISCONNECT, CONNECTION_ALREADY_HAVE_ENOUGH_PROPOSALS_FOR_THIS_BLOCK_ID);
@@ -631,6 +647,24 @@ ptr<Header> BlockProposalServerAgent::createProposalResponseHeader(
         responseHeader->setComplete();
         return responseHeader;
     }
+
+#ifdef BITE
+    {
+        bool retryLater = false;
+        TestHooks::BlockProposalAdmissionHook::fire(
+            _header.getProposerNodeId(),
+            sChain->getNode()->getNodeID(),
+            _header.getBlockId(),
+            _header.getProposerIndex(),
+            retryLater);
+        if (retryLater) {
+            responseHeader->setStatusSubStatus(
+                CONNECTION_RETRY_LATER, CONNECTION_BLOCK_PROPOSAL_IN_THE_FUTURE);
+            responseHeader->setComplete();
+            return responseHeader;
+        }
+    }
+#endif
 
     if (!getSchain()->getNode()->getProposalHashDB()->checkAndSaveHash(
             _header.getBlockId(), _header.getProposerIndex(), _header.getHash())) {
